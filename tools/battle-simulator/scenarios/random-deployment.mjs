@@ -44,7 +44,7 @@ export function rayToBoxEdge(center, angleRad, halfW, halfH) {
  * arrives together, not spread across the map. Each candidate cell is checked in-bounds, not
  * already taken (by this side's own earlier picks or by `avoid`), and not sealed off from the
  * anchor by a wall (defensive — this project's own history has a real "spawned inside a sealed
- * cover block" bug, design/scale-and-chassis.md §24). Returns null (never partial) if `count`
+ * cover block" bug, tools/battle-simulator/DESIGN-LOG.md §24). Returns null (never partial) if `count`
  * cells can't all be found within the offset ring, so a caller can cleanly retry elsewhere instead
  * of silently deploying fewer combatants than asked for. */
 const CLUSTER_OFFSETS = [

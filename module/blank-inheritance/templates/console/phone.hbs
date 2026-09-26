@@ -1,12 +1,17 @@
 {{!--
-    The personal comm device. Button + panel are ONE mounted chassis (this
-    file's single root), not two documents, so a re-render can never leave
-    the toggle and the panel disagreeing about open/closed.
+    The personal comm device — rebuilt 2026-09-23 as a hand-held FIELD SET
+    (Ingram: "make the comms panel end up in the middle of the screen. Having
+    it overlap everything is a bad use of space. Rethink the comms UI/UX
+    entirely"). It used to be a 94%-wide slab rising from the bottom edge over
+    the deck; it is now one compact device, the deck's own materials (a silver
+    chassis held by screws, a black phosphor screen), floating in the middle of
+    the space between the session rail and the deck and never covering either.
 
-    The current app's own content area (data-app-mount) is deliberately left
-    EMPTY here -- foundry/phone.mjs#_onRender fills it imperatively. See that
-    file's header for why (Snake's game loop cannot go through a Handlebars
-    re-render every tick).
+    Button + device are ONE mounted chassis (this file's single root), so a
+    re-render can never leave the toggle and the panel disagreeing about
+    open/closed. The screen's content (data-app-mount) is deliberately EMPTY
+    here — foundry/phone.mjs#_onRender fills it imperatively (Snake's game
+    loop cannot go through a Handlebars re-render every tick).
 --}}
 <div class="bi-phone-standalone">
     <button type="button" class="bi-phone-btn" data-action="toggle" aria-pressed="{{open}}"
@@ -14,25 +19,27 @@
         <i class="fa-solid fa-mobile-screen-button bi-phone-btn__glyph"></i>
     </button>
 
-    <div class="bi-terminal{{#if open}} bi-terminal--open{{/if}}">
-        <div class="bi-terminal__frame">
-            <div class="bi-terminal__titlebar">
-                <span class="bi-terminal__title-glyph">{{#if currentApp}}<i class="{{currentApp.faIcon}}"></i>{{/if}}</span>
-                <span class="bi-terminal__title">{{#if currentApp}}{{localize currentApp.labelKey}}{{/if}}</span>
-                <span class="bi-terminal__spacer"></span>
-                <button type="button" class="bi-terminal__close" data-action="toggle" aria-label="{{localize 'BLANKINHERITANCE.Phone.Close'}}">&times;</button>
+    <section class="bi-comms{{#if open}} is-open{{/if}}" role="dialog" aria-label="{{localize 'BLANKINHERITANCE.Deck.Comms'}}" {{#unless open}}aria-hidden="true"{{/unless}}>
+        <div class="bi-comms__device">
+            <header class="bi-comms__head">
+                <span class="bi-deck__grille bi-deck__grille--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="bi-deck__engraved">{{localize "BLANKINHERITANCE.Deck.Comms"}}</span>
+                <span class="bi-comms__led" aria-hidden="true"></span>
+                <span class="bi-comms__channel">{{#if currentApp}}<i class="{{currentApp.faIcon}}" aria-hidden="true"></i> {{localize currentApp.labelKey}}{{/if}}</span>
+                <button type="button" class="bi-comms__close" data-action="toggle" aria-label="{{localize 'BLANKINHERITANCE.Phone.Close'}}"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.Phone.Close'}}">&times;</button>
+            </header>
+            <div class="bi-comms__screen">
+                <div class="bi-comms__main" data-app-mount></div>
             </div>
-            <div class="bi-terminal__body">
-                <nav class="bi-terminal__nav">
-                    {{#each apps}}
-                    <button type="button" class="bi-terminal__navbtn" data-action="switchApp" data-app-id="{{this.id}}" aria-pressed="{{this.current}}">
-                        <span class="bi-terminal__navbtn-glyph"><i class="{{this.faIcon}}"></i></span>
-                        <span>{{localize this.labelKey}}</span>
-                    </button>
-                    {{/each}}
-                </nav>
-                <div class="bi-terminal__main" data-app-mount></div>
-            </div>
+            <nav class="bi-comms__keys" aria-label="{{localize 'BLANKINHERITANCE.Phone.Toggle'}}">
+                {{#each apps}}
+                <button type="button" class="bi-comms__key" data-action="switchApp" data-app-id="{{this.id}}" aria-pressed="{{this.current}}">
+                    <i class="{{this.faIcon}}" aria-hidden="true"></i>
+                    <span>{{localize this.labelKey}}</span>
+                </button>
+                {{/each}}
+            </nav>
         </div>
-    </div>
+    </section>
 </div>

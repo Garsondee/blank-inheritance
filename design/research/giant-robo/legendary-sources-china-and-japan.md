@@ -82,7 +82,7 @@
 
 **We already have the catalogue.** The equivalent of "Yokoyama's back catalogue" for us is the material already written: 207 gazetteer locations and their NPCs, `ideas/story/bible/`, the species and location files. The crossover method (see [the-yokoyama-crossover-method.md](the-yokoyama-crossover-method.md)) says to cast from the existing pile rather than invent fresh — which for us means an NPC roster built out of people the gazetteer already implies.
 
-**On borrowing a legendary corpus.** The setting is a Japanese city with a locked 1950s tone pivot, which is precisely the position Giant Robo wrote from, so the move is available. Which corpus — the *Suikoden* and *Sangokushi* route Yokoyama took, Japanese folklore, the Heike, Edo-period *onmitsu* and *jitte*-carrying figures, or something else — is a creative call for the user, and `data/campaign/naming-placeholders.json` is where the results would land. **This shelf does not choose it.** What the shelf does claim is narrower and testable: **if a corpus is chosen, take epithets rather than biographies, literalise one element as a power, and inherit exactly one relationship per pair of characters.**
+**On borrowing a legendary corpus.** The setting is a Japanese city with a locked 1950s tone pivot, which is precisely the position Giant Robo wrote from, so the move is available. Which corpus — the *Suikoden* and *Sangokushi* route Yokoyama took, Japanese folklore, the Heike, Edo-period *onmitsu* and *jitte*-carrying figures, or something else — is a creative call for the user, and the naming placeholders in `data/campaign/open-questions.json` are where the results would land. **This shelf does not choose it.** What the shelf does claim is narrower and testable: **if a corpus is chosen, take epithets rather than biographies, literalise one element as a power, and inherit exactly one relationship per pair of characters.**
 
 ---
 
@@ -90,4 +90,4 @@
 
 **Related on this shelf:** [the-yokoyama-crossover-method.md](the-yokoyama-crossover-method.md), [epithets-and-name-calling.md](epithets-and-name-calling.md), [characters/dojin-issei.md](characters/dojin-issei.md), [characters/hanzui.md](characters/hanzui.md), [characters/tetsugyu.md](characters/tetsugyu.md), [characters/the-big-nine.md](characters/the-big-nine.md).
 
-**Related in this project:** `design/japanese-narrative-conventions.md`, `design/prose-craft-and-naming.md`, `design/worldbuilding-craft.md`, `data/campaign/naming-placeholders.json`, `ideas/story/bible/`.
+**Related in this project:** `design/japanese-narrative-conventions.md`, `design/prose-craft-and-naming.md`, `design/worldbuilding-craft.md`, `data/campaign/open-questions.json` (the naming placeholders), `ideas/story/bible/`.

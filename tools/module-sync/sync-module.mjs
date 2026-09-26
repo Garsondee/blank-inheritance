@@ -25,6 +25,14 @@ import { parseArgs } from "node:util";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { computeLocalChecksums } from "./local-hash.mjs";
+
+// Never even WALK the local campaign mirror: this push already refuses to
+// upload it (see the comment further down), and walking it meant hashing the
+// 13,182 files left by the 2026-09-20/21 `cp -r /*` accident on every single
+// run -- enough that a module push stopped completing at all. Same rule as the
+// upload exclusion, applied one stage earlier so the cost is never paid.
+const SKIP_FROM_HASH = (relativePath) =>
+  relativePath === "data/campaign" || relativePath.startsWith("data/campaign/");
 import { uploadDirectory, remoteChecksums } from "./remote.mjs";
 import { diffChecksums, summarizeDiff } from "./checksums.mjs";
 
@@ -61,7 +69,7 @@ const config = {
  */
 export async function runModuleSync(config, remote = { uploadDirectory, remoteChecksums }) {
   console.log(`=== 1. Local checksums (${config.localDir}) ===`);
-  const rawLocalMap = await computeLocalChecksums(config.localDir);
+  const rawLocalMap = await computeLocalChecksums(config.localDir, { skip: SKIP_FROM_HASH });
   // storage/ is Foundry's own write channel (test reports, harvested GM
   // edits) -- never part of this git-tracked folder, never meant to be
   // pushed FROM local, per the module README's own table. This EXCLUSION,
@@ -76,11 +84,34 @@ export async function runModuleSync(config, remote = { uploadDirectory, remoteCh
   // silently, because the comparison step's OWN storage/ exclusion (below)
   // made the false "only local" result LOOK like confirmation nothing had
   // been sent, when the upload step had already sent it minutes earlier.
-  const localMap = new Map([...rawLocalMap].filter(([relativePath]) => !relativePath.startsWith("storage/")));
-  const skippedLocalStorage = rawLocalMap.size - localMap.size;
+  const withoutStorage = new Map([...rawLocalMap].filter(([relativePath]) => !relativePath.startsWith("storage/")));
+  // data/campaign/ is a SEPARATE, manually-refreshed local mirror of
+  // repo-root data/ (see reference_local_foundry_test_environment) -- real
+  // campaign content belongs on the server too, but it already has its own
+  // dedicated, allow-listed push (sync-campaign-data.mjs / stage-campaign-
+  // data.mjs), which copies from the actual source of truth rather than
+  // whatever happens to be sitting in this local, gitignored, dev-only copy.
+  // Found live 2026-09-20/21: this local mirror had been corrupted by an
+  // unrelated shell accident (a stray `cp -r /*` had dumped tens of
+  // thousands of files -- fragments of the Windows registry and a temp
+  // directory -- into it), and this wholesale module push was about to
+  // upload every one of them to the production server before failing on an
+  // OS command-line-length limit first. Excluding data/campaign/ here isn't
+  // just a fix for that one incident: this push should never have been the
+  // thing carrying campaign data in the first place, so the exclusion stays
+  // even once the local mirror is clean, the same way storage/ stays
+  // excluded even on a server with nothing GM-written in it yet.
+  const localMap = new Map([...withoutStorage].filter(([relativePath]) => !relativePath.startsWith("data/campaign/")));
+  const skippedLocalStorage = rawLocalMap.size - withoutStorage.size;
+  const skippedLocalCampaignData = withoutStorage.size - localMap.size;
   console.log(
     `${localMap.size} files locally` +
-      (skippedLocalStorage > 0 ? ` (${skippedLocalStorage} under storage/ excluded -- never pushed from local)` : "")
+      (skippedLocalStorage > 0 ? ` (${skippedLocalStorage} under storage/ excluded -- never pushed from local)` : "") +
+      ` (data/campaign/ excluded -- not walked at all, and pushed separately by sync-campaign-data.mjs)` +
+      // Defence in depth: the walk above should already have skipped these, so
+      // anything counted here means the two rules have drifted apart and the
+      // upload filter is the only thing still catching it.
+      (skippedLocalCampaignData > 0 ? ` [${skippedLocalCampaignData} slipped past the walk skip and were filtered at upload]` : "")
   );
 
   if (config.dryRun) {
@@ -99,8 +130,14 @@ export async function runModuleSync(config, remote = { uploadDirectory, remoteCh
     // storage/ is expected and not a "missing from local" fault the way an
     // unexplained one anywhere else in the module tree would be.
     if (relativePath.startsWith("storage/")) remoteMap.delete(relativePath);
+    // Same reasoning as the local-side exclusion above: the real remote
+    // data/campaign/ is sync-campaign-data.mjs's territory, verified by its
+    // own run, not this one's -- comparing against it here would just be
+    // re-litigating a different script's job with a different (and, for
+    // local testing, possibly stale or corrupted) source map.
+    if (relativePath.startsWith("data/campaign/")) remoteMap.delete(relativePath);
   }
-  console.log(`${remoteMap.size} files remotely (excluding storage/, Foundry's own write channel)`);
+  console.log(`${remoteMap.size} files remotely (excluding storage/ and data/campaign/, pushed/managed elsewhere)`);
 
   console.log("=== 4. Comparing (path + content hash together, not hashes alone) ===");
   const diff = diffChecksums(localMap, remoteMap);

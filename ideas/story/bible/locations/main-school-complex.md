@@ -50,8 +50,9 @@ rectangularity are reused as "a dense campus stacked to fit an urban block," not
 
 - Artwork and a playlist are owed at this depth and are not invented here — they need real
   files in `data/campaign/asset-registry.json`, per the standing asset-assignment process.
-- The school's own institutional name (`data/campaign/naming-placeholders.json#school-name`) is
-  still `null` and is Ingram's call — this building's own name ("Main School Complex") is a
-  functional label for the structure, not a claim about the institution's proper name.
+- The school's own institutional name (`data/campaign/open-questions.json#school-name` — merged from
+  `naming-placeholders.json` 2026-09-19) is still `null` and is Ingram's call — this building's own
+  name ("Main School Complex") is a functional label for the structure, not a claim about the
+  institution's proper name.
 - Whether/when the registrar's office actually notices a pattern in the six PCs' own results is
   explicitly left open for the table, not decided here.

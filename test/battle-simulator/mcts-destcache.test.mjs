@@ -19,7 +19,6 @@ import { search as searchUct } from "../../tools/battle-simulator/personnel-engi
 import { resetFloodCount, getFloodCount } from "../../tools/battle-simulator/personnel-engine/world/pathfind.mjs";
 import { decideWithPolicy } from "../../tools/battle-simulator/ai-common/engine-adapter.mjs";
 import { PERSONNEL_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/personnel-adapter.mjs";
-import { FRAME_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/frame-adapter.mjs";
 import "../../tools/battle-simulator/ai-common/policies/mcts-puct.mjs";
 
 // --- scopedDestCache: direct unit tests ---
@@ -46,7 +45,7 @@ test("scopedDestCache: DIFFERENT fingerprints return DIFFERENT sub-maps — no c
 
 test("scopedDestCache: gracefully degrades to undefined when the engine has no occupancyFingerprint at all", () => {
   const searchDestCache = new Map();
-  const engine = {}; // no occupancyFingerprint — e.g. FRAME_ADAPTER today
+  const engine = {}; // no occupancyFingerprint — e.g. an adapter that hasn't implemented it
   assert.equal(scopedDestCache(searchDestCache, engine, {}, "me"), undefined);
 });
 
@@ -190,10 +189,6 @@ test("REUSE IS REAL, continueSearch's own reopen path — round 1's own second f
 });
 
 // --- Graceful degradation, both directions ---
-
-test("GRACEFUL DEGRADATION: FRAME_ADAPTER genuinely doesn't implement occupancyFingerprint yet — confirms the precondition every mcts-puct-frame.test.mjs/mcts-frame.test.mjs test already exercises for real (8 Frame-scale end-to-end decisions, all passing unchanged after this fix)", () => {
-  assert.equal(FRAME_ADAPTER.occupancyFingerprint, undefined);
-});
 
 test("GRACEFUL DEGRADATION: an adapter missing occupancyFingerprint chooses the SAME real decision as one with it — a pure performance difference, never a behavior change", () => {
   const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };

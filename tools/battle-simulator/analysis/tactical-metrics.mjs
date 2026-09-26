@@ -22,7 +22,7 @@
  * Pure functions over a completed battle log, same contract as metrics.mjs. No RNG, no I/O.
  */
 
-import { hasCover } from "../engine/terrain.mjs";
+import { hasCover } from "../shared/terrain.mjs";
 
 /** Every logged action across a battle, flattened with its round/actor context. */
 function flatActions(log) {

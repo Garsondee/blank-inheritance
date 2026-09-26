@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "scene-preflight-digest",
+  "type": "idea",
+  "title": "A 60-second pre-flight digest for a scene, distinct from reading the whole brief cold",
+  "status": "new",
+  "domains": ["ui", "gm-experience"],
+  "summary": "Opening a scene-brief today shows everything at once (goal, intro, full cast, every beat, outro) — there's no condensed 'you have 90 seconds before this starts, here's what actually matters' view for a GM who hasn't pre-read tonight's material.",
+  "description": "This session's whole run of work (#174-186, the Rules drawer, the scene-close vocabulary) all made RUNNING a scene better once it's open. This idea is about the moment just before that: `design/ux-doctrine.md`'s own thesis is 'the best possible system for a GM to run a scene with as little prep as possible', and right now 'as little prep as possible' still means reading the full scene-brief document top to bottom at least once. For a GM picking up a session cold (or resuming after a break), that's real prep time the interface isn't saving.\n\nProposed shape, deliberately small: a single condensed panel (or a state the existing Scene Runner header can collapse into) showing, for the currently-cued scene, only: the one-line goal, the mandatory beats and nothing else (optional beats/checks are exactly what a GM improvises around, not what they need memorised), each PRESENT cast member's want + voice register in one line each (this pairs directly with `inline-npc-brief-on-beat`, which solves the same problem at beat-granularity instead of scene-granularity), and the outro's `endsWhen` line (so a GM always knows what 'done' looks like without reading the whole outro fold). Explicitly NOT included: the intro readAloud text (that's meant to be read fresh, not previewed), the full beat list, artefacts/handouts.\n\nThis is squarely a design judgement call, not a technical one — the actual selection of 'what's essential enough for 60 seconds' is exactly the kind of thing `CLAUDE.md` says to bring to Ingram rather than decide unilaterally, especially since the answer probably differs by scene type (a `social` scene's essentials look different from a `combat` scene's). Recorded as an idea rather than built, on purpose.",
+  "capturedDate": "2026-09-19",
+  "lastTouchedDate": "2026-09-19",
+  "sourceContext": "Self-generated while looking for genuine architectural gaps against design/ux-doctrine.md during the post-#174-186 pass — not something Ingram asked for directly, flagged here rather than built for that reason.",
+  "openSubQuestions": [
+    "Does the selection of 'essential' content vary by scene mode (social/combat/exploration), or is one fixed template enough?",
+    "Is this a separate view/toggle, or does the existing panel's header simply show less until the GM expands it?",
+    "Does this overlap enough with inline-npc-brief-on-beat that they should be designed together rather than separately?"
+  ],
+  "relatedRefs": [
+    "inline-npc-brief-on-beat",
+    "design/ux-doctrine.md",
+    "module/blank-inheritance/scripts/foundry/scene-runner.mjs",
+    "data/schema/scene-brief.schema.json"
+  ],
+  "resolution": null
+}

@@ -1,6 +1,6 @@
 # Warship Names and the Naming Method
 
-*Part of the [Evangelion research shelf](README.md). **Mined for structure, not for register** — see [tone-guardrail.md](tone-guardrail.md). Nearly every character is named after an Imperial Japanese Navy vessel, and the method behind that is directly usable. **This is not a decision document**; it names nobody in our setting and does not touch `data/campaign/naming-placeholders.json`. Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
+*Part of the [Evangelion research shelf](README.md). **Mined for structure, not for register** — see [tone-guardrail.md](tone-guardrail.md). Nearly every character is named after an Imperial Japanese Navy vessel, and the method behind that is directly usable. **This is not a decision document**; it names nobody in our setting and does not touch the naming placeholders in `data/campaign/open-questions.json`. Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
 
 ---
 
@@ -50,7 +50,7 @@
 
 **[R]** The effect is that each episode has an **operational name and a human name**, and the gap between the two is where the tone lives.
 
-**[U]** This is immediately usable for session or chapter titles: an operational designation for the record — the kind of thing that would appear in an after-action report — and a human phrase underneath it. Our campaign already renders documents with real classification markings (`design/visual-identity.md`), so the operational half has somewhere to live. Compare the Giant Robo shelf's chapter-title rule — [name the person, the place or the confrontation, never the feeling](../giant-robo/series-shape-and-unmade-arcs.md) §3 — which governs the operational half well; the human half is where the feeling is permitted.
+**[U]** This is immediately usable for episode or chapter titles: an operational designation for the record — the kind of thing that would appear in an after-action report — and a human phrase underneath it. Our campaign already renders documents with real classification markings (`design/visual-identity.md`), so the operational half has somewhere to live. Compare the Giant Robo shelf's chapter-title rule — [name the person, the place or the confrontation, never the feeling](../giant-robo/series-shape-and-unmade-arcs.md) §3 — which governs the operational half well; the human half is where the feeling is permitted.
 
 ## 5. The contrast between the two shelves **[R]**
 
@@ -59,7 +59,7 @@ Worth holding side by side, because the shelves disagree productively:
 - **Giant Robo names by reputation.** An epithet says what a person is known for: Shockwave Alberto, Silent Chujo. The name is a claim about the character, spoken aloud by other characters.
 - **Evangelion names by register.** A surname says which world a person belongs to. The name is invisible to everyone inside the story and only legible from outside.
 
-**[U]** They are compatible. A campaign can use a corpus for surnames and epithets for reputations, and get both the coherence and the theatre. If our setting ever adopts one, both halves are documented: [epithets](../giant-robo/epithets-and-name-calling.md) there, the corpus method here, and `data/campaign/naming-placeholders.json` as the register of what is still undecided.
+**[U]** They are compatible. A campaign can use a corpus for surnames and epithets for reputations, and get both the coherence and the theatre. If our setting ever adopts one, both halves are documented: [epithets](../giant-robo/epithets-and-name-calling.md) there, the corpus method here, and the naming placeholders in `data/campaign/open-questions.json` as the register of what is still undecided.
 
 ---
 
@@ -67,4 +67,4 @@ Worth holding side by side, because the shelves disagree productively:
 
 **Related on this shelf:** [characters/hikari-horaki.md](characters/hikari-horaki.md), [characters/the-bridge-crew.md](characters/the-bridge-crew.md), [characters/rei-ayanami.md](characters/rei-ayanami.md), [characters/yui-ikari.md](characters/yui-ikari.md).
 
-**Related in this project:** `design/prose-craft-and-naming.md` §11–13, `design/japanese-narrative-conventions.md` §7, `data/campaign/naming-placeholders.json`, [design/research/giant-robo/epithets-and-name-calling.md](../giant-robo/epithets-and-name-calling.md).
+**Related in this project:** `design/prose-craft-and-naming.md` §11–13, `design/japanese-narrative-conventions.md` §7, `data/campaign/open-questions.json` (the naming placeholders), [design/research/giant-robo/epithets-and-name-calling.md](../giant-robo/epithets-and-name-calling.md).

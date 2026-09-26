@@ -395,6 +395,23 @@ test("every registered setting has a translation string", async () => {
   }
 });
 
+test("rosterInBar is a world setting defaulting true, not a client one", async () => {
+  // FOUND LIVE 2026-09-17: this started scope:"client" with default:true, on
+  // the theory that a GM could just ask everyone to hide Foundry's roster.
+  // A per-browser setting only actually applies its NEW default to a browser
+  // that has never touched the key before -- Ingram's own GM browser on the
+  // real server had it stored from earlier testing and kept showing the
+  // roster after this exact default shipped, with no way to fix it except
+  // finding that one obscure checkbox again, once per browser at the table.
+  // world scope makes it one GM decision, applied everywhere at once via the
+  // existing onChange -> applyTheme() wiring.
+  const { THEME_SETTINGS } = await import("../module/blank-inheritance/scripts/core/theme.mjs");
+  const setting = THEME_SETTINGS.find((s) => s.key === "rosterInBar");
+  assert.ok(setting, "rosterInBar setting is missing from THEME_SETTINGS");
+  assert.equal(setting.scope, "world", "rosterInBar must be scope:\"world\" so one GM toggle reaches the whole table");
+  assert.equal(setting.default, true, "rosterInBar must default true — Foundry's own roster is redundant with the deck");
+});
+
 /* ==================================================================
    Legibility — the Japanese is content, not texture.
    ================================================================== */
@@ -657,22 +674,18 @@ test("the marquee scrolls at half its original speed", () => {
    rule about Resonance violet, and the ident instrument must exist.
    ================================================================== */
 
-test("--bi-resonance is used by exactly one key variant: .bi-key--anchor", () => {
+test("no key variant spends --bi-resonance (violet is reserved for Claimants)", () => {
   // Standing rule (design/visual-identity.md §1): Resonance violet is
-  // reserved for Resonance/Bleed/Anchors/Claimants. Extending a functional
-  // colour language to buttons is exactly the kind of change that could
-  // spend it somewhere ordinary by accident, so this is checked directly
-  // rather than trusted to code review alone.
+  // reserved -- now for Claimants only. Extending a functional colour
+  // language to buttons is exactly the kind of change that could spend it
+  // somewhere ordinary by accident, so this is checked directly rather than
+  // trusted to code review alone. The one key that used to be allowed it,
+  // .bi-key--anchor, went with the Anchor mechanic (cut 2026-09-20; its CSS
+  // was removed in the 2026-09-25 cull).
   const css = read(COMPONENTS);
   const keyRules = [...css.matchAll(/\.bi-key(--[\w-]+)?[^{]*\{[^}]*\}/g)]
     .filter((m) => /--bi-resonance/.test(m[0]));
-  for (const rule of keyRules) {
-    assert.match(
-      rule[0], /\.bi-key--anchor/,
-      `a .bi-key rule other than --anchor uses --bi-resonance: ${rule[0].slice(0, 60)}...`
-    );
-  }
-  assert.ok(keyRules.length > 0, ".bi-key--anchor itself should be the one match — none found at all");
+  assert.deepEqual(keyRules.map((m) => m[0].slice(0, 60)), [], "a .bi-key rule uses --bi-resonance");
 });
 
 test("the pilot ID instrument escapes above the WHOLE chassis, not just its pod", () => {
@@ -963,7 +976,9 @@ test("every lamp-bearing rail row keeps enough left clearance to clear a lit lam
   const reach = litLampGlowReach(css);
   assert.ok(reach > 0, "could not compute .bi-lamp--lit's glow reach from its own box-shadow rule");
 
-  for (const sel of [".bi-role", ".bi-unit"]) {
+  // .bi-role (the ground-role station rows) went with the ground roles, cut 2026-09-20; its CSS was removed
+  // in the 2026-09-25 cull. Only the abandoned V1 prototype (design/ui/) still names the class.
+  for (const sel of [".bi-unit"]) {
     const rule = css.match(new RegExp(String.raw`${sel.replace(".", "\\.")}\s*\{[^}]*\}`));
     assert.ok(rule, `${sel} rule is missing`);
     const m = rule[0].match(/padding:\s*([^;]+);/);
@@ -1099,4 +1114,22 @@ test("our players-list gutter still matches Foundry's own #players-active width 
 
   const bridge = readFileSync(BRIDGE, "utf8");
   assert.match(bridge, /--bi-players-width/, "the bridge no longer reserves space using the mirrored player-list width");
+});
+
+test("an open terminal panel (Phone/Console/City Board/Summon) outranks the deck in z-index", () => {
+  // FOUND LIVE 2026-09-17, building the summon panel: .bi-terminal and
+  // .bi-deck both sat at the same calc(var(--z-index-app) - 1), which was
+  // never a problem before the deck existed (see the plain .bi-terminal
+  // rule's own comment on the hotbar it used to only have to beat). Once
+  // the deck arrived at the same level, the z-index TIE meant whichever of
+  // the two happened to paint later in DOM order won -- and every panel
+  // opened from the deck's own pill keys (openComms/openConsole) rendered
+  // its body behind the deck, with only its titlebar peeking above.
+  const css = read(COMPONENTS);
+  const openRule = css.match(/\.bi-terminal--open\s*\{[^}]*\}/);
+  assert.ok(openRule, ".bi-terminal--open rule is missing");
+  assert.match(
+    openRule[0], /z-index:\s*calc\(var\(--z-index-app\)\s*\+\s*1\)/,
+    ".bi-terminal--open must sit ABOVE --z-index-app, not tied with the deck at --z-index-app - 1"
+  );
 });

@@ -24,9 +24,8 @@ not a commit, exactly like the 235 files already there.
 
 The user's own spec: a check that gets harder each segment worked without rest, ending in
 involuntary unconsciousness. Rather than a single hidden pass/fail flag, the natural shape —
-matching how Resonance and Bleed already work, and matching Law 19's "nothing expires without its
-cost being visible first" — is a **visible, stepped value-condition**, each step a real bundle of
-conditions rather than an invented effect:
+matching Law 19's "nothing expires without its cost being visible first" — is a **visible, stepped
+value-condition**, each step a real bundle of conditions rather than an invented effect:
 
 | Exhaustion | Trigger | Effect |
 |---|---|---|
@@ -56,12 +55,6 @@ a recovery-focused rest clears it fully; a rest chosen for a different payoff (t
 only knocks it down by 1, since going out with friends genuinely isn't the same as sleeping. Both
 are offered; picking between them is the same call as the rest roster itself.
 
-**The Frame side doesn't need a new system — it already has this.** Internal power duration
-(3-4/6/8/10 rounds by Resonance band) already is a Frame's exhaustion clock: run out, and the Frame
-is dead weight until reconnected, the mechanical-scale twin of a kid collapsing unconscious. Nothing
-to add there; worth stating plainly so nobody builds a second exhaustion system for Frames that
-duplicates one already shipped.
-
 ---
 
 ## 2. Buffs — real bonus mechanisms, not invented ones
@@ -77,7 +70,7 @@ bespoke fourth kind — that keeps every reward legible against a system players
 |---|---|---|---|
 | **Lights Out** | a genuinely quiet block, alone | **Long-Term Rest**'s existing doubled recovery — Con mod (min 1) × level × 2 HP, instead of the normal daily × 1 (`player-core/493-downtime-mode.json`, PC p. 433) | clears fully |
 | **Sick Bay** | the clinic, an NPC medic on duty | **Treat Wounds**, run on the resting kid: critical success 4d8 HP + loses wounded, success 2d8 HP + loses wounded (`player-core/skill-10-medicine.json`) | clears fully |
-| **Night Out** | clubbing, karaoke, anyone who'll have you | **−1 Bleed** (Bleed's own sources already include "Plug/psychological distress" — this is its plain narrative opposite, not a new resource) + a +2 circumstance bonus to the next social check or Anchor-Time scene. **And, confirmed 2026-09-06: who you go out *with* matters.** Take your repair crew and it also buys crew standing — the user's own example is that they might then put in a night shift nobody asked for (`config.json`'s `frameEconomy.repairCrew`). | −1 only — you didn't actually sleep |
+| **Night Out** | clubbing, karaoke, anyone who'll have you | A +2 circumstance bonus to the next social check. **And, confirmed 2026-09-06: who you go out *with* matters.** Take your repair crew and it also buys crew standing — the user's own example is that they might then put in a night shift nobody asked for (`config.json`'s `frameEconomy.repairCrew`). | −1 only — you didn't actually sleep |
 
 A fourth, offered as the shape a "whole host" more should take rather than as a fixed proposal:
 **Workshop** — tinkering, building, taking something apart to see how it works. A small circumstance
@@ -85,30 +78,19 @@ bonus to the next Crafting-flavoured check. −1 Exhaustion.
 
 **Why nothing here reaches for Quickened.** It was tempting — an extra action is the single most
 legible "you're at your best" reward in the system. It's also a genuinely large combat buff for a
-downtime pick to hand out for free, and the campaign already reserves that exact reward for
-Absolute-band Resonance (`config.json`, 85%+: "3 actions + one free Strike ignoring MAP"). Handing
-the same shape of power out from a rest menu would compete with the thing Resonance exists to make
-feel earned. Kept out on purpose, not overlooked.
+downtime pick to hand out for free. Kept out on purpose, not overlooked.
 
-### Frame-side buffs draw on the campaign's own economy, not on borrowed SF2E mechanics
+### Frame-side buffs
 
 The kids are vanilla SF2E characters, so their rewards can borrow SF2E's own toolkit directly. A
-Frame's economy is homebrew top to bottom (Resonance, Bleed, technician-days, damage states), so its
-downtime rewards should spend *within* that economy rather than import an unrelated SF2E mechanic:
+Frame's upkeep runs on the campaign's own economy (technician-days, damage states), so its downtime
+rewards can spend within that economy too:
 
 - **Simulator Drills** *(new)* — a slice, no technician-days. A circumstance bonus to the Frame's
   initiative or its first Strike at the next Contact. "Rehearsal," mechanically real.
-- **Cockpit Customization** *(new)* — Crafting-flavoured, a technician-day or two. A small
-  circumstance bonus to the Will save `config.json`'s push mechanic already calls for ("resolve the
-  push with a check using the kid's own stats — a Will save, a relevant skill"). A cockpit that
-  feels like home makes the push easier to survive.
-- **Pilot Conditioning** *(new)* — Athletics/Fortitude-flavoured, the *kid's* own body training to
-  endure the plug. Reduces the Bleed cost of the next push by 1, or grants a circumstance bonus to
-  that push's own check. The one place a personnel-scale activity buys a Frame-scale outcome
-  directly — worth flagging against `design/ux-doctrine.md` Law 8 (never mix scale numbers in one
-  *readout*): this is a scale *interface*, exactly the kind `design/scale-and-chassis.md` §3
-  already sanctions (a Ground Role check at personnel level producing a Frame-scale effect), not a
-  violation of it.
+
+*(Cut 2026-09-20: Cockpit Customization and Pilot Conditioning, which fed Resonance's push, Bleed
+and the ground roles. Removed from this document 2026-09-25.)*
 
 ---
 
@@ -138,16 +120,18 @@ different strengths get somewhere to shine outside combat:
 | **Athletics Club** | **Athletics** | A circumstance bonus to the next Fortitude save, or shaves the DC on the *next* Exhaustion check — conditioning buys real resilience. |
 | **Drama Club** | **Deception** (Impersonate) or **Performance** | Social-skill flavour; Performance can also Earn Income (same table as above). |
 | **Newsroom** | **Diplomacy** (Gather Information) or **Society** | Feeds `thread`-tagged log entries directly — this activity's natural output is exactly what the log bar's `thread` tag already models. |
-| **Quiet Hobby Time** | none | No check, no payout — included on purpose. Not every choice should be optimised, and a menu that only ever rewards should be treated as a bug, not a feature. |
+
+**Every activity must pay out something real (2026-09-20).** Ingram: *"Every activity should come with some sort of buff or bonus or a chance to learn information or a chance to do something, if an activity doesn't do anything at all that's boring and not interesting."* An activity that returns nothing does not go on the menu: give it information, standing with someone, or a small bonus.
+
+**Also added 2026-09-20: the menu splits ON-BASE and OFF-BASE.** On-base options are available, safer and duller. Off-base options are the genuinely fun ones and require going over the wire. Getting back in unseen is a real skill roll with many possible approaches; being caught the first time costs very little, and the punishment never becomes harsh. The GM privately tracks who chooses to break out and who does not, and folds that into how those characters are treated later — the record is the real consequence, not the penalty. See `open-questions.json#night-excursion-consequences`.
 
 ---
 
 ## 4. What this settles, and what it still doesn't
 
 **Genuinely new grounding, ready to build against:** the Exhaustion stage table (§1), the DC/check
-proposal for the escalation, three named rest types with real mechanical payoffs (§2), Frame-side
-reward ideas that spend the campaign's own economy rather than import SF2E's, and seven named
-non-story activities each tied to a real skill.
+proposal for the escalation, three named rest types with real mechanical payoffs (§2), one
+Frame-side reward idea (§2), and six named non-story activities each tied to a real skill.
 
 **Still the user's call, not resolved by this document:** whether the specific names/flavour above
 are the ones that ship, whether Fortitude/DC 15/+5 is the right escalation or just a reasonable

@@ -2,10 +2,16 @@
   "$schema": "../schema/faction.schema.json",
   "id": "directorate",
   "type": "faction",
-  "name": null,
-  "namingPlaceholderRef": "directorate-name",
-  "description": "The chartered civil-defence directorate that runs the Frame program, operating under its own oversight council. Legitimate and procedural — not a hidden conspiracy so much as an institution that doesn't fully understand what it's excavated either.",
-  "notablePoles": ["commander", "caretaker", "transparency-advocate"],
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "特別対策本部 (Tokubetsu Taisaku Honbu)",
+  "description": "\"Special Countermeasures Headquarters\" — the chartered civil-defence directorate that runs the Frame program, operating under its own oversight council. Commonly shortened to \"the Directorate\" or \"Honbu\" in English use; both are standing shorthand for the same organisation, not separate entities. Legitimate and procedural — not a hidden conspiracy so much as an institution that doesn't fully understand what it's excavated either.",
+  "notablePoles": [
+    "commander",
+    "caretaker",
+    "transparency-advocate"
+  ],
   "sharedResources": {
     "technicianDayPool": "A single shared weekly pool that funds Frame repairs, Frame modifications, and every Caretaker-won accommodation for the kids. All three compete for the same finite resource — see campaign/config.json frameEconomy and timeEconomy."
   }

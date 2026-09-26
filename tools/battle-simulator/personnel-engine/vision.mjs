@@ -1,7 +1,7 @@
 /**
  * Raw perception for the PERSONNEL-SCALE engine (design doc §19) — ported from
  * ../engine/vision.mjs, with Scale Disparity removed entirely. That check exists only because a
- * Frame/vehicle can be `scaleBlind` to Medium-or-smaller creatures (design/scale-and-chassis.md
+ * Frame/vehicle can be `scaleBlind` to Medium-or-smaller creatures (the retired two-scale design (deleted 2026-09-25)
  * §8/§10) — a distinction that only makes sense when a "scale" axis exists to be blind across.
  * Every combatant in this tree is an ordinary SF2E PC or NPC, all on the same scale; there is
  * nothing here for a scale-disparity check to ever fire on, so it isn't ported at all rather than

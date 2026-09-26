@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "signoff-checklist.schema.json",
+  "title": "Sign-Off Checklist",
+  "description": "The versioned checklist a scene is reviewed against (design/scene-signoff.md). One instance: data/campaign/signoff-checklist.json. The version number is load-bearing rather than decorative -- a scene's seal records which version it cleared, so raising this file's version marks every already-sealed scene as stale against exactly the checks added since, and re-clearing it is a targeted look at those alone. That is the mechanism by which the process is allowed to grow as new failure states are found, which is what Ingram asked for on 2026-09-22.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "version",
+    "versionDate",
+    "passes",
+    "checks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "const": "signoff-checklist"
+    },
+    "type": {
+      "const": "signoff-checklist"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Raised by one whenever a check is ADDED or a check's severity is raised -- the two changes that can make an already-sealed scene wrong. Rewording a question, fixing a false-positive regex, or adding a `why` does not bump it, because neither changes what a scene had to satisfy. Getting this distinction wrong in the lenient direction hides real staleness; getting it wrong in the strict direction just costs a few cheap re-checks, so bump when unsure."
+    },
+    "versionDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "description": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "passes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The passes, in the order they run. Order is not cosmetic: Comprehension gates everything after it, and Place runs before Quality because a location that changes changes the prose written about it.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "order",
+          "name",
+          "question",
+          "verdicts",
+          "stoppingRule"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "enum": [
+              "comprehension",
+              "completeness",
+              "place",
+              "seam",
+              "quality"
+            ]
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string",
+            "description": "The one question this pass exists to answer."
+          },
+          "output": {
+            "type": "string",
+            "description": "What the pass must actually produce, in enough detail to tell a thin pass from a real one."
+          },
+          "verdicts": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "CLEAR",
+                "FIX",
+                "STOP",
+                "BLOCKED"
+              ]
+            },
+            "description": "Which verdicts this pass may return. Every pass must return exactly one, stated in one unhedged line -- a pass with no verdict is an observation, and observations do not finish scenes."
+          },
+          "gate": {
+            "type": "string",
+            "description": "What this pass blocks if it does not clear."
+          },
+          "stoppingRule": {
+            "type": "string",
+            "description": "When the job is done. Required on every pass, because the failure mode of a reviewer that can always find something is a review that never ends."
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "pass",
+          "severity",
+          "question",
+          "why",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[CMPSQ][0-9]+$",
+            "description": "Letter by pass (C comprehension, M completeness, P place, Q quality) plus a number. Never reused, even after a check is deleted -- a seal's waiver list refers to ids, and recycling one would silently re-point an old waiver at a new check."
+          },
+          "pass": {
+            "enum": [
+              "comprehension",
+              "completeness",
+              "place",
+              "seam",
+              "quality"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "required",
+              "recommended"
+            ],
+            "description": "required: must pass or be explicitly waived with a reason. recommended: an offer; declining it freely is legitimate and declining all of them is still a CLEAR."
+          },
+          "question": {
+            "type": "string",
+            "description": "Phrased as a question with one right answer. A check phrased as a topic ('consider pacing') cannot be cleared, and so never is."
+          },
+          "why": {
+            "type": "string",
+            "description": "What goes wrong without it. This is what makes a check arguable, and a check that cannot be argued with cannot be removed when it stops earning its place."
+          },
+          "source": {
+            "type": "string",
+            "description": "The craft document, memory or decision this comes from. Traceability is what stops the checklist accumulating folklore."
+          },
+          "auto": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Name of the evaluator in tools/scene-signoff/checklist.mjs, or null for a check read by hand. A name with no matching evaluator is a test failure, so the two cannot drift apart."
+          },
+          "dependsOnCheck": {
+            "type": "string",
+            "description": "Another check id this one is unanswerable without. When the prerequisite fails, this reports n/a rather than piling a second failure onto one fault -- P1 failing used to produce three Place failures for one missing location, which made the board read as three times worse than it was."
+          },
+          "addedIn": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The checklist version that introduced this check. Absent means 1, the founding set. Only checks with addedIn greater than a scene's sealed version make that scene stale."
+          },
+          "addedBecause": {
+            "type": "string",
+            "description": "The failure state that caused this check to exist -- ideally a real one, observed at the table or in a review. A check added for a reason nobody can remember is the first one that should be cut."
+          },
+          "appliesWhen": {
+            "type": "string",
+            "description": "When this check is relevant at all, in prose. A check that cannot apply to a scene must not be answered anyway: inventing an answer is noise, and silently skipping it is indistinguishable from forgetting it."
+          },
+          "appliesWhenAuto": {
+            "type": "string",
+            "description": "Name of a predicate in tools/scene-signoff/checklist.mjs's APPLICABILITY registry. When it returns false the check reports n/a with the reason, for the whole corpus at once -- better than hand-marking every montage and every relax beat. A name with no matching predicate is a test failure."
+          }
+        }
+      }
+    }
+  }
+}

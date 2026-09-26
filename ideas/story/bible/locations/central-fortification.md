@@ -52,7 +52,9 @@ worth protecting:
 
 **Do not connect the rock to the buried ship or the crater without asking.** First Impact happened
 roughly two hundred years ago on a different island entirely (`dossier-first-impact.md`). Nothing
-currently links them. It is the single most tempting invention available here, it would be a
+currently links them. *(Since LEDGER #26 and #31, a second buried ship, the search ship, does lie
+under Kurose. No location file says where its hull sits, so the rule stands: linking it to this rock
+is Ingram's call.)* It is the single most tempting invention available here, it would be a
 campaign-shaping decision, and it is Ingram's to make.
 
 **Do not treat this entry as finished.** It was explicitly commissioned as a first pass.

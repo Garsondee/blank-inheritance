@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node tools/node-registry/session-start-summary.mjs",
+            "timeout": 30,
+            "statusMessage": "Checking Node Registry health…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/scene-signoff/console.mjs --line",
+            "timeout": 30,
+            "statusMessage": "Checking the Sign-Off board…"
+          }
+        ]
+      }
+    ]
+  }
+}

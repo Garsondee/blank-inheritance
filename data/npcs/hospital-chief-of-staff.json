@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "hospital-chief-of-staff",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Chief of Staff, The General Hospital",
   "pole": null,

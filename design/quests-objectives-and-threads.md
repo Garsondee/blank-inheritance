@@ -26,7 +26,7 @@ As a fast, closed-vocabulary check for any new NPC, ask which of the nine they'r
 
 | Motivation | Where this campaign already uses it well |
 |---|---|
-| Knowledge | Rika's forty years of investigation; the Sensor Operator role entire |
+| Knowledge | Rika's forty years of investigation |
 | Comfort | Ume's accommodations for the kids, charged against the technician-day pool |
 | Reputation | Rupiah's public face; the classmates who "went to a magic show" and now carry a label they never earned |
 | Serenity | Hori, forty years carrying a name nobody else knows; Nobu's whole arc of paying a debt |
@@ -74,4 +74,4 @@ Reading `objectives.md`'s own stated design rule — "**an objective with one le
 
 *Related within this reference series: [narrative-theory-foundations.md](narrative-theory-foundations.md) §2 (causal connectivity, the theoretical basis for §7 above) and §8 (retrospective coherence, the basis for §5's story sifting); [agency-and-player-choice.md](agency-and-player-choice.md) §6 (storylets — the structural vocabulary this document's individual missions are instances of); [ttrpg-campaign-and-session-craft.md](ttrpg-campaign-and-session-craft.md) §3 (the Three Clue Rule, extended here) and §7 (secrets-and-clues prep, the source material this document's missions are built from).*
 
-*Related in this project: `objectives.md` (analyzed directly in §7); `ideas/story/blank-inheritance-v4.md` §2 (Cast — every named character's want, already stated per §1's discipline), §13 (the ground roles as investigative lenses), §17 (the Thread Grid and Thread landings, analyzed in §5).*
+*Related in this project: `objectives.md` (analyzed directly in §7); `ideas/story/blank-inheritance-v4.md` §2 (Cast — every named character's want, already stated per §1's discipline), §17 (the Thread Grid and Thread landings, analyzed in §5).*

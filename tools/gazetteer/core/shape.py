@@ -82,7 +82,25 @@ SLIVER_WIDTH_M = 6.0
 BLOCKY_RECTANGULARITY = 0.85
 COMPLEX_RECTANGULARITY = 0.62
 
-SHAPES = ("degenerate", "sliver", "strip", "blocky", "complex", "irregular")
+#: The isoperimetric ratio (4*pi*area / perimeter^2) is exactly 1.0 for a
+#: true circle and falls off fast for anything else -- a square manages
+#: only ~0.785, an L or a courtyard well under that. Asked for directly,
+#: after a session of hand-drawing bunkers (big circles) and watchtowers
+#: (small ones) with the new Circle tool: without this check every one of
+#: them fell through to "irregular", which reads as an odd, asymmetric
+#: plan -- backwards for the one shape that is MORE regular than a plain
+#: rectangle, not less. Measured against this tool's own circle draft (32
+#: points around a centre): compactness lands at ~0.997, comfortably
+#: clear of a square's ceiling.
+CIRCLE_COMPACTNESS = 0.9
+#: A true circle's minimum-area rectangle is a square (elongation ~1.0).
+#: Required alongside compactness, not instead of it, the same "needs BOTH
+#: signals" discipline `sliver` already uses below -- an oval has fairly
+#: high compactness too, and an oval is a strip with rounded ends, not a
+#: circle: something drawn as a corridor, not a room.
+CIRCLE_MAX_ELONGATION = 1.3
+
+SHAPES = ("degenerate", "sliver", "strip", "blocky", "complex", "irregular", "circle")
 
 # --- capacity ladder ---------------------------------------------------------
 # Total floor area (footprint x storeys) needed to carry each depth rung.
@@ -229,17 +247,25 @@ def min_area_rect(ring):
 
 # --- the measurement ---------------------------------------------------------
 
-def classify(elongation, rectangularity, width_m):
+def classify(elongation, rectangularity, width_m, compactness=None):
     """The one headline label. See the threshold constants above.
 
-    Order matters and is from most to least consequential. `sliver` needs BOTH
-    narrow and long: a 5 x 5 m shed is narrow and is not a wall, it is just
-    small, and floor area already says so. `complex` outranks `strip` because
-    a plan filling a third of its own rectangle is telling you more about the
+    Order matters and is from most to least consequential. `circle` is
+    checked before everything else that reads the min-area rectangle: a
+    circle's own rectangularity (~0.785, pi/4) sits between the complex and
+    blocky thresholds and would otherwise read as a coin-flip between the
+    two, when it is neither -- a circle is not an L-plan and it is not a
+    plain rectangle, it is rounder than both. `sliver` needs BOTH narrow
+    and long: a 5 x 5 m shed is narrow and is not a wall, it is just small,
+    and floor area already says so. `complex` outranks `strip` because a
+    plan filling a third of its own rectangle is telling you more about the
     building than its aspect ratio is.
     """
     if elongation is None or not math.isfinite(elongation) or elongation <= 0:
         return "degenerate"
+    if (compactness is not None and compactness >= CIRCLE_COMPACTNESS
+            and elongation <= CIRCLE_MAX_ELONGATION):
+        return "circle"
     if width_m < SLIVER_WIDTH_M and elongation >= STRIP_ELONGATION:
         return "sliver"
     if rectangularity < COMPLEX_RECTANGULARITY:
@@ -325,7 +351,7 @@ def metrics(ring, *, metres_per_px=1.0, height_m=None, levels=None,
         # this answers "does it run along the street as drawn", which is what
         # the person looking at the map is asking.
         "bearingDeg": round(math.degrees(angle), 1),
-        "shape": classify(elongation, rectangularity, width_m),
+        "shape": classify(elongation, rectangularity, width_m, compactness),
         "levels": lv,
         "heightM": round(h, 1),
         "heightSource": src,
@@ -443,6 +469,12 @@ def capacity(m):
             "A plain %.0f%% rectangle: no plan features to lean on, so "
             "whatever makes it distinctive has to be put there."
             % (100 * m["rectangularity"]))
+    elif shape == "circle":
+        reasons.append(
+            "A circle, %.0f m across: the classic footprint for a gun "
+            "position, a tank, a watchtower or a rotunda. No corner or "
+            "wing to lean on, so whatever makes it distinctive has to be "
+            "built into the ring itself." % m["lengthM"])
 
     rooms_line = _rooms_phrase(m["rooms"])
     if rooms_line:

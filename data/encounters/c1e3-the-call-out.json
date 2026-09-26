@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/encounter.schema.json",
+  "id": "c1e3-the-call-out",
+  "type": "encounter",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Call-Out -- the generating hall",
+  "description": "The first fight the party is SENT to rather than one they chose, and the first where something is already inside a building the city cannot do without. Written as a situation, a map and a set of behaviours rather than as stat blocks: build the thing at the table from an existing creature. A deliberate third shape after the flood tunnel's swarm-in-a-shrinking-box and the harbour road's protect-the-crowd-in-a-lane -- here the party is approached rather than approaching, the terrain is the opponent, and the fight has a real vertical axis.",
+  "partyLevel": 2,
+  "partySize": 6,
+  "intendedThreatLevel": "moderate",
+  "creatures": [
+    {
+      "creatureRef": null,
+      "name": "Proto-Claimant, singular (reskin -- see notes)",
+      "level": 3,
+      "count": 1
+    }
+  ],
+  "environment": "The generating hall: four storeys of open volume around six turbine housings, with steel walkways at two levels and a travelling gantry crane on rails under the roof. Sound is the defining feature and it is constant -- nobody can speak below a shout anywhere on the floor, and the radio is the only reliable way six people separated by forty feet can coordinate.\n\nFLOOR LEVEL: the turbine housings themselves, waist-high to a Frame and chest-high to a person, in two rows of three with service lanes between them. Good cover, no sightlines, and a Frame cannot cross a housing -- it has to go round.\n\nFIRST WALKWAY (about twelve feet up): a continuous steel catwalk running the length of both walls with cross-links at each end. Personnel scale only. A Frame's head and shoulders are at this height, which means a kid standing on the walkway is eye-to-eye with a machine standing on the floor.\n\nSECOND WALKWAY AND GANTRY (about thirty feet up): reachable by two fixed ladders and the crane's own access cage. The crane still works. It moves slowly, it is controlled from a cab up there or from a floor panel, and it can lift several tons.\n\nWHAT THE BUILDING CANNOT AFFORD: two of the six turbines are carrying the city's evening load. Damage to those is not a fail state and nothing explodes -- it means a district goes dark tonight and somebody has to explain it.",
+  "specialRules": [
+    "THEY ARE SENT. This is the first encounter the party attends by order, on the response roster they were put on at the end of Episode Two. Nobody has to decide whether to go and nobody is disobeying anything, which is a deliberate change of shape from First Contact and should feel like one.",
+    "THE PARTY ARRIVES SECOND. It is already inside and has been for some minutes before they get there. They are entering its space rather than intercepting it in the open, and it does not come to meet them -- it continues doing whatever it was doing until they make themselves its problem.",
+    "IT WANTS SOMETHING IN THE BUILDING, NOT THE PARTY. What it is doing is legible if anybody watches for a round instead of engaging: it is working along the turbine housings, unhurried, checking each one and moving on. A party that lets it finish learns something; a party that engages immediately learns nothing and that is a fair trade.",
+    "THE VERTICAL AXIS IS THE ENCOUNTER. A pilot out of their Frame on the first walkway is eye-to-eye with it. The second walkway and gantry are above its reach entirely. Anything that puts a character above it is genuinely safer and genuinely less useful -- the trade is the whole tactical texture, and it is the first time the two scales have had a reason to split in a fight.",
+    "THE CRANE IS A REAL OPTION AND IT IS SLOW. Several tons on a moving rail, controlled from a cab or a floor panel, and it takes real actions to position. A party that works out they can use the building is playing this correctly. It is not a trap and it will not be taken away from them.",
+    "NOISE BREAKS COORDINATION. Below a shout, nobody hears anybody. A party that uses the radio properly is markedly more effective, and a player who sat the signals lesson in Episode One has a real, uncredited advantage here.",
+    "NOTHING DIES AND NOTHING EXPLODES. What is beaten comes apart, goes still, and the remainder goes elsewhere -- consistent with First Contact. The turbines take damage and go offline; they do not detonate. A district loses power for a night and that is the cost, stated plainly rather than escalated.",
+    "THE WIN CONDITION IS THE BUILDING STILL WORKING IN THE MORNING. Not the contact being destroyed. A party that drives it out, or lets it finish and leave, or traps it under the gantry and waits for a proper response, has all succeeded."
+  ],
+  "roundLimit": null,
+  "rewards": "Full standard encounter XP regardless of how it resolves -- destroyed, driven out, contained under the crane, or outlasted. Do not discount a party that solved it without a fight.\n\nThe real reward is informational and only a party that watched it for a round gets it: it was looking for something specific, it checked five housings and left the sixth, and the sixth is the one that was rebuilt.",
+  "relatedRefs": [
+    "c1e2-first-contact",
+    "c1e1-flood-tunnel",
+    "episode-c1e2--the-hammer"
+  ],
+  "notes": "WHAT TO BUILD IT FROM. One level-3 creature against a level-2 party of six is Moderate by the real XP maths (reference/tables/encounter-and-rewards-math.json) -- deliberately easier than First Contact, because the interest here is the building rather than the threat. Reskin something with: high Hardness or AC, poor accuracy, at least one reach or reposition ability, and no ranged attack at all. The no-ranged part is what makes the walkways matter.\n\nWHY THIS SHAPE, AND WHAT IT DELIBERATELY AVOIDS. The campaign's first two encounters occupy the swarm-in-a-shrinking-box (flood tunnel: six weak, enclosed, dark, kill them) and protect-the-crowd-in-a-lane (harbour road: three strong, open, daylight, empty the road). A third fight that was few-strong-enemies-in-the-open-where-you-destroy-them would be First Contact with the interest removed. This is instead: ONE enemy, INDOORS, with HEIGHT, where the party arrives second and the terrain is the opponent.\n\nIT IS SINGULAR ON PURPOSE, AND THAT IS A RISK. Single-target fights at this level are swingy and give both sides less room -- the reason First Contact uses three. The mitigations here are that it is only Moderate, that the building gives the party far more options than a road did, and that no result requires beating it. If it is going badly, the crane and the walkways are always available and the party has not lost anything by using them.\n\nGM-ONLY, AND NOT DECIDED: what it was looking for, why the rebuilt housing is the one it skipped, and when and why it was rebuilt. (An older draft said 'after First Impact', which can't be right: First Impact happened at Kortos.) Nothing in this encounter answers either. Both belong with `arc-contacts-that-never-travelled` and the four-founders thread, and neither should be improvised into canon at the table.\n\nTHIS ENCOUNTER IS NOT YET IN AN EPISODE. It is authored ahead of the scene that will hold it, which is why it carries no `episodeRef`-side wiring. Do not treat its placement in Chapter One as settled."
+}

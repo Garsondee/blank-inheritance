@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { TRANSITION_TYPES, transitionOptions, sceneRows, DEFAULT_TRANSITION_DURATION_MS } from "../module/blank-inheritance/scripts/core/director-panel.mjs";
+import { TRANSITION_TYPES, transitionOptions, sceneRows, DEFAULT_TRANSITION_DURATION_MS, findSceneAuthoring, cueGateDecision } from "../module/blank-inheritance/scripts/core/director-panel.mjs";
 
 test("TRANSITION_TYPES has exactly the 13 real TextureTransitionFilter types, each with a distinct id and a real localisation key", () => {
   assert.equal(TRANSITION_TYPES.length, 13);
@@ -52,4 +52,48 @@ test("sceneRows: a nameless scene falls back to its id, active is always a real 
 test("sceneRows: empty input is safe", () => {
   assert.deepEqual(sceneRows([]), []);
   assert.deepEqual(sceneRows(), []);
+});
+
+// Issue #168: cueing a drafted scene is gated, not silently allowed and not
+// hard-blocked. findSceneAuthoring resolves a live Scene's briefRef flag back
+// to the narrative episode-scene it represents; cueGateDecision turns that
+// into an allow/block call.
+
+test("findSceneAuthoring: matches a scene by briefRef across multiple episodes, not just the first one checked", () => {
+  const episodes = [
+    { scenes: [{ briefRef: "ep1-scene-a", authoring: { status: "drafted" } }] },
+    { scenes: [{ briefRef: "ep2-scene-b", authoring: { status: "sound" } }] }
+  ];
+  assert.deepEqual(findSceneAuthoring(episodes, "ep2-scene-b"), { status: "sound" });
+});
+
+test("findSceneAuthoring: no episode scene claims this briefRef -- returns null, not a thrown error or a false positive", () => {
+  const episodes = [{ scenes: [{ briefRef: "ep1-scene-a", authoring: { status: "drafted" } }] }];
+  assert.equal(findSceneAuthoring(episodes, "some-hub-scene-with-no-narrative-owner"), null);
+  assert.equal(findSceneAuthoring(episodes, null), null);
+  assert.equal(findSceneAuthoring([], "anything"), null);
+  assert.equal(findSceneAuthoring(undefined, "anything"), null);
+});
+
+test("findSceneAuthoring: a matching scene with no authoring block at all resolves to null, same as no match", () => {
+  const episodes = [{ scenes: [{ briefRef: "ep1-scene-a" }] }];
+  assert.equal(findSceneAuthoring(episodes, "ep1-scene-a"), null);
+});
+
+test("cueGateDecision: null authoring (untracked -- a hub scene, or genuinely no gate) always allows", () => {
+  assert.deepEqual(cueGateDecision(null), { allowed: true, status: null, gated: false });
+});
+
+test("cueGateDecision: sound or final authoring allows without needing an override", () => {
+  assert.deepEqual(cueGateDecision({ status: "sound" }), { allowed: true, status: "sound", gated: false });
+  assert.deepEqual(cueGateDecision({ status: "final" }), { allowed: true, status: "final", gated: false });
+});
+
+test("cueGateDecision: drafted or needs-lore authoring blocks, naming the real status", () => {
+  assert.deepEqual(cueGateDecision({ status: "drafted" }), { allowed: false, status: "drafted", gated: true });
+  assert.deepEqual(cueGateDecision({ status: "needs-lore" }), { allowed: false, status: "needs-lore", gated: true });
+});
+
+test("cueGateDecision: override always allows, even over drafted authoring -- a hard block would be a worse failure than the one this gate prevents", () => {
+  assert.deepEqual(cueGateDecision({ status: "drafted" }, { override: true }), { allowed: true, status: "drafted", gated: false });
 });

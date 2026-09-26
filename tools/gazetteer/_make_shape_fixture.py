@@ -33,6 +33,26 @@ def rotate(ring, deg):
     return [[round(x * c - y * s, 6), round(x * s + y * c, 6)] for x, y in ring]
 
 
+def circle(radius, n=32):
+    """The same construction draw.js's own Circle draft tool uses -- n
+    points evenly spaced around a centre. 32 is that tool's own point
+    count, so this case is the actual shape a hand-drawn bunker or
+    watchtower produces, not a mathematical idealisation of one."""
+    return [[round(radius * math.cos(2 * math.pi * i / n), 6),
+             round(radius * math.sin(2 * math.pi * i / n), 6)]
+            for i in range(n)]
+
+
+def ellipse(a, b, n=32):
+    """An oval, deliberately NOT a circle -- proves CIRCLE_MAX_ELONGATION
+    is doing real work, not just CIRCLE_COMPACTNESS alone: an oval this
+    elongated still has fairly high compactness, and an oval is a strip
+    with rounded ends, something drawn as a corridor, not a room."""
+    return [[round(a * math.cos(2 * math.pi * i / n), 6),
+             round(b * math.sin(2 * math.pi * i / n), 6)]
+            for i in range(n)]
+
+
 def real(local_id):
     with io.open(_DRAFT, encoding="utf-8") as fh:
         draft = json.load(fh)
@@ -101,6 +121,35 @@ CASES = [
         "opts": {"height_m": 8.0, "height_source": "typical"},
     },
     {
+        "name": "a bunker: circle, 32 points, 8 m radius",
+        "why": "Asked for directly, after a session of hand-drawing bunkers "
+               "(big circles) and watchtowers (small ones) with the new "
+               "Circle tool: without CIRCLE_COMPACTNESS every one of these "
+               "fell through to \"irregular\", which reads as an odd, "
+               "asymmetric plan -- backwards for the one shape that is MORE "
+               "regular than a plain rectangle, not less.",
+        "ring": circle(8.0),
+        "opts": {},
+    },
+    {
+        "name": "a watchtower: circle, 32 points, 2.5 m radius",
+        "why": "The small end of the same shape -- proves the circle check "
+               "is about the RING'S geometry, not the building's size; a "
+               "watchtower's footprint is a bicycle-store-sized circle, not "
+               "a bicycle-store-sized rectangle.",
+        "ring": circle(2.5),
+        "opts": {},
+    },
+    {
+        "name": "an oval, not a circle: 20 x 8 m",
+        "why": "Proves CIRCLE_MAX_ELONGATION is doing real work, not just "
+               "CIRCLE_COMPACTNESS alone -- this still has fairly high "
+               "compactness, and an oval is a strip with rounded ends, "
+               "something to write as a passage through, not a room.",
+        "ring": ellipse(10.0, 4.0),
+        "opts": {},
+    },
+    {
         "name": "real: Baggage Inspection (item-159)",
         "why": "334 m long, 4.3 m across, 1430 m2 of floor. The sliver cap "
                "exists for this: area alone would call it a scene location.",
@@ -117,7 +166,11 @@ CASES = [
     {
         "name": "real: bicycle store (item-172)",
         "why": "24 m2. The smallest thing in the first session and the reason "
-               "this module was written.",
+               "this module was written -- and, it turns out, a genuinely "
+               "round footprint (0.986 compactness on its own 17 points): "
+               "before CIRCLE_COMPACTNESS this fell through to \"irregular\" "
+               "even though a real building was sitting right there proving "
+               "the check was missing.",
         "ring": real("item-172"),
         "opts": {},
     },

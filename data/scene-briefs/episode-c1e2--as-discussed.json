@@ -1,0 +1,240 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--as-discussed",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "as-discussed",
+  "title": "As Discussed",
+  "goal": "The party learns what winning against their own superior actually costs. He takes the credit for their success, never mentions the vial, and buries them in a fortnight of entirely legitimate tedium. They decide whether to let him have it.",
+  "howToPlay": "Short, dry and funny, with one real decision in the middle. Play him as genuinely pleased -- he is performing pleasure and the performance is costing him, but it is a good performance. **The single most important instruction: he never mentions the vial.** It is on the desk, in its case, in the middle of the conversation, and he talks past it as though it is not there. Let the players look at it. Let them decide whether to bring it up. Do not have him acknowledge it even if they do -- he simply continues.\n\nThis is also the session where consequences start existing. Episode One's checks were all free; two of these are not. Say nothing about that shift, just run it.",
+  "runsAbout": "10-15 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The Section Officer's office. Small, tidy, a duty roster on the wall, an in-tray and an out-tray, both used properly.",
+    "firstThing": "The vial. It is sitting on the desk in a padded case with the lid open -- precision-ground glass, a real part, correctly issued against their docket, and completely useless to anybody for any purpose.",
+    "readAloud": "Section Nine, in the morning, summoned. The office is small and very tidy. There is a duty roster on the wall. The next fortnight is already filled in on it, which nobody has had time to do since yesterday.\n\nAnd on the desk, open, in a padded case lined with grey foam, is a single precision-ground glass vial. Correctly requisitioned. Correctly issued. Signed for.\n\nHe does not look at it once.",
+    "carriesIn": [
+      {
+        "when": "The Errand was played (it was)",
+        "then": "This is the direct consequence of the requisition they came back with. The vial is in plain view and unmistakably the thing they fought for -- put it on the desk, describe it, and leave a beat of silence before he starts talking rather than narrating past it."
+      }
+    ],
+    "landmark": "the vial, open in its case on the desk, eighteen inches from his hand and never once acknowledged",
+    "holdInReserve": "The duty roster on the wall is filled in for a fortnight in one hand, and the countersignature at the bottom is in another. Give this to anybody who reads the roster rather than listening to him."
+  },
+  "cast": [
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "label": "The Section Officer",
+      "role": "The party's immediate superior. Runs their day and nothing else.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "For yesterday to have been his idea. Failing that, for it to be over and for nobody above him to mention it again.",
+        "opensWith": "Telling them to sit down, and then not offering them anywhere to sit.",
+        "willDiscuss": [
+          {
+            "topic": "Initiative, standards, and what he expects of an intake",
+            "note": "At length. This is the reframe and he has clearly rehearsed some of it."
+          },
+          {
+            "topic": "The duty roster",
+            "note": "Precisely, correctly, and with obvious satisfaction. Every item on it is a real task that genuinely needs doing."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The vial",
+            "why": "Not evasion -- erasure. He has decided it is not a thing that happened, and he will talk straight through any attempt to make it one. If they put it directly to him he finishes his own sentence first."
+          },
+          {
+            "topic": "Who countersigned, and why",
+            "why": "That is above their pay grade and he says so, which is true and is also the only honest thing he says all scene."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped, procedural, faintly aggrieved. Passive voice for anything that went wrong, first person for anything that went right.",
+          "tics": [
+            "Says 'as discussed' about things that were not discussed",
+            "Calls them 'Section Nine', never by name, even individually",
+            "Answers a question by reading the relevant clause aloud",
+            "When surprised, pauses exactly one beat and then recasts the surprise as expected",
+            "Ends a conversation with 'Is there a question?' and does not leave a gap to answer in -- the once he does leave one is deliberate"
+          ],
+          "samples": [
+            "\"Sit down. -- No, there's only the one chair, stand where you are, this won't take long.\"",
+            "\"As discussed, yesterday was an initiative assessment. You'll find most of your first fortnight is. You did well. I'm pleased.\"",
+            "\"I don't set the standard, Section Nine. I just notice when it isn't met. Yesterday it was met. That's the end of it.\"",
+            "\"Quarter four inventory, Monday through Thursday. Drain inspection Friday. Both of those are real jobs that somebody has to do and this fortnight it's you.\"",
+            "\"Is there a question? -- Then that's all.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-office",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Establish the office, the roster already filled in for a fortnight, and the vial open on the desk. He does not look at it.",
+      "npcRef": "section-officer",
+      "direction": "The roster being complete before the conversation starts is the tell, and it should be visible from the door. Whatever is said in this room, it was decided before they walked in.",
+      "note": "NO READ-ALOUD HERE, DELIBERATELY. The scene's intro read-aloud is the office -- the roster already filled in, the vial open in grey foam, and him not looking at it. This beat is the GM holding on that for a second before he starts talking, not a second description."
+    },
+    {
+      "id": "read-the-room",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone actually watches him rather than listening to him, offer the check.",
+      "challengeRef": "c1e2-as-discussed",
+      "checkRef": "read-the-room",
+      "npcRef": "section-officer",
+      "when": {
+        "condition": "if a player pays attention to how he is taking it rather than to what he is saying"
+      },
+      "note": "On a critical success they find the memorandum in his out-tray. Nobody is being disciplined -- somebody above him has simply asked him to explain, in writing, why departmental stores were spent on a joke. That is the whole retaliation explained in one prop, and it should never be stated out loud.",
+      "nodeRefs": [
+        "arc-the-countersignature"
+      ]
+    },
+    {
+      "id": "as-discussed",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He informs them that yesterday was an initiative assessment, that they passed, and that he is pleased.",
+      "npcRef": "section-officer",
+      "readAloud": "\"Right. As discussed -- yesterday was an initiative assessment. You'll find a good deal of your first fortnight is. Standard practice, it's in the handbook, nobody reads the handbook.\"\n\nHe needs the middle of the desk, so he picks up the case, still open, still with the vial in it, and puts it down by his elbow. He does not look at it while he does this. He does not stop talking.\n\n\"You did well. Genuinely. You didn't come back empty-handed and you didn't come back whining. The last lot managed neither. I'm pleased.\"",
+      "direction": "**Play it completely straight.** He is not sneering and he is not winking at them -- he has decided this is what happened and he is now simply describing it. The comedy is in the total conviction, not in him being unconvincing.\n\n**The business with the case is the whole beat.** He handles the thing he is refusing to acknowledge, mid-sentence, because he needs the desk space. Do not pause on it, do not let him glance at it, and do not let any NPC remark. A player who laughs has understood it.",
+      "note": "HOW TO PLAY IT. He is not sneering and he is not winking. He has decided this is what happened and is now describing it, and the comedy is in the conviction rather than in him being unconvincing.\n\nTHE CASE IS THE BEAT. He handles the thing he is refusing to acknowledge, mid-sentence, because he needs the desk space. No pause, no glance, no comment from anybody.\n\nWHAT IT DOES NOT MEAN: he is not testing them and there is nothing to catch him out in. He genuinely intends to have this on the record as an assessment, and as far as he is concerned it now is."
+    },
+    {
+      "id": "the-choice",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "The party decides whether to let him have it. Say nothing to prompt them -- let the silence do it.",
+      "challengeRef": "c1e2-as-discussed",
+      "checkRef": "contest-the-credit",
+      "npcRef": "section-officer",
+      "direction": "**\"Is there a question?\" is how he ends conversations, not how he opens them.** It is in his voice samples as exactly that -- said, and then immediately followed by \"then that's all\", with no gap for anybody to answer in.\n\nThis is the one time in the scene he says it and does not move. That pause is the whole hinge, and it works only because the line is otherwise a door closing.\n\n**This is the scene and it is a real decision, not a test.** Letting him take the credit costs nothing and is the smart play. Contesting it is the satisfying play and may cost them a worse fortnight. Both are correct answers to different questions.\n\nOnly call for the roll if a player actually pushes. If the whole table decides to sit on their hands and enjoy it privately, that is a legitimate outcome with no roll attached -- and honestly the funnier one.\n\nOn a critical success he concedes, once, quietly, and will deny it afterwards. Do not let him be gracious about it.\n\n**Deliver the two lines and then actually stop.** Do not fill it, do not prompt anybody, and do not go round the table. The silence is the mechanism and a GM who talks into it has taken the decision away.\n\nHe is not daring them. He genuinely expects there to be no question, which is what makes the pause available at all.\n\n**If they invent a fourth option, price it against those three.** Agreeing with him so enthusiastically that it becomes visible; asking him a straight procedural question about who signs the report; saying it to somebody else later instead of to him now. Anything that costs them something real is a contest and can take the roll. Anything free is the smart play under a different hat.",
+      "note": "First scene in the campaign where a check has a real cost. The cost is always tedium and never danger -- he cannot get them hurt, charged or removed, and that limit is a hard rule in ideas/story/bible/characters/the-section-officer.md.\n\nTHE ORDER MATTERS AND IS NOT AN ACCIDENT. They decide whether to contest him BEFORE he reads out what the fortnight costs. Contesting a man who has just praised you is a different act from contesting one who has just buried you, and the first is the harder and better choice. Do not move the roster earlier to give them more information.",
+      "readAloud": "He looks up. \"Is there a question?\"\n\nAnd then he waits, which he has not done once since you came in.",
+      "choicePoint": {
+        "label": "Does anybody contest the credit?",
+        "options": [
+          {
+            "id": "let-him-have-it",
+            "label": "Let him take it",
+            "consequence": "Costs nothing and is the smart play. He files it, the fortnight is whatever it was going to be, and nothing about their position gets worse. No roll."
+          },
+          {
+            "id": "contest",
+            "label": "Push back, out loud, into the pause",
+            "consequence": "The satisfying play, and it may buy them a worse fortnight. Roll `contest-the-credit`. On a critical success he concedes once, quietly, and denies it afterwards -- do not let him be gracious about it."
+          },
+          {
+            "id": "sit-on-it",
+            "label": "Say nothing and enjoy it privately",
+            "consequence": "A legitimate outcome with no roll attached, and honestly the funnier one. He gets what he came for and six people at the back know exactly what happened."
+          }
+        ],
+        "allowsInventedOption": true
+      }
+    },
+    {
+      "id": "the-roster",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He reads out the fortnight. Every item is real, necessary, tedious, and correctly assigned.",
+      "npcRef": "section-officer",
+      "readAloud": "\"Quarter four inventory, Monday through Thursday. Drain inspection Friday -- you've done drains, you'll be quick. Following week is stores audit support and the vehicle park needs its numbers checking against the book.\"\n\nHe turns the roster round so they can see it, which is somehow worse.\n\n\"All of that needs doing by somebody. This fortnight it's you.\"\n\nHe squares the roster against the edge of the desk and does not turn it back round.",
+      "direction": "**There is no appeal and the party should be able to tell there is no appeal.** Nothing on that roster is unreasonable, invented, or out of order. It is simply all of the least interesting work the section has, assigned at once, to them, by a man who is entitled to assign it.\n\nIf they object, he reads the relevant clause aloud. He is correct.",
+      "note": "Stage II of his arc (entrenchment) -- see his bible file. He responds to being beaten by becoming MORE correct, not less."
+    },
+    {
+      "id": "the-countersignature",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone tries to get a look at the requisition's signature block, offer the check.",
+      "challengeRef": "c1e2-as-discussed",
+      "checkRef": "read-the-countersignature",
+      "when": {
+        "condition": "if a player tries to see who signed above him"
+      },
+      "direction": "Give them the name flatly and move on. Do not weight it, do not pause on it, and do not let anyone in the scene react to it.",
+      "note": "⚠ PLANT. A name the party should be carrying in their notes long before it means anything. On a success it is **Rand**; on a critical success they also get the department, **Medical**, which has no business countersigning a stores requisition.\n\nGM-ONLY ANSWER (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): Rand is Shucks's detached right hand (`ideas/story/bible/characters/rand.md`). Nobody called Rand works on the base, and the handwriting is Shucks's own from before the hand came off. No roll here reveals who Rand is: the routes are on `arc-the-countersignature`."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "He says 'then that's all', and means it.",
+    "readAloud": "The door closes. Somewhere behind it, on a tidy desk, a precision-ground glass vial sits in grey foam, correctly issued, signed for, and of no use to anybody.\n\nIt will still be there in a month.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "standing",
+        "delta": null,
+        "why": "Move this only if somebody contested him to his face. It does not matter whether they won -- the room saw it either way, and so did he."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "He has already told them the roster exists. It goes up in the yard at nine.",
+      "scatterRisk": false
+    },
+    "onwards": "Into The Board, where the fortnight he just described stops being a threat and becomes a timetable.",
+    "writeDown": [
+      "Whether they contested him, who did it, and what it cost.",
+      "The name on the countersignature, if they got it.",
+      "That the vial stays on his desk. It is a permanent prop and the party should see it every time they are in that office for the rest of the campaign."
+    ]
+  },
+  "carryForward": [],
+  "reactionPrompts": [
+    {
+      "id": "as-discussed-performance",
+      "text": "His \"as discussed\" reframe -- played completely straight, total conviction rather than sarcasm -- landing as funny."
+    },
+    {
+      "id": "the-vial-never-mentioned",
+      "text": "The vial sitting on the desk the whole scene, and him never once acknowledging it."
+    },
+    {
+      "id": "the-choice",
+      "text": "The choice to contest him or let him have it -- whether the table found it a real decision, not just a check to make.",
+      "scaleNote": "0 = nobody engaged with it as a choice, 10 = real, felt tension over which way to go."
+    },
+    {
+      "id": "the-countersignature",
+      "text": "Whether anyone bit on the countersignature plant -- tried to see who signed above him.",
+      "scaleNote": "0 = nobody noticed it at all, 10 = someone's clearly carrying that name forward."
+    },
+    {
+      "id": "went-flat",
+      "text": "If it went flat -- the silence/tedium bit not landing, or the table wanting to skip past him.",
+      "scaleNote": "0 = landed exactly as written, 10 = this needs rethinking before it's reused."
+    }
+  ],
+  "notes": "Written as the Section Officer's Episode Two reaction to the requisition. His arc, voice and hard limits are in bible/characters/the-section-officer.md -- read it before running, particularly the six things he must never be.\n\nTHE JOKE IS THE VIAL, AND THE JOKE IS THAT NOBODY MENTIONS IT. It is a real, expensive, correctly issued object that exists because a man made six teenagers walk across a city for nothing, and it will sit on his desk for the rest of the campaign as a monument to the one time they got him. Keep putting it in the scene description every time the party enters that office. Never have him refer to it.\n\nWHAT THIS SCENE IS NOT: a humiliation. The party won yesterday and they know it, he knows it, and somebody upstairs knows it. He is reframing precisely because he lost. Play his performance as effortful and the table will read the win without being told.\n\nTHE CHAIR LINE IS HALF OF A PAIR. His \"there's only the one chair, stand where you are\" is answered at the end of the episode by the Deputy Director saying the same thing graciously. Do not rewrite it as a duplicate -- the full reasoning is in `episode-c1e2--the-hammer`'s own notes.",
+  "temptations": [
+    {
+      "id": "say-the-word-vial",
+      "text": "It is open, on the desk, eighteen inches from his hand, and he has not once looked at it."
+    },
+    {
+      "id": "read-the-countersignature",
+      "text": "Somebody signed that roster above his head, and the name is at the bottom of it."
+    }
+  ],
+  "summary": "The vial arrived, and it is exactly what they asked for and no use to anybody. It sits open on his desk for the whole conversation and he never once looks at it. Instead he explains that yesterday was an initiative assessment, that they passed, and that he is pleased -- and then hands them a fortnight of entirely legitimate, entirely miserable work that somebody above his head has already countersigned."
+}

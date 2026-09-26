@@ -15,17 +15,31 @@ async function hashFile(absolutePath) {
 }
 
 /**
- * Recursively lists every file under rootDir (skipping nothing -- unlike a
- * gitignore-aware walk, this hashes exactly what's on disk, since that's
- * exactly what would get pushed).
+ * Recursively lists every file under rootDir, hashing exactly what is on disk
+ * rather than what git would show -- because what is on disk is what would get
+ * pushed.
+ *
+ * `skip` is the one exception, and it exists for a real incident. The caller
+ * may pass a predicate taking a POSIX-style path relative to rootDir; a
+ * directory it returns true for is not descended into at all.
+ *
+ * WHY, 2026-09-22: sync-module.mjs already refuses to UPLOAD data/campaign/
+ * (see its own comment -- a stray `cp -r /*` had dumped tens of thousands of
+ * files into that local mirror on 2026-09-20/21). But it still WALKED it, and
+ * still read and SHA-256'd every one of those files before the exclusion was
+ * ever applied. 13,182 junk files were being hashed on every push, which is
+ * why a module push stopped completing at all. Excluding it from the upload
+ * fixed the symptom the incident was noticed by; this fixes the other half.
  */
-async function listFilesRecursive(rootDir, currentDir = rootDir) {
+async function listFilesRecursive(rootDir, currentDir = rootDir, skip = null) {
   const entries = await readdir(currentDir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
     const absolute = path.join(currentDir, entry.name);
+    const relative = path.relative(rootDir, absolute).split(path.sep).join("/");
+    if (skip && skip(relative)) continue;
     if (entry.isDirectory()) {
-      files.push(...(await listFilesRecursive(rootDir, absolute)));
+      files.push(...(await listFilesRecursive(rootDir, absolute, skip)));
     } else if (entry.isFile()) {
       files.push(absolute);
     }
@@ -39,8 +53,8 @@ async function listFilesRecursive(rootDir, currentDir = rootDir) {
  * so a local Map and a parsed-remote Map compare directly) to lowercase hex
  * SHA-256.
  */
-export async function computeLocalChecksums(rootDir) {
-  const absoluteFiles = await listFilesRecursive(rootDir);
+export async function computeLocalChecksums(rootDir, { skip = null } = {}) {
+  const absoluteFiles = await listFilesRecursive(rootDir, rootDir, skip);
   const result = new Map();
   for (const absolutePath of absoluteFiles) {
     const relativePath = path.relative(rootDir, absolutePath).split(path.sep).join("/");

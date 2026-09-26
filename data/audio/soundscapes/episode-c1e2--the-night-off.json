@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-night-off",
+  "type": "audio-soundscape",
+  "title": "S2 · The Night Off",
+  "note": "'The first evening that belongs to them... staying in, over the wire, or the late crew.' Three genuinely different places (a locked hangar, the city at night, a working night shift) in one long scene -- no shared bed, same reasoning as The Long Afternoon. Relaxed pool for the base state; if a player goes over the wire, reach for a city-night bed by hand from the desk rather than treating this file as covering that path.",
+  "music": {
+    "pool": "relaxed"
+  },
+  "ambience": [],
+  "fade": 3000
+}

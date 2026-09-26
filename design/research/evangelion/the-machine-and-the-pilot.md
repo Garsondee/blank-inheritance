@@ -1,6 +1,6 @@
 # The Machine and the Pilot
 
-*Part of the [Evangelion research shelf](README.md). **Mined for structure, not for register** — see [tone-guardrail.md](tone-guardrail.md). Synchronisation, the berserk state, and the thing inside the machine. **§5 carries a standing warning about our own Resonance and Bleed systems — read it before drawing any parallel.** **This is not a decision document and none of it is lore.** Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
+*Part of the [Evangelion research shelf](README.md). **Mined for structure, not for register** — see [tone-guardrail.md](tone-guardrail.md). Synchronisation, the berserk state, and the thing inside the machine, as the series built them. **This campaign has no berserk and takes control of a character away from no player (`ideas/story/bible/LEDGER.md` #31, D11).** **This is not a decision document and none of it is lore.** Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
 
 ---
 
@@ -35,26 +35,10 @@ Compare the Giant Robo shelf's [inherited weapon](../giant-robo/characters/giant
 - **A measured, publicly-read relationship value** that moves with the pilot's circumstances, and that other characters can see.
 - **A hard operational limit that is later revealed to be about control rather than capability.**
 - **Feedback damage** — the pilot is hurt by what hurts the machine — as a stated rule, not an occasional dramatic flourish.
-- **The machine acting once, on its own, in the pilot's defence**, with no explanation offered.
+- **The machine acting once, on its own, in the pilot's defence**, with no explanation offered. *(Ruled out here: LEDGER #31, D11 — nothing in this campaign takes control away from a player.)*
 - **Armour as restraint** — a visual detail that reframes everything it appears on.
 
-## 5. The warning about our own systems
-
-**[R]** This campaign already has a pilot-state system with a loss-of-control threshold, and it is close enough to this material that copying by accident is a live risk.
-
-**[S]** What is established here:
-
-- **Resonance** is locked and authoritative, built on the principle that power grants permission. `design/resonance-and-bleed.md` measured the band spread at **5.7× total combat contribution** before ability tiers count, and named the arithmetic nobody had run.
-- **Bleed** has four inflows, one undefined outflow, and a single threshold across ten points, with a berserk state at the top.
-- That investigation produced open questions. **As of 2026-09-13, `bleed-intermediate-thresholds`, `bleed-recovery-sinks`, `suppression-intent-vs-pattern`, `hero-points-vs-berserk` and `ratio-publication` remain open**; `two-action-default`, `resonance-band-spread` and `bleed-visibility` have been resolved. **Check `data/campaign/open-questions.json` for current status rather than trusting this sentence.**
-
-**[U] The instruction:** do not import this series' answers into those questions. In particular:
-
-1. **`ratio-publication` is an open question and this file does not answer it.** That Evangelion reads sync ratios aloud in the control room is a fact about Evangelion. It is not an argument.
-2. **Berserk is not the same idea in both systems.** Here it is a possession by the machine. In ours it is the top of a resource track. They look alike and they are not, and conflating them would quietly import a different design.
-3. **Check any change against the standing penalty principle.** `design/campaign-arc.md` holds that a drawback should raise the stakes of a character's options rather than shrink the menu of them. A temporary loss-of-control state is compatible with that rule — it is dynamic and recoverable — but it is the nearest thing in our design to breaking it, which is exactly why `hero-points-vs-berserk` is still open.
-
-**[R]** The honest summary: Evangelion is the most seductive source on this shelf for our mechanics, and the one where borrowing would do the most damage, because it would look like agreement rather than influence.
+*(§5, a warning about this campaign's Resonance, Bleed and berserk systems, went with them: all three were cut on 2026-09-20 and 2026-09-24, berserk as "the EVA idea" — LEDGER #31, D11. Removed from this document 2026-09-25.)*
 
 ---
 
@@ -62,4 +46,4 @@ Compare the Giant Robo shelf's [inherited weapon](../giant-robo/characters/giant
 
 **Related on this shelf:** [characters/evangelion-unit-01.md](characters/evangelion-unit-01.md), [characters/yui-ikari.md](characters/yui-ikari.md), [operational-texture-and-the-sortie.md](operational-texture-and-the-sortie.md), [tone-guardrail.md](tone-guardrail.md).
 
-**Related in this project:** `design/resonance-and-bleed.md`, `data/campaign/open-questions.json`, `design/campaign-arc.md` (penalties cost risk, never choice), `design/scale-and-chassis.md`, `design/mechanics-as-meaning.md`, [design/research/giant-robo/characters/giant-robo.md](../giant-robo/characters/giant-robo.md).
+**Related in this project:** `ideas/story/bible/LEDGER.md` #31 (D11, no berserk), `data/campaign/open-questions.json`, `design/campaign-arc.md` (penalties cost risk, never choice), `design/mechanics-as-meaning.md`, [design/research/giant-robo/characters/giant-robo.md](../giant-robo/characters/giant-robo.md).

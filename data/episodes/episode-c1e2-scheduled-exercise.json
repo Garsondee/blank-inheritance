@@ -1,0 +1,237 @@
+{
+  "$schema": "../schema/episode.schema.json",
+  "id": "episode-c1e2-scheduled-exercise",
+  "type": "episode",
+  "authoring": {
+    "status": "drafted"
+  },
+  "title": "Scheduled Exercise",
+  "dayRange": {
+    "start": 2,
+    "end": 3
+  },
+  "summary": "Chapter One, Episode Two. The vial the party fought for arrives, is useless, and is never mentioned. The Section Officer hands Section Nine a fortnight of the worst jobs on the roster and keeps turning up to watch them done. Somewhere in the middle of it an order lands from above his head: Frame and vehicle familiarisation. The party picks their machines out of a catalogue of converted diggers and decommissioned trucks, takes them out on a routine drill -- and something arrives in the city that nobody plotted, that nobody can identify, and that the voice on their radio begs them to stay away from.",
+  "structure": "Two days. Day two is the punishment day: an office, the awful jobs, free hours the party spends as they choose, and a night where they decide whether to stay on base or sneak off it. Day three is the hangar, the drill, and the first Frame-scale fight of the campaign, followed immediately by the consequences of having fought it at all.",
+  "designRequirement": "Teach the Frame and vehicle sheets by putting the party in them, not by explaining them. Teach the four-quarter day by making the party spend one. Put a fight in front of them that they are ordered to stay out of, and give them every reason to go in. Do not explain the Frames' origin, the Watcher, Cicada, the mitflits, or why Shucks does what he does at the end.",
+  "castingNote": "Three NPCs are doing the real work this episode: the Section Officer (present, personal, unpleasant, and the party's actual route to everything the Directorate wants from them), the Comms Officer (the first adult in this campaign whose instinct is to protect them, and whose instruction they will almost certainly disobey), and the Deputy Director (intimidating on arrival, and not at all what the Section Officer was hoping for).",
+  "downtime": "This is the episode that teaches the time economy. Day two carries real free quarters: the party splits, players pick on-base or off-base activities, and every option on the list pays out something -- a buff, a bonus, information, or a chance to act. Off-base means sneaking out, and getting back in unseen is a real skill roll with plenty of fun ways to attempt it.",
+  "scenes": [
+    {
+      "order": 1,
+      "id": "as-discussed",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "As Discussed",
+      "description": "The vial arrived. It is real, it is expensive, it is precision-ground glass in a padded case, it is correctly issued against the docket, and it is completely useless. It is on the Section Officer's desk. He calls the party in and does not mention it once -- instead he informs them that yesterday was an initiative assessment, that they passed, and that he is pleased. The party decides whether to let him have that. Either way the next fortnight's duty roster is legitimate, unappealable and miserable. And the countersignature on it looks like somebody senior's (it is Rand's: LEDGER #34).",
+      "briefRef": "episode-c1e2--as-discussed",
+      "challengeRefs": [
+        "c1e2-as-discussed"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "the-board",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Board",
+      "description": "The fortnight goes up on the duty board in the yard, and for the first time the party sees a day drawn as four quarters with fixed appointments on it and gaps in between. Short scene, and the one that teaches the whole time economy: some things cost a quarter, some cost nothing, and more than one thing can fit in a quarter.",
+      "briefRef": "episode-c1e2--the-board",
+      "challengeRefs": [
+        "c1e2-the-board"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "school-period-one",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "School: Period One",
+      "description": "One ordinary morning before the fortnight starts eating them. Two rooms across a corridor, and each player picks one: an approved history of First Impact that names the four heroes who closed the rift and never says how it opened, or the four civil-defence alert states from an instructor who has drilled them for eleven years without them ever being used. One optional roll each. Not rolling is free; failing costs a quarter, and critically failing costs a quarter and a night's sleep. Nobody announces the risks.",
+      "briefRef": "episode-c1e2--school-period-one",
+      "challengeRefs": [
+        "c1e2-school-period-one"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "slack-water",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "Slack Water",
+      "description": "The first of the fortnight's jobs, and the episode's long full-party scene: the sea wall at low tide, scraping and repainting, filthy and tedious and shared. Whole party, no splitting -- six people doing one awful job together is what turns them into a unit. The Section Officer arrives at the end to inspect the work. The task carries a real, built-in chance to do it so well that his inspection goes badly for him. Somewhere on the tide-line wall, under the growth they are scraping off, is a stencilled cicada -- the same mark as the one in the city.",
+      "briefRef": "episode-c1e2--slack-water",
+      "challengeRefs": [
+        "c1e2-slack-water"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "school-period-two",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "School: Period Two",
+      "description": "Afternoon lessons, attended by six people covered in sea-wall paint. Field medicine, taught by the skeleton who took their blood a fortnight ago, or civics, taught by the one officer in the building whose job is openness, from a charter with a paragraph painted out of it. Same terms as the morning. Both rooms pay off before the end of the episode and neither of them says so.",
+      "briefRef": "episode-c1e2--school-period-two",
+      "challengeRefs": [
+        "c1e2-school-period-two"
+      ]
+    },
+    {
+      "order": 6,
+      "id": "the-long-afternoon",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Long Afternoon",
+      "description": "A free quarter. The party splits and each player takes a short individual scene -- this is exactly the kind of peaceful hour that should split. On-base and off-base options both available, every one of them paying out something real. Threads worth pulling: who countersigned the roster, the tea house and the way back to the old man, the trainee rumour mill.",
+      "briefRef": "episode-c1e2--the-long-afternoon",
+      "challengeRefs": [
+        "c1e2-the-long-afternoon"
+      ]
+    },
+    {
+      "order": 7,
+      "id": "the-override",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Override",
+      "description": "Short scene. An order arrives from above the Section Officer's head: Frame and vehicle familiarisation, 0700 tomorrow. It does not cancel the fortnight -- it stacks on top of it, and he has to deliver the news himself. The same signature as the countersignature on the roster.",
+      "briefRef": "episode-c1e2--the-override",
+      "challengeRefs": [
+        "c1e2-the-override"
+      ]
+    },
+    {
+      "order": 8,
+      "id": "the-night-off",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Night Off",
+      "description": "The party's first real evening of their own. On-base options are safe and duller; off-base options mean going over the wire for something actually fun. Every option on either list pays out -- a bonus banked for the next fight, information, standing with someone, a chance to act. Getting back in unseen is a real skill roll with many possible approaches; being caught the first time costs very little. GM tracks privately who chose to break out and who did not.",
+      "briefRef": "episode-c1e2--the-night-off",
+      "challengeRefs": [
+        "c1e2-the-night-off"
+      ]
+    },
+    {
+      "order": 9,
+      "id": "zero-six-hundred",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "Zero Six Hundred",
+      "description": "The same canteen as their first evening, an hour before the hangar, with nobody in it. Last night arrives at breakfast: who went over the wire, who slept, who came back with something. Taka is already at the table, up since five, pretending he happens to be there, because somebody told him what they are doing today and he wants to tell them the small unglamorous thing about a first morning in a machine that nobody official is going to bother with.",
+      "briefRef": "episode-c1e2--zero-six-hundred",
+      "challengeRefs": [
+        "c1e2-zero-six-hundred"
+      ]
+    },
+    {
+      "order": 10,
+      "id": "familiarisation",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "Familiarisation",
+      "description": "The hangar, 0700. A terminal like the induction one, and a catalogue that is not what anybody was promised: converted diggers, a crane rig, decommissioned army trucks, one inexplicable sports car, a helicopter. Every player may take a Frame; every player may take a vehicle; the two do different jobs and neither is the better choice. Each pilot meets their own repair crew chief here for the first time.",
+      "briefRef": "episode-c1e2--familiarisation",
+      "challengeRefs": [
+        "c1e2-familiarisation"
+      ]
+    },
+    {
+      "order": 11,
+      "id": "the-exercise",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Exercise",
+      "description": "A routine manoeuvre qualification on the proving ground, run by the Range Safety Officer, whose call on a Frame or a pilot is not arguable. Cones, checkpoints, a siren test as part of the drill. Deliberately safe and deliberately dull -- this is the scene that teaches the sheets while nothing is at stake.",
+      "briefRef": "episode-c1e2--the-exercise",
+      "challengeRefs": [
+        "c1e2-the-exercise"
+      ]
+    },
+    {
+      "order": 12,
+      "id": "unidentified-contact",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "Unidentified Contact",
+      "description": "Short scene, the turn. Three contacts appear on the plotting floor's board that did not travel there -- no approach vector, and the first plot is time-stamped before the alert. The Comms Officer reads their designations over the radio and tells the party to hold position and stay clear, because she is frightened for them. Then civilians come into it, in view, at distance the party can close.",
+      "briefRef": "episode-c1e2--unidentified-contact",
+      "challengeRefs": [
+        "c1e2-unidentified-contact"
+      ]
+    },
+    {
+      "order": 13,
+      "id": "first-contact",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "First Contact",
+      "description": "The campaign's first Frame-scale fight: three Proto-Claimants, a deliberately hard encounter by real XP budget, built by reskinning three interesting creatures rather than statting new ones. They are strange and inefficient because the thing that made them does not yet know what it is doing. Nothing here dies -- what is beaten comes apart and goes elsewhere. Written on the assumption the party engages; the obey-orders branch is authored too, and is worse for everyone.",
+      "briefRef": "episode-c1e2--first-contact",
+      "challengeRefs": [
+        "c1e2-first-contact"
+      ],
+      "encounterRef": "c1e2-first-contact"
+    },
+    {
+      "order": 14,
+      "id": "the-hammer",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Hammer",
+      "description": "The Section Officer escalates the party's disobedience as far up as he can reach, and gets them marched in front of the Deputy Director expecting the hammer to fall. It is a genuinely frightening room. Then Shucks arrives, asks for a private word, gets it, and the room turns over -- the party leaves with something that is not a punishment. Nobody explains why. GM-ONLY: Shucks has known what their blood screens mean since Episode One's intake.",
+      "briefRef": "episode-c1e2--the-hammer",
+      "challengeRefs": [
+        "c1e2-the-hammer"
+      ]
+    },
+    {
+      "order": 15,
+      "id": "the-names-are-still-up",
+      "authoring": {
+        "status": "drafted"
+      },
+      "title": "The Names Are Still Up",
+      "description": "Hangar Two after dark, an hour after the Deputy Director's office, and the only room in two episodes with no adult in it. The chalk board from that morning still has their names on it, one to a machine. The party is alone with three facts and no answers, and somebody has added a second line to the board in a hand none of them recognise.",
+      "briefRef": "episode-c1e2--the-names-are-still-up"
+    }
+  ],
+  "requiredBeats": [
+    "The Section Officer reframes the party's success as having been his own intention, and never mentions the vial.",
+    "The retaliation is entirely within regulation and therefore unappealable.",
+    "The party sits two school periods, each a free choice between two rooms, and comes out of them with something they can use or with extra work.",
+    "The party spends at least one free quarter choosing their own activity, on base or off it, and whatever they choose returns something real.",
+    "Every player who wants a machine gets to choose one, from a catalogue that is visibly built for construction work rather than war.",
+    "The Comms Officer tells them to stay out of it, and she is doing it to protect them.",
+    "Whatever the party does about that, it is their call, and the consequences of both branches are written.",
+    "The party is marched in front of a very senior Directorate officer expecting to be destroyed, and walks out with the opposite, and nobody tells them why.",
+    "The party sits down together once, with no adult present, before they touch a machine and again after the worst of it -- and nobody tells them what either day meant."
+  ],
+  "endOfEpisodeEffects": [],
+  "openQuestionRefs": [
+    "comms-officer-name",
+    "deputy-director-name"
+  ],
+  "danglingThreads": [
+    "Whose name is on the countersignature, and why a senior officer spent four minutes of an afternoon on Section Nine. (GM-only answer, LEDGER #34, Claude's answer at Ingram's request, awaiting her read: Rand, Shucks's detached right hand. No senior officer was involved.)",
+    "What Shucks said to the Deputy Director, and why it worked.",
+    "Why three contacts appeared on a plotting board without ever having travelled anywhere.",
+    "The stencilled cicada on the sea wall, and the same mark somewhere in the city.",
+    "What is actually at the place the contacts came from, which nobody has been back to look at."
+  ],
+  "notes": "Built out in full from an eighteen-point decisions pass, over a stub that held only \"As Discussed\". The decisions that change things, in order:\n\nSECTION OFFICER. A real, present, recurring minor antagonist, met face to face, who turns up at the end of tasks to give feedback and push the party to the next thing. He remains an unsolved problem -- there is no defeat schedule and none should be authored yet. He is simultaneously the party's main route to everything the Directorate wants of them. His hazing is always full-party work, deliberately, because six people doing one awful job together is what makes them a unit.\n\nCOMMS OFFICER (data/npcs/comms-officer.json, new). A woman, deliberately a blank slate beyond her care for them, working the radio off the plotting floor. She tells the party to stay clear of the fight out of fear for their safety -- which makes disobeying her a completely different act from defying the Section Officer.\n\nDEPUTY DIRECTOR (data/npcs/deputy-director.json, new). Not the Commander; one rung below the top. Intimidating on arrival, actually a good and wise leader, still entirely a Directorate officer. A Fuyutsuki type, in Ingram's reference.\n\nMACHINES. No SF2E vehicle rules. Frames and vehicles both get PC-grade character sheets, contributing hardness and high AC and amplifying the pilot's own sheet rather than replacing it. Frames are slow and very tough; vehicles are fast and fragile and carry up to three. Three equally valid tracks: student, Frame, vehicle. See open-questions.json#vehicle-and-frame-rules-model.\n\nTHE ENEMY. Three Proto-Claimants rather than one boss -- single-target PF2E fights are swingy and give both sides less room. Reskin existing creatures; do not stat new ones. World-map-scale enemies get military contact designations off the plotting floor. See open-questions.json#proto-claimant-encounter-shape.\n\nSTANDING RULES APPLIED THROUGHOUT: no line asserts what the table will feel or decide; long encounters are whole-party and peaceful hours split; every activity pays out something; no cliffhanger is engineered, because pacing cannot be predicted.\n\nSCHOOL. Two periods, each a free choice between two rooms, each a single optional roll. Three rules govern both and they are not negotiable: not rolling is free and is a normal thing for a student to do; the risks and rewards are never announced beforehand; and the cost of failing is always the same currency, a free quarter, with a critical failure adding the Fatigued condition. Both period-two rooms pay off later in the same episode -- field medicine at the tram, civics in the Deputy Director's office -- and neither says so. The history room is an approved account of First Impact that never says how the rift opened, and only a critical success reaches the memorial plate showing four figures, one of whom teaches the afternoon class.\n\nRUNNING ORDER LOGIC. The board goes up immediately after the office, because it is the direct consequence of what he just told them and putting a lesson in between delays that by a scene. School then runs against a day that already has the fortnight written on it, which is also what makes the failure cost legible: by the time a lesson can take a free quarter off somebody, they have seen what a quarter is. Episode One runs the opposite way round for the opposite reason -- there the lesson is the ordinary baseline the roster has not eaten yet, and its failure costs are priced in something other than quarters.\n\nFOUR ROOMS, FOUR DIFFERENT VERBS. The two periods would otherwise run on one axis -- a lore room against a practical room, twice, in mirrored order -- so each room's roll is deliberately for a different kind of act. History is noticing something nobody has looked at properly. Civil defence is retaining something under drill. Field medicine is doing something with your hands. Civics is getting a person to tell you what they have been refused. A GM running all four should feel four different scenes, not one scene four times, and if two of them start feeling alike the fix is the verb rather than the subject.\n\nTWO SCENES EXIST FOR THE SAME REASON, AND BOTH ARE LOAD-BEARING DESPITE HAVING NO STAKES. Without Zero Six Hundred, every choice made on the night off is recorded and lands nowhere, because the episode cuts straight from the hangar lights going off to 0700. Without The Names Are Still Up, the episode ends on \"That is all. Thank you\" in a superior officer's room, with the party dismissed. Zero Six Hundred and The Names Are Still Up are the two rooms in this episode that do not belong to somebody who outranks them. Neither has stakes, neither resolves anything, and both are allowed to run short.\n\nEMOTIONAL ARROW SEQUENCE: - +/- ~ +/- + + +/- + + + ~ - - -/+ ~\n\nMarked scene by scene against pacing-and-the-responsive-campaign.md §6 heuristic 10 -- alternate the arrows, and treat a run of consecutive downs as a fault rather than a mood. Longest run of pure downs is one. The method and what the pass found is design/scene-audit.md §9. Re-run it by hand if scenes are added, reordered or retoned; it cannot be automated, because the arrow is a judgement about what a scene does to the party rather than anything in the data.\n\nDO NOT FLATTEN SCENES 12-13. Unidentified Contact and First Contact are two consecutive downs and they stay that way. Heuristic 10 warns about a run of downs drifted into and left unresolved; this one is authored as a descent and is answered immediately by The Hammer turning over and The Names Are Still Up closing quiet. The opening of the episode did have a real drifted run, and that is what was fixed -- see design/scene-audit.md §9."
+}

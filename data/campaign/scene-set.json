@@ -2,158 +2,224 @@
   "$schema": "../schema/scene-set.schema.json",
   "id": "scene-set",
   "type": "scene-set",
-  "description": "Every real Foundry Scene in the campaign: the landing scene, one per beat of Session One, the rooms inside those beats, the campaign map they hang off, and the Directorate's own building. Built into a world by the Scene Set macro, idempotently -- run it twice and nothing changes.",
+  "description": "Every real Foundry Scene in the campaign: the landing scene, one per beat of Episode One, the rooms inside those beats, the campaign map they hang off, and the Directorate's own building. Built into a world by the Scene Set macro, idempotently -- run it twice and nothing changes.",
   "notes": [
-    "SCENE -> MAP -> SCENE. The map is the hub and the thing to cut back to between beats. Session One is a corridor, so its pins run in story order; nothing about the map assumes that stays true, and adding a pin is one entry here.",
+    "SCENE -> MAP -> SCENE. The map is the hub and the thing to cut back to between beats. Episode One is a corridor, so its pins run in story order; nothing about the map assumes that stays true, and adding a pin is one entry here.",
     "Every pin's position comes from the gazetteer location it names (data/locations/<id>.json, derived.centroidPx), never from a coordinate written here. Move a building in the gazetteer and its signpost follows it. data/schema/location.schema.json's own `pinAnchor` field is the eventual home for 'where the pin should sit rather than the centroid'; it is null everywhere today, so centroid plus an explicit offsetPx is what we have.",
-    "TWO PROPOSED CORRESPONDENCES, flagged rather than asserted: Kit Issue is pinned at The Bonded Store and Flood Tunnel Clearance at The Old Landing. Neither is what the brief describes -- the briefs want a quartermaster's counter and a drainage/compactor chamber under the old town, and the gazetteer has neither yet. Both want a real location adding; see locationNote on each.",
-    "The Section Officer's office (episode-c1s2--as-discussed) has NO scene here because it has no artwork yet. It is an outstanding art request, not an oversight."
+    "RESOLVED 2026-09-18 (GitHub issue #164): Kit Issue now pins at The Quartermaster's Stores (the-quartermasters-stores), a real gazetteer location Ingram drew and named for exactly this. ONE PROPOSED CORRESPONDENCE remains: Flood Tunnel Clearance is still pinned at The Old Landing, a whole district rather than the exact chamber -- the brief wants a drainage/compactor chamber under the old town, reached from Dock C, and neither is in the gazetteer yet. See its own locationNote. (A separate new location, The Drain Head, was drawn on the fortress island the same day -- explicitly NOT this chamber, see its own gmOnly note -- and does not resolve this gap.)",
+    "The Section Officer's office (episode-c1e2--as-discussed) now has art (GitHub issue #164) and its own scene under the episode-two group.",
+    "Added 2026-09-20: two new Episode One beats from the Episode One rebuild, e1-the-tram-back and e1-the-walk-down -- both connective/relax scenes with no NPCs, neither pinned on the map since neither is a distinct place. e1-the-walk-down reuses Flood Tunnel Clearance's own art deliberately: the scene ends at the exact gate Flood Tunnel Clearance opens on, same site, same night. e1-the-tram-back has NO real art yet -- nothing in the asset set is a tram interior -- and temporarily borrows The Errand's alley shot for its dusk-lit mood. Wants real art: a half-empty tram interior, evening light, streetlights just starting to show through the window.",
+    "RESOLVED 2026-09-22 (GitHub #189, both comments). e1-the-tram-back and e1-the-walk-down now point at their own dedicated art (both assigned 2026-09-21) rather than borrowing The Errand's alley and Flood Tunnel Clearance's own picture -- the reasons recorded above for the temporary borrow no longer apply. The Walk Down's callback reasoning (same gate Flood Tunnel Clearance opens on, same night) is still a legitimate alternative if Ingram prefers the visual continuity over the scene's own dedicated art; not chosen here, easy to revert.",
+    "ADDED 2026-09-22: the 17 scenes with no Scene document at all (3 in Episode One, 14 in Episode Two -- everything but As Discussed) now have one, closing the gap the second #189 comment measured. All 26 authored scenes across both episodes now have a Scene entry.",
+    "THE FOUR SCHOOL SCENES, RESOLVED: each gets its own Scene document (matching every other scene, one per brief, so the Scene Runner's automatic soundscape-and-scene binding still works per-brief) rather than one shared or split Scene. Two pairs reuse one room's art each -- e1-school-first-period and e2-school-period-two both use location--school-classroom; the natural-history and prep rooms are each used once -- because a school has a handful of real rooms and the same room legitimately hosts different lessons, the same reasoning already applied to the art assignment itself. A table that splits into the OTHER room a scene offers is a GM manually switching to that room's own Scene (all three exist), not something this manifest needs to solve.",
+    "LOCATION PINS: only six of the seventeen new entries got a locationRef (the four school scenes at main-school-complex, Familiarisation and The Names Are Still Up at main-mech-hangar, The Exercise at the-proving-ground, Unidentified Contact at the-plot-room) -- all confirmed against real, already-existing gazetteer files. The other scenes deliberately have none rather than a guessed one: some (The Long Afternoon, The Night Off) are genuinely multi-place scenes with no single location to pin, matching the existing precedent for e1-the-tram-back/e1-the-walk-down; the rest simply do not have a confirmed matching gazetteer entry yet. None of this blocks the Scene documents themselves, which need no pin to exist, show their art, or bind their soundscape -- it only means the campaign map's hub has fewer pins than it eventually could.",
+    "ADDED 2026-09-24: e1-from-up-here, a new opening scene ahead of The Road In -- Ingram asked for a \"Scene 0\": a long GM speech over one high-altitude picture of the city that sets up the world and hands straight into The Road In. It is order 0 and now THE landing scene (the one a new player meets); e1-the-road-in went from kind landing to kind beat the same day, since the schema allows exactly one landing. Order 0 is what numbers it \"00.\" in the sidebar (computeDisplayPrefixes), so The Road In keeps its \"01.\" and nothing after it renumbers. No locationRef and no hub pin, for the reason in its own locationNote. The campaign overture moved with it: it cold-opens From Up Here now, not The Road In (data/audio/soundscapes/)."
   ],
-
   "artRoot": "modules/blank-inheritance/assets/scenes",
-
   "groups": [
-    { "id": "session-one", "name": "Session One", "colour": "#7a2d1e" },
-    { "id": "the-city", "name": "The City", "colour": "#1e3a5f" },
-    { "id": "directorate", "name": "Directorate HQ", "colour": "#3a3a3a" }
+    {
+      "id": "episode-one",
+      "name": "Episode One",
+      "colour": "#7a2d1e"
+    },
+    {
+      "id": "episode-two",
+      "name": "Episode Two",
+      "colour": "#4a5940"
+    },
+    {
+      "id": "the-city",
+      "name": "The City",
+      "colour": "#1e3a5f"
+    },
+    {
+      "id": "directorate",
+      "name": "Directorate HQ",
+      "colour": "#3a3a3a"
+    }
   ],
-
   "scenes": [
     {
-      "id": "s1-the-road-in",
-      "name": "The Road In",
-      "art": "episode-c1s1--the-road-in",
-      "group": "session-one",
+      "id": "e1-from-up-here",
+      "name": "From Up Here",
+      "art": "episode-c1e1--from-up-here",
+      "group": "episode-one",
       "kind": "landing",
+      "order": 0,
+      "briefRef": "episode-c1e1--from-up-here",
+      "locationNote": "Deliberately no locationRef, and no pin on the campaign map: this is the whole city seen from the edge of the sky, not a place anyone stands, and the gazetteer has no single city-wide location to point at (its largest entries are districts and water regions). Same rule this manifest already applies to any scene with no one place to pin -- none rather than a guessed one. The Sign-Off's Place pass will report this as \"happens nowhere on the map\"; whether a view from above should be exempt from that check, or pinned to something, is Ingram's call.",
+      "blurb": "Kurose from very high up, at golden hour. The curve of the world along the top of the sky, cloud banked below you, a long bay with a pale beach running the whole length of it, and the city packed along the shore -- a river winding through the middle, farmland behind, and mountains behind that."
+    },
+    {
+      "id": "e1-the-road-in",
+      "name": "The Road In",
+      "art": "episode-c1e1--the-road-in",
+      "group": "episode-one",
+      "kind": "beat",
       "order": 1,
-      "briefRef": "episode-c1s1--the-road-in",
+      "briefRef": "episode-c1e1--the-road-in",
       "locationRef": "candidate-gate",
       "blurb": "The road in. Six separate journeys, six separate mornings, and the same letter in every pocket. The checkpoint at the end of it is the only road entrance to the candidate housing rows: a guard booth, a barrier arm, and a roster with your name already on it."
     },
     {
-      "id": "s1-intake-medicals",
+      "id": "e1-intake-medicals",
       "name": "Intake Medicals",
-      "art": "episode-c1s1--intake-medicals",
-      "group": "session-one",
+      "art": "episode-c1e1--intake-medicals",
+      "group": "episode-one",
       "kind": "beat",
       "order": 2,
-      "briefRef": "episode-c1s1--intake-medicals",
+      "briefRef": "episode-c1e1--intake-medicals",
       "locationRef": "intake-infirmary",
       "blurb": "Where the semester's screening blood draws happen. Thirty seconds, no explanation, and a queue that moves at the speed of paperwork. A hand-lettered sign reading FORMS FIRST - NO EXCEPTIONS is taped over an older one, in better handwriting, reading MEDICALS FIRST."
     },
     {
-      "id": "s1-intake-medicals-exam",
+      "id": "e1-intake-medicals-exam",
       "name": "Intake Medicals — The Examination Room",
-      "art": "episode-c1s1--intake-medicals--exam-room",
-      "group": "session-one",
+      "art": "episode-c1e1--intake-medicals--exam-room",
+      "group": "episode-one",
       "kind": "sub",
       "order": 3,
       "navigation": false,
-      "briefRef": "episode-c1s1--intake-medicals",
+      "briefRef": "episode-c1e1--intake-medicals",
       "locationRef": "intake-infirmary"
     },
     {
-      "id": "s1-kit-issue",
+      "id": "e1-kit-issue",
       "name": "Kit Issue",
-      "art": "episode-c1s1--kit-issue",
-      "group": "session-one",
+      "art": "episode-c1e1--kit-issue",
+      "group": "episode-one",
       "kind": "beat",
-      "order": 4,
-      "briefRef": "episode-c1s1--kit-issue",
-      "locationRef": "the-bonded-store",
-      "locationNote": "PROPOSED, not exact. The brief wants a quartermaster's counter issuing personnel equipment; The Bonded Store is the nearest thing the gazetteer has (Directorate-sealed stock, right cluster, right register) but it is not that counter. Wants a real location adding.",
-      "blurb": "The stores. Material arrives here under seal and stays sealed until somebody with the authority to break it says so — and today, apparently, that somebody is in a hurry and talking to three people at once."
+      "order": 6,
+      "briefRef": "episode-c1e1--kit-issue",
+      "locationRef": "the-quartermasters-stores",
+      "blurb": "The Garrison's own supply counter. Material arrives here under a real docket and is gone again inside a minute — and today, apparently, that means Nobu is in a hurry and talking to three people at once."
     },
     {
-      "id": "s1-the-errand",
+      "id": "e1-the-errand",
       "name": "The Errand",
-      "art": "episode-c1s1--the-errand",
-      "group": "session-one",
+      "art": "episode-c1e1--the-errand",
+      "group": "episode-one",
       "kind": "beat",
-      "order": 5,
-      "briefRef": "episode-c1s1--the-errand",
+      "order": 8,
+      "briefRef": "episode-c1e1--the-errand",
       "locationRef": "the-general-store-416",
       "blurb": "The biggest general store in the quarter: if it isn't in stock here, it isn't in stock nearby. The first time all six of you are outdoors in the city together — weather, noise, strangers, and the harbour two streets over."
     },
     {
-      "id": "s1-the-errand-tea-house",
+      "id": "e1-the-errand-tea-house",
       "name": "The Errand — The Tea House",
-      "art": "episode-c1s1--the-errand--tea-house",
-      "group": "session-one",
+      "art": "episode-c1e1--the-errand--tea-house",
+      "group": "episode-one",
       "kind": "sub",
-      "order": 6,
+      "order": 9,
       "navigation": false,
-      "briefRef": "episode-c1s1--the-errand",
+      "briefRef": "episode-c1e1--the-errand",
       "locationRef": "the-tea-house-420"
     },
     {
-      "id": "s1-the-errand-alley",
+      "id": "e1-the-errand-alley",
       "name": "The Errand — The Alley",
-      "art": "episode-c1s1--the-errand--alley",
-      "group": "session-one",
+      "art": "episode-c1e1--the-errand--alley",
+      "group": "episode-one",
       "kind": "sub",
-      "order": 7,
+      "order": 10,
       "navigation": false,
-      "briefRef": "episode-c1s1--the-errand",
+      "briefRef": "episode-c1e1--the-errand",
       "locationRef": "the-general-store-416"
     },
     {
-      "id": "s1-canteen",
-      "name": "Canteen",
-      "art": "episode-c1s1--canteen",
-      "group": "session-one",
+      "id": "e1-the-tram-back",
+      "name": "The Tram Back",
+      "art": "episode-c1e1--the-tram-back",
+      "group": "episode-one",
       "kind": "beat",
-      "order": 8,
-      "briefRef": "episode-c1s1--canteen",
+      "order": 11,
+      "briefRef": "episode-c1e1--the-tram-back",
+      "locationNote": "The evening run back to the combined campus is the island line, whose own platforms these are -- narrow gauge, four short carriages. The scene happens aboard a moving car on that line; the platforms are its fixed anchor and where the run ends.",
+      "blurb": "The evening tram back to campus, half-empty and running late. Streetlights are only just coming on outside the window, and for the first time all day there isn't an adult in the car with them.",
+      "locationRef": "island-platforms",
+      "approximate": false
+    },
+    {
+      "id": "e1-canteen",
+      "name": "Canteen",
+      "art": "episode-c1e1--canteen",
+      "group": "episode-one",
+      "kind": "beat",
+      "order": 12,
+      "briefRef": "episode-c1e1--canteen",
       "locationRef": "long-hall",
       "blurb": "The one building big enough to feed several hundred candidates in three seatings. Trestle tables, a serving line, and a noticeboard at the door thick with drill schedules and the occasional handwritten notice about a lost coat."
     },
     {
-      "id": "s1-canteen-tables",
+      "id": "e1-canteen-tables",
       "name": "Canteen — The Long Tables",
-      "art": "episode-c1s1--canteen--alt",
-      "group": "session-one",
+      "art": "episode-c1e1--canteen--alt",
+      "group": "episode-one",
       "kind": "sub",
-      "order": 9,
+      "order": 13,
       "navigation": false,
-      "briefRef": "episode-c1s1--canteen",
+      "briefRef": "episode-c1e1--canteen",
       "locationRef": "long-hall"
     },
     {
-      "id": "s1-flood-tunnel",
-      "name": "Flood Tunnel Clearance",
-      "art": "episode-c1s1--flood-tunnel",
-      "group": "session-one",
+      "id": "e1-the-walk-down",
+      "name": "The Walk Down",
+      "art": "episode-c1e1--the-walk-down",
+      "group": "episode-one",
       "kind": "beat",
-      "order": 10,
-      "briefRef": "episode-c1s1--flood-tunnel",
+      "order": 14,
+      "briefRef": "episode-c1e1--the-walk-down",
+      "locationRef": "old-landing",
+      "locationNote": "PROPOSED, same guess as Flood Tunnel Clearance's own locationNote below and for the same reason: The Old Landing is the right district but Dock C's exact gate isn't in the gazetteer. Art is deliberately reused from Flood Tunnel Clearance, since this scene ends at the same site, same night, immediately before it.",
+      "blurb": "The equipment lockup nearest Dock C, then ten quiet minutes walking down to the gate — waders, torches, and a smell already coming up off the water."
+    },
+    {
+      "id": "e1-flood-tunnel",
+      "name": "Flood Tunnel Clearance",
+      "art": "episode-c1e1--flood-tunnel",
+      "group": "episode-one",
+      "kind": "beat",
+      "order": 15,
+      "briefRef": "episode-c1e1--flood-tunnel",
       "locationRef": "old-landing",
       "locationNote": "PROPOSED, and district-level rather than exact. The brief puts this in a disused drainage/compactor chamber under the old town, reached from Dock C. The Old Landing is the right ground -- the mainland's original waterfront -- but the chamber itself is not in the gazetteer. Wants a real location adding.",
       "blurb": "The mainland's original waterfront, still the point every road eventually reaches. Ferry stages, chandlers, and a customs hall that predates the Directorate and is politely ignored by it. Underneath all of it, the drains."
     },
     {
-      "id": "s1-flood-tunnel-generator",
+      "id": "e1-flood-tunnel-generator",
       "name": "Flood Tunnel — The Generator Room",
-      "art": "episode-c1s1--flood-tunnel--generator-room",
-      "group": "session-one",
+      "art": "episode-c1e1--flood-tunnel--generator-room",
+      "group": "episode-one",
       "kind": "sub",
-      "order": 11,
+      "order": 16,
       "navigation": false,
-      "briefRef": "episode-c1s1--flood-tunnel",
+      "briefRef": "episode-c1e1--flood-tunnel",
       "locationRef": "old-landing"
     },
     {
-      "id": "s1-flood-tunnel-machine",
+      "id": "e1-flood-tunnel-machine",
       "name": "Flood Tunnel — The Machine Room",
-      "art": "episode-c1s1--flood-tunnel--machine-room",
-      "group": "session-one",
+      "art": "episode-c1e1--flood-tunnel--machine-room",
+      "group": "episode-one",
       "kind": "sub",
-      "order": 12,
+      "order": 17,
       "navigation": false,
-      "briefRef": "episode-c1s1--flood-tunnel",
+      "briefRef": "episode-c1e1--flood-tunnel",
       "locationRef": "old-landing"
     },
-
+    {
+      "id": "e2-as-discussed",
+      "name": "As Discussed",
+      "art": "episode-c1e2--as-discussed",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 1,
+      "briefRef": "episode-c1e2--as-discussed",
+      "blurb": "The Section Officer's office. Small, tidy, a duty roster on the wall — and, sitting open on the desk in a padded case, a single precision-ground glass vial that he does not look at once.",
+      "locationRef": "the-administrative-block",
+      "locationNote": "The Section Officer's own office, on a lower floor of the six-storey Directorate admin block (gazetteer req-2). Same building as The Hammer, which is the point: the party meets their immediate superior here long before they are taken upstairs."
+    },
     {
       "id": "the-city",
       "name": "The City",
@@ -161,20 +227,91 @@
       "group": "the-city",
       "kind": "hub",
       "order": 1,
-      "width": 6200,
-      "height": 6200,
-      "mapScale": 0.5,
+      "width": 12400,
+      "height": 12400,
+      "adoptSceneNamed": "Campaign Map",
       "blurb": "The city, as the Directorate draws it.",
       "pins": [
-        { "sceneRef": "s1-the-road-in", "offsetPx": [-70, -40] },
-        { "sceneRef": "s1-intake-medicals", "offsetPx": [40, 34] },
-        { "sceneRef": "s1-kit-issue" },
-        { "sceneRef": "s1-the-errand" },
-        { "sceneRef": "s1-canteen", "offsetPx": [0, -34] },
-        { "sceneRef": "s1-flood-tunnel" }
+        {
+          "sceneRef": "e1-the-road-in",
+          "offsetPx": [
+            -70,
+            -40
+          ]
+        },
+        {
+          "sceneRef": "e1-intake-medicals",
+          "offsetPx": [
+            40,
+            34
+          ]
+        },
+        {
+          "sceneRef": "e1-kit-issue"
+        },
+        {
+          "sceneRef": "e1-the-errand"
+        },
+        {
+          "sceneRef": "e1-canteen",
+          "offsetPx": [
+            0,
+            -34
+          ]
+        },
+        {
+          "sceneRef": "e1-flood-tunnel"
+        },
+        {
+          "sceneRef": "e1-school-first-period",
+          "offsetPx": [
+            -48,
+            -48
+          ]
+        },
+        {
+          "sceneRef": "e1-school-second-period",
+          "offsetPx": [
+            48,
+            -48
+          ]
+        },
+        {
+          "sceneRef": "e2-school-period-one",
+          "offsetPx": [
+            -48,
+            48
+          ]
+        },
+        {
+          "sceneRef": "e2-school-period-two",
+          "offsetPx": [
+            48,
+            48
+          ]
+        },
+        {
+          "sceneRef": "e2-familiarisation",
+          "offsetPx": [
+            -40,
+            0
+          ]
+        },
+        {
+          "sceneRef": "e2-the-names-are-still-up",
+          "offsetPx": [
+            40,
+            0
+          ]
+        },
+        {
+          "sceneRef": "e2-the-exercise"
+        },
+        {
+          "sceneRef": "e2-unidentified-contact"
+        }
       ]
     },
-
     {
       "id": "hq-exterior",
       "name": "Directorate HQ — Exterior",
@@ -207,6 +344,197 @@
       "kind": "place",
       "order": 4,
       "navigation": false
+    },
+    {
+      "id": "e1-assembly",
+      "name": "Assembly",
+      "art": "episode-c1e1--assembly",
+      "group": "episode-one",
+      "kind": "beat",
+      "order": 4,
+      "briefRef": "episode-c1e1--assembly",
+      "locationRef": "the-drill-hall",
+      "locationNote": "The largest indoor space on the island and the only one big enough for a whole intake at once -- drawn by Ingram 2026-09-22 (gazetteer req-1). 209 m from the Main School Complex, which makes Assembly -> School: First Period a short hop; 1.3 km from the Intake Infirmary, which makes the arrival a march rather than a shuffle next door."
+    },
+    {
+      "id": "e1-school-first-period",
+      "name": "School: First Period",
+      "art": "location--school-classroom",
+      "group": "episode-one",
+      "kind": "beat",
+      "order": 5,
+      "briefRef": "episode-c1e1--school-first-period",
+      "locationRef": "main-school-complex",
+      "blurb": "The Main School Complex, first period. Two doors off one corridor: a map of the city pinned floor to ceiling in one room, and a machine shop loud enough to hear from the yard in the other. A hand-lettered timetable on the door says which is which this week."
+    },
+    {
+      "id": "e1-school-second-period",
+      "name": "School: Second Period",
+      "art": "location--school-specimen-room",
+      "group": "episode-one",
+      "kind": "beat",
+      "order": 7,
+      "briefRef": "episode-c1e1--school-second-period",
+      "locationRef": "main-school-complex",
+      "blurb": "The Main School Complex, second period. A specimen room wall-to-wall with jars and trays of things caught within a mile of here, and a room down the hall where a rank of old headsets hisses quietly to itself between lessons."
+    },
+    {
+      "id": "e2-the-board",
+      "name": "The Board",
+      "art": "episode-c1e2--the-board",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 2,
+      "briefRef": "episode-c1e2--the-board",
+      "locationRef": "the-muster-yard",
+      "locationNote": "The hard yard at the centre of the Landing End with the duty board under its tin hood and the Time Office hatch behind it (gazetteer req-3). 372 m from the Main Mech Hangar."
+    },
+    {
+      "id": "e2-school-period-one",
+      "name": "School: Period One",
+      "art": "location--school-prep-room",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 3,
+      "briefRef": "episode-c1e2--school-period-one",
+      "locationRef": "main-school-complex",
+      "blurb": "The Main School Complex, first period, a fortnight on. A history classroom with a locked cupboard of older textbooks nobody is issued any more, and a civil defence room with a chalked alert-state chart that has not changed in a hundred and fifty years."
+    },
+    {
+      "id": "e2-slack-water",
+      "name": "Slack Water",
+      "art": "episode-c1e2--slack-water",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 4,
+      "briefRef": "episode-c1e2--slack-water",
+      "locationRef": "the-outer-sea-wall",
+      "locationNote": "The island's own seaward wall on the north-east side (gazetteer req-4). About twenty minutes' walk from the Muster Yard, past the Long Sheds -- 40 minutes of the four-hour tide window spent on travel, which the party should be allowed to work out for themselves."
+    },
+    {
+      "id": "e2-school-period-two",
+      "name": "School: Period Two",
+      "art": "location--school-classroom",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 5,
+      "briefRef": "episode-c1e2--school-period-two",
+      "locationRef": "main-school-complex",
+      "blurb": "The Main School Complex, second period, afternoon light. A teaching bench set up for field medicine, equipment out and ready, and a civics room with the founding charter framed on the wall — one paragraph of it painted over, a long time ago."
+    },
+    {
+      "id": "e2-the-long-afternoon",
+      "name": "The Long Afternoon",
+      "art": "episode-c1e2--the-long-afternoon",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 6,
+      "briefRef": "episode-c1e2--the-long-afternoon",
+      "locationRef": "landing-end",
+      "approximate": false,
+      "locationNote": "Deliberately the REGION, not a building: 'wherever each of them decides. The base is open to them until evening muster.' The party disperses across the whole Landing End and reconvenes at the yard clock."
+    },
+    {
+      "id": "e2-the-override",
+      "name": "The Override",
+      "art": "episode-c1e2--the-override",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 7,
+      "briefRef": "episode-c1e2--the-override",
+      "locationRef": "the-muster-yard",
+      "locationNote": "Evening muster, same yard and same board as The Board -- which is what makes the override public before it is personal."
+    },
+    {
+      "id": "e2-the-night-off",
+      "name": "The Night Off",
+      "art": "episode-c1e2--the-night-off",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 8,
+      "briefRef": "episode-c1e2--the-night-off",
+      "locationRef": "row-c-block-3",
+      "approximate": false,
+      "locationNote": "'First-term overflow: bunks assigned faster than furniture arrives, so half the rooms still have packing crates doing duty as nightstands.' That is this party exactly -- they arrived this week. Their home block, and the eastern fence the scene's landmark names runs behind the row."
+    },
+    {
+      "id": "e2-zero-six-hundred",
+      "name": "Zero Six Hundred",
+      "art": "episode-c1e2--zero-six-hundred",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 9,
+      "briefRef": "episode-c1e2--zero-six-hundred",
+      "locationRef": "long-hall",
+      "approximate": false,
+      "locationNote": "The scene names it outright -- 'the combined-campus canteen'. Same building as Episode One's Canteen scene, an hour before the hangar instead of at the end of a day."
+    },
+    {
+      "id": "e2-familiarisation",
+      "name": "Familiarisation",
+      "art": "episode-c1e2--familiarisation",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 10,
+      "briefRef": "episode-c1e2--familiarisation",
+      "locationRef": "main-mech-hangar",
+      "blurb": "Hangar Two. Twelve machines under one glazed roof, none of them what the posters promised: converted diggers, a crane rig, decommissioned army trucks, and a slate board by the door where a name gets chalked against each one."
+    },
+    {
+      "id": "e2-the-exercise",
+      "name": "The Exercise",
+      "art": "episode-c1e2--the-exercise",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 11,
+      "briefRef": "episode-c1e2--the-exercise",
+      "locationRef": "the-proving-ground",
+      "blurb": "The Proving Ground. A manoeuvre course laid out in cones and oil drums on cinder ground east of the Gatehouse, with a control post that calls the line hot or safe and means it."
+    },
+    {
+      "id": "e2-unidentified-contact",
+      "name": "Unidentified Contact",
+      "art": "episode-c1e2--unidentified-contact",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 12,
+      "briefRef": "episode-c1e2--unidentified-contact",
+      "locationRef": "the-plot-room",
+      "blurb": "The Plot Room. A bank of consoles the width of the wall, headphones and hand-marked charts, and — this morning — one chair pushed back from the desk a little too fast."
+    },
+    {
+      "id": "e2-first-contact",
+      "name": "First Contact",
+      "art": "episode-c1e2--first-contact",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 13,
+      "briefRef": "episode-c1e2--first-contact",
+      "locationRef": "old-landing",
+      "approximate": false,
+      "locationNote": "'The harbour road below the old town' -- The Old Landing is the mainland's original waterfront, 'still the point every road eventually reaches', with ferry stages and chandlers. Corrected from north-quay 2026-09-22: that is the north-east shore, not below the old town. The fight is on civilian mainland ground, which is the point -- the Directorate does not define this shore, and the call-out crosses the causeway off the fortress island to reach it."
+    },
+    {
+      "id": "e2-the-hammer",
+      "name": "The Hammer",
+      "art": "episode-c1e2--the-hammer",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 14,
+      "briefRef": "episode-c1e2--the-hammer",
+      "locationRef": "the-administrative-block",
+      "locationNote": "The top floor -- 'Carpet, which none of them has stood on since they arrived.' Same building as As Discussed, two floors above the noise."
+    },
+    {
+      "id": "e2-the-names-are-still-up",
+      "name": "The Names Are Still Up",
+      "art": "episode-c1e2--the-names-are-still-up",
+      "group": "episode-two",
+      "kind": "beat",
+      "order": 15,
+      "briefRef": "episode-c1e2--the-names-are-still-up",
+      "locationRef": "main-mech-hangar",
+      "blurb": "Hangar Two, after dark. The gantry crane silent overhead, the machines parked in rows, and the same slate board from this morning — the names on it not rubbed off yet."
     }
   ]
 }

@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "canteen-manager",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Manager, The Works Canteen",
   "pole": null,

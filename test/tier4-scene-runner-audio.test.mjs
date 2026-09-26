@@ -28,8 +28,8 @@ function realModuleFiles() {
     [`${AUDIO_DIR}/library.json`]: readJson("data/audio/library.json"),
     [`${AUDIO_DIR}/review.json`]: readJson("data/audio/review.json"),
     "data/campaign/campaign/asset-registry.json": readJson("data/campaign/asset-registry.json"),
-    [`${AUDIO_DIR}/soundscapes/episode-c1s1--the-errand.json`]: readJson("data/audio/soundscapes/episode-c1s1--the-errand.json"),
-    [`${AUDIO_DIR}/soundscapes/episode-c1s1--canteen.json`]: readJson("data/audio/soundscapes/episode-c1s1--canteen.json"),
+    [`${AUDIO_DIR}/soundscapes/episode-c1e1--the-errand.json`]: readJson("data/audio/soundscapes/episode-c1e1--the-errand.json"),
+    [`${AUDIO_DIR}/soundscapes/episode-c1e1--canteen.json`]: readJson("data/audio/soundscapes/episode-c1e1--canteen.json"),
     [`${AUDIO_DIR}/cues/errand-uncomfortable-truth.json`]: readJson("data/audio/cues/errand-uncomfortable-truth.json"),
     [`${AUDIO_DIR}/cues/canteen-assignment-lands.json`]: readJson("data/audio/cues/canteen-assignment-lands.json")
   };
@@ -52,7 +52,7 @@ test("picking a scene with a real authored soundscape actually applies it — th
     engine.registerAudioSettings();
     await playlists.syncAudioPlaylists({ notify: false }); // the one-time "Build playlists" step, done first in real play too
 
-    await runner.applySceneAudio("episode-c1s1--the-errand");
+    await runner.applySceneAudio("episode-c1e1--the-errand");
 
     const mix = engine.currentMix();
     assert.equal(mix.music, 0, "the-errand's soundscape sets no mix override, so it should sit at unity");
@@ -91,7 +91,13 @@ test("ticking a beat with a bound cue fires it — the errand's uncomfortable-tr
     const { runner, engine } = await freshModules();
     engine.registerAudioSettings();
 
-    await runner.fireBeatAudio("episode-c1s1--the-errand", "what-does-he-think-of-your-employer");
+    // Real beat id, confirmed against episode-c1e1--the-errand.json. The cue's
+    // OWN trigger carried a typo'd id ("what-does-he-think..." instead of
+    // "what-he-thinks...") until 2026-09-22, and this test called
+    // fireBeatAudio with that exact same wrong id -- so the cue never fired at
+    // the real table, and this test passed anyway, because both sides agreed
+    // on the same mistake. Fixed in the same pass as the cue itself.
+    await runner.fireBeatAudio("episode-c1e1--the-errand", "what-he-thinks-of-your-employer");
 
     const mix = engine.currentMix();
     assert.equal(mix.music, -4, "the cue's own mix step should have landed");
@@ -108,7 +114,7 @@ test("ticking a beat with no cue bound to it does nothing, silently", async () =
     engine.registerAudioSettings();
     const before = engine.currentMix();
 
-    await assert.doesNotReject(() => runner.fireBeatAudio("episode-c1s1--the-errand", "into-the-city"));
+    await assert.doesNotReject(() => runner.fireBeatAudio("episode-c1e1--the-errand", "into-the-city"));
 
     assert.deepEqual(engine.currentMix(), before);
   } finally {
@@ -131,7 +137,7 @@ test("un-ticking a beat never re-fires its cue — only a NEWLY ticked beat fire
     // clicking it again to undo the tick -- which scene-runner's own
     // #onToggleBeat would NOT accompany with a second fireBeatAudio call.
     await engine.setMix({ music: -2 });
-    await runner.fireBeatAudio("episode-c1s1--canteen", "the-announcement");
+    await runner.fireBeatAudio("episode-c1e1--canteen", "the-announcement");
     const afterFirstFire = engine.currentMix().music;
 
     // The "un-tick" branch in #onToggleBeat never calls fireBeatAudio at all,

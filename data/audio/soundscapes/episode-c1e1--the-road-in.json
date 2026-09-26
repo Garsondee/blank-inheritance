@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--the-road-in",
+  "type": "audio-soundscape",
+  "title": "S1 · The Road In",
+  "note": "CHANGED 2026-09-24. This used to carry the campaign overture (\"Main Title\"), cold-opening the whole campaign; a new opening scene, From Up Here, now sits ahead of it and the overture moved there with the cold open (see episode-c1e1--from-up-here.json and the overture's own asset-registry note). The Road In picks up where that speech lands: six separate journeys into the city, told round the table as a montage, each player asked how they get here and what they left behind. \"Mirai e no Kibou\" (roughly \"Hope for the Future\", Giant Robo OST VII, from the relaxed shelf) replaces it -- chosen for a warm, forward-looking piece that can sit under six people talking without competing with them, which is the scene's actual job; the overture's scale belongs to the view from above, not to one kid on a tram. One named track rather than a pool, for the same reason as before: six arrivals get one piece of music, not six, and the score's job is continuity across the cuts. Looped -- the round of the table outlasts a two-minute track. Picked by title and shelf, not by ear: worth a listen before the session, and swapping it back to the relaxed pool is a one-line change. Not reserved (asset-registry.json), so it can still turn up in the relaxed pool's shuffle elsewhere; reserve it if it should belong to this scene alone. No ambience, unchanged: a montage crosses too many different places for one bed to be honest about any of them.",
+  "music": { "track": "15-masamichi-amano-mirai-e-no-kibou", "loop": true },
+  "ambience": [],
+  "fade": 5000
+}

@@ -1,0 +1,333 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-hammer",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-hammer",
+  "title": "The Hammer",
+  "summary": "The Section Officer escalates as far up as he can reach and gets Section Nine marched in front of the Deputy Director. It is a genuinely frightening room. Then a two-hundred-year-old doctor asks for a private word, gets it immediately, and the room turns over.",
+  "goal": "The party answers for what they did to somebody with the authority to end their careers, and walks out with something that is not a punishment and that nobody explains.",
+  "howToPlay": "Quiet and heavy, and then quietly strange. **The fear in the first half has to be real or the turn in the second half is worth nothing.** The Deputy Director is not a bully and does not raise his voice. He is simply the most senior person any of them has ever been in a room with, and he is not pleased.\n\n**Do not let him say they did the right thing.** He will not absolve them. What he actually does is harder and better: he tells them they were wrong, that he would give the same order again, and that he is glad they are alive, and he means all three.\n\n**Nobody explains Shucks.** Not in this scene, not afterwards, not ever in this episode.",
+  "runsAbout": "20-25 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The top floor of the administrative block. Carpet, which none of them has stood on since they arrived.",
+    "firstThing": "How quiet it is. Two floors down from a building full of people and there is no sound up here at all.",
+    "readAloud": "The top floor has carpet, and after a fortnight of concrete and cinder that is the thing that tells you where you are.\n\nThere is a bench outside the door. Your section officer is standing rather than sitting on it, and he has been standing for some time.",
+    "landmark": "the closed door, and the bench outside it",
+    "holdInReserve": "There is a second chair inside the room, set slightly apart from the desk, that nobody is using and that was there before the party arrived.",
+    "carriesIn": [
+      {
+        "when": "The party went in at the harbour",
+        "then": "They are here for disobeying a direct instruction and taking Directorate machines into an unidentified contact two hours after being issued them. That is the charge and it is accurate."
+      },
+      {
+        "when": "The party held position as instructed",
+        "then": "They are here because somebody senior wants to look at the six trainees who were closest, did exactly as they were told, and watched. The room is the same and the question is different -- see this scene's notes."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "deputy-director",
+      "npcRef": "deputy-director",
+      "label": "The Deputy Director",
+      "role": "One rung below the top of the Directorate. Has the radio log and the incident report in front of him.",
+      "arrival": "splash",
+      "brief": {
+        "wants": "To find out what these six actually are before he decides anything about them. He has read the log twice and it does not tell him.",
+        "opensWith": "Asking them to come in, by name, having clearly read the names beforehand and not from a list in front of him.",
+        "willDiscuss": [
+          {
+            "topic": "Exactly what happened, which he already knows in detail",
+            "note": "He has the full radio log and the incident report. He is not asking to establish facts; he is asking to hear how they describe them."
+          },
+          {
+            "topic": "Why the order to stay clear was correct",
+            "note": "Plainly and without anger. He would have given the same order, he says so, and he does not soften it."
+          },
+          {
+            "topic": "What the Directorate is for, if pushed",
+            "note": "Briefly and with real feeling, and it is the same thing he said from the platform at the Assembly. He has not changed his position since."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What he is going to do about them, before he has decided",
+            "why": "He does not think aloud in front of trainees and will not be hurried. If asked directly he says he has not decided, which is true and is worse than a threat."
+          },
+          {
+            "topic": "Anything about the contacts themselves",
+            "why": "Not because it is secret. Because nobody knows anything, including him, and he will not speculate in front of children."
+          },
+          {
+            "topic": "What Shucks says to him",
+            "why": "Never. Not this scene, not later. If the party asks afterwards he tells them it was a medical matter and changes the subject, and that is the last word on it this episode."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Measured, unhurried, genuinely warm underneath the formality -- and today the warmth is a long way underneath it.",
+          "tics": [
+            "Pauses before the parts he cares about rather than after them",
+            "Says 'this city' where the written text says 'the municipality'",
+            "Asks a question and then actually waits, however long it takes",
+            "Uses their names, correctly, without reading them"
+          ],
+          "samples": [
+            "\"Say it plainly. I have read the log, so you are not telling me anything I have to be careful with.\"",
+            "\"That is not what I asked you. -- No, take your time. I will wait.\"",
+            "\"You may disagree with me. You may not do it quietly and then do as you like.\"",
+            "\"I am not interested in whose idea it was.\"",
+            "\"Thank you. I mean that, and I am aware it is a strange thing to be told in this room.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "label": "The Section Officer",
+      "role": "Brought them here. Present, standing, and getting steadily less comfortable.",
+      "walkOn": false,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To be seen to have escalated this correctly. He is right that it needed escalating and he did it by the book, and he expected the room to go differently.",
+        "opensWith": "Standing to attention rather badly and saying his own name.",
+        "willDiscuss": [
+          {
+            "topic": "The regulation that was breached, precisely",
+            "note": "He is correct about it. He has the reference. Nobody asks him for it."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Anything, once the Deputy Director starts speaking",
+            "why": "He is not invited to, and he notices that he is not invited to."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped and procedural, and in this room noticeably smaller than it was in his own office.",
+          "tics": [
+            "Says 'as discussed' about things that were not discussed",
+            "Answers a question by reading the relevant clause aloud",
+            "When surprised, pauses exactly one beat and recasts the surprise as expected"
+          ],
+          "samples": [
+            "\"Standing Order 14, paragraph four. Direct instruction from a controlling officer.\"",
+            "\"...Sir.\"",
+            "\"As discussed, I brought it up the chain at the earliest opportunity.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "shucks-mordant",
+      "npcRef": "shucks-mordant",
+      "label": "Shucks Mordant",
+      "role": "Arrives partway through, asks for a private word, and gets it instantly.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Not stated, not guessable from this scene, and not available to the party. He is entirely unhurried about getting it.",
+        "opensWith": "A knock that is not a request, and the door opening before anybody answers it.",
+        "willDiscuss": [
+          {
+            "topic": "Nothing, in front of the party",
+            "note": "He is friendly, he greets them by name, he asks one of them how the thing he treated is healing -- and he says nothing whatsoever about why he is here."
+          },
+          {
+            "topic": "Anything a player says to him directly, in the room or on the way out",
+            "note": "Warmly, briefly, and without slowing down. He is pleased to see them and has somewhere to be. He answers small talk properly and deflects anything larger with the same unembarrassed refusal he used at the medical."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What he wants, what he says, or why he has standing to walk into this room",
+            "why": "Never, in this episode. Afterwards he is exactly as warm as he has always been and deflects any question about it the same way he deflects the screen results -- kindly, immediately, and without pretending he is not deflecting."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Warm, unhurried, deadpan. Entirely unchanged by the room he is standing in, which is the most remarkable thing about him in it.",
+          "tics": [
+            "Gives instructions as single words",
+            "Says the practical thing before the kind thing, and means both",
+            "Compares people to relatives he processed decades ago"
+          ],
+          "samples": [
+            "\"Hello again. -- No, nothing's wrong. Sit where you are.\"",
+            "\"That's not mine to tell you, I'm afraid. It's not a secret, it's just not mine.\"",
+            "\"You look tired. All of you look tired. That's the correct way to look, after that.\"",
+            "\"I'll see you at the next one of these.\" (He means an intake medical. He does not mean anything else.)"
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-bench",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The corridor outside. Carpet, silence, a closed door, and their section officer standing rather than sitting.",
+      "npcRef": "section-officer",
+      "direction": "Let them wait. Do not fill it -- a genuinely quiet minute before this room is worth more than anything you could put in it.\n\nHe does not speak to them and does not gloat. He escalated this correctly and by the book, and standing in this corridor is the first moment it has occurred to him that being correct might not be the same as being right.\n\n**He says nothing, the whole time, and that is the beat.** He is not gloating -- he escalated this as far as he could reach and he is now standing outside a door waiting to find out whether he was right to.\n\nIf a player speaks to him he answers in four words or fewer. If they let the players talk to each other instead, let them, and do not interrupt.",
+      "note": "HOW TO PLAY IT. If players talk to each other here, let them, and do not interrupt. What they decide on this bench about what they are going to say is the most useful thing that happens before the door opens.",
+      "readAloud": "Carpet. You have not stood on carpet since you got here.\n\nA closed door, a bench that is not quite long enough for six, and your section officer standing about four feet away with his hands behind his back, not looking at any of you.\n\nHe has been waiting longer than you have."
+    },
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Inside. He has the radio log and the incident report, he has read both twice, and he is not asking them what happened.",
+      "npcRef": "deputy-director",
+      "readAloud": "\"Sit down. -- There are only four chairs. Some of you will have to stand, and I am sorry about that.\"\n\nHe closes the folder in front of him without looking at it again.\n\n\"I have the log. I have read it twice. I am not going to ask you what happened. The instruction you were given was correct, and I would have given it myself, and I want that understood before anything else is said in this room.\"",
+      "direction": "**He is not angry and he never raises his voice.** The weight in this room comes entirely from rank, quiet and carpet.\n\nHe does not accuse them, does not list the regulations, and does not let the Section Officer do it either. He states the one thing he wants established -- the order was correct -- and then he starts asking questions.",
+      "note": "HOW TO PLAY IT. The Section Officer is in the room and is not invited to speak. Do not give him a line here unless a player addresses him directly. Him noticing that he is not being consulted is the whole of his content in this scene."
+    },
+    {
+      "id": "answer-for-yourselves",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "He asks each of them, individually, one question, and then actually waits for the answer.",
+      "npcRef": "deputy-director",
+      "challengeRef": "c1e2-the-hammer",
+      "checkRef": "answer-for-yourself",
+      "direction": "**Go round the table and give every player their own question.** Not the same question six times -- ask each of them something that only makes sense asked of them, based on what that character actually did at the harbour.\n\nUseful shapes: what did you think was going to happen? Who decided? What would you do if I ordered you to stand down from a thing like that again? What were you doing in the ninety seconds before you moved?\n\n**Then wait.** He is genuinely listening and he is not looking for a particular answer. Honesty, defiance, fear and silence all get the same steady attention.",
+      "note": "HOW TO PLAY IT. This is the scene's agency and it is the reason the scene is not a cutscene. Every player speaks for themselves to the most powerful person in the building.\n\nThe roll is not pass-fail and does not decide their fate -- see the challenge file. It measures how well a given answer lands, and a player who says something true and unpolished should do better than one who says something clever.\n\nIF A PLAYER REFUSES TO ANSWER: he accepts the silence without comment and moves to the next person. He does not press and he does not punish it. Silence is an answer and he treats it as one."
+    },
+    {
+      "id": "what-they-say-about-her",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He raises the officer on the net himself. He has the log, including her refusing to order them in and saying so twice, and he asks the party what they make of it.",
+      "npcRef": "deputy-director",
+      "direction": "**He already knows exactly what she said and did.** It is all in the log in front of him. He is not fishing for information.\n\nWhat he is doing is finding out what these six will say about somebody who tried to protect them, when saying the wrong thing would be easy and would help them.\n\n**Ask, then stop.** Do not suggest an answer, do not indicate that there is a right one, and do not let the Section Officer speak into the gap. Whatever comes back, take it at face value and note it down.\n\n**Nobody has to say anything.** A player may decline to answer, and a table that sits in silence is making one of the three real choices here. It costs them nothing today, and he does not press. Every route out of this beat is free for the party; the only person who can lose anything is the officer on the net.\n\n**Speaking up is a choice and is not rolled for. Only the speaking is.** A player who says something for her rolls `speak-for-her`. A party that says nothing takes the failure outcome without a roll. A party that agrees with their section officer gets the critical failure outcome for her and pays nothing themselves today, which is the whole reason it is worth offering.\n\n**He does not react either way.** They leave this room not knowing which way it went. They find out from her, later, and not in this episode.",
+      "note": "HOW TO PLAY IT. **This is not a trap and honesty is not punished.** The facts are already established; nothing the party says can hurt her, and nothing can save them. What it changes is what the Deputy Director now knows about their character, which is the only thing he is actually in this room to find out.\n\nA party that defends her, takes the blame squarely, or simply says she told us not to and we went anyway all land well. A party that tries to shift it onto her lands badly and is not told so.\n\nGM-ONLY: her career is not in danger at any point and never was. Do not let the party believe otherwise through anything he says -- if somebody asks directly whether she is in trouble, he says no, flatly, because she is not.",
+      "when": {
+        "condition": "when the Comms Officer comes up, which she will, one way or another"
+      },
+      "challengeRef": "c1e2-the-hammer",
+      "checkRef": "speak-for-her"
+    },
+    {
+      "id": "shucks",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "A knock. Shucks Mordant comes in without waiting, apologises to the room, and asks for a private word.",
+      "npcRef": "shucks-mordant",
+      "readAloud": "The knock is not a request and the door opens before anybody answers it.\n\n\"Sorry. -- No, don't get up.\" He nods at the six of you the way he did across a desk a fortnight ago, and then, to the man behind the desk: \"A word. It won't take long and it won't wait.\"\n\n\"...Yes. Send them out.\"",
+      "direction": "**Play the speed of it.** A doctor walks into the second-most-senior office in the Directorate without an appointment and is granted a private audience inside ten seconds, and nobody in the room finds that strange except the party.\n\nHe is exactly as warm as he was at the medical. He greets them, asks one of them about something he treated, tells them they look like they have had a week.\n\nThen the party is put back out in the corridor, and the door closes.\n\n**If a player speaks to him, let him answer.** He is not a cutscene and he is not in a hurry to get past them -- he says hello, he tells them they look tired, and he does not explain anything. His voice samples are for exactly that, because his scripted line is only nine words long.",
+      "note": "HOW TO PLAY IT. **This is the turn and it works entirely on what is not shown.** The party gets a closed door and a wait. Do not narrate anything through it, do not allow an eavesdropping roll to succeed, and do not hint at the content.\n\nWhat they are given instead is far better: the knowledge that the skeleton who took their blood has standing in this building that nobody has ever mentioned.\n\nGM-ONLY: Shucks has known what their screens mean since the morning he ran them. He is not protecting them out of sentiment and he is not their patron. What he is actually doing, and what he tells the Deputy Director, is not decided in this episode and should not be improvised at the table -- if it gets invented, it becomes canon and belongs on a Node first.\n\nWHAT IT DOES NOT MEAN: he is not their guardian angel, this is not a favour he will do twice, and the party has not acquired a protector.",
+      "nodeRefs": [
+        "arc-what-shucks-said"
+      ]
+    },
+    {
+      "id": "the-corridor-again",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "challengeRef": "c1e2-the-hammer",
+      "checkRef": "why-does-he-get-in",
+      "when": {
+        "condition": "while the party are waiting outside for the second time, if anybody says they are thinking about what just happened"
+      },
+      "text": "Back on the bench, with the door shut and a conversation going on behind it that they are not part of.",
+      "direction": "**Optional, and only if somebody raises it.** A doctor walked into the second-most-senior office in the Directorate without an appointment and was granted a private audience inside ten seconds, and every adult in that corridor treated it as ordinary.\n\nOffer `why-does-he-get-in` to a player who says they are trying to make sense of it. Give them the observation and no explanation -- what they get is that the access is real and unaccounted for, which is a question worth carrying, not an answer.\n\n**This connects to the hand.** Same man, same unexplained standing, and a player who found the hand in Intake Medicals now has two things that do not fit one person.",
+      "nodeRefs": [
+        "arc-shucks-hand"
+      ]
+    },
+    {
+      "id": "what-they-leave-with",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "They are called back in. What happens to them is not a punishment, and nobody explains why.",
+      "npcRef": "deputy-director",
+      "readAloud": "\"Your machines are confirmed to you. Your section is added to the response roster with effect from tomorrow -- which means that the next time something of this kind happens, you will be sent, properly, by somebody with the authority to send you.\"\n\nHe opens the folder again, and closes it again.\n\n\"Your fortnight of duties stands. That is your section officer's to set and I am not going to interfere with it. -- That is all. Thank you.\"",
+      "direction": "**Deliver it flat and let the party work out what they have just been handed.** It is not a reward, it is not a reprimand, and it is unmistakably a consequence.\n\nDo not have him explain. Do not have him refer to Shucks. Do not have him soften it with praise at the end.\n\nThe last thing he says is thank you, and he means it, and it is the most disorienting sentence in the scene.",
+      "note": "HOW TO PLAY IT. What they leave with, exactly: the machines are formally theirs, they are on the response roster from tomorrow, and the punishment fortnight is untouched. All three at once.\n\nThat is genuinely ominous and genuinely exciting and it is not an absolution. They have been moved from being trainees who broke a rule to being an asset that gets deployed, and nobody has asked them whether they wanted that.\n\nTHE SECTION OFFICER: keeps his fortnight, which is the correct and funny outcome. He was right on the regulation and he is being told so. He does not look pleased about winning."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "\"That is all. Thank you.\"",
+    "readAloud": "Carpet, then stairs, then concrete again.\n\nSomewhere behind and above you, a door that a doctor is still on the other side of.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "standing",
+        "delta": 1,
+        "why": "They are on the response roster. That is standing, whether or not anybody wanted it."
+      },
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Award it for how they answered for each other in that room, especially anybody who took blame that was not solely theirs."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "They are outside, it is dark, and nobody has told them to go anywhere.",
+      "scatterRisk": false
+    },
+    "onwards": "Into The Names Are Still Up -- Hangar Two after dark, the only room today that does not belong to somebody who outranks them. That is where the episode ends.",
+    "writeDown": [
+      "What each of them said when asked directly. This is the best characterisation material the campaign has produced so far.",
+      "What they said about the Comms Officer, if it came up.",
+      "That they are on the response roster from tomorrow.",
+      "That Shucks walked into the Deputy Director's office without an appointment and was granted a private audience in ten seconds. The party saw that. It is the most important thing they learned today and nobody has explained it."
+    ]
+  },
+  "carryForward": [
+    "Section Nine is on the response roster. The next alert is theirs, properly and by order.",
+    "Shucks Mordant has standing somewhere near the top of this building, and no explanation for it.",
+    "The punishment fortnight stands, and has another week to run."
+  ],
+  "temptations": [
+    {
+      "id": "ask-him-what-it-is-for",
+      "text": "He was genuinely stirring on the platform at the Assembly. Somebody could ask him, here, what the Directorate is actually for -- and he would answer."
+    },
+    {
+      "id": "who-gets-the-blame",
+      "text": "Nobody has decided whose idea it was. Somebody could take that."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-fear-was-real",
+      "text": "Whether the first half of the room was genuinely frightening.",
+      "scaleNote": "0 = nobody felt any weight, 10 = the table was tense."
+    },
+    {
+      "id": "not-absolved",
+      "text": "Whether 'you were wrong, I would give the same order again, and I am glad you are alive' landed as all three things at once."
+    },
+    {
+      "id": "everyone-spoke",
+      "text": "Whether every player got their own question and their own answer, and how those went."
+    },
+    {
+      "id": "shucks-unexplained",
+      "text": "The door closing on Shucks and the Deputy Director -- whether the table registered how strange that was.",
+      "scaleNote": "0 = went past them, 10 = it is the thing they are still talking about."
+    },
+    {
+      "id": "the-response-roster",
+      "text": "Whether what they left with read as ominous and exciting rather than as a reward."
+    }
+  ],
+  "notes": "THE STRUCTURE IN ONE LINE: make the room genuinely frightening, let every player answer for themselves, and then turn it over with something nobody explains.\n\nTHE DEPUTY DIRECTOR DOES NOT ABSOLVE THEM. He will not say they did the right thing. He says they were wrong, that he would give the same order again, and that he is glad they are alive, and he means all three simultaneously. That is the hardest and most honest thing anybody says to the party in two episodes and it should not be softened.\n\nTHE COMMS OFFICER IS NEVER IN DANGER. Her judgement was correct, her career is not at risk, and the Deputy Director will say so plainly if asked. What the party says about her costs her nothing and tells him everything.\n\nSHUCKS IS NOT EXPLAINED, IN THIS EPISODE OR AFTERWARDS. No eavesdropping succeeds, no hint is dropped, and no NPC remarks on it. What the party actually gets is the observable fact that he has standing here, which is worth more than any answer would be.\n\nGM-ONLY AND NOT DECIDED: he has known what their screens mean since intake. What he says behind that door, and why he has the standing to say it, is not written and must not be improvised into canon at the table. If it gets invented, write it down as a Node first.\n\nIF THE PARTY HELD POSITION at the harbour, the scene still runs. The Section Officer has nothing to escalate, so they are summoned rather than marched, and the Deputy Director's question changes from why did you go to what did you see -- he wants the only eyewitness account he has from anybody who was close. The answer-for-yourselves beat runs identically and is if anything better. Shucks still arrives, the door still closes, and they still leave on the response roster, because the reason for that has nothing to do with what they did at the harbour.\n\nTHE CHAIR ECHO IS DELIBERATE AND MUST SURVIVE EDITING. This episode opens and closes on the same situation: a senior officer tells Section Nine to sit down in a room that does not have enough chairs. The Section Officer says \"No, there's only the one chair, stand where you are, this won't take long\" (`as-discussed`). The Deputy Director says \"There are only four chairs. Some of you will have to stand, and I am sorry about that\" (`the-hammer`). Same room shape, same six trainees, opposite men -- one uses the shortage, the other apologises for it, and neither line means anything without the other. If one of these ever reads as a repeat and gets rewritten, the episode loses its cleanest piece of characterisation. Do not touch either.\n\nTHE COMMS OFFICER BEAT IS THE SCENE. Everything else here happens TO the party -- they wait, they are told, they are interrupted, they are handed an outcome nobody explains. This is the one beat where something happens BECAUSE of them, and it happens to somebody else. Keep it mandatory and keep the consequence on her: the scene's whole question is what six fifteen-year-olds will say about an adult who tried to protect them, at a moment when the easy answer would help them and cost her.\n\nTHE PAYOFF IS NOT IN THIS EPISODE. She is the voice they will hear more than any other once operations start, and what is in her record is what they said in this room. Bring it back through her, in her own words, when she has a reason to mention it -- not as a reveal and not as a reward."
+}

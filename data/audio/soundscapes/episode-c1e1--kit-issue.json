@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--kit-issue",
+  "type": "audio-soundscape",
+  "title": "S1 · Kit Issue",
+  "note": "'Fast and a little chaotic... Nobu is three things at once and never stops moving.' The deliberate opposite rhythm of Intake Medicals: playful pool, a busy counter bed instead of a hushed waiting room.",
+  "music": { "pool": "playful" },
+  "ambience": [
+    { "track": "esm-pscwea-cinematic-fx-ambience-crowd-mall-nearfield-group", "level": -8 },
+    { "track": "machine-shop-638", "level": -20 }
+  ],
+  "fade": 3000
+}

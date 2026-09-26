@@ -2,7 +2,7 @@
 
 Design for the module that ships this campaign into Foundry VTT, keeps it in sync with the JSON authored in this repo, and runs session logistics. Concept-level: architecture and decisions, not code. Every technical claim here is backed by [foundry-technical-reference.md](foundry-technical-reference.md) — that document is the source of truth for exact field names/APIs; this one is the reasoning on top of it.
 
-**2026-09-04 note:** originally written against `foundry/blank-inheritance/`. A second module scaffold (`module/blank-inheritance/`, a system-generated v14 package with compendium packs wired up) was created since, prompting a real reconciliation — see GitHub issue #70 and the amended §8 packs bullet below. The two are being consolidated into one module directory (issue #71); this doc's reasoning holds regardless of which physical path it ends up at.
+**2026-09-04 note:** originally written against `foundry/blank-inheritance/`. A second module scaffold (`module/blank-inheritance/`, a system-generated v14 package with compendium packs wired up) was created since, prompting a real reconciliation — see GitHub issue #70 and the amended §8 packs bullet below. The two were consolidated into one module directory, `module/blank-inheritance/` (issue #71, 2026-09-04/05); read any `foundry/blank-inheritance/` path below as `module/blank-inheritance/`.
 
 Written against the user's seven numbered goals (reproduced inline as headers below), Foundry VTT v14.367, and sf2e v1.4.1.
 
@@ -15,15 +15,16 @@ Written against the user's seven numbered goals (reproduced inline as headers be
 - **Push (repo → Foundry)** is automatic and authoritative. It runs whenever the GM clicks Sync in the module. It overwrites *authored* content without asking. This is where "reflavour all the monsters in Act 1" happens — edit JSON here, click Sync there, done.
 - **Harvest (Foundry → repo)** is deliberate and GM-initiated. It never runs in the background. It pulls specific things worth keeping — a journal entry rewritten mid-session, a token layout arranged by hand — back down as files WinSCP carries home.
 
-This asymmetry is why the design doesn't need a general three-way merge engine, a conflict-resolution UI, or a "last write wins" clock race. Every field on every generated document is one of three things, decided per-schema, not globally:
+This asymmetry is why the design doesn't need a general three-way merge engine, a conflict-resolution UI, or a "last write wins" clock race. Every field on every generated document is one of four things, decided per-schema, not globally:
 
 | Class | Owner | Push behaviour | Harvest behaviour |
 |---|---|---|---|
 | **Authored** | repo | always overwritten | never pulled |
 | **Runtime** | Foundry | never touched | never pulled (it's session state, not content — current HP, active conditions, initiative, mid-combat token position) |
 | **Promotable** | Foundry, once touched | *not* overwritten once a GM edit is detected, until harvested | GM can explicitly pull it back into the repo, which makes it "authored" again |
+| **Lifecycle** | one named Foundry-side system | repo may only ever push the field's baseline value | **mandatory**, one-directional, no adjudication — the repo was never a legitimate second writer, so there is no conflict to detect in the first place |
 
-Concretely: a Claimant's stat block is authored (I write it, it gets pushed, full stop). A scene's journal-page prose is promotable (I write the first draft; if the GM rewrites it live at the table, push must not clobber that until the GM says "yes, take this back"). A token's HP-during-combat is runtime (neither side ever touches the other's copy).
+Concretely: a Claimant's stat block is authored (I write it, it gets pushed, full stop). A scene's journal-page prose is promotable (I write the first draft; if the GM rewrites it live at the table, push must not clobber that until the GM says "yes, take this back"). A token's HP-during-combat is runtime (neither side ever touches the other's copy). A location's `authoring.status` is lifecycle (added 2026-09-18): repo-side generators may only ever emit `drafted`; the Foundry Approvals Desk is the sole system allowed to raise it, and whatever it writes simply overwrites the repo on harvest, every time, because `promotable`'s human-adjudicated-conflict machinery is solving a problem this field doesn't have — see [design/approvals-desk.md](approvals-desk.md) and [design/data-ownership.md](data-ownership.md), which generalises this fourth class into a project-wide, tested convention rather than a one-off exception to the three above.
 
 Detecting "has this been touched in Foundry" needs no custom hashing infrastructure beyond what's described in §4 — it's the same mechanism as detecting "has this changed in the repo," just compared against the other side's last-known value.
 
@@ -104,9 +105,6 @@ So generating a `kid` or `frame` Actor means: create the Actor shell, then **cre
 - Feats resolve to compendium UUIDs by name+category where possible; anything genuinely homebrew (unlikely for a kid, more plausible for Frame-specific reflavoring) gets authored as a bespoke Item.
 - This is *more* generation work per character than a Claimant, but it's also what makes the sheet behave like a real, valid SF2E character instead of a static readout — feat prerequisites, proficiency math, everything sf2e's sheet code already does for free.
 
-### Resonance bands have no sf2e equivalent — and that's fine
-`frame.schema.json`'s `abilityBands` gating is 100% this campaign's homebrew layer; nothing in sf2e models "some of your sheet is locked based on a percentage." Rather than fighting the system to fake enforcement, **v1 treats it as informational**: the unlocked-abilities-at-current-band list surfaces as GM-facing text (a linked journal page, or the Actor's notes), not as sheet-level restriction. Live enforcement (greying out actions the current band doesn't unlock) is a real feature but a later one — it would mean injecting UI into the sf2e character sheet, which is a bigger, riskier undertaking than anything else in this document and shouldn't gate everything behind it.
-
 ### Purely social NPCs (Commander, Caretaker, Transparency Advocate) don't need Actors
 `npc.schema.json`'s `statblock` field is optional for exactly this reason. An NPC with no statblock becomes a `JournalEntryPage` (portrait as the page image, bio as the text) rather than a mostly-empty Actor. If a scene needs their visual presence, a `Note` pinned on the scene image and linked to that journal page does the job without a Token or Actor at all. Only NPCs that could plausibly roll dice get the full Actor treatment.
 
@@ -141,7 +139,7 @@ Every module install/update deletes the entire module folder **except** a direct
 A GM-facing action (a context-menu entry on a document, or a button in the director's panel — TBD at build time) triggers, for a specific document: read its current *promotable* field values, serialize to JSON, `FilePicker.implementation.uploadPersistent("blank-inheritance", "harvest/<entity-id>.json", file, {}, {notify: false})`. That lands in `storage/harvest/`, which WinSCP pulls down on the next sync pass. A future (or immediate, manual) step reviews and merges it into the canonical `data/` file — deliberately not automatic, since "did the GM's edit actually improve on the authored version" is a judgment call, not a merge algorithm's job.
 
 ### Conflict handling stays narrow on purpose
-Because only *promotable* fields are ever subject to this at all — authored fields always lose to the repo, runtime fields are never compared — the only real conflict case is "this promotable field changed in both places since the last sync." That's detectable (repo hash changed *and* Foundry-side hash changed from the same baseline) and gets surfaced for a human decision rather than silently resolved either direction.
+Because only *promotable* fields are ever subject to this at all — authored fields always lose to the repo, runtime fields are never compared — the only real conflict case is "this promotable field changed in both places since the last sync." That's detectable (repo hash changed *and* Foundry-side hash changed from the same baseline) and gets surfaced for a human decision rather than silently resolved either direction. *Lifecycle* fields (§0) are narrower still and need no detection step at all: the repo side is structurally forbidden from writing anything but the baseline, so there is nothing for its hash to have changed to — harvest just overwrites, unconditionally, every time.
 
 ---
 
@@ -196,7 +194,6 @@ Item 6 said "eventually," and the schema reflects that honestly: `encounter.sche
 ## 8. What this explicitly doesn't try to do (v1)
 
 Named here so they don't get silently assumed later:
-- No live Resonance-band sheet enforcement — informational only (§2).
 - No automated token placement for encounters — schema doesn't carry positions yet (§7).
 - **Amended 2026-09-04 (issue #70):** compendium packs are back in, but scoped narrowly — a **one-way, no-history "clean starting point"** mechanism only (an `Adventure` pack for a fresh-world quick import, plus per-type packs for static reference content that never needs promotable-field tracking), not the live sync path. Confirmed directly from source (`client/documents/adventure.mjs`) that `Adventure` import runs through the exact same `createDocuments`/`updateDocuments` Document-API path as everything else in this doc — it is safe in the sense §0's safety section means — but with **destructive full-replace semantics** for anything that already exists by id (`updateDocuments(..., {diff:false, recursive:false})`, which discards fields not present in the update and never deep-merges). That's precisely why it stays the wrong tool for the campaign's live, evolving, GM-editable content: the push/harvest/promotable field-ownership machinery in §0 is what protects a GM's live edits, and nothing about `Adventure` import respects that distinction. Packs and world-document sync are two coexisting, purpose-separated mechanisms from here on, not a replacement of either — everything else in this document (Scenes/Actors/JournalEntries as world documents, via `createDocuments`/`updateDocuments` with the field-ownership classing) still stands unchanged as the mechanism for actual campaign content.
 - No general three-way merge — only *promotable* fields are ever subject to conflict detection, and conflicts are surfaced for a human, not auto-resolved.
@@ -214,4 +211,4 @@ Roughly in dependency order; each stage should be independently useful, not a pr
 4. **Harvest.** `storage/` write-back, the promotable-field detection described in §4. Deliberately after push is solid, not alongside it.
 5. **Director's panel.** Scene cueing, transitions, `pullUsers` — all native primitives, so this is mostly UI work once stages 1–2 exist.
 6. **Cold open / outro.** The one stage with genuine custom event-handling (§7's `ended`-listener). Kept last because it depends on the panel existing and is the least reusable piece elsewhere.
-7. **Later / explicitly deferred:** live Resonance enforcement, encounter token auto-placement, subsystem pool-tracking UI (§8).
+7. **Later / explicitly deferred:** encounter token auto-placement, subsystem pool-tracking UI (§8).

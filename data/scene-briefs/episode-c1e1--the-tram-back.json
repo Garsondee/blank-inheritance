@@ -1,0 +1,99 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--the-tram-back",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-tram-back",
+  "title": "The Tram Back",
+  "summary": "A short, quiet connective scene between The Errand and Canteen -- no NPCs, no mandatory checks. The Errand's outro already had them on this tram in its read-aloud; this gives it room to actually be played, per Ingram's note that Episode One needs more movement scenes, not fewer.",
+  "goal": "The six of them have a few unstructured minutes together to process what just happened with Manako, before the noise of the canteen swallows the evening. Nothing has to be resolved here.",
+  "howToPlay": "Quiet, rocking, tired-in-a-good-way. This is the session's one deliberate breather between its two biggest social scenes. **Don't rush it, and don't let it turn into a debrief.** A window, streetlights starting to come on, six people who did something a little bit insubordinate together for the first time today.",
+  "runsAbout": "5-10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "A tram car, the evening run back to the combined campus. Half empty this time of day.",
+    "firstThing": "Streetlights starting to come on outside the window. The requisition slip, folded, in somebody's pocket.",
+    "readAloud": "The tram is quieter going back than it was coming in -- fewer people, longer light, the kind of ordinary evening that makes the afternoon feel like it happened to someone else. Whoever's holding the requisition slip can feel it there without looking.",
+    "carriesIn": [
+      {
+        "when": "The Errand was played first (it should be)",
+        "then": "This is the first stretch all day with no adult in the room and nothing left to do -- the only unstructured minutes the six of them get before Canteen. Let them actually talk to each other."
+      }
+    ],
+    "landmark": "the window everyone's half-facing",
+    "holdInReserve": "There is a violet mark at head height on the partition by the doors, in the same shade as the others. Give this only if somebody is looking around the car rather than out of the window, and say nothing about it."
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "the-ride",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Let them talk. No prompt needed beyond the read-aloud -- if the table goes quiet, that's a real, acceptable answer too.",
+      "direction": "This is the scene's whole content. Don't introduce an NPC, don't offer a check unless a player reaches for one. If conversation stalls, one option (not a requirement): someone asks whoever talked to Manako most what he was actually like, since the rest of the table only has the docket story secondhand.\n\nThen stop and let the table use it, or not use it. A silent tram ride is a legitimate outcome and the scene has not failed.",
+      "note": "Intentionally the PC-initiated half of the reciprocity balance, with nothing being asked of them. Not every scene needs both halves; the session as a whole does.",
+      "readAloud": "The tram going back is emptier than the one coming in, and the light through the window has gone long and orange.\n\nSomebody has the requisition folded in a pocket and can feel it there without looking.\n\nNobody needs anything from any of you for about twenty minutes."
+    },
+    {
+      "id": "a-flourish",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants a small, real moment here -- looking at the requisition slip, watching the city go by, saying something they wouldn't have said an hour ago -- offer one roll, their choice of skill.",
+      "challengeRef": "c1e1-the-tram-back",
+      "checkRef": "a-flourish",
+      "when": {
+        "condition": "if a player's choice in this scene has something worth rolling for"
+      },
+      "note": "Never required, and costs nothing on any result -- same convention as The Road In's a-flourish. Most tables will have nothing to roll here, and that is fine."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The tram reaches campus. Don't let this scene run long -- five minutes of real quiet is worth more than ten minutes of manufactured content.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Only if the table actually used the quiet to talk to each other rather than sitting in silence -- GM judgment, not automatic."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The tram doors open at the campus stop. Evening meal is a fixed timetable; nobody has to announce it, the doors just open onto the canteen's noise.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into Canteen, where Taka is waiting and the noise starts immediately.",
+    "writeDown": [
+      "What, if anything, got said on the tram -- a real, cheap seed for Bonds if the table used it."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "what-was-he-actually-like",
+      "text": "If it's gone quiet, ask whoever talked to Manako most: what was he actually like? The rest of the table only has the docket story secondhand."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "used-the-quiet",
+      "text": "Whether the table actually used the quiet to talk to each other, rather than sitting in silence or turning it into a debrief."
+    },
+    {
+      "id": "felt-like-a-breather",
+      "text": "Whether this landed as the intended breather -- five real minutes of quiet -- rather than dragging or feeling like filler.",
+      "scaleNote": "0 = dragged or felt like nothing, 10 = exactly the right kind of pause."
+    },
+    {
+      "id": "processed-manako",
+      "text": "Whether anyone said something real about Manako or what just happened, now that there's no adult in the room."
+    }
+  ],
+  "notes": "Deliberately the smallest scene in the session, alongside The Walk Down.\n\nThe reason to compress it to a single line is that it isn't what the table needs in that moment -- never the clock. Session runtime is not something to manage against: a session stops wherever it stops and picks up next time, so there is nothing to get through in one sitting. This scene exists to give the option of a breather, not to demand one."
+}

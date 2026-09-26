@@ -1,13 +1,48 @@
-<ul class="bi-log__recent bi-sheet__log-list">
-    {{#if entries.length}}
-    {{#each entries}}
-    <li class="bi-log__entry">
-        <span class="bi-phone__log-time">{{this.time}}</span>
-        {{#if this.tag}}<span class="bi-log__tag">{{this.tag}}</span>{{/if}}
-        <span class="bi-log__text">{{this.text}}</span>
-    </li>
-    {{/each}}
-    {{else}}
-    <li class="bi-log__entry bi-log__entry--empty">{{localize "BLANKINHERITANCE.Phone.SessionLog.Empty"}}</li>
-    {{/if}}
-</ul>
+{{!-- design/ux-doctrine.md §10.7: "the review surface" -- narrowing to one
+      scene or one tag type was the one thing left unbuilt here. Both rows
+      share the identical chip/action, told apart by data-axis, and are
+      DERIVED from what the log actually contains -- a session recorded
+      entirely in untagged sentences still gets real scene filters.
+      One root <div> throughout (tier0-architecture.test.mjs's own rule for
+      every .hbs file, partial or not) wrapping the filter rows AND the list,
+      so the list keeps scrolling under a fixed filter header rather than the
+      whole tab scrolling as one long column.
+
+      2026-09-23: rebuilt as a readable ledger — local wall-clock time (the
+      stored stamp is UTC, and the old list read an hour early all summer),
+      a tag column, the scene each line was written in, and a count — on
+      Ingram's review of the old tab (four tiny lines in a sea of black). --}}
+<div class="bi-log__tab bi-ledger">
+    <div class="bi-ledger__head">
+        <span class="bi-ledger__count">{{count}}</span>
+        {{#if typeFilters.length}}
+        <div class="bi-log__filters">
+            {{#each typeFilters}}
+            <button type="button" class="bi-log__filter-chip" data-action="setLogFilter" data-axis="type" data-value="{{value}}" aria-pressed="{{active}}">{{label}}</button>
+            {{/each}}
+        </div>
+        {{/if}}
+        {{#if sceneFilters.length}}
+        <div class="bi-log__filters">
+            {{#each sceneFilters}}
+            <button type="button" class="bi-log__filter-chip" data-action="setLogFilter" data-axis="scene" data-value="{{value}}" aria-pressed="{{active}}">{{label}}</button>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+
+    <ol class="bi-ledger__rows">
+        {{#if entries.length}}
+        {{#each entries}}
+        <li class="bi-ledger__row" data-tag="{{this.tag}}">
+            <time class="bi-ledger__time">{{this.clock}}</time>
+            <span class="bi-ledger__tag">{{this.tag}}</span>
+            <span class="bi-ledger__text">{{this.text}}</span>
+            <span class="bi-ledger__scene">{{this.context.scene}}</span>
+        </li>
+        {{/each}}
+        {{else}}
+        <li class="bi-ledger__row bi-ledger__row--empty">{{localize "BLANKINHERITANCE.Phone.SessionLog.Empty"}}</li>
+        {{/if}}
+    </ol>
+</div>

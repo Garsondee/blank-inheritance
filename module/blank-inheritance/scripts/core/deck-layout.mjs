@@ -23,7 +23,7 @@
  * faceplate's top edge — the one part of the deck that breaks its own line.
  */
 export const DECK_REFERENCE = Object.freeze({
-  width: 1440,
+  width: 1600,
   faceplate: 196,
   crown: 120
 });
@@ -108,6 +108,23 @@ export function arcPath(radius, fromDeg, toDeg, size = 100) {
 }
 
 /**
+ * An arc along the BOTTOM of a dial, drawn right-to-left through six o'clock
+ * so that text set on it reads upright and left-to-right — the collar's lower
+ * engraving. `centreDeg` is where the text is centred (180 is straight down)
+ * and `spanDeg` how much of the rim it may use. Text on this path rises
+ * TOWARD the centre, so its baseline radius is the outer edge of the band it
+ * sits in, not the inner. Refused for a span of zero or more than a half
+ * turn, both of which would lay the text on a path that is not the bottom.
+ */
+export function arcPathUnder(radius, spanDeg, centreDeg = 180, size = 100) {
+  if (!(radius > 0)) throw new Error(`arcPathUnder: radius must be positive, got ${radius}`);
+  if (!(spanDeg > 0 && spanDeg < 180)) throw new Error(`arcPathUnder: spanDeg must be between 0 and 180, got ${spanDeg}`);
+  const a = dialPoint(centreDeg + spanDeg / 2, radius, size);
+  const b = dialPoint(centreDeg - spanDeg / 2, radius, size);
+  return `M ${a.x} ${a.y} A ${radius} ${radius} 0 0 0 ${b.x} ${b.y}`;
+}
+
+/**
  * The leading modifier of an sf2e strike variant label, for a key too small
  * to hold the whole thing: "+1 (MAP -4)" reads "+1". The full label still
  * goes to the central instrument's readout, so nothing is lost — it is only
@@ -141,6 +158,18 @@ export function lampRow(lit, total) {
   const count = Math.max(0, Math.min(MAX_LAMPS, Math.floor(Number(total) || 0)));
   const on = Math.max(0, Math.min(count, Math.floor(Number(lit) || 0)));
   return Array.from({ length: count }, (_, i) => i < on);
+}
+
+/**
+ * A row of printed lamps centred on `centreX`, for an annunciator on the
+ * instrument's face: `total` lamps `pitch` apart, the first `lit` of them
+ * lit. Built on lampRow, so the same clamping applies — and a row of zero
+ * draws nothing rather than a lone phantom lamp.
+ */
+export function lampPositions(lit, total, { centreX, y, pitch }) {
+  const row = lampRow(lit, total);
+  const start = centreX - ((row.length - 1) * pitch) / 2;
+  return row.map((on, i) => ({ cx: round(start + i * pitch), cy: y, lit: on }));
 }
 
 /** The fixed number of skill keys on each inner module — three rows of three. */
@@ -177,6 +206,39 @@ export function splitChecks(groups = []) {
     right: { skills: pad(fixed.slice(half)), defences: [defence("reflex"), defence("will")] },
     lores
   };
+}
+
+/**
+ * The Director's key banks with nothing selected (2026-09-23).
+ *
+ * Before this, a GM with no token selected looked at eighteen dead blank
+ * caps and four dead defence buttons — the biggest surface on the deck,
+ * doing nothing, at exactly the moment a GM most often wants a check: "all
+ * of you, roll Perception." Now the same keys, in the same places, ASK THE
+ * TABLE: pressing one posts that check to chat as a rollable link for
+ * whoever it concerns (rolls.mjs#postInlineCheck, the Director's existing
+ * shift-click). There is no number to print, since no one creature is
+ * rolling it, so each entry carries `ask: true` and an empty modifier and
+ * the key says ASK instead (ux-doctrine Law 1 is about never printing a
+ * WRONG number; printing none, and saying why, keeps it).
+ *
+ * `groups` is core/skills.mjs#buildCheckGroups output for the full SF2E
+ * list; the result is shaped exactly like sheet-data's enriched groups, so
+ * splitChecks cuts it onto the same two banks and four flanks.
+ */
+export function askTheTable(groups = []) {
+  return groups.map((group) => ({
+    ...group,
+    entries: group.entries.map((entry) => ({
+      ...entry,
+      ask: true,
+      mod: null,
+      modLabel: "",
+      rank: null,
+      rankLabel: "",
+      dots: []
+    }))
+  }));
 }
 
 /**

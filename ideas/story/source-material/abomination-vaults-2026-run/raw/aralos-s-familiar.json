@@ -1,0 +1,356 @@
+{
+ "type": "familiar",
+ "name": "Aralos's Familiar",
+ "system": {
+  "master": {
+   "id": "2ghMagFQb7x6i4iV",
+   "ability": "int"
+  },
+  "_migration": {
+   "version": 0.955,
+   "previous": {
+    "schema": 0.954,
+    "foundry": "13.351",
+    "system": "7.10.1"
+   }
+  },
+  "attributes": {
+   "hp": {
+    "value": 15,
+    "temp": 0
+   }
+  },
+  "details": {
+   "creature": {
+    "value": ""
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "Aralos's Familiar",
+  "displayName": 20,
+  "actorLink": false,
+  "width": 1,
+  "height": 1,
+  "texture": {
+   "src": "tokenizer/npc-images/aralos_s_familiar.Token.webp?1751461729310",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "scaleX": 1,
+   "scaleY": 1,
+   "tint": "#ffffff",
+   "alphaThreshold": 0.75
+  },
+  "lockRotation": true,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "negative": false,
+   "priority": 0,
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   }
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": {},
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  },
+  "turnMarker": {
+   "mode": 1,
+   "animation": null,
+   "src": null,
+   "disposition": false
+  },
+  "movementAction": null,
+  "flags": {},
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "depth": 1
+ },
+ "folder": null,
+ "_id": "hAI04SSXmJN41M87",
+ "img": "tokenizer/npc-images/aralos_s_familiar.Avatar.webp?1751461729310",
+ "items": [
+  {
+   "img": "systems/pf2e/icons/spells/light.webp",
+   "name": "Spell Effect: Light",
+   "system": {
+    "description": {
+     "value": "<p>Granted by @UUID[Compendium.pf2e.spells-srd.Item.WBmvzNDfpwka3qT4]{Light}</p>\n<p>You attach an orb of light to a willing creature, causing it to float near that creature as it moves.</p>",
+     "gm": ""
+    },
+    "duration": {
+     "expiry": "turn-start",
+     "sustained": false,
+     "unit": "days",
+     "value": 1
+    },
+    "level": {
+     "value": 2
+    },
+    "publication": {
+     "license": "ORC",
+     "remaster": true,
+     "title": "Pathfinder Player Core",
+     "authors": ""
+    },
+    "rules": [
+     {
+      "key": "TokenLight",
+      "value": {
+       "alpha": 0.05,
+       "animation": {
+        "intensity": 1,
+        "speed": 2,
+        "type": "pulse"
+       },
+       "bright": "ternary(gte(@item.level,4),60,20)",
+       "color": "#e7f3f1",
+       "dim": "ternary(gte(@item.level,4),120,40)"
+      }
+     }
+    ],
+    "start": {
+     "value": 576,
+     "initiative": null
+    },
+    "tokenIcon": {
+     "show": true
+    },
+    "traits": {
+     "value": [
+      "light"
+     ],
+     "otherTags": []
+    },
+    "slug": "spell-effect-light",
+    "_migration": {
+     "version": 0.955,
+     "previous": null
+    },
+    "unidentified": false,
+    "badge": null,
+    "fromSpell": false,
+    "context": {
+     "origin": {
+      "actor": "Actor.XY3t21AafHtT1Zsg",
+      "token": "Scene.Y4pI9rvbaVvmK2kn.Token.Mkf9tMApE7ePtrxB",
+      "item": "Actor.XY3t21AafHtT1Zsg.Item.EDnXLDSVbblEziiJ",
+      "spellcasting": {
+       "attribute": {
+        "type": "cha",
+        "mod": 4
+       },
+       "tradition": "occult"
+      },
+      "rollOptions": [
+       "origin:type:character",
+       "origin:signature:92739579-7a7b-5a56-ae27-72897e402f36",
+       "origin:creature",
+       "origin:level:4",
+       "origin:deity:slug:desna",
+       "origin:ancestry:catfolk",
+       "origin:trait:catfolk",
+       "origin:trait:humanoid",
+       "origin:heritage:sharp-eared-catfolk",
+       "origin:caster",
+       "origin:caster:tradition:occult",
+       "origin:shield:equipped",
+       "origin:condition:drained",
+       "origin:condition:drained:1",
+       "origin:effect:scout",
+       "origin:mode:living",
+       "origin:armored",
+       "origin:size:2",
+       "origin:size:medium",
+       "origin:item:type:spell",
+       "origin:item:id:EDnXLDSVbblEziiJ",
+       "origin:item:light",
+       "origin:item:slug:light",
+       "origin:item:trait:cantrip",
+       "origin:item:trait:concentrate",
+       "origin:item:trait:light",
+       "origin:item:trait:manipulate",
+       "origin:item:rarity:common",
+       "origin:item:magical",
+       "origin:item:level:2",
+       "magical",
+       "origin:item:rank:2",
+       "cantrip",
+       "concentrate",
+       "light",
+       "manipulate",
+       "origin:item:trait:occult",
+       "origin:item:ranged",
+       "spellcasting:cha",
+       "spellcasting:attribute:cha",
+       "spellcasting:spontaneous",
+       "spellcasting:category:spontaneous",
+       "spellcasting:occult",
+       "spellcasting:tradition:occult",
+       "origin:item:cast:actions:2"
+      ]
+     },
+     "target": null,
+     "roll": null
+    }
+   },
+   "type": "effect",
+   "_stats": {
+    "compendiumSource": "Compendium.pf2e.spell-effects.Item.cVVZXNbV0nElVOPZ",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.360",
+    "systemId": "pf2e",
+    "systemVersion": "7.10.1",
+    "createdTime": 1775675783087,
+    "modifiedTime": 1775675783087,
+    "lastModifiedBy": "ID3ioUflYRQYVyDb"
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "ID3ioUflYRQYVyDb": 3
+   },
+   "flags": {},
+   "_id": "0W4DzmDxewimr3dK"
+  },
+  {
+   "_id": "Zn4EKmIorIi04ZRZ",
+   "img": "systems/pf2e/icons/actions/Passive.webp",
+   "name": "Construct",
+   "system": {
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "category": "familiar",
+    "description": {
+     "value": "<p>Your familiar has the construct trait instead of the animal trait. The familiar is immune to death effects, disease, doomed, drained, fatigued, healing, nonlethal attacks, paralyzed, poison, sickened, spirit, unconscious, vitality, and void. Your familiar must have the @UUID[Compendium.pf2e.familiar-abilities.Item.Le8UWr5BU8rV3iBf]{Tough} pet ability to select this.</p>",
+     "gm": ""
+    },
+    "publication": {
+     "license": "ORC",
+     "remaster": true,
+     "title": "Pathfinder Player Core",
+     "authors": ""
+    },
+    "rules": [
+     {
+      "add": [
+       "construct"
+      ],
+      "key": "ActorTraits"
+     }
+    ],
+    "traits": {
+     "value": [],
+     "otherTags": []
+    },
+    "slug": "construct",
+    "_migration": {
+     "version": 0.955,
+     "previous": {
+      "schema": 0.954,
+      "foundry": "13.351",
+      "system": "7.10.1"
+     }
+    }
+   },
+   "type": "action",
+   "_stats": {
+    "compendiumSource": "Compendium.pf2e.familiar-abilities.Item.5eqcXtPsYunphMOZ",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.360",
+    "systemId": "pf2e",
+    "systemVersion": "7.0.6-beta",
+    "createdTime": 1749208241711,
+    "modifiedTime": 1749208241711,
+    "lastModifiedBy": "ID3ioUflYRQYVyDb"
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "ID3ioUflYRQYVyDb": 3
+   },
+   "flags": {}
+  }
+ ],
+ "effects": [],
+ "sort": 1400000,
+ "ownership": {
+  "default": 0,
+  "ID3ioUflYRQYVyDb": 3,
+  "EJp2zJeU9PlYb2zI": 3
+ },
+ "flags": {},
+ "_stats": {
+  "compendiumSource": null,
+  "duplicateSource": null,
+  "exportSource": null,
+  "coreVersion": "14.360",
+  "systemId": "pf2e",
+  "systemVersion": "7.10.1",
+  "createdTime": 1749208241578,
+  "modifiedTime": 1772046747351,
+  "lastModifiedBy": "ID3ioUflYRQYVyDb"
+ }
+}

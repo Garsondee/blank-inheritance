@@ -2,6 +2,9 @@
   "$schema": "../../../../data/schema/kid.schema.json",
   "id": "test-fixture-frame-pilot",
   "type": "kid",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": "TEST FIXTURE — Frame Pilot (Envoy, synthetic, not one of the six real kids)",
   "player": null,
   "age": 17,

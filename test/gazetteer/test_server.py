@@ -1203,7 +1203,7 @@ class TestServer(unittest.TestCase):
             post(self.base + "/api/lore/instructions", {"documentId": "ledger", "text": ""})
         self.assertEqual(cm.exception.code, 400)
 
-    # --- approval: Ingram's alone, never a side effect --------------------
+    # --- approval: retired 2026-09-18, moved to the Foundry Approvals Desk --
 
     def test_promotion_refuses_an_incoming_approved_status(self):
         self._seed_item(note="a house", name="Approval Test House")
@@ -1229,26 +1229,69 @@ class TestServer(unittest.TestCase):
         self.assertEqual(doc["authoring"]["status"], "drafted",
                          "the refused status must not have been written anyway")
 
-    def test_the_dedicated_endpoint_is_the_only_way_to_approve(self):
+    # --- approval vocabulary generalized to sound/final, 2026-09-19, #167 --
+
+    def test_promotion_refuses_an_incoming_sound_or_final_status(self):
+        """The ladder moved from needs-lore/drafted/approved to needs-lore/
+        drafted/sound/final (design/approvals-desk.md §2) -- the gazetteer's
+        existing guard must cover the NEW promoted values too, not just the
+        retired one it happened to be written against first."""
+        for status in ("sound", "final"):
+            self._seed_item(note="a house", name="Grade Test House " + status)
+            with self.assertRaises(urllib.error.HTTPError) as cm:
+                post(self.base + "/api/promote", {
+                    "localId": "seed-1", "id": "grade-test-house-" + status,
+                    "status": status, "lore": {"summary": "x"}})
+            self.assertEqual(cm.exception.code, 400)
+            self.assertFalse(os.path.exists(
+                os.path.join(self.locations_dir, "grade-test-house-" + status + ".json")),
+                "a refused promotion must not still create the file")
+
+    def test_review_mode_edit_refuses_an_incoming_sound_or_final_status(self):
+        for status in ("sound", "final"):
+            slug = "edit-grade-test-" + status
+            self._seed_item(note="a house", name="Edit Grade Test " + status)
+            post(self.base + "/api/promote", {
+                "localId": "seed-1", "id": slug,
+                "lore": {"summary": "first pass"}})
+            with self.assertRaises(urllib.error.HTTPError) as cm:
+                post(self.base + "/api/location", {"id": slug, "status": status})
+            self.assertEqual(cm.exception.code, 400)
+            doc = json.loads(
+                open(os.path.join(self.locations_dir, slug + ".json"), encoding="utf-8").read())
+            self.assertEqual(doc["authoring"]["status"], "drafted",
+                             "the refused status must not have been written anyway")
+
+    def test_the_dedicated_endpoint_is_retired_and_refuses_unconditionally(self):
+        """Ingram, 2026-09-18: "We make the Approvals Desk in Foundry VTT the
+        final word in what is considered approved. The gazetteer is a tool
+        for drawing shapes and drafting things." This endpoint used to be the
+        one path allowed to grant that seal; now nothing here may. Proves it
+        actually holds -- a location that WOULD have been approvable, still
+        refused, and its status untouched on disk."""
         self._seed_item(note="a house", name="Real Approval Test")
-        post(self.base + "/api/promote", {
+        promoted = post(self.base + "/api/promote", {
             "localId": "seed-1", "id": "real-approval-test",
-            "lore": {"summary": "first pass"}})
-        res = post(self.base + "/api/location/real-approval-test/approve", {})
-        self.assertEqual(res["location"]["authoring"]["status"], "approved")
+            "lore": {"summary": "first pass"}})["location"]
+        self.assertEqual(promoted["authoring"]["status"], "drafted")
 
-    def test_approval_can_be_taken_back(self):
-        self._seed_item(note="a house", name="Unapprove Test")
-        post(self.base + "/api/promote", {
-            "localId": "seed-1", "id": "unapprove-test", "lore": {"summary": "x"}})
-        post(self.base + "/api/location/unapprove-test/approve", {})
-        res = post(self.base + "/api/location/unapprove-test/approve", {"approved": False})
-        self.assertEqual(res["location"]["authoring"]["status"], "drafted")
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/location/real-approval-test/approve", {})
+        self.assertEqual(cm.exception.code, 410,
+                         "410, not 404: the route existed and is gone, not merely unmatched")
 
-    def test_approving_an_unknown_location_is_a_404(self):
+        doc = json.loads(open(os.path.join(
+            self.locations_dir, "real-approval-test.json"), encoding="utf-8").read())
+        self.assertEqual(doc["authoring"]["status"], "drafted",
+                         "a refused approve call must not still have written anything")
+
+    def test_the_retired_endpoint_refuses_even_an_unknown_location(self):
+        """No existence check survives the retirement either -- there is
+        nothing left this route can legitimately do for ANY location, known
+        or not, so it refuses flatly rather than distinguishing the two."""
         with self.assertRaises(urllib.error.HTTPError) as cm:
             post(self.base + "/api/location/no-such-place/approve", {})
-        self.assertEqual(cm.exception.code, 404)
+        self.assertEqual(cm.exception.code, 410)
 
     def test_review_mode_can_rewrite_lore_without_touching_geometry(self):
         """The review mode's save path. It edits what was WRITTEN and must

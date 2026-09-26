@@ -26,7 +26,10 @@ export function castForScene() {
       hidden: token.document?.hidden ?? false,
       selected: token.controlled ?? false,
       disposition: token.document?.disposition ?? 0,
-      hasActor: !!token.actor
+      hasActor: !!token.actor,
+      // The row's hairline HP gauge (core/cast.mjs#castHp) — a GM-only board,
+      // so an enemy's HP showing here reveals nothing a GM does not know.
+      hp: token.actor?.system?.attributes?.hp ?? null
     }))
   );
   return { rows, summary: castSummary(rows) };

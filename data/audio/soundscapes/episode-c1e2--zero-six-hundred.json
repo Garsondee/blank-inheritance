@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--zero-six-hundred",
+  "type": "audio-soundscape",
+  "title": "S2 · Zero Six Hundred",
+  "note": "'The same canteen, an hour before the hangar, with nobody in it.' Deliberately the inverse of Canteen's own soundscape -- thoughtful rather than playful, and no ambience bed at all rather than a loud one. An empty room at dawn needs silence, not a quieter version of last night's noise.",
+  "music": {
+    "pool": "thoughtful"
+  },
+  "ambience": [],
+  "mix": {
+    "music": -3
+  },
+  "fade": 4000
+}

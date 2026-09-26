@@ -1,0 +1,228 @@
+{
+ "name": "Bilda",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/a10.webp",
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 10,
+    "temp": 0,
+    "max": 10,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 10,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 1
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 0
+   },
+   "dex": {
+    "mod": 0
+   },
+   "con": {
+    "mod": 0
+   },
+   "int": {
+    "mod": 0
+   },
+   "wis": {
+    "mod": 0
+   },
+   "cha": {
+    "mod": 0
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 0,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 0,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 0,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 0,
+    "saveDetail": ""
+   }
+  },
+  "skills": {},
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "a10",
+  "displayName": 20,
+  "actorLink": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/a10.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "width": 1,
+  "height": 1,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "flags": {
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "items": [],
+ "effects": [],
+ "folder": "QYZpIbD6XjJ1YZSV",
+ "sort": 100000,
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "flags": {
+  "scene-packer": {
+   "hash": "e1d1f0b666547b3e7c7b046816e6043272ecab00"
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1684225543726,
+  "modifiedTime": 1721827611353,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ },
+ "_id": "vVzfPTqDCcfjrVGH"
+}

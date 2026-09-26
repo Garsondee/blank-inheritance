@@ -53,14 +53,12 @@
 
     "geometry": {
       "type": "object",
-      "description": "Canonical. lon/lat (WGS84), never image pixels or map-frame metres -- design/map-generation.md: the frame's centre, rotation and extent have all changed before, and pixel coordinates would silently detach a location from its place the next time they do.",
-      "required": ["rings"],
+      "description": "Canonical. lon/lat (WGS84), never image pixels or map-frame metres -- design/map-generation.md: the frame's centre, rotation and extent have all changed before, and pixel coordinates would silently detach a location from its place the next time they do. Which of rings/point is required and non-empty depends on `tier` -- see the top-level `allOf` below.",
       "additionalProperties": false,
       "properties": {
         "rings": {
           "type": "array",
-          "description": "One or more closed rings in GeoJSON Polygon order: the first ring is the shell, every ring after it is a hole punched in that shell -- never a second disjoint part. A site tier normally has exactly one (no holes); a region gains a second ring when another region's territory sits entirely inside it (The Open Sea holds The River Island this way). Each ring is [lon, lat] pairs. Consumed in this order by coverage.py's _to_polygon and built in this order by core/location.py's build_location.",
-          "minItems": 1,
+          "description": "One or more closed rings in GeoJSON Polygon order: the first ring is the shell, every ring after it is a hole punched in that shell -- never a second disjoint part. A site tier normally has exactly one (no holes); a region gains a second ring when another region's territory sits entirely inside it (The Open Sea holds The River Island this way). Each ring is [lon, lat] pairs. Consumed in this order by coverage.py's _to_polygon and built in this order by core/location.py's build_location. Empty for tier 'point', which has no footprint.",
           "items": {
             "type": "array",
             "minItems": 3,
@@ -95,7 +93,7 @@
       "description": "Everything computable from geometry, recomputed on every promotion/re-derive and never hand-edited. Present so the file is readable and queryable without running the tool.",
       "additionalProperties": false,
       "properties": {
-        "imagePx": { "description": "geometry.rings reprojected to campaign-map image pixels, same shape as geometry.rings.", "type": "array" },
+        "imagePx": { "description": "geometry.rings reprojected to campaign-map image pixels, same shape as geometry.rings. Null for tier 'point' -- there is no ring to reproject; see derived.centroidPx for the point's own pixel position.", "type": ["array", "null"] },
         "centroidPx": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
         "cells": { "type": "array", "items": { "type": "string" }, "description": "Every grid reference the shape touches -- tools/gazetteer/core/grid.py's cell_coverage, area-exact." },
         "ref": { "type": ["string", "null"], "description": "The single reference to say aloud -- the cell the centroid falls in." },
@@ -121,19 +119,11 @@
     },
 
     "authoring": {
-      "type": "object",
-      "required": ["note", "status"],
-      "additionalProperties": false,
-      "properties": {
-        "note": {
-          "type": "string",
-          "description": "The human's rough note from the drawing session, carried over verbatim. Never rewritten -- corrections append, they do not overwrite. This is the brief the lore below was written from."
-        },
-        "status": {
-          "enum": ["needs-lore", "drafted", "approved"],
-          "description": "needs-lore: promoted with a note but no written lore yet. drafted: lore written, not yet reviewed together. approved: signed off."
-        }
-      }
+      "description": "Shared lifecycle block (design/approvals-desk.md, common/authoring.schema.json) -- `note` is additionally required here, since every location is promoted from a gazetteer drawing session that always writes one.",
+      "allOf": [
+        { "$ref": "common/authoring.schema.json#/$defs/authoring" },
+        { "required": ["note"] }
+      ]
     },
 
     "lore": {
@@ -196,5 +186,35 @@
     "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
     "bibleRef": { "type": ["string", "null"], "description": "ideas/story/bible/locations/<name>.md, for a place that recurs or carries weight." },
     "assetRefs": { "type": "array", "items": { "type": "string" }, "description": "data/campaign/asset-registry.json entry ids." }
-  }
+  },
+
+  "allOf": [
+    {
+      "description": "tier 'point' has no footprint: geometry.point carries its position and geometry.rings stays empty. Surfaced 2026-09-18 by the first real point-tier promotion (The Drain Head) -- until then this branch was only ever theoretical.",
+      "if": { "properties": { "tier": { "const": "point" } } },
+      "then": {
+        "properties": {
+          "geometry": {
+            "required": ["point"],
+            "properties": { "rings": { "maxItems": 0 } }
+          }
+        }
+      }
+    },
+    {
+      "description": "tier 'region'/'site' is a real footprint: geometry.rings carries it and geometry.point stays null.",
+      "if": { "properties": { "tier": { "enum": ["region", "site"] } } },
+      "then": {
+        "properties": {
+          "geometry": {
+            "required": ["rings"],
+            "properties": {
+              "rings": { "minItems": 1 },
+              "point": { "const": null }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

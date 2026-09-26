@@ -3,14 +3,14 @@
 **Category:** location
 **Status:** established — geometry, lore and cross-references are all written and promoted; the
 administrative link to Shucks Mordant is a flagged proposal, not a confirmed decision.
-**Sources:** `data/locations/general-hospital.json`, `data/scene-briefs/episode-c1s1--intake-medicals.json`,
+**Sources:** `data/locations/general-hospital.json`, `data/scene-briefs/episode-c1e1--intake-medicals.json`,
 `ideas/story/bible/characters/shucks-mordant.md`, direct conversation (Ingram's drawn note), 2026-09-12.
 
 ## Read this first
 
 The fortress island's main civilian and garrison hospital, in Island Centre — a large, blocky
 former commercial building repurposed wholesale, not built for the job. This is **not** the same
-place as Intake Medicals (`data/scene-briefs/episode-c1s1--intake-medicals.json`), which is a
+place as Intake Medicals (`data/scene-briefs/episode-c1e1--intake-medicals.json`), which is a
 smaller clinic on the combined campus that only processes new arrivals. The two are easy to
 conflate because both nominally fall under Shucks Mordant's title; keep them separate at the
 table.
@@ -23,11 +23,12 @@ table.
   furniture retailer whose actual footprint the drawing was adopted from — research only, and it
   must never appear in player-facing text. The location's `history`/`playerFacing` lore lean on
   its *retail* architectural bones (display windows, a loading bay) without ever naming the store.
-- **16,799 m², a single counted storey, in Island Centre** (`item-176` in the draft; not yet
-  promoted as its own region, so `general-hospital.json`'s `derived.withinRegionRef` is currently
-  `null` — expected, not a bug, and will backfill automatically once Island Centre itself is
-  promoted, the same way `core/location.py`'s region-promotion path already backfills any site
-  drawn before its district).
+- **16,799 m², a single counted storey, in Island Centre** (`item-176` in the draft). **Corrected
+  2026-09-19:** this previously said Island Centre was not yet promoted as its own region and that
+  `general-hospital.json`'s `derived.withinRegionRef` was therefore still `null`, pending an automatic
+  backfill. Checked directly against the data file — Island Centre has since been promoted (`tier:
+  "region"` in `data/locations/island-centre.json`) and the backfill already happened:
+  `general-hospital.json`'s `derived.withinRegionRef` now reads `"island-centre"`.
 - **Separate from Intake Medicals.** Intake Medicals' own `intro.where` is explicit: "The
   Directorate's medical hall on the combined campus." This is a different, larger building
   elsewhere on the island, serving the whole population rather than just candidate intake.
@@ -65,5 +66,5 @@ would rather this hospital answer to nobody in particular, or someone else.
 
 - [Bible README](../README.md)
 - [data/locations/general-hospital.json](../../../../data/locations/general-hospital.json)
-- [data/scene-briefs/episode-c1s1--intake-medicals.json](../../../../data/scene-briefs/episode-c1s1--intake-medicals.json) — the separate campus clinic.
+- [data/scene-briefs/episode-c1e1--intake-medicals.json](../../../../data/scene-briefs/episode-c1e1--intake-medicals.json) — the separate campus clinic.
 - [ideas/story/bible/characters/shucks-mordant.md](../characters/shucks-mordant.md)

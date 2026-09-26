@@ -50,7 +50,7 @@ The shared rule does the work of making them feel like a species and gives the p
 
 Our antagonist material is currently build rules rather than a bestiary — `data/antagonists/claimants/claimant-guidelines.json` describes how a Claimant is constructed and no individual Claimants exist yet. That is the right moment to take this pattern seriously, and the suggestion is narrow:
 
-- **Define the one universal property** every Claimant shares, which the players learn once and rely on forever. This is a setting and rules question that belongs to the user and to `design/scale-and-chassis.md`, not here.
+- **Define the one universal property** every Claimant shares, which the players learn once and rely on forever. This is a setting and rules question that belongs to the user (the Watcher's children, `ideas/story/dossier-observer.md`), not here.
 - **Give each individual exactly one gimmick**, and write the intended solution down at the same time — mirroring the rule in [the Giant Robo antagonist engine](../giant-robo/the-recurring-antagonist-engine.md) §3 about writing the counter before the first appearance.
 - **Rotate the solution type deliberately.** Keep a list of which kinds of solution have been used — planning, rehearsal, terrain, support staff, sacrifice, conversation — and do not repeat one twice in a row.
 - **Design at least one encounter the Frames cannot solve at all**, where the ground-layer kids or the support staff win it. The campaign already has the machinery for a personnel-scale fight (`data/subsystems/day-1-ground-layer.json`, and the ground-layer simulator) — this is the encounter shape that makes it matter.
@@ -63,4 +63,4 @@ Our antagonist material is currently build rules rather than a bestiary — `dat
 
 **Related on this shelf:** [characters/the-angels.md](characters/the-angels.md), [operational-texture-and-the-sortie.md](operational-texture-and-the-sortie.md), [characters/kaworu-nagisa.md](characters/kaworu-nagisa.md), [tone-guardrail.md](tone-guardrail.md).
 
-**Related in this project:** `data/antagonists/claimants/claimant-guidelines.json`, `design/scale-and-chassis.md`, `design/rpg-systems-design.md`, `design/mystery-and-investigation-design.md`, [design/research/giant-robo/the-recurring-antagonist-engine.md](../giant-robo/the-recurring-antagonist-engine.md).
+**Related in this project:** `data/antagonists/claimants/claimant-guidelines.json`, `design/rpg-systems-design.md`, `design/mystery-and-investigation-design.md`, [design/research/giant-robo/the-recurring-antagonist-engine.md](../giant-robo/the-recurring-antagonist-engine.md).

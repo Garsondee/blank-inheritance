@@ -71,6 +71,21 @@
     <button class="gz-tool" data-tool="remove"  data-key="X" title="Remove real buildings the painted map no longer has (X)">Remove</button>
   </div>
 
+  <!-- Region/Site only: HOW a click-drag becomes a ring. Polygon is the
+       original click-to-add-a-point session; Rectangle and Circle are
+       each one mousedown-drag-mouseup gesture. Hidden outside those two
+       tools -- Lasso/Bisect/Pin/Adopt/Remove have no use for it. Asked
+       for directly: "I want a new tool for drawing regions and
+       buildings, a circle tool" -- after hand-clicking a dozen points
+       around a rough circle, over and over for "lots of buildings,"
+       turned out to be exactly the tedious workflow behind losing a
+       whole batch of them. -->
+  <div class="gz-shape-modes" id="shape-modes" role="toolbar" aria-label="Draft shape" hidden>
+    <button class="gz-shape-mode is-active" data-shape="polygon" title="Click to add each point, Enter to finish">Polygon</button>
+    <button class="gz-shape-mode" data-shape="rect" title="Drag from one corner to the opposite corner">Rectangle</button>
+    <button class="gz-shape-mode" data-shape="circle" title="Drag from the centre out to the edge">Circle</button>
+  </div>
+
   <!-- The armed tool, unmissable rather than inferred from which toolbar
        button happens to look pressed. Two buildings were filed as districts
        in one real session because Region stayed armed after a click

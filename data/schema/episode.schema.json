@@ -22,21 +22,10 @@
     },
     "summary": { "type": "string" },
     "deploymentRule": { "type": ["string", "null"] },
-    "groundRoleRule": { "type": ["string", "null"] },
     "downtime": { "type": ["string", "null"] },
     "structure": { "type": ["string", "null"] },
     "designRequirement": { "type": ["string", "null"] },
     "castingNote": { "type": ["string", "null"] },
-    "firstPilotSpecialRules": {
-      "type": ["object", "null"],
-      "properties": {
-        "startingResonance": { "type": "number" },
-        "startingBand": { "type": "string" },
-        "advantage": { "type": "string" },
-        "disadvantage": { "type": "string" },
-        "decay": { "type": "string" }
-      }
-    },
     "scenes": {
       "type": "array",
       "items": {
@@ -54,7 +43,7 @@
           "description": { "type": "string" },
           "briefRef": { "type": ["string", "null"], "description": "id of a scene-brief.schema.json instance in data/scene-briefs/ — the GM-facing running material for this scene (cast briefs, beats, handouts). Absent means the scene has an outline but no authored script yet, which is the honest state for most scenes." },
           "encounterRef": { "type": ["string", "null"], "description": "id of an encounter.schema.json instance backing this scene, if it's a fight." },
-          "challengeRefs": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in this scene (e.g. ground-layer decision points)." },
+          "challengeRefs": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in this scene." },
           "subsystemRef": { "type": ["string", "null"], "description": "id of a subsystem.schema.json instance, if this scene runs as a victory-point-style sequence." }
         }
       }

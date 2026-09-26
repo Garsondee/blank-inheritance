@@ -2,6 +2,9 @@
   "$schema": "../../../../data/schema/kid.schema.json",
   "id": "test-fixture-structural-command",
   "type": "kid",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": "TEST FIXTURE — Structural Command (Operative, synthetic, not one of the six real kids)",
   "player": null,
   "age": 17,

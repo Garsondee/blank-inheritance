@@ -12,7 +12,7 @@ import "./setup.mjs";
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -51,10 +51,28 @@ function walkJson(dir, out = []) {
 // real data/locations/*.json entity only once promoted — so a real session
 // file left on disk from actually using the tool must not fail this tier
 // either (found 2026-09-11, verifying the gazetteer itself, same class of bug).
+// data/generated/ is a third instance, found 2026-09-19 building the Node
+// Registry (design/node-registry.md): tools/node-registry/generate.mjs's own
+// output (node-index.json) is a computed report over the rest of the repo,
+// like data/map/editor-submissions/ — not itself campaign entity data, so it
+// has no meaningful $schema to declare and shouldn't be asked for one. Unlike
+// data/audio/library.json, which is also generated but IS real schema'd
+// campaign data (an asset library) that happens to be rebuilt by a script —
+// generated-and-an-entity stays in the corpus; generated-and-a-report doesn't.
+// data/intray/ is a fourth instance, found 2026-09-21: a human drop-zone for
+// raw incoming material (a zip of externally-revised scene files, a backup
+// taken before replacing them), exactly the same shape of exclusion as
+// map/editor-submissions/ above -- files sitting there are awaiting review or
+// conversion, are not campaign entities in their own right, and their
+// relative "$schema" paths do not even resolve from that depth. Mirrors the
+// artwork/in-tray and audio/in-tray convention the rest of the project already
+// uses for "dropped here, not yet adopted".
 const EXCLUDED_PATH_SEGMENTS = [
   `${path.sep}schema${path.sep}`,
   `${path.sep}map${path.sep}editor-submissions${path.sep}`,
   `${path.sep}map${path.sep}gazetteer-drafts${path.sep}`,
+  `${path.sep}generated${path.sep}`,
+  `${path.sep}intray${path.sep}`,
 ];
 
 function isCorpusFile(absPath) {
@@ -72,6 +90,12 @@ test("isCorpusFile: excludes schema definitions and gitignored editor-submission
   assert.equal(
     isCorpusFile(path.join(dataRoot, "map", "gazetteer-drafts", "session-20260911-144323.json")),
     false
+  );
+  assert.equal(isCorpusFile(path.join(dataRoot, "generated", "node-index.json")), false);
+  assert.equal(
+    isCorpusFile(path.join(dataRoot, "intray", "unorganised", "live-before-replacement-2026-09-21", "episode-c1e1--canteen.json")),
+    false,
+    "a scene file sitting in the intray drop-zone is awaiting review, not a corpus entity -- and its relative $schema path does not resolve from there"
   );
   assert.equal(isCorpusFile(path.join(dataRoot, "npcs", "commander.json")), true);
   assert.equal(isCorpusFile(path.join(dataRoot, "map", "frames", "kurose-12km.json")), true);
@@ -96,6 +120,8 @@ test("every real data/ file validates against its declared $schema", async (t) =
   const ajv = new Ajv2020({ strict: false, allErrors: true });
   const commonSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "sf2e-common.schema.json"), "utf8"));
   ajv.addSchema(commonSchema);
+  const authoringSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "authoring.schema.json"), "utf8"));
+  ajv.addSchema(authoringSchema);
 
   const validatorCache = new Map();
   function getValidator(schemaAbsPath) {
@@ -133,6 +159,8 @@ test("combatStatblock's new profileRef field (design doc §50, Archetype Ladder 
   const ajv = new Ajv2020({ strict: false, allErrors: true });
   const commonSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "sf2e-common.schema.json"), "utf8"));
   ajv.addSchema(commonSchema);
+  const authoringSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "authoring.schema.json"), "utf8"));
+  ajv.addSchema(authoringSchema);
   const validate = ajv.compile({ $ref: "common/sf2e-common.schema.json#/$defs/combatStatblock" });
 
   const minimalStatblock = { level: 1 };
@@ -146,6 +174,51 @@ test("combatStatblock's new profileRef field (design doc §50, Archetype Ladder 
   assert.equal(validate({ ...minimalStatblock, profileRef: null }), true, "profileRef: null must validate — the field is optional");
   assert.equal(validate(minimalStatblock), true, "an omitted profileRef must validate — the field is optional");
   assert.equal(validate({ ...minimalStatblock, profileRef: 42 }), false, "a non-string, non-null profileRef must be REJECTED — the type constraint must be real, not decorative");
+});
+
+test("location.schema.json: tier 'point' allows empty rings, tier 'region'/'site' still requires a real one", async (t) => {
+  if (!ajvAvailable) {
+    t.skip("ajv is not installed (npm install) — schema validation skipped, not silently passed");
+    return;
+  }
+
+  // Bug found 2026-09-18: the-drain-head.json was the first tier "point"
+  // location ever promoted, and core/location.py's build_location() has
+  // always produced geometry.rings: [] and derived.imagePx: null for a
+  // point (there is no ring to reproject) -- but the schema required
+  // rings to be non-empty and imagePx to be an array unconditionally, so
+  // every point promotion before this fix would have failed exactly this
+  // way. Nothing caught it because no point had ever actually been
+  // promoted. This test exercises both tiers directly, synthetically, so
+  // it never again depends on one specific real file continuing to exist.
+  const ajv = new Ajv2020({ strict: false, allErrors: true });
+  const authoringSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "authoring.schema.json"), "utf8"));
+  ajv.addSchema(authoringSchema);
+  const schema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "location.schema.json"), "utf8"));
+  const validate = ajv.compile(schema);
+
+  const base = {
+    $schema: "location.schema.json",
+    id: "test-loc",
+    type: "location",
+    derived: {},
+    authoring: { note: "a rough note", status: "needs-lore" },
+  };
+
+  const validPoint = { ...base, tier: "point", geometry: { point: [135.2, 34.6], rings: [] } };
+  assert.equal(validate(validPoint), true, `a point with empty rings must validate:\n${JSON.stringify(validate.errors, null, 2)}`);
+
+  const validPointRingsOmitted = { ...base, tier: "point", geometry: { point: [135.2, 34.6] } };
+  assert.equal(validate(validPointRingsOmitted), true, `a point may omit rings entirely:\n${JSON.stringify(validate.errors, null, 2)}`);
+
+  const validSite = { ...base, tier: "site", geometry: { rings: [[[0, 0], [1, 0], [1, 1], [0, 1]]], point: null } };
+  assert.equal(validate(validSite), true, `a site with a real ring and point: null must validate:\n${JSON.stringify(validate.errors, null, 2)}`);
+
+  const pointWithARealRing = { ...base, tier: "point", geometry: { point: [135.2, 34.6], rings: [[[0, 0], [1, 0], [1, 1], [0, 1]]] } };
+  assert.equal(validate(pointWithARealRing), false, "a point tier carrying a real polygon ring must be REJECTED -- a point has no footprint");
+
+  const siteWithNoRing = { ...base, tier: "site", geometry: { rings: [] } };
+  assert.equal(validate(siteWithNoRing), false, "a site tier with empty rings must still be REJECTED -- only 'point' gets to skip the footprint");
 });
 
 const GENERATORS_BY_TYPE = {
@@ -220,5 +293,47 @@ test("every non-null CAST-entry npcRef under data/ resolves to a real id in data
     [],
     "every cast-entry npcRef must resolve to a real id in data/npcs/*.json -- a dangling one silently breaks anything " +
       "that resolves it later (e.g. the Character Card system, foundry/social-store.mjs, which needs a real Actor per NPC)."
+  );
+});
+
+// Found live 2026-09-19: episode-c1e1-mothers-maiden-name.json's own scenes[] array named a
+// briefRef/encounterRef/subsystemRef for its sixth scene that didn't resolve to any real file --
+// schema-valid (they're just strings), completely invisible without deliberately tracing every
+// id by hand, and Ingram's own words when he found it: "I had no idea that we'd just stopped at
+// this point. There was no way for me to easily check the status of this." This is that check,
+// so an unwritten scene is a loud red test, not a silent gap someone eventually stumbles into.
+test("every episode's scenes[] briefRef/encounterRef/subsystemRef resolves to a real file on disk", () => {
+  const episodeFiles = dataFiles.filter((f) => f.includes(`${path.sep}episodes${path.sep}`));
+  assert.ok(episodeFiles.length > 0, "expected at least one real file under data/episodes/ for this check to mean anything");
+
+  const REF_KINDS = [
+    { field: "briefRef", dir: "scene-briefs" },
+    { field: "encounterRef", dir: "encounters" },
+    { field: "subsystemRef", dir: "subsystems" },
+  ];
+
+  const missing = [];
+  for (const file of episodeFiles) {
+    const content = JSON.parse(readFileSync(file, "utf8"));
+    if (!Array.isArray(content.scenes)) continue;
+    for (const scene of content.scenes) {
+      for (const { field, dir } of REF_KINDS) {
+        const refId = scene[field];
+        if (typeof refId !== "string") continue; // null/absent is a legitimate "not written yet" state
+        const target = path.join(dataRoot, dir, `${refId}.json`);
+        if (!existsSync(target)) {
+          missing.push(
+            `${path.relative(repoRoot, file)}: scene "${scene.id ?? scene.title}" -> ${field} "${refId}" (expected ${path.relative(repoRoot, target)})`
+          );
+        }
+      }
+    }
+  }
+
+  assert.deepEqual(
+    missing,
+    [],
+    "every scenes[] ref must resolve to a real file, or be null/omitted — a string ref to a file that doesn't exist is " +
+      "a silent, invisible gap (schema-valid, resolves to nothing) that only a deliberate trace ever catches otherwise."
   );
 });

@@ -24,7 +24,7 @@
  */
 
 import { deriveFoundryId } from "../core/ids.mjs";
-import { canGrant, catalogueItemToSf2eItemData, findItem, grantsFor, logEntries, projectCatalogue } from "../core/equipment.mjs";
+import { canGrant, catalogueItemToSf2eItemData, findItem, grantsFor, grantsForScene, logEntries, projectCatalogue } from "../core/equipment.mjs";
 import { fetchModuleJson } from "./io.mjs";
 
 const MODULE_ID = "blank-inheritance";
@@ -42,7 +42,7 @@ const CATALOGUE_PATH = "data/campaign/campaign/equipment-catalogue.json";
 const MACRO_SOURCE_ID = "blank-inheritance-equipment-panel-macro";
 // The id deriveFoundryId(MACRO_SOURCE_ID) actually produces is hand-copied as
 // literal @UUID[Macro.865e0ce3b7d302e5] text into
-// data/episodes/episode-c1s1-mothers-maiden-name.json's Kit Issue scene
+// data/episodes/episode-c1e1-mothers-maiden-name.json's Kit Issue scene
 // description, so the GM can open the locker with one click straight from
 // that scene's journal page — confirmed real Foundry behavior, not assumed:
 // clicking a Macro content link calls Macro#_onClickDocumentLink, which
@@ -147,7 +147,7 @@ async function removeItemFromActor({ userId, itemDocId, quantity }) {
  * whichever one is processed first (always in order, always on one client)
  * changes the stock the second one is checked against.
  */
-async function resolveGrantRequest({ userId, userName, itemId, quantity = 1, force = false }) {
+async function resolveGrantRequest({ userId, userName, itemId, quantity = 1, force = false, kind = "issue" }) {
   if (!game.user.isGM) return null;
   const catalogue = await loadCatalogue();
   const item = findItem(catalogue, itemId);
@@ -163,7 +163,16 @@ async function resolveGrantRequest({ userId, userName, itemId, quantity = 1, for
     itemId,
     quantity,
     unitPrice: item.price ?? 0,
-    kind: "issue",
+    // "issue" (a normal Kit Issue budget pick) or "bonus" (Nobu's free extra
+    // item, on top of budget -- #178's own tag so the outro can tell the two
+    // apart when it scrapes this scene's grants instead of asking the GM to
+    // remember). A later "purchase"/"sale" is additive the same way.
+    kind,
+    // Which scene was live when this was granted -- #178's own hook, the
+    // same "tag it at write time" idiom session-log.mjs already uses for its
+    // own entries (context.scene), so the outro can filter by scene without
+    // guessing from a timestamp window.
+    scene: canvas?.scene?.name ?? null,
     timestamp: Date.now(),
     itemDocId,
     revoked: false
@@ -198,7 +207,7 @@ async function resolveRevokeRequest({ grantId, requestedBy, isGM }) {
  * the userId a GM's own client resolves against, and a non-GM request here
  * is never resolved locally in the first place.
  */
-export function requestGrant({ itemId, quantity = 1, force = false, actingAsUserId = null }) {
+export function requestGrant({ itemId, quantity = 1, force = false, kind = "issue", actingAsUserId = null }) {
   const onBehalfOf = game.user.isGM && actingAsUserId ? actingAsUserId : game.user.id;
   const payload = {
     type: "equipment-grant-request",
@@ -206,7 +215,10 @@ export function requestGrant({ itemId, quantity = 1, force = false, actingAsUser
     userName: game.users.get(onBehalfOf)?.name ?? null,
     itemId,
     quantity,
-    force: game.user.isGM && Boolean(force)
+    force: game.user.isGM && Boolean(force),
+    // Only the GM's own "mark as bonus" toggle may set this -- a player's
+    // own request always issues against their budget like any other pick.
+    kind: game.user.isGM && kind === "bonus" ? "bonus" : "issue"
   };
   if (game.user.isGM) return resolveGrantRequest(payload);
   game.socket.emit(SOCKET, payload);
@@ -261,6 +273,17 @@ export async function equipmentContext({ actingAsUserId = null } = {}) {
     log: isGM ? logEntries(catalogue, grants) : [],
     connectedUsers: isGM ? game.users.filter((u) => u.active && !u.isGM).map((u) => ({ id: u.id, name: u.name })) : []
   };
+}
+
+/**
+ * Every equipment grant made while `sceneName` was live — GM-only reading,
+ * for the Scene Runner outro's own scrape (#178). No `isGM` guard here the
+ * way the write paths have one: this is a read, and the Scene Runner is
+ * itself a GM-only application, so the caller already is one.
+ */
+export async function equipmentGrantsForScene(sceneName) {
+  const catalogue = await loadCatalogue();
+  return grantsForScene(sceneName, catalogue, currentGrants());
 }
 
 /* ---------------------------------------------------------------- */

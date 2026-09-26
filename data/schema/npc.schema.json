@@ -13,6 +13,10 @@
     "name": { "type": ["string", "null"] },
     "role": { "type": "string", "description": "Functional title, e.g. \"The Commander\"." },
     "pole": { "type": ["string", "null"], "description": "Which of the Directorate's three (non-stable) poles this NPC represents, if any." },
+    "ancestry": {
+      "type": ["string", "null"],
+      "description": "This NPC's ancestry, matching a `name` in data/campaign/ancestry-catalogue.json (51 entries). Added 2026-09-20: ancestry is load-bearing in this setting rather than decoration — the founders include a gnoll, the intake doctor is a literal skeleton, and 'make them non-human' has been a real casting instruction. Null or omitted means human or not yet decided; do not assume human from absence. Note that the catalogue mixes Golarion-native ancestries (Dwarf, Elf, Gnome, Goblin, Halfling, Orc, Leshy, Nuar) with genuinely alien ones (Shirren, Vesk, Ysoki, Barathu and the rest) — the distinction matters when casting, since 'non-human' and 'alien' are not the same ask here."
+    },
     "affiliation": { "type": ["string", "null"], "description": "Faction id ref." },
     "description": { "type": "string" },
     "designNotes": { "type": "string" },
@@ -21,7 +25,7 @@
     "status": { "type": "string" },
     "crewChiefForRef": {
       "type": ["string", "null"],
-      "description": "This NPC is the named head of one pilot's repair crew (campaign/config.json#frameEconomy.repairCrew) -- the id of the kid (data/characters/kids/) they serve. One crew chief per pilot, six total. Distinct from Ground Roles (campaign/ground-roles.json), which are PC-played, not NPCs."
+      "description": "This NPC is the named head of one pilot's repair crew (campaign/config.json#frameEconomy.repairCrew) -- the id of the kid (data/characters/kids/) they serve. One crew chief per pilot, six total."
     },
     "statblock": {
       "description": "Optional combat/skill stat block, only needed if this NPC could plausibly roll dice against the party. Same shape as creature.schema.json.",

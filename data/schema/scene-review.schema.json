@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scene-review.schema.json",
+  "title": "Scene Review",
+  "description": "The hand-written half of a Sign-Off report (design/scene-signoff.md). One per scene, in reviews/<scene>.json, rendered into reviews/<scene>.html by tools/scene-signoff/report.mjs. NOT the record of record: a scene's authoritative review state is `authoring.review` on the episode's own scene entry, written only by tools/scene-signoff/seal.mjs. This file is the reasoning and the prose; that one is the verdict. Where they disagree the episode file is right.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "sceneRef"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "description": "The scene brief's id, matching the filename."
+    },
+    "type": {
+      "const": "scene-review"
+    },
+    "sceneRef": {
+      "type": "string",
+      "description": "The scene's own id inside its episode's scenes[] array."
+    },
+    "opened": {
+      "type": "string",
+      "format": "date"
+    },
+    "asks": {
+      "type": "array",
+      "description": "What the review needs from Ingram, as plain questions. Rendered in the loudest block on the page, above the analysis, because they are the only part that blocks her. Never a check id: a review that says \"P3 is unresolved\" has done the work and delivered none of it (her own correction, 2026-09-22). Every ask must carry `current`, at least two `options` with their implications, and a `recommendation` -- required by the schema so that an under-specified question cannot be shipped.",
+      "items": {
+        "type": "object",
+        "required": [
+          "question",
+          "current",
+          "options",
+          "recommendation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string",
+            "description": "One question, naming the specific thing being asked. It should be answerable without reading the detail below it."
+          },
+          "detail": {
+            "type": "string",
+            "description": "The evidence and the options, in the small markdown subset tools/scene-signoff/report.mjs renders."
+          },
+          "blocking": {
+            "type": "boolean",
+            "description": "True when the seal cannot happen until this is answered. Shown on the card, and counted in the header."
+          },
+          "status": {
+            "enum": [
+              "open",
+              "answered"
+            ],
+            "default": "open"
+          },
+          "current": {
+            "type": "string",
+            "description": "What is true right now, stated before any option -- the state of the data, the lore, the map, whatever the question is actually about. Ingram, 2026-09-22: \"you need to give me full context for decisions you want me to make, it's still a bit confusing what question 1 is asking me to decide/confirm.\" A question with no `current` is the failure that correction names: it tells her something is missing without telling her enough to decide."
+          },
+          "options": {
+            "type": "array",
+            "minItems": 2,
+            "description": "The real alternatives, each with what choosing it commits to. Two minimum: a question with one option is a request for permission, not a decision, and should be phrased as one.",
+            "items": {
+              "type": "object",
+              "required": [
+                "label",
+                "implication"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The choice, in a few words."
+                },
+                "implication": {
+                  "type": "string",
+                  "description": "What it commits to, what it costs, and what it forecloses."
+                },
+                "recommended": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "recommendation": {
+            "type": "string",
+            "description": "Which option I would take and why. Stating it is not pre-empting the decision -- it is the difference between handing over a question and handing over homework."
+          }
+        }
+      }
+    },
+    "passes": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One entry per pass. `proposed` is my verdict; it renders as \"proposed\" and never as recorded, because CLEAR is assent and only Ingram gives it.",
+      "properties": {
+        "comprehension": {
+          "$ref": "#/$defs/pass"
+        },
+        "completeness": {
+          "$ref": "#/$defs/pass"
+        },
+        "place": {
+          "$ref": "#/$defs/pass"
+        },
+        "quality": {
+          "$ref": "#/$defs/pass"
+        }
+      }
+    },
+    "applied": {
+      "type": "array",
+      "description": "Changes already made to the scene, with their diffs. Nothing here needs approval -- it was obvious, non-semantic, or Ingram asked for it.",
+      "items": {
+        "$ref": "#/$defs/change"
+      }
+    }
+  },
+  "$defs": {
+    "pass": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "proposed": {
+          "enum": [
+            "CLEAR",
+            "FIX",
+            "STOP",
+            "BLOCKED"
+          ],
+          "description": "My verdict for this pass. A recorded verdict on the episode file always outranks it."
+        },
+        "recorded": {
+          "type": "boolean",
+          "description": "Informational only -- the render reads the episode file for this, never this field."
+        },
+        "summary": {
+          "type": "string",
+          "description": "One sentence, rendered large above the body. The thing to read if nothing else gets read."
+        },
+        "body": {
+          "type": "string",
+          "description": "The pass's analysis, in the rendered markdown subset."
+        },
+        "declined": {
+          "type": "array",
+          "description": "Recommended checks deliberately declined, each with its reason. Declining every one of them is still a legitimate CLEAR -- they are offers, not debt.",
+          "items": {
+            "type": "object",
+            "required": [
+              "check",
+              "what",
+              "why"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "type": "string"
+              },
+              "what": {
+                "type": "string",
+                "description": "What is absent, in plain words."
+              },
+              "why": {
+                "type": "string",
+                "description": "Why that is right for this scene."
+              }
+            }
+          }
+        },
+        "findings": {
+          "type": "array",
+          "description": "Quality pass only. At most five, ranked by how much each would change what happens at the table.",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/change"
+              }
+            ],
+            "properties": {
+              "severity": {
+                "enum": [
+                  "applied",
+                  "noted",
+                  "ok",
+                  "open"
+                ],
+                "description": "applied: fixed, diff shown. noted: a real observation deliberately left alone, on the record so it is not mistaken for an oversight. ok: checked and found sound. open: proposed and waiting on Ingram."
+              },
+              "check": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "judgedFine": {
+          "type": "array",
+          "description": "What was considered and found sound, named so that silence is not mistaken for inattention.",
+          "items": {
+            "type": "object",
+            "required": [
+              "check",
+              "note"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "change": {
+      "type": "object",
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string",
+          "description": "The text as it was. Rendered as the minus side of a diff."
+        },
+        "after": {
+          "type": "string",
+          "description": "The text as it now is, or as proposed. Rendered as the plus side."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,555 @@
+{
+ "_id": "LJ7EALUeGu6QQBLi",
+ "name": "Bronwen Rodford",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/inquisitor_crossbow_.Avatar.webp?1688465905185",
+ "items": [
+  {
+   "name": "Repeating Crossbow",
+   "type": "melee",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "magical",
+      "range-increment-120",
+      "reload-0",
+      "repeating"
+     ]
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "ranged"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {
+     "og4YgrXffxqwZCRn": {
+      "damage": "2d8+7",
+      "damageType": "bludgeoning",
+      "category": null
+     }
+    },
+    "bonus": {
+     "value": 16
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "flags": {
+    "pf2e": {
+     "linkedWeapon": "cp0JchksZIL6oLxY"
+    }
+   },
+   "_id": "8il2TMGfpgEfV5FG",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963829723,
+    "modifiedTime": 1687963884734,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/weapons/bolts.webp",
+   "name": "Bolts",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Shorter than traditional arrows but similar in construction, bolts are the ammunition used by crossbows.</p>"
+    },
+    "rules": [],
+    "slug": "bolts",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 60,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "sp": 1
+     },
+     "per": 10
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.AITVZmakiu3RgfKo"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963776612,
+    "modifiedTime": 1687963779096,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.AITVZmakiu3RgfKo",
+    "duplicateSource": null
+   },
+   "_id": "8t2LtE8Ayi57IBjv"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/weapons/repeating-crossbow.webp",
+   "name": "Repeating Crossbow",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>This crossbow has an internal chamber that can be loaded with up to five bolts. An automated catch mechanism at the top of the flight groove, just in front of the latch, locks the bowstring and launches bolts with the pull of a trigger.</p>"
+    },
+    "rules": [],
+    "slug": "repeating-crossbow",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "repeating"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "quantity": 1,
+    "baseItem": "repeating-crossbow",
+    "bulk": {
+     "value": 1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 15
+     }
+    },
+    "equipped": {
+     "carryType": "held",
+     "invested": null,
+     "handsHeld": 2
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Repeating Crossbow",
+      "img": "systems/pf2e/icons/unidentified_item_icons/weapon.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "held-in-two-hands"
+    },
+    "category": "advanced",
+    "group": "crossbow",
+    "bonus": {
+     "value": 0
+    },
+    "damage": {
+     "dice": 1,
+     "die": "d8",
+     "damageType": "piercing",
+     "persistent": null
+    },
+    "bonusDamage": {
+     "value": 0
+    },
+    "splashDamage": {
+     "value": 0
+    },
+    "range": 120,
+    "reload": {
+     "value": "0"
+    },
+    "runes": {
+     "potency": 1,
+     "striking": 1,
+     "property": [
+      "pacifying"
+     ]
+    },
+    "specific": null,
+    "subitems": [],
+    "property1": {
+     "value": "",
+     "dice": 0,
+     "die": "",
+     "damageType": "",
+     "critDice": 0,
+     "critDie": "",
+     "critDamage": "",
+     "critDamageType": "",
+     "strikeConditionType": "",
+     "strikeConditionValue": null,
+     "criticalConditionType": "",
+     "criticalConditionValue": null
+    }
+   },
+   "type": "weapon",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.8ncDuZSIZAHl7PW8"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963758913,
+    "modifiedTime": 1687963827474,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.8ncDuZSIZAHl7PW8",
+    "duplicateSource": null
+   },
+   "_id": "cp0JchksZIL6oLxY"
+  }
+ ],
+ "effects": [],
+ "folder": "lcidq4N2amU4VnaO",
+ "sort": 200000,
+ "flags": {},
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 10,
+    "temp": 0,
+    "max": 99,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 23,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 6
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 2
+   },
+   "dex": {
+    "mod": 5
+   },
+   "con": {
+    "mod": 4
+   },
+   "int": {
+    "mod": 2
+   },
+   "wis": {
+    "mod": 2
+   },
+   "cha": {
+    "mod": 4
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 17,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 11,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 17,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 14,
+    "saveDetail": ""
+   }
+  },
+  "skills": {},
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "prototypeToken": {
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   }
+  },
+  "height": 1,
+  "width": 1,
+  "name": "Bartholomew Tucket",
+  "displayName": 20,
+  "actorLink": false,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false,
+    "type": null
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "attenuation": 0.5,
+   "color": null,
+   "negative": false,
+   "priority": 0
+  },
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "randomImg": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/inquisitor_crossbow_.Token.webp?1688465905185",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "sight": {
+   "angle": 360,
+   "enabled": false,
+   "range": 0,
+   "brightness": 1,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1687963732192,
+  "modifiedTime": 1721827603047,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

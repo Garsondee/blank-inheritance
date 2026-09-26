@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "plot-room-supervisor",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Supervisor, The Plot Room",
   "pole": null,

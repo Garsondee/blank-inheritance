@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "school-civil-defence-instructor",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": null,
+  "role": "Civil defence instructor, Main School Complex",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Teaches shelter procedure, muster points and the four alert states, and has done for eleven years. A serving NCO rather than a teacher, which shows: she drills rather than explains, makes people repeat things back, and is entirely unhurried about doing it again. Nothing she teaches has ever been used, not once in a hundred and fifty years, and she will say so herself without it denting her conviction in the slightest.\n\nWhat she actually wants is not in the lesson. She has applied four times to have the alert-state drill reinstated as a real base-wide exercise rather than a classroom subject, and been refused four times, on cost. Her class is the only place the material still gets said out loud by anybody, and she knows it.",
+  "designNotes": "Created 2026-09-21 for Episode One and Episode Two's school periods. Exists because `landing-end-duty-nco.json` was briefly cast in this role and that file explicitly forbids it -- it is a rotating duty posting, not a fixed character, and giving it eleven years of history, a fixed gender and a personal conviction broke its own stated terms. This is the fixed character that role needed.\n\nHer refused applications are the want that makes her playable beyond the lesson: a GM asked an unanticipated question can answer from 'she has been told no four times and teaches it anyway'. Keep the refusals mundane -- it is a budget decision by people who are not wrong that nothing has ever happened, not a conspiracy.\n\nShe pays off twice: the siren test in The Exercise is the closest thing to the drill she has been asking for, and in First Contact a player who learned from her knows a real alert from a test. Neither scene remarks on her.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

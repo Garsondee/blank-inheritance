@@ -1,0 +1,281 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--familiarisation",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "familiarisation",
+  "title": "Familiarisation",
+  "summary": "Hangar Two at seven in the morning, and a catalogue that is not what anybody was promised. Converted diggers, a crane rig, two decommissioned army trucks, one inexplicable sports car and a helicopter. Every player takes a machine and meets the person who will keep it alive.",
+  "goal": "Every player has chosen a machine, climbed into it, and met their own crew chief by name.",
+  "howToPlay": "Delighted and physical. This is the morning the campaign has been promising since the letter, and what arrives is a row of working plant with the Directorate's paint on it.\n\n**Do not let this become a catalogue browse.** Let them climb on things. Every question gets answered by somebody walking them over to a machine and opening a hatch. Six people wandering a hangar touching equipment is the scene; a list being read out is not.\n\n**These are not war machines and must not be described as any.** Rivets, grapple arms, road-crew chevrons, hydraulic stink, paint worn through to bare metal at every handhold. The awe belongs to a later generation of machine and it has not been earned yet.",
+  "runsAbout": "30-40 minutes",
+  "mode": "exploration",
+  "intro": {
+    "where": "Hangar Two, 0700, doors open at both ends because they always are.",
+    "firstThing": "Hydraulic fluid, cold metal and the particular diesel-and-rust smell of a shed full of machines that are all older than everybody standing in it.",
+    "readAloud": "Hangar Two is four hundred feet long and most of it is full.\n\nThere are twelve machines under the lights, and not one of them was built for fighting: excavators with their buckets swapped for manipulators, a crane rig folded down like a sleeping bird, two army trucks with their unit markings painted over, and -- inexplicably, at the end of the row, under a sheet -- something low and red.\n\nSomebody has chalked the day's names on a board by the door, one to a machine.",
+    "landmark": "the chalked board by the personnel door, names down one side and machines down the other",
+    "holdInReserve": "The helicopter. It is at the far end behind a screen, it is not on the chalk board, and nobody has mentioned it.",
+    "carriesIn": [
+      {
+        "when": "Anybody worked the late crew in The Night Off",
+        "then": "They have already been inside one of these and know the smell. Give them the machines as familiar rather than as a reveal, and let them show somebody else around."
+      },
+      {
+        "when": "Anybody got Hulda Brack's advice about which machines come back needing least work",
+        "then": "They can act on it now. Let that advice be accurate -- it was the reward for a good roll and it should hold up."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "shop-boss",
+      "npcRef": "shop-boss",
+      "label": "Hulda Brack",
+      "role": "Runs the hangar and the issue. Hands out the machines and the crews.",
+      "arrival": "splash",
+      "brief": {
+        "wants": "Every one of these machines going out with somebody who will bring it back, and to find out this morning which of them that is.",
+        "opensWith": "Talking already, from the far end of the hangar, before anybody has worked out who is talking.",
+        "willDiscuss": [
+          {
+            "topic": "Every machine on the floor, at length, with her hands on it",
+            "note": "She will walk somebody to a machine rather than describe it. Assume any question is answered by a hatch being opened."
+          },
+          {
+            "topic": "What she wants from a pilot",
+            "note": "Tell her what it did, not what is wrong with it. Bring it back. Bring yourself back, in that order, and she says the order out loud because it is funny and because she means it."
+          },
+          {
+            "topic": "The crews",
+            "note": "She introduces each chief personally and does not let anybody take a machine without meeting the person who maintains it. This is the part she is serious about."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Which machine somebody should pick",
+            "why": "Not her job, cheerfully. She will say which ones come back needing least work, which is a different sentence, and she will let the difference sit."
+          },
+          {
+            "topic": "Where these machines came from, or why they are configured the way they are",
+            "why": "They are what the fleet is and they have been what the fleet is since long before her. She has never had cause to wonder and does not now."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Enormous, warm, unceremonious. Carries the length of a four-hundred-foot shed without appearing to raise her voice.",
+          "tics": [
+            "Calls people by the machine they are responsible for until they have earned a name",
+            "Hands somebody a tool mid-sentence and keeps talking",
+            "Says the thing about the machines before the thing about the people, on purpose"
+          ],
+          "samples": [
+            "\"Section Nine! -- Over here. Don't touch that one yet.\"",
+            "\"Every one of these is older than your parents and half of them are better than anything they'll build you new.\"",
+            "\"This is who keeps it running. You will learn their name before you learn the machine's, because the machine will not mind if you don't.\"",
+            "\"I want them back undamaged. And the pilots, where possible.\"",
+            "\"No. -- You can ask me again in a month when you've broken something and I'll tell you then.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "crew-chief",
+      "label": "Your crew chief",
+      "role": "One per pilot. The person who will keep that machine alive for the rest of the campaign.",
+      "walkOn": false,
+      "arrival": "announced",
+      "brief": {
+        "wants": "To find out, this morning, whether this particular teenager is going to be careful with a machine they have personally kept running for years.",
+        "opensWith": "Their own name, and then the machine's history, which they know in more detail than anybody wants.",
+        "willDiscuss": [
+          {
+            "topic": "This specific machine and everything that has ever gone wrong with it",
+            "note": "At length and with feeling. Every one of these chiefs has a machine they are attached to, and it is the one they are handing over."
+          },
+          {
+            "topic": "What they need from their pilot",
+            "note": "Report what happened, not a diagnosis. Come and find them afterwards. Do not let somebody else touch it."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether the machine will be ready by a time somebody else has promised",
+            "why": "Absolute refusal, and it is the one thing that makes them short. They will say when it will be ready. They will not agree to a deadline set by an officer who is not going to be doing the work."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Varies by chief. Pick one register per pilot and hold it -- dry, anxious, proprietorial, cheerful, taciturn, or long-suffering.",
+          "tics": [
+            "Refers to the machine as 'she' or by a name that is not its official designation",
+            "Mentions a repair they made years ago as though the pilot should already know about it"
+          ],
+          "samples": [
+            "\"She pulls left under load. She's always pulled left. Don't get it looked at, I know about it.\"",
+            "\"You tell me what it did. Not what you reckon. What it did.\"",
+            "\"Eleven years I've had this one. You're the fourth.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-hangar",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Open the doors on twelve machines, none of which are what anybody was expecting.",
+      "direction": "Give them the room before anybody explains anything. Let the party walk the line.\n\n**Describe plant, not weapons.** A grapple arm where a hand should be, a chevron stripe faded under new paint, a cab with a cracked seat that somebody has mended with tape. If a player asks where the guns are, the honest answer from anybody in the hangar is a blank look.",
+      "note": "HOW TO PLAY IT. The gap between what a sixteen-year-old imagined a Frame was and what is actually parked here is the whole joke and the whole point. Play it warm -- these machines are not a disappointment, they are just honest, and by the end of the episode one of them will have saved somebody's life."
+    },
+    {
+      "id": "the-catalogue",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "What is actually on offer. Let them climb on things while they decide.",
+      "direction": "Frames are slow and very tough. Vehicles are fast and fragile and carry up to three. Both amplify the person inside rather than replacing them, and neither is the better choice -- say that plainly if asked, because a player worrying they have picked wrong is not having fun.\n\nEvery player may take a Frame and may take a vehicle.\n\nLet them climb on things while they decide. **Do not rank the machines for them** -- every one of them is somebody's best option for something.",
+      "note": "HOW TO PLAY IT. THE CATALOGUE, with what each one is actually for.\n\nFRAMES -- slow, very tough, built to work rather than fight:\n(1) EXCAVATOR CONVERSION, two of them. The workhorse. Grapple arm, good reach, comes back filthy and working. The one Hulda recommends if pressed.\n(2) CRANE RIG. Tall, slow, folds down. Can lift and place things nothing else here can reach, and is miserable in anything sudden.\n(3) TUNNELLER. Squat, low, heavily plated at the front, built for going into places rather than across them. Very hard to knock over.\n(4) SALVAGE AND FIRE RIG. Pumps, cutting gear, a ladder, a water cannon that is not a weapon and will absolutely be used as one.\n\nVEHICLES -- fast, fragile, up to three aboard:\n(5) TWO ARMY TRUCKS, decommissioned, unit markings painted over. Carry the most, the slowest of the fast, and the only things here with a canvas back big enough to hide in.\n(6) THE RED CAR. A confiscated sports car nobody has explained. Absurdly fast, no load, no protection, and a delight.\n(7) DISPATCH BIKES, three. Solo, quick, and the only thing that can get down the lanes in the old town.\n(8) THE HELICOPTER. Behind the screen, not on the chalk board, and nobody has mentioned it. See the beat below.\n\nEIGHT OPTIONS, SIX PLAYERS. More than they can take, on purpose. What gets left behind is a real decision.",
+      "readAloud": "Twelve machines and a clipboard, and the clipboard is the only part of this anybody has bothered to make formal.\n\nExcavators with their buckets swapped for manipulators. A crane rig. Two army trucks with the unit markings painted over badly enough that you can still read them.\n\nNone of it was built for what you are going to be asked to do with it, and everybody here knows that and nobody says it."
+    },
+    {
+      "id": "the-helicopter",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anybody goes behind the screen at the far end, or asks what is under it, offer the check.",
+      "challengeRef": "c1e2-familiarisation",
+      "checkRef": "the-helicopter",
+      "when": {
+        "condition": "if a player investigates the far end of the hangar"
+      },
+      "direction": "It is real, it is airworthy, and it is not on the chalk board because nobody currently on this base is rated to fly it.\n\nHulda is entirely straight about this: they can have it when somebody can fly it, she is not going to pretend otherwise, and she is not going to stop anybody learning.\n\n**Do not make this a tease.** Give them a real, stated route to it -- flying lessons exist, they cost quarters, and nobody has said no.",
+      "note": "HOW TO PLAY IT. This is a long-term want with a real price and an open door, which is better than a locked one. A player who decides this morning that they are going to fly that thing has just written their own goal for the next several chapters, and the campaign should honour it.\n\nGM-ONLY: nothing is wrong with the helicopter and there is no story reason it is hidden. It is behind a screen because it is not in use and the screen keeps dust off it.\n\nWHAT IT DOES NOT MEAN: it is not a reward being withheld, not foreshadowing, and not a mystery. Some things are just not on the list yet."
+    },
+    {
+      "id": "meet-your-crew",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Nobody takes a machine without meeting the person who maintains it. Hulda makes the introductions herself.",
+      "npcRef": "crew-chief",
+      "direction": "**Go round the table and give every player their own chief, by name, with one fact about the machine that only they would know.** Pick a different register for each -- dry, anxious, proprietorial, cheerful, taciturn, long-suffering -- and hold it.\n\nThe fact should be affectionate and slightly inconvenient: she pulls left under load, the heater has never worked, the left foot pedal sticks in the cold, there is a dent nobody will explain.",
+      "note": "HOW TO PLAY IT. This is the most important beat in the scene and it takes four minutes. Six players each acquire a named adult who is personally invested in them not dying, which is a very different relationship from anything Episode One gave them.\n\nThe chiefs exist as files in data/npcs/ (repair-chief-*). Assign whichever to whoever -- the binding is pilot-to-chief, and no chief is tied to a particular character.\n\nIF A PLAYER TAKES BOTH A FRAME AND A VEHICLE: same chief covers both. Do not hand anybody two adults.",
+      "readAloud": "\"Right -- this is yours, and this is who keeps it running, and if you break it you are explaining it to them and not to me.\"\n\nThe introduction takes about nine seconds and it is the only formal thing that happens all morning."
+    },
+    {
+      "id": "sit-in-it",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Everybody gets in. First contact with the machine, hands on the controls, before anything is asked of them.",
+      "challengeRef": "c1e2-familiarisation",
+      "checkRef": "first-time-in-the-cab",
+      "direction": "Do this individually and keep each one short. What is the cab like, what does it smell of, what is worn, what has a previous pilot left in it?\n\n**Something has been left in every cab.** A boiled-sweet tin, a photograph taped inside a panel, a tally scratched by the door, a rude message about a supervisor who retired years ago. One per machine, and they are all ordinary.\n\nThe roll is not pass-fail. It decides how much the machine gives them on a first acquaintance.\n\nNobody has to roll to sit in their own machine. A player who climbs in, looks around and climbs out again has done it correctly. The check is for somebody who wants to find out what it can do before anybody tells them.\n\n**Give every player this beat, individually, and keep each one to about twenty seconds.** It is the scene's whole job.\n\nPhysical, awkward, and too big -- not awe. These are converted diggers, they smell of the last person who sat in them, and the controls have been worn smooth by somebody else's hands. The wonder is that it is real, not that it is magnificent.",
+      "note": "HOW TO PLAY IT. These machines have had pilots before and have been loved and complained about by people the party will never meet. That is the entire emotional content of this scene and it is delivered by one small object per cab.\n\nWHAT IT DOES NOT MEAN: none of the left-behind objects is a clue, none of them connects to a mystery, and no previous pilot is a plot thread. If one becomes interesting later it will be because somebody decided so and wrote it down.",
+      "readAloud": "It is not built for you. The seat is set for somebody with a longer reach and the pedals are a stretch and there is a smell in here of hot oil and somebody else's cigarettes.\n\nEverything is labelled. Everything is labelled in a hand that has been worn shiny by thumbs.\n\nThrough the glass, from up here, the hangar floor is a long way down and the people on it are the wrong size."
+    },
+    {
+      "id": "the-pick",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Names go on the chalk board against machines. That is the issue done.",
+      "npcRef": "shop-boss",
+      "direction": "**Offer it as a choice and let it be one.** Chalk, a board by the door, names going up in handwriting that will not be rubbed off tonight.\n\nLet them argue about it if two people want the same thing -- that is a real conversation and it belongs to them, not to a roll. Hulda will not adjudicate and says so.\n\n**Scarcity is real and not total.** Two excavator conversions, three bikes. If they genuinely cannot resolve it, the numbers will take a party of six without anybody being forced into something.\n\n**Say the third option out loud before anybody has to ask for it.** A student who never takes a machine is a full participant for the whole campaign. That is the settled model and not a kindness, and this is the moment it needs saying, because after the chalk goes up it reads as a thing they missed.\n\n**Nothing here is permanent and nobody should be told that it is.** If a player wants to swap next week, they swap next week -- it is a chalk board.\n\n**Nobody has to decide this morning.** A player who is not ready can leave their line on the board blank and walk out of the hangar with nothing against their name; Hulda will not chase it and nobody thinks less of them. They can chalk it up any day that week. Declining to choose costs nothing and is not a fourth track -- it is the same three, later.\n\n**If they invent a fourth option, price it in the spirit of the three.** The ones a table actually reaches for: two people sharing one machine (yes -- one drives, one does not, and they work out between them who does which on any given day), taking a vehicle in order to carry the two who took nothing (yes, and it is the best answer anybody has given), asking for the helicopter behind the screen (see that beat -- they can have it the day somebody can fly it, and Hulda will not pretend otherwise), or stripping a machine for parts to improve another (yes, with a crew chief's blessing, and the chief will have opinions). Say yes and make it cost something real rather than refusing it.",
+      "note": "HOW TO PLAY IT. Write the chalk board down. This is the campaign's machine roster from here on.\n\nIF A PLAYER WILL NOT PICK: they can go out on foot or ride in somebody's truck, and both work -- the third track is a real track and a student on the ground is not a lesser participant. Say that plainly and without disappointment, and leave the board open so they can put a name up later.\n\nPAYS OFF AT THE END OF THE EPISODE. That board is still up, with these names on it, in The Names Are Still Up -- where it is a real handout. Write down exactly who ended up against which machine.",
+      "readAloud": "Chalk, a board by the door, and somebody writing your name against a machine in handwriting that is not going to be rubbed off tonight.\n\nOne to a machine. Six names.",
+      "choicePoint": {
+        "label": "What is each of them going to be, for the rest of this",
+        "options": [
+          {
+            "id": "frame",
+            "label": "Take a Frame",
+            "consequence": "Slow and very tough. A Frame amplifies the person inside rather than replacing them -- same character, same skills, with hardness and a high AC on top. Two excavator conversions exist, so two people can have one without anybody losing out. This is the track that puts them in front of the thing on the harbour road."
+          },
+          {
+            "id": "vehicle",
+            "label": "Take a vehicle",
+            "consequence": "Fast and fragile, and carries up to three. Three bikes exist. A vehicle reaches things a Frame cannot and cannot stand in front of anything. It also means two other people can ride with them, which is the only option here that puts a character in somebody else's hands on purpose."
+          },
+          {
+            "id": "on-foot",
+            "label": "Take nothing",
+            "consequence": "A full participant for the whole campaign, not a consolation and not a lesser track. Say this plainly and without hedging if anybody chooses it or hesitates over it -- a player worrying they have picked wrong is not having fun. On the ground they can go where a machine cannot, talk to people a machine frightens, and be the only one who can do either."
+          }
+        ],
+        "allowsInventedOption": true
+      }
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Every name that is going on the board is on it, and the doors at the far end are being opened for the drive out to the proving ground.",
+    "readAloud": "Twelve machines, six names in chalk, and a set of doors at the far end standing open onto a grey morning and a road out to the proving ground.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Award it if two players sorted out a clash over a machine between themselves, or if somebody took the less exciting option so somebody else could have the one they wanted."
+      }
+    ],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "The Range Safety Officer is waiting at the proving ground and has been since half past six, and Hulda tells them so in the tone of somebody passing on a warning.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight out to The Exercise.",
+    "writeDown": [
+      "The chalk board. Who has which machine, and whether anybody took both a Frame and a vehicle.",
+      "Each player's crew chief by name, and the one fact they gave about the machine.",
+      "What was left in each cab by the previous pilot.",
+      "Anybody who decided they are going to learn to fly the helicopter."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "whats-under-the-sheet",
+      "text": "There is something low and red under a sheet at the end of the row that nobody has mentioned."
+    },
+    {
+      "id": "behind-the-screen",
+      "text": "The far end of the hangar is screened off, and whatever is behind it is not on the chalk board."
+    },
+    {
+      "id": "ask-your-chief-about-the-dent",
+      "text": "Every one of these machines has a dent, a mend or a worn patch that somebody has a story about."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "not-war-machines",
+      "text": "The machines landing as honest working plant rather than as a disappointment -- whether the table was charmed or deflated.",
+      "scaleNote": "0 = read as a let-down, 10 = they loved that they got a digger."
+    },
+    {
+      "id": "crew-chiefs",
+      "text": "Whether each player came away with a named adult who is invested in them, and whether the chiefs sounded like six different people."
+    },
+    {
+      "id": "the-cabs",
+      "text": "The thing left in each cab by a previous pilot -- whether that landed."
+    },
+    {
+      "id": "choice-felt-real",
+      "text": "Whether eight options for six players produced a real decision, including something worth leaving behind."
+    },
+    {
+      "id": "became-a-catalogue",
+      "text": "If it turned into a list being read out rather than people climbing on machines.",
+      "scaleNote": "0 = stayed physical, 10 = it became shopping."
+    }
+  ],
+  "notes": "THREE EQUAL TRACKS. A Frame, a vehicle, or on the ground on foot. None of them is the real one and none is a consolation -- a student who never takes a machine is a full participant for the whole campaign, and this scene should say so out loud if anybody hesitates.\n\nGEN 1 MACHINES ARE HEAVY PLANT. Rivets, grapple arms, chevron stripes, hydraulic stink, a cracked seat mended with tape. Describe a digger, not a god. The awe-inspiring register belongs to a later generation and spending it here spends it for nothing.\n\nFRAMES AND VEHICLES AMPLIFY, THEY DO NOT REPLACE. Whoever is inside is still themselves, still rolling their own skills, with the machine adding what a machine adds. Nobody becomes a vehicle.\n\nNOTHING IN THE CABS IS A CLUE. The tins, photographs and scratched tallies are texture and the previous pilots are not plot. That is deliberate: a world where not every detail is load-bearing is a world worth searching.\n\nMORE OPTIONS THAN PLAYERS, ALWAYS. Eight choices for six people. What gets left in the hangar is as real a decision as what gets taken out of it.\n\nTHE CREW CHIEFS STAY UNNAMED AND UNCAST. There are six of them, one per pilot, and each is attached to the specific machine they are handing over -- which means who they are depends on who the six PCs turn out to be. No portrait is assigned to any of them and none should be. What they look like is registered as reference art against the hangar itself (asset-registry.json, hangar-crew-chief): a flat cap, a worn denim jacket, a cigarette, a wry sidelong look. Use it to describe them, not to fix them."
+}

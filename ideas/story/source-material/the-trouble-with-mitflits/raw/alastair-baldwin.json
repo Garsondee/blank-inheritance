@@ -1,0 +1,1210 @@
+{
+ "name": "Alastair Baldwin",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/asfasfasfassfafasdasfdsgerha.webp",
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 0,
+    "temp": 0,
+    "max": 165,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 30,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 12
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 7
+   },
+   "dex": {
+    "mod": 7
+   },
+   "con": {
+    "mod": 4
+   },
+   "int": {
+    "mod": 7
+   },
+   "wis": {
+    "mod": 7
+   },
+   "cha": {
+    "mod": 5
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 19,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 19,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 22,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 25,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "acrobatics": {
+    "base": 0
+   },
+   "arcana": {
+    "base": 0
+   },
+   "athletics": {
+    "base": 0
+   },
+   "deception": {
+    "base": 0
+   },
+   "diplomacy": {
+    "base": 0
+   },
+   "intimidation": {
+    "base": 0
+   },
+   "medicine": {
+    "base": 0
+   },
+   "nature": {
+    "base": 0
+   },
+   "occultism": {
+    "base": 0
+   }
+  },
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "asfasfasfassfafasdasfdsgerha",
+  "displayName": 20,
+  "actorLink": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/asfasfasfassfafasdasfdsgerha.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "width": 1,
+  "height": 1,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "flags": {
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "items": [
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/flame-vortex.webp",
+   "name": "Flame Vortex",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Area</strong> 5-foot radius, 40-foot tall cylinder</p>\n<hr />\n<p>You combine a blazing inferno and air currents into a fiery vortex. You can Cast this Spell only if you are outside or the ceiling is 40 feet or higher. All squares in the vortex are difficult terrain for flying creatures.</p>\n<p>All creatures in the area take 3d4 bludgeoning damage and 3d6 fire damage as gusts of fiery wind buffet them, with a basic Reflex save. Each time you Sustain the Spell, you can move the whirlwind up to 20 feet in a straight line. Each creature the whirlwind moves through takes the damage with a basic Reflex save. A creature can take damage from a <em>flame vortex</em> only once per round.</p>\n<hr />\n<p><strong>Heightened (+2)</strong> The vortex deals an additional 1d4 bludgeoning damage and 1d6 fire damage.</p>"
+    },
+    "rules": [],
+    "slug": "flame-vortex",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "air",
+      "concentrate",
+      "fire",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Secrets of Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": "120 feet"
+    },
+    "area": {
+     "type": "emanation",
+     "value": 5
+    },
+    "time": {
+     "value": "3"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "formula": "3d4",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     },
+     "1": {
+      "applyMod": false,
+      "formula": "3d6",
+      "type": "fire",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "reflex",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "ImLnT8MnIUqOUpTm",
+     "heightenedLevel": 6
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d4",
+      "1": "1d6"
+     },
+     "interval": 2,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.Gn5deIoobHpd3SiR"
+    },
+    "scene-packer": {
+     "hash": "e8b82069663b4ff20f7f7729afe72acf7ba4a8aa"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207625121,
+    "modifiedTime": 1687207625121,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.Gn5deIoobHpd3SiR",
+    "duplicateSource": null
+   },
+   "_id": "9Rji54Y93AIgDef4"
+  },
+  {
+   "name": "New Melee",
+   "type": "melee",
+   "effects": [],
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {},
+    "bonus": {
+     "value": 0
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "_id": "IirZpt5ETMfIPMEi",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {
+    "scene-packer": {
+     "hash": "78327d999862e2aec5ffb7e05cf0baa9f4589e3a"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1686143607537,
+    "modifiedTime": 1686143607537,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "name": "Creature Spellcasting",
+   "type": "spellcastingEntry",
+   "effects": [],
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "ability": {
+     "value": "cha"
+    },
+    "spelldc": {
+     "value": 0,
+     "dc": 0
+    },
+    "tradition": {
+     "value": "arcane"
+    },
+    "prepared": {
+     "value": "innate"
+    },
+    "showSlotlessLevels": {
+     "value": true
+    },
+    "proficiency": {
+     "value": 1
+    },
+    "slots": {
+     "slot0": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot1": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot2": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot3": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot4": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot5": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot6": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot7": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot8": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot9": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot10": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot11": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     }
+    },
+    "autoHeightenLevel": {
+     "value": null
+    },
+    "showUnpreparedSpells": {
+     "value": false
+    },
+    "displayLevels": {}
+   },
+   "_id": "ImLnT8MnIUqOUpTm",
+   "img": "systems/pf2e/icons/default-icons/spellcastingEntry.svg",
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {
+    "scene-packer": {
+     "hash": "ace466e7c6f5ba30f8336037445cf17d90ff50ec"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1686143607599,
+    "modifiedTime": 1687207525063,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/mantle-of-the-magma-heart.webp",
+   "name": "Mantle of the Magma Heart",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You surround yourself in a mantle of blazing fire magic, and your skin and anything you're wearing morphs into burning hot lava. The air around you swelters with heat, and tiny sparks of flame dance behind you as you pass. Upon casting this spell, pick two of the options below. As a single action, which has the concentrate trait, you can change one of your chosen abilities to a different option from the list.</p>\n<ul>\n<li><strong>Enlarging Eruption</strong> You erupt in lava, which clings to you and hardens, causing your body to swell and burst until you grow to size Large. You're clumsy 1. Your reach increases by 5 feet (or by 10 feet if you started out Tiny), and you gain a +2 status bonus to melee damage. You can't choose this option if you're already Large or larger. @UUID[Compendium.pf2e.spell-effects.Item.qRyynMOflGajgAR3]</li>\n<li><strong>Fiery Grasp</strong> Your hands swell and grow with lava. You gain a lava fist unarmed attack in the brawling weapon group. Your lava fists deal 1d8 bludgeoning damage as their base damage, plus an additional 2d6 fire damage and 1d6 persistent fire damage. @UUID[Compendium.pf2e.spell-effects.Item.6SG8wVmppv4oXZtx]</li>\n<li><strong>Heart of Fire</strong> Your body's temperature becomes so hot that any creature that touches you, or that hits you with a melee unarmed attack or non-reach melee weapon attack, takes [[/r 2d6[fire]]] damage.</li>\n<li><strong>Warming Flames</strong> Flames flicker around you, warming away the cold while protecting you from the heat. You gain resistance 5 to cold and fire.</li>\n</ul>"
+    },
+    "rules": [],
+    "slug": "mantle-of-the-magma-heart",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "fire",
+      "manipulate",
+      "morph"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Secrets of Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "ImLnT8MnIUqOUpTm",
+     "heightenedLevel": 5
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.j2kfNBFpLa0JjVr8"
+    },
+    "scene-packer": {
+     "hash": "24542837b551f0f33a313c0514b71b20f8546a44"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207736058,
+    "modifiedTime": 1687207736058,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.j2kfNBFpLa0JjVr8",
+    "duplicateSource": null
+   },
+   "_id": "JCAAU60jLWU5oYUh"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/blazing-fissure.webp",
+   "name": "Blazing Fissure",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A thin crack rips through the earth, erupting with magma, then swiftly seals up. Each creature along the line and on solid ground takes 4d6 bludgeoning damage and 6d6 fire damage with a Reflex save.</p>\n<hr />\n<p><strong>Critical Success</strong> The creature is unaffected.</p>\n<p><strong>Success</strong> The creature takes half damage.</p>\n<p><strong>Failure</strong> The creature takes full damage, and it falls @UUID[Compendium.pf2e.conditionitems.Item.j91X7x0XSomq8d60].</p>\n<p><strong>Critical Failure</strong> The target takes double damage, and it falls prone.</p>\n<hr />\n<p>Heightened (+1) The damage increases by 1d6 bludgeoning and 1d6 fire</p>"
+    },
+    "rules": [],
+    "slug": "blazing-fissure",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "earth",
+      "fire",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Secrets of Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": {
+     "type": "line",
+     "value": 120
+    },
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "formula": "4d6",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     },
+     "1": {
+      "applyMod": false,
+      "formula": "6d6",
+      "type": "fire",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "reflex",
+      "basic": false
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "ImLnT8MnIUqOUpTm",
+     "heightenedLevel": 5
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d6",
+      "1": "1d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.OYOCWWefZPEfp8Nl"
+    },
+    "scene-packer": {
+     "hash": "645a4196203f837804c6c8fa5a2097d5ae720123"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207531349,
+    "modifiedTime": 1687207531349,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.OYOCWWefZPEfp8Nl",
+    "duplicateSource": null
+   },
+   "_id": "MFXfHxkZKxTKp2Te"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/air-walk.webp",
+   "name": "Air Walk",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>The target can walk on air as if it were solid ground. It can ascend and descend in this way at a maximum of a 45-degree angle.</p>"
+    },
+    "rules": [],
+    "slug": "air-walk",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "air",
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "divine",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "touch"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "5 minutes",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "ImLnT8MnIUqOUpTm",
+     "heightenedLevel": 4
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.b5sGjGlBf58f8jn0"
+    },
+    "scene-packer": {
+     "hash": "8368a2507b82265fe766847bd39ab1e2db8d8bcc"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207843001,
+    "modifiedTime": 1687207843001,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.b5sGjGlBf58f8jn0",
+    "duplicateSource": null
+   },
+   "_id": "WCf6kfKYQzVj2OyL"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/runic-impression.webp",
+   "name": "Blazing Blade",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A scimitar-shaped beam of fiery light springs from your free hand. While the spell lasts, you can use a single action, which has the attack and concentrate traits, to burn your foes with the blazing blade. When you do, make a spell attack roll. On a success, the blazing blade deals 1d6 fire damage plus 1d6 spirit damage plus your spellcasting ability modifier. On a critical success, it deals double the usual damage.</p>\n<hr />\n<p><strong>Heightened (4th)</strong> The blade's fire damage increases to 2d6. On a critical success, the target takes 1d6 persistent good damage.</p>\n<p><strong>Heightened (6th)</strong> The blade's fire damage increases to 3d6. On a critical success, the target takes 2d6 persistent good damage.</p>\n<p><strong>Heightened (8th)</strong> The blade's fire damage increases to 4d6. On a critical success, the target takes 3d6 persistent good damage.</p>"
+    },
+    "rules": [],
+    "slug": "blazing-blade",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "fire",
+      "holy",
+      "manipulate"
+     ],
+     "rarity": "rare",
+     "traditions": [
+      "divine",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Kingmaker",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 2
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {
+     "CEV2UAtvWe56S9pd": {
+      "applyMod": false,
+      "formula": "1d6",
+      "type": "fire",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     },
+     "zeLVGKS8PBTsql39": {
+      "applyMod": true,
+      "formula": "1d6",
+      "type": "spirit",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "ImLnT8MnIUqOUpTm",
+     "heightenedLevel": 2
+    },
+    "counteraction": false,
+    "heightening": {
+     "levels": {
+      "4": {
+       "damage": {
+        "CEV2UAtvWe56S9pd": {
+         "applyMod": false,
+         "formula": "2d6",
+         "type": "fire",
+         "materials": []
+        },
+        "zeLVGKS8PBTsql39": {
+         "applyMod": true,
+         "formula": "1d6",
+         "type": "good",
+         "materials": []
+        }
+       }
+      },
+      "6": {
+       "damage": {
+        "CEV2UAtvWe56S9pd": {
+         "applyMod": false,
+         "formula": "3d6",
+         "type": "fire",
+         "materials": []
+        },
+        "zeLVGKS8PBTsql39": {
+         "applyMod": true,
+         "formula": "1d6",
+         "type": "good",
+         "materials": []
+        }
+       }
+      },
+      "8": {
+       "damage": {
+        "CEV2UAtvWe56S9pd": {
+         "applyMod": false,
+         "formula": "4d6",
+         "type": "fire",
+         "materials": []
+        },
+        "zeLVGKS8PBTsql39": {
+         "applyMod": true,
+         "formula": "1d6",
+         "type": "good",
+         "materials": []
+        }
+       }
+      }
+     },
+     "type": "fixed"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.NacrNSvfODxpZena"
+    },
+    "scene-packer": {
+     "hash": "cbaaf00bee2f8e0f4a7288d883f9ae8c84cfa167"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207507777,
+    "modifiedTime": 1687207507777,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.NacrNSvfODxpZena",
+    "duplicateSource": null
+   },
+   "_id": "vG3bWJOvKZ00X7Ho"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/incendiary-fog.webp",
+   "name": "Incendiary Fog",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You summon a cloud of flammable black dust. The cloud functions as <em>@UUID[Compendium.pf2e.spells-srd.Item.9XHmC2JgTUIQ1CCm]</em>. If any open flame or fire effect is within the spell's area when it's cast, or later enters or occurs within the area, the cloud ignites. Creatures in the cloud take [[/r 10d6[fire]]] damage (basic Reflex save), and the spell ends.</p>"
+    },
+    "rules": [],
+    "slug": "incendiary-fog",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "fire",
+      "manipulate"
+     ],
+     "rarity": "rare",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder #177: Burning Tundra",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": "120 feet"
+    },
+    "area": {
+     "type": "burst",
+     "value": 20
+    },
+    "time": {
+     "value": "3"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {
+     "goajz5243wuz07dx": {
+      "applyMod": false,
+      "formula": "10d6",
+      "type": "fire",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "reflex",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "ImLnT8MnIUqOUpTm",
+     "heightenedLevel": 5
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.I2fwPslQth0DTPQD"
+    },
+    "scene-packer": {
+     "hash": "dba65b1bb98fb38f63eabb80882d83172d032ddf"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207592662,
+    "modifiedTime": 1687207592662,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.I2fwPslQth0DTPQD",
+    "duplicateSource": null
+   },
+   "_id": "xvvx6b0Bk3UNqtnt"
+  }
+ ],
+ "effects": [],
+ "folder": "F0bowww63iKxd9DO",
+ "sort": 600000,
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "flags": {
+  "scene-packer": {
+   "hash": "ca54debca005a607f6b287d4d3431eb56ad3b258"
+  },
+  "xdy-pf2e-workbench": {}
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1686143507026,
+  "modifiedTime": 1721827611353,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ },
+ "_id": "9dzBD4XH7UvdPwLm"
+}

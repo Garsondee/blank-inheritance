@@ -4,6 +4,11 @@
   The backdrop is a real element rather than a ::before so it can take the
   pointerdown that closes the palette -- clicking away is how every palette
   in every tool behaves, and a GM will try it before they try Escape.
+
+  2026-09-23: the field also names what is SELECTED on the canvas (the
+  "Selected" group's commands act on it), and an empty box shows the typed
+  shortcuts the palette understands — "athletics 18", "dmg 2d6" and the rest
+  build a ready-to-run first row (core/director-palette.mjs#parseQuickIntent).
 --}}
 <div class="bi-palette-shell">
 <div class="bi-palette__backdrop"></div>
@@ -13,16 +18,24 @@
         <i class="fa-solid fa-terminal bi-palette__prompt" aria-hidden="true"></i>
         <input type="text" class="bi-palette__input" autocomplete="off" spellcheck="false"
                placeholder="{{localize 'BLANKINHERITANCE.Palette.Placeholder'}}" aria-label="{{localize 'BLANKINHERITANCE.Palette.Placeholder'}}">
+        {{#if subject}}<span class="bi-palette__subject" title="{{localize 'BLANKINHERITANCE.Palette.SubjectHint'}}"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i> {{subject}}</span>{{/if}}
         <button type="button" class="bi-palette__dismiss" data-action="close" aria-label="{{localize 'BLANKINHERITANCE.Palette.Close'}}">esc</button>
     </div>
+
+    {{#if showSyntax}}
+    <div class="bi-palette__syntax">
+        <span>{{localize "BLANKINHERITANCE.Palette.SyntaxLead"}}</span>
+        <code>athletics 18</code><code>flat 5</code><code>dmg 2d6+3</code><code>heal 5</code><code>r 1d20+4</code><code>gmr 1d100</code><code>note …</code>
+    </div>
+    {{/if}}
 
     <ol class="bi-palette__list">
         {{#each rows}}
             {{#if this.isHeading}}
                 <li class="bi-palette__heading">{{this.label}}</li>
             {{else}}
-                <li class="bi-palette__row{{#if this.isSelected}} bi-palette__row--on{{/if}}{{#if this.danger}} bi-palette__row--danger{{/if}}"
-                    data-action="run" data-command-id="{{this.id}}">
+                <li class="bi-palette__row{{#if this.isSelected}} bi-palette__row--on{{/if}}{{#if this.danger}} bi-palette__row--danger{{/if}}{{#if this.disabled}} bi-palette__row--inert{{/if}}"
+                    data-action="run" data-command-id="{{this.id}}" {{#if this.disabled}}aria-disabled="true"{{/if}}>
                     {{#if this.icon}}<i class="{{this.icon}} bi-palette__icon" aria-hidden="true"></i>{{/if}}
                     <span class="bi-palette__title">{{this.title}}</span>
                     {{#if this.hint}}<span class="bi-palette__hint">{{this.hint}}</span>{{/if}}

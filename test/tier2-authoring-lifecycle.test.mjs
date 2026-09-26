@@ -38,13 +38,15 @@ function listJsonFiles(...relParts) {
 
 const authoringSchema = readJson(path.join(schemaDir, "common", "authoring.schema.json"));
 
-test("common/authoring.schema.json defines the five-state ladder from design/approvals-desk.md §2/§6, owned per design/data-ownership.md §4", () => {
+test("common/authoring.schema.json defines the six-state ladder from design/approvals-desk.md §2/§6 plus design/scene-signoff.md §3, owned per design/data-ownership.md §4", () => {
   const def = authoringSchema.$defs?.authoring;
   assert.ok(def, "expected a top-level $defs.authoring");
   assert.deepEqual(
     def.properties.status.enum,
-    ["needs-lore", "drafted", "sound", "final", "cut"],
-    "the ladder must be exactly these five -- 'approved' is retired (design/approvals-desk.md §2: zero files ever carried it); 'cut' is the bounce loop's terminal decision (§6, issue #171)"
+    ["needs-lore", "drafted", "sound", "final", "live", "cut"],
+    "the ladder must be exactly these six -- 'approved' is retired (design/approvals-desk.md §2: zero files ever carried it); " +
+    "'cut' is the bounce loop's terminal decision (§6, issue #171); 'live' is the Sign-Off's own rung, scene briefs only " +
+    "(design/scene-signoff.md §3, added 2026-09-22), and it is the ONE value the Desk does not own"
   );
   assert.ok(def.$comment?.startsWith("OWNER:"), "must declare its owner per data-ownership.md §4's $comment convention, not just in prose");
   assert.equal(def.additionalProperties, false, "an unlisted key on a lifecycle field must fail loudly rather than pass through silently (design/data-ownership.md §5)");
@@ -96,7 +98,9 @@ test("location.schema.json's authoring migration additionally still requires 'no
   assert.ok(extraRequired?.required.includes("note"), "location's authoring must still require 'note' on top of the shared $def");
 });
 
-const VALID_STATUSES = new Set(["needs-lore", "drafted", "sound", "final", "cut"]);
+// "live" is the Sign-Off's own rung, scene briefs only (design/scene-signoff.md §3),
+// added 2026-09-22 and sealed for real on The Road In the same day.
+const VALID_STATUSES = new Set(["needs-lore", "drafted", "sound", "final", "live", "cut"]);
 
 // type -> the data/ subpath holding its real files, as one non-recursive
 // readdir (never data/antagonists/claimants/, which holds a DIFFERENT schema
@@ -135,7 +139,7 @@ test("every real data file of an authoring-bearing type carries a non-empty, val
 
 test("both real episodes, and every one of their scenes, carry a valid authoring block", () => {
   const files = listJsonFiles("episodes");
-  assert.ok(files.length >= 2, "expected at least the two real episodes (Session One, Session Two's stub)");
+  assert.ok(files.length >= 2, "expected at least the two real episodes (Episode One, Episode Two's stub)");
   for (const file of files) {
     const episode = readJson(file);
     const rel = path.relative(repoRoot, file);

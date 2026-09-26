@@ -110,11 +110,26 @@ export function projectCatalogue({ catalogue, grants = [], userId }) {
   return { items, budget: budgetFor(userId, catalogue, grants) };
 }
 
-/** The GM's log: every active grant, newest first, with the item's real name resolved in. */
+/** The GM's log: every active grant, newest first, with the item's real name resolved in and `isBonus` computed once here rather than compared in the template (this project has no Handlebars `eq` helper, and shouldn't grow one for a single boolean). */
 export function logEntries(catalogue, grants = []) {
   return active(grants)
-    .map((g) => ({ ...g, itemName: findItem(catalogue, g.itemId)?.name ?? g.itemId }))
+    .map((g) => ({ ...g, itemName: findItem(catalogue, g.itemId)?.name ?? g.itemId, isBonus: g.kind === "bonus" }))
     .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
+}
+
+/**
+ * Every active grant made while `sceneName` was live, oldest first — what a
+ * scene's own outro (#178) shows instead of asking the GM to remember "what
+ * each player picked" by hand, per design/ux-doctrine.md's Law 15
+ * ("recording is a side effect of doing, never a separate task"). A grant
+ * predating this field (`scene` added 2026-09-19) has `scene: undefined` and
+ * simply never matches here, rather than being guessed at from a timestamp.
+ */
+export function grantsForScene(sceneName, catalogue, grants = []) {
+  if (!sceneName) return [];
+  return logEntries(catalogue, grants)
+    .filter((g) => g.scene === sceneName)
+    .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0));
 }
 
 const SF2E_ITEM_TYPE = { weapon: "weapon", armor: "armor", gear: "equipment", consumable: "consumable" };

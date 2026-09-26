@@ -1,77 +1,90 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "chassis.schema.json",
-  "title": "Chassis Catalogue",
-  "description": "Frame-scale vehicles a personnel-scale kid can crew, per design/scale-and-chassis.md. SF2E vehicle stat blocks (objects with Hardness/HP/Broken Threshold), NOT PC statblocks -- that's frame.schema.json's job, and hangar.schema.json's legacy units. Singleton file: data/campaign/chassis-catalogue.json. Every number here is transcribed from design/scale-and-chassis.md, not invented here -- that document is the source of truth for the maths; this file is its data form.",
-  "type": "object",
-  "required": ["id", "chassis"],
-  "properties": {
-    "$schema": { "type": "string" },
-    "id": { "const": "chassis-catalogue" },
-    "type": { "const": "chassis-catalogue" },
-    "description": { "type": "string" },
-    "chassis": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/chassis" }
-    }
-  },
-  "$defs": {
-    "chassis": {
+  "title": "Vehicle",
+  "description": "A vehicle a player crews at Frame scale. REWORKED 2026-09-20 — this file previously described SF2E vehicle stat blocks (objects with Hardness/HP/Broken Threshold) per the retired two-scale design (deleted 2026-09-25). SF2E's vehicle rules were rejected outright as unsuitable and over-complicated (open-questions.json#vehicle-and-frame-rules-model), so a vehicle is now exactly what a Frame is: a PC-GRADE CHARACTER SHEET that amplifies its pilot rather than replacing them, level-locked to that pilot, kitted out of the same credit budget. The filename and the word 'chassis' are legacy from the old model and are kept only because existing references point at them. VEHICLES VERSUS FRAMES — same shape, opposite emphasis: Frames are slow, extremely tough, high AC, real hardness, and near-blind; vehicles are fast (some extremely so), fragile enough that losing one means the pilot ejects, takes damage and is in a far worse position, and they carry up to three, which makes them how the party moves students and pulls downed pilots out. Some vehicles see far better than anything else on the field. Neither track is the better choice and every player may take either. The previous singleton catalogue (data/campaign/chassis-catalogue.json) was deleted 2026-09-19 as unapproved; one file per vehicle is the intended shape now, not a catalogue.",
+  "allOf": [
+    { "$ref": "common/sf2e-common.schema.json#/$defs/pcStatblock" },
+    {
       "type": "object",
-      "required": ["id", "name", "chassisLevel", "size", "ac", "hardness", "hp", "brokenThreshold", "speed", "handlingDC"],
+      "required": ["id", "type", "name", "authoring"],
       "properties": {
+        "$schema": { "type": "string" },
         "id": { "type": "string" },
-        "name": { "type": "string" },
-        "subtitle": { "type": "string", "description": "The one-line flavor tag, e.g. \"the sports car\"." },
-        "chassisLevel": { "type": "integer", "description": "Drives everything the Claimant interacts with: AC, saves, Hardness, HP, collision. Decoupled from Handling DC per design/scale-and-chassis.md §5, Deviation 1." },
-        "scalesWithFrameLevel": { "type": "boolean", "default": true, "description": "Decided 2026-08-22: chassis level automatically with Frames, 12->20, in lockstep. This file states level-12 (starting) values only; no per-level progression table exists yet." },
-        "size": { "enum": ["large", "huge", "gargantuan"] },
-        "traits": { "type": "array", "items": { "type": "string" } },
-        "price": { "type": ["integer", "null"], "description": "Credits. Null for Directorate-issued stock with no meaningful purchase/loss from a player's economy (the Runabout)." },
-        "acquisition": { "type": "string", "description": "How a player actually gets this one -- issued at Kit Issue, requisitioned, found, negotiated, salvaged. See design/scale-and-chassis.md §13 open question 3-4 for the standing design question this answers per-chassis." },
-        "space": { "type": "string", "description": "Free-text dimensions, e.g. \"15 ft long, 8 ft wide, 5 ft high\"." },
-        "crew": { "type": "integer" },
-        "passengers": { "type": "integer" },
-        "handlingDC": { "$ref": "common/sf2e-common.schema.json#/$defs/dc", "description": "What the KID rolls (Piloting), decoupled from chassisLevel -- personnel-band DC per §5 Deviation 1." },
-        "ac": { "type": "integer" },
-        "fort": { "type": "object", "properties": { "value": { "type": "integer" }, "quality": { "enum": ["terrible", "low", "moderate", "high", "extreme"] } } },
-        "reflex": { "type": "object", "properties": { "value": { "type": "integer" }, "quality": { "enum": ["terrible", "low", "moderate", "high", "extreme"] } }, "description": "Every Frame-scale chassis here lists Reflex, a deliberate deviation from RAW's 'typically only Fortitude' -- §5 Deviation 2." },
-        "hardness": { "type": "integer" },
-        "hp": { "type": "integer" },
-        "brokenThreshold": { "type": "integer" },
-        "immunities": { "type": "array", "items": { "type": "string" } },
-        "speed": { "type": "object", "properties": { "value": { "type": "integer" }, "mode": { "type": "string" } } },
-        "collision": { "type": "object", "properties": { "damage": { "type": "string" }, "dc": { "type": "integer" } } },
+        "type": { "const": "vehicle" },
+        "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
+        "name": { "type": ["string", "null"] },
+        "pilotKidRef": { "type": ["string", "null"], "description": "id of the kid currently assigned to this vehicle, if any. Unlike a Frame, a vehicle is more readily reassigned — there is no Frame Sickness equivalent on Gen 1 machines." },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "LOCKSTEP with the pilot, exactly as frame.schema.json. Starts at 1, advances on milestone XP with everyone else. No independent vehicle level."
+        },
+        "vehicleClass": {
+          "type": ["string", "null"],
+          "description": "What this actually is — recon car, staff car, truck, helicopter, and so on. Drives both the starting loadout and the vision profile."
+        },
+        "passengerCapacity": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "Even the smallest vehicle carries up to three. This is a real tactical role, not flavour: moving students around and evacuating a downed pilot away from a damaged Frame."
+        },
+        "fragility": {
+          "enum": ["glass", "light", "sturdy", null],
+          "description": "How badly losing this vehicle goes for its occupants. Destruction means ejecting, taking damage, and being stranded at Frame scale without a machine — the deliberate counterweight to speed."
+        },
+        "concept": { "type": ["string", "null"], "description": "One or two sentences on how this machine reads in play, and what its pilot's own abilities look like once amplified to Frame scale." },
+        "loadout": {
+          "type": "array",
+          "description": "Same shape as frame.schema.json#/loadout — the vehicle's own weapons, armour, gear, consumables and feats, bought from the pilot's credit budget.",
+          "items": {
+            "type": "object",
+            "required": ["name", "kind"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "kind": { "enum": ["weapon", "armour", "equipment", "consumable", "feat"] },
+              "permanence": { "enum": ["permanent", "consumable", "renewable"] },
+              "usageLimit": { "enum": ["at-will", "once-per-round", "once-per-hour", "once-per-day", null] },
+              "creditCost": { "type": ["number", "null"] },
+              "description": { "type": "string" },
+              "startingKit": { "type": "boolean", "default": false }
+            }
+          }
+        },
         "vision": {
           "type": "object",
+          "description": "Where vehicles earn their place. See ideas/entries/vision-as-chassis-axis.json and foundry-vision-restricted-spotting.json, both accepted. Armour costs sight, so the least protected chassis often see best. Recon vehicles are excellent at both seeing and hiding; helicopters see extremely well and hide appallingly badly.",
           "properties": {
-            "quality": { "enum": ["poor", "moderate", "good", "excellent"] },
-            "description": { "type": "string" }
-          },
-          "description": "The fourth balancing axis (ideas/entries/vision-as-chassis-axis.json). Design intent only -- not yet verified against the real Foundry token vision/detection config."
+            "range": { "type": ["number", "null"] },
+            "quality": { "enum": ["poor", "fair", "good", "excellent", null] },
+            "stealth": { "enum": ["poor", "fair", "good", "excellent", null] },
+            "canSpotForOthers": { "type": "boolean", "default": false, "description": "Whether this chassis can mark targets for teammates who cannot see them — the mechanic that lets long-ranged Frames shoot at all." }
+          }
         },
-        "specialAbilities": {
+        "damageState": {
+          "enum": ["operational", "degraded", "critical", "hulked"],
+          "default": "operational",
+          "description": "Same campaign-resource treatment as Frames: vehicles do not heal between fights, they are repaired. See config.json#frameEconomy."
+        },
+        "repairLog": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["name", "description"],
-            "properties": { "name": { "type": "string" }, "description": { "type": "string" } }
+            "properties": {
+              "date": { "type": "string" },
+              "fromState": { "type": "string" },
+              "toState": { "type": "string" },
+              "technicianDaysCost": { "type": "number" },
+              "notes": { "type": "string" }
+            }
           }
         },
-        "flavorText": { "type": "string" },
-        "damageStates": {
-          "type": "object",
-          "description": "The shared four-stage curve from §8, identical for every chassis in this file -- included per-entry so a scene-runner reading this file doesn't have to also read the design doc to run it.",
-          "properties": {
-            "operational": { "type": "string", "const": "100-67% HP -- no penalty, Resonance/Handling governs as normal." },
-            "degraded": { "type": "string", "const": "66-34% HP -- -2 AC/saves, x3/4 Speed, capped at 2 actions regardless of Resonance band." },
-            "critical": { "type": "string", "const": "33-1% HP -- -4 AC/saves (matches RAW Broken), x1/2 Speed, x1/2 Hardness, capped at 1 action." },
-            "hulked": { "type": "string", "const": "0 HP -- out of the fight." }
-          }
-        },
-        "notes": { "type": "string" },
-        "source": { "type": "string", "default": "design/scale-and-chassis.md" }
+        "deployable": { "type": "boolean", "default": true },
+        "notes": { "type": "string" }
       }
     }
-  }
+  ]
 }

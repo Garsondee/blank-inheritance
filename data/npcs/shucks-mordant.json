@@ -2,13 +2,73 @@
   "$schema": "../schema/npc.schema.json",
   "id": "shucks-mordant",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": "Shucks Mordant",
   "role": "Chief Medical Officer, the Directorate",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Two hundred years old, a literal animated skeleton in a white coat and stethoscope -- not a figure of speech, and the portrait already assigned to him (artwork/character-portraits/shucks-mordant.png) is drawn literal. Runs Intake Medicals on the combined campus personally (data/scene-briefs/episode-c1s1--intake-medicals.json): warm, unhurried, deadpan, asks a question and actually waits, gives instructions as single words (\"Arm. Light. Breathe.\"), kind about things that are dangerous to know and honest that he's forbidden from saying more. One of the Directorate's four actual founders, present roughly two hundred years ago at the incident that produced the Watcher (ideas/story/blank-inheritance-master-timeline.md). Separately, decades later, he is named on Manako's revenge list as 'the institutional author of his ruin. Supervised the disgrace personally' (ideas/story/dossier-cicada.md #6) -- a fact his established table voice carries no trace of, deliberately; see designNotes below. His right hand is a detached familiar that flies on a kite, doesn't know it's supposed to be his, and comes and goes on its own unexplained business; his sleeve currently ends in a very convincing prosthetic.",
-  "designNotes": "Full history, voice notes and open questions live in ideas/story/bible/characters/shucks-mordant.md -- read that in full before writing any scene with him. THIS FILE FORMALIZES HIM AS A REAL ENTITY for the first time (data/npcs/ previously held only the three Directorate poles and six repair-crew-chief placeholders); it adds nothing his bible file doesn't already establish.\n\nTone, load-bearing: his founder status and revenge-list placement are LATER-CAMPAIGN information and must not leak backward into how he plays in Session One or any early scene -- he reads as untroubled, not as a man with a secret.\n\nProposed connection, 2026-09-12, NOT YET CONFIRMED BY INGRAM: while grounding data/locations/general-hospital.json (the fortress island's main hospital -- a separate, larger building from the campus's Intake Medicals hall he staffs personally), his title 'Chief Medical Officer' was read as plausibly extending to administrative oversight of the island's whole medical apparatus, hospital included, even though he is never there in person. That is a reasonable extrapolation of an already-settled title, not a new invention, but it directly touches his own bible file's open question 'what has he actually done for two hundred years besides staff intake medicals' without resolving it -- flagged there rather than settled here, and surfaced directly to Ingram for confirmation. If Ingram would rather the hospital answer to nobody in particular, or to someone else entirely, general-hospital.json's npcRefs is a one-line change.",
+  "description": "WHAT THE PARTY MEETS. Chief Medical Officer at Intake Medicals, and a literal animated skeleton in a white coat with a stethoscope. Two hundred years old and has not run out of interest in people, which is the rarest thing about him. He started as a rogue with real medical skill and became Dr Shucks Mordant on the strength of it.\n\nHOW HE TALKS. Warm, unhurried, deadpan. Gives instructions as single words -- \"Arm. Light. Breathe.\" Asks a question and then actually waits. Gives practical instructions before kind ones and means both. Compares candidates to relatives he processed decades ago, because he did. He is kind about things that are dangerous to know, and honest that he is not allowed to say more.\n\nTHE ONE THING HE WILL NOT DO. Explain what the DNA flag means. He is forbidden, he thinks the rule is stupid, and both of those show to anybody who reads him. He does not pretend the rule is sensible and he does not break it.\n\nBEING A SKELETON DOES NOT CHANGE THE REGISTER. A kind, unsettling-looking mentor, not a horror element. His warmth and deadpan calm are the correct read throughout, and the two-hundred-years line is not an idiom either.\n\n=== THE HAND ===\n\nHis right hand is a detached familiar and does not know it is supposed to be his. Some while ago he put it into a beam of powerful necromantic energy, and it survived by becoming its own thing: small, independent, commandable, nonverbal, and -- as an emergent property of whatever that beam was -- able to fly, using a kite.\n\nIt is not currently attached to his arm. His sleeve ends in a very convincing prosthetic, indistinguishable at a glance, and a Perception or Medicine check on meeting him is the honest way a table notices. That is a real checkable detail, not narration to hand out.\n\nIt has gone its own way and he does not mind. In effect it is a conspiracy theorist: loose in the city for an unstated length of time, investigating what is actually happening entirely on its own initiative, without his help or knowledge. He does not know where it is. It always comes back eventually, once hungry, the way a stroppy cat does, and he is genuinely unworried about the whole arrangement.\n\nAT THE TABLE IT IS A SUB-CHARACTER, NOT A PROP. A small mobile nonverbal investigator with real access and no check-in, which makes it a plausible source of one oddly-specific true thing at an unexpected moment -- flying past on a kite, or turning up somewhere it has no business being.\n\n=== WHAT HE IS LATER, AND WHY NONE OF IT SHOWS NOW ===\n\nHE IS ONE OF THE DIRECTORATE'S FOUR FOUNDERS. Present around two hundred years ago at the Kortos incident that produced the Watcher: First Impact, when the four were fetching exotic fuel for the mitflits who lived beside the generation ship (LEDGER #31, #32). The four founded the Directorate about five years later so the response would be faster next time.\n\nHis founder status is known, and not advertised (LEDGER #28). The city knows the four founders by name and knows they are long-lived and still about the base. He is the one founder the party meets openly at the start: the opening speech names him, his badge says MORDANT, and if asked he confirms it deadpan.\n\nHE IS ON MANAKO'S REVENGE LIST, named as the institutional author of his ruin, who supervised the disgrace personally -- roughly forty-five years ago, meaning he was already ancient when it happened. Whether he knows he is a target is not established. Whether he even remembers it is not established either, and both readings are real: an unremarkable disciplinary matter, one of thousands across two centuries, is a genuinely sad detail -- a moment that ended one man and barely registered for the other.\n\nDO NOT WRITE HIM GUILTY THE WAY NOBU IS GUILTY. That is Nobu's register and not necessarily his.\n\nTHE DOOR AT THE END OF EPISODE TWO. He knocks, comes in without waiting, apologises to the room, and asks the Deputy Director for a private word. He gets it in about ten seconds. What the party is given is the observable fact rather than the answer: the intake doctor who took their blood has standing near the top of this building and no visible reason for it.\n\nFour candidate answers are all live and none is decided -- founder status cashed in; something about the blood screens he has known since intake; a personal history with the Deputy Director that has nothing to do with the party; or he is not protecting them at all and wants something later. Nothing in Episode Two rules any of them out.\n\n=== THE GUARDRAIL, AND IT IS THE MOST IMPORTANT LINE IN THIS FILE ===\n\nALL OF THAT EXCEPT HIS FOUNDER STATUS IS LATER INFORMATION, AND NONE OF IT MAY LEAK BACKWARD. He must not read as a man with a secret or a man in danger during Episode One. His established warmth and deadpan calm are the correct read regardless of what is coming. Do not retrofit tension, wariness or extra weight onto scenes already built, and keep him entirely unremarkable in the Episode Two school period, which runs earlier the same episode and is deliberately flattening the ground for the Deputy Director's door.\n\nHE IS NOT THEIR GUARDIAN ANGEL. It is not a favour he will do twice and the party has not acquired a protector. Whatever the answer to the door turns out to be, it must not convert him into one.\n\n=== WHY HE WORKS ===\n\nHe is the campaign's proof that an institution two centuries old still contains people. He is the first adult the party meets who treats them as people rather than as intake, he is forbidden from telling them the one thing they most want to know, and he says so rather than lying about it. Everything unsettling about him is cosmetic and everything reassuring about him is real, which is the exact inverse of the Directorate he helped found.",
+  "designNotes": "EXPANDED 2026-09-21 at Ingram's request, in the same pass as Manako's. This is now a working brief a GM can run him from at any point in the campaign; `ideas/story/bible/characters/shucks-mordant.md` remains the source and is where anything contested gets corrected first.\n\nFull history, voice notes and open questions live in ideas/story/bible/characters/shucks-mordant.md -- read that in full before writing any scene with him. THIS FILE FORMALIZES HIM AS A REAL ENTITY for the first time (data/npcs/ previously held only the three Directorate poles and six repair-crew-chief placeholders); it adds nothing his bible file doesn't already establish.\n\nTone, load-bearing: his revenge-list placement is LATER-CAMPAIGN information and must not leak backward into how he plays in Episode One or any early scene (his founder status is not: LEDGER #28 reveals it at the start) -- he reads as untroubled, not as a man with a secret.\n\nProposed connection, 2026-09-12, NOT YET CONFIRMED BY INGRAM: while grounding data/locations/general-hospital.json (the fortress island's main hospital -- a separate, larger building from the campus's Intake Medicals hall he staffs personally), his title 'Chief Medical Officer' was read as plausibly extending to administrative oversight of the island's whole medical apparatus, hospital included, even though he is never there in person. That is a reasonable extrapolation of an already-settled title, not a new invention, but it directly touches his own bible file's open question 'what has he actually done for two hundred years besides staff intake medicals' without resolving it -- flagged there rather than settled here, and surfaced directly to Ingram for confirmation. If Ingram would rather the hospital answer to nobody in particular, or to someone else entirely, general-hospital.json's npcRefs is a one-line change.\n\nTWO OPEN ARCS LIVE IN THE BIBLE FILE AND NOT HERE, deliberately, because both are unresolved by design: `arc-shucks-hand` (where the hand is, what it knows, whether it ever meets the party) and `arc-what-shucks-said` (what he says behind the Deputy Director's door and why he has the standing to say it -- four live candidates, none decided). Do not settle either in passing.\n\nTHE HAND NOW HAS ITS OWN FILE: it is Rand (LEDGER #34), ideas/story/bible/characters/rand.md.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
-  "status": "established and voiced (Intake Medicals is built and playable); founder-era history and revenge-list placement are known but not yet played -- see his bible file's Open Questions for what's still undecided"
+  "status": "DRAFT -- expanded 2026-09-21 at Ingram's request into a full working brief.",
+  "socialProfile": {
+    "attitude": "friendly",
+    "facts": [
+      {
+        "id": "the-hand-is-not-real",
+        "text": "His right hand is a very convincing prosthetic.",
+        "revealTrigger": {
+          "narrative": "Passing `the-hand` in `c1e1-the-medical` (Perception or Medicine, DC 17). This Fact is that check's persistent form -- once it lands, it stays known for the rest of the campaign rather than being rediscovered."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "forbidden-to-explain-the-screen",
+        "text": "He is not permitted to say what the blood screen tests for, he thinks the rule is stupid, and he will say that it is stupid. Asking again does not move him and does not annoy him either.",
+        "revealTrigger": {
+          "narrative": "Asking him about the screen at all. He refuses warmly and volunteers his opinion of the rule unprompted."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "the-arithmetic-does-not-work",
+        "text": "He talks about students across a span of years that does not add up, and he does it without noticing. He is not hiding his age; it has simply never occurred to him that it is remarkable.",
+        "revealTrigger": {
+          "skill": "society",
+          "dc": 15
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "he-has-been-here-longer-than-anyone",
+        "text": "He has processed intakes for long enough to have taken blood from a candidate's grandparents, and he says so without making anything of it. Pressed on how long, he answers honestly and immediately, and the honesty is more disconcerting than evasion would have been.",
+        "revealTrigger": {
+          "narrative": "Asking him how long he has been doing this, which he answers straight."
+        },
+        "revealed": false
+      },
+      {
+        "id": "the-rule-is-not-his",
+        "text": "The thing he will not explain is a rule imposed on him, not a confidence he is keeping, and he thinks the rule is stupid. He will not break it and he will not defend it either. Anybody who reads him gets both halves clearly.",
+        "revealTrigger": {
+          "narrative": "Pushing him on the screen result and watching what he does with the refusal."
+        },
+        "revealed": false
+      },
+      {
+        "id": "he-is-not-worried-about-the-hand",
+        "text": "If the hand comes up at all, he is completely unbothered. It is off doing its own thing, he does not know where, and it will turn up when it is hungry. He talks about it the way somebody talks about a cat that has taken to staying out.",
+        "revealTrigger": {
+          "narrative": "Noticing the prosthetic and asking about it rather than letting it go."
+        },
+        "revealed": false
+      }
+    ]
+  }
 }

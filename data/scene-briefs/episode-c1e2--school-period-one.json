@@ -1,0 +1,262 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--school-period-one",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "school-period-one",
+  "title": "School: Period One",
+  "summary": "They are still students, and the timetable does not care about the fortnight. Two classes are running and each player picks one: the history of First Impact, or civil defence procedure. Both are short. Both offer one optional roll, and the roll can cost as well as pay.",
+  "goal": "Every player has sat in a class of their own choosing and come out with something -- a piece of the world, a piece of procedure, or extra work.",
+  "howToPlay": "Quick and ordinary, and a genuine change of register after the Section Officer's office. These are sixteen-year-olds at school, and school is the most normal thing that happens to them all fortnight.\n\n**Run both classes in parallel, cutting between them, and keep the whole scene to about fifteen minutes.** Each class needs one image, one exchange, and one optional roll.\n\n**The roll is optional and not rolling risks nothing.** A player who sits quietly through a lesson has done a completely normal thing and pays no price for it. Do not signal that a roll is available by describing it as an opportunity -- describe the class, and let a player who wants to engage say so.\n\n**Do not tell them what is at stake before they roll.** Neither class announces its rewards and neither announces its risks.",
+  "runsAbout": "15 minutes for both, run in parallel",
+  "mode": "downtime",
+  "intro": {
+    "where": "The school block. Two rooms across a corridor from each other, both cold, both with the windows open because the heating is either off or unstoppable.",
+    "firstThing": "Chalk dust, and the specific smell of a room that forty teenagers sat in yesterday.",
+    "readAloud": "Chalk dust, and the specific smell of a room forty teenagers sat in yesterday. The school block does not know and does not care that any of you have been reassigned, flagged, shouted at, or sent across the city for a bubble.\n\nTwo rooms, two lessons, and a bell that has already gone.",
+    "landmark": "the corridor between the two doors, with the timetable pinned up between them",
+    "holdInReserve": "In the history room, the cupboard at the back is open, and the books in it are visibly older than the ones on the desks.",
+    "carriesIn": [
+      {
+        "when": "The Board was played (it was, immediately before)",
+        "then": "They have just watched a fortnight get written onto their own days and they are now sitting in double history. Let somebody be visibly somewhere else for the first minute."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "school-history-teacher",
+      "npcRef": "school-history-teacher",
+      "label": "The history teacher",
+      "role": "Teaches the Directorate's own founding, from the Directorate's own book.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To get through the syllabus, which he has taught for nineteen years and has stopped examining.",
+        "opensWith": "The page number, before anybody has sat down.",
+        "willDiscuss": [
+          {
+            "topic": "Anything in the textbook, fluently",
+            "note": "He knows it cold. He is not stupid and he is not a liar -- he is teaching an approved text he has never had a reason to doubt."
+          },
+          {
+            "topic": "A question he cannot answer from the book",
+            "note": "He is briefly and genuinely interested, and then he defers to the text, because that is what the syllabus is. The moment of interest is real. He does not hide it and he does not point at it either."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Anything that would require him to say the book is wrong",
+            "why": "It has not occurred to him that it might be. He is not defending it -- he simply has no framework in which it is a question."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Dry, fluent, mildly weary, and much livelier for about four seconds whenever somebody asks something the book does not cover.",
+          "tics": [
+            "Gives the page number before the answer",
+            "Says 'the text has it that' rather than stating a fact directly",
+            "Answers a good question with a better one and then returns to the syllabus"
+          ],
+          "samples": [
+            "\"Page forty. It is always page forty.\"",
+            "\"The text has it that four heroes closed it. It does not say how it opened, and I have never had cause to wonder.\"",
+            "\"That is -- \" (a pause, and he is interested) \" -- that is a good question and it is not on the syllabus. Page forty-one.\"",
+            "\"Two hundred years is a long time for a thing to stay tidy in a book.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "civil-defence-instructor",
+      "npcRef": "school-civil-defence-instructor",
+      "label": "The civil defence instructor",
+      "role": "Teaches shelter procedure and the alert states. Not a teacher -- a duty NCO who draws this posting.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "The alert-state drill reinstated as a real base-wide exercise. She has applied four times in eleven years and been refused four times, on cost, and her classroom is now the only place on this island where any of it gets said out loud.",
+        "opensWith": "Making them say the alert states back to her before she has introduced herself.",
+        "willDiscuss": [
+          {
+            "topic": "The alert states, the sirens, and what each one means",
+            "note": "Exactly, repeatedly, and with a drill-instructor's patience. This is the entire content of her lesson and she will not be hurried through it."
+          },
+          {
+            "topic": "Shelters, muster points and what to do with civilians",
+            "note": "Practically and well. She has thought about crowds more than anybody else the party will meet."
+          },
+          {
+            "topic": "Whether any of it has ever been used",
+            "note": "Straight answer: no, not once, not in a hundred and fifty years. She says it without irony and it does not dent her conviction at all."
+          },
+          {
+            "topic": "Why she keeps applying",
+            "note": "Once, briefly, and only if genuinely asked. Because a hundred and fifty years of nothing happening is not the same as nothing ever happening, and she is the only person in the building who says that out loud."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What she thinks of the people who turned her applications down",
+            "why": "She will not be drawn, and it is loyalty rather than fear. She thinks they are wrong and she thinks saying so to trainees would be beneath the job."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Flat, patient, faintly bored, and absolutely unshakeable on the content.",
+          "tics": [
+            "Makes people repeat things back",
+            "Gives the number of the alert state before its name, every time"
+          ],
+          "samples": [
+            "\"Say them back to me. -- Again.\"",
+            "\"Three is not four. Three means get off the street. Four means you are already too late to get off the street.\"",
+            "\"Never been used. Not once, not in a hundred and fifty years. Say them back to me.\"",
+            "\"Fourth time I've asked for it. Fourth time they've said it's a lot of money for a day nobody loses. -- They're not wrong about the money.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "which-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Two doors, two lessons. Each player picks one.",
+      "choicePoint": {
+        "label": "Period one. Which room?",
+        "options": [
+          {
+            "id": "history",
+            "label": "History -- the founding of the Directorate, and the thing the text calls First Impact.",
+            "consequence": "Two hundred years of official history, taught fluently from an approved book by a man who has never doubted it."
+          },
+          {
+            "id": "civil-defence",
+            "label": "Civil defence -- shelter procedure and the alert states.",
+            "consequence": "The most boring lesson on the timetable, taught by somebody who has never once seen it matter."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "direction": "Take each player's pick individually and expect the group to split. That is the design -- the two halves come out with different things and can tell each other afterwards.\n\nIf somebody wants to skip both, they can. There is a fortnight of duties they could plausibly be doing instead and nobody in the school block will chase a trainee who does not appear.\n\nSkipping both is allowed. There is a fortnight of duties on the board they could plausibly be getting a head start on, and no one is checking.",
+      "note": "HOW TO PLAY IT. Both rooms are worth being in and neither is the correct answer. History returns a piece of the world; civil defence returns something the party will be able to use before the end of the episode. Neither is announced.\n\nWrite down who went where. It matters twice this episode.\n\nAN INVENTED THIRD OPTION SHOULD BE BACKED. Plausible ones: going to the yard to re-read the board properly, finding out who countersigned it, or getting a head start on the sea wall to shorten the afternoon. Price on the standard ladder; all three return something real."
+    },
+    {
+      "id": "the-history-lesson",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Page forty. The rift, the four who closed it, and the promise that brought them here.",
+      "challengeRef": "c1e2-school-period-one",
+      "checkRef": "read-between-the-lines",
+      "npcRef": "school-history-teacher",
+      "when": {
+        "condition": "for players who chose the history room, and only if one of them engages with the text"
+      },
+      "readAloud": "\"Page forty. It is always page forty.\n\nTwo hundred years ago a rift opened on the island of Kortos, and grew, and would not be stopped by ordinary means. The finest magic-users of every nation stood against it, and at the last four did: Hyuck, Rupiah, Anabala and Shucks Mordant, who closed it at the gates of Absalom. Asked whether it would ever come again, the gods named this city. The four swore to be here when it did. The Directorate is that promise, kept.\n\nThat is the whole of it. There will be a question on it and it will be that question.\"",
+      "direction": "**Read the textbook passage exactly as written and do not editorialise.** It names the four, it tells the promise, and it never once says how the rift began. The frontispiece opposite is a painting of four tall, handsome humans. That is the whole of what is taught.\n\nA player who simply sits through the lesson learns the official version, which is genuinely useful -- it is what every educated person in this city believes.\n\nOnly offer the roll if a player engages: reads ahead, asks a question, looks at the cupboard at the back, or says the passage sounds odd.",
+      "nodeRefs": [
+        "arc-the-four-founders"
+      ],
+      "note": "HOW TO PLAY IT. The taught version is not a lie anybody is currently telling. It is a two-hundred-year-old tidying that nobody has had reason to examine, taught by a man who would be delighted to be shown otherwise.\n\nGM-ONLY, THE REAL EVENT (dossier-first-impact.md): in a hidden jungle valley on Kortos the four found a ruined ship they first took for a temple, with mitflits living beside it. Fetching exotic fuel for those mitflits, they made a clean throw and fumbled the catch. The fuel container split open and tore the rift that the book says they closed. It was an accident caused by the people the Directorate is built on, and two of them were not human -- the painting opposite is wrong about what they looked like.\n\nWHAT THE ROLL REVEALS: the seams, never the answer. The book says who closed the rift and never how it opened. The dates in the margin do not reconcile. And in the cupboard at the back there are older editions with a memorial plate in them.\n\nWHAT IT DOES NOT MEAN: nothing here says the four caused anything, confirms which of them is alive, or connects any of this to the statue in the harbour square. Those stay for the players to assemble -- see this scene's notes before improvising.\n\nTHE PASSAGE IS READ TO EVERYBODY IN THIS ROOM. Only the ROLL is optional."
+    },
+    {
+      "id": "somebody-else-tries-it",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "In the history room, once the passage has been read out and before any player rolls, another student argues with it and is set extra work for it.",
+      "npcRef": "school-history-teacher",
+      "readAloud": "\"Sir, that can't be right, though, because the dates in the chapter before--\"\n\n\"Page forty. -- No, I have heard you, and you can write me a summary of it for tomorrow and tell me about it properly then. Page forty.\"\n\nThe boy sits down. Somebody behind you makes a noise like an indrawn breath and then pretends they did not.",
+      "direction": "**Run this AFTER the passage and BEFORE offering anybody the roll.** The boy is objecting to something the table has just heard, which is the entire point -- he has spotted the same seam a player might, and the room has just shown them what spotting it out loud costs.\n\nHe is not being unkind and should not be played as such. He has a class to get through and he has heard this before.",
+      "note": "HOW TO PLAY IT. Four lines, no editorialising. If a player asks the boy about it afterwards, he says it happens about once a term and it is not a big deal, which is true.\n\nWHY IT IS MANDATORY AND WHY IT SITS HERE. The risks in this room are deliberately unannounced, and an unannounced risk is only fair if it was demonstrable in the fiction first. This is that demonstration, and it only works once the players have heard the passage he is objecting to. Do not cut it for time and do not move it earlier.",
+      "when": {
+        "condition": "in the history room, immediately after the passage is read and before the roll is offered to anybody"
+      }
+    },
+    {
+      "id": "the-civil-defence-lesson",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "The alert states, the sirens, and what to do with a street full of people. Say them back to her.",
+      "challengeRef": "c1e2-school-period-one",
+      "checkRef": "learn-the-alert-states",
+      "npcRef": "civil-defence-instructor",
+      "when": {
+        "condition": "for players who chose the civil defence room, and only if one of them properly engages"
+      },
+      "readAloud": "\"One is a test. Two is a test you are expected to acknowledge. Three means get off the street and into a shelter. Four means you are already too late to get off the street and you should be behind the nearest solid thing.\n\nNever been used. Not once, not in a hundred and fifty years.\n\nSay them back to me.\"",
+      "direction": "Play the tedium honestly and play her conviction honestly too. She is not going through the motions -- she believes this will matter one day and she has believed it for eleven years without evidence.\n\nA player who sits through it knows the alert states, which is worth having. The roll is for a player who engages properly -- asks about crowds, asks what actually happens at a muster point, asks what she would do.",
+      "note": "HOW TO PLAY IT. A success here pays off in First Contact, where a siren sounds and nobody else on the field can tell a drill from a live alert. Say none of that now.\n\nGM-ONLY: they will hear a siren twice more this episode -- a scheduled test on the proving ground, and then a real one. A player who took this lesson seriously can identify which state is sounding, and knows what a street full of people has been trained to do, which is directly usable at the tram.\n\nWHAT A SUCCESS IS ACTUALLY WORTH: the ability to give forty frightened civilians an instruction in the exact words they were taught as children. That is a real mechanical advantage in First Contact and it is earned here."
+    },
+    {
+      "id": "the-bell",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The bell. Both halves of the party come out into the corridor at the same time.",
+      "direction": "Thirty seconds. Let whoever wants to tell the others what they just sat through do it.\n\nThis is the only place the two halves meet, and it costs nothing to let them compare.",
+      "note": "HOW TO PLAY IT. The corridor is what makes a split scene shared. Keep it brief and do not summarise for them."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The bell, and the tide is nearly low enough.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "Only if somebody actually got something out of the history text that the text does not say."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Low water is at eleven and the sea wall does not wait for anybody.",
+      "scatterRisk": false
+    },
+    "onwards": "Out to Slack Water and the sea wall at low tide.",
+    "writeDown": [
+      "Who went to which room. It matters at the tram and it matters if anybody ever goes back to that cupboard.",
+      "Anything the history roll turned up, and whether they told the others.",
+      "Anybody carrying extra work, and which quarter it is going to cost them."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-cupboard",
+      "text": "The cupboard at the back of the history room is open, and the books in it are older than the ones on the desks."
+    },
+    {
+      "id": "ask-her-what-she-would-do",
+      "text": "She has taught this for eleven years and it has never been needed. Somebody could ask what she would actually do."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "school-felt-normal",
+      "text": "Whether school landed as a genuine change of register -- ordinary, slightly boring, and a relief.",
+      "scaleNote": "0 = felt like filler, 10 = the normality was welcome."
+    },
+    {
+      "id": "the-split",
+      "text": "Whether the two-room choice produced a real split and whether the corridor afterwards was worth it."
+    },
+    {
+      "id": "the-textbook",
+      "text": "Whether the First Impact passage landed as blandly wrong rather than as obviously suspicious.",
+      "scaleNote": "0 = read as an obvious plant, 10 = it read as a real school textbook."
+    },
+    {
+      "id": "cost-landed-fairly",
+      "text": "If anybody failed a roll and picked up extra work -- whether that felt fair given nobody was told the risk."
+    }
+  ],
+  "notes": "THE RULES FOR EVERY SCHOOL PERIOD IN THIS CAMPAIGN. Not rolling is free and is a normal thing for a student to do. The risks and rewards are never announced beforehand. Failure and critical failure both cost something real.\n\nWHY SCHOOL IS BACK. They are sixteen and enrolled, and a mecha campaign whose cast never sits in a classroom loses the contrast that makes everything else land. Two short school sections per episode, each a choice between two rooms, each with one optional roll.\n\nTHE ROLL IS OPTIONAL AND ABSTAINING IS FREE. A player who sits quietly through a lesson pays nothing and has done a normal thing. Only a player who engages is offered the roll, and the roll can cost as well as pay.\n\nRISKS AND REWARDS ARE NOT ANNOUNCED. Neither class says what is on offer and neither says what failure costs. That is deliberate and it is the reason abstaining has to be genuinely free.\n\nTHE TAUGHT VERSION IS A TIDYING, NOT A CONSPIRACY. Nobody alive is maintaining a cover-up. A two-hundred-year-old account got shortened, then approved, then printed, then taught, and the teacher would be delighted to be shown otherwise. That is how institutions actually lose things.\n\nWHAT STAYS OPEN, AND DO NOT INVENT IT AT THE TABLE: whether the memorial plate's non-human figure is the gnoll in the harbour square, whether any of the four are alive, and how long a founder can live are all undecided (see project memory on the Hyuck founder concept). The history roll plants the question and answers none of it. If any of it gets invented in play, write it down as a Node before it becomes canon by accident."
+}

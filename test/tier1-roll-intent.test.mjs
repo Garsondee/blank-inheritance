@@ -12,7 +12,10 @@ import assert from "node:assert/strict";
 
 import {
   CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
+  checkLabel,
+  checkSkills,
   enricherFor,
+  enrichersFor,
   isRelevantEvent,
   rollParamsFromEvent,
   strikeEventShiftKeyFor
@@ -109,6 +112,37 @@ test("enricherFor refuses a non-integer DC rather than emitting nonsense", () =>
 });
 
 /* ---------------------------------------------------------------- */
+/*  enrichersFor -- every listed skill, not just the first           */
+/* ---------------------------------------------------------------- */
+
+test("enrichersFor posts every skill option as its own real inline check, joined by \"or\"", () => {
+  // The real regression case: The Errand's read-the-old-man check offers
+  // perception/medicine/society at one DC. Posting only the first silently
+  // denied a Society-trained character their own best roll.
+  assert.equal(
+    enrichersFor({ skillOptions: ["perception", "medicine", "society"], dc: 17 }),
+    "@Check[perception|dc:17] or @Check[medicine|dc:17] or @Check[society|dc:17]"
+  );
+});
+
+test("enrichersFor works for a single skill exactly like enricherFor alone", () => {
+  assert.equal(enrichersFor({ skillOptions: ["athletics"], dc: 15 }), enricherFor({ slug: "athletics", dc: 15 }));
+});
+
+test("enrichersFor with no dc omits it from every posted check, same as enricherFor", () => {
+  assert.equal(enrichersFor({ skillOptions: ["stealth", "acrobatics"] }), "@Check[stealth] or @Check[acrobatics]");
+});
+
+test("enrichersFor returns an empty string for no skill options, rather than posting a blank check", () => {
+  assert.equal(enrichersFor({ skillOptions: [], dc: 15 }), "");
+  assert.equal(enrichersFor({}), "");
+});
+
+test("enrichersFor still refuses an unsafe slug anywhere in the list, exactly like enricherFor", () => {
+  assert.throws(() => enrichersFor({ skillOptions: ["athletics", "has space"], dc: 15 }), /unsafe slug/);
+});
+
+/* ---------------------------------------------------------------- */
 /*  The console's own dialog default                                 */
 /* ---------------------------------------------------------------- */
 
@@ -170,4 +204,64 @@ test("strikeEventShiftKeyFor forces shiftKey:true exactly when the desired outco
   // (a shiftKey:false event) computes skipDialog:false — the exact mismatch
   // that left every strike click hanging on an unanswered dialog.
   assert.equal(strikeEventShiftKeyFor(true, true), true);
+});
+
+/* ---------------------------------------------------------------- */
+/*  options -- the Scene Runner's roll tag rides along (2026-09-24)   */
+/* ---------------------------------------------------------------- */
+
+test("enricherFor carries extra roll options as sf2e's own `options:` parameter", () => {
+  // sf2e's inline check turns `options:` into extraRollOptions, which land in
+  // the rolled message's flags.sf2e.context.options -- how the Scene Runner
+  // recognises the result of a check it posted.
+  assert.equal(
+    enricherFor({ slug: "society", dc: 16, options: ["bi-runner:episode-c1e1--intake-medicals:form-12b"] }),
+    "@Check[society|dc:16|options:bi-runner:episode-c1e1--intake-medicals:form-12b]"
+  );
+  assert.equal(enricherFor({ slug: "society", options: ["a:b", "c"] }), "@Check[society|options:a:b,c]");
+});
+
+test("no options means the exact enricher it always was", () => {
+  assert.equal(enricherFor({ slug: "computers", dc: 18, options: [] }), "@Check[computers|dc:18]");
+  assert.equal(enricherFor({ slug: "computers", dc: 18, options: null }), "@Check[computers|dc:18]");
+});
+
+test("enricherFor refuses a roll option that could break out of the enricher", () => {
+  for (const bad of ["x|dc:1", "x]@UUID[Actor.evil]", "a,b", "Capital", "has space", "", 7]) {
+    assert.throws(() => enricherFor({ slug: "society", dc: 16, options: [bad] }), /unsafe roll option/, JSON.stringify(bad));
+  }
+});
+
+test("enrichersFor tags every posted skill the same way", () => {
+  assert.equal(
+    enrichersFor({ skillOptions: ["perception", "society"], dc: 17, options: ["bi-runner:b:k"] }),
+    "@Check[perception|dc:17|options:bi-runner:b:k] or @Check[society|dc:17|options:bi-runner:b:k]"
+  );
+});
+
+/* ---------------------------------------------------------------- */
+
+// An any-skill check (Ingram, 2026-09-24: The Road In's small problem -- the
+// player names the skill they used). Its skillOptions are empty on purpose,
+// so without checkSkills the runner would post an empty chat message and the
+// player would have nothing to click.
+test("checkSkills: a normal check rolls on its own listed skills, in order", () => {
+  assert.deepEqual(checkSkills({ skillOptions: ["stealth", "society"] }), ["stealth", "society"]);
+  assert.deepEqual(checkSkills({}), []);
+  assert.deepEqual(checkSkills(null), []);
+});
+
+test("checkSkills: an anySkill check offers all eighteen SF2E skills, so the posted message is never empty", () => {
+  const skills = checkSkills({ anySkill: true, skillOptions: [] });
+  assert.equal(skills.length, 18);
+  assert.ok(skills.includes("piloting") && skills.includes("computers"), "the two Starfinder skills are there");
+  const posted = enrichersFor({ skillOptions: skills, dc: 15, options: ["bi-runner:b:k"] });
+  assert.equal(posted.split(" or ").length, 18);
+  assert.match(posted, /^@Check\[acrobatics\|dc:15\|options:bi-runner:b:k\]/, "each one still carries the runner's tag, so the roll records itself");
+});
+
+test("checkLabel: slugs for a normal check, the any-skill label for an anySkill one", () => {
+  assert.equal(checkLabel({ skillOptions: ["athletics", "acrobatics"] }, 13), "athletics / acrobatics 13");
+  assert.equal(checkLabel({ anySkill: true, skillOptions: [] }, 15, "Any skill"), "Any skill 15");
+  assert.equal(checkLabel({ anySkill: true }, null), "Any skill");
 });

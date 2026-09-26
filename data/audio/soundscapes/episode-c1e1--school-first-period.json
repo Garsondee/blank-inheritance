@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--school-first-period",
+  "type": "audio-soundscape",
+  "title": "S1 · School: First Period",
+  "note": "'The city on a wall map, or a machine shop run by a woman with horns who is shouting.' No shared ambience bed -- the two rooms are too different from each other for one bed to be honest about either, the same reasoning The Road In's montage uses. Relaxed pool as the common register: unhurried for the map room, still fits under Brack's noise without fighting it.",
+  "music": {
+    "pool": "relaxed"
+  },
+  "ambience": [],
+  "fade": 3000
+}

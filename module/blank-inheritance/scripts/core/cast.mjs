@@ -46,7 +46,35 @@ export function dispositionName(value) {
  * token the GM cannot see on their own board is a trap. It is flagged instead.
  */
 export function buildCast(entries = []) {
-  const rows = entries.map((entry) => ({
+  const rows = entries.map(castRow);
+
+  return rows.sort((a, b) => {
+    if (a.isPC !== b.isPC) return a.isPC ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+/**
+ * A creature's hit points as the board's hairline gauge reads them: how full,
+ * and which of four bands. Same thresholds as core/sheet-model.mjs#hpStatus,
+ * so the board, the Console and the central instrument never disagree about
+ * who is hurt. A creature with no hit points to speak of (a hazard, a prop
+ * actor) gets no gauge rather than an empty one that reads as dead.
+ */
+export function castHp(hp) {
+  const max = Number(hp?.max ?? 0);
+  if (!(max > 0)) return null;
+  const value = Number(hp?.value ?? 0);
+  const pct = Math.max(0, Math.min(1, value / max));
+  let tier = "ok";
+  if (value <= 0) tier = "down";
+  else if (pct <= 0.25) tier = "critical";
+  else if (pct <= 0.5) tier = "hurt";
+  return { pct: Math.round(pct * 100), tier };
+}
+
+function castRow(entry) {
+  return {
     id: entry.id,
     // The token is what gets selected; the ACTOR is what the Character Card
     // is about. A token is a placement, and social intel belongs to the
@@ -57,13 +85,32 @@ export function buildCast(entries = []) {
     hidden: !!entry.hidden,
     selected: !!entry.selected,
     disposition: dispositionName(entry.disposition),
-    hasActor: !!entry.hasActor
-  }));
+    hasActor: !!entry.hasActor,
+    hp: castHp(entry.hp)
+  };
+}
 
-  return rows.sort((a, b) => {
-    if (a.isPC !== b.isPC) return a.isPC ? -1 : 1;
-    return a.name.localeCompare(b.name);
-  });
+/**
+ * The board in a fight: the turn order, exactly as the encounter has it.
+ *
+ * buildCast's own rule — never let a row move on its own — is suspended here
+ * on purpose, because in a fight the order IS the information: whose turn it
+ * is and who is next is the one thing a GM reads the board for, and it only
+ * changes when initiative is rolled. The current combatant is flagged, and
+ * each row carries its initiative (null until rolled) and whether it is
+ * defeated. `combatants` must already be in turn order (Foundry's own
+ * `combat.turns`), which this does not second-guess.
+ */
+export function buildTurnOrder(combatants = [], currentIndex = -1) {
+  return combatants.map((entry, i) => ({
+    ...castRow(entry),
+    combatantId: entry.combatantId ?? null,
+    initiative: Number.isFinite(entry.initiative) ? entry.initiative : null,
+    // A string, so a rolled 0 still prints — a template's #if reads 0 as unrolled.
+    initiativeLabel: Number.isFinite(entry.initiative) ? String(entry.initiative) : null,
+    defeated: !!entry.defeated,
+    current: i === currentIndex
+  }));
 }
 
 /**

@@ -14,7 +14,7 @@
 import { showNotice } from "./sting.mjs";
 
 /** core/notices.mjs's own kinds. An unknown one would throw inside the queue. */
-const NOTICE_KINDS = new Set(["info", "caution", "alert", "resonance"]);
+const NOTICE_KINDS = new Set(["info", "caution", "alert"]);
 
 /** Foundry's own image popout, opened locally — no permissions, no broadcast, exact timing. */
 function showImage({ src, title }) {

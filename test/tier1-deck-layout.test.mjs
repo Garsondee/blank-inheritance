@@ -10,8 +10,11 @@ import {
   MAX_LAMPS,
   SKILL_SLOTS_PER_SIDE,
   arcPath,
+  arcPathUnder,
+  askTheTable,
   deckFit,
   dialPoint,
+  lampPositions,
   lampRow,
   loreDisplayName,
   pageOf,
@@ -19,6 +22,7 @@ import {
   splitChecks,
   variantShort
 } from "../module/blank-inheritance/scripts/core/deck-layout.mjs";
+import { buildCheckGroups, FALLBACK_SKILL_SLUGS, SAVE_SLUGS } from "../module/blank-inheritance/scripts/core/skills.mjs";
 
 /* ---------------------------------------------------------------- */
 /*  dialPoint / variantShort                                         */
@@ -70,8 +74,12 @@ test("lampRow lights the first N of a fixed row, clamped so a bad count still dr
 /* ---------------------------------------------------------------- */
 
 test("deckFit scales the panel as one object, limited by whichever of width or height bites first", () => {
-  // 1920x1080 with Foundry's roster reserved on the left: height is the limit.
-  const hd = deckFit({ viewportWidth: 1920, viewportHeight: 1080, leftReserve: 234, rightReserve: 18 });
+  // 1920x1080 with the sidebar collapsed to its 48px tab strip — what fitDeck
+  // actually reserves since the 2026-09-17 rebuild (the roster is lifted above
+  // the deck, not reserved beside it): height is the limit. Updated
+  // 2026-09-23 when the panel widened to 1600: the old scenario's 234px roster
+  // reserve made width bite by 0.3%, which is a stale input, not a regression.
+  const hd = deckFit({ viewportWidth: 1920, viewportHeight: 1080, leftReserve: 0, rightReserve: 48 });
   const byHeight = (1080 * 0.3) / (DECK_REFERENCE.faceplate + DECK_REFERENCE.crown);
   assert.equal(hd.scale, Math.round(byHeight * 10000) / 10000);
 
@@ -203,4 +211,44 @@ test("selectorState with one option points straight up, and with none selects no
   const none = selectorState([], 3);
   assert.equal(none.selected, null);
   assert.deepEqual(none.positions, []);
+});
+
+/* ---------------------------------------------------------------- */
+/*  2026-09-23 additions: the collar's lower engraving, the face's   */
+/*  annunciator lamps, and the Director's ask-the-table banks        */
+/* ---------------------------------------------------------------- */
+
+test("arcPathUnder runs right-to-left through six o'clock so its text reads upright", () => {
+  const d = arcPathUnder(49.3, 100);
+  const [, x1, y1, x2, y2] = /^M ([\d.]+) ([\d.]+) A [\d.]+ [\d.]+ 0 0 0 ([\d.]+) ([\d.]+)$/.exec(d).map(Number);
+  assert.ok(x1 < 50 && x2 > 50, "starts left of centre and ends right of it");
+  assert.ok(y1 > 50 && y2 > 50, "both ends are in the lower half");
+  assert.equal(y1, y2, "symmetric about six o'clock");
+  assert.match(d, / 0 0 0 /, "sweep flag 0 — anticlockwise, so the letters face inward and read left to right");
+  assert.throws(() => arcPathUnder(49, 0), /spanDeg/);
+  assert.throws(() => arcPathUnder(49, 200), /spanDeg/);
+  assert.throws(() => arcPathUnder(0, 90), /radius/);
+});
+
+test("lampPositions centres a row of annunciator lamps and lights the first N", () => {
+  const lamps = lampPositions(1, 3, { centreX: 58, y: 125, pitch: 8.5 });
+  assert.deepEqual(lamps.map((l) => l.cx), [49.5, 58, 66.5]);
+  assert.deepEqual(lamps.map((l) => l.lit), [true, false, false]);
+  assert.ok(lamps.every((l) => l.cy === 125));
+  assert.deepEqual(lampPositions(0, 0, { centreX: 58, y: 125, pitch: 8.5 }), [], "no row, no phantom lamp");
+});
+
+test("askTheTable turns the full SF2E check list into keys that ask rather than roll, cut onto the same banks", () => {
+  const groups = buildCheckGroups({
+    skills: FALLBACK_SKILL_SLUGS.map((slug) => ({ slug })),
+    saves: SAVE_SLUGS.map((slug) => ({ slug })),
+    hasPerception: true
+  });
+  const banks = splitChecks(askTheTable(groups));
+  const keys = [...banks.left.skills, ...banks.right.skills];
+  assert.equal(keys.filter(Boolean).length, 18, "every one of SF2E's eighteen skills has a key — no blank caps");
+  assert.ok(keys.every((k) => k.ask === true && k.modLabel === "" && k.mod === null), "an asked check prints no number, never a wrong one");
+  assert.deepEqual([...banks.left.defences, ...banks.right.defences].map((d) => d.slug), ["perception", "fortitude", "reflex", "will"]);
+  assert.ok([...banks.left.defences, ...banks.right.defences].every((d) => d.ask));
+  assert.deepEqual(banks.lores, []);
 });

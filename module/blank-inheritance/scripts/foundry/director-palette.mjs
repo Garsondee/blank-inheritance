@@ -2,8 +2,10 @@
  * The Director's Palette — the Foundry half.
  *
  * Builds the live command list out of the world as it currently is (every
- * scene, every actor, every soundscape and cue, the beats of the open scene
- * brief) and runs whichever one the GM picks. All the ranking and keyboard
+ * scene, every actor, every soundscape and cue, every player-visible handout,
+ * and — while something is selected — everything a GM does TO a creature)
+ * and runs whichever one the GM picks. Typed instructions ("athletics 18",
+ * "dmg 2d6", "note …") become a ready-to-run first row. All the ranking and keyboard
  * behaviour is in core/director-palette.mjs.
  *
  * GM-ONLY BY CONSTRUCTION, like the Scene Runner and the Sound Desk: the class
@@ -17,25 +19,32 @@
 
 import {
   IMPROVISED_OUTCOMES,
+  PALETTE_CONDITIONS,
   matchCommands,
   moveSelection,
   paletteModel,
+  parseQuickIntent,
   rememberCommand
 } from "../core/director-palette.mjs";
+import { FALLBACK_SKILL_SLUGS, PERCEPTION_SLUG, SAVE_SLUGS, labelForSlug } from "../core/skills.mjs";
+import { MARK_TEXT } from "../core/session-rail.mjs";
 
-import { cueScene, pullEveryoneHere } from "./director-panel.mjs";
+import { cueScene, openDirectorPanel, pullEveryoneHere } from "./director-panel.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 import { recordLogEntry } from "./session-log.mjs";
-import { postInlineCheck } from "./rolls.mjs";
+import { postInlineCheck, rollCheck, rollInitiative, runSystemAction } from "./rolls.mjs";
 import { removeFromStage, summonToStage } from "./stage.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { toggleSoundDesk } from "./sound-desk.mjs";
 import { toggleSceneRunner } from "./scene-runner.mjs";
-import { toggleSummonPanel } from "./summon-panel.mjs";
 import { togglePhone } from "./phone.mjs";
-import { toggleCityBoard } from "./city-board.mjs";
-import { toggleConsoleWindow } from "./console-window.mjs";
+import { openConsoleTab, toggleConsoleWindow } from "./console-window.mjs";
+import { toggleDemoRunner } from "./demo-runner.mjs";
+import { openApprovalsDesk } from "./approvals-desk.mjs";
+import { openEquipmentPanel } from "./equipment-panel.mjs";
+import { openInductionTerminal } from "./induction-terminal.mjs";
 import { advanceSegment } from "./campaign-state.mjs";
+import { currentMode } from "./command-bar.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
 import { applySoundscape, playMusicPool, runCue, stopAllAudio } from "./audio-director.mjs";
 
@@ -169,18 +178,238 @@ function audioCommands() {
   return out;
 }
 
-/** The checks a GM reaches for without opening anything. */
+/**
+ * Every check a GM might ask the table for: Perception, SF2E's eighteen
+ * skills (core/skills.mjs's own list — the old hand-typed one here had
+ * drifted), and the three saves. With a DC, type it: "athletics 18" builds
+ * "Ask for Athletics, DC 18" as the first row (core parseQuickIntent).
+ */
+const ASKABLE_CHECKS = Object.freeze([PERCEPTION_SLUG, ...FALLBACK_SKILL_SLUGS, ...SAVE_SLUGS].map((slug) => ({ slug, label: labelForSlug(slug) })));
+
 function checkCommands() {
-  const SKILLS = ["perception", "athletics", "acrobatics", "stealth", "society", "nature", "medicine", "crafting", "computers", "piloting", "survival", "diplomacy", "deception", "intimidation", "thievery", "occultism", "religion", "arcana", "performance"];
-  return SKILLS.map((slug, i) => ({
+  return ASKABLE_CHECKS.map(({ slug, label }, i) => ({
     id: `check.${slug}`,
     group: "check",
     order: i,
-    title: `Ask for: ${slug[0].toUpperCase()}${slug.slice(1)}`,
-    hint: "posts a rollable check to chat",
-    icon: "fa-solid fa-dice-d20",
-    keywords: ["check", "roll", "skill", slug],
-    run: () => postInlineCheck({ slug })
+    title: `Ask for: ${label}`,
+    hint: SAVE_SLUGS.includes(slug) ? "saving throw — type a number after it for a DC" : "type a number after it for a DC",
+    icon: SAVE_SLUGS.includes(slug) ? "fa-solid fa-shield-halved" : "fa-solid fa-dice-d20",
+    keywords: ["check", "roll", "ask", SAVE_SLUGS.includes(slug) ? "save" : "skill", slug],
+    run: () => postInlineCheck({ slug, label })
+  }));
+}
+
+/* ---------------------------------------------------------------- */
+/*  The selected token(s) — added 2026-09-23                          */
+/* ---------------------------------------------------------------- */
+
+/** What is selected on the canvas right now, as { token, actor } pairs. */
+function selection() {
+  return (canvas?.tokens?.controlled ?? []).filter((t) => t.actor).map((t) => ({ token: t, actor: t.actor }));
+}
+
+/** "Chk Chk", "Chk Chk + 2 others" — who a Selected command is about to touch. */
+function whoLabel(picked) {
+  if (!picked.length) return "";
+  const first = picked[0].token.name ?? picked[0].actor.name;
+  return picked.length === 1 ? first : `${first} + ${picked.length - 1} other${picked.length > 2 ? "s" : ""}`;
+}
+
+/**
+ * Turn a typed amount into a number: a plain integer as-is, anything else
+ * rolled with Foundry's own dice (so "2d6+3" works), the roll whispered to
+ * the GM so the table does not see the number. Null for nonsense.
+ */
+async function resolveAmount(formula, flavor) {
+  const text = String(formula ?? "").trim();
+  if (/^\d+$/.test(text)) return Number(text);
+  if (!foundry.dice.Roll.validate(text)) {
+    ui.notifications.warn(`"${text}" is not a number or a dice formula.`);
+    return null;
+  }
+  const roll = await new foundry.dice.Roll(text).evaluate();
+  await roll.toMessage({ flavor }, { messageMode: "gm" });
+  return Math.max(0, Math.trunc(roll.total));
+}
+
+/** Damage (positive) or healing (negative) through each actor's own applyDamage — IWR, shields and the dying chain included. */
+async function applyToSelected(amount, picked) {
+  for (const { token, actor } of picked) {
+    if (typeof actor.applyDamage !== "function") continue;
+    await actor.applyDamage({ damage: amount, token: token.document });
+  }
+}
+
+async function promptAndApply(kind, picked, preset = null) {
+  const verb = kind === "heal" ? "Heal" : "Damage";
+  const formula = preset ?? (await promptForText(`${verb} ${whoLabel(picked)}`, "A number, or a formula like 2d6+3"));
+  if (!formula) return;
+  const amount = await resolveAmount(formula, `${verb}: ${whoLabel(picked)}`);
+  if (amount === null) return;
+  await applyToSelected(kind === "heal" ? -amount : amount, picked);
+}
+
+/**
+ * Everything a GM does TO a creature mid-scene, for whatever is selected
+ * when the palette opens: damage and healing through the system's own
+ * applyDamage, every common condition up/down/toggle through the actor's own
+ * condition methods, hero points, a secret check of any skill, initiative,
+ * hiding the token, showing its portrait, and its sheet. Titles name who
+ * they will touch, so a GM never has to wonder which token is selected.
+ */
+function selectedCommands() {
+  const picked = selection();
+  if (!picked.length) return [];
+  const who = whoLabel(picked);
+  const actors = picked.map((p) => p.actor);
+  const characters = actors.filter((a) => a.type === "character");
+  const out = [
+    { id: "sel.damage", order: 0, title: `Damage ${who}…`, hint: "a number or a formula; or type \"dmg 2d6\"", icon: "fa-solid fa-burst", keywords: ["damage", "hurt", "hit", "hp"], run: () => promptAndApply("damage", picked) },
+    { id: "sel.heal", order: 1, title: `Heal ${who}…`, hint: "a number or a formula; or type \"heal 5\"", icon: "fa-solid fa-heart-pulse", keywords: ["heal", "hp", "restore", "cure"], run: () => promptAndApply("heal", picked) },
+    {
+      id: "sel.hero.up", order: 2, title: `Hero point +1: ${who}`, hint: characters.length ? "up to the maximum" : "characters only",
+      icon: "fa-solid fa-star", keywords: ["hero", "point", "award", "reward"], hidden: !characters.length,
+      run: async () => {
+        for (const a of characters) {
+          const hp = a.system.resources?.heroPoints;
+          if (hp) await a.update({ "system.resources.heroPoints.value": Math.min(hp.max ?? 3, (hp.value ?? 0) + 1) });
+        }
+      }
+    },
+    {
+      id: "sel.hero.down", order: 3, title: `Hero point −1: ${who}`, icon: "fa-regular fa-star", keywords: ["hero", "point", "spend", "remove"], hidden: !characters.length,
+      run: async () => {
+        for (const a of characters) {
+          const hp = a.system.resources?.heroPoints;
+          if (hp) await a.update({ "system.resources.heroPoints.value": Math.max(0, (hp.value ?? 0) - 1) });
+        }
+      }
+    },
+    {
+      id: "sel.initiative", order: 4, title: `Roll initiative: ${who}`, hint: game.combat ? "into the current encounter" : "adds them to a new encounter first",
+      icon: "fa-solid fa-hourglass-start", keywords: ["initiative", "combat", "fight", "encounter"],
+      run: async () => {
+        const docs = picked.map((p) => p.token.document).filter((d) => !d.inCombat);
+        if (docs.length) await foundry.utils.getDocumentClass("Token").createCombatants(docs);
+        for (const a of actors) await rollInitiative({ actor: a, event: null });
+      }
+    },
+    {
+      id: "sel.hide", order: 5, title: picked.every((p) => p.token.document.hidden) ? `Reveal token: ${who}` : `Hide token: ${who}`,
+      hint: "on the canvas, from the players", icon: "fa-solid fa-eye-slash", keywords: ["hide", "reveal", "invisible", "token"],
+      run: async () => {
+        const hide = !picked.every((p) => p.token.document.hidden);
+        for (const p of picked) await p.token.document.update({ hidden: hide });
+      }
+    },
+    {
+      id: "sel.portrait", order: 6, title: `Show the table: ${who}'s portrait`, hint: "pops their picture up on every screen",
+      icon: "fa-solid fa-image-portrait", keywords: ["show", "portrait", "image", "picture", "reveal"],
+      run: () => foundry.documents.collections.Journal.showImage(picked[0].actor.img, { title: picked[0].token.name ?? picked[0].actor.name })
+    },
+    { id: "sel.sheet", order: 7, title: `Open sheet: ${who}`, icon: "fa-solid fa-id-badge", keywords: ["sheet", "character", "stats"], run: () => picked[0].actor.sheet?.render(true) },
+    { id: "sel.treat", order: 8, title: `Treat Wounds: ${who}`, hint: "the system's own Treat Wounds", icon: "fa-solid fa-kit-medical", keywords: ["treat", "wounds", "medicine", "heal", "rest"], run: () => runSystemAction("treatWounds", actors) },
+    { id: "sel.breather", order: 9, title: `Take a Breather: ${who}`, hint: "only if the stamina variant is on", icon: "fa-solid fa-wind", keywords: ["breather", "stamina", "rest"], hidden: !characters.length, run: () => runSystemAction("takeABreather", characters) }
+  ];
+
+  // A secret check of any statistic, rolled for them and seen only by you.
+  ASKABLE_CHECKS.forEach(({ slug, label }, i) => {
+    out.push({
+      id: `sel.secret.${slug}`, order: 20 + i, searchOnly: true, title: `Secret ${label}: ${who}`, hint: "rolled for them, seen only by you",
+      icon: "fa-solid fa-eye-slash", keywords: ["secret", "roll", "blind", "gm", slug],
+      run: async () => {
+        for (const a of actors) await rollCheck({ actor: a, slug, event: { ctrlKey: true, metaKey: false, shiftKey: false } });
+      }
+    });
+  });
+
+  // Conditions — valued ones step, the rest toggle.
+  PALETTE_CONDITIONS.forEach((c, i) => {
+    const has = actors.some((a) => a.hasCondition?.(c.slug));
+    const base = { order: 60 + i, searchOnly: true, icon: "fa-solid fa-bandage", keywords: ["condition", c.slug, c.label] };
+    if (c.valued) {
+      out.push({ ...base, keywords: [...base.keywords, "up", "increase", "raise", "worse"], id: `sel.cond.up.${c.slug}`, title: `${c.label} +1: ${who}`, run: async () => { for (const a of actors) await a.increaseCondition?.(c.slug); } });
+      out.push({ ...base, keywords: [...base.keywords, "down", "decrease", "lower", "reduce", "better"], id: `sel.cond.down.${c.slug}`, title: `${c.label} −1: ${who}`, hidden: !has, run: async () => { for (const a of actors) await a.decreaseCondition?.(c.slug); } });
+    } else {
+      out.push({ ...base, id: `sel.cond.toggle.${c.slug}`, title: `${has ? "Remove" : "Apply"} ${c.label}: ${who}`, run: async () => { for (const a of actors) await a.toggleCondition?.(c.slug); } });
+    }
+  });
+
+  return out.map((c) => ({ ...c, group: "selected" }));
+}
+
+/* ---------------------------------------------------------------- */
+/*  Show the table, and the log — added 2026-09-23                    */
+/* ---------------------------------------------------------------- */
+
+/**
+ * Handouts: pop a journal entry up on every player's screen.
+ *
+ * Law 11 is the whole constraint here. Only entries players are ALREADY
+ * allowed to see are offered (default ownership at least Limited), and they
+ * are shown without `force` — so a GM-only vault (the social-intel store, the
+ * staged-cast vault, a prep journal) can never be pushed to the table by a
+ * mis-press, however the palette is searched.
+ */
+function revealCommands() {
+  const LIMITED = CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED;
+  return game.journal.contents
+    .filter((j) => (j.ownership?.default ?? 0) >= LIMITED)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((entry, i) => ({
+      id: `reveal.journal.${entry.id}`,
+      group: "reveal",
+      order: i,
+      title: `Show the table: ${entry.name}`,
+      hint: entry.folder?.name ?? "handout",
+      icon: "fa-solid fa-book-open",
+      keywords: ["show", "handout", "journal", "reveal", entry.name],
+      run: () => foundry.documents.collections.Journal.show(entry)
+    }));
+}
+
+function logCommands() {
+  return [
+    {
+      id: "log.mark", group: "log", order: 0, title: "Mark this moment", hint: "a pin on the session rail and a line in the log",
+      icon: "fa-solid fa-location-pin", keywords: ["mark", "bookmark", "rail", "flag", "remember"],
+      run: () => recordLogEntry({ text: MARK_TEXT, nowIso: new Date().toISOString(), scene: canvas?.scene?.name ?? null, mode: currentMode() })
+    },
+    {
+      id: "log.open", group: "log", order: 1, title: "Open the whole log", hint: "the Console's Log tab — filters, the evening",
+      icon: "fa-solid fa-clipboard-list", keywords: ["log", "history", "record", "review"],
+      run: () => openConsoleTab("log")
+    }
+  ];
+}
+
+/**
+ * The quick intents core parsed out of the box, bound to real calls. Built
+ * per keystroke (they only exist for the text typed), and pinned above every
+ * other match.
+ */
+function quickCommands(query) {
+  const picked = selection();
+  return parseQuickIntent(query, { skills: ASKABLE_CHECKS, hasSelection: picked.length > 0 }).map((intent) => ({
+    ...intent,
+    run: async () => {
+      switch (intent.kind) {
+        case "damage": return promptAndApply("damage", picked, intent.formula);
+        case "heal": return promptAndApply("heal", picked, intent.formula);
+        case "flat": return postInlineCheck({ slug: "flat", label: "Flat check", dc: intent.dc });
+        case "ask": return postInlineCheck({ slug: intent.slug, label: labelForSlug(intent.slug), dc: intent.dc });
+        case "note": return recordLogEntry({ text: intent.text, nowIso: new Date().toISOString(), scene: canvas?.scene?.name ?? null, mode: currentMode() });
+        case "roll": {
+          if (!foundry.dice.Roll.validate(intent.formula)) {
+            ui.notifications.warn(`"${intent.formula}" is not a dice formula.`);
+            return null;
+          }
+          const roll = await new foundry.dice.Roll(intent.formula).evaluate();
+          return roll.toMessage({ flavor: intent.secret ? "Secret roll" : null }, { messageMode: intent.secret ? "gm" : "public" });
+        }
+        default: return null;
+      }
+    }
   }));
 }
 
@@ -280,35 +509,66 @@ function offScriptCommands() {
 /** Panels, and the handful of Foundry-native things a GM reaches for constantly. */
 function panelCommands() {
   return [
-    { id: "panel.runner", group: "panel", order: 0, title: "Scene Runner", icon: "fa-solid fa-list-check", keywords: ["brief", "beats", "script"], run: () => toggleSceneRunner() },
-    { id: "panel.summon", group: "panel", order: 1, title: "Summon panel", icon: "fa-solid fa-users", keywords: ["cast", "stage"], run: () => toggleSummonPanel() },
-    { id: "panel.city", group: "panel", order: 2, title: "City board", icon: "fa-solid fa-map", keywords: ["map", "locations"], run: () => toggleCityBoard() },
-    { id: "panel.phone", group: "panel", order: 3, title: "Phone", icon: "fa-solid fa-mobile", keywords: ["radio", "apps"], run: () => togglePhone() },
-    { id: "panel.console", group: "panel", order: 4, title: "Console", icon: "fa-solid fa-terminal", keywords: ["dossier", "tabs"], run: () => toggleConsoleWindow() },
+    // "Summon" folded into the Scene Runner itself 2026-09-18 (its own
+    // standalone panel retired) -- keywords cover both so it stays findable
+    // under the name the panel used to have.
+    { id: "panel.runner", group: "panel", order: 0, title: "Scene Runner", icon: "fa-solid fa-list-check", keywords: ["brief", "beats", "script", "summon", "cast", "stage"], run: () => toggleSceneRunner() },
+    // "Phone" was renamed Comms and rebuilt as the hand-held field set,
+    // 2026-09-23 — the old name stays a keyword so it is still found by it.
+    { id: "panel.comms", group: "panel", order: 1, title: "Comms", hint: "session log, radio, and the handset's apps", icon: "fa-solid fa-walkie-talkie", keywords: ["phone", "radio", "handset", "apps", "snake", "pet", "fortune"], run: () => togglePhone() },
+    { id: "panel.console", group: "panel", order: 2, title: "Console", hint: "the whole sheet, party, hub and log", icon: "fa-solid fa-terminal", keywords: ["dossier", "tabs", "sheet"], run: () => toggleConsoleWindow() },
+    { id: "panel.party", group: "panel", order: 3, title: "Console: Party", hint: "every PC's HP, AC and conditions", icon: "fa-solid fa-people-group", keywords: ["party", "players", "hp", "overview"], run: () => openConsoleTab("party") },
+    { id: "panel.hub", group: "panel", order: 4, title: "Console: Hub", hint: "every GM panel as a tile", icon: "fa-solid fa-grip", keywords: ["hub", "launcher", "panels"], run: () => openConsoleTab("hub") },
+    { id: "panel.director", group: "panel", order: 6, title: "Director's Panel", hint: "cue a scene with its transition", icon: "fa-solid fa-clapperboard", keywords: ["director", "cue", "scenes", "transition"], run: () => openDirectorPanel() },
+    { id: "panel.approvals", group: "panel", order: 7, title: "Approvals Desk", hint: "grade drafted content", icon: "fa-solid fa-stamp", keywords: ["approve", "grade", "review", "desk", "drafted"], run: () => openApprovalsDesk() },
+    { id: "panel.equipment", group: "panel", order: 8, title: "Equipment Locker", hint: "Kit Issue's inventory", icon: "fa-solid fa-toolbox", keywords: ["equipment", "kit", "gear", "locker", "items"], run: () => openEquipmentPanel() },
+    { id: "panel.induction", group: "panel", order: 9, title: "Induction Terminal", hint: "character creation", icon: "fa-solid fa-id-card", keywords: ["induction", "chargen", "character creation", "new character"], run: () => openInductionTerminal() },
+    { id: "panel.demo", group: "panel", order: 10, title: "Demo walkthroughs", hint: "scripted runs against the real world", icon: "fa-solid fa-circle-play", keywords: ["demo", "walkthrough", "test", "tour"], run: () => toggleDemoRunner() },
 
     { id: "table.pause", group: "table", order: 0, title: () => (game.paused ? "Unpause the game" : "Pause the game"), icon: "fa-solid fa-pause", keywords: ["pause", "break", "stop"], run: () => game.togglePause(!game.paused, { broadcast: true }) },
     { id: "table.segment", group: "table", order: 1, title: "Advance the day ring one segment", hint: "morning → afternoon → evening → night", icon: "fa-solid fa-clock", keywords: ["time", "segment", "day", "advance"], run: () => advanceSegment(1) },
-    { id: "table.initiative", group: "table", order: 2, title: "Roll initiative for everyone", hint: "starts combat if it is not started", icon: "fa-solid fa-swords", keywords: ["combat", "initiative", "fight", "roll"], run: async () => {
-      const combat = game.combat ?? (await Combat.create({ scene: canvas.scene.id }));
-      const missing = canvas.tokens.placeables.filter((t) => !combat.getCombatantByToken(t.id));
-      if (missing.length) await combat.createEmbeddedDocuments("Combatant", missing.map((t) => ({ tokenId: t.id, sceneId: canvas.scene.id })));
+    { id: "table.initiative", group: "table", order: 2, title: "Roll initiative for everyone here", hint: "every token on this scene; starts the encounter", icon: "fa-solid fa-swords", keywords: ["combat", "initiative", "fight", "roll", "encounter"], run: async () => {
+      const docs = (canvas?.tokens?.placeables ?? []).map((t) => t.document).filter((d) => d.actor && !d.inCombat);
+      if (docs.length) await foundry.utils.getDocumentClass("Token").createCombatants(docs);
+      const combat = game.combat;
+      if (!combat) return;
       await combat.rollAll();
       if (!combat.started) await combat.startCombat();
     } },
-    { id: "table.endcombat", group: "table", order: 3, title: "End combat", icon: "fa-solid fa-flag", danger: true, keywords: ["combat", "end", "stop", "over"], hidden: !game.combat, run: () => game.combat?.delete() }
+    { id: "table.npcinit", group: "table", order: 3, title: "Roll initiative for the NPCs", hint: "players roll their own", icon: "fa-solid fa-dice", keywords: ["npc", "initiative", "monsters", "enemies"], hidden: !game.combat, run: () => game.combat?.rollNPC() },
+    { id: "table.begin", group: "table", order: 4, title: "Begin the encounter", hint: "round 1", icon: "fa-solid fa-play", keywords: ["combat", "start", "begin", "round"], hidden: !game.combat || game.combat.started, run: () => game.combat?.startCombat() },
+    { id: "table.next", group: "table", order: 5, title: "Next turn", hint: () => (game.combat?.combatant ? `after ${game.combat.combatant.name}` : null), icon: "fa-solid fa-forward-step", keywords: ["turn", "next", "combat", "advance"], hidden: !game.combat?.started, run: () => game.combat?.nextTurn() },
+    { id: "table.prev", group: "table", order: 6, title: "Previous turn", hint: "undo a turn passed too early", icon: "fa-solid fa-backward-step", keywords: ["turn", "previous", "back", "undo", "combat"], hidden: !game.combat?.started, run: () => game.combat?.previousTurn() },
+    // Foundry's own endCombat, which asks for confirmation itself. This used
+    // to call combat.delete() directly — one mis-press ended a fight.
+    { id: "table.endcombat", group: "table", order: 7, title: "End the encounter", hint: "asks first", icon: "fa-solid fa-flag", danger: true, keywords: ["combat", "end", "stop", "over"], hidden: !game.combat, run: () => game.combat?.endCombat() },
+    { id: "table.rest", group: "table", order: 8, title: "Rest for the night", hint: "every party member, the system's own rest (asks first)", icon: "fa-solid fa-bed", keywords: ["rest", "sleep", "night", "recover", "daily"], run: () => runSystemAction("restForTheNight", partyActors()) }
   ];
+}
+
+/** The party: sf2e's own Party actor's members, falling back to every player-owned character. */
+function partyActors() {
+  const members = game.actors?.party?.members ?? [];
+  return members.length ? members : game.actors.contents.filter((a) => a.type === "character" && a.hasPlayerOwner);
 }
 
 /** Everything, rebuilt each time the palette opens so it is never stale. */
 export function directorCommands() {
   return [
     ...offScriptCommands(),
+    ...selectedCommands(),
     ...sceneCommands(),
     ...castCommands(),
     ...audioCommands(),
+    ...revealCommands(),
     ...checkCommands(),
+    ...logCommands(),
     ...panelCommands()
-  ].map((c) => ({ ...c, title: typeof c.title === "function" ? c.title() : c.title }));
+  ].map((c) => ({
+    ...c,
+    title: typeof c.title === "function" ? c.title() : c.title,
+    hint: typeof c.hint === "function" ? c.hint() : c.hint
+  }));
 }
 
 /**
@@ -318,7 +578,8 @@ export function directorCommands() {
  * seconds to appear is one a GM stops reaching for.
  */
 async function promptForText(title, placeholder) {
-  const content = `<input type="text" name="text" placeholder="${placeholder}" autofocus style="width:100%">`;
+  const safe = foundry.utils.escapeHTML(placeholder);
+  const content = `<input type="text" name="text" placeholder="${safe}" autofocus style="width:100%">`;
   try {
     return await foundry.applications.api.DialogV2.prompt({
       window: { title },
@@ -350,6 +611,7 @@ export class DirectorPalette extends HandlebarsApplicationMixin(ApplicationV2) {
   #commands = [];
   #query = "";
   #selected = 0;
+  #keydownBound = false;
 
   async _insertElement(element) {
     const existing = document.getElementById(element.id);
@@ -358,9 +620,22 @@ export class DirectorPalette extends HandlebarsApplicationMixin(ApplicationV2) {
     return element;
   }
 
-  async _prepareContext() {
+  /** The world's commands (built once per opening) plus whatever the typed text itself asks for. */
+  #allCommands() {
     if (!this.#commands.length) this.#commands = directorCommands();
-    return paletteModel(this.#query, this.#commands, { recents: recents(), selected: this.#selected });
+    return [...quickCommands(this.#query), ...this.#commands];
+  }
+
+  async _prepareContext() {
+    const model = paletteModel(this.#query, this.#allCommands(), { recents: recents(), selected: this.#selected });
+    const picked = selection();
+    return {
+      ...model,
+      // Shown only while the box is empty: the typed shortcuts are the fast
+      // path, and a feature nobody knows exists is a feature that does not.
+      showSyntax: !this.#query,
+      subject: picked.length ? whoLabel(picked) : null
+    };
   }
 
   _onRender(context, options) {
@@ -376,12 +651,24 @@ export class DirectorPalette extends HandlebarsApplicationMixin(ApplicationV2) {
         this.render({});
       });
     }
-    this.element.addEventListener("keydown", this.#onKey.bind(this));
+    // _onRender fires on EVERY render (this panel re-renders on each
+    // keystroke and on ArrowUp/ArrowDown), and this.element is the SAME DOM
+    // node across those renders -- only the Handlebars part inside it (the
+    // input, the backdrop) gets torn down and rebuilt. An unconditional
+    // addEventListener here would keep stacking one more "keydown" listener
+    // per render, so a single ArrowDown/Enter press would fire #onKey once
+    // per accumulated listener -- moving the selection several rows per tap,
+    // or running the selected command more than once. Guarded to attach
+    // exactly once per instance, same as approvals-desk.mjs's #keydownBound.
+    if (!this.#keydownBound) {
+      this.element.addEventListener("keydown", this.#onKey.bind(this));
+      this.#keydownBound = true;
+    }
     this.element.querySelector(".bi-palette__backdrop")?.addEventListener("pointerdown", () => this.close());
   }
 
   #onKey(event) {
-    const matched = matchCommands(this.#query, this.#commands, { recents: recents() });
+    const matched = matchCommands(this.#query, this.#allCommands(), { recents: recents() });
     if (event.key === "Escape") { event.preventDefault(); this.close(); return; }
     if (event.key === "ArrowDown" || (event.key === "n" && event.ctrlKey)) {
       event.preventDefault();
@@ -398,11 +685,17 @@ export class DirectorPalette extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 
-  static #onRun(event, target) { this.#execute(this.#commands.find((c) => c.id === target.dataset.commandId)); }
+  static #onRun(event, target) { this.#execute(this.#allCommands().find((c) => c.id === target.dataset.commandId)); }
   static #onClose() { this.close(); }
 
   async #execute(command) {
     if (!command) return;
+    // An inert row (a typed "dmg 5" with nothing selected) says why, and the
+    // palette stays open so the GM can select a token and press Enter again.
+    if (command.disabled) {
+      ui.notifications.info(command.hint ?? "That cannot run right now.");
+      return;
+    }
     await this.close();
     try {
       await game.settings.set(MODULE_ID, SETTING_RECENTS, rememberCommand(recents(), command.id));

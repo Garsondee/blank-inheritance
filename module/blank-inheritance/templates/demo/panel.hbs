@@ -1,0 +1,61 @@
+{{!--
+    The demo runner — button and panel are ONE chassis (this file's single
+    root), same discipline as phone.hbs: a re-render can never leave them
+    disagreeing about open/closed.
+
+    ideas/entries/ui-demo-walkthrough-system.json: "a nice big obvious button
+    to access a menu of possible demos." GM-only (foundry/demo-runner.mjs
+    never mounts this for a player).
+--}}
+<div class="bi-demo-runner-standalone">
+    <button type="button" class="bi-demo-runner-btn" data-action="toggle" aria-pressed="{{open}}"
+        aria-label="{{localize 'BLANKINHERITANCE.Demo.Toggle'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Demo.Toggle'}}">
+        <i class="fa-solid fa-circle-play bi-demo-runner-btn__glyph"></i>
+    </button>
+
+    <div class="bi-terminal{{#if open}} bi-terminal--open{{/if}}">
+        <div class="bi-terminal__frame">
+            <div class="bi-terminal__titlebar">
+                <span class="bi-terminal__title-glyph"><i class="fa-solid fa-circle-play"></i></span>
+                <span class="bi-terminal__title">{{localize "BLANKINHERITANCE.Demo.Title"}}</span>
+                <span class="bi-terminal__spacer"></span>
+                <button type="button" class="bi-terminal__close" data-action="toggle" aria-label="{{localize 'BLANKINHERITANCE.Console.Window.Close'}}">&times;</button>
+            </div>
+            <div class="bi-terminal__body bi-demo-runner__body">
+                {{#if error}}
+                <p class="bi-demo-runner__error">{{error}}</p>
+                {{/if}}
+
+                {{#if running}}
+                <p class="bi-demo-runner__demo-title">{{title}} — {{progress}}</p>
+                <p class="bi-demo-runner__narration">{{narration}}</p>
+                <div class="bi-demo-runner__actions">
+                    <button type="button" class="bi-induction__back" data-action="back" {{#if isFirst}}disabled{{/if}} {{#if busy}}disabled{{/if}}>
+                        {{localize "BLANKINHERITANCE.Demo.Back"}}
+                    </button>
+                    <button type="button" class="bi-induction__begin" data-action="next" {{#if busy}}disabled{{/if}}>
+                        {{#if busy}}{{localize "BLANKINHERITANCE.Demo.Running"}}{{else if isLast}}{{localize "BLANKINHERITANCE.Demo.Done"}}{{else}}{{localize "BLANKINHERITANCE.Demo.Next"}}{{/if}}
+                    </button>
+                </div>
+                <div class="bi-demo-runner__actions">
+                    {{#if canReset}}
+                    <button type="button" class="bi-induction__back" data-action="reset" {{#if busy}}disabled{{/if}}>
+                        {{localize "BLANKINHERITANCE.Demo.Reset"}}
+                    </button>
+                    {{/if}}
+                    <button type="button" class="bi-demo-runner__exit" data-action="exit">{{localize "BLANKINHERITANCE.Demo.Exit"}}</button>
+                </div>
+                {{else}}
+                <p class="bi-demo-runner__intro">{{localize "BLANKINHERITANCE.Demo.Intro"}}</p>
+                <ul class="bi-demo-runner__list">
+                    {{#each demos}}
+                    <li><button type="button" class="bi-demo-runner__pick" data-action="start" data-demo-id="{{this.id}}">{{this.title}}</button></li>
+                    {{else}}
+                    <li class="bi-demo-runner__empty">{{localize "BLANKINHERITANCE.Demo.None"}}</li>
+                    {{/each}}
+                </ul>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

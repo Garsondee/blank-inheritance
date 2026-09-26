@@ -1,0 +1,557 @@
+{
+ "name": "Agatha Laine Baldwin",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/a7.webp",
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 33,
+    "temp": 0,
+    "max": 48,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 18,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 3
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 3
+   },
+   "dex": {
+    "mod": 3
+   },
+   "con": {
+    "mod": -4
+   },
+   "int": {
+    "mod": 4
+   },
+   "wis": {
+    "mod": 3
+   },
+   "cha": {
+    "mod": 3
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 12,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 9,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 9,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 9,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "society": {
+    "base": 0
+   }
+  },
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "a7",
+  "displayName": 20,
+  "actorLink": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/a7.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "width": 1,
+  "height": 1,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "flags": {
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "items": [
+  {
+   "img": "systems/pf2e/icons/conditions/doomed.webp",
+   "name": "Doomed",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A powerful force has gripped your soul, calling you closer to death. Doomed always includes a value. The @UUID[Compendium.pf2e.conditionitems.Item.yZRUzMqrMmfLu0V1]{Dying} value at which you die is reduced by your doomed value. If your maximum dying value is reduced to 0, you instantly die. When you die, you're no longer doomed.</p>\n<p>Your doomed value decreases by 1 each time you get a full night's rest.</p>"
+    },
+    "rules": [],
+    "slug": "doomed",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "group": "death",
+    "duration": {
+     "value": 0,
+     "unit": "unlimited",
+     "expiry": null
+    },
+    "value": {
+     "isValued": true,
+     "value": null
+    },
+    "references": {
+     "children": [],
+     "overrides": [],
+     "overriddenBy": [],
+     "immunityFrom": []
+    },
+    "overrides": []
+   },
+   "type": "condition",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.conditionitems.Item.3uh1r86TzbQvosxv"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.3.0",
+    "coreVersion": "12.329",
+    "createdTime": 1693242990771,
+    "modifiedTime": 1693242990771,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.conditionitems.Item.3uh1r86TzbQvosxv",
+    "duplicateSource": null
+   },
+   "_id": "FPdZvxepH4PmL1kD"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/conditions/off-guard.webp",
+   "name": "Off-Guard",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You're distracted or otherwise unable to focus your full attention on defense. You take a -2 circumstance penalty to AC. Some effects give you the off-guard condition only to certain creatures or against certain attacks. Others-especially conditions-can make you universally off-guard against everything. If a rule doesn't specify that the condition applies only to certain circumstances, it applies to all of them; for example, many effects simply say \"The target is off-guard.\"</p>"
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "selector": "ac",
+      "slug": "off-guard",
+      "type": "circumstance",
+      "value": -2
+     }
+    ],
+    "slug": "off-guard",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "group": null,
+    "duration": {
+     "value": 0,
+     "unit": "unlimited",
+     "expiry": null
+    },
+    "value": {
+     "isValued": false,
+     "value": null
+    },
+    "references": {
+     "children": [],
+     "overrides": [],
+     "overriddenBy": [],
+     "immunityFrom": []
+    },
+    "overrides": []
+   },
+   "type": "condition",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg"
+    },
+    "pf2e": {
+     "grantedBy": {
+      "id": "owXwBN8WTc5WFI8m",
+      "onDelete": "cascade"
+     }
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.3.0",
+    "coreVersion": "12.329",
+    "createdTime": 1693243002510,
+    "modifiedTime": 1693243002510,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg",
+    "duplicateSource": null
+   },
+   "_id": "ab8c4mll7C5ZDl3W"
+  },
+  {
+   "name": "New Melee",
+   "type": "melee",
+   "effects": [],
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {},
+    "bonus": {
+     "value": 0
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "_id": "kpRo8hpSQoYR8fUm",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {
+    "scene-packer": {
+     "hash": "78327d999862e2aec5ffb7e05cf0baa9f4589e3a"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687208160074,
+    "modifiedTime": 1687208160074,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "systems/pf2e/icons/conditions/confused.webp",
+   "name": "Confused",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You don't have your wits about you, and you attack wildly. You are @UUID[Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg]{Off-Guard}, you don't treat anyone as your ally (though they might still treat you as theirs), and you can't Delay, Ready, or use reactions.</p>\n<p>You use all your actions to Strike or cast offensive cantrips, though the GM can have you use other actions to facilitate attack, such as draw a weapon, move so that a target is in reach, and so forth. Your targets are determined randomly by the GM. If you have no other viable targets, you target yourself, automatically hitting but not scoring a critical hit. If it's impossible for you to attack or cast spells, you babble incoherently, wasting your actions.</p>\n<p>Each time you take damage from an attack or spell, you can attempt a @Check[type:flat|dc:11] to recover from your confusion and end the condition.</p>"
+    },
+    "rules": [
+     {
+      "key": "ActiveEffectLike",
+      "mode": "override",
+      "path": "system.attributes.flanking.canFlank",
+      "value": false
+     },
+     {
+      "key": "GrantItem",
+      "onDeleteActions": {
+       "grantee": "restrict"
+      },
+      "uuid": "Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg",
+      "flag": "offGuard"
+     }
+    ],
+    "slug": "confused",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "group": null,
+    "duration": {
+     "value": 0,
+     "unit": "unlimited",
+     "expiry": null
+    },
+    "value": {
+     "isValued": false,
+     "value": null
+    },
+    "references": {
+     "children": [],
+     "overrides": [],
+     "overriddenBy": [],
+     "immunityFrom": []
+    },
+    "overrides": []
+   },
+   "type": "condition",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.conditionitems.Item.yblD8fOR1J8rDwEQ"
+    },
+    "pf2e": {
+     "itemGrants": {
+      "offGuard": {
+       "id": "ab8c4mll7C5ZDl3W",
+       "onDelete": "restrict"
+      }
+     }
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.3.0",
+    "coreVersion": "12.329",
+    "createdTime": 1693243002510,
+    "modifiedTime": 1693243002510,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.conditionitems.Item.yblD8fOR1J8rDwEQ",
+    "duplicateSource": null
+   },
+   "_id": "owXwBN8WTc5WFI8m"
+  }
+ ],
+ "effects": [],
+ "folder": "F0bowww63iKxd9DO",
+ "sort": 300000,
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "flags": {
+  "scene-packer": {
+   "hash": "21105a0bffc92081740ba3361633de70acbf96ab"
+  },
+  "sequencer": {
+   "effects": []
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1684225529176,
+  "modifiedTime": 1721827611353,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ },
+ "_id": "VZ3hhyiCNFSnSKu2"
+}

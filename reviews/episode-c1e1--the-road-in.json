@@ -1,0 +1,258 @@
+{
+  "$schema": "../data/schema/scene-review.schema.json",
+  "id": "episode-c1e1--the-road-in",
+  "type": "scene-review",
+  "sceneRef": "the-road-in",
+  "opened": "2026-09-22",
+  "asks": [
+    {
+      "id": "ledger-nodes",
+      "question": "Mystery Ledger #11 and #1 have no Node. Shall I author both as open threads with no payoff chapter, or do you want to decide what those plants are first?",
+      "detail": "This scene's critical-success branch on the distant Frame — *\"it's moving carefully, more carefully than a machine built to shove things needs to\"* — is Ledger #11, *\"A Frame moves more gently than ordered\"*. The beat correctly says the payoff chapter lives on the Ledger entry and not in the scene file. **There is no Ledger entry.** The registry has #5, #6, #7, #9 and #10; the bible's table has twelve rows and its own prose says Episode One plants #1, #6, #7, #9, #10 and #11.\n\nI can write both Nodes as `status: open`, `resolution: null`, no candidate chapters — recording the thread without deciding anything. Or you tell me what each plant actually is and I write that.",
+      "blocking": true,
+      "status": "answered"
+    },
+    {
+      "id": "gate-is-destination",
+      "question": "The Candidate Gate is where this scene points, not where it happens. Shall I record that so a later review doesn't try to re-site it?",
+      "detail": "No beat in this scene is at the gate; the scene stops before arrival on purpose — *\"do not stage a shared arrival or have them notice each other.\"* The gate is the destination and the scene-set entry's landing image. That is correct for a montage, and it is exactly the kind of thing a future pass would flag as a mismatch. One line in the scene's notes settles it permanently.",
+      "blocking": false,
+      "status": "answered"
+    },
+    {
+      "id": "gate-depth",
+      "question": "The Candidate Gate's own location file is `named`-depth with 49 words of lore. Write it up properly now, or leave it until a scene actually walks through it?",
+      "detail": "It is the first building in the campaign and the first thing on the landing card, so there is an argument for doing it properly. There is also an argument that nobody stands in it until later, and the effort belongs to a location they do stand in.",
+      "blocking": false,
+      "status": "answered"
+    },
+    {
+      "id": "gen1-baseline-node",
+      "question": "Should the Gen 1 baseline this scene now establishes become a real Node, so the Gen 2 contrast has a recorded home?",
+      "current": "The Frame sighting no longer plants Ledger #11. Instead its critical success establishes what a Gen 1 machine is like -- clanky, patched over, and visibly being wrestled rather than driven. That is deliberate setup: it is the standard a Gen 2 Frame moving with unusual grace gets measured against, around Chapter Four or Five when Gen 2 is offered. **Nothing records that dependency.** If somebody later rewrites this beat to be less ugly, the Gen 2 moment quietly loses its contrast and no file will say why.",
+      "options": [
+        {
+          "label": "Author a Node for the contrast",
+          "implication": "A Node saying the Gen 1 baseline is set in The Road In and inverted at the first Gen 2 sighting, status open, payoff chapter unassigned. Costs one small file. Means a future edit to this beat shows up as touching a live thread, and the Gen 2 scene, whenever it is written, can find its own setup.",
+          "recommended": true
+        },
+        {
+          "label": "Leave it as ordinary setup",
+          "implication": "The beat's own note already explains the reasoning at length, so nothing is lost today. The risk is entirely future: notes get rewritten, and a note is not a thread with a status."
+        },
+        {
+          "label": "Fold it into arc-mitflit-frame-core-link",
+          "implication": "That Node already holds the Mitflit-biotechnology-in-the-core question, which is why Gen 2 moves gracefully. Cheaper, but it conflates a mechanism with a scene dependency, and that Node is already the oldest open one in the registry."
+        }
+      ],
+      "recommendation": "Author the Node. This is exactly the dependency the new M27 check exists to protect -- a long-horizon payoff that only works if an earlier scene did its job -- and it is the second time today a Frame-generation fact has drifted for want of a recorded home.",
+      "blocking": false,
+      "status": "answered"
+    },
+    {
+      "id": "ledger-1-chapter",
+      "question": "Mystery Ledger #1's payoff chapter is claimed in one place and cleared in another. Which is right?",
+      "current": "Two files disagree. `dossier-second-generation-frames.md` section 1 states plainly: *\"It's a long-burn plant (Mystery Ledger #1, Chapter 6 payoff, unchanged from Episode One's own existing design).\"* But `ch1-v2.md`'s ledger table lists #1 as *unassigned*, and its own section 5 records that the entire payoff column was **cleared on 2026-09-13** when six sessions of drafted content were deleted. #1 also has no Node, so there is no canonical place for the answer to live either way.\n\n#1 is the flagged-irregularity plant -- all six candidates coming back irregular on the intake blood screen -- planted in Intake Medicals, the very next scene.",
+      "options": [
+        {
+          "label": "The table is right: unassigned",
+          "implication": "Author the Node with status open and no payoff chapter, and correct the dossier's Ch6 line. Treats the 2026-09-13 clearing as the deliberate act it was. Costs nothing now and keeps the chapter a live decision for when Chapter Six is actually built.",
+          "recommended": true
+        },
+        {
+          "label": "The dossier is right: Chapter 6",
+          "implication": "Author the Node with Ch6 assigned and correct the table. Commits the biggest reveal in Episode One to a chapter that does not exist yet, on the strength of a line written after the column was cleared."
+        },
+        {
+          "label": "Decide it fresh now",
+          "implication": "Ignore both and pick a chapter deliberately. Most work, and the most likely to be right -- but it is a real arc decision rather than a records fix, and it probably wants the Chapter Six shape in front of you first."
+        }
+      ],
+      "recommendation": "Take the table. The dossier's Ch6 line is precisely the inherited-claim shape that produced today's Frame error: written confidently, after the schedule it cites had already been cleared, and never re-checked. Recording #1 as open costs nothing and stops a third file repeating the claim.",
+      "blocking": false,
+      "status": "answered"
+    },
+    {
+      "id": "gate-standing",
+      "question": "The Candidate Gate is now written at `scene` depth. Leave it there, or commit it to `standing`?",
+      "current": "I wrote it up at depth `scene` and it satisfies all eight requirements in design/location-depth.md's table: summary, player-facing description, GM-only notes, three hooks, three activities, an NPC (`landing-end-duty-nco`), artwork and a playlist.\n\n`standing` is the tier above -- *\"a place the group returns to across the campaign, accumulating scenes\"* -- and it additionally owes `scene.history`, real `scene.consequences`, and a second named NPC. The party lives behind this gate and signs in and out of it every day, which is a strong argument that it will end up there.",
+      "options": [
+        {
+          "label": "Leave it at `scene`",
+          "implication": "Honest today: the scene points at the gate but no beat happens there, and nothing has accumulated yet because no session has been played. Raise it the first time a scene is actually set at the arm.",
+          "recommended": true
+        },
+        {
+          "label": "Commit to `standing` now",
+          "implication": "Needs a second NPC -- a named proctor rather than a rotating duty role -- and a written history the campaign has not lived yet. Declaring it first makes it a commission, which is how the depth ladder is meant to work, but it commissions fiction about events that have not happened."
+        }
+      ],
+      "recommendation": "Leave it at `scene`. Writing `scene.history` for a place the group has never been is invented backstory, and the ladder's own rule is that depth is declared as a commission -- which means declaring it when the commission is real.",
+      "blocking": false,
+      "status": "answered"
+    }
+  ],
+  "passes": {
+    "comprehension": {
+      "proposed": "CLEAR",
+      "summary": "The story holds. It does one thing — six people, alone, before the group exists — and that is the right first thing for this campaign to do.",
+      "body": "This runs ten to fifteen minutes and it is a **montage, not a scene** — six short spotlights, a minute or two each, cut fast, then stop. Nobody meets anybody. That matters: the waiting room in Intake Medicals is the first time this group is a group, and it lands harder for being held back one beat.\n\nI start before anyone is in character. I read the letter to the whole table, once:\n\n> \"Dear Candidate,\n>\n> Your application to Tokubetsu Taisaku Honbu has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n>\n> Please bring nothing you cannot carry, and nothing you cannot leave.\n>\n> We look forward to your service.\"\n\nThen I say nothing. I let *\"nothing you cannot leave\"* sit for a second and I do not point at it. If somebody asks what it means, I don't know either — the practical reading is the true one: pack light, this is enlistment, not moving house, the Directorate provides what is needed. The phrasing is house style. It is not a hidden key.\n\nThen the frame, spoken:\n\n> \"Six separate mornings, six separate places, weeks apart. Whatever you were doing that day, you stopped doing it — because an envelope had arrived, addressed to you, from a city you had never had a reason to visit.\"\n\nThen I go round the table and ask each player two things: **\"How do you get here?\"** and **\"What did you leave behind to answer this?\"** I ask first, and I do not offer a menu. If someone is stuck I give one example — a battered motorbike that shouldn't still run and does; the early commuter train with forty strangers going nowhere else; in by boat with the morning catch, because that's who was going that way — and their idea always beats mine. The second question is the one doing the work: the first establishes a mode of transport, the second establishes a life. I ask it even when the arrival was vivid, and I take a short answer as a complete one.\n\nOne exchange each, unless a player is clearly enjoying it. Six of these will eat the session if I let them run long.\n\n### Three things can happen inside the spotlights, and none can hurt anybody\n\n**A flourish.** If an arrival has an obvious moment in it, I offer one roll — their choice of Athletics, Acrobatics or Performance, `DC 13`. Critical success: it's genuinely cool, and somebody in the queue notices. Success: it goes fine. Failure: a small, funny stumble — a dropped kickstand, the wrong door. Critical failure: comically embarrassing, entirely harmless; it stalls right in front of everyone. At most once per player, and plenty of good arrivals have nothing to roll for.\n\n**The violet mark.** If an arrival passes somewhere people wait and stand still — a ticket queue, a tram stop, a ferry waiting room — I describe a small deep-violet mark at head height on the wall they are facing, *before* anyone rolls. Then Occultism or Crafting, `DC 17` — one step hard for level 1, so most of the table won't get it, which is correct. Success: it isn't the first one they've noticed today, now they think about it; always the same deep violet, always at head height. Critical success: and always somewhere a crowd stands. Failure: just paint. Critical failure: they peg it confidently as a condemned-building notice. I never explain what it means or who is putting them there. **The repetition is the hook and no single sighting is.** If nobody's arrival passes a queue, I pick a player at random and place it anyway.\n\n**A Frame at a distance.** If an arrival passes anywhere a Frame could plausibly be working, the whole table gets a first sight of one: scale, sound, the ground answering its weight. This is a **Gen 1 utility machine** — rivets, a grapple arm, a road-crew chevron stripe. Not a war machine; the awe register belongs to Gen 2, chapters away. Then Piloting or Crafting, `DC 15`, offered to the whole table. Success names it: a Directorate Frame, three storeys of riveted plate and hydraulic arm, flat Directorate grey — real information none of them has had reason to know, and none of them knows they will ever pilot one. Critical success adds one thing: *it's moving carefully. More carefully than a machine built to shove things needs to.* Failure: big, and loud in the way the ground is loud. Critical failure: called derelict with total confidence, and it very much is not. Once for the table, and if no arrival reaches it I place it in a randomly chosen player's spotlight — a **different** player from the violet mark.\n\n### Ending it\n\nI stop when all six spotlights are done. I do not stage a shared arrival and I do not let them notice each other; that is the next scene's opening. Nobody has to say a word to move them on, because the letter already set the terms — report by Monday, be processed. Time simply skips a few days to the queue.\n\n**What I would be improvising live:** six arrival descriptions are entirely player-authored, so I have to fit a wall-with-a-mark, or a working Frame, into whatever they invent. Both beats tell me to force it if the fiction offers no hook, and which player to use for each. That instruction is right, and it is the only real improvisation in the scene."
+    },
+    "completeness": {
+      "proposed": "FIX",
+      "summary": "The Ledger #11 fault is fixed rather than waiting. Three new required checks arrived with checklist v3, and all of them are satisfied.",
+      "body": "**M23 is clear.** No prose in this scene names a payoff chapter or a numbered Ledger entry without a Node, because the Ledger #11 claim was wrong and is gone rather than merely re-homed.\n\n**M27, new and required: verify long-horizon payoffs against their source in this review.** Done, and it is what found the fault. Checked against `ideas/story/dossier-second-generation-frames.md` sections 1, 2 and 5b, plus its Frame Sickness note: Gen 1 is the crude reconstruction the party starts on and never triggers the Observer; Gen 2 is DNA-gated, rare, and only offered around Chapter Four or Five.\n\n**P6, raised from recommended to required.** The Candidate Gate was `named`-depth; it is now `scene`, satisfying all eight requirements in the depth table.\n\n**P11, new and required: write back into the location file.** Done -- see the Place pass.\n\n**M5 was fixed earlier in this review.** The scene had no cast and nothing saying that was deliberate.",
+      "declined": [
+        {
+          "check": "M19",
+          "what": "No time-limited offer",
+          "why": "Correct. There is no board yet, no institution they have met and no city they have entered. An offer here would be an offer from nobody."
+        },
+        {
+          "check": "M20",
+          "what": "No secret GM-side modifier",
+          "why": "Correct, and it follows from the zero-stakes design: a hidden circumstance bonus on a check that cannot fail badly is theatre. Save the instrument for a scene where the roll bites."
+        },
+        {
+          "check": "M14 · M17 · M18",
+          "what": "No landmark, artefact or track movement",
+          "why": "All three exempt by the scene's own notes, and all three reasons are good. Six rooms in six towns have nothing shared to orbit; the group forming is Intake Medicals' job and must not be spent early; nothing on the strategy layer exists to move yet."
+        },
+        {
+          "check": "P6",
+          "what": "Location is only `named`-depth",
+          "why": "Parked rather than declined — it is location work rather than scene work, and it is the third ask."
+        }
+      ]
+    },
+    "place": {
+      "proposed": "CLEAR",
+      "recorded": true,
+      "summary": "Confirmed by Ingram from the crop. The location is real, exact, and the right thing for the scene to aim at.",
+      "body": "**Candidate Gate** (`candidate-gate`), grid D4·31, 188 m², tier `site`, within `landing-end`. Exact, not approximate. The two-panel crop is in the conversation for 2026-09-22: `SITE` shows the footprint on the landward side facing the approach road, `SITUATION` at three kilometres shows the causeway, the water either side, and the whole island behind it.\n\n**Ingram confirmed the siting on 2026-09-22.** Recorded, so it never has to be asked again.\n\n**Why P5 has nothing to check.** No beat in this scene happens at the Candidate Gate. The scene is six separate places and it deliberately stops *before* arrival. The gate is where the scene **points** — its destination and its landing image — not a venue any player stands in. That is correct for a montage, and it is the second ask.\n\n### Written back into the map, 2026-09-22\n\nPer Ingram's instruction that the scenes and the gazetteer should stay in lockstep and enrich each other, everything this pass established about the gate has gone into `data/locations/candidate-gate.json`, and its depth is raised from `named` to `scene`: what the roster does and why that is the personnel-scale echo of the letter, what the sign-out ledger actually costs, three hooks, three activities, and an explicit note that the hand-corrected curfew figure is **not** a clue so nobody builds a reveal on it. That write-back is now a required check of its own (P11)."
+    },
+    "seam": {
+      "proposed": "CLEAR",
+      "summary": "One open edge and one real journey. The party starts `scattered` -- off-map, the campaign's only legitimate no-coordinate edge -- and closes at the Candidate Gate, which is the first tracked coordinate in the campaign.",
+      "body": "This is the first scene in play order, so its backward edge is open: S2, S4, S5 and S11 report n/a rather than being answered with an invention.\n\n### Where the party starts: `scattered`, off-map, and that is correct\n\nYour own suggestion, and it is the right one: *\"have the group's starting locations just be 'Scattered' for The Road In and then from that point onwards we track their location.\"* Six separate mornings in six separate places, weeks apart, none of them having met another. **This is the one edge in the whole campaign that legitimately has no coordinate** -- every other null is a broken map cut.\n\nThe origins stay **player-authored**: each player invents their own home and journey at the table and the GM writes it down. The six PCs do not exist yet, so inventing six hometowns would pre-empt induction. The only constraint is the letter's -- somewhere reachable by the Monday it names, on transport a candidate could afford.\n\n### Where it leaves them: the first tracked coordinate\n\n**`converging` at `candidate-gate`.** All six on their way to the gate, separately, to arrive by Monday. The journeys are not played -- the outro says outright *\"Time skips a few days on its own.\"*\n\nThat makes the first travel leg **candidate-gate -> intake-medicals**, and the map cut fires on it. The two are 23 metres apart, which is right for a checkpoint and the intake hall behind it: the runner will cut to the map and cross a very short distance, which is the correct amount of journey for walking through a gate.\n\n### Running six tracks, and the player who was not there\n\nThe montage form IS the answer to six separate positions: sequentially, one spotlight at a time, weeks apart, so nothing is simultaneous and there is no cutting between groups. A player absent from this scene now has a stated answer in Intake Medicals' own opening position -- they simply arrive with the rest, because nothing there depends on their journey having been narrated, only on them being in the queue.",
+      "declined": [
+        {
+          "check": "S9",
+          "what": "`scatterRisk: false`",
+          "why": "Correct. Six solo spotlights cannot scatter -- they are already apart by design, and the scene ends by skipping time rather than by moving anybody."
+        },
+        {
+          "check": "S10",
+          "what": "No mandatory beat needs a specific PC",
+          "why": "Both mandatory beats are whole-table. A missing player costs the scene one spotlight and nothing structural."
+        }
+      ]
+    },
+    "quality": {
+      "proposed": "CLEAR",
+      "summary": "Two findings, both applied -- one of them a correction to my own first pass, which validated an inherited plant that contradicted the lore.",
+      "body": "",
+      "findings": [
+        {
+          "title": "The read-aloud was the weakest thing in the scene",
+          "severity": "applied",
+          "check": "Q1",
+          "body": "Every mechanical check on this scene's prose was green, and the opening line spoken to the table was the one real craft fault in it. No object, no light, no weather, no sound — a stage direction read aloud. And it cannot be fixed the obvious way, because a concrete *place* would have to pick one of six and break the montage.\n\nThe concrete detail already existed one field away, GM-facing, in `intro.firstThing`: *\"An envelope from a city none of them had reason to visit.\"* That was the spoken line all along.\n\n**Why this had to be a reading pass and not a check.** The tempting version adds the letter's name *\"typed into a gap\"* — which is in `holdInReserve`, explicitly for a player who *studies* the letter rather than reading it. Using it here would spend a planted detail on the first line of the campaign. Nothing mechanical links `holdInReserve` to the read-aloud.",
+          "before": "Six separate mornings, six separate places, weeks apart. Whatever each of you was doing that day, you stopped doing it, because something had arrived.",
+          "after": "Six separate mornings, six separate places, weeks apart. Whatever you were doing that day, you stopped doing it — because an envelope had arrived, addressed to you, from a city you had never had a reason to visit."
+        },
+        {
+          "title": "The reciprocity is about 100/0 — recording as a deliberate exception",
+          "severity": "noted",
+          "check": "Q8",
+          "body": "The players invent their arrivals; the scene asks essentially nothing of them. The standing ~50/50 beat-reciprocity ratio is not met. I would not change it — a character-introduction montage is the one place where all the pressure should come from the player's side — but it belongs on the record as a considered exception rather than an unnoticed miss, which is what this entry is."
+        },
+        {
+          "title": "I got the reveal timing wrong, and the check that should have caught it did not exist",
+          "severity": "applied",
+          "check": "Q7 / M27",
+          "body": "My first pass on this scene said reveal timing was *\"right, and it is the thing I checked hardest.\"* It was wrong, and Ingram caught it.\n\nThe beat had a Gen 1 utility mech's critical success show it *\"moving carefully. More carefully than a machine built to shoulder through rubble has any obvious reason to\"*, seeding Mystery Ledger #11, *\"A Frame moves more gently than ordered.\"* Both halves were wrong. **Gen 1 Frames are clanky, horrible-to-drive rust buckets** -- century-and-a-half-old crude human reconstructions built from a single bisected fragment. The grace in #11 is the **Gen 2** tell, and it comes from hyper-advanced Mitflit biotechnology; almost nobody has ever seen a Gen 2 operated.\n\nSo the plant contradicted the generation distinction *and* spent a contrast before its setup existed.\n\n### What changed, and why it is better\n\nIngram's instruction was to change what is learnt, not to soften it. The critical success now buys the strongest available version of the **baseline**: you can see the pilot working, every movement a correction of the last one. The clankiness is the setup. You cannot notice grace without having seen clank, so the scene now earns the Chapter Four or Five moment instead of pre-empting it.\n\n### Why no check caught it\n\nI validated an inherited plant by reading its reference number rather than its source. The plant had survived three drafts and two audits, and every one of them treated `mystery-ledger-11` as proof the thought had been had. **M27 now exists for this**: a long-horizon payoff must be verified against its own source dossier in the current review, naming the document and section, or the claim does not stand.",
+          "before": "Everything in success, plus one more thing: it's moving carefully. More carefully than a machine built to shoulder through rubble has any obvious reason to. Whoever's inside is minding something.",
+          "after": "Everything in success, plus one more thing: you can see the pilot working. Every movement is a correction of the one before it -- the arm overshoots and comes back, the hips hunt for level before the feet commit. Whatever it is like inside that thing, it is not like driving something that wants to help."
+        }
+      ],
+      "judgedFine": [
+        {
+          "check": "Q16",
+          "note": "**The zero-stakes design is the best thing in the scene**, and it is real ludonarrative resonance: every check costs nothing on all four degrees, in the one scene where you meet your own character. The mechanics say *nothing you do here can go wrong yet* and so does the fiction. Do not touch it."
+        },
+        {
+          "check": "Q11",
+          "note": "*\"It's a nudge, not a menu\"* and *\"A player's idea always wins\"* — the don't-prescribe-the-approach rule written better than the rule is."
+        },
+        {
+          "check": "Q13",
+          "note": "*\"Please bring nothing you cannot carry, and nothing you cannot leave.\"* That is the line a player repeats afterwards, and the instruction not to point at it is what makes it land."
+        },
+        {
+          "check": "Q9",
+          "note": "Six distinct skills across three checks — Athletics, Acrobatics, Performance, Occultism, Crafting, Piloting. No attractor."
+        },
+        {
+          "check": "Q12",
+          "note": "Tone: warm, gentle, a comic-stumble critical failure. Giant Robo, not the other shelf."
+        },
+        {
+          "check": "Q10",
+          "note": "Emotional arrow: neutral/warm. Correct opening, and the documented episode sequence starts here."
+        },
+        {
+          "check": "Q15",
+          "note": "No squeeze with pushback, and correctly — they have already accepted the summons. The institution's first real ask is Intake Medicals' business."
+        }
+      ]
+    }
+  },
+  "applied": [
+    {
+      "title": "`intro.readAloud` rewritten",
+      "why": "You asked for this after the second dry run flagged it.",
+      "before": "Six separate mornings, six separate places, weeks apart. Whatever each of you was doing that day, you stopped doing it, because something had arrived.",
+      "after": "Six separate mornings, six separate places, weeks apart. Whatever you were doing that day, you stopped doing it — because an envelope had arrived, addressed to you, from a city you had never had a reason to visit."
+    },
+    {
+      "title": "A cast note added to `notes`",
+      "why": "The obvious fix for M5, applied without asking because it is documentation rather than content.",
+      "after": "NO CAST, DELIBERATELY. This scene has no NPCs and no speaking parts at all: the six spotlights are the players describing their own arrivals, and putting a guard, a conductor or a neighbour on screen would give them somebody to react to instead of something to invent. The first face in this campaign is Shucks, in the next scene, on purpose."
+    },
+    {
+      "title": "The Place verdict recorded",
+      "why": "`place = CLEAR`, noting that you confirmed the Candidate Gate siting from the crop on 2026-09-22, so it never has to be asked again."
+    },
+    {
+      "title": "The Gen 1 Frame's critical success now teaches the baseline, not a false anomaly",
+      "why": "Your correction, and then your instruction: *\"Yeah so change what is learnt.\"* The Ledger #11 seed is gone from the beat, the challenge and both files' notes; each now records why, so the mistake cannot be reintroduced by somebody reading the old shape.",
+      "before": "Everything in success, plus one more thing: it's moving carefully. More carefully than a machine built to shoulder through rubble has any obvious reason to.",
+      "after": "Everything in success, plus one more thing: you can see the pilot working. Every movement is a correction of the one before it."
+    },
+    {
+      "title": "The Candidate Gate raised from `named` to `scene` depth",
+      "why": "Your Q3 answer: a location a scene touches, even for a moment, gets its own detailed file so a later scene cannot contradict it. `data/locations/candidate-gate.json` now carries a player-facing description, GM-only notes, three hooks, three activities, an NPC, artwork and a playlist."
+    },
+    {
+      "title": "Checklist v3: three new rules from your three answers",
+      "why": "**M27** -- long-horizon payoffs are suspect until verified against their source in the current review. **P11** -- the Place pass writes back into the location file rather than only reading it. **P6** -- raised to required, so any location a scene touches owes real depth. And every ask now has to carry where it stands, at least two options with their implications, and my recommendation; the schema refuses one that does not."
+    },
+    {
+      "title": "Checklist v4: the Seam pass, and the two fields it needed",
+      "why": "Your observation that nothing compared a scene to the one it leads into. Four passes became five. **Seam** asks whether both ends have valid positions for the whole party, who travels together, who splits, and whether the journey is possible in the time allowed -- ten checks, five of them mechanical, including a real straight-line distance between consecutive scene locations. `intro.partyState` and `outro.partyState` are new on the scene brief and are the data the whole pass runs on; before them the question had no answer in the corpus at all."
+    },
+    {
+      "title": "Party states authored for The Road In and Intake Medicals",
+      "why": "The Road In opens `individual` and closes `converging`; Intake Medicals opens and closes `together`, splitting internally for the private scenes and being put back together by the queue. The seam between them now verifies mechanically."
+    },
+    {
+      "title": "Two Nodes authored, one dossier corrected",
+      "why": "**`arc-gen1-baseline-inverted-by-gen2`** holds the dependency this scene's Frame sighting now carries, with three candidate framings for when the party first sees a Gen 2 move. **`mystery-ledger-1`** records the flagged-screen plant as genuinely unassigned, per your ruling that the table was right -- and `dossier-second-generation-frames.md`'s \"Chapter 6 payoff\" line is corrected to point at it. Both Nodes are referenced from the beats that plant them, so the registry reports zero orphans."
+    },
+    {
+      "title": "Checklist v5: the Seam reworked from togetherness to COORDINATES",
+      "why": "Your correction -- you wanted actual positions to move between, not a split/merge flag. `intro.position` and `outro.position` now carry a real `locationRef` whose `derived.centroidPx` is a point on the 12400x12400 sheet at 1px = 1m. **S11 checks that the runner's automatic cut to the world map actually fires**, and `--travel` prints all 25 legs. The finding: only **7 of 25 scene changes cut to the map; 17 are silent hard cuts** -- `needsTravel` returns false when either end is null, with no error anywhere. The animation was never the missing half; the coordinates were."
+    }
+  ]
+}

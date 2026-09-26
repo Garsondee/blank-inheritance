@@ -52,7 +52,7 @@ export const BEAT_STATES = Object.freeze({
 
 /** A run with nothing done yet. Shape is the contract for the stored world setting. */
 export function emptyRunState() {
-  return { ticked: {}, spent: [], opened: [], granted: [] };
+  return { ticked: {}, spent: [], opened: [], granted: [], topics: {}, adjust: {} };
 }
 
 function runStateOf(runState) {
@@ -60,7 +60,20 @@ function runStateOf(runState) {
     ticked: runState?.ticked ?? {},
     spent: Array.isArray(runState?.spent) ? runState.spent : [],
     opened: Array.isArray(runState?.opened) ? runState.opened : [],
-    granted: Array.isArray(runState?.granted) ? runState.granted : []
+    granted: Array.isArray(runState?.granted) ? runState.granted : [],
+    // Which coercible topic last landed on which degree (design doc §10.7's
+    // Cast drawer: "one-click DC-plus-degree-of-success recording per
+    // subject"). Deliberately its own bag, not folded into `ticked` -- a
+    // topic is a side conversation, never a beat that gates branching, and
+    // conflating the two would make a topic's outcome silently participate in
+    // beat-branch logic it has nothing to do with. `?? {}` guards a run
+    // stored before this field existed.
+    topics: runState?.topics ?? {},
+    // The GM's own hand on a clock, by pool id (2026-09-24): +1 when the
+    // compactor grinds another round, -1 when the table buys time back. A
+    // clock whose subsystem authors no spends (the Compactor Cycle has none)
+    // had no way to move at all in the runner before this.
+    adjust: runState?.adjust && typeof runState.adjust === "object" ? runState.adjust : {}
   };
 }
 
@@ -153,7 +166,11 @@ export function beatsWithState(brief, runState) {
   return (brief?.beats ?? []).map(normalizeBeat).map((beat) => ({
     ...beat,
     state: beatState(beat, runState),
-    degree: runStateOf(runState).ticked[beat.id]?.degree ?? null
+    degree: runStateOf(runState).ticked[beat.id]?.degree ?? null,
+    // Which choicePoint option was picked, if any -- same "latest wins,
+    // stored on the beat's own ticked entry" shape as `degree` above, so a
+    // GM re-opening the panel later sees which way a resolved choice went.
+    choice: runStateOf(runState).ticked[beat.id]?.choice ?? null
   }));
 }
 
@@ -218,13 +235,22 @@ export function clockState(subsystem, runState, poolId = null) {
     }, 0);
 
   const start = pool.start ?? pool.current ?? 0;
-  const raw = start + seeded + spent;
+  const nudged = Number(state.adjust[pool.id]) || 0;
+  const raw = start + seeded + spent + nudged;
   const floor = pool.floor ?? null;
   const ceiling = pool.ceiling ?? null;
   let current = raw;
   if (floor !== null) current = Math.max(floor, current);
   if (ceiling !== null) current = Math.min(ceiling, current);
 
+  const rising = pool.mode === "accumulating";
+  const reached = (t) => (rising ? current >= t.atValue : current <= t.atValue);
+  const thresholds = pool.thresholds ?? [];
+  // The next threshold still to come, nearest first — the one the GM should
+  // be warning the table about (Law 19, below).
+  const upcoming = thresholds
+    .filter((t) => !reached(t))
+    .sort((a, b) => (rising ? a.atValue - b.atValue : b.atValue - a.atValue));
   return {
     poolId: pool.id,
     name: pool.name ?? pool.id,
@@ -232,13 +258,24 @@ export function clockState(subsystem, runState, poolId = null) {
     start: start + seeded,
     current,
     spent: -spent,
-    exhausted: floor !== null && current <= floor,
+    adjusted: nudged,
+    // What "N of M" is out OF: the start for a clock running down, the
+    // ceiling for one filling up. The runner used to print "of {start}" for
+    // both, so a rising clock read "0 of 0" (found 2026-09-24, Flood Tunnel).
+    limit: rising ? (ceiling ?? start + seeded) : start + seeded,
+    exhausted: rising ? ceiling !== null && current >= ceiling : floor !== null && current <= floor,
+    canRaise: ceiling === null || current < ceiling,
+    canLower: floor === null || current > floor,
     // Diminishing pools cross a threshold on the way DOWN, accumulating ones
     // on the way up. Law 19: nothing expires without its cost having been
     // visible first, so the GM needs these before they are reached, not after.
-    crossed: (pool.thresholds ?? []).filter((t) =>
-      pool.mode === "diminishing" ? current <= t.atValue : current >= t.atValue
-    )
+    crossed: thresholds.filter(reached),
+    // The one the table is living under right now: the furthest reached.
+    latest:
+      thresholds
+        .filter(reached)
+        .sort((a, b) => (rising ? b.atValue - a.atValue : a.atValue - b.atValue))[0] ?? null,
+    next: upcoming[0] ?? null
   };
 }
 
@@ -305,37 +342,34 @@ export function displayName(member) {
 /* ---------------------------------------------------------------- */
 
 /**
- * The runner's sections, and whether each one starts open.
+ * The runner's remembered, per-GM layout choices, and each one's default.
  *
- * Measured, not guessed: Intake Medicals rendered 5,293px of panel into a
- * 655px window -- an eight-to-one scroll, with the running order itself
- * below two full screens of material a GM reads ONCE. The fix is not less
- * content; a brief earns its detail. It is that the panel should open showing
- * what gets used every minute and keep the rest one click away.
+ * History worth keeping: Intake Medicals once rendered 5,293px of panel into
+ * a 655px window, with the running order below two screens of material a GM
+ * reads once. The fix was never less content — a brief earns its detail —
+ * but opening on what gets used every minute and keeping the rest one press
+ * away, by FREQUENCY OF USE at the table.
  *
- * So the default is by FREQUENCY OF USE at the table:
- *   open   — the goal (short, and the point), the live clock, and the beats
- *   closed — how it starts, the cast's full briefs, handouts, artefacts,
- *            how it ends
+ * The 2026-09-24 rebuild (a wide drawer in columns) turned most of what used
+ * to be folds into things that are simply always on screen — the goal, the
+ * running order, the people, the temptations, the clock, the handouts, the
+ * rules search — or that open by themselves at their own moment (the
+ * opening while nothing has happened, the ending once every required beat
+ * is done, the beat being run, the person it is about; see
+ * core/runner-view.mjs). Two choices are left that a GM makes once and
+ * expects remembered:
  *
- * `intro` is closed against the first guess made here, on the same kind of
- * measurement that prompted all this: leaving it open still pushed the running
- * order off the first screen (4.8 screens of scroll, beats below the fold).
- * "Getting in" is read once, out loud, at the top of a scene — which is the
- * definition of the read-once category, not an exception to it.
+ *   summon — the gallery of every Actor in the world. Looked up
+ *            occasionally, and a wall of portraits when open, so closed.
+ *   detail — every beat's full detail at once, instead of one line each
+ *            with the beat being run open. How a script is read the
+ *            afternoon before, not how it is run, so off.
  *
- * A GM's own toggles persist, so this only decides the first render of a
- * scene they have not opened before.
+ * A GM's own toggles persist, so this only decides the first render.
  */
 export const RUNNER_SECTIONS = Object.freeze([
-  { id: "goal", open: true },
-  { id: "intro", open: false },
-  { id: "clock", open: true },
-  { id: "beats", open: true },
-  { id: "cast", open: false },
-  { id: "handouts", open: false },
-  { id: "artefacts", open: false },
-  { id: "outro", open: false }
+  { id: "summon", open: false },
+  { id: "detail", open: false }
 ]);
 
 const SECTION_DEFAULTS = new Map(RUNNER_SECTIONS.map((s) => [s.id, s.open]));
@@ -475,6 +509,78 @@ export function notesForBeat(entries = [], beatId) {
   return entries.filter((entry) => entry?.context?.subject === beatId);
 }
 
+/**
+ * The prefix an outcome-tally log entry's `subject` carries, so it can be
+ * told apart from an ordinary GM note on the same beat (both use `subject`,
+ * per foundry/session-log.mjs's own shape) without adding a new field to the
+ * log entry itself.
+ */
+const OUTCOME_SUBJECT_INFIX = "::outcome::";
+
+/** The `subject` a degree-of-success log entry for this beat should carry. */
+export function outcomeLogSubject(beatId, degree) {
+  return `${beatId}${OUTCOME_SUBJECT_INFIX}${degree}`;
+}
+
+/**
+ * The `subject` a `choicePoint` pick should carry — same structured shape as
+ * `outcomeLogSubject`, one infix per kind of recorded thing, so a future
+ * tally function could read either back out the same way
+ * `outcomeTally` already does for degrees.
+ */
+const CHOICE_SUBJECT_INFIX = "::choice::";
+export function choiceLogSubject(beatId, optionId) {
+  return `${beatId}${CHOICE_SUBJECT_INFIX}${optionId}`;
+}
+
+/**
+ * The `subject` an inline trigger press should carry
+ * (design/scene-triggers-and-depth.md §2.3). Scoped by beat AND trigger id,
+ * since a trigger id is only unique within its own beat — the same scoping
+ * `checkRef` already uses inside a `challengeRef`.
+ */
+const TRIGGER_SUBJECT_INFIX = "::trigger::";
+export function triggerLogSubject(beatId, triggerId) {
+  return `${beatId}${TRIGGER_SUBJECT_INFIX}${triggerId}`;
+}
+
+/**
+ * The `subject` a used temptation should carry (design/scene-triggers-and-depth.md
+ * §3). Scene-level rather than beat-scoped like the three subjects above --
+ * a temptation isn't authored against any one beat -- so it carries no
+ * beatId prefix, just its own id.
+ */
+const TEMPTATION_SUBJECT_INFIX = "temptation::";
+export function temptationLogSubject(temptationId) {
+  return `${TEMPTATION_SUBJECT_INFIX}${temptationId}`;
+}
+
+/**
+ * How many times each degree has actually landed on this beat, across every
+ * attempt ever logged -- not just the current tick, which run state only
+ * ever keeps the LATEST of. Requested 2026-09-19 (Ingram): "It would be nice
+ * to record how many Crit success, success, neutral, fail, crit fails we get
+ * for each challenge." The raw data already exists for free in the session
+ * log the moment #onRecordOutcome writes one entry per degree recorded; this
+ * is just the count.
+ *
+ * Four buckets, never five -- this project's own convention throughout
+ * (DEGREES above): a plain Failure with no listed effect is what reads as
+ * "neutral" at the table, not an invented fifth rung.
+ */
+export function outcomeTally(entries = [], beatId) {
+  const tally = { criticalSuccess: 0, success: 0, failure: 0, criticalFailure: 0 };
+  if (!beatId) return tally;
+  const prefix = `${beatId}${OUTCOME_SUBJECT_INFIX}`;
+  for (const entry of entries) {
+    const subject = entry?.context?.subject;
+    if (typeof subject !== "string" || !subject.startsWith(prefix)) continue;
+    const degree = subject.slice(prefix.length);
+    if (degree in tally) tally[degree] += 1;
+  }
+  return tally;
+}
+
 /** How many notes each beat carries, keyed by beat id, for the running order's own margin. */
 export function noteCounts(entries = []) {
   const counts = {};
@@ -516,6 +622,10 @@ export function sceneRunnerState({ brief, subsystem = null, runState = emptyRunS
     handouts: brief.handouts ?? [],
     offers: brief.offers ?? [],
     carryForward: brief.carryForward ?? [],
+    // One sentence a GM can say out loud, unprompted, whenever the table
+    // stalls -- scene-level, not tied to any one beat, on purpose (design/
+    // scene-triggers-and-depth.md §3). Never mandatory, never gates anything.
+    temptations: brief.temptations ?? [],
     clock: subsystem ? clockState(subsystem, runState) : null,
     spends: subsystem ? spendsFor(subsystem) : [],
     locationKey

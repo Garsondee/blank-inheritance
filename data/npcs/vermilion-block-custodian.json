@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "vermilion-block-custodian",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Reagent Stores Custodian, The Vermilion Block",
   "pole": null,

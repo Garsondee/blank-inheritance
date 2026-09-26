@@ -1,0 +1,250 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--school-period-two",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "school-period-two",
+  "title": "School: Period Two",
+  "summary": "Afternoon lessons, attended by six people covered in sea-wall paint. Field medicine, taught by the skeleton who took their blood a fortnight ago, or civics, taught by the one officer in the building whose job is openness, from a charter with a paragraph painted out of it.",
+  "goal": "Every player has sat a second class of their own choosing and come out with something they can use, or with extra work.",
+  "howToPlay": "Short, warm and slightly ridiculous -- they are covered in paint and neither teacher was told why.\n\nSame structure as period one: run both rooms in parallel, one image, one exchange, one optional roll each, fifteen minutes for the whole thing.\n\n**Shucks being an ordinary, kind teacher here is doing structural work.** The more unremarkable he is in this classroom, the harder it lands when he walks into the Deputy Director's office at the end of the episode and is granted a private audience in ten seconds. Do not foreshadow it at all.",
+  "runsAbout": "15 minutes for both, run in parallel",
+  "mode": "downtime",
+  "intro": {
+    "where": "The school block again, two different rooms. One has a skeleton in it and a tray of instruments; the other has a framed copy of the founding charter on the wall.",
+    "firstThing": "Somebody mopped this floor this morning.",
+    "readAloud": "You have been on a sea wall since eleven and it shows, in your hair, on your hands, and in a trail of grey across a floor that somebody mopped this morning.\n\nNeither of the two afternoon lessons has been told why. One of them is not going to care.",
+    "landmark": "the corridor between the two doors, and the grey footprints going down it",
+    "holdInReserve": "The framed charter in the civics room is a copy. It says so, in small type, at the bottom of the frame, and nobody reads that far.",
+    "carriesIn": [
+      {
+        "when": "Slack Water was played (it was, immediately before)",
+        "then": "They are covered in it. Whatever they did on the wall -- and whether the Section Officer's inspection went his way or theirs -- is still on their hands, and neither teacher has been told any of it."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "shucks-mordant",
+      "npcRef": "shucks-mordant",
+      "label": "Shucks Mordant",
+      "role": "Teaches field medicine on Tuesdays, which nobody has ever explained to the party.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "These children to be able to keep somebody alive for the eleven minutes before a professional arrives. He has taught this for a very long time and he has never stopped meaning it.",
+        "opensWith": "Looking at the state of them and saying nothing about it at all.",
+        "willDiscuss": [
+          {
+            "topic": "Keeping somebody alive with what is in your pockets",
+            "note": "Practically, unhurriedly, and with total attention. He will make each of them do it rather than watch him do it."
+          },
+          {
+            "topic": "What actually goes wrong at an incident",
+            "note": "People stand still, people go back for things, and nobody does what they were drilled to do. He is not cynical about it -- he is describing what he has seen."
+          },
+          {
+            "topic": "Their screens, if anybody raises it again",
+            "note": "Deflects exactly as warmly and exactly as immediately as he did at the medical. The deflection is unchanged and so is the kindness."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Himself, his age, or how long he has taught this",
+            "why": "Not evasion -- he answers and the answer is never interesting. He has always been here and it has never occurred to him to present that as remarkable."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Warm, unhurried, deadpan. Asks a question and then actually waits.",
+          "tics": [
+            "Gives instructions as single words -- Hands. Press. Harder.",
+            "Says the practical thing before the kind thing, and means both",
+            "Compares them to other students, across a span of years that does not quite add up"
+          ],
+          "samples": [
+            "\"Hands. -- No. Harder than that. You are not going to hurt them more than the thing that did this already has.\"",
+            "\"Eleven minutes. That is what you are for. After eleven minutes it is my problem and before that it is yours.\"",
+            "\"The last class that got this right first time was -- \" He stops, and does the arithmetic, and does not finish the sentence.",
+            "\"You're filthy. -- I have been elbow deep in a great many worse things than a sea wall. Press.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "transparency-advocate",
+      "npcRef": "transparency-advocate",
+      "label": "The Transparency Advocate",
+      "role": "Teaches civics from the founding charter, which hangs framed on the wall with a paragraph painted out of it.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Them to know their own rights and duties precisely, because almost nobody in this building does and it costs people.",
+        "opensWith": "Asking what a trainee is actually obliged to do, and listening properly to the wrong answers.",
+        "willDiscuss": [
+          {
+            "topic": "Standing orders, rights, and what a trainee may and may not be required to do",
+            "note": "Precisely and generously. This is genuinely useful institutional knowledge and nobody else will give it to them."
+          },
+          {
+            "topic": "The charter on the wall, including the part that is painted over",
+            "note": "Openly and with obvious frustration. It is the single thing about this institution that most annoys them and they will say so to a room of sixteen-year-olds."
+          },
+          {
+            "topic": "What they themselves have asked for and been refused",
+            "note": "Briefly and without self-pity. They have asked to see the unredacted charter more than once. The answer is always that the original is not held here."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What the painted-over paragraph says",
+            "why": "They do not know. Nobody they have ever asked knows. They are entirely honest about this and find it maddening."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Precise, dry, slightly combative, and completely straight with children in a way most adults in this building are not.",
+          "tics": [
+            "Answers a question with the exact clause and then with what it means in practice",
+            "Says 'you are entitled to' rather than 'you may'",
+            "Stops mid-point to check somebody has actually understood"
+          ],
+          "samples": [
+            "\"Ask me that again, but slower, because I want to be sure I answer the question you actually asked.\"",
+            "\"You are entitled to that. Write it down, because nobody will tell you twice.\"",
+            "\"No. And I will tell you exactly who told me no, and when, if you want it.\"",
+            "\"That is a very good question and I am going to have to disappoint you with the answer.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "which-room-again",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Two doors again. Each player picks one, and they do not have to pick the same way they did this morning.",
+      "choicePoint": {
+        "label": "Period two. Which room?",
+        "options": [
+          {
+            "id": "field-medicine",
+            "label": "Field medicine -- practical, hands-on, taught by the doctor from intake.",
+            "consequence": "Keeping somebody alive for the eleven minutes before a professional arrives, taught by somebody who has done it more times than anybody could count."
+          },
+          {
+            "id": "civics",
+            "label": "Civics -- rights, duties and standing orders, under a framed charter with a paragraph painted out of it.",
+            "consequence": "The one adult in the building whose job is openness, teaching from a document that has been redacted since before anybody alive was born."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "direction": "Take each pick individually. Players who split this morning may reunite now, or swap, and either is fine.\n\nDo not remark on Shucks teaching a class. Nobody in the fiction finds it notable.\n\nSkipping both is allowed and unremarkable, particularly covered in paint. Nobody chases it.",
+      "note": "HOW TO PLAY IT. Both rooms pay off before the end of the episode and neither says so. Field medicine pays at the tram; civics pays in the Deputy Director's office.\n\nWrite down who went where.\n\nAN INVENTED THIRD OPTION SHOULD BE BACKED. Plausible ones: getting clean, going to find out whether the sea wall passed inspection, or going back to the yard to look at the board for the evening. Price on the standard ladder."
+    },
+    {
+      "id": "field-medicine",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Hands, pressure, and eleven minutes. He makes each of them do it rather than watching him.",
+      "challengeRef": "c1e2-school-period-two",
+      "checkRef": "field-medicine",
+      "npcRef": "shucks-mordant",
+      "when": {
+        "condition": "for players who chose field medicine, and only if one of them properly engages"
+      },
+      "readAloud": "\"Eleven minutes. That is roughly how long it takes for somebody like me to reach somebody like them, on a good day, in this city.\n\nWhat you do in those eleven minutes is the entire difference. Not what I do afterwards. -- Hands.\"",
+      "direction": "Practical and physical. He puts their hands on things, corrects the pressure, and does not let anybody spectate.\n\nA player who sits through it can stop bleeding and knows not to move somebody who should not be moved. The roll is for somebody who engages properly.",
+      "note": "HOW TO PLAY IT. Keep him entirely ordinary. He is a teacher taking a Tuesday class, and the whole structural value of this scene is that nothing about him seems remarkable until the last scene of the episode.\n\nGM-ONLY: he has known what their screens mean since he ran them. Nothing here hints at it, he deflects the subject exactly as before, and the deflection is warm rather than evasive.\n\nPAYS OFF AT THE TRAM. A success here is directly usable on injured civilians in First Contact. Do not mention that now."
+    },
+    {
+      "id": "civics",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Rights, duties, and the standing orders that actually get used on trainees.",
+      "challengeRef": "c1e2-school-period-two",
+      "checkRef": "standing-orders",
+      "npcRef": "transparency-advocate",
+      "when": {
+        "condition": "for players who chose civics, and only if one of them properly engages"
+      },
+      "readAloud": "\"You are entitled to see any standing order that is used against you. Nobody will ever tell you that, so I am telling you now. Write it down.\n\nFourteen, paragraph four. A direct instruction from a controlling officer. Learn that one -- it is the one that will be quoted at you.\"",
+      "direction": "Genuinely useful and genuinely generous. They are arming trainees against their own institution and they know exactly what they are doing.\n\nIf anybody looks at the charter on the wall, let them see the painted-over paragraph and let the Advocate be entirely honest: they do not know what it says, they have asked three times, and the original is not held here.",
+      "nodeRefs": [
+        "mystery-ledger-5"
+      ],
+      "note": "HOW TO PLAY IT. This is the second touch on the charter thread, and the important difference from the Assembly is the source: an officer of this institution, whose actual job is openness, saying plainly that they have asked and been refused.\n\nGM-ONLY: what the paragraph says is a long-term secret and is not decided. Nothing here reveals it and no roll in this scene can.\n\nWHAT IT DOES NOT MEAN: the Advocate is not a conspirator, is not recruiting the party, and is not hinting at anything. They are a frustrated professional answering a question honestly.\n\nPAYS OFF IN THE HAMMER. A player who has Standing Order 14 para 4 will hear it quoted in the Deputy Director's office and will know exactly what is being invoked. Do not mention that now."
+    },
+    {
+      "id": "out-again",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Out, still filthy, into whatever is left of the afternoon.",
+      "direction": "Thirty seconds in the corridor again. Let the two halves compare.",
+      "note": "HOW TO PLAY IT. Thirty seconds, same as every other school period. The difference here is that the rest of the afternoon is genuinely theirs, and the board says so.",
+      "readAloud": "Out, still filthy, into an afternoon that the board says is yours."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The bell, and the rest of the afternoon is their own.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "Only if somebody came out of civics actually understanding what can and cannot be required of them."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The board has their names against an empty box for the rest of the afternoon.",
+      "scatterRisk": false
+    },
+    "onwards": "Into The Long Afternoon.",
+    "writeDown": [
+      "Who went to which room this time.",
+      "Anybody who came out with Standing Order 14, paragraph four. It gets quoted at them later.",
+      "Anybody carrying extra work, and which quarter it costs."
+    ],
+    "readAloud": "The bell goes and the corridor fills with people who have been indoors all day and are not covered in a sea wall.\n\nSomewhere behind you, somebody is going to have to mop that floor again."
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "read-the-frame",
+      "text": "The charter on the wall has small type at the bottom of the frame that nobody reads."
+    },
+    {
+      "id": "ask-him-about-your-screen",
+      "text": "He is standing right there, in an ordinary classroom, on an ordinary Tuesday, and nobody has ever explained what irregular meant."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "shucks-ordinary",
+      "text": "Whether Shucks landed as completely unremarkable here -- a nice man teaching a Tuesday class.",
+      "scaleNote": "0 = the table sensed a setup, 10 = entirely ordinary, which is what makes the last scene work."
+    },
+    {
+      "id": "the-advocate",
+      "text": "Whether the Transparency Advocate read as genuinely useful and genuinely frustrated rather than as a conspiracy hook."
+    },
+    {
+      "id": "filthy-in-class",
+      "text": "Whether six people covered in sea-wall paint sitting in an afternoon lesson was as funny as it should have been."
+    },
+    {
+      "id": "payoffs-unannounced",
+      "text": "Whether either class's later usefulness stayed unannounced."
+    }
+  ],
+  "notes": "STRUCTURAL PURPOSE. Shucks is an ordinary teacher here and nothing about him is remarkable. That is the entire point: it is what makes him walking unannounced into the Deputy Director's office at the end of the episode land as strange. Do not foreshadow, do not weight a line, do not let anybody comment on his standing.\n\nBOTH ROOMS PAY OFF THIS EPISODE AND NEITHER SAYS SO. Field medicine is usable on injured civilians at the tram. Civics gives the party the exact standing order that gets quoted at them in The Hammer. Unannounced payoffs are the reward for engaging.\n\nTHE TRANSPARENCY ADVOCATE IS NOT A CONSPIRATOR. They are a serving officer doing an unpopular job honestly, who has asked three times to see an unredacted founding charter and been told the original is not held here. That is all true and all of it is maddening to them.\n\nSAME COST STRUCTURE AS PERIOD ONE. Not rolling is free. Failure costs a free quarter. Critical failure costs a quarter and leaves them Fatigued the next day. Risks are never announced beforehand."
+}

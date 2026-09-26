@@ -53,7 +53,7 @@
 
 **Worth avoiding:** **the benching, as written, at a table.** Taking a player's core capability away for two sessions is what the series does, and it works in a film because the audience cannot leave. `design/agency-and-player-choice.md` covers why an imposed removal of capability reads differently to a player than to a viewer. If this beat is wanted here, it has to be offered rather than applied.
 
-**Where it might attach:** the campaign's central structural problem is a level-1 kid standing beside a level-12 Frame (`design/scale-and-chassis.md`), and this character is the clearest existing model for making that gap into drama rather than a maths problem. The mechanics are settled elsewhere; what this file contributes is the framing — **the kid is the reason the Frame is there.**
+**Where it might attach:** a Frame here amplifies its pilot's own sheet rather than replacing it (`data/schema/frame.schema.json`), so the framing carries over directly — **the kid is the reason the Frame is there.**
 
 ---
 

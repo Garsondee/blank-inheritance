@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "vermilion-block-director",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Officer in Charge, The Vermilion Block",
   "pole": null,

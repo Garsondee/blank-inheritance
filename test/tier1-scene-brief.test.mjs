@@ -97,6 +97,12 @@ test("an ungated beat is active from the start", () => {
   assert.equal(beatState({ id: "satoru-brief" }, emptyRunState()), BEAT_STATES.ACTIVE);
 });
 
+test("emptyRunState carries a topics bag, separate from ticked -- a coercible topic's recorded degree (scene-runner.mjs#onRecordTopicOutcome) must never share storage with beat-branch state", () => {
+  const state = emptyRunState();
+  assert.deepEqual(state.topics, {});
+  assert.notEqual(state.topics, state.ticked, "topics must be its own object, not an alias of ticked");
+});
+
 test("BOTH sides of a fork are pending before the roll lands — this is the whole point", () => {
   // A boolean "visible" implementation cannot express this: it would have to
   // hide both branches until the check resolves, which removes the fork from
@@ -281,8 +287,8 @@ test("startModifiers stacks with spends against the same seeded start", () => {
 test("the real Compactor Cycle subsystem and Flood Tunnel brief agree on the beat id", () => {
   // Not a fixture -- the actual authored files. Catches the beatRef and the
   // scene-brief's own beat id drifting apart from each other silently.
-  const subsystem = readJson(new URL("c1s1-compactor-cycle.json", new URL("../data/subsystems/", import.meta.url)));
-  const brief = realBrief("episode-c1s1--flood-tunnel");
+  const subsystem = readJson(new URL("c1e1-compactor-cycle.json", new URL("../data/subsystems/", import.meta.url)));
+  const brief = realBrief("episode-c1e1--flood-tunnel");
   const pool = subsystem.pools.find((p) => p.id === "encroachment");
   const beatRef = pool.startModifiers[0].beatRef;
   assert.ok(brief.beats.some((b) => b.id === beatRef), `flood-tunnel has no beat "${beatRef}" for the subsystem to read`);
@@ -416,7 +422,7 @@ test("the flag is solo, and nothing else in Intake Medicals is", () => {
   // that it happened to all six. If this beat ever becomes `table`, six people
   // read at once what each of them was supposed to hear alone, and the scene's
   // own climax is spent before it starts.
-  const brief = realBrief("episode-c1s1--intake-medicals");
+  const brief = realBrief("episode-c1e1--intake-medicals");
   const solo = brief.beats.filter((b) => b.delivery === DELIVERY.SOLO);
   assert.deepEqual(solo.map((b) => b.id), ["the-flag"]);
 });
@@ -456,7 +462,7 @@ test("artefacts sharing a documentRef form one chain, ordered low clearance firs
 });
 
 test("the real Act 1 Scene 1 carries an intro, an outro and an earnable artefact", () => {
-  const brief = readJson(new URL("episode-c1s1--intake-medicals.json", BRIEF_DIR));
+  const brief = readJson(new URL("episode-c1e1--intake-medicals.json", BRIEF_DIR));
   const state = sceneRunnerState({ brief, runState: emptyRunState() });
 
   assert.ok(state.goal, "the goal box has to have something in it");
@@ -475,11 +481,11 @@ test("the real Act 1 Scene 1 carries an intro, an outro and an earnable artefact
 test("The Road In precedes Intake Medicals, and Medicals no longer claims to be the campaign's first scene", () => {
   // Regression guard for a real bug: adding a scene before an existing one
   // left the existing one's own carriesIn note asserting something now false.
-  const episode = readJson(new URL("../data/episodes/episode-c1s1-mothers-maiden-name.json", import.meta.url));
+  const episode = readJson(new URL("../data/episodes/episode-c1e1-mothers-maiden-name.json", import.meta.url));
   const byId = Object.fromEntries(episode.scenes.map((s) => [s.id, s]));
   assert.ok(byId["the-road-in"].order < byId["intake-medicals"].order, "The Road In must come first");
 
-  const medicals = realBrief("episode-c1s1--intake-medicals");
+  const medicals = realBrief("episode-c1e1--intake-medicals");
   const carriesInText = JSON.stringify(medicals.intro.carriesIn);
   assert.doesNotMatch(carriesInText, /campaign's first scene/i, "this claim is false now that The Road In exists");
 });
@@ -488,7 +494,7 @@ test("The Road In does not stage a shared arrival -- the group forms at the medi
   // Ingram, 2026-09-09: "The medical waiting room IS the first time that
   // this group of people is a group." Confirmed by absence: no beat here
   // should describe the six of them noticing or meeting each other.
-  const brief = realBrief("episode-c1s1--the-road-in");
+  const brief = realBrief("episode-c1e1--the-road-in");
   const text = JSON.stringify(brief.beats).toLowerCase();
   assert.doesNotMatch(text, /notice each other|see (the |)five other|same queue as (the|each)/, "a shared-arrival beat would spend the group-forming moment early");
 });
@@ -496,7 +502,7 @@ test("The Road In does not stage a shared arrival -- the group forms at the medi
 test("an insight check costs nothing mechanical on any outcome, in the real authored data", () => {
   // The rule from design/encyclopaedia-checks.md, checked against both real
   // instances rather than trusted from the doc alone.
-  const files = ["c1s1-the-medical", "c1s1-the-road-in"];
+  const files = ["c1e1-the-medical", "c1e1-the-road-in"];
   for (const file of files) {
     const challenge = readJson(new URL(`../data/challenges/${file}.json`, import.meta.url));
     for (const check of challenge.checks.filter((c) => c.insight)) {
@@ -514,4 +520,105 @@ test("the assembled state carries everything the panel renders, and nothing it d
   assert.equal(state.clock.current, 12);
   assert.equal(state.progress.mandatoryDone, 1);
   assert.equal(sceneRunnerState({ brief: null }), null, "no brief is a real state, not a crash");
+});
+
+/* ---------------------------------------------------------------- */
+/*  The GM's own hand on a clock (2026-09-24)                        */
+/* ---------------------------------------------------------------- */
+
+const COMPACTOR = {
+  pools: [{
+    id: "encroachment", name: "Encroachment", mode: "accumulating", start: 0, floor: 0, ceiling: 5,
+    thresholds: [{ atValue: 1, effect: "centre grinds" }, { atValue: 3, effect: "half the floor" }, { atValue: 5, effect: "full compaction" }]
+  }],
+  spends: []
+};
+
+test("a rising clock reads against its CEILING, not its start (regression: Flood Tunnel read '0 of 0')", () => {
+  const clock = clockState(COMPACTOR, emptyRunState());
+  assert.equal(clock.current, 0);
+  assert.equal(clock.limit, 5);
+  assert.equal(clockState(WALLS, emptyRunState()).limit, 12, "a falling clock still reads against where it started");
+});
+
+test("a clock with no authored spends can still be moved by the GM's own hand, one step at a time", () => {
+  const up2 = clockState(COMPACTOR, { ...emptyRunState(), adjust: { encroachment: 2 } });
+  assert.equal(up2.current, 2);
+  assert.equal(up2.adjusted, 2);
+  const withSpends = clockState(WALLS, { ...emptyRunState(), spent: ["chase-supplier"], adjust: { [WALLS.pools[0].id]: -1 } });
+  assert.equal(withSpends.current, 12 - 3 - 1, "a nudge stacks with authored spends");
+});
+
+test("a nudge is clamped to the pool's own floor and ceiling, and says which way it can still move", () => {
+  const top = clockState(COMPACTOR, { ...emptyRunState(), adjust: { encroachment: 99 } });
+  assert.equal(top.current, 5);
+  assert.equal(top.canRaise, false);
+  assert.equal(top.canLower, true);
+  assert.equal(top.exhausted, true, "a rising clock is spent at its ceiling");
+  const bottom = clockState(COMPACTOR, emptyRunState());
+  assert.equal(bottom.canLower, false);
+  assert.equal(bottom.exhausted, false);
+});
+
+test("the clock names the threshold the table is under now and the next one coming (Law 19)", () => {
+  const at2 = clockState(COMPACTOR, { ...emptyRunState(), adjust: { encroachment: 2 } });
+  assert.equal(at2.latest.effect, "centre grinds");
+  assert.equal(at2.next.atValue, 3);
+  const at0 = clockState(COMPACTOR, emptyRunState());
+  assert.equal(at0.latest, null);
+  assert.equal(at0.next.atValue, 1);
+  const falling = clockState(WALLS, { ...emptyRunState(), spent: ["chase-supplier", "chase-supplier", "chase-supplier"] });
+  assert.ok(falling.latest, "a falling clock's latest is the lowest threshold passed");
+});
+
+test("a run stored before nudges existed (no `adjust`) reads exactly as it did", () => {
+  const legacy = { ticked: {}, spent: ["chase-supplier"], opened: [], granted: [] };
+  assert.equal(clockState(WALLS, legacy).current, 9);
+  assert.deepEqual(emptyRunState().adjust, {});
+});
+
+// 2026-09-24 (Ingram): a Scene 0 GM speech before The Road In, and The Road
+// In rebuilt around each player's own opening -- look, first shot, a small
+// problem on the way in, the skill they used, a roll against a normal DC, and
+// a few sentences of how it went, told by the player.
+test("From Up Here is Scene 0: first in the episode, a speech with no cast, no rolls and no choices", () => {
+  const episode = readJson(new URL("../data/episodes/episode-c1e1-mothers-maiden-name.json", import.meta.url));
+  const sorted = [...episode.scenes].sort((a, b) => a.order - b.order);
+  assert.equal(sorted[0].id, "from-up-here");
+  assert.equal(sorted[1].id, "the-road-in");
+  const brief = realBrief("episode-c1e1--from-up-here");
+  assert.deepEqual(brief.cast, []);
+  assert.ok(brief.beats.every((b) => (b.kind ?? "action") === "action" && !b.challengeRef && !b.choicePoint), "the players' turn is The Road In, not this");
+  assert.ok(brief.beats.every((b) => b.readAloud), "every beat of the speech is written out");
+});
+
+test("From Up Here keeps to the player-facing rules: common knowledge only, nothing GM-only, the four named", () => {
+  const spoken = realBrief("episode-c1e1--from-up-here").beats.map((b) => b.readAloud).join("\n");
+  for (const name of ["Hyuck", "Rupiah", "Anabala", "Shucks Mordant", "Kurose", "Kortos", "Absalom", "Golarion"]) {
+    assert.ok(spoken.includes(name), `the speech should name ${name}`);
+  }
+  // GM-only material that must never be read to the table (LEDGER #26-#28).
+  assert.doesNotMatch(spoken, /Watcher|Observer|hull|starship|Envoy|Manako|mitflit|Gen(eration)? ?2|fumble|dropped|caught/i);
+  // Gen 1 Frames are never graceful (Mystery Ledger #11).
+  assert.doesNotMatch(spoken, /gracefully|carefully|delicately/i);
+});
+
+test("The Road In asks each player for their opening, then rolls their small problem on any skill against DC 15", () => {
+  const brief = realBrief("episode-c1e1--the-road-in");
+  const ids = brief.beats.map((b) => b.id);
+  assert.ok(ids.indexOf("your-opening") > ids.indexOf("the-letter"));
+  assert.equal(ids.indexOf("the-small-problem"), ids.indexOf("your-opening") + 1, "the roll follows the questions for the same player");
+  assert.ok(!ids.includes("a-flourish") && !ids.includes("six-roads-in"), "the old optional flourish is replaced, not kept alongside");
+  for (const id of ["your-opening", "the-small-problem"]) {
+    const beat = brief.beats.find((b) => b.id === id);
+    assert.equal(beat.mandatory, true);
+    assert.equal(beat.delivery, "each");
+  }
+  const challenge = readJson(new URL("../data/challenges/c1e1-the-road-in.json", import.meta.url));
+  const check = challenge.checks.find((c) => c.id === "the-small-problem");
+  assert.equal(check.anySkill, true);
+  assert.deepEqual(check.skillOptions, []);
+  assert.equal(check.dc.value, 15, "a normal level-1 DC");
+  const outcomes = Object.values(check.outcomes).join(" ").toLowerCase();
+  assert.doesNotMatch(outcomes, /\blose\b|\bspend\b|cost them|\bslice\b/, "a bad roll here is a story, never a cost");
 });

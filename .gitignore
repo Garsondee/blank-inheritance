@@ -38,6 +38,11 @@ id_ed25519.*
 # is the ledger of what lives here, who made it, and under what license.
 /third-party/
 
+# The old Foundry worlds (2026-09-24; see the old-server-data memory note). Mostly Paizo's published
+# Abomination Vaults module, so the same treatment as third-party/: kept locally, never committed.
+# What the campaign uses from them is transcribed into ideas/story/source-material/, which is tracked.
+/old server data/
+
 # Module binaries: synced to the Foundry server by WinSCP, but not committed.
 # The .gitkeep files are kept so the directory structure survives in git.
 /foundry/blank-inheritance/assets/**
@@ -117,6 +122,13 @@ module/blank-inheritance/storage/
 # python tools/stage-assets/stage_assets.py
 module/blank-inheritance/assets/stage/
 
+# Dynamic Token Ring subject textures, circle-cropped from data/campaign/
+# asset-registry.json's confirmed character-portrait assignments by
+# tools/token-ring/. Same reasoning as assets/stage/ above -- derived,
+# regenerable, pushed to the server from disk. Regenerate with
+# python tools/token-ring/crop_ring_subject.py
+module/blank-inheritance/assets/tokens/
+
 # Harvested from the live server by tools/module-sync/sync-harvest.mjs.
 # The session logs ARE kept -- they are the record of what actually happened
 # at the table, and the whole reason the harvest direction exists. The sync
@@ -152,3 +164,11 @@ harvest/inference/
 # journal split as a .git/index vs its .lock.
 *.gpkg-wal
 *.gpkg-shm
+
+# Human drop-zone for raw incoming material (externally-revised files, pre-replacement
+# backups). Same policy as artwork/in-tray and audio/in-tray: dropped here, not yet adopted.
+data/intray/
+
+# Sign-Off reports: the HTML is generated from reviews/<scene>.json by
+# tools/scene-signoff/report.mjs -- the JSON is the source, the page is the build.
+reviews/*.html

@@ -36,7 +36,7 @@ One **Day** is one session and one strategic turn. Four quarters, as already bui
    slices. They argue. Do not rescue them from the choice.
 3. **PLAY** — scenes resolve in SF2E. This is most of the session and the strategy layer is silent
    during it.
-4. **DEBRIEF** — what they did moves the tracks. The Observer takes its turn. Tomorrow's board is
+4. **DEBRIEF** — what they did moves the tracks. The Watcher takes its turn. Tomorrow's board is
    built from tonight's outcome.
 
 The console already implements the day ring, the slice board with expiry, and the resolution
@@ -55,12 +55,13 @@ Rises with every use of Sap by anyone including the party, every Cicada demonstr
 column running unstopped. **Falls only when the party takes something off the board:** seized
 canisters, a demonstration prevented rather than fought, the column interrupted.
 
-At maximum, the cloud self-organises and stops needing Manako. **This is not a loss condition.**
-It is worse and better: the option of *correcting* the Observer expires, and whatever it has
-become by then is what it permanently is.
+At maximum, the Watcher no longer needs Manako or any other human to feed it: its own children
+make its Sap, which is the runaway (LEDGER #31, `ideas/story/dossier-observer.md` §16). **This is
+not a loss condition.**
 
-**Show the number to the players from Chapter 5.** The bible is explicit — dread is fine, ambush
-is not. Before Chapter 5 they see its effects without the number.
+**Show the number to the players once they understand what Sap is** (Chapter 9 in the
+twenty-chapter draft). The bible is explicit — dread is fine, ambush is not. Before then they see
+its effects without the number.
 
 **The design consequence that matters:** prevention beats reaction. Stopping a demonstration is
 worth more than winning the fight that demonstration causes. A party that only ever responds to
@@ -69,9 +70,10 @@ happening.
 
 ### COMPREHENSION — the enemy's tech tree *(bible §15, already designed)*
 
-Eight rungs, one per chapter, from *what exists* to *there are people*. **The party's own conduct
-advances it.** Fight it and it learns that fighting is the job. Every victory by force teaches the
-correct lesson badly.
+Its rungs run from *what exists* to *there are people*, now paced across the twenty chapters as the
+Watcher's generations (`ideas/story/blank-inheritance-twenty-chapters.md` Appendix C). **The
+party's own conduct advances it.** Fight it and it learns that fighting is the job. Every victory
+by force teaches the correct lesson badly.
 
 **Hard gate, from the bible:** it cannot exploit a category the fiction has not established it
 understands. This is a promise to the players and it must not be broken for drama.
@@ -94,7 +96,7 @@ Spend it on **Clearance** rungs, which are permanent:
 
 | Rung | | What it unlocks |
 |---|---|---|
-| 0 | **Recruits** | Do as you are told. Ground roles only. Frame time is drills. |
+| 0 | **Recruits** | Do as you are told. Frame time is drills. |
 | 1 | **Cadets** | Choose your own duty assignment. Requisition minor equipment without a countersignature. |
 | 2 | **Duty Section** | Self-deploy to a Contact without waiting for an order. Speak to detainees. |
 | 3 | **Officers** | Direct other units. Call a city asset — a tram halted, a street closed, a district's power rerouted. |
@@ -103,7 +105,7 @@ Spend it on **Clearance** rungs, which are permanent:
 
 **Why this is the right spine for this campaign specifically.** The Directorate's founding sin is
 information suppression as a reflex. Its whole cast is people who were right and not believed —
-Rika for forty years, Hori alone with it, Manako until it broke him, Taka after Chapter 3. The
+Rika for forty years, Hori alone with it, Manako until it broke him. The
 campaign's stated theme is *who gets believed*. **Clearance is being believed, made countable.**
 Climbing it is the party succeeding where every one of those people failed, which is why the arc
 feels like escalation rather than promotion.
@@ -140,8 +142,7 @@ it is a different kind of secret, reserved for the vanishingly rare site whose e
 unknown even to most Directorate *staff*, not merely restricted from outsiders. The Rock is the
 first and, for now, the only site classified this way: "students and most staff being unaware of
 its purpose and completely unaware of its secrets" (Ingram's own note). Spend this tier rarely —
-if every interesting building turns out to be Omega-Zero, the word stops meaning anything, which
-is the same failure mode the Resonance bands document already found once (`design/resonance-and-bleed.md`).
+if every interesting building turns out to be Omega-Zero, the word stops meaning anything.
 
 Undeclared (`null`) is correct for nearly everything, including every location promoted before
 2026-09-12 — this is an opt-in field, not a retrofit, and nothing currently promoted has been
@@ -154,10 +155,9 @@ The bible says plainly: *"The reward is bonds. Not survival, not victory. What t
 have at the end is each other."* If that is the reward, it should be a number, or it will be the
 first thing dropped when a session runs long.
 
-Bonds rise from Anchor time, side plots, small good days, and one character putting themselves out
-for another. They are spent on:
+Bonds rise from side plots, small good days, and one character putting themselves out for another.
+They are spent on:
 
-- letting somebody reach a berserking pilot who cannot be reached (Taka, Chapter 3);
 - meeting a save condition on the peril roster (§21) that the dice did not meet;
 - one automatic success on a check where the reason is a relationship.
 
@@ -173,21 +173,22 @@ children*. Leave this exactly as it is; it already works.
 
 ---
 
-## 4. The Observer's turn
+## 4. The Watcher's turn
 
-At each debrief the Observer does **one** thing, and it is a function of three tracked numbers
+At each debrief the Watcher does **one** thing, and it is a function of three tracked numbers
 rather than GM whim:
 
 - **What** it does is drawn from its current **Comprehension** rung. It cannot reach for a
   category it has not been taught.
 - **How** it does it is drawn from the **Mirror** — the party's own mercy-to-lethality ratio. A
   merciful party gets probes that look and withdraw. A brutal party gets things built to kill,
-  because it is trying to be good at the job it was shown.
+  because that is the method it was shown. The Mirror changes its method, never its objective
+  (LEDGER #31).
 - **How big** it is comes from **Mass**.
 
 This is the Dark Event slot, and it is better than XCOM's because the players caused all three
-inputs. When the Mirror becomes visible in Chapter 7, the realisation available to them is not
-*the GM was escalating*, it is *we taught it this*.
+inputs. When the Mirror becomes visible (around Chapter 11 in the twenty-chapter draft), the
+realisation available to them is not *the GM was escalating*, it is *we taught it this*.
 
 **Players may pre-empt.** Spending slices on the right target before the debrief cancels or
 redirects the move — the XCOM trade of "you can block this month's Dark Event, but only by not
@@ -268,10 +269,11 @@ of their resources. Six mechanisms, five of which already exist:
   system. Bible §22 lists apparatus collapse as risk 1, and names deciding *which two subsystems
   get cut first under pressure* as a live task. **Under pressure, cut Combined Operations first
   and Bonds second** — Bonds only after checking that the register has not gone grim without it.
-- **It must not make the warm parts optional.** Bonds exists precisely so that Anchor scenes and
+- **It must not make the warm parts optional.** Bonds exists precisely so that solo scenes and
   small good days are a resource rather than a luxury.
-- **It must not turn the Observer into a villain with a plan.** Its turn is a function of three
-  numbers. It has no intent, and the moment it appears to have one, the campaign's thesis breaks.
+- **It must not turn the Watcher into a villain.** Its turn is a function of three numbers. It has
+  an objective, to observe, multiply and expand, but it is never evil (LEDGER #31); the moment it
+  appears to be, the campaign's thesis breaks.
 
 ---
 
@@ -284,7 +286,7 @@ of their resources. Six mechanisms, five of which already exist:
 3. **The five tracks** as world state, with a GM-facing readout in the console and a
    player-facing readout for the ones they are allowed to see.
 4. **Clearance rungs** — permanent, purchased with Standing, gated by chapter.
-5. **The Observer's turn** as a derived suggestion at debrief, never an automatic action.
+5. **The Watcher's turn** as a derived suggestion at debrief, never an automatic action.
 6. **Combined operations**, last, and only if the rest is not already enough.
 
 ---
@@ -318,7 +320,7 @@ approach quietly drops. Write them anyway. They are where the world comes from.
 | **Set piece** | 30–45 min | 1–2 | The encounter, the drill, the board hearing. The thing people remember. |
 | **Pressure** | 15–20 min | 2–3 | A real decision with a real cost. Usually moves a track. |
 | **Texture** | 5–10 min | 2–4 | One image, one joke, one plant. Often no checks at all. |
-| **Solo / Anchor** | 5–10 min | 1–2 | One player, their own life. This is where Bonds comes from. |
+| **Solo** | 5–10 min | 1–2 | One player, their own life. This is where Bonds comes from. |
 | **Downtime** | 10 min | 1 | The slice board. The strategy layer's own scene. |
 
 **Texture scenes are the load-bearing ones for this campaign specifically**, and they are the
@@ -329,75 +331,33 @@ session is where the world comes from.
 ### A rung is won at a Board, not bought at a counter
 
 Standing pays for a Clearance rung, but **Standing alone never grants one.** Each rung is won in a
-scene: a hearing, a review, a panel of adults who have to be convinced. Run it in initiative, the
-same way Session Two's Sizing Board is already written to be run.
+scene: a hearing, a review, a panel of adults who have to be convinced. Run it in initiative, as a
+social encounter with real stakes.
 
-This matters for three reasons:
+This matters for two reasons:
 
-1. **Session Two already teaches it.** The Sizing Board is a social encounter run in initiative
-   with real stakes, and its stated purpose is teaching the table that social scenes here can be
-   encounters. Every later Board is that lesson paying off.
-2. **Advancement becomes a scene rather than a number.** "You are Cadets now" is an announcement.
+1. **Advancement becomes a scene rather than a number.** "You are Cadets now" is an announcement.
    Arguing your way through a review board while a Directorate officer reads your file back at you
    is a memory.
-3. **It is the campaign's theme, again.** The subject is who gets believed. A Board is being
+2. **It is the campaign's theme, again.** The subject is who gets believed. A Board is being
    believed, in a room, by people with the authority to say no. The party climbing this ladder is
-   them succeeding where Rika, Hori, Manako and Taka each failed.
+   them succeeding where Rika, Hori and Manako each failed.
 
 **Boards are also where Standing is visibly spent**, which makes the whole track legible without a
 tutorial.
 
-### Chapter One: Recruits to Duty Section
+### Chapter One and its breadcrumb trails
 
-Two rungs in eight sessions, and the second is taken during an emergency rather than granted after
-one.
+*(Superseded 2026-09-24: a 2026-09-09 eight-part plan for Chapter One and its two breadcrumb
+tables, built on the old eight-chapter shape, the cut ground roles, mitflits as bountied vermin
+(against `ideas/story/bible/species/mitflits.md`) and a crowd seeing the sky in Chapter One. Chapter
+One's plan and plants now live in `ideas/story/blank-inheritance-twenty-chapters.md` §5 and
+Appendix B. Removed from this document 2026-09-25.)*
 
-| Session | Teaches | Rung movement |
-|---|---|---|
-| 1 | Two sheets exist. The ground roles exist. | Recruits |
-| 2 | **Social scenes can be encounters** (the Sizing Board) | *first Board* — **→ Cadets** |
-| 3 | Frame scale, and that it is mostly comedy | Cadets |
-| 4 | Investigation has a shape: pattern → stakeout → prisoner | Cadets |
-| 5 | The ground roles are not decoration | Standing earned unsupervised |
-| 6 | A hazard set piece with no enemy in it | Standing earned in public |
-| 7 | They act without being told to | *Standing spent* |
-| 8 | Everything at once, for real | **→ Duty Section**, taken not granted |
-
-The last one is the point. In Session Eight nobody has standing to give an order, so the party
-self-deploys, and the rung is a *description of what they already did* rather than a permission
-they were handed. That is the moment the fantasy of rapid advancement actually lands.
-
-### The two breadcrumb trails
-
-Both run entirely on texture scenes, and both must be laid before anything is explained.
-
-**The mitflits — vermin to person.** The shape of this trail is a series of demotions in the
-party's own certainty.
-
-| Session | The breadcrumb |
-|---|---|
-| 1 | They clear a nest of them out of a storm drain. Routine, sanctioned, paid by the head. Nobody ever tells them they did anything wrong. |
-| 2 | Mitflit traps on the harbour wall, with a small bounty. The same traps, the same wall, as the rat traps. |
-| 4 | One caught in a wall trap. Furious, and refusing help it obviously needs. **The first one they talk to rather than fight.** |
-| 5 | The storm drains have been in use. Not by them — but the drains are theirs, and somebody else is walking through. |
-| 8 | A Frame moves more gently than its pilot ordered. Nobody can explain the hydraulics. |
-
-**Manako — a man who saw something and was not believed.** Every step reads as a terrorist
-conspiracy and is actually one person's grief with a chemistry set.
-
-| Session | The breadcrumb |
-|---|---|
-| 2 | A cicada stencil by the tram stop. It is graffiti. |
-| 4 | Bulk theft of extremely dull reagents, three months running. |
-| 4 | **A lens that does nothing.** It works perfectly. There is simply nothing in that room to see. |
-| 5 | The stencils are all at head height, on walls facing where people *wait*. |
-| 6 | Four canisters, and ninety seconds of sky. Cultists helping people up while being arrested, and not resisting. |
-| 7 | The trail ends at professionals with no opinions about the sky — and countersigned paperwork. |
-
-**The rule both trails obey:** give them the anomaly before the question. Every unexplained detail
-seeded here must be a fact a sharp table can reassemble later, never a thing withheld and then
-announced. A player who writes down "the lens didn't work" in Session Four and understands why in
-Chapter Five has had the best experience this campaign can offer.
+**The rule every breadcrumb obeys:** give them the anomaly before the question. Every unexplained
+detail seeded must be a fact a sharp table can reassemble later, never a thing withheld and then
+announced. A player who writes down "the lens didn't work" in Chapter One and understands why in
+Chapter Six has had the best experience this campaign can offer.
 
 ### What this asks of the authoring format
 

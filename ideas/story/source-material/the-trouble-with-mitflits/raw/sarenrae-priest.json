@@ -1,0 +1,239 @@
+{
+ "prototypeToken": {
+  "displayName": 20,
+  "displayBars": 20,
+  "flags": {
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": false
+   },
+   "monks-enhanced-journal": {
+    "chatbubble": ""
+   },
+   "aedifs-tactical-grid": {
+    "viewDistance": null,
+    "viewShape": "",
+    "color": ""
+   },
+   "perceptive": {
+    "canbeSpottedFlag": true,
+    "PPDCFlag": -1,
+    "APDCFlag": null,
+    "resetSpottedbyMoveFlag": false,
+    "StealthEffectsFlag": "",
+    "OverrideWorldSEffectsFlag": false
+   },
+   "pf2e": {
+    "linkToActorSize": true,
+    "autoscale": true
+   }
+  },
+  "sight": {
+   "color": null,
+   "enabled": true,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "height": 1,
+  "width": 1,
+  "name": "Sarenrae Priest",
+  "actorLink": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "texture": {
+   "src": "systems/pf2e/icons/default-icons/npc.svg",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "tint": "#ffffff",
+   "alphaThreshold": 0.75
+  },
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0,
+   "color": null
+  },
+  "detectionModes": [],
+  "randomImg": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "name": "Sarenrae Priest",
+ "type": "npc",
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "effects": [],
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 10,
+    "temp": 0,
+    "max": 10,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 10,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 1
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   }
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 0
+   },
+   "dex": {
+    "mod": 0
+   },
+   "con": {
+    "mod": 0
+   },
+   "int": {
+    "mod": 0
+   },
+   "wis": {
+    "mod": 0
+   },
+   "cha": {
+    "mod": 0
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 0,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 0,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 0,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 0,
+    "saveDetail": ""
+   }
+  },
+  "skills": {},
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "_id": "6SZpI7p4fiP7EP2q",
+ "img": "systems/pf2e/icons/default-icons/npc.svg",
+ "items": [],
+ "folder": null,
+ "sort": 0,
+ "flags": {},
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1712494090256,
+  "modifiedTime": 1721827584335,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

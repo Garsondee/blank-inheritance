@@ -3,16 +3,16 @@
   "id": "claimant-guidelines",
   "type": "antagonist-guidelines",
   "name": "Claimants",
-  "workingNameFor": "Angels (Evangelion analogue)",
+  "workingNameFor": "the Watcher's children",
   "buildRules": {
-    "method": "Built as standard SF2e creatures via normal creature-building guidelines.",
-    "level": "Leveled to the Frame's tier (12, to start the campaign) — never to the kids' level.",
-    "groundRule": "A Claimant statblock is never something a ground-level kid should be rolling against directly."
+    "method": "Built as standard SF2e creatures via normal creature-building guidelines. The first ones, the Proto-Claimants, are reskins of existing SF2E creatures rather than new stat blocks (open-questions.json#proto-claimant-encounter-shape).",
+    "level": "Built to the party's level. Pilot and Frame share one level and level together in lockstep from level 1 (open-questions.json#frame-scale-starting-level, resolved 2026-09-20), so a Claimant fight is budgeted with SF2E's normal encounter XP rules against that level. The first contact is three level-2 Proto-Claimants against a level-1 party (data/encounters/c1e2-first-contact.json). Updated 2026-09-24: this used to read 'Leveled to the Frame's tier (12, to start the campaign) — never to the kids' level', which belonged to the retired two-scale model.",
+    "groundRule": "A Claimant fight is a Frame-scale or personnel-scale fight like any other (there is no spaceship combat, LEDGER #31 item 17), always built to the party's level. Claimant mass runs from insect to behemoth (ideas/story/dossier-observer.md), so a small, weak Claimant for a small, weak early party was always legal. Drafted content already mixes the two scales: the call-out has pilots out of their Frames on a walkway, eye-to-eye with a Proto-Claimant (data/encounters/c1e3-the-call-out.json, drafted, not yet reviewed). Later personnel-scale children, such as dossier-observer.md's 'hand-sized' generation, are a proposal. Updated 2026-09-24: this used to read 'A Claimant statblock is never something a ground-level kid should be rolling against directly', a rule from the retired two-scale model."
   },
   "namingConvention": "Announced by classification code, never named: \"Claimant Three, contact confirmed.\"",
   "lore": {
-    "framing": "Frames the war as a property dispute humanity is losing, and quietly seeds the eventual question of what the Frames themselves are a claim on.",
-    "optionalHook": "Escheat — property reverting to the state when no rightful heir exists — is a clean legal metaphor for what \"the Gap\" excavation actually is, if you want to lean into it later."
+    "framing": "The Watcher's children stake claims to ground for it to watch. Expansion is one of its three objectives -- to multiply, to expand and to keep observing (LEDGER #31) -- so the city's bureaucratic word for them is accidentally correct (proposal, LEDGER #31). The older framing sits on top of that and still works: a property dispute humanity is losing, which quietly seeds the eventual question of what the Frames themselves are a claim on. Updated 2026-09-24. workingNameFor used to read 'Angels (Evangelion analogue)'; it was changed because this campaign's tone is explicitly not Evangelion's.",
+    "optionalHook": "Escheat — property reverting to the state when no rightful heir exists — now has somewhere real to point (proposal, LEDGER #31). The ships belong to the mitflits, the descendants of the generation ship's crew, so the Directorate digging up the search ship under Kurose is claiming an estate that does have an heir. A blank inheritance is one whose heir hasn't been named. Updated 2026-09-24: this used to call escheat a metaphor for 'the Gap' excavation; the Gap is now a future event (open-questions.json#the-gap-is-future), and the dig is the search ship's."
   },
   "instanceIds": []
 }

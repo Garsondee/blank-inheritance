@@ -1,25 +1,35 @@
 {{!--
-    The player's right shoulder: two rotary selectors in black cells, after the
-    north star's Voice and Lfo cells. Anything unbounded that a player chooses
-    between lives on a detented knob rather than a list — so this module has
-    a fixed face however many lores, offers or weapons there are.
+    The player's right shoulder: three rotary selectors in black cells, after
+    the north star's Voice and Lfo cells. Anything unbounded that a player
+    chooses between lives on a detented knob rather than a list — so this
+    module has a fixed face however many lores, actions, offers or weapons
+    there are.
 
-      left cell  — LORE: every lore the character has; the key rolls it.
-      right cell — theatre of the mind: DOWNTIME, this quarter's offers, and a
-                   key to take (or give back) the slice. In a fight: STRIKE,
-                   the character's strikes, and one key per multiple-attack
-                   step showing the number that will be rolled.
+      LORE    — every lore the character has; the key rolls it.
+      ACTION  — sf2e's own basic and skill actions (core/deck-actions.mjs),
+                one fixed list for a scene and one for a fight; the key uses
+                the action and prints the number it will roll. Added
+                2026-09-23 with the deck's widening: Seek, Demoralize, Recall
+                Knowledge, Take Cover and the rest no longer mean opening the
+                sheet.
+      third   — theatre of the mind: DOWNTIME, this quarter's offers, and a
+                key to take (or give back) the slice. In a fight: STRIKE, the
+                character's strikes, one key per multiple-attack step, and
+                (2026-09-23) a second row for Damage and Critical.
 
     Every cell reads the same way top to bottom: legend, knob, the selected
-    name on a two-line screen, then a row of keys carrying the number that will
+    name on a two-line screen, then its keys carrying the number that will
     actually be rolled (ux-doctrine Law 1). Knob detents and pointer frame come
     from core/deck-layout.mjs#selectorState, so the printed dots and the
     rendered pointer can never disagree. Click the right half of a knob to step
     clockwise, the left half to step back, scroll over it, or use the arrow keys.
 --}}
 <div class="bi-deck-shoulder bi-deck-selectors" data-variant="{{selectors.variant}}">
-    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="bi-deck-selectors__pair">
+    <div class="bi-deck-shoulder__head">
+        <span class="bi-deck__engraved">{{#if selectors.strike}}{{localize "BLANKINHERITANCE.Deck.ModeFight"}}{{else}}{{localize "BLANKINHERITANCE.Deck.ModeScene"}}{{/if}}</span>
+        <span class="bi-deck__grille bi-deck__grille--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+    </div>
+    <div class="bi-deck-selectors__set">
         <div class="bi-deck__cell bi-deck-selector" data-selector="lore">
             <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Lore"}}</span>
             <div class="bi-deck-selector__dial">
@@ -44,6 +54,31 @@
             </span>
         </div>
 
+        <div class="bi-deck__cell bi-deck-selector" data-selector="action">
+            <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Action"}}</span>
+            <div class="bi-deck-selector__dial">
+                <svg class="bi-deck-selector__detents" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    {{#each selectors.action.positions}}<circle class="bi-deck-selector__detent{{#if this.active}} is-active{{/if}}" cx="{{this.x}}" cy="{{this.y}}" r="3.4"></circle>{{/each}}
+                </svg>
+                <button type="button" name="bi-selector-action" class="bi-knob bi-deck-selector__knob" style="--frame: {{selectors.action.frame}}"
+                    data-action="selectorStep" data-selector="{{selectors.action.selector}}" data-bi-wheel="{{selectors.action.selector}}" {{#unless selectors.action.count}}disabled{{/unless}}
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Action'}}"
+                    data-preview-title="{{selectors.action.title}}" data-preview-value="{{selectors.action.value}}" data-preview-sub="{{selectors.action.sub}}"></button>
+            </div>
+            <span class="bi-deck__screen bi-deck-selector__lcd">
+                <span class="bi-deck-selector__name">{{selectors.action.name}}</span>
+            </span>
+            <span class="bi-deck-selector__keys">
+                <button type="button" class="bi-deck-map bi-deck-map--wide" data-action="useAction" {{#unless selectors.action.slug}}disabled{{/unless}}
+                    data-slug="{{selectors.action.slug}}" data-variant="{{selectors.action.variant}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Use'}} {{selectors.action.title}} {{selectors.action.value}}"
+                    data-preview-title="{{selectors.action.title}}" data-preview-value="{{selectors.action.value}}" data-preview-sub="{{selectors.action.sub}}">
+                    <span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.Deck.Use"}}</span>
+                    {{#if selectors.action.rolls}}{{selectors.action.value}}{{else}}<span class="bi-deck-map__glyph">{{selectors.action.glyph}}</span>{{/if}}
+                </button>
+            </span>
+        </div>
+
         {{#if selectors.strike}}
         <div class="bi-deck__cell bi-deck-selector" data-selector="strike">
             <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Strike"}}</span>
@@ -64,6 +99,18 @@
                 <button type="button" class="bi-deck-map" data-action="rollStrike" data-action-index="{{../selectors.strike.actionIndex}}" data-variant-index="{{this.variantIndex}}"
                     aria-label="{{../selectors.strike.name}} {{this.label}}" data-preview-title="{{../selectors.strike.name}}" data-preview-value="{{this.short}}" data-preview-sub="{{this.label}}">{{this.short}}</button>
                 {{/each}}
+            </span>
+            <span class="bi-deck-selector__keys">
+                <button type="button" class="bi-deck-map bi-deck-map--wide" data-action="rollDamage" data-action-index="{{selectors.strike.actionIndex}}" data-critical="0"
+                    {{#unless selectors.strike.has}}disabled{{/unless}} aria-label="{{localize 'BLANKINHERITANCE.Deck.Damage'}} {{selectors.strike.name}}"
+                    data-preview-title="{{selectors.strike.name}}" data-preview-value="{{localize 'BLANKINHERITANCE.Deck.Damage'}}" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.DamageSub'}}">
+                    <span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.Deck.Dmg"}}</span>
+                </button>
+                <button type="button" class="bi-deck-map bi-deck-map--wide bi-deck-map--crit" data-action="rollDamage" data-action-index="{{selectors.strike.actionIndex}}" data-critical="1"
+                    {{#unless selectors.strike.has}}disabled{{/unless}} aria-label="{{localize 'BLANKINHERITANCE.Deck.Critical'}} {{selectors.strike.name}}"
+                    data-preview-title="{{selectors.strike.name}}" data-preview-value="{{localize 'BLANKINHERITANCE.Deck.Critical'}}" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.CriticalSub'}}">
+                    <span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.Deck.Crit"}}</span>
+                </button>
             </span>
         </div>
         {{else}}

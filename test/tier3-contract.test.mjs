@@ -27,6 +27,7 @@ import { buildNpcActorData } from "../module/blank-inheritance/scripts/core/gene
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
 import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
 import { catalogueItemToSf2eItemData } from "../module/blank-inheritance/scripts/core/equipment.mjs";
+import { buildBioUpdate } from "../module/blank-inheritance/scripts/core/induction-bio.mjs";
 import { resolveActorTemplate, resolveItemTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths, findInvalidItemFieldPaths } from "./support/sf2e-template.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -99,6 +100,49 @@ test("buildCreatureActorData: every field path it writes exists on sf2e's real n
       `either the generator is writing a field sf2e doesn't have, or sf2e renamed/removed it since this was last verified.`
   );
   assert.ok(hasPath(resolved, "skills"), "system.skills container itself must exist on the npc template");
+});
+
+test("buildBioUpdate: every biography path the induction terminal writes exists on sf2e's real character Actor template", async (t) => {
+  if (!existsSync(templateJsonPath)) {
+    t.skip("gamesystems/sf2e/template.json not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const templateJson = JSON.parse(readFileSync(templateJsonPath, "utf8"));
+  const resolved = resolveActorTemplate(templateJson, "character");
+  const prompts = JSON.parse(readFileSync(path.join(repoRoot, "data", "campaign", "induction-intake-prompts.json"), "utf8"));
+
+  // Answer EVERY prompt, so the update produced here exercises every path the
+  // real terminal can ever write -- including the ones that are hardcoded in
+  // the adapter (gender, languages, appearance) rather than declared in the
+  // prompts file.
+  const answerAll = (list) => Object.fromEntries((list ?? []).map((q) => [q.id, `answer for ${q.id}`]));
+  const update = buildBioUpdate({
+    prompts,
+    finishing: {
+      name: "Contract Check",
+      pronouns: "They/them",
+      genderIdentity: "Nonbinary",
+      appearance: "Contract check appearance.",
+      languages: ["Common"],
+      personalFile: answerAll(prompts.personalFile),
+      personality: answerAll(prompts.personality)
+    },
+    intake: { questions: answerAll(prompts.openQuestions), freeform: "Contract check freeform." },
+    knownLanguageSlugs: ["common"]
+  });
+
+  const invalid = Object.keys(update)
+    .filter((p) => p.startsWith("system.")) // `name` is a top-level Actor field, not system data
+    .filter((p) => !hasPath(resolved, p.slice("system.".length)));
+
+  assert.deepEqual(
+    invalid,
+    [],
+    `these system.* paths don't exist on sf2e's real character Actor template (gamesystems/sf2e/template.json) — either ` +
+      `induction-intake-prompts.json declares a bioPath sf2e doesn't have, or sf2e renamed/removed a biography field since ` +
+      `this was last verified. See design/induction-intake-audit.md §6a for the verified field list.`
+  );
+  assert.ok(Object.keys(update).length > 10, "sanity: a fully-answered form should write a lot of fields, not one or two");
 });
 
 test("buildNpcActorData: every field path it writes exists on sf2e's real npc Actor template, for BOTH the statblock and statblock-less branches", async (t) => {
@@ -328,4 +372,63 @@ test("the undocumented Canvas internals the stage camera depends on still exist"
     levelSource, /src:\s*new fields\.FilePathField/,
     "Level#background.src is gone — a staged scene would render with no picture and no error"
   );
+});
+
+// Dynamic Token Ring — core Foundry document schema, not sf2e's, so it has no
+// home in template.json and can't use resolveActorTemplate/findInvalidActorFieldPaths
+// (technique (a) above). Same source-regex technique as the camera/stage tests
+// just above instead: confirms core/generators/token-ring.mjs's literal field
+// names and bit values against the real v14.367 source it was verified against
+// (research session, 2026-09-18), so a future Foundry upgrade that renames or
+// removes any of this fails tier 3 loudly rather than silently rendering no ring.
+test("token-ring.mjs: prototypeToken.ring's field shape exists on Foundry's real core Token document schema", (t) => {
+  const tokenDocPath = path.join(foundryAppRoot, "common", "documents", "token.mjs");
+  if (!existsSync(tokenDocPath)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const source = readFileSync(tokenDocPath, "utf8");
+
+  // Every field path core/generators/token-ring.mjs's resolveTokenRing()
+  // writes: enabled, colors.{ring,background}, effects, subject.{scale,texture}.
+  assert.match(source, /ring:\s*new fields\.SchemaField\(/, "Token#ring is gone or no longer a SchemaField — buildNpcActorData/etc. would create Actors with a dead field");
+  assert.match(source, /enabled:\s*new fields\.BooleanField\(\)/, "ring.enabled is gone — resolveTokenRing's `enabled: true` would write to nothing");
+  assert.match(source, /colors:\s*new fields\.SchemaField\(\{\s*ring:\s*new fields\.ColorField\(\)/, "ring.colors.ring is gone or no longer a ColorField — faction ring coloring would silently stop working");
+  assert.match(source, /background:\s*new fields\.ColorField\(\)/, "ring.colors.background is gone — the ring's backing color would silently stop working");
+  assert.match(source, /effects:\s*new fields\.NumberField\(/, "ring.effects is gone — Ring Pulse and every other effect bit would silently stop working");
+  assert.match(source, /subject:\s*new fields\.SchemaField\(\{\s*scale:\s*new fields\.NumberField\(/, "ring.subject.scale is gone — portrait zoom would silently stop working");
+  assert.match(source, /texture:\s*new fields\.FilePathField\(/, "ring.subject.texture is gone — assigned portraits would silently stop rendering in the ring");
+});
+
+test("token-ring.mjs: RING_EFFECTS bit values and the 'bronze' style id match Foundry's real core source", (t) => {
+  const ringPath = path.join(foundryAppRoot, "client", "canvas", "placeables", "tokens", "ring.mjs");
+  const ringConfigPath = path.join(foundryAppRoot, "client", "canvas", "placeables", "tokens", "ring-config.mjs");
+  const langPath = path.join(foundryAppRoot, "public", "lang", "en.json");
+  if (!existsSync(ringPath) || !existsSync(ringConfigPath) || !existsSync(langPath)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+
+  // Pins the exact literal values core/generators/token-ring.mjs's RING_EFFECTS
+  // hardcodes -- a renumbering upstream would silently change what "Ring Pulse"
+  // means without this.
+  const ringSource = readFileSync(ringPath, "utf8");
+  assert.match(ringSource, /ENABLED:\s*0x01/, "TokenRing.effects.ENABLED is no longer 0x01 — RING_EFFECTS.ENABLED is now wrong");
+  assert.match(ringSource, /RING_PULSE:\s*0x02/, "TokenRing.effects.RING_PULSE is no longer 0x02 — every NPC/creature/character's ring would silently stop pulsing");
+
+  // "bronze" is a WORLD SETTING VALUE ("coreBronze"), not a per-actor field --
+  // see foundry/token-ring-style.mjs. Confirms that id and its spritesheet
+  // still exist, and that the setting is still named/shaped the way
+  // ensureBronzeTokenRingStyle() calls it.
+  const ringConfigSource = readFileSync(ringConfigPath, "utf8");
+  assert.match(ringConfigSource, /coreBronze:\s*\{[^}]*spritesheet:\s*"canvas\/tokens\/rings-bronze\.json"/, "the core 'coreBronze' ring style (or its spritesheet path) changed — token-ring-style.mjs's CORE_BRONZE id is now wrong");
+  assert.match(ringConfigSource, /game\.settings\.register\("core",\s*"dynamicTokenRing"/, "the 'core.dynamicTokenRing' world setting was renamed — ensureBronzeTokenRingStyle() would silently no-op against a nonexistent setting");
+
+  const bronzeSheet = path.join(foundryAppRoot, "public", "canvas", "tokens", "rings-bronze.webp");
+  assert.ok(existsSync(bronzeSheet), "the bronze ring spritesheet image itself is missing from the installed Foundry build");
+
+  // The human-facing name for RING_PULSE, confirming "Ring Pulse" (Ingram's own
+  // words) really is this bit and not e.g. RING_GRADIENT or BKG_WAVE.
+  const langSource = readFileSync(langPath, "utf8");
+  assert.match(langSource, /"RING_PULSE":\s*"Ring Pulse"/, "core's own label for the RING_PULSE effect changed — re-verify RING_EFFECTS.RING_PULSE is still the effect Ingram meant by 'Ring Pulse'");
 });

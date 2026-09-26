@@ -11,30 +11,6 @@
  */
 
 /**
- * Which Resonance band a 0-100 value falls in. Bands are the real numbers
- * from data/campaign/config.json's resonance.bands — kept here as a literal
- * copy rather than an import, since this file must stay runnable from a
- * plain browser <script type="module"> with no bundler and no fetch of
- * campaign JSON; the source is cited so the two never quietly drift without
- * someone noticing they're supposed to match.
- */
-export const RESONANCE_BANDS = Object.freeze([
-  { id: "dead-weight", name: "Dead Weight", min: 0, max: 39 },
-  { id: "nominal", name: "Nominal", min: 40, max: 64 },
-  { id: "harmonised", name: "Harmonised", min: 65, max: 84 },
-  { id: "absolute", name: "Absolute", min: 85, max: 100 }
-]);
-
-export function resonanceBand(value) {
-  const v = Math.max(0, Math.min(100, value));
-  const band = RESONANCE_BANDS.find((b) => v >= b.min && v <= b.max);
-  // The bands are contiguous 0-100 by construction (tested below), so this
-  // only trips if that invariant is ever broken by an edit to the table.
-  if (!band) throw new Error(`no Resonance band covers ${v}`);
-  return band;
-}
-
-/**
  * Roll `count` dice of `sides`, plus a flat `bonus`. `random` is injectable
  * (defaults to Math.random) so this is deterministic under test — the same
  * shape every dice-driven system in this repo already uses.
@@ -152,6 +128,28 @@ export function formatLogEntriesForDisplay(entries = []) {
     ...entry,
     time: typeof entry.at === "string" ? entry.at.slice(11, 16) : ""
   }));
+}
+
+/**
+ * The Log drawer's filter options (design/ux-doctrine.md §10.7: "the review
+ * surface, and where a post-session pass happens if the GM wants one" —
+ * unfilterable was the one thing left unbuilt, since scrolling the whole
+ * session's worth of typed notes to find one scene's own is exactly the kind
+ * of friction doctrine exists to remove). Options are DERIVED from what the
+ * log actually contains, never a fixed list — the tag types in
+ * design doc §10.3's table are an accelerator a GM may ignore entirely, so a
+ * log recorded in plain untagged sentences must still offer real filters
+ * (its scenes), not an empty type list.
+ */
+export function logFilterOptions(entries = []) {
+  const types = [...new Set(entries.map((e) => e.tag).filter(Boolean))].sort();
+  const scenes = [...new Set(entries.map((e) => e.context?.scene).filter(Boolean))].sort();
+  return { types, scenes };
+}
+
+/** Entries matching both filters, empty string meaning "no filter" on that axis. */
+export function filterLogEntries(entries = [], { type = "", scene = "" } = {}) {
+  return entries.filter((e) => (!type || e.tag === type) && (!scene || e.context?.scene === scene));
 }
 
 /* ------------------------------------------------------------------ *

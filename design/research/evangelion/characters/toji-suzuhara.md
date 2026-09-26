@@ -46,7 +46,7 @@
 
 **Worth avoiding:** the ending, unless the group has agreed to that kind of content in advance (`design/ttrpg-campaign-and-session-craft.md` on safety tools).
 
-**Where it might attach:** the campaign's opening arc already puts five non-piloting kids in ground roles alongside a Frame (`data/subsystems/day-1-ground-layer.json`), which means collateral harm to civilians and classmates is structurally likely from day one. **An NPC whose family was hurt by the party's own operation is the natural consequence of a system the campaign already has** — a stub with a name, a relative and a grievance is the right first version.
+**Where it might attach:** any Frame-scale fight in a populated city makes collateral harm to civilians and classmates structurally likely. **An NPC whose family was hurt by the party's own operation is the natural consequence** — a stub with a name, a relative and a grievance is the right first version.
 
 ---
 

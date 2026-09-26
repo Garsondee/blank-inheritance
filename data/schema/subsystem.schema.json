@@ -49,7 +49,7 @@
           },
           "startModifiers": {
             "type": "array",
-            "description": "How this pool's actual starting value can be shifted by a beat resolved BEFORE this subsystem begins — a setup check in the same scene-brief, not one of this subsystem's own obstacles[]. Different from poolEffects (which is for obstacles inside this subsystem, applied as the subsystem runs): a startModifier is read once, at the moment core/scene-brief.mjs's clockState first computes this pool's value, from that SAME scene's runState.ticked[beatRef].degree — the identical beat-tick data the scene runner already tracks, not a new cross-file lookup. Sparse per degree, same convention as poolEffects (an omitted degree contributes 0). First real use: c1s1-flood-tunnel's clear-the-jam beat seeding c1s1-compactor-cycle's Encroachment pool.",
+            "description": "How this pool's actual starting value can be shifted by a beat resolved BEFORE this subsystem begins — a setup check in the same scene-brief, not one of this subsystem's own obstacles[]. Different from poolEffects (which is for obstacles inside this subsystem, applied as the subsystem runs): a startModifier is read once, at the moment core/scene-brief.mjs's clockState first computes this pool's value, from that SAME scene's runState.ticked[beatRef].degree — the identical beat-tick data the scene runner already tracks, not a new cross-file lookup. Sparse per degree, same convention as poolEffects (an omitted degree contributes 0). First real use: c1e1-flood-tunnel's clear-the-jam beat seeding c1e1-compactor-cycle's Encroachment pool.",
             "items": {
               "type": "object",
               "required": ["poolRef", "beatRef"],

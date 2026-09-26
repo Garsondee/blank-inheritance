@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "the-rock-research-director",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Research Director, The Rock",
   "pole": null,

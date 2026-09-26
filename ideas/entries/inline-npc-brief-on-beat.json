@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "inline-npc-brief-on-beat",
+  "type": "idea",
+  "title": "Show an NPC's own brief inline on the beat that stages them, not only in the separate Cast fold",
+  "status": "new",
+  "domains": ["ui", "gm-experience"],
+  "summary": "A beat with an npcRef currently just names the NPC — their want/voice/tics/willDiscuss live in a separate, usually-closed 'Cast' fold the GM has to have already opened and scrolled to before the beat starts.",
+  "description": "Found live 2026-09-19, driving the Scene Runner with real content (Kit Issue) as part of the #174-186 sweep and the follow-on doctrine work. Scrolling through a real scene: the beat that stages Nobu (`the-counter`) shows his name and the stage direction, but nothing of his actual voice — that lives several screens away in the 'WHO IS HERE' fold, which defaults closed (`RUNNER_SECTIONS`, `core/scene-brief.mjs`). A GM improvising Nobu's opening line at the exact moment his beat fires has to have already read ahead and remembered his register/tics, or stop and go find the fold — exactly the 'as little prep as possible' failure mode the whole session's work has been chasing.\n\nThe fix is narrow and the data already exists for it: `#decorateBeat` (`scene-runner.mjs`) already resolves `beat.npcRef` against the brief's own `cast[]` for other purposes (this is the same lookup the Character Card/dialogue-panel work already established, per `design/npc-social-intel.md` and the `dialogue-management-panel` idea). A beat carrying `npcRef` could carry a compact rendering of that cast member's own `wants` + `voice.register` + one sample line directly under the beat's own text — not the full brief (that stays in Cast, for when a GM wants the whole picture), just the one-line 'who is this and how do they sound' a GM needs at the exact moment they're about to voice them.\n\nOpen design question this doesn't answer: should this always render, or only on a beat's first appearance/when the NPC hasn't been staged yet this session? Always-on risks the same 'wall of text nobody reads' failure `design/ux-doctrine.md` §10.3a warns against for the scene-close dropdowns; a smarter default might be to show it collapsed-but-one-tap, mirroring how the outro's `alreadyLogged` block is present-but-quiet rather than loud.",
+  "capturedDate": "2026-09-19",
+  "lastTouchedDate": "2026-09-19",
+  "sourceContext": "Observed live while driving the Scene Runner against real Episode One content (Kit Issue) as part of the post-#174-186 doctrine-alignment pass — a genuine UX gap noticed in passing, not something asked for directly.",
+  "openSubQuestions": [
+    "Always visible on an npcRef beat, or collapsed by default with a one-tap expand?",
+    "Show the FULL cast entry (wants/opensWith/willDiscuss/willNotDiscuss/coercible/voice) or a curated 2-3 line subset?",
+    "Does this replace the separate Cast fold for that NPC, or just duplicate a slice of it for convenience?"
+  ],
+  "relatedRefs": [
+    "dialogue-management-panel",
+    "design/npc-social-intel.md",
+    "design/ux-doctrine.md",
+    "module/blank-inheritance/scripts/foundry/scene-runner.mjs",
+    "data/schema/scene-brief.schema.json"
+  ],
+  "resolution": null
+}

@@ -12,7 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EDGE_SENSE, wallBlocksMove, wallBlocksSight, edgesBetween, moveBlockedBetween, segmentsIntersect, lineOfEffect, hasCover, resetGeometryQueryStats, getGeometryQueryStats } from "../../tools/battle-simulator/engine/terrain.mjs";
+import { EDGE_SENSE, wallBlocksMove, wallBlocksSight, edgesBetween, moveBlockedBetween, segmentsIntersect, lineOfEffect, hasCover, resetGeometryQueryStats, getGeometryQueryStats } from "../../tools/battle-simulator/shared/terrain.mjs";
 
 test("wallBlocksMove/wallBlocksSight: NONE and LIMITED do not block, NORMAL and above do", () => {
   assert.equal(wallBlocksMove({ move: EDGE_SENSE.NONE }), false);

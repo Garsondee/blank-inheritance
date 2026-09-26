@@ -1,0 +1,192 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-administrative-block",
+  "type": "location",
+  "tier": "site",
+  "name": "The Administrative Block",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "island-centre",
+    "directorate",
+    "offices"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21590545,
+          34.65750137
+        ],
+        [
+          135.2160471,
+          34.65726164
+        ],
+        [
+          135.21631391,
+          34.65736912
+        ],
+        [
+          135.2163872,
+          34.65724649
+        ],
+        [
+          135.2161174,
+          34.65713837
+        ],
+        [
+          135.21623854,
+          34.65693377
+        ],
+        [
+          135.21686222,
+          34.65718436
+        ],
+        [
+          135.21674488,
+          34.65738187
+        ],
+        [
+          135.21648366,
+          34.6572769
+        ],
+        [
+          135.21641777,
+          34.6573886
+        ],
+        [
+          135.21668663,
+          34.65749717
+        ],
+        [
+          135.21653473,
+          34.65775446
+        ],
+        [
+          135.21590545,
+          34.65750137
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8216.6,
+          7650.2
+        ],
+        [
+          8241.3,
+          7666.5
+        ],
+        [
+          8256.3,
+          7643.8
+        ],
+        [
+          8269,
+          7652.1
+        ],
+        [
+          8253.8,
+          7675
+        ],
+        [
+          8274.9,
+          7688.9
+        ],
+        [
+          8310,
+          7635.9
+        ],
+        [
+          8289.6,
+          7622.5
+        ],
+        [
+          8274.9,
+          7644.7
+        ],
+        [
+          8263.4,
+          7637.1
+        ],
+        [
+          8278.5,
+          7614.2
+        ],
+        [
+          8252,
+          7596.7
+        ],
+        [
+          8216.6,
+          7650.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      8262.9,
+      7642.36
+    ],
+    "cells": [
+      "E4·06",
+      "E4·07"
+    ],
+    "ref": "E4·06",
+    "areaM2": 3683.7,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-558",
+    "promotedDate": "2026-09-22"
+  },
+  "authoring": {
+    "note": "",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Six storeys, 22,102 m2, and the whole vertical grammar of the Directorate stacked up in one building: clerks at the bottom, offices in the middle, and the floor with carpet on it at the top. The Section Officer works here. So does the man two rungs above him.\n\nPaired with The Establishment Offices 138 m away, which is where the paper actually lives. This is where it gets decided.",
+    "playerFacing": "Stairs, and a lot of them. Each landing is louder than the one above it -- typewriters and telephones on two, then voices, then less, then a corridor where the floor stops being lino and starts being carpet and your own footsteps disappear.\n\nTwo floors down there is a building full of people. Up here there is a closed door and a bench outside it.",
+    "gmOnly": "THE QUIET AT THE TOP IS THE WHOLE EFFECT. Play the ascent, not the arrival: the noise dropping floor by floor is what tells a player how far out of their depth they are, and it costs nothing to narrate. By the time they reach the carpet they should already be behaving differently.\n\nTHE BENCH OUTSIDE THE DOOR is the scene, not the office. People are left on it. The Section Officer waits on it too, which is the first time the party sees him outranked.\n\nNOBODY HAS STOOD ON THIS CARPET. The scene's own line -- 'Carpet, which none of them has stood on since they arrived' -- means candidates do not come here. Being summoned is itself the event, before a word is said."
+  },
+  "scene": {
+    "hooks": [
+      "Being summoned to the top floor, which does not happen to candidates.",
+      "The Section Officer's own office on a lower floor: duty roster on the wall, in-tray and out-tray, both used properly.",
+      "Waiting on the bench outside a closed door, listening to a conversation you cannot quite hear."
+    ],
+    "activities": [
+      "Sit on the bench and read the room -- Perception to judge how bad it is from who else is waiting and how they are sitting.",
+      "Argue your case in front of somebody who outranks everyone you have ever met. Diplomacy, and the DC is set by what you brought with you, not how you say it.",
+      "Hand something over, or fail to: a docket, a report, a vial that was never supposed to leave the stores."
+    ],
+    "history": "",
+    "consequences": "What is decided on the top floor arrives downstairs as a duty change nobody explains. The party will meet the consequence at the muster yard's board before anyone tells them it was about them."
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "deputy-director",
+    "section-officer"
+  ],
+  "episodeRefs": [
+    "episode-c1e2-scheduled-exercise"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e2--the-hammer"
+  ],
+  "playlistRefs": [
+    "episode-c1e2--the-hammer"
+  ]
+}

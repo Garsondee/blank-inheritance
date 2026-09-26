@@ -20,7 +20,7 @@
  *   foundry/social-store.mjs and foundry/campaign-state.mjs.
  */
 
-import { STAGE_LAYOUTS, publishedCast, stageState } from "../core/stage-layout.mjs";
+import { STAGE_LAYOUTS, castMemberFromDescriptor, publishedCast, stageState } from "../core/stage-layout.mjs";
 import { STING_TIERS } from "../core/sting.mjs";
 import { isFirstSplash } from "../core/splash.mjs";
 import { engageArrivals } from "../core/engage.mjs";
@@ -116,6 +116,58 @@ export async function setRevealed(scene, portraitId, revealed, sting = STING_TIE
   const next = cast.map((member) =>
     member.portraitId === portraitId ? { ...member, revealed, sting, stingSeq: Date.now() } : member
   );
+  const layout = scene.getFlag(MODULE_ID, FLAG_KEY)?.layout ?? STAGE_LAYOUTS.LINE;
+  return writeAuthoredCast(scene, next, layout);
+}
+
+/**
+ * Bring anyone onto the CURRENT scene's stage, right now — "a way to summon
+ * any character to any theatre of the mind scene" (Ingram, 2026-09-17).
+ *
+ * Works whether or not the scene was already staged: a scene with no cast at
+ * all yet is exactly as valid a target as one mid-conversation, and this is
+ * often how a stage would get its FIRST member rather than something layered
+ * on top of pre-authored content. `descriptor` is the plain shape
+ * core/stage-layout.mjs#castMemberFromDescriptor takes — a real Actor is
+ * optional; most of this campaign's NPCs have none yet (see that function's
+ * own header), and staging is not chargen.
+ *
+ * Summoning someone already on the stage moves/re-reveals them rather than
+ * duplicating them (same portraitId, matching setRevealed's own update
+ * pattern) — a Director re-summoning is "bring them back", not "add a
+ * second copy of them".
+ */
+export async function summonToStage(scene, descriptor, { side = null } = {}) {
+  if (!game.user.isGM || !scene || !descriptor?.id) return null;
+  const member = castMemberFromDescriptor(descriptor);
+  if (side) member.side = side;
+
+  const cast = await readAuthoredCast(scene.id);
+  const next = cast.some((m) => m.portraitId === member.portraitId)
+    ? cast.map((m) => (m.portraitId === member.portraitId ? { ...m, ...member } : m))
+    : [...cast, member];
+
+  const layout = scene.getFlag(MODULE_ID, FLAG_KEY)?.layout ?? STAGE_LAYOUTS.LINE;
+  const result = await writeAuthoredCast(scene, next, layout);
+  // A scene with no prior stage flag never had the overlay mounted at all —
+  // writeAuthoredCast just gave it one, so this client (and this client
+  // only; everyone else's canvasReady/updateScene hooks handle themselves)
+  // needs telling to mount it now rather than waiting for a scene change.
+  if (canvas?.scene?.id === scene.id) syncStage();
+  return result;
+}
+
+/**
+ * Take someone off the stage entirely — not concealed (which keeps them in
+ * the Director's own board as a ghost, per §4), genuinely removed. The right
+ * shape for an ad-hoc summon: nobody authored them into this scene ahead of
+ * time, so there is no "them, but hidden" state worth preserving once the
+ * Director is done with them.
+ */
+export async function removeFromStage(scene, portraitId) {
+  if (!game.user.isGM || !scene) return null;
+  const cast = await readAuthoredCast(scene.id);
+  const next = cast.filter((m) => m.portraitId !== portraitId);
   const layout = scene.getFlag(MODULE_ID, FLAG_KEY)?.layout ?? STAGE_LAYOUTS.LINE;
   return writeAuthoredCast(scene, next, layout);
 }

@@ -12,10 +12,10 @@
  * and puts the answer in the document. See design/testing-strategy.md §1.
  */
 
-import { consoleLayout, resolveMode } from "../core/console-model.mjs";
-import { actorForSeat } from "./rolls.mjs";
+import { consoleLayout, resolveMode, SEATS } from "../core/console-model.mjs";
+import { actorForSeat, rollInitiative } from "./rolls.mjs";
 import { togglePhone } from "./phone.mjs";
-import { toggleConsoleWindow } from "./console-window.mjs";
+import { openConsoleTab, toggleConsoleWindow } from "./console-window.mjs";
 import { afterDeckRender, deckChecksFor, deckOrbFor, fitDeck, toggleActionPip } from "./deck.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -98,7 +98,9 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       openComms: CommandBar.#onOpenComms,
       openConsole: CommandBar.#onOpenConsole,
-      toggleActionPip: CommandBar.#onToggleActionPip
+      openConsoleTab: CommandBar.#onOpenConsoleTab,
+      toggleActionPip: CommandBar.#onToggleActionPip,
+      rollInitiative: CommandBar.#onRollInitiative
     }
   };
 
@@ -149,7 +151,9 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
     // instrument's flanks are cut from ONE split, so a key can never appear
     // on both sides or on neither.
     const actor = actorForSeat(seat);
-    const deck = { mode, actor, checks: deckChecksFor(actor) };
+    // The Director's banks never go dead: with nothing selected they ask the
+    // table instead (core/deck-layout.mjs#askTheTable).
+    const deck = { mode, actor, checks: deckChecksFor(actor, { ask: seat === SEATS.DIRECTOR }) };
     this._deckSubjectId = actor?.id ?? null;
 
     for (const track of Object.values(layout.tracks)) {
@@ -173,7 +177,7 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
       return;
     }
     if (zone.partial === "orb") {
-      zone.orb = deckOrbFor(actor, { mode, canAdvance: this.constructor.CAN_WIND_CLOCK, checks });
+      zone.orb = deckOrbFor(actor, { mode, seat: this.constructor.SEAT, canAdvance: this.constructor.CAN_WIND_CLOCK, checks });
     }
   }
 
@@ -204,6 +208,20 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static #onOpenConsole() {
     toggleConsoleWindow();
+  }
+
+  /** A pill straight to one Console tab (Sheet, Spells, Gear, Log) — one press, not two. */
+  static #onOpenConsoleTab(_event, target) {
+    openConsoleTab(target.dataset.tab);
+  }
+
+  /**
+   * The Initiative key under the left flank: roll the deck's subject into the
+   * encounter through sf2e's own initiative statistic. The key is disabled
+   * while there is nothing to roll into (core/deck-combat.mjs).
+   */
+  static async #onRollInitiative(event) {
+    await rollInitiative({ actor: actorForSeat(this.constructor.SEAT), event });
   }
 
   /**

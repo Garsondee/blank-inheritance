@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "deputy-director",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": null,
+  "role": "Deputy Director — senior Directorate authority, one rung below the top",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Very senior, genuinely intimidating in a room, and — not that anyone would guess it on first meeting — a good and wise leader. Sits directly beneath the Directorate's own top authority rather than being it, which is what makes them reachable: a person who can actually be stood in front of, argued with, and surprised. Hears the full account before deciding anything, including the parts that make their own organisation look bad. Still, completely, a Directorate officer: whatever they conclude privately, the institution's position is the one that leaves the room.",
+  "designNotes": "Created 2026-09-20 at Ingram's direct request, after we agreed going straight to the top of the pyramid this early was wrong. Her brief: 'We setup someone who is underneath the Gendo position but still someone in high authority. We need a character who is initially intimidating but who is actually a good and wise leader, but who is still very much a Directorate authority. A Kozo Fuyutsuki type.' Deliberately NOT the Commander (commander.json), who is one of the three deliberately-unstable Directorate poles and too mythic a figure for a dressing-down over six trainees. Structural job in Episode Two: the Section Officer escalates the party's insubordination all the way up to this desk expecting the hammer to fall -- and this is the room Shucks walks into. SUPERSEDED 2026-09-24 (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): the countersignature on the Episode Two punishment roster and on the override order is Rand's, Shucks's detached right hand, not this officer's. Name, manner, history and what they actually think of the Section Officer are all open.",
+  "namingPlaceholderRef": "deputy-director-name",
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "apologises-for-small-things",
+        "text": "He apologises for trivia -- a shortage of chairs, a wasted afternoon -- which is how you can tell that the things he does not apologise for are deliberate.",
+        "revealTrigger": {
+          "narrative": "Being in a room with him for two minutes."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "holds-both-at-once",
+        "text": "He will tell somebody they were wrong, that he would give the same order again, and that he is glad they are alive, and he means all three. He does not soften any of them to make the others easier.",
+        "revealTrigger": {
+          "narrative": "Being answered honestly by him once."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "answers-what-he-is-not-obliged-to",
+        "text": "He answers a straight question straight, including questions he is under no obligation to answer. Almost nobody asks him one, which he finds more disappointing than rudeness.",
+        "revealTrigger": {
+          "skill": "diplomacy",
+          "dc": 17
+        },
+        "revealed": false,
+        "revealedNote": null
+      }
+    ]
+  }
+}

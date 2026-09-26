@@ -1,12 +1,14 @@
 /**
- * engine/factions.mjs (design doc §16) — the relation rules a "neutral" side needs that a plain
+ * shared/factions.mjs (design doc §16; moved here from engine/factions.mjs 2026-09-19 when the
+ * frame-scale engine it used to sit alongside was deleted — this module itself was always
+ * scale-agnostic) — the relation rules a "neutral" side needs that a plain
  * `side !== me.side` check gets backwards. Written the same day the stress-test mission that first
  * needed a third side was built, per the project's "every feature ships with a test in the same
  * commit" rule.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isHostileTo, isAlliedWith, splitByRelation } from "../../tools/battle-simulator/engine/factions.mjs";
+import { isHostileTo, isAlliedWith, splitByRelation } from "../../tools/battle-simulator/shared/factions.mjs";
 
 const party = { id: "p1", side: "party" };
 const partyAlt = { id: "p2", side: "party" };

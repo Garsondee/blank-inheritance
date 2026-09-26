@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "the-storekeeper",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": null,
+  "role": "Runs the counter at the harbour-quarter store, and is the obstacle in The Errand",
+  "pole": null,
+  "affiliation": null,
+  "description": "Keeps a small store in the harbour quarter that has been short of half its catalogue for years and has stopped apologising for it. Flat, unhurried and not unkind -- she is not being obstructive, she genuinely does not have the thing, and she has explained that to a great many people.\n\nHOW SHE TALKS. Short sentences. She answers the question asked and not the one behind it. She does not soften a no and she does not enjoy delivering one; it is simply the most common thing she says in a day.\n\nWHAT SHE WILL GIVE. Somebody who is polite, or funny, or straight with her gets the grumble -- what she cannot get any more, how long it has been, and who she has stopped expecting to hear back from. That grumble is the scene's actual information and it is freely available to anybody who treats her like a person.\n\nWHAT SHE WILL NOT DO. Pretend. She will not invent stock, will not offer a substitute she does not believe in, and will not speculate about why the supply stopped. She has a theory and considers it none of her business.",
+  "designNotes": "Created 2026-09-21. She was cast inline in `episode-c1e1--the-errand` with no npcRef, marked walk-on, and is the target of a real DC 13 check with three skill routes -- a person the party rolls against is not a walk-on. The missing-stock plant is hers to deliver.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "the-gaps-are-years-old",
+        "text": "The shelves have been short for years, not weeks, and the gaps are in a pattern she could describe if anybody asked her to. She has stopped raising it because raising it achieved nothing.",
+        "revealTrigger": {
+          "narrative": "Being straight with her, or being funny, or simply asking her about the shop rather than about the docket."
+        },
+        "revealed": false
+      }
+    ]
+  },
+  "status": "DRAFT -- created 2026-09-21 to fill a cast gap in an authored scene."
+}

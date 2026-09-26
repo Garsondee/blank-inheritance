@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-first-contact",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "First Contact -- the road and the tram",
+  "description": "The two non-combat checks inside the fight: working out how the contacts behave, and getting forty people off a road. The second is the encounter's actual objective and is worth more than any attack roll made during it.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "what-are-they",
+      "name": "Work out what you are looking at",
+      "skillOptions": [
+        "perception",
+        "occultism",
+        "nature",
+        "crafting"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. This never identifies them -- nobody in the city can -- so the DC buys behaviour rather than lore",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the big one: the three are not coordinating with each other. They arrived together and are behaving independently, which means they can be split and dealt with separately.",
+        "success": "They go for the largest moving thing rather than for people. They do not look up. And each one has a patch where the surface has not finished forming, in a different place on each.",
+        "failure": "Nothing usable, and no time wasted. The honest answer is that they are not like anything.",
+        "criticalFailure": "A confident, wrong read -- that they are drawn to noise, or to heat, or to the water. Let the player act on it once before the fiction quietly contradicts it. No lasting cost."
+      },
+      "bySkill": {
+        "perception": "Watching what they actually do rather than what they look like, which is the fastest route to all of it.",
+        "occultism": "They are not a summoning, not a haunt, and not anything in any text. That negative result is real information and rules out a great deal.",
+        "nature": "They are not alive in any sense a naturalist would use. Nothing eats, nothing breathes, nothing is hunting.",
+        "crafting": "The unfinished surfaces read as manufacture interrupted rather than as damage -- something made these and stopped partway.",
+        "society": "Nothing in any Directorate manual, drill or briefing covers this, and the procedure being read over the radio has never been used. That is worth knowing."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "clear-the-road",
+      "name": "Get forty people off a harbour road",
+      "skillOptions": [
+        "diplomacy",
+        "intimidation",
+        "athletics",
+        "performance"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. The approach picks the skill -- talking, herding, carrying, hiding them, or getting the tram itself moving",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "That group moves, fast, in the right direction, and takes others with them. Count it as clearing roughly twice what the attempt was aimed at.",
+        "success": "That group gets clear -- up a side street, behind a roller door, or onto the tram if it is moving.",
+        "failure": "They do not move, or they move the wrong way. Nobody is hurt by this on its own; the road simply stays occupied and the fight stays harder.",
+        "criticalFailure": "They scatter, and some of them scatter towards the contacts. Recoverable, and it costs somebody a round going after them."
+      },
+      "bySkill": {
+        "diplomacy": "Telling frightened people what to do in a way they will actually follow. The most reliable route and the least dramatic.",
+        "intimidation": "A machine is very large. Used to move people rather than to threaten them, this works extremely well and feels awful, which is accurate.",
+        "athletics": "Physically moving people who are not moving themselves -- carrying, lifting, clearing a roller door, shifting what is in the way.",
+        "crafting": "Getting the tram itself running, which clears the road in one stroke and takes time and cover to do.",
+        "society": "Knowing the drill everybody was taught and nobody has ever used, and giving the instruction in the exact words people were trained on. Works especially well on the older civilians.",
+        "performance": "Being loud, visible and unmistakable enough that forty people orient on one machine and follow it. Ridiculous, effective, and very much in this campaign's register."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "treat-the-injured",
+      "name": "Keep somebody alive until the response arrives",
+      "skillOptions": [
+        "medicine",
+        "athletics",
+        "nature",
+        "crafting"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1 DC 15, one step hard. Nobody here has equipment, the casualty is frightened, and there is a fight going on forty feet away. One step easier (15) for a player who sat Shucks's field medicine lesson, because that is exactly the gap the lesson closes",
+        "adjustment": "hard"
+      },
+      "outcomes": {
+        "criticalSuccess": "Stable, and stable enough to be moved, which means the casualty is out of the road rather than lying in it. If this player took field medicine and critically succeeded there, they get a second casualty to the same state in the same time.",
+        "success": "The bleeding stops and stays stopped. Whatever happens next, this person is still alive when the response arrives.",
+        "failure": "They do what they can and it is not nothing, but it is not enough on its own either. The casualty is alive and getting worse, and somebody has to come back to them.",
+        "criticalFailure": "They make it worse by moving somebody who should not have been moved. Nobody dies -- the response is eleven minutes out and it does arrive -- but this is the thing the character remembers about tonight."
+      },
+      "bySkill": {
+        "medicine": "The direct route, and the one Shucks taught.",
+        "athletics": "Sustained pressure and moving weight without making the injury worse. Slower, and it works.",
+        "nature": "Knowing what a body does under shock, from something other than a classroom.",
+        "crafting": "Improvising the equipment nobody brought. Shucks is delighted by this approach and said so on Tuesday."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Whoever is not currently being shot at, and often whoever is"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--first-contact",
+    "c1e2-first-contact"
+  ],
+  "notes": "CLEAR-THE-ROAD IS THE ENCOUNTER'S REAL OBJECTIVE. Rounds spent on it are not rounds wasted, and the trade between fighting and evacuating is the tactical content of the whole fight. Award the encounter on the road being empty, not on the contacts being destroyed.\n\nWHAT-ARE-THEY NEVER RETURNS LORE. No result identifies the contacts, names them, or connects them to anything. Successes buy behaviour, which is more useful in the moment and keeps a genuine mystery intact. A GM tempted to reward a critical success with an explanation should give the non-coordination read instead -- it is a bigger tactical gift and it answers nothing.\n\nTHE CRITICAL FAILURE ON WHAT-ARE-THEY SHOULD BE ALLOWED TO PLAY OUT. Let the player act on the wrong read once. Being confidently wrong for a minute costs nothing here and is more interesting than being told they learned nothing.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give.\n\nTREAT-THE-INJURED IS WHERE TUESDAY'S LESSON LANDS. A player who passed `field-medicine` in School: Period Two rolls this at DC 15 instead of 17, and a critical success there lets them work two casualties instead of one (`data/challenges/c1e2-school-period-two.json`). A player who skipped the lesson can still do it -- the beat is not gated, just harder. Do not announce the discount; apply it and move on.\n\nNOBODY DIES ON THIS CHECK, ON ANY RESULT. The response is eleven minutes out and it arrives. A critical failure costs the character a memory, not a body. This is a first Frame fight, not a lesson about consequences."
+}

@@ -23,6 +23,7 @@ import { dirname, join } from "node:path";
 import {
   metrics, capacity, check, minAreaRect, convexHull, classify,
   SHAPES, STRIP_ELONGATION, SLIVER_WIDTH_M, LEVEL_HEIGHT_M,
+  CIRCLE_COMPACTNESS,
 } from "../tools/gazetteer/core/shape.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -149,6 +150,33 @@ test("narrow and long is a sliver; narrow and short is not", () => {
   assert.equal(metrics([[0, 0], [100, 0], [100, 4], [0, 4]]).shape, "sliver");
   // 5 x 5 m: under SLIVER_WIDTH_M and still a shed rather than a wall.
   assert.notEqual(metrics([[0, 0], [5, 0], [5, 5], [0, 5]]).shape, "sliver");
+});
+
+test("a hand-drawn circle is recognised", () => {
+  // The same 32-point construction draw.js's own Circle tool produces,
+  // for a bunker-sized 8 m radius.
+  const ring = Array.from({ length: 32 }, (_, i) =>
+    [8 * Math.cos((2 * Math.PI * i) / 32), 8 * Math.sin((2 * Math.PI * i) / 32)]);
+  assert.equal(metrics(ring).shape, "circle");
+});
+
+test("an elongated oval is not a circle", () => {
+  // 10 x 7: compactness 0.951 clears CIRCLE_COMPACTNESS on its own, so this
+  // proves CIRCLE_MAX_ELONGATION is doing real independent work rather than
+  // never actually triggering.
+  const ring = Array.from({ length: 32 }, (_, i) =>
+    [10 * Math.cos((2 * Math.PI * i) / 32), 7 * Math.sin((2 * Math.PI * i) / 32)]);
+  const m = metrics(ring);
+  assert.ok(m.compactness > CIRCLE_COMPACTNESS);
+  assert.notEqual(m.shape, "circle");
+});
+
+test("a plain square is not reclassified as a circle", () => {
+  // Elongation 1.0 clears CIRCLE_MAX_ELONGATION, but compactness pi/4
+  // (~0.785) sits under CIRCLE_COMPACTNESS -- both thresholds must hold.
+  const m = metrics([[0, 0], [10, 0], [10, 10], [0, 10]]);
+  assert.ok(m.compactness < CIRCLE_COMPACTNESS);
+  assert.notEqual(m.shape, "circle");
 });
 
 test("elongation alone does not cap a wide building", () => {

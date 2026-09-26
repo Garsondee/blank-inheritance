@@ -443,6 +443,499 @@
       }
     },
     {
+      "name": "a bunker: circle, 32 points, 8 m radius",
+      "why": "Asked for directly, after a session of hand-drawing bunkers (big circles) and watchtowers (small ones) with the new Circle tool: without CIRCLE_COMPACTNESS every one of these fell through to \"irregular\", which reads as an odd, asymmetric plan -- backwards for the one shape that is MORE regular than a plain rectangle, not less.",
+      "ring": [
+        [
+          8.0,
+          0.0
+        ],
+        [
+          7.846282,
+          1.560723
+        ],
+        [
+          7.391036,
+          3.061467
+        ],
+        [
+          6.651757,
+          4.444562
+        ],
+        [
+          5.656854,
+          5.656854
+        ],
+        [
+          4.444562,
+          6.651757
+        ],
+        [
+          3.061467,
+          7.391036
+        ],
+        [
+          1.560723,
+          7.846282
+        ],
+        [
+          0.0,
+          8.0
+        ],
+        [
+          -1.560723,
+          7.846282
+        ],
+        [
+          -3.061467,
+          7.391036
+        ],
+        [
+          -4.444562,
+          6.651757
+        ],
+        [
+          -5.656854,
+          5.656854
+        ],
+        [
+          -6.651757,
+          4.444562
+        ],
+        [
+          -7.391036,
+          3.061467
+        ],
+        [
+          -7.846282,
+          1.560723
+        ],
+        [
+          -8.0,
+          0.0
+        ],
+        [
+          -7.846282,
+          -1.560723
+        ],
+        [
+          -7.391036,
+          -3.061467
+        ],
+        [
+          -6.651757,
+          -4.444562
+        ],
+        [
+          -5.656854,
+          -5.656854
+        ],
+        [
+          -4.444562,
+          -6.651757
+        ],
+        [
+          -3.061467,
+          -7.391036
+        ],
+        [
+          -1.560723,
+          -7.846282
+        ],
+        [
+          -0.0,
+          -8.0
+        ],
+        [
+          1.560723,
+          -7.846282
+        ],
+        [
+          3.061467,
+          -7.391036
+        ],
+        [
+          4.444562,
+          -6.651757
+        ],
+        [
+          5.656854,
+          -5.656854
+        ],
+        [
+          6.651757,
+          -4.444562
+        ],
+        [
+          7.391036,
+          -3.061467
+        ],
+        [
+          7.846282,
+          -1.560723
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 32,
+        "areaM2": 199.8,
+        "perimeterM": 50.2,
+        "lengthM": 15.9,
+        "widthM": 15.9,
+        "elongation": 1.0,
+        "rectangularity": 0.788,
+        "compactness": 0.997,
+        "bearingDeg": 106.9,
+        "shape": "circle",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 199.8,
+        "floorAreaEstimated": true,
+        "rooms": 7
+      },
+      "capacity": {
+        "maxDepth": "sketch",
+        "reasons": [
+          "200 m2 of floor (storeys not known, counted as one) across 1 level: a shop, a house, a single hall.",
+          "A circle, 16 m across: the classic footprint for a gun position, a tank, a watchtower or a rotunda. No corner or wing to lean on, so whatever makes it distinctive has to be built into the ring itself.",
+          "Room for a dozen or so group-sized spaces -- enough for a floor plan with a front, a back and somewhere staff go.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 199.8,
+        "rooms": 7,
+        "shape": "circle"
+      }
+    },
+    {
+      "name": "a watchtower: circle, 32 points, 2.5 m radius",
+      "why": "The small end of the same shape -- proves the circle check is about the RING's geometry, not the building's size; a watchtower's footprint is a bicycle-store-sized circle, not a bicycle-store-sized rectangle.",
+      "ring": [
+        [
+          2.5,
+          0.0
+        ],
+        [
+          2.451963,
+          0.487726
+        ],
+        [
+          2.309699,
+          0.956709
+        ],
+        [
+          2.078674,
+          1.388926
+        ],
+        [
+          1.767767,
+          1.767767
+        ],
+        [
+          1.388926,
+          2.078674
+        ],
+        [
+          0.956709,
+          2.309699
+        ],
+        [
+          0.487726,
+          2.451963
+        ],
+        [
+          0.0,
+          2.5
+        ],
+        [
+          -0.487726,
+          2.451963
+        ],
+        [
+          -0.956709,
+          2.309699
+        ],
+        [
+          -1.388926,
+          2.078674
+        ],
+        [
+          -1.767767,
+          1.767767
+        ],
+        [
+          -2.078674,
+          1.388926
+        ],
+        [
+          -2.309699,
+          0.956709
+        ],
+        [
+          -2.451963,
+          0.487726
+        ],
+        [
+          -2.5,
+          0.0
+        ],
+        [
+          -2.451963,
+          -0.487726
+        ],
+        [
+          -2.309699,
+          -0.956709
+        ],
+        [
+          -2.078674,
+          -1.388926
+        ],
+        [
+          -1.767767,
+          -1.767767
+        ],
+        [
+          -1.388926,
+          -2.078674
+        ],
+        [
+          -0.956709,
+          -2.309699
+        ],
+        [
+          -0.487726,
+          -2.451963
+        ],
+        [
+          -0.0,
+          -2.5
+        ],
+        [
+          0.487726,
+          -2.451963
+        ],
+        [
+          0.956709,
+          -2.309699
+        ],
+        [
+          1.388926,
+          -2.078674
+        ],
+        [
+          1.767767,
+          -1.767767
+        ],
+        [
+          2.078674,
+          -1.388926
+        ],
+        [
+          2.309699,
+          -0.956709
+        ],
+        [
+          2.451963,
+          -0.487726
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 32,
+        "areaM2": 19.5,
+        "perimeterM": 15.7,
+        "lengthM": 5.0,
+        "widthM": 5.0,
+        "elongation": 1.0,
+        "rectangularity": 0.788,
+        "compactness": 0.997,
+        "bearingDeg": 95.6,
+        "shape": "circle",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 19.5,
+        "floorAreaEstimated": true,
+        "rooms": 0
+      },
+      "capacity": {
+        "maxDepth": "named",
+        "reasons": [
+          "19.5 m2 of floor (storeys not known, counted as one) across 1 level: a kiosk, a shed, a store, a shrine box.",
+          "A circle, 5 m across: the classic footprint for a gun position, a tank, a watchtower or a rotunda. No corner or wing to lean on, so whatever makes it distinctive has to be built into the ring itself.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 19.5,
+        "rooms": 0,
+        "shape": "circle"
+      }
+    },
+    {
+      "name": "an oval, not a circle: 20 x 8 m",
+      "why": "Proves CIRCLE_MAX_ELONGATION is doing real work, not just CIRCLE_COMPACTNESS alone -- this still has fairly high compactness, and an oval is a strip with rounded ends, something to write as a passage through, not a room.",
+      "ring": [
+        [
+          10.0,
+          0.0
+        ],
+        [
+          9.807853,
+          0.780361
+        ],
+        [
+          9.238795,
+          1.530734
+        ],
+        [
+          8.314696,
+          2.222281
+        ],
+        [
+          7.071068,
+          2.828427
+        ],
+        [
+          5.555702,
+          3.325878
+        ],
+        [
+          3.826834,
+          3.695518
+        ],
+        [
+          1.950903,
+          3.923141
+        ],
+        [
+          0.0,
+          4.0
+        ],
+        [
+          -1.950903,
+          3.923141
+        ],
+        [
+          -3.826834,
+          3.695518
+        ],
+        [
+          -5.555702,
+          3.325878
+        ],
+        [
+          -7.071068,
+          2.828427
+        ],
+        [
+          -8.314696,
+          2.222281
+        ],
+        [
+          -9.238795,
+          1.530734
+        ],
+        [
+          -9.807853,
+          0.780361
+        ],
+        [
+          -10.0,
+          0.0
+        ],
+        [
+          -9.807853,
+          -0.780361
+        ],
+        [
+          -9.238795,
+          -1.530734
+        ],
+        [
+          -8.314696,
+          -2.222281
+        ],
+        [
+          -7.071068,
+          -2.828427
+        ],
+        [
+          -5.555702,
+          -3.325878
+        ],
+        [
+          -3.826834,
+          -3.695518
+        ],
+        [
+          -1.950903,
+          -3.923141
+        ],
+        [
+          -0.0,
+          -4.0
+        ],
+        [
+          1.950903,
+          -3.923141
+        ],
+        [
+          3.826834,
+          -3.695518
+        ],
+        [
+          5.555702,
+          -3.325878
+        ],
+        [
+          7.071068,
+          -2.828427
+        ],
+        [
+          8.314696,
+          -2.222281
+        ],
+        [
+          9.238795,
+          -1.530734
+        ],
+        [
+          9.807853,
+          -0.780361
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 32,
+        "areaM2": 124.9,
+        "perimeterM": 46.0,
+        "lengthM": 20.0,
+        "widthM": 8.0,
+        "elongation": 2.5,
+        "rectangularity": 0.782,
+        "compactness": 0.743,
+        "bearingDeg": 177.7,
+        "shape": "irregular",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 124.9,
+        "floorAreaEstimated": true,
+        "rooms": 4
+      },
+      "capacity": {
+        "maxDepth": "sketch",
+        "reasons": [
+          "125 m2 of floor (storeys not known, counted as one) across 1 level: a shop, a house, a single hall.",
+          "Room for 4 group-sized spaces at 20 m2 each.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 124.9,
+        "rooms": 4,
+        "shape": "irregular"
+      }
+    },
+    {
       "name": "real: Baggage Inspection (item-159)",
       "why": "334 m long, 4.3 m across, 1430 m2 of floor. The sliver cap exists for this: area alone would call it a scene location.",
       "ring": [
@@ -592,7 +1085,7 @@
     },
     {
       "name": "real: bicycle store (item-172)",
-      "why": "24 m2. The smallest thing in the first session and the reason this module was written.",
+      "why": "24 m2. The smallest thing in the first session and the reason this module was written -- and, it turns out, a genuinely round footprint (0.986 compactness on its own 17 points): before CIRCLE_COMPACTNESS this fell through to \"irregular\" even though a real building was sitting right there proving the check was missing.",
       "ring": [
         [
           6285.9,
@@ -674,7 +1167,7 @@
         "rectangularity": 0.798,
         "compactness": 0.986,
         "bearingDeg": 174.8,
-        "shape": "irregular",
+        "shape": "circle",
         "levels": 1,
         "heightM": 3.3,
         "heightSource": "typical",
@@ -686,11 +1179,12 @@
         "maxDepth": "named",
         "reasons": [
           "24.0 m2 of floor (storeys not known, counted as one) across 1 level: a kiosk, a shed, a store, a shrine box.",
+          "A circle, 6 m across: the classic footprint for a gun position, a tank, a watchtower or a rotunda. No corner or wing to lean on, so whatever makes it distinctive has to be built into the ring itself.",
           "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
         ],
         "floorAreaM2": 24.0,
         "rooms": 0,
-        "shape": "irregular"
+        "shape": "circle"
       }
     }
   ]

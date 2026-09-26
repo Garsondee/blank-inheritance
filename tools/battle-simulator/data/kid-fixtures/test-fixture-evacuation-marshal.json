@@ -2,6 +2,9 @@
   "$schema": "../../../../data/schema/kid.schema.json",
   "id": "test-fixture-evacuation-marshal",
   "type": "kid",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": "TEST FIXTURE — Evacuation Marshal (Solarian, synthetic, not one of the six real kids)",
   "player": null,
   "age": 17,

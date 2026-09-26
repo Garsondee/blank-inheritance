@@ -8,5 +8,19 @@
         "value": 3
       }
     }
+  },
+  "prototypeToken": {
+    "ring": {
+      "enabled": true,
+      "colors": {
+        "ring": "#4fc8d8",
+        "background": "#121615"
+      },
+      "effects": 3,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    }
   }
 }

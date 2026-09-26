@@ -1,0 +1,63 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-flood-tunnel",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Starting the process",
+  "description": "Two quick checks to get the drainage system running -- the actual job Section Nine was sent to do. Unlike this session's other checks, these aren't zero-stakes flavour: this is the real assignment, and failure has a real, small cost. Success or failure, finishing both checks is what provokes the fight.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "power-the-line",
+      "name": "Get power back to the drainage line",
+      "skillOptions": [
+        "crafting",
+        "computers"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Power's back cleanly, first try. Whoever did it gets a nod from the others -- small, but noticed.",
+        "success": "It comes online.",
+        "failure": "It comes online anyway, roughly -- a jolt through the panel, a bang from somewhere below. Loud enough that nothing about the next part is a surprise to anything down there.",
+        "criticalFailure": "Same as failure, plus a shower of sparks that's more alarming than dangerous -- nobody's hurt, but everyone's attention is on the panel instead of the room for a moment."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "clear-the-jam",
+      "name": "Clear the physical jam in the compactor feed",
+      "skillOptions": [
+        "athletics",
+        "crafting"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Clean and fast -- the mechanism starts up smooth.",
+        "success": "It clears.",
+        "failure": "It clears, but takes a shove, and the system lurches into motion rougher than it should -- if the compactor-cycle subsystem is in play, Encroachment starts at 1 instead of 0.",
+        "criticalFailure": "Same as failure, and whoever's closest gets a face full of stagnant water for their trouble. Cosmetic only -- no damage, just a very bad start to the night."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--flood-tunnel",
+    "c1e1-flood-tunnel"
+  ],
+  "notes": "Both checks should be attempted before the fight starts -- assign them to whichever two players want them, or split one each if more than two want in. The instant both resolve (regardless of success/failure), the fight and the optional compactor-cycle both begin. This is the one place in Episode One's checks where failure has a small real cost rather than being free -- flagged deliberately, since it's the actual job, not an optional flourish."
+}

@@ -1,5 +1,6 @@
 import { deriveFoundryId } from "../ids.mjs";
 import { buildCombatStatblockSystemData } from "./combat-statblock.mjs";
+import { resolveTokenRing } from "./token-ring.mjs";
 
 /**
  * npc.schema.json -> sf2e "npc" Actor.
@@ -29,11 +30,28 @@ import { buildCombatStatblockSystemData } from "./combat-statblock.mjs";
  *    flavorText/notes.
  *
  * _id via deriveFoundryId, same convention as every other generator. Pure:
- * no Foundry globals. Every field path this writes is checked against
- * gamesystems/sf2e/template.json by test/tier3-contract.test.mjs.
+ * no Foundry globals. Every field path this writes under `system`/`items` is
+ * checked against gamesystems/sf2e/template.json by test/tier3-contract.test.mjs;
+ * `prototypeToken.ring` is core Foundry document schema instead, checked by
+ * that same file's token-ring contract test.
+ *
+ * `tokenImage` is an optional Foundry-relative path to an already
+ * circle-cropped portrait (tools/token-ring/'s output) — the caller's job to
+ * resolve (via data/campaign/asset-registry.json), not this generator's, so
+ * it stays a pure function of its arguments. Every NPC gets a Dynamic Ring
+ * regardless of whether one is supplied (Ingram 2026-09-18: permanent,
+ * automatic, faction-colored by `resolveTokenRing`) — a still-uncast
+ * placeholder NPC just renders it around Foundry's own default token art.
+ * `tokenImage`, when given, is written to `prototypeToken.texture.src` — the
+ * token's own base art field, not `ring.subject.texture` (see token-ring.mjs's
+ * header for why that distinction is load-bearing, found live 2026-09-18).
  */
-export async function buildNpcActorData(source) {
+export async function buildNpcActorData(source, { tokenImage = null } = {}) {
   const id = await deriveFoundryId(source.id);
+  const prototypeToken = {
+    ring: resolveTokenRing("npc", source),
+    ...(tokenImage ? { texture: { src: tokenImage } } : {})
+  };
 
   if (source.statblock) {
     const { system, items } = buildCombatStatblockSystemData(source.statblock);
@@ -42,7 +60,8 @@ export async function buildNpcActorData(source) {
       name: source.name ?? source.id,
       type: "npc",
       system,
-      items
+      items,
+      prototypeToken
     };
   }
 
@@ -55,6 +74,7 @@ export async function buildNpcActorData(source) {
     name: source.name ?? source.id,
     type: "npc",
     system,
-    items
+    items,
+    prototypeToken
   };
 }

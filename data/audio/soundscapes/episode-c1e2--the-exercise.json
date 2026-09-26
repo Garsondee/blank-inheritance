@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-exercise",
+  "type": "audio-soundscape",
+  "title": "S2 · The Exercise",
+  "note": "'Nothing is at stake and everything is new, which is the best kind of scary.' Playful pool. No ambience bed -- nothing in the library yet honestly reads as an outdoor manoeuvre course with heavy plant running on it; noted here rather than force-fitting the wrong texture.",
+  "music": {
+    "pool": "playful"
+  },
+  "ambience": [],
+  "fade": 3000
+}

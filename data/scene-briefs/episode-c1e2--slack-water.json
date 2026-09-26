@@ -1,0 +1,238 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--slack-water",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "slack-water",
+  "title": "Slack Water",
+  "summary": "The sea wall at low tide, scraped and repainted by six people with one job and a falling window of time. The session's long full-party scene, and the one that turns them into a section. The Section Officer comes to inspect at the end, and what he finds depends on a decision they made hours earlier.",
+  "goal": "The six of them do one hard, filthy, shared job under a real clock, choose how to attack it, and stand together through an inspection designed to find fault. Somewhere in the work, at least one of them gets a proper look at what is under the growth.",
+  "howToPlay": "Warm, filthy and companionable. This is not a punishment scene -- the party has been given tedious work by a man being petty, and the scene's actual content is six people finding out they quite like working next to each other.\n\n**Run the tide as a real clock and say what it is doing.** Low tide is the window. It does not create a fail state and nothing bad happens when it turns; it simply takes the bottom of the wall away, and everything they have not done down there stays not done.\n\nKeep the whole party on one wall. Do not split them -- this is the scene that makes them a unit and splitting it wastes the only long shared job in the episode.",
+  "runsAbout": "35-45 minutes",
+  "mode": "exploration",
+  "intro": {
+    "where": "The outer sea wall on the island's north-east side, east end, out past the Long Sheds -- about twenty minutes' walk from the yard. Reachable on foot for about four hours either side of low water, and not at all otherwise.",
+    "firstThing": "The smell, which arrives before the wall does -- salt, weed, and the specific low-tide stink of things that are only uncovered twice a day.",
+    "readAloud": "Low water has taken the sea out about ninety yards, and the bottom of the wall is standing in air for the first time since Tuesday, black with weed and barnacle to above head height.\n\nThe kit is two wire brushes short and the paint is the colour the Directorate paints everything.\n\nSomewhere out past the mud, the tide is already thinking about coming back.",
+    "landmark": "the tide-line itself -- a hard horizontal edge of weed at head height, running the length of the wall",
+    "holdInReserve": "Where the previous section stopped scraping, the edge is clean and straight and vertical. It does not look like somebody ran out of time. It looks like somebody stopped.",
+    "carriesIn": [
+      {
+        "when": "The Board was played and somebody read the neighbouring columns",
+        "then": "They already know two other sections had this job and neither logged it finished. Do not restate it -- put them on the wall and let whoever found that out say so to the others if they want to."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "label": "The Section Officer",
+      "role": "Arrives at the end to inspect. Not present for the work.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To find something wrong. Not to destroy them -- to be correct in front of them, which is the only thing he has been able to be correct about since the vial.",
+        "opensWith": "Not greeting them. Walking the length of the wall first, looking at it rather than at them.",
+        "willDiscuss": [
+          {
+            "topic": "The standard, in detail",
+            "note": "He knows this job properly. He has done it. Everything he asks about is a real thing that matters on a real sea wall, which is what makes him hard to dismiss."
+          },
+          {
+            "topic": "What happens to a wall that is painted over dirty",
+            "note": "Accurately and at slightly too much length. This is the closest he comes to enthusiasm about anything."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The vial, the requisition, or yesterday",
+            "why": "Erased. Same as the office -- he talks straight through any attempt to raise it."
+          },
+          {
+            "topic": "Anything found on the wall that is not paint or growth",
+            "why": "A stencil on a sea wall is vandalism, it is not his department, and he has a fortnight of jobs to get through. He is not concealing anything; he genuinely does not care."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped, procedural, faintly aggrieved -- and, on this one subject, briefly and genuinely knowledgeable.",
+          "tics": [
+            "Says 'as discussed' about things that were not discussed",
+            "Calls them 'Section Nine', never by name",
+            "Tests a surface with a thumbnail rather than looking at it",
+            "When surprised, pauses exactly one beat and recasts the surprise as expected"
+          ],
+          "samples": [
+            "\"Weeps clear? -- Show me.\"",
+            "\"That's paint on weed. That'll be off by spring and we'll be back here doing it again, which I'd have thought you of all people would want to avoid.\"",
+            "\"Bottom course first. Always bottom course first. It's the only bit that's ever underwater and it's the only bit that matters.\"",
+            "\"...No. That's -- \" (one beat) \" -- that's what I'd have expected. Carry on.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-wall",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Put them on the wall with the kit and the tide already turning in about four hours. Let them look at the size of it.",
+      "direction": "Give the scale honestly: the section they have been given is about sixty yards, the growth goes from the mud to above head height, and six people cannot do all of it before the water comes back. That is not a trap and it is not a failure -- nobody expects all of it done. What they choose to do with a window that is too short is the scene.",
+      "note": "HOW TO PLAY IT. State the tide window out loud, in hours, and update it two or three times across the scene. A clock the players cannot see is just GM pressure; a clock they can see is a decision.",
+      "readAloud": "Sixty yards of wall, black to above head height, and the black is alive -- weed, barnacle, and things that shut when your shadow crosses them.\n\nTwo wire brushes short. Paint that is the colour the Directorate paints everything.\n\nFour hours until the water comes back, and six of you. You can do the arithmetic standing here."
+    },
+    {
+      "id": "how-to-attack-it",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Ask them how they want to do it. This is a real choice with a non-obvious right answer, and it decides how the inspection goes.",
+      "choicePoint": {
+        "label": "The window is too short for all of it. What gets done?",
+        "options": [
+          {
+            "id": "bottom-first",
+            "label": "Bottom course first -- the part that goes back underwater, the worst of the work, and invisible from the path above.",
+            "consequence": "The correct answer and the hardest one. Filthy, cold, and nobody walking past will ever see it. This is exactly what the inspection checks."
+          },
+          {
+            "id": "top-first",
+            "label": "Top first -- the part everyone can see from the path, finished properly and looking done.",
+            "consequence": "Genuinely reasonable, visibly good work, and it gives him something real to find. The bottom course is what he checks."
+          },
+          {
+            "id": "split-the-party",
+            "label": "Split the difference -- some on the bottom, some on the top, cover both.",
+            "consequence": "Neither is finished. He finds the unfinished bottom, and they do not get the credit for the top either. The safe answer is the worst one here."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "direction": "**Do not signal which is correct.** Let them reason about it. Anybody who asks what actually matters on a sea wall -- a crew chief, a passing works hand, the storeman who issued the paint -- can be told plainly: the bottom course is the only part that is ever underwater.\n\nIf they invent a fourth approach, price it by one question: does it get the bottom course scraped clean before the water comes back? If yes, treat it as bottom-first.\n\nIf the party will not decide, the default is that everybody scrapes where they are standing, which is the slowest option and is a completely legitimate way to spend a morning. Do not force a plan out of them.",
+      "note": "HOW TO PLAY IT. This is the scene's spine and it is a genuine trap-free decision. Top-first is not stupid; it is what most people would do, it produces obviously good work, and it is wrong for a reason nobody has told them yet.\n\nThe lesson is not 'guess what the officer wants'. It is that on this wall there is a real right answer that has nothing to do with appearances, and the institution is, on this one narrow point, correct.\n\nIF THEY WILL NOT DECIDE: the tide decides. A party that cannot agree drifts into doing a bit of everything, which resolves exactly as split-the-difference -- neither end finished. Do not prompt them towards a choice more than once; letting the indecision itself be the decision is fairer than nagging, and it is the only version of this that costs them anything."
+    },
+    {
+      "id": "the-work",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Run the work itself as a handful of rolls across the whole party, whatever each player picks up. Nobody sits this out.",
+      "challengeRef": "c1e2-slack-water",
+      "checkRef": "the-work",
+      "direction": "Let players choose their own job -- brush, scraper, paint, mixing, barrow, rigging a line to work the low bit safely -- and let the skill follow the job rather than the other way round. Athletics, Crafting, Survival and Labourer-style Lore all fit; so does a player talking the others through a rhythm.\n\nRoll once or twice per player, not once per yard. This is texture with dice in it, not a skill gauntlet.\n\nNobody has to roll. A player who simply works for four hours has done the job and pays nothing. The check is for somebody trying to do it well enough that the inspection goes badly for him.\n\nCut between players rather than resolving one at a time, and let them talk over the work. **Nobody sits this out**: every player ends the beat having physically done something and having been seen doing it by the others, which is the entire reason this scene exists.",
+      "note": "HOW TO PLAY IT. Failure here costs effort and dignity, never safety. Somebody goes in the mud, a tin goes over, a brush snaps. Play it for warmth.\n\nEvery player must end this beat having physically done something and having been seen doing it by the others. That is the entire reason this scene is not split.\n\nIF A PLAYER WILL NOT WORK: let them sit on the steps. Nobody drags them up, nobody lectures them, and the others cover the wall without comment. There is no mechanical penalty and none should be invented -- what they miss is the hour the rest of the section spends becoming a crew, which is cost enough and needs no pointing at. A brush is available the moment they want one, and whoever hands it over does not make anything of it.",
+      "readAloud": "Scraping is loud, slow, and immediately filthy. Within ten minutes everybody has the same black paste up both forearms and nobody is being careful any more.\n\nThe paint goes on grey and dries grey and looks exactly like the wall did before, except where it does not."
+    },
+    {
+      "id": "under-the-growth",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone works the stretch where the old scraping stops, or looks closely at the clean edge, offer the check.",
+      "challengeRef": "c1e2-slack-water",
+      "checkRef": "the-stencil",
+      "when": {
+        "condition": "if a player works or examines the section where the previous crew's scraping ends"
+      },
+      "nodeRefs": [
+        "mystery-ledger-6"
+      ],
+      "direction": "Describe the edge before any roll: the previous section's scraped area ends in a clean vertical line, and past it the growth is untouched. That is free and it is an artefact, not a conclusion.\n\nOn a success, under the weed on the untouched side: a cicada, stencilled, deep violet, at head height. Same shade and same hand as the one in the city.\n\nNever explain it. No NPC in this scene has a theory, and the Section Officer will not care.",
+      "note": "PLANT. Third sighting of the mark, and the first one that is not in a street.\n\nGM-ONLY: the previous sections did scrape this stretch. The mark came back. It comes back faster than weather or repainting explains, and somebody is returning to this wall to put it there. Nothing tonight confirms any of that.\n\nWHAT IT DOES NOT MEAN: nobody is watching them work, there is no one to catch, and this is not a trap or an ambush site. A player who wants to stake the wall out can, and will find nothing, because whoever does this does not come while there are people on it.\n\nRECALL KNOWLEDGE: a player who asks what a mark like this means gets what the city sightings gave them -- it is placed where crowds stand still, it faces away from roads. On this wall that reading breaks, because nobody stands here. Let that be strange and leave it.",
+      "readAloud": "Where the last section stopped, the scraped stone ends in a clean vertical line, as straight as if it were drawn. Past it the growth is untouched.\n\nUnder the weed on the untouched side, about head height, there is a cicada. Stencilled. Deep violet.\n\nIt has been under six feet of water twice a day since somebody put it there."
+    },
+    {
+      "id": "the-inspection",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He arrives on the path above as the water is coming back, walks the length of it, and then comes down.",
+      "npcRef": "section-officer",
+      "challengeRef": "c1e2-slack-water",
+      "checkRef": "the-inspection",
+      "readAloud": "He walks the whole sixty yards along the top before he says anything, looking down at the wall rather than at any of you.\n\nThen he comes down the steps, puts a thumbnail into the bottom course, and looks at what comes off it.",
+      "direction": "**What he checks is the bottom course and the drainage weeps.** He checks them first and he checks them properly, because that is what a sea wall inspection is. Everything else is secondary and he will barely glance at it.\n\nIf they went bottom-first and did it properly, he has nothing. Play that exactly as written in his voice sample -- one beat of silence, then recast it as expected, then leave. **Do not let him be gracious and do not let him praise them.** The win is that he cannot find anything, and it should be visibly unsatisfying for him.\n\nIf they went top-first or split, he finds it immediately and is entirely correct about it. He is not cruel; he explains what will happen to the wall by spring. That is worse.",
+      "note": "HOW TO PLAY IT. He cannot punish them further here and should not try -- the fortnight is already assigned and that is his whole arsenal. What is at stake is whether he gets to be right.\n\nIF THE PARTY PUSHES BACK ON HIS STANDARD: he is correct on the facts and should stay correct. He does not get angry. He reads the relevant standing order if pressed, and he is right about that too.\n\nIF THEY WALK AWAY RATHER THAN STAND IT: he inspects the wall regardless -- the wall is the point, not them -- and the result is the same. He finds them afterwards to deliver it, which is worse, and says so in one line."
+    },
+    {
+      "id": "the-tide-comes-back",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The water comes back over the bottom course while they are packing up. Whatever is down there is under it now.",
+      "direction": "Two sentences. This is a punctuation mark, not a beat with content -- it closes the window, puts the day behind them, and gets them off the wall filthy and finished.\n\nDo not make this ominous. It is the sea doing what the sea does, on a timetable everybody knew, and the party packing up in it are tired rather than threatened.\n\nIf they did the bottom course first, this is the beat where that decision becomes invisible and stays correct. Let them feel both halves of that.",
+      "note": "HOW TO PLAY IT. If they found the stencil, the water goes over that too. It is under there now and it will be under there for another six hours, which is its own quiet note to end on.",
+      "readAloud": "The water comes back the way it left, without any announcement at all. One minute the bottom course is in air and then there is an inch over it and then there is not a bottom course.\n\nWhatever you did down there, nobody is going to see it again until Thursday."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The tide is over the bottom course, the kit is stacked, and he has gone back up the steps.",
+    "readAloud": "Six people, entirely filthy, standing on a path above a wall that looks -- from up here, anyway -- much the same as it did this morning.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": 1,
+        "why": "One bad job, done together, under a clock, with nobody supervising for most of it. Award it if they actually worked as a crew rather than six people near each other."
+      },
+      {
+        "track": "standing",
+        "delta": null,
+        "why": "Only if the inspection went their way. Small, and he will never acknowledge it."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "There is an afternoon lesson on the board and nobody has been given time to wash.",
+      "scatterRisk": false
+    },
+    "onwards": "Into School: Period Two, filthy, and then the first free quarter of the fortnight.",
+    "writeDown": [
+      "How they attacked the wall, and how the inspection went. This is the party's first shared professional success or failure and it is worth a callback.",
+      "Whether anyone found the stencil, and who.",
+      "Who worked next to whom, and anything that got said on the wall. Cheap Bonds material."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "ask-what-actually-matters",
+      "text": "Somebody on this base has painted this wall before. Worth asking what actually matters on it, before deciding where to start?"
+    },
+    {
+      "id": "the-clean-edge",
+      "text": "The old scraping stops in a straight vertical line partway along. Whoever was here last did not just run out of time."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-job-as-bonding",
+      "text": "Whether the shared filthy work landed as companionable rather than as a chore the table wanted skipped.",
+      "scaleNote": "0 = they wanted it narrated past, 10 = they were enjoying being on the wall together."
+    },
+    {
+      "id": "the-choice-was-real",
+      "text": "Whether where-to-start read as a real decision with a non-obvious answer."
+    },
+    {
+      "id": "the-inspection",
+      "text": "The inspection -- whether him having nothing to find (or finding it immediately) landed with weight."
+    },
+    {
+      "id": "found-the-stencil",
+      "text": "Whether anyone found the cicada under the growth, and what the table made of it being out here where no crowd ever stands.",
+      "scaleNote": "0 = nobody looked, 10 = the table registered that this one does not fit the pattern."
+    },
+    {
+      "id": "tide-clock",
+      "text": "Whether the tide worked as a visible clock that drove decisions, or just as background."
+    }
+  ],
+  "notes": "WHY THIS SCENE IS LONG AND UNSPLIT. It is the only extended job in the episode that the whole party does shoulder to shoulder with no adult present. Episode One made them a group; this makes them a crew. Splitting it, or narrating past it, spends that for nothing.\n\nTHE REAL RIGHT ANSWER. Bottom course first is genuinely correct, for a genuine reason: it is the only part ever submerged and the only part where paint over dirt actually fails. The Section Officer is right about it. A party that works that out has learned that this institution's pettiness and its competence are the same institution, which is the whole Directorate in one afternoon.\n\nNOBODY IS WATCHING THE WALL. There is no ambush, no observer, and nothing to catch. If the party stakes it out on a later free quarter they find an empty wall and a cold night, and that is an honest outcome. Whoever re-marks it does not come while people are there.\n\nKEEP THE SECTION OFFICER OFF THE WALL UNTIL THE END. He does not supervise, does not hover, and does not appear mid-work. His absence for the whole job is what makes his arrival land."
+}

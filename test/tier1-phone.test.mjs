@@ -2,16 +2,15 @@
 //
 // Everything DOM-shaped lives in design/ui/phone.js and isn't unit tested
 // the same way the rest of this project's UI chrome isn't — this file
-// covers the handful of pieces that are genuinely logic: the Resonance
-// band lookup, dice, the staggered-alert delay generator, the fortune
-// picker, and the pet's tiny state machine.
+// covers the handful of pieces that are genuinely logic: dice, the
+// staggered-alert delay generator, the fortune picker, and the pet's tiny
+// state machine.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+import * as phone from "../module/blank-inheritance/scripts/core/phone.mjs";
 import {
-  RESONANCE_BANDS,
-  resonanceBand,
   rollDice,
   staggeredAlertDelays,
   drawFortune,
@@ -24,32 +23,15 @@ import {
   spawnFood,
   turnSnake,
   stepSnake,
-  formatLogEntriesForDisplay
+  formatLogEntriesForDisplay,
+  logFilterOptions,
+  filterLogEntries
 } from "../module/blank-inheritance/scripts/core/phone.mjs";
 
-test("the Resonance bands are contiguous across the whole 0-100 range", () => {
-  // If a future edit leaves a gap, resonanceBand() throws for any value in
-  // it rather than silently returning the wrong band — this pins the
-  // precondition that makes that safe.
-  const sorted = [...RESONANCE_BANDS].sort((a, b) => a.min - b.min);
-  assert.equal(sorted[0].min, 0);
-  assert.equal(sorted.at(-1).max, 100);
-  for (let i = 1; i < sorted.length; i++) {
-    assert.equal(sorted[i].min, sorted[i - 1].max + 1, `gap/overlap between ${sorted[i - 1].name} and ${sorted[i].name}`);
+test("the Resonance band lookup is gone: Resonance was cut on 2026-09-20, so the phone may not compute it", () => {
+  for (const gone of ["RESONANCE_BANDS", "resonanceBand"]) {
+    assert.equal(gone in phone, false, `core/phone.mjs still exports ${gone}`);
   }
-});
-
-test("resonanceBand looks up the real campaign bands, clamped to 0-100", () => {
-  assert.equal(resonanceBand(0).id, "dead-weight");
-  assert.equal(resonanceBand(39).id, "dead-weight");
-  assert.equal(resonanceBand(40).id, "nominal");
-  assert.equal(resonanceBand(64).id, "nominal");
-  assert.equal(resonanceBand(65).id, "harmonised");
-  assert.equal(resonanceBand(84).id, "harmonised");
-  assert.equal(resonanceBand(85).id, "absolute");
-  assert.equal(resonanceBand(100).id, "absolute");
-  assert.equal(resonanceBand(-5).id, "dead-weight", "below 0 clamps rather than throwing");
-  assert.equal(resonanceBand(140).id, "absolute", "above 100 clamps rather than throwing");
 });
 
 test("rollDice produces the right count of rolls in range, and sums them plus the bonus", () => {
@@ -241,4 +223,54 @@ test("formatLogEntriesForDisplay: does not mutate the input array, empty input i
 test("formatLogEntriesForDisplay: a missing/malformed `at` yields an empty time rather than throwing", () => {
   const rows = formatLogEntriesForDisplay([{ at: null, tag: null, text: "x", context: {} }]);
   assert.equal(rows[0].time, "");
+});
+
+/* ------------------------------------------------------------------ *
+ * logFilterOptions / filterLogEntries — the Log drawer's own filtering
+ * (design/ux-doctrine.md §10.7: "the review surface," found genuinely
+ * unbuilt 2026-09-19). Options are DERIVED from what the log actually
+ * contains, never a fixed list, so a session recorded entirely in untagged
+ * sentences still offers real scene filters.
+ * ------------------------------------------------------------------ */
+
+const LOG_ENTRIES = [
+  { at: "2026-09-16T09:00:00.000Z", tag: null, text: "arrived", context: { scene: "01. The Road In" } },
+  { at: "2026-09-16T09:10:00.000Z", tag: "npc", text: "met the clerk", context: { scene: "02. Intake Medicals" } },
+  { at: "2026-09-16T09:20:00.000Z", tag: "decision", text: "chose the truth", context: { scene: "02. Intake Medicals" } },
+  { at: "2026-09-16T09:30:00.000Z", tag: "npc", text: "no scene at all", context: {} }
+];
+
+test("logFilterOptions: distinct tags and scenes only, sorted, blanks dropped", () => {
+  const { types, scenes } = logFilterOptions(LOG_ENTRIES);
+  assert.deepEqual(types, ["decision", "npc"], "must be de-duplicated and sorted, and never include a null tag as a fake type");
+  assert.deepEqual(scenes, ["01. The Road In", "02. Intake Medicals"], "must be de-duplicated and sorted, and never include a missing scene as a fake option");
+});
+
+test("logFilterOptions: an empty log offers no filters at all rather than throwing", () => {
+  assert.deepEqual(logFilterOptions([]), { types: [], scenes: [] });
+});
+
+test("filterLogEntries: no filter on either axis returns everything, untouched", () => {
+  assert.equal(filterLogEntries(LOG_ENTRIES, {}).length, 4);
+  assert.equal(filterLogEntries(LOG_ENTRIES).length, 4, "the options argument itself must be optional");
+});
+
+test("filterLogEntries: filters by type alone", () => {
+  const rows = filterLogEntries(LOG_ENTRIES, { type: "npc" });
+  assert.deepEqual(rows.map((r) => r.text), ["met the clerk", "no scene at all"]);
+});
+
+test("filterLogEntries: filters by scene alone", () => {
+  const rows = filterLogEntries(LOG_ENTRIES, { scene: "02. Intake Medicals" });
+  assert.deepEqual(rows.map((r) => r.text), ["met the clerk", "chose the truth"]);
+});
+
+test("filterLogEntries: both filters combine (AND, not OR)", () => {
+  const rows = filterLogEntries(LOG_ENTRIES, { type: "npc", scene: "02. Intake Medicals" });
+  assert.deepEqual(rows.map((r) => r.text), ["met the clerk"]);
+});
+
+test("filterLogEntries: a scene filter never matches an entry with no scene context at all", () => {
+  assert.equal(filterLogEntries(LOG_ENTRIES, { scene: "" }).length, 4);
+  assert.equal(filterLogEntries([{ tag: null, text: "x", context: {} }], { scene: "01. The Road In" }).length, 0);
 });

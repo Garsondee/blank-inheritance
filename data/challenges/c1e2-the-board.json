@@ -1,0 +1,72 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-the-board",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Board",
+  "description": "Two optional checks at the duty board. Neither gates the scene and neither costs anything on a failure -- the fortnight is already assigned and nothing here can change it. What these buy is information and a handle on the institution.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "read-the-board",
+      "name": "Read the columns either side of your own",
+      "skillOptions": [
+        "perception",
+        "society"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15 -- available to anyone who thinks to look, not a specialist's roll",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "The sea-wall job has been assigned twice before, to two other sections, on the two previous fortnights, and struck out both times -- and neither section logged it as completed. It was reassigned, not finished.",
+        "success": "The sea-wall job has been written up and struck out on the two previous fortnights, in two other sections' columns.",
+        "failure": "Columns of other people's tedium. Somebody has drawn a very small rude picture in the corner of the Section Four column.",
+        "criticalFailure": "As failure, and the clerk asks whether they are looking for something specific, loudly, while a queue listens."
+      },
+      "bySkill": {
+        "perception": "The physical read: the same words in the same hand, struck through twice, the chalk ghost of it still there under this fortnight's paint.",
+        "society": "The administrative read: a job that moves between sections without ever being logged complete is a job somebody keeps deciding is somebody else's problem."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "talk-her-off-book",
+      "name": "Get something written in that isn't on the board",
+      "skillOptions": [
+        "diplomacy",
+        "deception",
+        "thievery"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. One step easier (13) if the player actually offers her a workable swap, a named stand-in, or the correct form -- solving her problem is the intended route and should be rewarded over pure charm",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "She writes it in, stamps it, and -- without being asked, and without looking up -- tells them which box on the board nobody ever actually checks.",
+        "success": "She writes it in and stamps it. It is real, it is binding for the fortnight, and it is theirs.",
+        "failure": "No. There is a queue. She is not unkind about it and the door is not closed -- come back with a swap or a form.",
+        "criticalFailure": "As failure, and she remembers the attempt the next time they come to the hatch wanting something irregular."
+      },
+      "bySkill": {
+        "diplomacy": "Warmth works on her about as well as it works on a filing cabinet, but politeness plus a workable suggestion gets the suggestion actually considered.",
+        "society": "Knowing which form it goes on is most of the battle, and she visibly relaxes when somebody knows.",
+        "deception": "Inventing a plausible authorisation works, once, and she will check it afterwards. On a failure here she checks it in front of them."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--the-board"
+  ],
+  "notes": "NEITHER CHECK GATES ANYTHING. The fortnight is set before this scene starts and no roll here changes it. A party that rolls nothing still leaves with their bookings made and the scene's job done.\n\nPRICING AN INVENTED APPROACH. Same ladder as the rest of Chapter One: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give. The clerk specifically rewards solving her problem over charming her -- if a player does that, drop a step."
+}

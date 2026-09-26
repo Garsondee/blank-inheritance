@@ -31,6 +31,10 @@
         <input type="checkbox" data-action="toggleForce" {{#if force}}checked{{/if}}>
         {{localize "BLANKINHERITANCE.Equipment.Force"}}
     </label>
+    <label class="bi-equipment__force">
+        <input type="checkbox" data-action="toggleBonus" {{#if bonus}}checked{{/if}}>
+        {{localize "BLANKINHERITANCE.Equipment.Bonus"}}
+    </label>
     {{/if}}
 
     <ul class="bi-equipment__list">
@@ -66,7 +70,7 @@
             {{#each log}}
             <li class="bi-equipment__log-row">
                 <span class="bi-equipment__log-who">{{this.userName}}</span>
-                <span class="bi-equipment__log-what">{{this.quantity}}&times; {{this.itemName}}</span>
+                <span class="bi-equipment__log-what">{{this.quantity}}&times; {{this.itemName}}{{#if this.isBonus}} <b class="bi-equipment__log-bonus">{{localize "BLANKINHERITANCE.Equipment.BonusTag"}}</b>{{/if}}</span>
                 <button type="button" class="bi-equipment__revoke" data-action="revoke" data-grant-id="{{this.id}}">{{localize "BLANKINHERITANCE.Equipment.Revoke"}}</button>
             </li>
             {{/each}}

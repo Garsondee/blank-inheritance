@@ -24,7 +24,6 @@ import {
   createTestSyncMacroIfMissing,
   createRealSyncMacroIfMissing
 } from "./foundry/sync.mjs";
-import { promptToRunSync } from "./foundry/sync-dialog.mjs";
 import { registerThemeSettings, applyTheme } from "./foundry/theme.mjs";
 import { mountCommandBar, refreshCommandBar } from "./foundry/command-bar.mjs";
 import { PlayerBar } from "./foundry/player-bar.mjs";
@@ -35,7 +34,7 @@ import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.m
 import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
-import { buildSceneSet, createSceneSetMacroIfMissing, retireTemporaryScenes } from "./foundry/scene-build.mjs";
+import { buildSceneSet, createSceneSetMacroIfMissing, quarantineStrayScenes, retireOrphanedScenes, retireTemporaryScenes } from "./foundry/scene-build.mjs";
 import { registerPaletteKeybinding, registerPaletteSettings, toggleDirectorPalette } from "./foundry/director-palette.mjs";
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
 import { checkForSplash, forceDismissSplash, primeSplashCache, registerSplashSettings } from "./foundry/splash.mjs";
@@ -45,7 +44,7 @@ import {
   registerSceneRunnerSettings,
   resetSceneRunnerCache
 } from "./foundry/scene-runner.mjs";
-import { openInductionTerminal, createInductionTerminalMacroIfMissing } from "./foundry/induction-terminal.mjs";
+import { openInductionTerminal, createInductionTerminalMacroIfMissing, registerInductionSettings } from "./foundry/induction-terminal.mjs";
 import { registerInductionSocket } from "./foundry/induction-relay.mjs";
 import { ensureLandingScene } from "./foundry/landing-scene.mjs";
 import {
@@ -61,10 +60,12 @@ import {
   registerEquipmentSocket
 } from "./foundry/equipment-state.mjs";
 import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
-import { mountPhone, registerPetSettings } from "./foundry/phone.mjs";
-import { mountCityBoard } from "./foundry/city-board.mjs";
+import { mountPhone, refreshPhoneLog, registerPetSettings } from "./foundry/phone.mjs";
+import { createDemoMacroIfMissing, mountDemoRunner, toggleDemoRunner } from "./foundry/demo-runner.mjs";
+import { createTravelTestMacroIfMissing, placeTestFixturesOnWesternEdge } from "./foundry/travel-test-fixtures.mjs";
 import { mountConsoleWindow, refreshConsoleWindow } from "./foundry/console-window.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
+import { createApprovalsDeskMacroIfMissing, openApprovalsDesk } from "./foundry/approvals-desk.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
 import { registerChatExportHooks } from "./foundry/chat-export.mjs";
 import { installAudioEngine, registerAudioSettings, registerAudioSocket } from "./foundry/audio-engine.mjs";
@@ -73,15 +74,23 @@ import { syncAudioPlaylists } from "./foundry/audio-playlists.mjs";
 import { loadAudio, refreshAudio } from "./foundry/audio-store.mjs";
 import { mountSoundDesk, refreshSoundDesk, toggleSoundDesk } from "./foundry/sound-desk.mjs";
 import { registerAudioEnricher } from "./foundry/audio-enricher.mjs";
+import { ensureBronzeTokenRingStyle } from "./foundry/token-ring-style.mjs";
+import { healStuckTiles } from "./foundry/tile-resilience.mjs";
+import { registerTravelCameraHook } from "./foundry/travel-camera.mjs";
+import { registerTravelTrailHook } from "./foundry/travel-trail.mjs";
+import { mountSessionRail, noteSceneActivated, refreshSessionRail, registerSessionRailSettings } from "./foundry/session-rail.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
 Hooks.once("init", () => {
   const mod = game.modules.get(MODULE_ID);
   // writeAuthoredProfile is exposed rather than only called from a pipeline
-  // because no NPC has an authored socialProfile yet -- the store is finished,
-  // the content is not. This is how a profile gets seeded until the sync
-  // pipeline carries them (see GitHub #131).
+  // because nothing yet carries an authored socialProfile from data/npcs into
+  // the vault. The store is finished and so, now, is the first tranche of
+  // content: nine recurring NPCs across Episodes One and Two have real Facts
+  // and Attitudes (data/npcs/*.json, guarded by
+  // test/tier2-npc-social-profiles.test.mjs). This is how one gets seeded by
+  // hand until a sync step carries them automatically.
   if (mod) {
     mod.api = {
       runDiagnosticTestSync,
@@ -101,6 +110,10 @@ Hooks.once("init", () => {
       // macro; this is the console-friendly way in.
       buildStageDemoScenes,
       writeAuthoredCast,
+      // Six temporary, clearly-marked test PCs for verifying map travel end
+      // to end (#175) — a diagnostic aid, not a production feature. Has its
+      // own macro too; exposed here the same way buildStageDemoScenes is.
+      placeTestFixturesOnWesternEdge,
       // Which episode's running order the scene runner is showing. A
       // once-per-session action rather than an in-play one, so it lives on
       // the API rather than taking up room on a panel used mid-scene.
@@ -120,6 +133,9 @@ Hooks.once("init", () => {
       // Scene cueing (design/foundry-module-design.md §7). GM-only, enforced
       // inside openDirectorPanel itself.
       openDirectorPanel,
+      // The Approvals Desk (design/approvals-desk.md, issue #170). GM-only,
+      // enforced inside openApprovalsDesk itself.
+      openApprovalsDesk,
       // The scene-close dialogue (design/ux-doctrine.md §10.3a). Reachable
       // from the Director's panel's own button; exposed here too for the
       // same "console access alongside the UI trigger" reason every other
@@ -139,10 +155,21 @@ Hooks.once("init", () => {
       // they are reached from. Idempotent -- running it twice changes nothing.
       buildSceneSet,
       retireTemporaryScenes,
+      retireOrphanedScenes,
+      quarantineStrayScenes,
+      // The three calls above, run in the same order and with the same
+      // notify settings as the automatic canvasReady hook below -- the
+      // console-friendly way to re-trigger a full sync without reloading
+      // Foundry, e.g. right after pushing new campaign data.
+      runAutomaticSync,
       // One search box for everything a GM can do, Ctrl+K. Half of it is our
       // own machinery, half is Foundry's own; the group that sorts first is
       // the one for when the table went somewhere nobody wrote down.
-      toggleDirectorPalette
+      toggleDirectorPalette,
+      // The demo/walkthrough runner's own macro calls this directly
+      // (ideas/entries/ui-demo-walkthrough-system.json) -- the console-
+      // friendly way in, same reason every other panel is on this API too.
+      toggleDemoRunner
     };
   }
 
@@ -174,6 +201,17 @@ Hooks.once("init", () => {
   // enrichers have to exist before any content is enriched.
   registerAudioEnricher();
 
+  // The travel camera (design note: foundry/travel-camera.mjs's own
+  // header) — every connected client's own view follows the crossing,
+  // driven by the SAME updateToken event Foundry already sends everyone
+  // for the marker's own movement, not a second, parallel broadcast.
+  registerTravelCameraHook();
+
+  // The travel trail (foundry/travel-trail.mjs) — same updateToken event,
+  // same reasoning: a real line behind and ahead of every in-motion token,
+  // coloured by its own real mode per hop.
+  registerTravelTrailHook();
+
   // No onChange here on purpose -- see foundry/splash.mjs#registerSplashSettings's
   // own comment for why this one world setting doesn't need one.
   registerSplashSettings();
@@ -189,14 +227,26 @@ Hooks.once("init", () => {
   // client actually caused it.
   registerEquipmentSettings(() => refreshEquipmentPanel());
 
-  // The two mocked scene-close counters (design/ux-doctrine.md §10.3a).
-  // World-scoped and GM-only to write, same as everything else here.
+  // The scene-close review counter -- how many scenes are waiting to be gone
+  // through in the session review. World-scoped and GM-only to write, same as
+  // everything else here. It replaced the two MOCKED counters (casualties,
+  // Anchor violations) in the 2026-09-22 dialogue rebuild, since the only
+  // things that fed those were cost options naming CUT systems.
   registerSceneCloseSettings();
+
+  // Whether the induction terminal shows FORM 1-B, the Service Agreement, as its
+  // second page. World-scoped, off by default: the text is drafted and stays
+  // hidden from players until Ingram has graded it (design/induction-agreement.md).
+  registerInductionSettings();
 
   // The phone's Pet app. Client-scoped on purpose -- "purely textural, zero
   // mechanical weight" per the idea entry, so it is genuinely each player's
   // (and the GM's) own, never a world setting the whole table watches change.
   registerPetSettings();
+
+  // The session rail's evening (start, end, and whether to show it at all).
+  // Client-scoped: the GM's own clock on the GM's own machine.
+  registerSessionRailSettings(() => refreshSessionRail());
 });
 
 Hooks.once("ready", async () => {
@@ -244,6 +294,15 @@ Hooks.once("ready", async () => {
       registerChatExportHooks();
     } catch (err) {
       console.error("Blank Inheritance | Could not register the chat export:", err);
+    }
+    // Every Actor this pipeline creates carries a Dynamic Ring (token-ring.mjs)
+    // — this is the one-time world-level move that makes it render in bronze
+    // rather than core's own default steel. Its own try: a style mismatch is
+    // cosmetic, never worth blocking the rest of ready on.
+    try {
+      await ensureBronzeTokenRingStyle();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not set the bronze token ring style:", err);
     }
   }
 
@@ -296,6 +355,16 @@ Hooks.once("ready", async () => {
     installDeckFitting();
   } catch (err) {
     console.error("Blank Inheritance | Could not install the deck's fitting:", err);
+  }
+
+  // The session rail across the top of the GM's screen (2026-09-23). GM-only
+  // is enforced inside mountSessionRail, same as the scene runner below. The
+  // scene that is live as the GM arrives opens tonight's timeline.
+  try {
+    if (game.user.isGM) noteSceneActivated(game.scenes?.active?.name ?? null);
+    mountSessionRail();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the session rail:", err);
   }
 
   // The GM's script. Its own try: a panel that fails to mount must not stop
@@ -352,24 +421,13 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not mount the console:", err);
   }
 
-  // The Console -- the full mimetic sheet/dashboard. Every client, same
-  // toggleable-panel shape as the phone; foundry/console-window.mjs's own
-  // seat check picks Overview/Skills/Strikes/Spells/Gear for everyone plus
-  // Party/Hub/Log for a GM, so there is nothing to branch on here.
+  // The demo/walkthrough runner (ideas/entries/ui-demo-walkthrough-system.json,
+  // greenlit 2026-09-18) -- GM-only (mountDemoRunner's own isGM guard), same
+  // toggleable-panel shape as the phone.
   try {
-    mountConsoleWindow();
+    mountDemoRunner();
   } catch (err) {
-    console.error("Blank Inheritance | Could not mount the console:", err);
-  }
-
-  // The city board -- GM-only (mountCityBoard's own isGM guard), and demo
-  // data throughout (see foundry/city-board.mjs's own header): a first real
-  // Foundry home for V1's still-unused map-pin vocabulary, not a claim that
-  // real campaign locations exist yet.
-  try {
-    mountCityBoard();
-  } catch (err) {
-    console.error("Blank Inheritance | Could not mount the city board:", err);
+    console.error("Blank Inheritance | Could not mount the demo runner:", err);
   }
 
   // A characterless Player is a real player who hasn't finished session
@@ -394,18 +452,58 @@ Hooks.once("ready", async () => {
     await createSceneSetMacroIfMissing();
     await createEquipmentPanelMacroIfMissing();
     await createDirectorPanelMacroIfMissing();
+    await createApprovalsDeskMacroIfMissing();
     await createInductionTerminalMacroIfMissing();
+    await createDemoMacroIfMissing();
+    await createTravelTestMacroIfMissing();
   } catch (err) {
     console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
 });
+
+// Ingram's own request, 2026-09-19: "I wouldn't even see a dialogue that I
+// have to confirm, every time I load Foundry it just updates, adds or
+// removes scenes to get us to the current state of the adventure." Replaces
+// the old confirm-first promptToRunSync (sync-dialog.mjs, now deleted).
+// Content first, then the scene set built from it, then anything the scene
+// set no longer names -- each step gets its own try, same as every other
+// multi-step block in the ready hook above, so one failing step never
+// silently cancels the others (sync.mjs's own per-case isolation already
+// means one bad case inside runRealContentSync won't even get this far).
+// Never silent either way: each step's own whispered chat report and
+// ui.notifications summaries are unchanged, so a real problem is still
+// visible without ever blocking on a click to find out.
+async function runAutomaticSync() {
+  try {
+    await runRealContentSync();
+  } catch (err) {
+    console.error("Blank Inheritance | Automatic content sync failed:", err);
+  }
+  try {
+    await buildSceneSet({ notify: true });
+  } catch (err) {
+    console.error("Blank Inheritance | Automatic scene build failed:", err);
+  }
+  try {
+    await retireOrphanedScenes({ notify: true });
+  } catch (err) {
+    console.error("Blank Inheritance | Automatic orphaned-scene cleanup failed:", err);
+  }
+}
 
 // GM-only, and Hooks.once means this fires exactly once per client session --
 // right as the FIRST scene finishes loading, not on every scene change
 // (canvasReady itself fires on every scene activation).
 Hooks.once("canvasReady", () => {
   if (!game.user.isGM) return;
-  promptToRunSync().catch((err) => console.error("Blank Inheritance | Sync prompt failed:", err));
+  runAutomaticSync().catch((err) => console.error("Blank Inheritance | Automatic sync failed:", err));
+});
+
+// NOT GM-gated, unlike the sync hook above -- see tile-resilience.mjs's own
+// header for why. Hooks.on, not once: canvasReady fires per scene activation,
+// and any scene's own tiles can independently hit the race in any client.
+Hooks.on("canvasReady", () => {
+  healStuckTiles().catch((err) => console.error("Blank Inheritance | Tile self-heal pass failed:", err));
 });
 
 // Re-assert the bar on every scene change. Cheap, and idempotent by way of
@@ -437,15 +535,21 @@ Hooks.on("canvasReady", () => {
   }
 
   try {
-    mountCityBoard();
+    mountDemoRunner();
   } catch (err) {
-    console.error("Blank Inheritance | Could not re-assert the city board:", err);
+    console.error("Blank Inheritance | Could not re-assert the demo runner:", err);
   }
 
   try {
     mountSoundDesk();
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the sound desk:", err);
+  }
+
+  try {
+    mountSessionRail();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the session rail:", err);
   }
 
   // The stage, and the camera lock that makes a staged scene a picture rather
@@ -522,6 +626,64 @@ Hooks.on("updateScene", (scene, changed) => {
   } catch (err) {
     console.error("Blank Inheritance | Could not process a splash trigger:", err);
   }
+
+  // A fourth consumer: the Deck's own "Staged" chip (2026-09-18 unification)
+  // reads this same cast, and without this it only ever showed whatever was
+  // true at its OWN last render -- found live the moment a demo staged
+  // someone and the Deck kept reporting zero until something ELSE happened
+  // to repaint it. GM-only zone, same scoped refresh the segment/log writers
+  // already use, not a full-panel re-render for a two-word chip.
+  try {
+    refreshCommandBar(["right"]);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not refresh the deck's staged count:", err);
+  }
+});
+
+// The Deck's "Playing" chip has the identical staleness problem as the
+// "Staged" one just above, for the identical reason -- audio-director.mjs's
+// own trigger for a scene bringing its own soundscape with it is a document
+// update (applySoundscape's playlist writes), not a setting, so nothing told
+// the Deck to look again. Scoped to the one case that actually matters here
+// (a NEW scene activating, which is what SCENE -> MAP -> SCENE's own
+// destination cut fires): a mid-scene cue changing the music without any
+// scene or stage change is a known, accepted gap, not chased here.
+Hooks.on("updateScene", (scene, changed) => {
+  if (changed?.active !== true) return;
+  try {
+    refreshCommandBar(["right"]);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not refresh the deck's now-playing chip:", err);
+  }
+  // The same activation starts a new band on the GM's session rail. Kept in
+  // the GM's own browser, not the log (foundry/session-rail.mjs says why).
+  try {
+    if (game.user?.isGM) {
+      noteSceneActivated(scene?.name ?? null);
+      refreshSessionRail();
+    }
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mark the scene change on the session rail:", err);
+  }
+});
+
+// Any log entry, from anywhere — the deck's own field, the Scene Runner, the
+// Palette, the rail's Mark key — repaints the two things that draw the log:
+// the Director's log shoulder and the session rail's pins. Found live
+// 2026-09-23: before this, the deck showed only what was typed on the deck.
+Hooks.on("blank-inheritance.logEntry", () => {
+  if (!game.user?.isGM) return;
+  try {
+    refreshCommandBar(["right"]);
+    refreshSessionRail();
+    // The two other places the whole log is readable: the Comms handset's
+    // Session Log and the Console's Log tab — each a no-op unless it is the
+    // thing actually on screen.
+    refreshPhoneLog();
+    refreshConsoleWindow();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not repaint the log displays:", err);
+  }
 });
 
 // A character taking the stage is an audio trigger too: a villain can have a
@@ -597,7 +759,14 @@ Hooks.on("updateUser", (user, changes) => {
 
 // The mode is derived from combat state rather than stored, so these are
 // exactly the moments it can change underneath us.
-for (const hook of ["combatStart", "combatRound", "combatTurn", "combatTurnChange", "deleteCombat"]) {
+// createCombat/createCombatant/updateCombatant/deleteCombatant joined the list
+// 2026-09-23: the flank keys (Initiative, Turn) and the board's turn order
+// read the encounter itself, so an encounter being built or an initiative
+// being rolled changes the deck too.
+for (const hook of [
+  "combatStart", "combatRound", "combatTurn", "combatTurnChange", "deleteCombat",
+  "createCombat", "createCombatant", "updateCombatant", "deleteCombatant"
+]) {
   Hooks.on(hook, () => {
     refreshCommandBar();
   });

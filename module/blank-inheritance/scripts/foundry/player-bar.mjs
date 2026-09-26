@@ -13,7 +13,7 @@
 
 import { CommandBar } from "./command-bar.mjs";
 import { SEATS } from "../core/console-model.mjs";
-import { actorForSeat, rollCheck, rollStrike } from "./rolls.mjs";
+import { actorForSeat, rollCheck, rollStrike, rollStrikeDamage, useAction } from "./rolls.mjs";
 import { requestOffer } from "./campaign-state.mjs";
 import { toggleConsoleWindow } from "./console-window.mjs";
 import { deckIdentFor, deckSelectorsFor } from "./deck.mjs";
@@ -29,6 +29,9 @@ export class PlayerBar extends CommandBar {
       rollCheck: PlayerBar.#onRollCheck,
       rollLore: PlayerBar.#onRollCheck,
       rollStrike: PlayerBar.#onRollStrike,
+      rollDamage: PlayerBar.#onRollDamage,
+      useAction: PlayerBar.#onUseAction,
+      endTurn: PlayerBar.#onEndTurn,
       selectorStep: PlayerBar.#onSelectorStep,
       takeOffer: PlayerBar.#onTakeOffer,
       openSheet: PlayerBar.#onOpenSheet
@@ -39,7 +42,7 @@ export class PlayerBar extends CommandBar {
    * Where each rotary selector was left. Client memory, deliberately: which
    * lore a player last dialled up is a hand position, not campaign state.
    */
-  #selectorIndices = { lore: 0, downtime: 0, strike: 0 };
+  #selectorIndices = { lore: 0, downtime: 0, strike: 0, actionTheatre: 0, actionFight: 0 };
 
   /** @override */
   async _decorateZone(zone, _layout, { mode, actor, checks }) {
@@ -73,6 +76,39 @@ export class PlayerBar extends CommandBar {
       actor: actorForSeat(PlayerBar.SEAT),
       actionIndex: Number(target.dataset.actionIndex),
       variantIndex: Number(target.dataset.variantIndex),
+      event
+    });
+  }
+
+  /** Damage, or critical damage, for the strike the knob is on. */
+  static async #onRollDamage(event, target) {
+    await rollStrikeDamage({
+      actor: actorForSeat(PlayerBar.SEAT),
+      actionIndex: Number(target.dataset.actionIndex),
+      critical: target.dataset.critical === "1",
+      event
+    });
+  }
+
+  /**
+   * End my own turn. Foundry itself refuses a player's turn change unless
+   * they own the current combatant (common/documents/combat.mjs,
+   * `_canChangeTurn`), so this can never pass somebody else's turn — and the
+   * key is only live when it is theirs anyway (core/deck-combat.mjs).
+   */
+  static async #onEndTurn() {
+    const combat = game.combat;
+    if (!combat?.started || !combat.combatant?.isOwner) return;
+    await combat.nextTurn();
+  }
+
+  /** Use whichever action the Action knob is on, through sf2e's own action.use. */
+  static async #onUseAction(event, target) {
+    if (!target.dataset.slug) return;
+    await useAction({
+      actor: actorForSeat(PlayerBar.SEAT),
+      slug: target.dataset.slug,
+      variant: target.dataset.variant || null,
       event
     });
   }

@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-outer-sea-wall",
+  "type": "location",
+  "tier": "point",
+  "name": "The Outer Sea Wall",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [
+    "long-sheds",
+    "tidal",
+    "shoreline"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [],
+    "point": [
+      135.22811617,
+      34.67226
+    ]
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": null,
+    "centroidPx": [
+      8348,
+      5671.4
+    ],
+    "cells": [
+      "E3·07"
+    ],
+    "ref": "E3·07",
+    "areaM2": null,
+    "withinRegionRef": "long-sheds",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-560",
+    "promotedDate": "2026-09-22"
+  },
+  "authoring": {
+    "note": "The Outer Sea Wall",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The island's own seaward defence on the north-east side, past the Long Sheds and about twenty minutes' walk from the Muster Yard. Concrete, armoured with rock, and only reachable on foot for roughly four hours either side of low water.\n\nThe rest of the time the walk out to it is under water, which is the whole reason work here is scheduled by the tide table rather than by the duty board.",
+    "playerFacing": "You smell it before you see it: salt, weed, and the specific low-tide stink of things that are only uncovered twice a day.\n\nA hard horizontal edge of weed at head height runs the length of the wall, dead level, further than you can see in either direction. Everything below that line is black and wet and covered in things that shut when your shadow crosses them. Everything above it is dry concrete. The line is where the water will be again in four hours.",
+    "gmOnly": "THE TIDE IS THE CLOCK AND IT IS NOT NEGOTIABLE. It does not care about the party's plan and it cannot be talked to. Anything not finished before the window shuts is not finished -- and the weed line at head height tells them exactly how deep it gets, without anybody having to warn them.\n\nTHE WALK MATTERS. Twenty minutes each way from the yard, out past the Long Sheds, with the return leg against a rising tide. That is 40 minutes of a four-hour window spent on travel before any work is done, and the party should be allowed to do that arithmetic themselves.\n\nNOBODY COMES HERE. It is the far side of the island from everything, which is why the Section Officer arrives only at the end, to inspect, and not for the work."
+  },
+  "scene": {
+    "hooks": [
+      "Work that can only be done at low water, with a hard four-hour window and a twenty-minute walk at each end of it.",
+      "The weed line at head height: the tide's own honest statement about what happens here twice a day.",
+      "Somewhere on the island where nobody will see you, for four hours, twice a day."
+    ],
+    "activities": [
+      "Clear, inspect or repair against the tide -- Athletics, Crafting or Survival, with the window as the real opponent.",
+      "Read the wall: Perception or a relevant Lore check on what the weed line, the rock armour and the state of the concrete say about how long this has been neglected.",
+      "Get back before the water does, which is a decision about when to stop rather than a check."
+    ],
+    "history": "",
+    "consequences": "Anything left on the wrong side of the weed line is gone by the next low water. The tide does not keep things."
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "section-officer"
+  ],
+  "episodeRefs": [
+    "episode-c1e2-scheduled-exercise"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e2--slack-water"
+  ],
+  "playlistRefs": [
+    "episode-c1e2--slack-water"
+  ]
+}

@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "works-manager",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Works Manager, the south-west works",
   "pole": null,

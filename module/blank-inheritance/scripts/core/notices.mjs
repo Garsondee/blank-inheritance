@@ -11,13 +11,13 @@
  */
 
 /** Dwell per kind, ms. An alarm stays longer than an advisory. */
-export const NOTICE_DWELL = Object.freeze({ info: 4500, caution: 6500, resonance: 7000, alert: 8500 });
+export const NOTICE_DWELL = Object.freeze({ info: 4500, caution: 6500, alert: 8500 });
 
 /** Rank decides who may pre-empt whom. */
-export const NOTICE_RANK = Object.freeze({ info: 0, caution: 1, resonance: 2, alert: 3 });
+export const NOTICE_RANK = Object.freeze({ info: 0, caution: 1, alert: 3 });
 
 /** The cap word painted on the plate's brass. */
-export const NOTICE_CAP = Object.freeze({ info: "Advisory", caution: "Caution", resonance: "Resonance", alert: "Alarm" });
+export const NOTICE_CAP = Object.freeze({ info: "Advisory", caution: "Caution", alert: "Alarm" });
 
 export const NOTICE_KINDS = Object.freeze(Object.keys(NOTICE_RANK));
 

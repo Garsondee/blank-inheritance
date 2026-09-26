@@ -65,7 +65,7 @@ class TestSharedFixture(unittest.TestCase):
         # "degenerate" cannot appear through metrics() -- a ring with fewer
         # than three distinct points raises instead -- so it is excluded.
         seen = {c["metrics"]["shape"] for c in FIXTURE["cases"]}
-        for name in ("sliver", "strip", "blocky", "complex"):
+        for name in ("sliver", "strip", "blocky", "complex", "circle"):
             self.assertIn(name, seen,
                           "no fixture case produces shape %r" % name)
 
@@ -191,6 +191,36 @@ class TestClassification(unittest.TestCase):
         m = shape.metrics([[0, 0], [82, 0], [82, 13], [0, 13]])
         self.assertEqual(m["shape"], "strip")
         self.assertGreater(m["elongation"], shape.STRIP_ELONGATION)
+
+    def test_a_hand_drawn_circle_is_recognised(self):
+        # The same 32-point construction draw.js's own Circle tool produces,
+        # for a bunker-sized 8 m radius. Asked for directly: "you currently
+        # identify buildings by their shapes as well as size, you need to
+        # add 'Looks like a circle' to your shape recognition."
+        ring = [[8.0 * math.cos(2 * math.pi * i / 32),
+                8.0 * math.sin(2 * math.pi * i / 32)] for i in range(32)]
+        m = shape.metrics(ring)
+        self.assertEqual(m["shape"], "circle")
+
+    def test_an_elongated_oval_is_not_a_circle(self):
+        # 10 x 7: compactness 0.951 clears CIRCLE_COMPACTNESS on its own, so
+        # this proves CIRCLE_MAX_ELONGATION is doing real independent work
+        # rather than never actually triggering -- an oval this shape is a
+        # room with a stretched end, not a round one.
+        ring = [[10.0 * math.cos(2 * math.pi * i / 32),
+                7.0 * math.sin(2 * math.pi * i / 32)] for i in range(32)]
+        m = shape.metrics(ring)
+        self.assertGreater(m["compactness"], shape.CIRCLE_COMPACTNESS)
+        self.assertGreater(m["elongation"], shape.CIRCLE_MAX_ELONGATION)
+        self.assertNotEqual(m["shape"], "circle")
+
+    def test_a_plain_square_is_not_reclassified_as_a_circle(self):
+        # A square's elongation (1.0) clears CIRCLE_MAX_ELONGATION, but its
+        # compactness is pi/4 (~0.785), well under CIRCLE_COMPACTNESS -- the
+        # two thresholds have to work together, not either alone.
+        m = shape.metrics([[0, 0], [10, 0], [10, 10], [0, 10]])
+        self.assertLess(m["compactness"], shape.CIRCLE_COMPACTNESS)
+        self.assertNotEqual(m["shape"], "circle")
 
 
 class TestHeightAndFloorArea(unittest.TestCase):

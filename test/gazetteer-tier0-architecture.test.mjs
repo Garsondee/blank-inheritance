@@ -815,6 +815,153 @@ test("the live-drag snap radius matches the preview radius -- one number, not tw
     "constant, not two that can drift apart again");
 });
 
+test("a bug in the selection-reaction callback can never again block the shape it belongs to from saving", () => {
+  // The actual, severe incident: onShapeDrawn called select(item.localId)
+  // BEFORE markDirty() -- so when a stray ReferenceError inside app.js's
+  // onSelect reaction (renderPublishedLayer, since removed, but the shape
+  // of the bug is the point) threw during selectMany, markDirty() on the
+  // very next line never ran AT ALL, not just late. Every hand-drawn
+  // shape finished during that window rendered correctly and was never
+  // once scheduled to reach disk -- reported as "a whole bunch of
+  // circles... disappeared from the system without me asking for that to
+  // happen," and because they were hand-drawn (never real-world data),
+  // there was nothing left anywhere to recover them from. Two
+  // independent fixes, checked separately so either alone still catches
+  // a regression in the other:
+  //   1. selectMany wraps its call to onSelect in try/catch, so a bug in
+  //      the DISPLAY reaction can never propagate back into whatever the
+  //      caller was about to do next.
+  //   2. Every known call site still schedules markDirty() BEFORE
+  //      select()/select(null), so the save need never depend on (1)
+  //      actually working, belt and suspenders.
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/try \{\s*\n\s*onSelect\(\[\.\.\.selectedIds\]\);\s*\n\s*\} catch \(err\) \{/.test(draw),
+    "selectMany no longer wraps its call to onSelect in try/catch -- a " +
+    "bug in the app's selection-display reaction can once again abort " +
+    "whatever the caller of select()/selectMany() was doing next");
+  assert.ok(/log\("selection_reaction_error", \{/.test(draw),
+    "a caught selection-reaction error is no longer logged -- it would " +
+    "now fail completely silently instead of just not being fatal");
+
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(/markDirty\(\);\s*\n\s*state\.draw\.select\(item\.localId\);\s*\n\s*renderList\(\);\s*\n\s*\/\/ Region only/.test(app),
+    "onShapeDrawn no longer schedules markDirty() before selecting the " +
+    "shape it just created -- back to the order that caused the original " +
+    "loss");
+  assert.ok(/markDirty\(\);\s*\n\s*state\.draw\.select\(item\.localId\);\s*\n\s*renderList\(\);\s*\n\s*\}\);/.test(app),
+    "the tier-change handler no longer schedules markDirty() before " +
+    "re-selecting the item after changing its tier");
+  assert.ok(/markDirty\(\);\s*\n\s*state\.draw\.select\(null\);/.test(app),
+    "the batch-delete handler no longer schedules markDirty() before " +
+    "clearing the selection -- the deletion itself would again be able " +
+    "to go unsaved if clearing the selection ran into trouble");
+});
+
+test("Region/Site get a Rectangle and Circle draft mode, not just click-a-point Polygon", () => {
+  // Asked for directly, after losing a whole batch of hand-drawn bunkers
+  // that turned out to be exactly the tedious, error-prone workflow this
+  // replaces: "I want a new tool for drawing regions and buildings, a
+  // circle tool. Add a palette of tools when in drawing mode so that I
+  // can swap between polygon/rectangle/circle drawing mode."
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/let draftShapeMode = "polygon";/.test(draw),
+    "draftShapeMode no longer exists, or no longer defaults to polygon " +
+    "(existing click-to-add-a-point behaviour must be unchanged unless " +
+    "a person deliberately switches modes)");
+  assert.ok(/function setDraftShapeMode\(mode\) \{\s*\n\s*if \(mode !== "polygon" && mode !== "rect" && mode !== "circle"\) return;/.test(draw),
+    "setDraftShapeMode no longer validates its argument against the " +
+    "three real modes -- a typo'd mode would silently disable drafting " +
+    "rather than being rejected");
+  assert.ok(/function rectRing\(a, b\) \{/.test(draw) && /function circleRing\(center, edge, n = CIRCLE_DRAFT_POINTS\)/.test(draw),
+    "rectRing and/or circleRing no longer exist");
+  assert.ok(/const CIRCLE_DRAFT_POINTS = 32;/.test(draw),
+    "the circle draft's point count no longer exists, or changed without " +
+    "this test being updated to match");
+  assert.ok(/\(tool === "region" \|\| tool === "site"\) && draftShapeMode !== "polygon"\) \{\s*\n\s*L\.DomEvent\.stop\(e\);\s*\n\s*beginShapeDraft\(e, draftShapeMode\);/.test(draw),
+    "the mousedown handler no longer starts a Rectangle/Circle drag for " +
+    "Region/Site when a non-polygon shape mode is armed");
+  assert.ok(/function beginShapeDraft\(startEvent, kind\) \{/.test(draw),
+    "beginShapeDraft no longer exists");
+  assert.ok(/trackDrag\(container, \{ onMove: move, onEnd: up \}\);\s*\n\s*\}\s*\n\s*\n\s*function centroidPxOf/.test(draw),
+    "beginShapeDraft no longer uses the same real-pointer-capture " +
+    "trackDrag primitive beginMarquee already relies on");
+  assert.ok(/onComplete\(\{ tier: tool === "region" \? "region" : "site", ringPx: ring, source: "drawn" \}\);/.test(draw),
+    "beginShapeDraft's mouseup no longer hands the finished ring to " +
+    "onComplete the same way finishDraft's polygon path already does");
+  assert.ok(/if \(dx < 4 && dy < 4\) \{/.test(draw),
+    "beginShapeDraft no longer distinguishes a genuine drag from a plain " +
+    "click that never meant to draw anything -- a rectangle or circle " +
+    "needs a real second point, unlike polygon mode's first click");
+
+  const html = readFileSync(join(STATIC, "index.html"), "utf8");
+  assert.ok(/id="shape-modes"[^>]*hidden/.test(html),
+    "the #shape-modes palette no longer exists, or is no longer hidden " +
+    "by default (it means nothing outside Region/Site)");
+  for (const shape of ["polygon", "rect", "circle"]) {
+    assert.ok(new RegExp(`data-shape="${shape}"`).test(html),
+      `the ${shape} button is missing from the #shape-modes palette`);
+  }
+
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(/function setDraftShapeMode\(mode\) \{\s*\n\s*state\.draw\.setDraftShapeMode\(mode\);/.test(app),
+    "app.js's setDraftShapeMode wrapper no longer calls through to " +
+    "state.draw.setDraftShapeMode");
+  assert.ok(/shapeModes\.hidden = tool !== "region" && tool !== "site";/.test(app),
+    "setTool no longer shows/hides the shape-mode palette based on " +
+    "which tool is armed -- it would stay visible (and inert) for " +
+    "every other tool, or never appear for Region/Site at all");
+});
+
+test("Region/Site polygon drafting snaps every segment after the first to 22.5° off the first line, Shift bypasses it", () => {
+  // Asked for directly: "1) You draw the first line with no snapping.
+  // 2) The second line automatically snaps to 22.5 degree increments of
+  // the angles of the first line making it easier to draw buildings and
+  // do things like 90 degree corners. 3) Holding shift stops the
+  // snapping."
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/const ANGLE_SNAP_STEP = Math\.PI \/ 8;/.test(draw),
+    "the 22.5-degree angle-snap step no longer exists");
+  assert.ok(/let angleSnapSuspended = false;/.test(draw) &&
+    /if \(e\.key === "Shift"\) angleSnapSuspended = true;/.test(draw) &&
+    /if \(e\.key === "Shift"\) angleSnapSuspended = false;/.test(draw),
+    "Shift no longer toggles an angle-snap-suspend flag on keydown/keyup");
+  assert.ok(/window\.addEventListener\("blur", \(\) => \{ angleSnapSuspended = false; \}\);/.test(draw),
+    "losing window focus no longer clears angleSnapSuspended -- alt-" +
+    "tabbing away while Shift is held could leave angle-snapping stuck " +
+    "suspended for the rest of the session");
+  assert.ok(/function angleSnapPoint\(p\) \{\s*\n\s*if \(!drafting \|\| drafting\.points\.length < 2\) return p;/.test(draw),
+    "angleSnapPoint no longer leaves the FIRST segment (only one point " +
+    "placed so far) completely unsnapped");
+  assert.ok(/if \(\(tool !== "region" && tool !== "site"\) \|\| draftShapeMode !== "polygon"\) return p;/.test(draw),
+    "angleSnapPoint no longer scopes itself to Region/Site's own polygon " +
+    "mode -- Lasso and Bisect draw a selection area and a cut, not a " +
+    "building, and must keep placing the raw point");
+  assert.ok(/const baseAngle = Math\.atan2\(pts\[1\]\[1\] - pts\[0\]\[1\], pts\[1\]\[0\] - pts\[0\]\[0\]\);/.test(draw),
+    "angleSnapPoint no longer measures its baseline from the FIRST " +
+    "segment specifically (points[0] -> points[1]) -- every later " +
+    "segment must snap relative to that one fixed line, not whichever " +
+    "segment was drawn immediately before it");
+  assert.ok(/const p = angleSnapPoint\(rawP\);/.test(draw),
+    "placeDraftPoint no longer runs its argument through angleSnapPoint " +
+    "before anything else -- a real click would stop getting the same " +
+    "angle-snap the live preview already promised");
+
+  // The live rubber-band: showSnapHint must drive redrawDraft with
+  // exactly what a click would place (via placeDraftPoint), never a
+  // separately-computed preview that could show one thing and commit
+  // another.
+  assert.ok(/if \(drafting && \(tool === "region" \|\| tool === "site"\) && draftShapeMode === "polygon"\) \{\s*\n\s*redrawDraft\(placeDraftPoint\(p\)\);/.test(draw),
+    "showSnapHint no longer drives a live rubber-band preview through " +
+    "placeDraftPoint while drafting a Region/Site polygon");
+  assert.ok(/function redrawDraft\(previewPoint\) \{/.test(draw),
+    "redrawDraft no longer accepts an optional preview point -- the " +
+    "rubber-band has nothing left to render with");
+  assert.ok(/const pts = previewPoint \? \[\.\.\.drafting\.points, previewPoint\] : drafting\.points;/.test(draw),
+    "redrawDraft no longer appends the preview point for rendering " +
+    "without mutating drafting.points itself -- Esc/Backspace/Enter " +
+    "would start acting on a point that was never actually clicked");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

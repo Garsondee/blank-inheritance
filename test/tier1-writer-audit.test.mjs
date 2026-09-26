@@ -124,3 +124,60 @@ test("the write-detection regex: distinguishes a real assignment from a read, a 
   assert.equal(WRITES_AUTHORING.test("if (authoring.status === status)"), false);
   assert.equal(WRITES_AUTHORING.test("authoring.status !== 'drafted'"), false);
 });
+
+// ---------------------------------------------------------------------------
+// The Sign-Off's writer (design/scene-signoff.md §3, added 2026-09-22).
+//
+// `live` is the one authoring.status value the Approvals Desk does NOT own, so
+// it needs the same audit the Desk's own values get: exactly one file may write
+// it, and every neighbouring file must be provably read-only. Without this, the
+// second-writer failure that design/data-ownership.md was written for would be
+// reintroduced by the very mechanism that cites it.
+// ---------------------------------------------------------------------------
+
+test("tools/scene-signoff/: only seal.mjs writes authoring -- every other file is read-only or clean", () => {
+  const dir = path.join(repoRoot, "tools", "scene-signoff");
+  const files = jsonFilesIn(dir, ".mjs");
+  assert.ok(files.length >= 4, "expected to actually find the scene-signoff tool files");
+
+  for (const file of files) {
+    const name = path.basename(file);
+    const text = readFileSync(file, "utf8");
+    if (name === "seal.mjs") continue; // the declared writer, asserted below
+    assert.equal(
+      WRITES_AUTHORING.test(text),
+      false,
+      `tools/scene-signoff/${name} now writes authoring -- only seal.mjs may, per ` +
+      `data/schema/common/authoring.schema.json's owner declaration. If this is deliberate, the ownership ` +
+      `declaration and design/scene-signoff.md §3 both have to change first.`
+    );
+  }
+});
+
+test("seal.mjs is the declared writer, and delegates the decision to core/promote.mjs's seal()", () => {
+  const text = readFileSync(path.join(repoRoot, "tools", "scene-signoff", "seal.mjs"), "utf8");
+  assert.equal(WRITES_AUTHORING.test(text), true, "seal.mjs is supposed to be the one file that writes this field");
+  assert.match(
+    text,
+    /from "\.\.\/\.\.\/module\/blank-inheritance\/scripts\/core\/promote\.mjs"/,
+    "seal.mjs must import the guarded path rather than setting status itself"
+  );
+  assert.equal(
+    /status:\s*["']live["']/.test(text),
+    false,
+    'seal.mjs must never assign "live" directly -- seal() decides, because seal() is what refuses an incomplete review'
+  );
+});
+
+test("the authoring schema declares the split ownership, so the rule is discoverable where new fields are added", () => {
+  const schema = JSON.parse(
+    readFileSync(path.join(repoRoot, "data", "schema", "common", "authoring.schema.json"), "utf8")
+  );
+  const comment = schema.$defs.authoring.$comment;
+  assert.match(comment, /scene-signoff/, "the Sign-Off must be named as an owner");
+  assert.match(comment, /foundry-approvals-desk/, "the Desk must still be named as the owner of everything else");
+  assert.ok(
+    schema.$defs.authoring.properties.status.enum.includes("live"),
+    "the status enum must carry the rung the Sign-Off writes"
+  );
+});

@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "goods-inwards-officer",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Goods Inwards Officer, The Bonded Store",
   "pole": null,

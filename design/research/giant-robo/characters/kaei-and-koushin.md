@@ -51,7 +51,7 @@
 
 **Worth avoiding:** using the threat beat on a real player without knowing the table. Koushin threatens to kill a child to force an action. At a table that is coercion of a player, and `design/agency-and-player-choice.md` applies. The *pressure* is usable; the death threat needs the group's tolerance established first, and a safety-tools conversation is cheaper than an apology.
 
-**Where it might attach:** the campaign's ground-level operations already have five non-piloting kids doing ground roles (`data/subsystems/day-1-ground-layer.json`), which implies officers running them. A pair like this is a good shape for that slot — and, per `feedback_npc_stubs_by_default`, a two-line stub each is the right first version.
+**Where it might attach:** the Directorate's field operations imply officers running them from the front. A pair like this is a good shape for that slot — and, per `feedback_npc_stubs_by_default`, a two-line stub each is the right first version.
 
 ---
 

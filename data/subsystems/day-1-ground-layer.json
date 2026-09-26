@@ -2,7 +2,10 @@
   "$schema": "../schema/subsystem.schema.json",
   "id": "day-1-ground-layer",
   "type": "subsystem",
-  "status": "ORPHANED CAMPAIGN CONTENT, RETAINED AS A SIMULATOR FIXTURE. The episode this belonged to (episode-01-contact-unclassified) was deleted 2026-09-13 along with every other drafted beat beyond Session 0/1. This file survives ONLY because tools/battle-simulator/ground-layer/resolve-ground-layer.mjs and test/battle-simulator/ground-layer.test.mjs read its real DCs, and deleting it would break a tested tool. It is NOT current campaign content and must not be run at a table or built on. It is also built entirely on the five ground roles, which are themselves under review and may be removed - see open-questions.json#ground-roles-viability. If ground roles are cut, this file and the simulator layer that reads it both need a decision.",
+  "authoring": {
+    "status": "drafted"
+  },
+  "status": "ORPHANED CAMPAIGN CONTENT, RETAINED AS A SIMULATOR FIXTURE. The episode this belonged to (episode-01-contact-unclassified) was deleted 2026-09-13 along with every other drafted beat beyond Session 0/1. This file survives ONLY because tools/battle-simulator/ground-layer/resolve-ground-layer.mjs and test/battle-simulator/ground-layer.test.mjs read its real DCs, and deleting it would break a tested tool. It is NOT current campaign content and must not be run at a table or built on. It is also built entirely on the five ground roles, which are themselves under review and may be removed - see open-questions.json#ground-roles-viability. If ground roles are cut, this file and the simulator layer that reads it both need a decision. UPDATE 2026-09-19: both `relatedRefs` entries this file used to carry for the overhead fight (`day-1-the-fight`, `contact-unclassified`) were removed at Ingram's direct instruction -- the frame-scale battle simulator and the real Claimant instance were both deleted as unapproved, stale content, and data/encounters/day-1-the-fight.json itself was deleted alongside them once confirmed fully orphaned (nothing in the surviving simulator code referenced it any more). This file's own DCs and pools are untouched -- the personnel-scale ground-layer content this file exists for was explicitly NOT part of that removal.",
   "name": "Day 1 — The Ground Layer",
   "subsystemType": "victory-points",
   "scale": "quick-encounter",
@@ -17,8 +20,14 @@
       "winTarget": 6,
       "owner": "party",
       "thresholds": [
-        { "atValue": 3, "effect": "Partial fix. The team can tell the pilot roughly where the weak point is. The Frame may Strike the Claimant, but the Interdiction Field still negates all damage — this threshold exists purely so the players can SEE they are getting somewhere, and so a Frame player has something to do in round 1 other than watch." },
-        { "atValue": 6, "effect": "The field collapses. The Claimant is Stunned 2 and gains weakness 15 to all damage for the rest of the encounter. Announce this at the table as a call-out from a specific kid, by name — this is the moment the ground layer becomes load-bearing and it should be unmistakable." }
+        {
+          "atValue": 3,
+          "effect": "Partial fix. The team can tell the pilot roughly where the weak point is. The Frame may Strike the Claimant, but the Interdiction Field still negates all damage — this threshold exists purely so the players can SEE they are getting somewhere, and so a Frame player has something to do in round 1 other than watch."
+        },
+        {
+          "atValue": 6,
+          "effect": "The field collapses. The Claimant is Stunned 2 and gains weakness 15 to all damage for the rest of the encounter. Announce this at the table as a call-out from a specific kid, by name — this is the moment the ground layer becomes load-bearing and it should be unmistakable."
+        }
       ]
     },
     {
@@ -30,8 +39,14 @@
       "winTarget": 8,
       "owner": "party",
       "thresholds": [
-        { "atValue": 4, "effect": "Half clear. If the shelter is destroyed in scene 8, the losses are survivable and named — people the kids can visit afterwards." },
-        { "atValue": 8, "effect": "Fully clear. If the shelter is destroyed in scene 8, they lose the PLACE and not the PEOPLE. This is the best available outcome; it is still a real loss, and scene 8 still happens." }
+        {
+          "atValue": 4,
+          "effect": "Half clear. If the shelter is destroyed in scene 8, the losses are survivable and named — people the kids can visit afterwards."
+        },
+        {
+          "atValue": 8,
+          "effect": "Fully clear. If the shelter is destroyed in scene 8, they lose the PLACE and not the PEOPLE. This is the best available outcome; it is still a real loss, and scene 8 still happens."
+        }
       ]
     }
   ],
@@ -39,11 +54,27 @@
     {
       "id": "spot",
       "name": "Spot the weak point",
-      "skillOptions": ["perception", "crafting", "occultism", "arcana", "society"],
-      "dc": { "value": 15, "basis": "level 1 standard DC — the kid's own level, never the Claimant's (data/campaign/ground-roles.json)", "adjustment": "none" },
+      "skillOptions": [
+        "perception",
+        "crafting",
+        "occultism",
+        "arcana",
+        "society"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC — the kid's own level, never the Claimant's (data/campaign/ground-roles.json)",
+        "adjustment": "none"
+      },
       "repeatable": true,
       "poolEffects": [
-        { "poolRef": "field-integrity", "criticalSuccess": 2, "success": 1, "failure": 0, "criticalFailure": 0 }
+        {
+          "poolRef": "field-integrity",
+          "criticalSuccess": 2,
+          "success": 1,
+          "failure": 0,
+          "criticalFailure": 0
+        }
       ],
       "outcomes": {
         "criticalSuccess": "2 points. The kid sees it clearly and can describe it — let them describe it.",
@@ -55,11 +86,27 @@
     {
       "id": "shepherd",
       "name": "Clear the shelter",
-      "skillOptions": ["diplomacy", "athletics", "medicine", "intimidation", "society"],
-      "dc": { "value": 15, "basis": "level 1 standard DC", "adjustment": "none" },
+      "skillOptions": [
+        "diplomacy",
+        "athletics",
+        "medicine",
+        "intimidation",
+        "society"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC",
+        "adjustment": "none"
+      },
       "repeatable": true,
       "poolEffects": [
-        { "poolRef": "shelter-evacuation", "criticalSuccess": 2, "success": 1, "failure": 0, "criticalFailure": 0 }
+        {
+          "poolRef": "shelter-evacuation",
+          "criticalSuccess": 2,
+          "success": 1,
+          "failure": 0,
+          "criticalFailure": 0
+        }
       ],
       "outcomes": {
         "criticalSuccess": "2 points. Ask the player who specifically they got out, and write the name down. It will matter in scene 8 and afterwards.",
@@ -71,8 +118,15 @@
     {
       "id": "collateral-hazard",
       "name": "Collateral hazard (triggered by the Claimant's Advance)",
-      "skillOptions": ["reflex", "acrobatics"],
-      "dc": { "value": 16, "basis": "level 2 hazard — deliberately one level above the kids, per the episode's 'real danger' requirement. Still nowhere near Frame-scale.", "adjustment": "none" },
+      "skillOptions": [
+        "reflex",
+        "acrobatics"
+      ],
+      "dc": {
+        "value": 16,
+        "basis": "level 2 hazard — deliberately one level above the kids, per the episode's 'real danger' requirement. Still nowhere near Frame-scale.",
+        "adjustment": "none"
+      },
       "repeatable": true,
       "persistent": true,
       "outcomes": {
@@ -99,8 +153,6 @@
   "loseCondition": null,
   "rewards": "Moderate accomplishment XP (30) to every kid regardless of outcome, per reference/tables/encounter-and-rewards-math.json — they were level-1 children under a Claimant and they stayed. Award it in scene 9, out loud, in the same flat institutional voice as the ratio.",
   "relatedRefs": [
-    "day-1-the-fight",
-    "contact-unclassified",
     "data/campaign/ground-roles.json",
     "design/scale-and-chassis.md"
   ],

@@ -56,8 +56,8 @@ export async function cueScene(sceneId, { transitionType, transitionDuration } =
 // episode just means findSceneAuthoring finds no match (issue #166: "not
 // found" already correctly means "no gate applies").
 const EPISODE_PATHS_FOR_GATE = [
-  "data/campaign/episodes/episode-c1s1-mothers-maiden-name.json",
-  "data/campaign/episodes/episode-c1s2-scheduled-exercise.json"
+  "data/campaign/episodes/episode-c1e1-mothers-maiden-name.json",
+  "data/campaign/episodes/episode-c1e2-scheduled-exercise.json"
 ];
 
 /** Resolves a live Scene's `briefRef` flag back to its narrative scene's authoring block, or null if untracked. */

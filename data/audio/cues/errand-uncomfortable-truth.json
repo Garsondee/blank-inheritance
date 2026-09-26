@@ -3,11 +3,20 @@
   "id": "errand-uncomfortable-truth",
   "type": "audio-cue",
   "title": "One true, unsettling thing",
-  "note": "The old man's one moment of real weight in an otherwise completely safe, warm scene. A small, reversible dip -- not a stop, not a genre change -- because the brief is explicit that he says this 'gently, once' and the scene stays safe around it.",
+  "note": "The old man's one moment of real weight in an otherwise completely safe, warm scene. A small, reversible dip -- not a stop, not a genre change -- because the brief is explicit that he says this 'gently, once' and the scene stays safe around it. CORRECTED 2026-09-22: the trigger beat id had drifted to 'what-does-he-think-of-your-employer' (transposed word order, extra 'does'), which does not exist in the scene brief -- this cue has never fired. Real id confirmed against data/scene-briefs/episode-c1e1--the-errand.json.",
   "triggers": [
-    { "on": "beat", "brief": "episode-c1s1--the-errand", "beat": "what-does-he-think-of-your-employer" }
+    {
+      "on": "beat",
+      "brief": "episode-c1e1--the-errand",
+      "beat": "what-he-thinks-of-your-employer"
+    }
   ],
   "steps": [
-    { "do": "mix", "music": -4, "ambience": -2, "fade": 2000 }
+    {
+      "do": "mix",
+      "music": -4,
+      "ambience": -2,
+      "fade": 2000
+    }
   ]
 }

@@ -1,0 +1,271 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--unidentified-contact",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "unidentified-contact",
+  "title": "Unidentified Contact",
+  "summary": "Three contacts appear on the plotting board without having travelled to get there, and the first plot is time-stamped before the alert that found it. The party is a mile from the proving ground and closest, by accident. The voice on the radio tells them to hold position and stay clear, and she is saying it because she is frightened for them.",
+  "goal": "The party learns what has happened, is told plainly to stay out of it by somebody who cares what happens to them, and can see civilians close enough to reach.",
+  "howToPlay": "Flat, fast and quiet. **Nothing in this scene is dramatic except the facts.** The Comms Officer is reading from a procedure card that has never been used. The Range Safety Officer stops working and listens. Nobody raises their voice.\n\n**Her order is correct and she is right to give it.** Six trainees, one morning into their machines, are the last thing that should be anywhere near this. Play her as competent and afraid for them, never as an obstacle -- if the party decides to go anyway, they must be disobeying somebody who was trying to protect them, or the choice is worth nothing.\n\nUnder ten minutes. Deliver the facts, show them the tram, and stop talking.",
+  "runsAbout": "8-10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "Still on the proving ground, machines still running, a mile out from the base and about the same from the old town.",
+    "firstThing": "The radio in the timing hut, which has been muttering all morning and has now stopped muttering.",
+    "readAloud": "The man with the stopwatch puts it in his pocket, which he has not done once all morning, and turns the radio up.\n\nA woman's voice, reading carefully, the way somebody reads when they are following a card: three unidentified contacts, tracks forty-one, forty-two and forty-three, on the harbour edge below the old town.\n\nThen she says the thing that the plotting floor has never had to say: that the first plot is timed at 0841, and the alert that found it is timed at 0846.",
+    "landmark": "the smoke, going up from somewhere below the old town, which everybody can see from the proving ground",
+    "holdInReserve": "The tram. Stopped on the harbour road, doors open, with people already off it and standing in the road looking the wrong way.",
+    "carriesIn": [
+      {
+        "when": "Anybody heard the late-watch complaint at the noodle stand",
+        "then": "Somebody on the plotting floor has been seeing contacts that were not there, and stopped reporting them. Let whoever heard it put that together out loud if they want to. Nothing confirms it and nobody else in the scene knows about it."
+      },
+      {
+        "when": "The siren test happened during the drill",
+        "then": "The city sirens start during this scene. It is the same sound, and this time nobody has told anybody to ignore it."
+      },
+      {
+        "when": "A player passed radio-procedure in Episode One's School: Second Period",
+        "then": "They can hear that the Comms Officer is off procedure. She says please, she uses their names instead of the section designation, and none of that is how the instruction is supposed to go out. On a critical success there, they also hear that she is frightened for them specifically. Give it to them the moment she speaks -- no roll."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "comms-officer",
+      "npcRef": "comms-officer",
+      "label": "The Comms Officer",
+      "role": "The voice on the radio, working off the plotting floor.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "These six children back on the base. She has their names on a familiarisation list from this morning and she knows exactly how long they have been in those machines.",
+        "opensWith": "Reading the contact report from a card, carefully, in the order the card gives, because the procedure has never been used and she is not going to be the one who gets it wrong.",
+        "willDiscuss": [
+          {
+            "topic": "What is on the board, in full",
+            "note": "She tells them everything she has, immediately and without hedging. Three contacts, the positions, the time stamps, and the fact that there is no approach vector. She is not withholding anything and would not consider it."
+          },
+          {
+            "topic": "What she wants them to do",
+            "note": "Hold position. Stay clear. Do not close. She says it more than once and she says please at least once, which is not procedure."
+          },
+          {
+            "topic": "How long until a real response arrives",
+            "note": "Honestly, which is the worst thing she says: eleven minutes, at best, because nothing has ever actually had to be scrambled before and the timings on the card are theoretical."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What the contacts are",
+            "why": "She does not know. Nobody knows. She will not speculate to six trainees on an open channel and she is right not to."
+          },
+          {
+            "topic": "Ordering them in",
+            "why": "She will not, under any circumstances, and if pushed she says so plainly: she is not sending trainees at something nobody can identify. That is the whole of her position and she holds it."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Careful, clear, and audibly working to stay level. A competent person doing an unfamiliar thing correctly while frightened.",
+          "tics": [
+            "Reads procedure verbatim and then translates it into plain words immediately afterwards",
+            "Uses their individual names rather than the section designation",
+            "Stops mid-sentence to listen to something on her own floor, then picks the sentence back up exactly where she left it"
+          ],
+          "samples": [
+            "\"Three contacts, tracks forty-one through forty-three, harbour edge below the old town. First plot 0841. Alert 0846.\" (A pause.) \"That is not a typing error. I have checked it twice.\"",
+            "\"They did not come from anywhere. I have the whole board in front of me and there is no approach.\"",
+            "\"Hold position. Do not close. -- Please hold position.\"",
+            "\"Eleven minutes. That is the best figure on the card and the card has never been used, so I would not trust it.\"",
+            "\"I'm not ordering you in. I will not order you in. You're one morning into those machines.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "range-safety-officer",
+      "npcRef": "range-safety-officer",
+      "label": "The Range Safety Officer",
+      "role": "Standing beside the radio with them, and out of his jurisdiction the moment they leave the ground.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Nobody hurt. It is the only thing he has ever wanted and this is the first morning in twenty years it has not been in his gift.",
+        "opensWith": "Listening. He does not speak until somebody asks him something.",
+        "willDiscuss": [
+          {
+            "topic": "Whether he can stop them",
+            "note": "He cannot, and he says so straight. His authority is the proving ground and it ends at the gate. He does not pretend otherwise and he does not bluster."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What they should do",
+            "why": "He will not tell them. He is not their officer and this is not his range. If pressed, all he offers is that he has seen what happens when people go towards a thing they cannot identify, and then he stops, because that is as close as he comes to telling anybody anything."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Flat, unhurried, and for the first time all morning not entirely certain.",
+          "tics": [
+            "Says 'no' on its own and waits",
+            "Gives a fact rather than an opinion when asked for an opinion"
+          ],
+          "samples": [
+            "\"My ground stops at that gate. After that you're somebody else's problem, and I'd rather you weren't anybody's.\"",
+            "\"I can't stop you. I want to be clear that I'm not pretending I can.\"",
+            "\"...I've seen people go towards a thing they couldn't name.\" (And that is all he says about it.)"
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-board",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "She reads the contact report. Three tracks, the harbour edge, and two time stamps in the wrong order.",
+      "npcRef": "comms-officer",
+      "direction": "**Deliver the time stamps flatly and let them sit.** First plot 0841. Alert 0846. The thing was on the board for five minutes before anything noticed it was there, and it did not travel to get there.\n\nDo not explain it, do not have anybody theorise, and do not let her voice do anything clever. She reads it, she says she has checked it twice, and she moves on to what she wants them to do.\n\n**Read the two times out, in order, and do not explain them.** She is reading a form aloud, not making a point. The pause before the second line is her noticing while she reads, and she carries on anyway because it is what the sheet says.",
+      "nodeRefs": [
+        "mystery-ledger-6",
+        "arc-contacts-that-never-travelled"
+      ],
+      "note": "PLANT, and the biggest one in the episode.\n\nGM-ONLY: they did not travel because they did not come from anywhere in the ordinary sense. Nothing this episode confirms, denies or explains that, and no character in the episode has a theory worth voicing.\n\nWHAT IT DOES NOT MEAN: this is not a teleport and not an invasion fleet. Do not let an NPC gesture at either.\n\nRECALL KNOWLEDGE: nothing in a level 1 character's education covers this, and a check to identify what the contacts are should return honestly that nobody knows -- which is itself the frightening answer. Do not price a roll that invents lore.",
+      "readAloud": "\"Plot shows three. Harbour edge, close in, no approach recorded on any of them.\"\n\nA pause that is slightly too long for somebody reading off a sheet.\n\n\"First plot is timed at eleven-forty. The alert that generated it is timed eleven forty-one.\""
+    },
+    {
+      "id": "read-the-plot",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anybody looks at the contact report itself rather than at the smoke, let them.",
+      "challengeRef": "c1e2-unidentified-contact",
+      "checkRef": "read-the-plot",
+      "when": {
+        "condition": "if a player goes to the report rather than to the window"
+      },
+      "nodeRefs": [
+        "arc-contacts-that-never-travelled"
+      ],
+      "direction": "Hand them the actual numbers and let them do the work. Do not summarise it for them and do not confirm what it means.\n\nThe plotting floor has written it up as an equipment fault. That is not a cover-up -- it is the only box on the form that this fits, and the person who ticked it was doing their job.",
+      "note": "HOW TO PLAY IT. Nothing on any result changes what happens next. What changes is whether anybody in the party knows the thing they are about to meet did not come from anywhere.\n\nPLANT. No approach vector on any of the three, and the first plot time-stamped before the alert that produced it.\n\nGM-ONLY: see the `arc-contacts-that-never-travelled` Node. Nothing here names the Watcher, suggests a cause, or connects to anything else, and a critical success stops at 'they began there'.\n\nWHAT IT DOES NOT MEAN: the failure result -- a mistyped time and bearings not through yet -- is a genuinely reasonable reading, not a blank. A player who lands there has been had by a sensible answer, which is the correct shape for a first mystery and costs them nothing."
+    },
+    {
+      "id": "stay-clear",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "She tells them to hold position and stay clear. She says please. She tells them the real response is eleven minutes away and that she does not trust the number.",
+      "npcRef": "comms-officer",
+      "readAloud": "\"Section Nine -- \" and then she stops, and uses your names instead, all six, in the order they are printed on a list in front of her.\n\n\"Hold position. Do not close. Please hold position. There is a proper response coming and the card says eleven minutes, and the card has never been used, so I would not trust eleven minutes if I were you.\"\n\n\"I am not ordering you in. I will not order you in. You are one morning into those machines.\"",
+      "direction": "**She is right and she should sound right.** This is not an obstacle to overcome and she is not a coward or a bureaucrat. She is the first adult in this campaign whose first instinct on seeing danger was to put herself between it and them.\n\nIf the party argues, she does not fold and she does not get angry. She repeats the position. She does not have the authority to order them in and would not use it if she did.",
+      "note": "HOW TO PLAY IT. Everything about the next scene depends on this order being sympathetic. If she reads as an obstacle, going in becomes a genre reflex rather than a choice. If she reads as somebody protecting them, going in costs something -- and that is the entire design.\n\nSHE MUST NOT BE MADE TO LOOK WRONG LATER. Whatever happens at the harbour, her judgement here was correct: sending six trainees at an unidentified contact would have been indefensible. The fiction should never retrospectively vindicate disobedience by making her look foolish."
+    },
+    {
+      "id": "the-tram",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Show them the tram. Stopped on the harbour road, doors open, people already off it and standing in the road.",
+      "direction": "**This is the fact that makes the choice a choice, and it is shown rather than argued.** A stopped tram, doors open, about forty people and a driver, standing in the road, looking the wrong way.\n\nGive the distance honestly and concretely: close enough that the machines they are sitting in could be there in about four minutes. Nobody says that out loud. Let a player work it out and say it.\n\nDo not have the Comms Officer mention the tram. She is looking at a board, not out of a window.\n\n**Do not have anybody scream and do not have anybody run.** Nobody down there has ever needed to, and that is the entire point of a hundred and fifty years without an incident.\n\nGive the party the distance honestly: close enough to reach, far enough that reaching it is a decision.",
+      "note": "HOW TO PLAY IT. Forty people and a driver, not a crowd. A number small enough to be people rather than a population.\n\n**Do not narrate anybody being hurt yet.** Nothing has happened to them at the moment the party is deciding. The choice has to be made about a risk, not a tragedy, or it is not a choice at all -- it is a reaction.\n\nIF THE PARTY DOES NOT LOOK: the smoke is visible from the proving ground and the landmark line covers it. Somebody will look. If genuinely nobody does, the Range Safety Officer looks, and says nothing, which is enough.",
+      "readAloud": "Down on the harbour road, about two hundred yards short of where the smoke is, a tram has stopped with its doors open.\n\nPeople are getting off it. Not running -- getting off, the way you do when a tram stops somewhere that is not a stop, and standing in the road to see what the matter is.\n\nFrom up here you can count them. That is the thing. From up here you can count them."
+    },
+    {
+      "id": "the-decision",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "What they do is entirely theirs. Do not prompt, do not hint, and do not let any NPC advocate.",
+      "direction": "**Say nothing after the tram.** Let the silence do it. This is the largest decision the party has made in the campaign so far and it belongs entirely to them.\n\nIf they invent a third option -- sending one machine, radioing back for permission, driving to the base instead, evacuating from a distance, using the truck to pick people up without engaging -- **back it, and price it honestly**. Several of those are better than either authored option and the party deserves to get the benefit of thinking of them.\n\nIf the table splits, they negotiate it themselves. No GM tiebreaker, and a split party is a legitimate outcome that both branches can absorb.\n\n**Say those two lines and then stop talking entirely.** Do not prompt, do not hint, do not have an NPC advocate either way, and do not put a clock on it.\n\nIf the party debates for ten minutes, let them. If they move immediately, let them. Both branches are authored and neither is the correct one.",
+      "note": "HOW TO PLAY IT. Both options are written, both are real, and neither is punished as the wrong answer.\n\nTHE HOLD-POSITION BRANCH, in full, because it is the one most likely to be under-prepared: they watch. The sirens start. The response arrives in nineteen minutes rather than eleven, and by then the contacts have gone -- not been driven off, simply gone, the same way they arrived. There are casualties at the tram and there are also survivors, and the number of each is the GM's call made honestly rather than punitively. Nobody blames Section Nine. The Comms Officer thanks them for holding, and means it, and that is the worst part of the whole branch. The Hammer still happens, with the Deputy Director asking a very different question.\n\nTHE GO BRANCH: straight into First Contact.\n\nDO NOT SIGNAL. No music cue, no meaningful pause on one option, no NPC advocating either way. The Range Safety Officer explicitly refuses to advise and the Comms Officer has already said her piece.",
+      "readAloud": "The radio has gone quiet. That was the whole of the instruction.\n\nThe proving ground is behind you, the road is in front of you, and the order you were given was to hold position and stay clear.",
+      "choicePoint": {
+        "label": "Hold position, or go",
+        "options": [
+          {
+            "id": "hold",
+            "label": "Hold position, as ordered",
+            "consequence": "They were told to hold and stay clear by somebody who is right, who cares what happens to them, and who said please. The proper response is eleven minutes out. This is not cowardice and nothing in the scene may treat it as one."
+          },
+          {
+            "id": "go",
+            "label": "Go",
+            "consequence": "Two hundred yards of harbour road, a stopped tram with its doors open, about forty people and a driver standing in the road looking the wrong way. Both branches are authored and neither is the correct one."
+          }
+        ],
+        "allowsInventedOption": true
+      }
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "They move, or they decide not to. Either way, cut immediately -- do not linger on the decision once it is made.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "Move this only if somebody read the report and understood that these three did not travel anywhere. Watching the smoke does not earn it."
+      }
+    ],
+    "transition": {
+      "mechanism": "needed",
+      "line": "Forty people in a road four minutes away, and eleven minutes of theoretical help. Nothing else needs to be said to move them, or not.",
+      "scatterRisk": true
+    },
+    "onwards": "Into First Contact if they go. If they hold, run the hold-position branch in the decision beat's note, and then go to The Hammer.",
+    "writeDown": [
+      "What they decided, who argued for what, and how long it took them.",
+      "Whether anybody invented a third option, and what it was.",
+      "That the first plot was timed before the alert. The party may not have registered it; the campaign has."
+    ],
+    "readAloud": "Two hundred yards of harbour road, a stopped tram, and three things coming up it.\n\nThe radio has gone quiet. That was the whole of the instruction."
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "how-far-is-it",
+      "text": "Nobody has said how long it would take to get there. Somebody could work that out."
+    },
+    {
+      "id": "ask-her-what-they-are",
+      "text": "She has the whole board in front of her and she has not said what the contacts are."
+    },
+    {
+      "id": "the-report-itself",
+      "text": "The contact report is on the desk and everybody in the room is looking out of the window."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "she-read-as-protective",
+      "text": "Whether the Comms Officer landed as somebody protecting them rather than as an obstacle.",
+      "scaleNote": "0 = read as a bureaucrat to be defied, 10 = the table felt the weight of disobeying her specifically."
+    },
+    {
+      "id": "the-timestamps",
+      "text": "Whether the out-of-order time stamps landed as quietly wrong."
+    },
+    {
+      "id": "the-decision-was-theirs",
+      "text": "Whether the choice felt genuinely open -- no GM thumb on either scale."
+    },
+    {
+      "id": "third-option",
+      "text": "Whether the party invented something better than either written option, and what it was."
+    },
+    {
+      "id": "split",
+      "text": "If the table split, how they resolved it between themselves."
+    }
+  ],
+  "notes": "THE DESIGN OF THIS SCENE IN ONE LINE: make the order to stay away come from somebody kind, and then put forty people four minutes away.\n\nWHY THE ORDER MUST BE SYMPATHETIC. A party that disobeys a petty officer has done nothing interesting. A party that disobeys the first adult who tried to protect them has made a real decision with a real cost, and will carry it. Everything in the Comms Officer's characterisation serves that and nothing else.\n\nHER JUDGEMENT IS NEVER RETROSPECTIVELY WRONG. Whatever happens at the harbour, sending six trainees at an unidentified contact would have been indefensible and she was right to refuse. Do not write a later scene in which she is shown to have been foolish. She was correct and the party went anyway, and both of those can be true.\n\nNOTHING HAS HAPPENED TO THE PEOPLE AT THE TRAM YET. The choice is made about a risk, not about a tragedy already in progress. Narrating a casualty before the decision converts a choice into a reflex.\n\nBOTH BRANCHES ARE WRITTEN AND NEITHER IS PUNISHED. The hold-position branch is not a fail state and must not be run as one -- it is quieter, it is sadder, and nobody blames them for it, which is its own weight."
+}

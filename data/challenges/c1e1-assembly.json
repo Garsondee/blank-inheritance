@@ -1,0 +1,82 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-assembly",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Assembly -- what the speech does not say",
+  "description": "Three optional, opt-in checks hanging off the Deputy Director's address. None is required, none is offered unprompted, and each returns something real -- an org chart, a plant, or a rumour. Nothing here costs anything on a failure.",
+  "checks": [
+    {
+      "id": "the-anthem",
+      "name": "Get through the anthem",
+      "skillOptions": [
+        "performance",
+        "deception"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1, one step easy -- it is a song everyone in the room learned as a child, and the only difficulty is that the party did not",
+        "adjustment": "easy"
+      },
+      "insight": false,
+      "outcomes": {
+        "criticalSuccess": "They carry it. Whoever is nearest on either side hears a trainee singing their own city's anthem properly, and one of the staff on the platform marks where the sound came from. That officer will greet this character by sight later in the week without either of them knowing why.",
+        "success": "Nothing happens, which is the whole objective. They are six voices in four hundred.",
+        "failure": "A wrong word, a beat late, or a verse that stops when everyone else has another line to go. The trainee on the immediate left or right turns and looks -- not hostile, just surprised -- and says something afterwards about where they must have grown up. Nothing comes of it today. The GM should write down who asked.",
+        "criticalFailure": "As failure, and it happens in the gap where the piano drops out and the room sings unaccompanied. A member of staff hears it from the platform. Nobody is spoken to and nobody is stopped, and a note is made, because making notes is what this place does with anything it cannot immediately explain."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "read-the-room",
+      "name": "Read the line of staff instead of the speaker",
+      "skillOptions": [
+        "perception",
+        "medicine"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC -- the information is openly displayed on a dozen shoulders, it just takes attention to assemble",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "The whole shape of the place, in one look. Departments, who defers to whom, and which three people on that wall the rest keep glancing at. Also this: the officer who has been ordering them about since they arrived is standing near the far end of the line, between the stores and the drains, and nobody on that platform has looked at him once.",
+        "success": "A usable map of the organisation -- roughly a dozen departments, who runs the machines, who runs the radio, who runs medical. Enough to know who to go to for what.",
+        "failure": "A dozen uniforms, a dozen shoulder flashes, and no way to tell which of them matters. It is a lot of people.",
+        "criticalFailure": "They fix on the most senior-looking person in the line and come away with a confident, completely wrong idea of who runs this base. Costs nothing but a correction later."
+      }
+    },
+    {
+      "id": "work-the-crowd",
+      "name": "Find out what people are actually saying",
+      "skillOptions": [
+        "diplomacy",
+        "deception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC -- several hundred bored trainees, most of whom would rather talk than listen",
+        "adjustment": "none"
+      },
+      "insight": false,
+      "outcomes": {
+        "criticalSuccess": "Two of the three rumours, and the name of somebody who claims to know more about one of them -- a real, findable person the party can go looking for later.",
+        "success": "One rumour, the player's choice of which thread they were pulling at if they had one.",
+        "failure": "Nothing worth repeating. Somebody's opinion about the food, at length.",
+        "criticalFailure": "They repeat something back to the wrong person and it is remembered. No mechanical cost, but that trainee now thinks of them as a gossip, which may matter in the canteen tonight."
+      }
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "data/scene-briefs/episode-c1e1--assembly.json",
+    "data/episodes/episode-c1e1-mothers-maiden-name.json"
+  ],
+  "notes": "All three are opt-in and none is offered unprompted -- the address works fine as a scene if nobody rolls anything. Failure never costs a resource on any of them; the worst outcome is a wrong impression or a small social consequence. This follows the Encyclopaedia-check convention already used in this episode (see c1e1-canteen's recall-the-drains). The three rumours themselves are listed in the scene brief's the-rumours beat, not duplicated here.\n\nTHE ANTHEM IS OFFERED, NEVER IMPOSED. Only a player who says they are doing something about the singing rolls it. A character who stands there mouthing along and says nothing is assumed to have got away with it, costs nothing, and is not asked for a check -- the same rule the school periods run on. The risk is the price of trying for the good outcome, not a tax on being present.\n\nDO NOT EXPLAIN THE STAKES FIRST. Do not say that failing will be noticed. Describe the room singing and let somebody decide whether to join in.\n\nWHY THE CHECK EXISTS. Every other check in this scene is a look: read the staff line, hear the rumours. This one is an act, and it is the first moment in the campaign where being new is a liability in a room rather than a fact on a form. It does not name what the party are, and nothing here needs the disguise premise explained at the table -- it works as six trainees who did not grow up here.\n\nTHE CHARTER CHECK BELONGS TO THE MEDICAL, NOT HERE. The founding charter is still on the wall above the platform and still readable from the third row. It is scenery here. The painted-over paragraph is found in Intake Medicals (c1e1-the-medical, `the-charter`), where it is physical, private, and a different act. Two scenes in one episode should not both be somebody reading the same document -- see design/scene-audit.md section 10b."
+}

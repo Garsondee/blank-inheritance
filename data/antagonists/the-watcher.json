@@ -2,12 +2,15 @@
   "$schema": "../schema/antagonist.schema.json",
   "id": "the-watcher",
   "type": "antagonist",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "workingName": "The Watcher",
   "namingPlaceholderRef": "the-watcher-name",
-  "description": "An invisible, city-spanning, watching presence, first glimpsed through a Type C False Contact. Not hovering over the city so much as soaked into it — unnoticed for a long stretch of the campaign, then revealed as a vast, intangible mass that bestrides the whole city, its multitude of eyes reaching down into everything that happens there. It cannot act directly in combat; it sends its chosen (Claimants) to fight in its place, watching and learning through them. It logs the party's tactics from every encounter and deliberately, visibly plays fragments of their own past actions back to them — the point is for the party to know they're being studied, not to hide it — then adapts its chosen's approach round over round and encounter over encounter to specifically counter what worked last time.",
-  "engagementType": "Long-arc antagonist dealt with through investigation and ground-level play, never fought directly — its chosen (Claimants) do its fighting while it watches and adapts through them. Not resolved by a climactic boss encounter: the Watcher is defeated by the party winning the campaign itself.",
-  "status": "Thread stays open through the whole opening arc, then escalates for the rest of the campaign as it studies and adapts to the party — resolved only by the campaign's overall outcome, not a dedicated final fight.",
+  "description": "The navigation and sensor system of the mitflits' generation ship, torn apart at First Impact into a swarm of nanotech that is not bound by anything. It is the campaign's adversary: its objective is to observe, and so to multiply and to expand, and it learns how to defeat the party if they get in its way. It is not evil; it is an objective pursued without limit. Unseen and unwitnessed at campaign start, and hiding on purpose, because the Envoy taught it that manifesting gets it attacked. It sees through its children (the Claimants, built from Sap). It keeps a record of what it learns about each character, answers the approach the party relied on last, and later shows them the reel. For decades its shape was the shape of Manako's grief, and he is still the only thing that steers it. GM detail lives in the story dossiers, not here.",
+  "engagementType": "Long-arc adversary. It is never fought directly and cannot be killed while it is dispersed: every child it makes comes apart and goes home, and every fight is more data. Its children do the fighting, at personnel scale and Frame scale. Dealt with through investigation, through what the party chooses to teach it, and through keeping Manako alive to steer it.",
+  "status": "Escalates across the whole campaign, from a drowning instrument to a learner to a self-supplier whose own children make Sap (the runaway). It reaches its crisis alongside Second Impact, around Chapter 15, and, like Second Impact, it needs a solution from the mitflit home world. If Manako has been killed by then, nothing steers it.",
   "firstAppearance": {
     "eventRef": "false-contact-type-c"
   }

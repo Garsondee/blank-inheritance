@@ -11,9 +11,9 @@
   "lastTouchedDate": "2026-08-22",
   "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
   "openSubQuestions": [
-    "Which specific real Golarion locations/deities/lore beyond Pharasma are worth referencing — not enumerated yet.",
-    "How this interacts with the naming-placeholders that are still open (city name, Directorate name, etc.) — some could plausibly resolve toward real-Golarion-adjacent names, but not decided."
+    "Which specific real Golarion locations/deities/lore beyond Pharasma are worth referencing — not enumerated yet. (In use since: Kortos, Absalom and a temple of Pharasma, LEDGER #25 and #28.)",
+    "How this interacts with the naming placeholders that are still open (now kept in data/campaign/open-questions.json) — some could plausibly resolve toward real-Golarion-adjacent names, but not decided. The city (Kurose) and the Directorate (特別対策本部) have since been named, both in Japanese."
   ],
-  "relatedRefs": ["design/design-bible.md", "design/campaign-arc.md#setting-tone-1950s-historical-divergence", "data/campaign/naming-placeholders.json"],
+  "relatedRefs": ["design/design-bible.md", "design/campaign-arc.md#setting-tone-1950s-historical-divergence", "data/campaign/open-questions.json"],
   "resolution": null
 }

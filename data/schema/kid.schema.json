@@ -2,95 +2,65 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kid.schema.json",
   "title": "Kid",
-  "description": "A player's school-age character: a full, standard SF2E PC (see common/sf2e-common.schema.json#/$defs/pcStatblock) plus the campaign-specific fields that make a kid a kid — Anchors, ground-role rotation history, and the link to the Frame they pilot. Level 1 at campaign start, advances by narrative milestone rather than XP budget. One file per kid in data/characters/kids/.",
+  "description": "A player's school-age character: a full, standard SF2E PC (see common/sf2e-common.schema.json#/$defs/pcStatblock) plus the campaign-specific fields that make a kid a kid — the induction terminal's intake answers and the link to the Frame they pilot. Level 1 at campaign start, advances by narrative milestone rather than XP budget. One file per kid in data/characters/kids/.",
   "allOf": [
     { "$ref": "common/sf2e-common.schema.json#/$defs/pcStatblock" },
     {
       "type": "object",
-      "required": ["id", "type", "name", "player"],
+      "required": ["id", "type", "name", "player", "authoring"],
       "properties": {
         "$schema": { "type": "string" },
         "id": { "type": "string", "description": "Kebab-case slug, matches filename." },
         "type": { "const": "kid" },
+        "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
         "name": { "type": ["string", "null"] },
         "player": { "type": ["string", "null"], "description": "Which player controls this kid and their paired Frame." },
         "pronouns": { "type": ["string", "null"], "description": "Free text (e.g. \"She/her\", \"They/them\") -- induction terminal Page 7. The terminal offers suggestions but never invents an answer." },
         "genderIdentity": { "type": ["string", "null"], "description": "Free text -- induction terminal Page 7. Distinct from ancestry/appearance; not an SF2E mechanical field." },
         "appearance": { "type": ["string", "null"], "description": "Free-text appearance notes -- induction terminal Page 7." },
         "age": {
-          "type": "integer",
-          "minimum": 17,
-          "default": 17,
-          "description": "Kids start at 17 — the city's charter age for civil-defense conscription eligibility. Load-bearing for the setting's premise; see design bible System Notes."
+          "type": ["integer", "string", "null"],
+          "description": "17 is the charter age for civil-defense CONSCRIPTION, not a floor on the character — design/induction.md §1 settled that the party are volunteers and that volunteering has no age limit, so an older PC is legal and supported. A string is permitted because sf2e's own system.details.age.value is a free-text field and the induction terminal writes straight to it (design/induction-intake-audit.md §6a)."
         },
+        "height": { "type": ["string", "null"], "description": "Free text, matching sf2e's own system.details.height.value -- induction terminal Page 7." },
+        "weight": { "type": ["string", "null"], "description": "Free text, matching sf2e's own system.details.weight.value -- induction terminal Page 7." },
+        "birthPlace": { "type": ["string", "null"], "description": "Where this character is from. Nobody in the party is from this city (design/induction.md §1); maps to sf2e's own system.details.biography.birthPlace -- induction terminal Page 7." },
         "concept": { "type": ["string", "null"], "description": "One or two sentence character concept." },
-        "anchors": {
-          "type": "array",
-          "description": "2-3 player-written Anchors: a person, a belief, a need.",
-          "maxItems": 3,
-          "items": {
-            "type": "object",
-            "required": ["id", "anchorType", "description"],
-            "properties": {
-              "id": { "type": "string" },
-              "anchorType": { "enum": ["person", "belief", "need"] },
-              "description": { "type": "string" },
-              "status": { "type": "string", "description": "Free-text log of affirm/violate history." }
-            }
-          }
-        },
-        "resonance": {
-          "type": "object",
-          "description": "Only meaningful once this kid is piloting a Frame.",
-          "properties": {
-            "current": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
-            "band": { "enum": ["dead-weight", "nominal", "harmonised", "absolute", null] }
-          }
-        },
-        "bleed": {
-          "type": "object",
-          "properties": {
-            "current": { "type": ["integer", "null"], "minimum": 0, "maximum": 10 }
-          }
-        },
-        "groundRoleHistory": {
-          "type": "array",
-          "description": "Log of which ground role this kid played each Contact, to enforce the no-repeat-twice-in-a-row rotation rule.",
-          "items": {
-            "type": "object",
-            "required": ["eventRef", "roleRef"],
-            "properties": {
-              "eventRef": { "type": "string" },
-              "roleRef": { "type": "string" }
-            }
-          }
-        },
         "framePilotedRef": { "type": ["string", "null"], "description": "id of the Frame this kid pilots." },
         "status": { "type": "string" },
         "notes": { "type": "string" },
         "intake": {
           "type": "object",
-          "description": "Session-zero answers from the induction terminal's Page 7 (banal texture questions) and Page 8 (bible §20's eight core questions), design/induction-terminal.md. Distinct from `anchors` -- raw answers, not yet distilled into the capped-at-3 Anchors, which stay collaborative work with the real player.",
+          "description": "Session-zero answers from the induction terminal's Page 7 (the Personality one-liners) and Page 8 (the five open questions and the freeform box) -- design/induction-terminal.md, revised by design/induction-intake-audit.md §6 on 2026-09-18, when the three banal questions and bible §20's eight were compressed into this shorter set. Raw answers, kept verbatim.",
           "properties": {
-            "banal": {
+            "personality": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "answer"],
-                "properties": { "id": { "type": "string" }, "answer": { "type": "string" } }
-              }
+              "description": "One-line answers: likes, dislikes, attitude, beliefs, good-at. Each also written to its own real sf2e biography field on the Actor.",
+              "items": { "$ref": "#/$defs/intakeAnswer" }
             },
             "questions": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["id", "answer"],
-                "properties": { "id": { "type": "string" }, "answer": { "type": "string" } }
-              }
+              "description": "The five open questions: allies, enemies, organizations, the Directorate secret, and the out-of-character player-goal question.",
+              "items": { "$ref": "#/$defs/intakeAnswer" }
+            },
+            "freeform": {
+              "type": ["string", "null"],
+              "description": "The single large catch-all box -- 'anything else, as much or as little as you like'. Written to sf2e's own Backstory field, and the home of the `concept` this terminal never used to capture."
             }
           }
         }
       }
     }
-  ]
+  ],
+  "$defs": {
+    "intakeAnswer": {
+      "type": "object",
+      "required": ["id", "answer"],
+      "description": "One raw prompt id and the player's own words, kept verbatim. The id matches an entry in data/campaign/induction-intake-prompts.json.",
+      "properties": {
+        "id": { "type": "string" },
+        "answer": { "type": "string" }
+      }
+    }
+  }
 }

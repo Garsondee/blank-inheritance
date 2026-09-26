@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--slack-water",
+  "type": "audio-soundscape",
+  "title": "S2 · Slack Water",
+  "note": "'One hard, filthy, shared job under a real clock... the session's long full-party scene.' Relaxed pool for the labour itself -- camaraderie under pressure, not yet the inspection's tension. A real coastal bed plus a faint working-harbour layer, reusing The Errand's own wharf texture at a lower level since it is the same harbour. The inspection at the end is a natural home for a future tension cue; not authored here.",
+  "music": {
+    "pool": "relaxed"
+  },
+  "ambience": [
+    {
+      "track": "esm-south-carolina-beach-1-ambience-nature-south-carolina-water",
+      "level": -6
+    },
+    {
+      "track": "bay-shore-fisherman-s-wharf-pier-seagulls-san-francisco-ca-03",
+      "level": -16
+    }
+  ],
+  "fade": 3500
+}

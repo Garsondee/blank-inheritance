@@ -14,6 +14,14 @@
         <div class="bi-deck-bank__keys">
             {{#each bank.keys}}
             {{#if this}}
+            {{#if this.ask}}
+            <button type="button" class="bi-deck-key bi-deck-key--ask" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
+                aria-label="{{localize 'BLANKINHERITANCE.Deck.Ask'}} {{this.label}}"
+                data-preview-title="{{this.label}}" data-preview-value="{{localize 'BLANKINHERITANCE.Deck.Ask'}}" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.AskTheTableSub'}}">
+                <span class="bi-deck-key__label">{{this.label}}</span>
+                <span class="bi-deck-key__ask">{{localize "BLANKINHERITANCE.Deck.Ask"}}</span>
+            </button>
+            {{else}}
             <button type="button" class="bi-deck-key" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
                 data-rank="{{this.rank}}" aria-label="{{this.label}} {{this.modLabel}}"
                 data-preview-title="{{this.label}}" data-preview-value="{{this.modLabel}}" data-preview-sub="{{this.rankLabel}}">
@@ -21,6 +29,7 @@
                 <span class="bi-deck-key__mod">{{this.modLabel}}</span>
                 <span class="bi-deck-key__pips" aria-hidden="true">{{#each this.dots}}<i{{#if this}} class="is-lit"{{/if}}></i>{{/each}}</span>
             </button>
+            {{/if}}
             {{else}}
             <span class="bi-deck-key bi-deck-key--blank" aria-hidden="true"></span>
             {{/if}}

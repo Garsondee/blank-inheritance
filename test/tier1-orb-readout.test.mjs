@@ -111,3 +111,11 @@ test("rollSummary with no DC falls back to the natural die for its tone", () => 
   assert.equal(rollSummary(rollFromMessage(sf2eMessage({ natural: 11 }))).tone, "neutral");
   assert.equal(rollSummary(null), null);
 });
+
+test("readoutTitle reads an ACTION's markup title as the action's name (regression: the orb printed raw <h4> tags, 2026-09-23)", () => {
+  // Copied from the real context title of a Seek used from the deck's Action selector.
+  const seek = '<h4 class="action"> <strong>Seek</strong> <span class="action-glyph">1</span> <span class="subtitle degree-of-success"> (<span>Perception Check</span>) </span> </h4>';
+  assert.equal(readoutTitle(seek), "Seek");
+  assert.equal(readoutTitle("<span>Plain <em>markup</em></span>"), "Plain markup", "markup with no <strong> is stripped to its words");
+  assert.doesNotMatch(readoutTitle(seek), /[<>]/);
+});

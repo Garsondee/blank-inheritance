@@ -111,7 +111,7 @@
  * involved Fortitude at all — see REAL_OUTCOMES.escape's own regression note, below.
  */
 
-import { makeRng, rollD20, rollFormula } from "../engine/rng.mjs";
+import { makeRng, rollD20, rollFormula } from "../shared/rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
 import {
   checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
@@ -119,7 +119,7 @@ import {
   checkTripLegal, checkShoveLegal, checkGrappleLegal, checkEscapeLegal, checkStandLegal, checkCrawlLegal,
   multipleAttackPenalty, rangeIncrementPenalty, spendUse
 } from "./legality.mjs";
-import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage, averageFormula } from "../engine/resolve.mjs";
+import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage, averageFormula } from "../shared/resolve.mjs";
 import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "./grid.mjs";
 import { hasCover, STANDARD_COVER_AC_BONUS, moveBlockedBetween } from "./terrain.mjs";
 import {

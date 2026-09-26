@@ -1,0 +1,232 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--first-contact",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "first-contact",
+  "title": "First Contact",
+  "summary": "The campaign's first Frame-scale fight. Three Proto-Claimants on a harbour road, forty people behind a stopped tram, and six machines that were issued two hours ago. Nothing here dies -- what is beaten comes apart and goes elsewhere.",
+  "goal": "The party gets between forty civilians and three things nobody can identify, and finds out what their machines can do while doing it.",
+  "howToPlay": "Fast, loud and strange. **The enemies are inefficient and wrong-looking, not terrifying** -- whatever made them did not know what it was making. They move in ways that do not quite work, they attack things that are not threats, and they are genuinely dangerous entirely by accident.\n\n**The objective is the tram, not the kills.** Say that early and keep saying it. A party that gets forty people off that road and loses every exchange has won this scene outright.\n\n**Nothing dies.** Whatever is beaten comes apart -- structure failing rather than a creature bleeding -- and what is left goes elsewhere rather than lying there. Do not describe corpses and do not let anybody loot one.",
+  "runsAbout": "45-60 minutes",
+  "mode": "combat",
+  "intro": {
+    "where": "The harbour road below the old town. Tram tracks down the middle, warehouse frontage on the landward side, the harbour wall and a twenty-foot drop to water on the other.",
+    "firstThing": "The sound they make, which is the wrong sound -- not a roar or an engine but something closer to a building settling, continuously, while moving.",
+    "readAloud": "The tram is stopped across the tracks with its doors open and its people out in the road, and past it, coming up the harbour frontage, are three things that do not move the way anything should.\n\nThey are not fast. They are not quiet. They come on as though walking is a problem they are solving fresh each time.\n\nNobody in the road is running yet, because nobody in the road has ever needed to.",
+    "landmark": "the stopped tram, broadside across the tracks -- everything in this fight is measured as nearer to or further from it",
+    "holdInReserve": "The harbour wall. Twenty feet down to deep water, and the drop is survivable for a machine and not for a person.",
+    "carriesIn": [
+      {
+        "when": "A player sat field medicine in School: Period Two",
+        "then": "The `the-hurt-ones` beat is theirs before anybody else reaches for it, and it is two steps easier for them than it looks. Do not say so -- just let them be the one who knows what to do."
+      },
+      {
+        "when": "A player critically succeeded on learn-the-alert-states in School: Period One",
+        "then": "They know this siren is not a test, immediately and with certainty, because it has not stopped. Nobody else on the field has that. Give it to them the moment the siren is mentioned, without a roll."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "comms-officer",
+      "npcRef": "comms-officer",
+      "label": "The Comms Officer",
+      "role": "On the radio throughout. Cannot see anything and is working entirely from the board and from what the party tells her.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "All six of them alive. She stopped arguing the moment they moved and has been useful ever since.",
+        "opensWith": "Not recriminating. Asking what they can see, because the board cannot tell her.",
+        "willDiscuss": [
+          {
+            "topic": "Everything she has, continuously",
+            "note": "Positions, the response timing, anything the board shows. She is the party's only source of information beyond their own eyes and she gives all of it immediately."
+          },
+          {
+            "topic": "What she is doing about the civilians",
+            "note": "She is already working it -- tram control, the harbour office, anybody with a telephone. She is genuinely competent and this is her actually being good at her job."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether they should have come",
+            "why": "Not now. She will have that conversation later and both of them know it. Right now she has six children in machines and she is going to keep them alive first."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Level, fast, and completely focused. The fear from the previous scene is still there and is now entirely subordinated to being useful.",
+          "tics": [
+            "Uses their individual names, every time",
+            "Says what she is doing before she says what she wants them to do",
+            "Repeats a position back to confirm she has it right"
+          ],
+          "samples": [
+            "\"I can't see you. Tell me what you can see and I'll work with that.\"",
+            "\"Tram control are trying to get it moving. If it moves, the road clears. Can you buy them ninety seconds?\"",
+            "\"Track forty-two has stopped. It has not moved for eleven seconds. -- Now it has.\"",
+            "\"I have you. Keep talking to me.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-road",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Establish the ground before anything moves: the tram, the people, the warehouse frontage, the harbour wall and the drop.",
+      "direction": "**Give them the whole map in three sentences and then let them act.** A long fight opening needs the terrain stated once, clearly, so the party can plan with it.\n\nThe road is the fight. Tram in the middle as the thing to protect, warehouses one side to break line of sight, and a twenty-foot harbour wall on the other that a machine can survive going over and a person cannot.",
+      "note": "HOW TO PLAY IT. The terrain is doing the design work here, so make it legible immediately.\n\nBATTLE MAP, in words: a straight harbour road about two hundred yards of usable length. Tram tracks down the centre, tram stopped broadside two-thirds along. Landward side: warehouse frontage, loading bays, roller doors, stacked crates -- cover, corners, and places a Frame can shoulder through. Seaward side: a low harbour wall, then a twenty-foot drop to deep water. Bollards and mooring gear along it. Two side streets climb towards the old town, both narrow enough that a Frame fills them and a bike does not."
+    },
+    {
+      "id": "what-they-are",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anybody tries to work out what they are looking at, let them roll -- and let the honest answer be that nobody knows.",
+      "challengeRef": "c1e2-first-contact",
+      "checkRef": "what-are-they",
+      "when": {
+        "condition": "if a player tries to identify the contacts at any point"
+      },
+      "direction": "**A success does not identify them, because they are not identifiable.** What a success buys is behavioural: how they move, what they attack, what they ignore, and where they are weak. That is worth far more in this fight than a name would be.\n\nOn a critical success, the useful one: they are not coordinating. Three things arrived together and are behaving independently, which means they can be split.",
+      "note": "HOW TO PLAY IT. What a success gives, in order of usefulness: they go for movement rather than for people; they do not look up; each one has a place where the surface has not finished forming, and that place is different on each of the three.\n\nGM-ONLY: they are new. Whatever made them has not done this before and these are the first attempts. Nothing tonight says so.\n\nWHAT IT DOES NOT MEAN: do not let a check produce lore. No character in this scene can name these, establish where they came from, or connect them to anything. A player who wants an answer gets an honest 'nobody in the city knows what these are', which is a better and more frightening result than a bestiary entry.\n\nRECALL KNOWLEDGE: available to anybody, costs nothing, returns the behavioural read above and never an identification."
+    },
+    {
+      "id": "the-tram",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Forty people and a driver, in the road, between the party and the contacts. Getting them out is the actual objective.",
+      "challengeRef": "c1e2-first-contact",
+      "checkRef": "clear-the-road",
+      "direction": "**Say out loud, early, that the tram is the objective.** Not as a hint -- as a fact the characters can see. Any machine can do this and the truck can do it fastest.\n\nEvery round somebody spends on the civilians is a round not spent fighting, and that trade is the scene's real tactical content. A party that splits into a screen and an evacuation has understood it perfectly.\n\nThe tram itself can be got moving, which clears the road in one stroke -- that takes time, somebody working on it, and somebody else buying them the time.\n\nNobody has to roll. A player who gets people moving by shouting at them has done the thing; the check is for somebody trying to do it without causing a crush.",
+      "note": "HOW TO PLAY IT. Three routes off the road, all viable: walk them up a side street, put them behind the warehouse roller doors, or get the tram moving. Let the party pick or invent.\n\n**Do not kill a civilian to raise the stakes.** People can be hurt, frightened, trapped under the tram, or too slow -- all of that is real jeopardy. A death here is not needed and it would convert a scene about protection into a scene about failure.\n\nIF THE PARTY IGNORES THE CIVILIANS ENTIRELY and just fights: the tram driver starts moving people himself, badly and slowly, and the fight gets harder because the road stays full. That is a consequence, not a punishment.",
+      "readAloud": "Forty-odd people and a driver, in the road, between you and the things coming up it.\n\nThey are not running. Some of them are still holding shopping. One of them is taking a photograph.\n\nGetting them off this road is the job. Everything else is how you do that."
+    },
+    {
+      "id": "the-hurt-ones",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "People came off the tram badly and some of them are still in the road. Anybody who goes to them can do something about it.",
+      "challengeRef": "c1e2-first-contact",
+      "checkRef": "treat-the-injured",
+      "when": {
+        "condition": "if any player goes to the casualties instead of, or as well as, the fight"
+      },
+      "direction": "Offer this without weighting it. Going to the casualties is not the noble choice and staying in the fight is not the callous one -- a Frame holding the road is also keeping people alive, and the scene should not imply otherwise.\n\nA player out of their machine doing this is exposed, and that should be visible without being punished for it. Nobody dies here on any result.",
+      "note": "HOW TO PLAY IT. Two or three casualties, named by what happened to them rather than by injury: the man who went back for a bag, the conductor, somebody's grandmother who will not let go of the rail.\n\nWHAT IT DOES NOT MEAN: this is not a test of whether the party are good people and it must never read as one. It is a second real thing to do with an action, offered at the same time as the fight, and both are correct.\n\nPAYS BACK TUESDAY, ON `treat-the-injured`. A player who sat Shucks's field medicine lesson in School: Period Two rolls this at DC 15 instead of 17. Do not mention the lesson."
+    },
+    {
+      "id": "the-fight",
+      "kind": "combat",
+      "mandatory": true,
+      "delivery": "table",
+      "encounterRef": "c1e2-first-contact",
+      "text": "Three contacts, six machines, two hundred yards of harbour road, and a tram in the middle of it.",
+      "direction": "**Use what they found on the proving ground.** Anybody who took the push-it check yesterday has one specific capability and this is what it was for -- the arm that takes a person's weight, the crane that reaches a first-floor window, the canvas back that holds six people, the bike that goes up steps. Invite those.\n\nThe contacts are dangerous and clumsy. They hit hard and inaccurately, they damage the road and the buildings constantly, and they are genuinely bad at fighting. Play their threat as environmental as much as directed.\n\n**Nothing dies.** A beaten contact comes apart -- structure failing, pieces going still, the rest going elsewhere. See the encounter file.",
+      "note": "HOW TO PLAY IT. The machines amplify the people inside them; nobody has become a vehicle. Keep asking what the character is doing, not what the Frame is doing.\n\nTHE WIN CONDITION IS THE ROAD BEING EMPTY OF PEOPLE. Say it, mean it, and award it. A party that clears the tram and then withdraws has completed this scene successfully and should be told so by the fiction -- the Comms Officer says it, plainly, on the radio.\n\nA PARTY IN TROUBLE always has the harbour wall. A machine can go over it and survive; a contact that follows goes into deep water and stops being a problem. That is a real, discoverable tactic and it is in the terrain from the first description."
+    },
+    {
+      "id": "the-response-arrives",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The proper response finally arrives -- later than eleven minutes, because nothing has ever actually had to be scrambled before.",
+      "direction": "Whatever is happening, this is how the scene ends. Real Directorate units, competent, in numbers, arriving to a road that six trainees have been holding.\n\n**They do not rescue the party.** They arrive, they take over, and somebody senior tells the party to stand down and get clear. If contacts remain, the professionals deal with them off-screen.\n\nPlay the arrival as relief rather than as rebuke. The rebuke is a different scene.\n\nPlay the arriving response as competent, unhurried and slightly baffled. They are not angry and they are not grateful -- they were scrambled to an incident and found children in construction plant already working it.\n\n**Do not let them take over on screen.** Whatever the party was doing, they were doing it, and the scene does not retroactively hand it to somebody better equipped.",
+      "note": "HOW TO PLAY IT. Do not time this to rob the party of a win. If they are winning, let them finish and then the response arrives. If they are in trouble, it arrives sooner. This is a scene-ending device, not a difficulty dial.\n\nWHAT THE ARRIVING UNITS ARE: ordinary, competent, first-generation machines with crews who have done drills for twenty years and have never done this. They are not elite and they are not a cavalry charge. Several of them are visibly shaken.\n\nGM-ONLY: whatever is left of the contacts leaves rather than being destroyed, and it leaves the same way it arrived, which nobody sees properly.",
+      "readAloud": "You hear them before you see them, and what you hear is a great deal of engine being used carelessly.\n\nCombat-configured Frames, four of them, coming down the harbour road much faster than the road was built for. They are not what you are in. They were never what you are in.\n\nSomebody on their net is asking, twice, who is already on the ground."
+    },
+    {
+      "id": "afterwards",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Two minutes on the road afterwards, before anybody says anything official.",
+      "direction": "Machines shut down, tram passengers being counted, harbour road in a state. Let the party have the moment and let them talk to each other in it.\n\nSomebody from the tram will want to thank somebody. Let that happen once, briefly, and let it be awkward rather than stirring.\n\n**Two minutes, no rolls, nobody official.** Let the party talk to each other or to the people off the tram, and do not bring an officer in to close it.\n\nWhatever each of them does with ninety unsupervised seconds after the first real thing that has ever happened to them is the most useful characterisation the episode produces. Write it down.",
+      "note": "HOW TO PLAY IT. This is the peak-end beat and it decides what the session is remembered as. Give it real space and do not fill it with information.\n\nDo not have anybody say what it meant, and do not have an NPC frame the party's achievement for them. Somebody says thank you badly, and that is enough.",
+      "readAloud": "Somebody has put a coat over somebody else. The tram is still across the tracks with its doors open and it is going to be there for a while.\n\nYour machine is making a noise it was not making this morning.\n\nIt has been about ninety seconds since anybody told you to do anything, and that is the longest you have been left alone all day."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The Directorate units have the road and somebody has told Section Nine to stand down.",
+    "readAloud": "Forty people on the pavement being counted by somebody with a clipboard. A tram with its windows out. Six machines, still running, in the middle of a road that belongs to somebody else now.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": 1,
+        "why": "Their first real fight, chosen rather than assigned. Award it regardless of how it went."
+      },
+      {
+        "track": "standing",
+        "delta": null,
+        "why": "Complicated and both-directional: forty civilians and the people who were on that tram think one thing, and the Directorate's own chain of command thinks something else. Do not resolve it here -- The Hammer does."
+      }
+    ],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "Somebody with rank tells them to take the machines back to Hangar Two and wait there. Nobody says what for.",
+      "scatterRisk": false
+    },
+    "onwards": "Into The Hammer.",
+    "writeDown": [
+      "How they handled the tram, and how many people were off the road before the response arrived.",
+      "What each machine actually did, especially anything discovered on the proving ground.",
+      "Anybody hurt, and how badly.",
+      "Whether the party worked out the contacts were not coordinating with each other."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-tram-can-move",
+      "text": "The tram is not damaged. It is stopped because its driver got out. It could be moving in ninety seconds if somebody dealt with that."
+    },
+    {
+      "id": "the-harbour-wall",
+      "text": "There is twenty feet of harbour wall and then deep water, and only one side of this fight can survive going over it."
+    },
+    {
+      "id": "use-what-you-found",
+      "text": "Whatever they found their machine could do yesterday morning, this is what it was for."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "objective-was-the-tram",
+      "text": "Whether the party understood the objective was the civilians rather than the kills.",
+      "scaleNote": "0 = played it as a straight fight, 10 = they organised around the evacuation."
+    },
+    {
+      "id": "enemies-read-as-wrong",
+      "text": "Whether the contacts landed as strange and inefficient rather than as standard monsters."
+    },
+    {
+      "id": "machines-felt-good",
+      "text": "Whether being in the machines felt substantially different from Episode One's personnel fight."
+    },
+    {
+      "id": "proving-ground-paid-off",
+      "text": "Whether anything discovered on the proving ground got used, and how it felt when it did."
+    },
+    {
+      "id": "the-quiet-afterwards",
+      "text": "The two minutes on the road at the end -- whether that landed as the session's real ending."
+    },
+    {
+      "id": "too-hard-or-too-easy",
+      "text": "Whether the fight's difficulty was right for six brand-new machines.",
+      "scaleNote": "0 = walkover, 10 = genuinely frightening."
+    }
+  ],
+  "notes": "THE OBJECTIVE IS THE TRAM. This is stated in the scene, repeated by the Comms Officer, and awarded in the outro. A party that empties the road and withdraws has won completely, and the fiction should say so.\n\nNOTHING DIES AND NOTHING IS LOOTED. A beaten contact comes apart structurally and what remains goes elsewhere. No corpses, no salvage, no trophy. That is a deliberate, campaign-level rule about these things and breaking it here would answer questions that are not ready to be answered.\n\nDO NOT KILL A CIVILIAN TO RAISE STAKES. Injury, entrapment, panic and people being too slow are all available and all sufficient. A death converts a scene about protecting people into a scene about having failed to, which is a different and much worse first Frame fight.\n\nTHE ARRIVING RESPONSE IS NOT A RESCUE. Ordinary competent units, late because nothing has ever had to be scrambled before, several of them visibly shaken. They take over. They do not save the party and they do not admire them.\n\nNO STAT BLOCKS HERE ON PURPOSE. The encounter file describes the situation, the ground and the three contacts' behaviour. Build them from existing creatures at the table rather than authoring new ones -- see c1e2-first-contact.json."
+}

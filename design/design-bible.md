@@ -236,7 +236,7 @@ Not yet locked — flagging so nothing gets decided by accident:
 
 Not yet named — referred to functionally throughout this document:
 
-- The Directorate (organisation name)
+- The Directorate (organisation name) — *resolved 2026-09-23, see `data/factions/directorate.json`: 特別対策本部 (Tokubetsu Taisaku Honbu)*
 - The city
 - The Gap (the missing span of history predating the setting — a Second Impact analogue)
 - The six kids and their six Frames

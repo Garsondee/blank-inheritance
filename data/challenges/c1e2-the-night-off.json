@@ -1,0 +1,134 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-the-night-off",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Night Off",
+  "description": "Four checks across one free evening. Two are the bookends of going over the wire -- easy out, hard back -- and two are what each half of the party does with the hours in between. Nothing here can cost anybody tomorrow.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "over-the-wire",
+      "name": "Get off the base without a pass",
+      "skillOptions": [
+        "stealth",
+        "athletics",
+        "deception",
+        "acrobatics"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy. Leaving is the easy half on purpose -- nobody watches people going out, and the party should learn the shape of the problem before meeting the hard version at the end of the night. The approach picks the skill",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "Out clean, and they have found a route that will still work on the way back. Treat getting-back-in as one step easier for anyone using it.",
+        "success": "Out, unseen, no complications.",
+        "failure": "Out -- but somebody saw them go and has not yet decided what to do about it. Getting back in is one step harder.",
+        "criticalFailure": "Out, seen, and whoever saw them is on the gate at the end of the night. Getting back in is one step harder and that route is closed."
+      },
+      "bySkill": {
+        "stealth": "The fence at the east rise, in the dark, the way everyone does it.",
+        "athletics": "Over the top of something rather than through a gap in it, quickly, without needing the dark.",
+        "deception": "Out through the main gate carrying something and looking busy, which works far better than it should.",
+        "society": "Knowing which gate is observed by whom, and at what hour they stop caring.",
+        "acrobatics": "The drainage culvert, which is unpleasant, entirely unwatched and completely reliable."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "the-city-after-dark",
+      "name": "Make something of the evening out there",
+      "skillOptions": [
+        "diplomacy",
+        "performance"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. What the player is actually doing picks the skill -- listening at the stand, talking to strangers, or simply being somewhere",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the late-watch complaint in full: somebody on the plotting floor thinks the board has been showing things that are not there, and has stopped reporting it because of how the last report went.",
+        "success": "A good evening, and the ordinary gossip -- the plotting floor has been busier than usual this month, and nobody likes the new reporting forms.",
+        "failure": "A good evening and nothing useful. They ate, they saw the harbour at night, nobody told them anything.",
+        "criticalFailure": "A good evening, nothing useful, and they are later back than they meant to be. Getting back in is one step harder."
+      },
+      "bySkill": {
+        "diplomacy": "Off-duty adults talk to a polite teenager who buys them food. This is the most reliable route to the late-watch complaint.",
+        "society": "Working out which of the people at the stand are Directorate and which department they are off, by what they order and when they arrived.",
+        "perception": "Listening rather than talking, which at a noodle stand at midnight is the better strategy.",
+        "performance": "Being entertaining enough that people keep talking in front of them, which is a different and funnier route to the same information."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "the-late-crew",
+      "name": "Make yourself useful in the hangar",
+      "skillOptions": [
+        "crafting",
+        "athletics",
+        "diplomacy"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. Hulda Brack is short-handed and grateful for hands -- this measures how much she gets out of them, not whether she lets them stay",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and she tells them which machines come back needing least work and which come back clean and broken. That is real, usable advice at Familiarisation and it is the best sentence anybody says this episode.",
+        "success": "Hours inside a working hangar, hands on a real machine, and time sitting in a cab before anybody official says they may. They are not strangers to these machines tomorrow.",
+        "failure": "They held a light, dropped something expensive-sounding, and were cheerfully told where to stand. They still got inside a machine.",
+        "criticalFailure": "As failure, and she remembers it, and says so tomorrow in front of people. Entirely without malice, which does not help."
+      },
+      "bySkill": {
+        "crafting": "Actually useful to her, immediately, and she notices.",
+        "athletics": "Holding, lifting and fetching for six hours, which is what a late crew mostly needs.",
+        "diplomacy": "Getting her talking, which is not difficult, and getting her to keep talking about the thing you asked rather than the next thing.",
+        "perception": "Watching what the crew does rather than helping, which is a slower route to the same understanding and annoys nobody."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "getting-back-in",
+      "name": "Get back inside before six",
+      "skillOptions": [
+        "stealth",
+        "deception",
+        "athletics",
+        "acrobatics"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1 DC 15, one step hard. Coming back is the difficult half: the night watch is most awake at the end of its shift and the same route rarely works twice. Adjusted by how the evening went, and reduced or waived entirely if somebody inside helps",
+        "adjustment": "hard"
+      },
+      "outcomes": {
+        "criticalSuccess": "In, unseen, and with time enough to get some sleep. Nobody ever knows.",
+        "success": "In, unseen, and tired tomorrow. Nobody ever knows.",
+        "failure": "Caught at the wire by a duty NCO at the end of a long shift. Names taken, a telling-off delivered without much conviction, and one extra job added to a fortnight already full of them.",
+        "criticalFailure": "As failure, and it happens loudly enough that the story is around the block by breakfast. Still no effect on Familiarisation."
+      },
+      "bySkill": {
+        "stealth": "The way they went out, which may or may not still be open.",
+        "deception": "A plausible reason to be up and dressed at this hour, delivered to somebody who wants to believe it so they can go home.",
+        "athletics": "Speed and a wall, which works if nobody is actually looking at that wall.",
+        "society": "Knowing when the watch changes, which is the single most useful fact available and is common knowledge to anybody who asked.",
+        "acrobatics": "Back through the culvert. Reliable, unpleasant, and they will smell of it at seven o'clock."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Individually or in whatever groups form -- the party is expected to split"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--the-night-off",
+    "c1e2-the-long-afternoon"
+  ],
+  "notes": "NOTHING HERE CAN COST ANYBODY TOMORROW. Being caught is a telling-off and one more job on a fortnight already full of them. Nobody is confined, nobody is removed from Familiarisation, and the Section Officer does not find out tonight. A night out that can wreck the next morning is a night out no table takes, and the scene then has no content.\n\nHELP FROM THE INSIDE BEATS ANY ROLL. If players who stayed on base open a door, create a distraction, or vouch for somebody, lower getting-back-in by a step or waive it entirely. Two halves of a split party solving one problem from opposite sides of a fence is the best thing this scene can produce and it should be cheaper than doing it alone.\n\nTHE LATE-WATCH COMPLAINT IS REAL. Somebody on the plotting floor has seen contacts that were not there and stopped reporting them. It is gossip tonight, delivered by a tired adult who is complaining rather than warning. It connects forward to Unidentified Contact. Nobody at the stand knows anything is coming, and nothing here is a prophecy.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give. Every plausible route off or onto this base is a real one -- ask how before asking for a roll."
+}

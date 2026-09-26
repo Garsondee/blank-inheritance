@@ -1,0 +1,853 @@
+{
+  "$schema": "../schema/signoff-checklist.schema.json",
+  "id": "signoff-checklist",
+  "type": "signoff-checklist",
+  "version": 6,
+  "versionDate": "2026-09-24",
+  "description": "The checklist the Sign-Off runs a scene against, as data rather than prose, so that adding a check is a recorded act with a version bump behind it. A scene's seal records the version it cleared; when this file's version rises, every scene sealed under an older one becomes STALE against the specific checks it never faced, and re-clearing it is a targeted look at those checks alone rather than a fresh review. design/scene-signoff.md is the procedure; this is its content.",
+  "notes": "Written 2026-09-22 from Ingram's brief. Every check is phrased as a question with one right answer, because a check phrased as a topic ('consider pacing') cannot be cleared and so never is. `auto` names the evaluator in tools/scene-signoff/checklist.mjs for the mechanically decidable subset -- roughly a third; the rest are read by hand and answered in the pass output. A check with auto:null is not softer, it is only unmechanisable. v2, same day, from the first dry run (The Road In): P4 was asking two questions and verifying one, M5 passed vacuously on an empty cast, recommended checks ignored an exemption the author had already written into the scene's own notes, and nothing asked whether the beat structure describes what will actually happen. Plus the consequence radar (M23/M24/Q17), Ingram's own addition. Applicability added the same day, after the second dry run found that 7 of 63 checks cannot be answered for a six-spotlight montage with no NPCs -- and that a manual check had no way to say so, leaving a reviewer to invent an answer or silently skip it, the latter being indistinguishable from forgetting. `appliesWhenAuto` decides the structural cases; a per-scene `notApplicable` entry on the review record handles the rest. No version bump: narrowing when a check applies cannot make an already-sealed scene wrong. v3, same day, from Ingram's answers to the first report's three questions: long-horizon payoffs are suspect until reviewed against their source (M27), the Place pass writes back into the location file rather than only reading it (P11/P12), and any location a scene touches owes real depth (P6, raised to required). v4, same day: the Seam pass. Ingram noticed that nothing in the process compared a scene to the one it leads into -- specifically whether both ends have valid positions for the whole party, who travels together, and who splits up. Four passes became five, and it is the first pass whose subject is a JOIN rather than a scene. v5, same day: the Seam pass reworked from togetherness to COORDINATES after Ingram corrected a miscommunication -- every scene edge owes a real locationRef, because that is what the runner's automatic cut to the world map fires on. S11 added to check the cut actually happens. v6, 2026-09-24: Q18, contamination. Ingram, settling N20 (LEDGER #34): \"We can store files where ever we like, but we must make sure our scenes never contaminate with information which the players shouldn't know yet.\" Q7 asks whether a deliberate disclosure is right; Q18 asks whether anything reached the table that nobody meant to disclose.",
+  "passes": [
+    {
+      "id": "comprehension",
+      "order": 1,
+      "name": "Comprehension",
+      "question": "Do I understand what I would be asked to do at the table, and does the story of this scene hold up?",
+      "output": "One flowing narration of the whole scene, start to finish, in the order it happens, as the GM would run it. Verbatim on every read-aloud, every NPC's opening line, every choice put to the players, and every roll with its skill, DC and outcomes. Nothing summarised that a GM would have to say out loud.",
+      "verdicts": [
+        "CLEAR",
+        "FIX",
+        "STOP"
+      ],
+      "gate": "A STOP here ends the sign-off. If the story of the scene is bad or makes no sense there is no point auditing its fields or polishing its prose.",
+      "stoppingRule": "CLEAR the moment Ingram says she understands the scene and wants it to exist. Comprehension is not a quality pass and may not raise craft findings; those wait for pass 4."
+    },
+    {
+      "id": "completeness",
+      "order": 2,
+      "name": "Completeness",
+      "question": "Is anything missing that the scene needs, or that would help it?",
+      "output": "The required checks as a pass/fail table, then the recommended ones as a ranked list of at most five, each with what it would add and what it would cost. Every recommended check deliberately declined is named out loud with its reason.",
+      "verdicts": [
+        "CLEAR",
+        "FIX"
+      ],
+      "gate": "Every `required` check must pass or be explicitly waived with a reason written into the scene's own notes. A recommended check may be declined freely.",
+      "stoppingRule": "CLEAR when the required table is green. Recommended items are offers, not debt: declining all of them is a legitimate CLEAR."
+    },
+    {
+      "id": "place",
+      "order": 3,
+      "name": "Place",
+      "question": "Does this scene happen somewhere real on the world map, and is that the right somewhere?",
+      "output": "The map crop -- the site and its surroundings, both zooms, captioned with the location's name, id, grid reference and area -- sent as an image, with what the brief claims about the place set against what the map actually shows. If no location exists, a proposal: the best candidate found on the map, or a request for Ingram to draw one.",
+      "verdicts": [
+        "CLEAR",
+        "FIX",
+        "BLOCKED"
+      ],
+      "gate": "A scene with no location on the map is not finished. Ingram's rule, 2026-09-22: 'if it doesn't have a location then it's not finished yet.' BLOCKED is for when the answer needs her to draw or place something, and is a legitimate resting state -- the sign-off continues to pass 4 and the seal waits.",
+      "stoppingRule": "CLEAR when Ingram has looked at the crop and said the siting is right. Her eye on the image is the check; my opinion of the siting is only the proposal."
+    },
+    {
+      "id": "seam",
+      "order": 4,
+      "name": "Seam",
+      "question": "Does this scene join cleanly to the one before it and the one after it?",
+      "output": "The two joins, each stated as a movement: where the previous scene leaves every PC, how they get here, and where this scene leaves them for the next one. Distances and travel times where the locations are real. Then what carries across physically -- kit, documents, injuries, information -- and what is deliberately dropped. If the party can arrive or leave in pieces, how the GM runs that and how they recombine.",
+      "verdicts": [
+        "CLEAR",
+        "FIX",
+        "STOP"
+      ],
+      "gate": "A seam fault is usually cheap to fix and expensive to discover at the table, because it surfaces as the GM improvising a journey mid-session. A STOP here means the two scenes cannot both be true as written -- the order is wrong, or one of them has to move.",
+      "stoppingRule": "CLEAR when both joins are stated as movements a GM could narrate without inventing anything, and every PC has a position at each edge. The first and last scenes of an episode each have one open edge; say so rather than inventing a neighbour for them."
+    },
+    {
+      "id": "quality",
+      "order": 5,
+      "name": "Quality",
+      "question": "Is this good, and where is the best available improvement?",
+      "output": "At most five findings, ranked by how much each would change what the table experiences, each with the current text and a proposed replacement. Obvious fixes are applied and shown as done; anything touching meaning, reveal timing or character is proposed and waits. Then the things I considered and judged fine, named, so that silence is not mistaken for inattention.",
+      "verdicts": [
+        "CLEAR",
+        "FIX",
+        "STOP"
+      ],
+      "gate": "STOP is available here and means the scene is well-built but not worth running -- a different fault from pass 1's STOP, and rarer.",
+      "stoppingRule": "Two rounds of FIX, no more. On the third pass through, every remaining finding is either applied or dropped with a one-line reason, and the pass CLEARs. A critique loop with no terminator is not a quality process; it is a way of never finishing."
+    }
+  ],
+  "checks": [
+    {
+      "id": "C1",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Can I state what this scene is for in one sentence, without re-reading the file?",
+      "why": "If the purpose will not compress, the scene has more than one purpose and the table will feel the seam.",
+      "source": "design/narrative-theory-foundations.md"
+    },
+    {
+      "id": "C2",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Did I narrate the opening exactly as I would say it, rather than describing what the opening does?",
+      "why": "Ingram cannot review what she would be asked to do until she has heard it. Paraphrase hides every fault in the words themselves.",
+      "source": "Ingram, 2026-09-22"
+    },
+    {
+      "id": "C3",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Is every speaking NPC's first line quoted verbatim, in their own voice?",
+      "why": "An NPC's first line is where the table decides who they are. It is also where written-not-spoken dialogue is most visible.",
+      "source": "design/dialogue-and-character-voice.md"
+    },
+    {
+      "id": "C4",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Is every choice stated as the actual decision the players face, in the words they would hear it in?",
+      "why": "A choice described from outside ('they decide whether to trust him') is not reviewable. A choice quoted is.",
+      "source": "design/agency-and-player-choice.md",
+      "appliesWhen": "the scene contains a decision point",
+      "appliesWhenAuto": "hasChoicePoint"
+    },
+    {
+      "id": "C5",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Does every roll arrive named -- the skill, the DC, and what each degree of success does?",
+      "why": "The commonest live failure is a GM knowing a check happens here and not knowing what a critical failure means.",
+      "source": "reference/tables/, design/ux-doctrine.md §11"
+    },
+    {
+      "id": "C6",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Are the join in and the join out narrated rather than summarised?",
+      "why": "The joins between scenes are where a session runs rough, which is why they are authored fields and not left to the GM.",
+      "source": "data/schema/scene-brief.schema.json (intro/outro)"
+    },
+    {
+      "id": "C7",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Is the ending condition something I could observe at the table, rather than a feeling?",
+      "why": "'When it feels done' is how a fifteen-minute scene becomes forty.",
+      "source": "design/pacing-and-the-responsive-campaign.md"
+    },
+    {
+      "id": "C8",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Have I flagged every point where I would have to improvise, and said what I would improvise from?",
+      "why": "Improvisation is fine and unavoidable. Unannounced improvisation is where a scene silently depends on the GM being me.",
+      "source": "design/ttrpg-campaign-and-session-craft.md"
+    },
+    {
+      "id": "C9",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Does the causal chain hold -- does each beat happen because of the one before it, not merely after it?",
+      "why": "Importance is a property of wiring, not prose quality. A beat with no cause reads as arbitrary however well written.",
+      "source": "design/narrative-theory-foundations.md",
+      "appliesWhen": "the scene's beats run in sequence rather than in parallel",
+      "appliesWhenAuto": "beatsAreSequential"
+    },
+    {
+      "id": "C10",
+      "pass": "comprehension",
+      "severity": "required",
+      "auto": null,
+      "question": "Did I avoid stating what the players will feel, conclude, or decide?",
+      "why": "Standing hard rule. A narration that predicts the table's response is describing a different table.",
+      "source": "feedback_never_predict_player_response"
+    },
+    {
+      "id": "M1",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "coreFields",
+      "question": "Are goal, howToPlay, runsAbout and mode all present and non-empty?",
+      "why": "These four are what a GM re-reads thirty seconds before running the scene.",
+      "source": "data/schema/scene-brief.schema.json"
+    },
+    {
+      "id": "M2",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "introFields",
+      "question": "Does intro carry where, firstThing and readAloud?",
+      "why": "A scene with no authored first thing starts with the GM thinking.",
+      "source": "data/schema/scene-brief.schema.json"
+    },
+    {
+      "id": "M3",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "outroFields",
+      "question": "Does outro carry endsWhen, a transition and onwards?",
+      "why": "The outro is the scene's only hook back up to the strategy layer; without it the scene is a dead end.",
+      "source": "data/schema/scene-brief.schema.json"
+    },
+    {
+      "id": "M4",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "mandatoryBeat",
+      "question": "Is at least one beat marked mandatory?",
+      "why": "If nothing must happen, the scene has no spine and can be skipped without loss -- in which case it should be.",
+      "source": "design/scene-audit.md"
+    },
+    {
+      "id": "M5",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "castBriefs",
+      "question": "Does the scene either have a speaking cast with wants, opensWith, a voice register and a sample line each, or say in its notes that it deliberately has no cast?",
+      "why": "A cast member without a want is scenery with a name. Walk-ons are exempt via walkOn: true. The first version tested only 'no INCOMPLETE cast members', which an empty cast satisfies trivially -- The Road In passed it correctly, and a scene that simply forgot its cast would have passed identically.",
+      "source": "design/quests-objectives-and-threads.md, design/scene-audit.md"
+    },
+    {
+      "id": "M6",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "checksHaveDcs",
+      "question": "Does every check in the scene and its challenges name a skill and a DC on the by-level ladder?",
+      "why": "An unlabelled DC is a number invented at the table, and the ladder exists precisely so it is not.",
+      "source": "reference/tables/dc-by-level.json"
+    },
+    {
+      "id": "M7",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "refsResolve",
+      "question": "Does every reference resolve -- npcRef, challengeRef, encounterRef, subsystemRef, locationRef, nodeRefs, artefactRefs?",
+      "why": "A broken ref is a scene that half-exists, and it is invisible until the night it is run.",
+      "source": "design/node-registry.md"
+    },
+    {
+      "id": "M8",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "skillVariety",
+      "question": "Does the scene offer at least two genuinely different skills, or say in its notes why one route is the design?",
+      "why": "The corpus attractor problem: one skill sat on 66% of checks while every per-scene audit read clean. Intake Medicals' five single-skill rungs are the legitimate exception and say so.",
+      "source": "feedback_count_the_corpus_not_the_scene, design/scene-audit.md §10a"
+    },
+    {
+      "id": "M9",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "noCutSystems",
+      "question": "Is the scene free of dependencies on cut systems -- Resonance, Bleed, the five ground roles, Anchors, Suppression?",
+      "why": "All five were cut 2026-09-20. A scene leaning on one cannot be run, and the reference will not announce itself.",
+      "source": "project_systems_flagged_for_rework"
+    },
+    {
+      "id": "M10",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "tableBeatsHaveText",
+      "question": "Does every beat delivered at the table have read-aloud or spoken text authored for it?",
+      "why": "A table-delivery beat with only direction is a stage note where a line should be.",
+      "source": "design/gm-facing-prose-style.md"
+    },
+    {
+      "id": "M11",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "recordsSomething",
+      "question": "Does the scene say what to write down -- carryForward, outro.writeDown, or both?",
+      "why": "What is not recorded when a scene closes is what next session's writing cannot use.",
+      "source": "project_objectives_tracker"
+    },
+    {
+      "id": "M12",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "reactionPrompts",
+      "question": "Are there reaction prompts for the Close Scene dialogue?",
+      "why": "Ingram asked for these directly, to make closing a scene quick and specific rather than a blank box.",
+      "source": "Ingram, 2026-09-19"
+    },
+    {
+      "id": "M13",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "temptations",
+      "question": "Is there at least one temptation -- a line ready to say when nobody is biting?",
+      "why": "A scene needs something to offer a quiet table that is not the GM asking 'so what do you do?'",
+      "source": "design/scene-triggers-and-depth.md §3"
+    },
+    {
+      "id": "M14",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "landmark",
+      "question": "Is there a landmark -- one fixed thing in the space for the scene to orbit?",
+      "why": "A room with no fixed point is described differently every time it is mentioned.",
+      "source": "design/environmental-storytelling-and-place.md"
+    },
+    {
+      "id": "M15",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "carriesIn",
+      "question": "Does the scene carry something in from an earlier scene, conditionally?",
+      "why": "This is the cheap half of the illusion-of-agency finding: acknowledge constantly, branch rarely.",
+      "source": "design/agency-and-player-choice.md"
+    },
+    {
+      "id": "M16",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "holdInReserve",
+      "question": "Is there something held in reserve for a table that pushes harder than expected?",
+      "why": "Depth is free and wants are not. Reserve material is depth that costs nothing until it is needed.",
+      "source": "design/quests-objectives-and-threads.md"
+    },
+    {
+      "id": "M17",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "artefacts",
+      "question": "Can the party leave owning something -- a document, an object, a name?",
+      "why": "An artefact is the most durable form of 'this happened', and it survives the session write-up.",
+      "source": "data/schema/scene-brief.schema.json (artefacts)"
+    },
+    {
+      "id": "M18",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "tracks",
+      "question": "Does the scene move something on the strategy layer?",
+      "why": "A scene that moves no track is theatre with no consequence upward. Legitimate for relax beats, which should say so.",
+      "source": "project_strategy_layer"
+    },
+    {
+      "id": "M19",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "offers",
+      "question": "Does the scene put a time-limited offer on the board?",
+      "why": "Downtime is a scheduling game and it needs things competing for slices. Offers are where they come from.",
+      "source": "design/ux-doctrine.md §3"
+    },
+    {
+      "id": "M20",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "gmModifiers",
+      "question": "Is there a secret GM-side modifier where circumstance should quietly matter?",
+      "why": "An instrument that works better in some hands than others is felt without being shown.",
+      "source": "data/schema/scene-brief.schema.json (gmModifiers)"
+    },
+    {
+      "id": "M21",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Is there an optional insight check that costs nothing to fail?",
+      "why": "The standing Encyclopaedia pattern: always offered, failure never punishes, success rewards attention.",
+      "source": "project_encyclopaedia_checks"
+    },
+    {
+      "id": "M22",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Does a walk-on get a name, so the cast keeps growing?",
+      "why": "A named face seen once is what makes the third appearance land.",
+      "source": "design/research/giant-robo/npc-archetype-catalogue.md"
+    },
+    {
+      "id": "M23",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": "longPlantsHaveNodes",
+      "question": "Is any specific long-horizon fact -- a payoff chapter, a numbered Ledger entry -- asserted in this file's prose instead of on a Node?",
+      "why": "A chapter number or a Ledger entry number written into a beat is a second copy of the Node's own identity, and copies drift. Not hypothetical: The Road In's beat claimed 'pays off Ch5' while the Ledger's payoff column had been cleared -- found live 2026-09-19, design/node-registry.md §11 Bug A. Generic plant language with no Node is the softer M26, because that is an authoring decision rather than a duplicated fact.",
+      "source": "design/node-registry.md; Ingram's consequence radar, 2026-09-22",
+      "addedIn": 2,
+      "addedBecause": "The first dry run's radar pass: 20 long-horizon plants across 13 scenes, and the one prose/Node collision this project has actually had was exactly this shape."
+    },
+    {
+      "id": "M24",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "consequenceRadar",
+      "question": "Does the scene register at more than one consequence horizon -- short, medium and long?",
+      "why": "Measured across the corpus on 2026-09-22: 85 short-term notes, 20 long-term plants, and 11 things in between, with 21 of 26 scenes carrying nothing at the medium horizon at all. A scene that only resolves tonight leaves nothing behind; one that only plants long has no tonight. Recommended, not required, because an empty middle may be correct for a day that is scheduled end to end -- that is a campaign judgment for the episode seal, and this check reports it rather than deciding it.",
+      "source": "Ingram's consequence radar, 2026-09-22",
+      "addedIn": 2,
+      "addedBecause": "Radar run across all 26 scenes found the medium horizon nearly empty and `offers` used by zero scenes, so the Time Economy has nothing feeding it."
+    },
+    {
+      "id": "M25",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": null,
+      "question": "Does the beat structure describe what will actually happen -- are the beats marked mandatory the ones that always occur?",
+      "why": "The Road In has two beats marked mandatory:false that each carry a GUARANTEED fallback instructing the GM to place them in a random player's spotlight anyway. Four things always happen and two are flagged as optional, and both of the mis-flagged ones are Mystery Ledger plants a skimming GM would drop. Nothing on the 57 asked this; it only surfaced by reading the scene aloud.",
+      "source": "The first dry run, 2026-09-22",
+      "addedIn": 2,
+      "addedBecause": "Found by narrating The Road In in the Comprehension pass -- no mechanical check could have caught it."
+    },
+    {
+      "id": "M26",
+      "pass": "completeness",
+      "severity": "recommended",
+      "auto": "plantsWithoutNodes",
+      "question": "Does every beat that plants something long-horizon point at a Node to hold it?",
+      "why": "A plant with no Node has no status, no backlinks and no record that it is still open -- which is how a payoff gets forgotten or paid off twice. Recommended rather than required because a newly written plant legitimately may not have earned a Node yet; M23 holds the hard line for facts that are already specific.",
+      "source": "design/node-registry.md; Ingram's consequence radar, 2026-09-22",
+      "addedIn": 2,
+      "addedBecause": "The first run of M23 conflated two faults: 17 findings, of which some were numbered Ledger references duplicated into prose (a real error) and some were generic 'PLANT' labels (a prompt at most). Two findings in that run were outright false positives -- 'not a planted clue' and 'Nothing in this scene foreshadows anything' -- which is what forced the negation guard."
+    },
+    {
+      "id": "M27",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": null,
+      "question": "Has every long-horizon payoff this scene claims been verified against its own source dossier IN THIS REVIEW, rather than inherited from an earlier draft?",
+      "why": "Ingram, 2026-09-22: \"You need to treat any very long term consequences or payoffs as potentially suspect until it's been part of an actual review itself.\" A plant written before the source material settled is not evidence of anything, and a payoff that has never been read against its dossier is a guess with a reference number on it. Name the dossier and the section you checked, or the claim does not stand.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 3,
+      "addedBecause": "The Road In's a-frame-at-a-distance seeded Mystery Ledger #11 (\"A Frame moves more gently than ordered\") off a Gen 1 utility mech. Both halves were wrong: Gen 1 machines are clanky rust buckets, and the grace in #11 is the Gen 2 tell -- hyper-advanced Mitflit biotechnology, DNA-gated, which almost nobody has ever seen operated. The plant had been carried forward through three drafts and two audits, and every one of them treated the reference number as proof the thought had been had."
+    },
+    {
+      "id": "P1",
+      "pass": "place",
+      "severity": "required",
+      "auto": "hasLocation",
+      "question": "Does the scene resolve to a real location file in data/locations/?",
+      "why": "Ingram, 2026-09-22: if it doesn't have a location then it's not finished yet.",
+      "source": "Ingram, 2026-09-22"
+    },
+    {
+      "id": "P2",
+      "pass": "place",
+      "severity": "required",
+      "auto": "locationNotApproximate",
+      "question": "Is the location an exact correspondence rather than an approximate one?",
+      "why": "A guess recorded as a fact is how a map stops being trustworthy -- the scene-set schema's own words. Approximate is fine while drafting and not at sign-off.",
+      "source": "data/schema/scene-set.schema.json",
+      "dependsOnCheck": "P1"
+    },
+    {
+      "id": "P3",
+      "pass": "place",
+      "severity": "required",
+      "auto": null,
+      "question": "Has Ingram seen the map crop and confirmed the siting?",
+      "why": "The siting is hers to judge; the crop is mine to produce. This check cannot be cleared by me.",
+      "source": "Ingram, 2026-09-22"
+    },
+    {
+      "id": "P4",
+      "pass": "place",
+      "severity": "required",
+      "auto": "locationHasLore",
+      "question": "Does the location carry a written lore summary at all?",
+      "why": "Half of what this check used to ask -- 'and does it agree with the scene' -- was never verified by the evaluator, which then reported ok and implied it had been. A check whose question contains 'and' is suspect; the agreement half is now P10, read by hand.",
+      "source": "design/node-registry.md",
+      "dependsOnCheck": "P1"
+    },
+    {
+      "id": "P5",
+      "pass": "place",
+      "severity": "required",
+      "auto": null,
+      "question": "Does what the brief claims about the surroundings match what the map actually shows?",
+      "why": "'Beside the barrier' is checkable. When it is wrong, either the prose or the map is lying, and both are cheap to fix now and expensive to fix later.",
+      "source": "design/environmental-storytelling-and-place.md"
+    },
+    {
+      "id": "P6",
+      "pass": "place",
+      "severity": "required",
+      "auto": "locationDepth",
+      "question": "Does the location carry real depth -- `sketch` at minimum for a place the scene merely points at, `scene` for one a beat actually happens in?",
+      "why": "Ingram, 2026-09-22: \"if a location is in a scene even for a moment we should write that down in its own detailed location file so that if we ever come back here we don't contradict an earlier scene in this location.\" Raised from recommended to required by that answer. The depth ladder in design/location-depth.md already says what each tier owes, and tools/gazetteer/core/depth.py already enforces it -- this check is what puts a scene's location on it.",
+      "source": "tools/gazetteer/ (Review mode's depth check)",
+      "dependsOnCheck": "P1",
+      "addedIn": 1,
+      "addedBecause": "Was recommended in v1-v2 and passed over on The Road In as \"location work, not scene work\". Ingram's answer rejected that split: a location seen for a moment is exactly the one a later scene will contradict, because nobody wrote down what it was like."
+    },
+    {
+      "id": "P7",
+      "pass": "place",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Is there a map pin for it, so players can find it again?",
+      "why": "The campaign map is a hub the players use. A scene's location that is not on it is only in the GM's head.",
+      "source": "project_scene_set_and_palette"
+    },
+    {
+      "id": "P8",
+      "pass": "place",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Is the scene's landmark a real feature visible on the map rather than an invented one?",
+      "why": "A landmark the map contradicts is worse than none, because it will be described confidently and wrongly.",
+      "source": "design/environmental-storytelling-and-place.md"
+    },
+    {
+      "id": "P9",
+      "pass": "place",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Is travel from the previous scene's location to this one plausible in the time the episode allows?",
+      "why": "The travel graph exists and will contradict a timetable nobody checked.",
+      "source": "data/map/travel-graph.json"
+    },
+    {
+      "id": "P10",
+      "pass": "place",
+      "severity": "required",
+      "auto": null,
+      "question": "Does the location's own lore agree with what this scene says about the place?",
+      "why": "Two descriptions of one building is the duplication the Node Registry exists to catch. Split out of P4, which asked this and never verified it.",
+      "source": "design/node-registry.md; the first dry run, 2026-09-22",
+      "addedIn": 2,
+      "dependsOnCheck": "P1",
+      "addedBecause": "P4 reported ok on 49 words of lore and thereby implied it had checked agreement, which it could not do."
+    },
+    {
+      "id": "P11",
+      "pass": "place",
+      "severity": "required",
+      "auto": null,
+      "question": "Has what this scene establishes about the place been written back into the location's own file?",
+      "why": "Ingram, 2026-09-22: \"take this as a chance to update the Gazetteer so that both the story scenes and the map stay in lockstep and both stay accurate and detailed, enriched by each other.\" Reading the map to check a scene is half the job; the other half is that the scene almost always knows something the location file does not, and if that never lands in the file it is lost the moment the scene is finished. This is what makes Place a two-directional pass rather than a lookup.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 3,
+      "dependsOnCheck": "P1",
+      "addedBecause": "The Road In's Place pass confirmed the Candidate Gate and produced a page of real detail about it -- what the roster does, what the ledger costs, why the corrected curfew figure is not a clue -- none of which existed in candidate-gate.json. Without this check that detail would have stayed in the review and died there."
+    },
+    {
+      "id": "P12",
+      "pass": "place",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Does anything here need Ingram to draw or place something on the map, and has it been filed as a gazetteer request?",
+      "why": "The gazetteer already carries a Claude-to-Ingram queue (data/map/gazetteer-requests.json) for exactly this. A need voiced in a review and not filed is a need that has to be rediscovered.",
+      "source": "tools/gazetteer/; Ingram, 2026-09-22",
+      "addedIn": 3
+    },
+    {
+      "id": "S1",
+      "pass": "seam",
+      "severity": "required",
+      "auto": "seamPositionsStated",
+      "question": "Does the scene declare a real coordinate at each edge -- where the party is when it opens and where they are when it closes?",
+      "why": "Ingram, 2026-09-22, correcting a miscommunication: \"I don't want to just track if the group splits or merges, I want to literally have a set of coordinates for the players to move between.\" The coordinate is the point. `intro.position.locationRef` and `outro.position.locationRef` are what the Scene Runner's automatic cut to the world map runs on -- core/travel-trigger.mjs's needsTravel fires on a locationRef CHANGE and does nothing at all when either side is null. `scattered` is the one legitimate no-coordinate edge, reserved for the campaign's own opening.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "addedBecause": "Discovered while preparing Intake Medicals: The Road In ends with six people in six towns and Intake Medicals opens with all six in one queue, and nothing anywhere said how."
+    },
+    {
+      "id": "S2",
+      "pass": "seam",
+      "severity": "required",
+      "auto": "seamStatesReachable",
+      "question": "Is this scene's opening party state actually reachable from the previous scene's closing state?",
+      "why": "`individual` cannot become `together` without a `converging` step or an explicit time skip; `split` cannot become `together` without a stated rejoin. A mismatch is a real fault and not a formatting one -- it is a journey the GM will have to invent live.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "dependsOnCheck": "S1",
+      "appliesWhen": "there is a previous scene to arrive from",
+      "appliesWhenAuto": "notTheFirstScene"
+    },
+    {
+      "id": "S3",
+      "pass": "seam",
+      "severity": "required",
+      "auto": null,
+      "question": "Does every PC have a position at this scene's open -- including anyone who was absent from, or elsewhere in, the previous scene?",
+      "why": "A party of six will not always all be on screen. The scene that follows a split has to be able to place the people who were not in it, and \"they turn up too\" is not a position. This is the check that survives contact with a table where one player missed a session.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "appliesWhen": "the party can be in more than one place -- i.e. the previous scene is split, scattered or individual",
+      "addedBecause": "The Road In is six solo spotlights, so its own successor has to gather six people from six unstated places. That is fine and deliberate, but it has to be written down once."
+    },
+    {
+      "id": "S4",
+      "pass": "seam",
+      "severity": "required",
+      "auto": "seamOnwardsNamesNext",
+      "question": "Does the previous scene's `outro.onwards` name this scene, and does what it says about where they end up agree with this scene's `intro.where`?",
+      "why": "Two authored fields describe the same moment from opposite sides. When they disagree, one of them is wrong and the GM finds out at the join, which is where a session runs rough.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "dependsOnCheck": "S1",
+      "appliesWhen": "there is a previous scene to arrive from",
+      "appliesWhenAuto": "notTheFirstScene"
+    },
+    {
+      "id": "S5",
+      "pass": "seam",
+      "severity": "required",
+      "auto": null,
+      "question": "Given the distance S11 measures, is the journey actually possible in the time the episode allows -- and does something in the fiction carry them?",
+      "why": "S11 measures the leg; this is the judgment on top of it. A tram, a truck, a lift or a time skip all beat walking, and the measurement cannot see which one the scene uses -- only that the distance exists. A 2.3 km leg between two scenes ten minutes apart is fine if somebody drove them and a fault if nobody did.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "dependsOnCheck": "S11",
+      "appliesWhen": "there is a previous scene, and both scenes resolve to real locations",
+      "appliesWhenAuto": "notTheFirstScene"
+    },
+    {
+      "id": "S6",
+      "pass": "seam",
+      "severity": "required",
+      "auto": null,
+      "question": "Does what the party carries out of the previous scene arrive in this one -- kit, documents, injuries, information -- or is it explicitly dropped?",
+      "why": "A docket handed over in one scene and absent from the next is the commonest continuity fault in any campaign, and the cheapest to prevent. `intro.carriesIn` already exists for the conditional version; this is the unconditional one.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "appliesWhen": "there is a previous scene to arrive from",
+      "appliesWhenAuto": "notTheFirstScene"
+    },
+    {
+      "id": "S7",
+      "pass": "seam",
+      "severity": "required",
+      "auto": "seamLeavesThemPlaced",
+      "question": "Does this scene's close leave every PC somewhere the NEXT scene can legitimately open from?",
+      "why": "The forward half of the same question. A scene that ends well for itself and badly for its successor is only visible from here, because neither scene's own review can see it.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4
+    },
+    {
+      "id": "S8",
+      "pass": "seam",
+      "severity": "recommended",
+      "auto": null,
+      "question": "If the party can split inside this scene, does the scene say how the GM runs the two tracks and how they recombine?",
+      "why": "Splitting is normal and good -- Ingram: \"the group will mostly travel together to the same place and will sometimes split up.\" What goes wrong is not the split; it is a split with no stated rejoin, which leaves the GM cutting between two groups with no idea when to stop.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "appliesWhen": "the scene permits or forces a split"
+    },
+    {
+      "id": "S9",
+      "pass": "seam",
+      "severity": "recommended",
+      "auto": "seamScatterRiskStated",
+      "question": "Is `outro.transition.scatterRisk` honest -- could this scene realistically end with the party in different places?",
+      "why": "The field already exists on every scene and is almost always `false`. False by default is fine; false because nobody asked is not.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4
+    },
+    {
+      "id": "S10",
+      "pass": "seam",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Could a PC plausibly be absent from this scene, and does it survive that?",
+      "why": "Six players, and not all of them at every session. A scene whose mandatory beats each need a specific PC present is a scene that breaks when somebody has a cold.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 4,
+      "appliesWhen": "the scene has mandatory beats that name or need specific PCs"
+    },
+    {
+      "id": "S11",
+      "pass": "seam",
+      "severity": "required",
+      "auto": "seamCutFires",
+      "question": "Does the automatic cut to the world map actually fire on the way into this scene?",
+      "why": "The whole scene -> map -> scene loop is already built and wired (foundry/scene-runner.mjs calls needsTravel at three sites; foundry/travel.mjs plans a real route across the road graph and animates it). It degrades in the worst possible way: when either end has no locationRef the cut is skipped SILENTLY, with no error anywhere, and the table is simply somewhere else next beat. Measured 2026-09-22: 7 of 25 scene changes fire; 17 are silent hard cuts.",
+      "source": "Ingram, 2026-09-22",
+      "addedIn": 5,
+      "dependsOnCheck": "S1",
+      "appliesWhen": "there is a previous scene to arrive from",
+      "appliesWhenAuto": "notTheFirstScene",
+      "addedBecause": "Running the leg report for the first time: only 7 of 25 scene changes produced a journey, and nothing in the corpus or the code said so -- needsTravel simply returned false."
+    },
+    {
+      "id": "Q1",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Read the read-aloud out loud. Does it put a body in the room, in four sentences or fewer, with no abstraction?",
+      "why": "Ingram gets energy from reading a description that brings people into a scene. This is the check that pays that back.",
+      "source": "Ingram, 2026-09-22; design/gm-facing-prose-style.md"
+    },
+    {
+      "id": "Q2",
+      "pass": "quality",
+      "severity": "required",
+      "auto": "prosePatterns",
+      "question": "Is any construction here repeated from an adjacent scene?",
+      "why": "Two is where a construction stops being a choice and becomes a habit. The ratchet goes on at two, not at sixty-nine.",
+      "source": "design/scene-audit.md §8"
+    },
+    {
+      "id": "Q3",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Does every NPC line sound like something a person would say out loud?",
+      "why": "Standing correction: dialogue that reads as written rather than spoken is the single most-flagged fault in this corpus.",
+      "source": "feedback_npc_dialogue_natural_speech",
+      "appliesWhen": "the scene has a speaking cast",
+      "appliesWhenAuto": "hasSpeakingCast"
+    },
+    {
+      "id": "Q4",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Is each NPC introduced doing the thing that defines them?",
+      "why": "A character established by assertion has to be re-established every scene. One established by action does not.",
+      "source": "design/dialogue-and-character-voice.md",
+      "appliesWhen": "the scene has a speaking cast",
+      "appliesWhenAuto": "hasSpeakingCast"
+    },
+    {
+      "id": "Q5",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Does anyone from an earlier scene come back here where it would make sense, and does the scene use them rather than just mention them?",
+      "why": "A cast is built by return. Ingram asked for this directly: keep bringing characters back so a roster accumulates.",
+      "source": "Ingram, 2026-09-22",
+      "appliesWhen": "there is an earlier scene for someone to return from",
+      "appliesWhenAuto": "notTheFirstScene"
+    },
+    {
+      "id": "Q6",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Does every NPC want something in this scene other than to advance the plot?",
+      "why": "This is the whole two-dimensionality test, and it is also the depth-is-free rule: an intermediate with their own legible want turns an errand into an arc.",
+      "source": "design/quests-objectives-and-threads.md",
+      "appliesWhen": "the scene has a speaking cast",
+      "appliesWhenAuto": "hasSpeakingCast"
+    },
+    {
+      "id": "Q7",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "For every fact this scene discloses: is this the right amount, in the right way, at the right time -- and what does the mystery ledger say it costs to spend it here?",
+      "why": "Ingram's own emphasis, and the hardest check on this list. Suspense, curiosity and surprise are the only three engines; a reveal spent early cannot be spent again.",
+      "source": "design/narrative-theory-foundations.md; the Mystery Ledger"
+    },
+    {
+      "id": "Q8",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Is the scene roughly half PC-side agency and half the scene asking something of the PCs?",
+      "why": "Standing ratio. A scene that only asks is a lecture; one that only offers has no stakes.",
+      "source": "feedback_beat_reciprocity"
+    },
+    {
+      "id": "Q9",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Are the things rolled against varied, both inside this scene and against its neighbours?",
+      "why": "Variety of what you roll against is where a system stops feeling like one skill with different names.",
+      "source": "Ingram, 2026-09-22; design/scene-audit.md §10b"
+    },
+    {
+      "id": "Q10",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "What is this scene's emotional arrow, and does it make a run of three or more in the same direction with its neighbours?",
+      "why": "A run of consecutive downs is a fault to fix, not a mood to accept. Two at the opening of Episode Two was already caught this way.",
+      "source": "design/pacing-and-the-responsive-campaign.md §6; design/scene-audit.md §9"
+    },
+    {
+      "id": "Q11",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Does the scene set up the task and guarantee the outcome without scripting the tactic?",
+      "why": "Standing rule: never prescribe the approach. The players own the how.",
+      "source": "feedback_dont_prescribe_approach"
+    },
+    {
+      "id": "Q12",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Is the tone Giant Robo -- warm, funny, uplifting, with the comedy load-bearing -- and not a slide toward the other shelf?",
+      "why": "The locked tone. Dark is allowed; depressing is a failure state.",
+      "source": "feedback_tone_giant_robo_not_eva; design/research/evangelion/tone-guardrail.md"
+    },
+    {
+      "id": "Q13",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Is there one thing here a player would retell afterwards?",
+      "why": "Peak-end: a session is remembered by its peak and its finish, not by its average.",
+      "source": "design/pacing-and-the-responsive-campaign.md"
+    },
+    {
+      "id": "Q14",
+      "pass": "quality",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Does anything in the scene reward a player for having paid attention earlier?",
+      "why": "Delayed payoff is the cheapest way to make a campaign feel like one thing rather than a sequence of evenings.",
+      "source": "design/pacing-and-the-responsive-campaign.md",
+      "appliesWhen": "there is earlier play for a player to have paid attention to",
+      "appliesWhenAuto": "notTheFirstScene"
+    },
+    {
+      "id": "Q15",
+      "pass": "quality",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Is there a squeeze with sympathetic institutional logic that the players are given room to push back on?",
+      "why": "The bad-then-pushback pattern: the institution is never a cartoon, and its reasonable-sounding demand is the thing worth arguing with.",
+      "source": "feedback_bad_then_pushback_pattern"
+    },
+    {
+      "id": "Q16",
+      "pass": "quality",
+      "severity": "recommended",
+      "auto": null,
+      "question": "Does the scene's mechanical shape mean something about its fiction?",
+      "why": "Ludonarrative resonance is a standing requirement, not a bonus: the rules should be saying the same thing as the story.",
+      "source": "feedback_ludonarrative_resonance"
+    },
+    {
+      "id": "Q17",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "For each horizon this scene registers at, is that the right horizon for the consequence?",
+      "why": "A consequence filed short that should be long gets forgotten; filed long when it should be short makes tonight feel inconsequential. The radar counts horizons; only reading can tell you whether a thing is in the right one.",
+      "source": "Ingram's consequence radar, 2026-09-22",
+      "addedIn": 2
+    },
+    {
+      "id": "Q18",
+      "pass": "quality",
+      "severity": "required",
+      "auto": null,
+      "question": "Is everything in this scene that reaches the players (read-aloud, handouts, and anything shown or said at the table) free of anything they shouldn't know yet: no GM-only fact, no name or term from a later reveal, and no hint that points at one?",
+      "why": "Ingram's rule, settling N20: the scenes must never be contaminated with information the players shouldn't know yet. Where the files are stored doesn't matter; what reaches the table does. Q7 checks the disclosures a scene means to make; this checks for the ones it didn't.",
+      "source": "Ingram, 2026-09-24, LEDGER #34 (N20)",
+      "addedIn": 6
+    }
+  ]
+}

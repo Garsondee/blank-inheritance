@@ -61,7 +61,7 @@ framing is explicit: this should function as a real, failable social challenge, 
 getting it wrong (she clams up, the party gets nothing, maybe burns the chance for anyone else to try).
 
 **Her absence is not a mystery to be solved by the party in Chapter One** — it's the reason they exist,
-established backstory, not an active investigation thread for Session One specifically. Whether/when
+established backstory, not an active investigation thread for Episode One specifically. Whether/when
 the party learns any of this is open (see below).
 
 **The Intake Medicals overhear check (`overhear-the-search`) must stay a fragment, even on a critical
@@ -73,9 +73,11 @@ build directly off what a player overheard here without a real, separate scene m
 ## Open questions
 
 - ~~When (if ever) does the party learn Nozomi existed at all?~~ **Partially answered 2026-09-10
-  (`LEDGER.md` #10):** a fragment can surface as early as Chapter One, Session One — a real, optional
+  (`LEDGER.md` #11 — corrected 2026-09-19, this citation previously misnumbered it as #10, which is
+  a different entry entirely, "Nothing you cannot leave"; #11's own "Filed to" line names this exact
+  file and section):** a fragment can surface as early as Chapter One, Episode One — a real, optional
   Perception check while queueing at Intake Medicals (`overhear-the-search`,
-  `data/challenges/c1s1-the-medical.json`). Deliberately a fragment only, never her name resolving to
+  `data/challenges/c1e1-the-medical.json`). Deliberately a fragment only, never her name resolving to
   anything actionable — see Tone and register below. When the FULL story surfaces (if ever, beyond this
   early hint) is still open.
 - Can the party actually visit/interview her, and if so, when does that become available, and what's
@@ -92,5 +94,5 @@ build directly off what a player overheard here without a real, separate scene m
 
 - [ideas/story/blank-inheritance-master-timeline.md](../../blank-inheritance-master-timeline.md) — "Weeks before Day 1" entry.
 - [ideas/story/dossier-cicada.md](../../dossier-cicada.md) §7 — the magic-show recruitment mechanic her case is a worked example of.
-- [ideas/story/dossier-shinobu.md](../../dossier-shinobu.md) — the other "witness" figure the Observer/Cicada machinery has processed; a real thematic parallel, not the same story.
+- [ideas/story/dossier-shinobu.md](../../dossier-shinobu.md) — the other "witness" figure the Watcher/Cicada machinery has processed; a real thematic parallel, not the same story.
 - `design/induction.md` — the Day 1 pilot's own seat, which her absence opens.

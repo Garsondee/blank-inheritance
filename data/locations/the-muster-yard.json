@@ -1,0 +1,127 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-muster-yard",
+  "type": "location",
+  "tier": "site",
+  "name": "The Muster Yard",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "landing-end",
+    "muster",
+    "duty-board"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21060649,
+          34.6779409
+        ],
+        [
+          135.21158631,
+          34.67842198
+        ],
+        [
+          135.21186224,
+          34.6780048
+        ],
+        [
+          135.21086867,
+          34.67753462
+        ],
+        [
+          135.21060649,
+          34.6779409
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6645.8,
+          5944.5
+        ],
+        [
+          6696,
+          5852.9
+        ],
+        [
+          6741.3,
+          5879.9
+        ],
+        [
+          6689.4,
+          5971.1
+        ],
+        [
+          6645.8,
+          5944.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6693.28,
+      5911.86
+    ],
+    "cells": [
+      "D3·28"
+    ],
+    "ref": "D3·28",
+    "areaM2": 5430.9,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-559",
+    "promotedDate": "2026-09-22"
+  },
+  "authoring": {
+    "note": "",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The hard yard at the centre of the Landing End, 372 m from the Main Mech Hangar and within a few minutes' walk of the housing rows, the canteen and the Infirmary. Everything on this half of the island passes through it twice a day.\n\nTwo fixed objects decide every scene here: the duty board under its tin hood, and the yard clock, which is what evening muster is measured against and which everyone can see from everywhere.",
+    "playerFacing": "A board the width of a bus under a tin hood, ruled into a grid of wooden slots, with a fortnight of names in it. The sound of it is the sound of the yard: slot-tiles being taken down and put back, a dozen people at once, like a slow game of dominoes.\n\nA hatch in the wall behind it with a clerk on the other side, a stamp, and a ledger. Above everything, the yard clock, which is never wrong and never quite agrees with anyone's watch.",
+    "gmOnly": "THE BOARD IS PUBLIC AND THAT IS THE MECHANISM. Anything written on it is known by everyone within the hour. A duty change is not delivered privately here; it is read, by strangers, before the person it belongs to gets to the yard. That is how The Override lands.\n\nTHE HATCH IS AN OBSTACLE, NOT A PERSON. The Time Office clerk keeps the board and will not move a tile without the right paper. Coercion does not work; paperwork does.\n\nTHE CLOCK IS THE TIMER. Any scene that lets the party off the base runs against it, because evening muster is measured by this clock and no other -- see The Long Afternoon, which sends them away and uses this to bring them back."
+  },
+  "scene": {
+    "hooks": [
+      "Reading the fortnight off the board and finding your own name in a slot you did not expect.",
+      "Evening muster, in the rain, while somebody reads an order out that he did not write and cannot change.",
+      "Getting a tile moved -- which means getting the right paper stamped at the hatch first."
+    ],
+    "activities": [
+      "Read the whole board rather than just your own line: Perception or Society to work out what the roster says about who is being kept apart from whom.",
+      "Petition at the hatch. Diplomacy against a clerk who is not being difficult, only correct.",
+      "Stand muster and keep your face still while something is announced about you."
+    ],
+    "history": "",
+    "consequences": "A change made on this board is public, permanent for the fortnight, and visible to every other candidate. Anything the party wins or loses here, they win or lose in front of an audience."
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "section-officer",
+    "landing-end-duty-nco"
+  ],
+  "episodeRefs": [
+    "episode-c1e2-scheduled-exercise"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e2--the-board"
+  ],
+  "playlistRefs": [
+    "episode-c1e2--the-board"
+  ]
+}

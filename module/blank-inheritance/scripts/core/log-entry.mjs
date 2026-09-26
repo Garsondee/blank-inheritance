@@ -20,7 +20,6 @@ export const LOG_TAGS = Object.freeze([
   "decision",
   "reaction",
   "thread",
-  "anchor",
   "setup",
   "npc",
   "rule"

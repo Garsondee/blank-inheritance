@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-familiarisation",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Familiarisation",
+  "description": "Two checks in the hangar. Neither decides who gets which machine -- that is a conversation between players, not a roll. What these decide is how much a first acquaintance gives back, and whether anybody finds the thing at the far end.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "first-time-in-the-cab",
+      "name": "First time in the cab",
+      "skillOptions": [
+        "crafting",
+        "athletics",
+        "survival"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. Not pass-fail -- this decides how much the machine gives back on a first acquaintance, and every result gets them in the seat",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "They find the previous pilot's left-behind thing without looking for it, work out one control that is not labelled, and get a genuine feel for the machine. Treat them as comfortable in it from the first minute of the exercise.",
+        "success": "The seat, the smell, the reach of the controls, and the thing a previous pilot left behind.",
+        "failure": "It is bigger inside than it looked and nothing is where a person would put it. They are in, and nothing is broken, and the seat was built for somebody with a longer reach.",
+        "criticalFailure": "As failure, and something gets grabbed that should not have been grabbed. A klaxon, a floodlight, or the grapple arm swinging ten feet. No damage, considerable noise, and the whole hangar looks round."
+      },
+      "bySkill": {
+        "crafting": "Reading the machine as a machine -- what has been repaired, what has been bodged, what the previous pilot cared about.",
+        "perception": "The small stuff: the tin, the photograph, the tally by the door, the wear on one pedal and not the other.",
+        "athletics": "Getting properly settled and finding the reach of everything, which on a machine built for an adult is a real question.",
+        "survival": "What this thing would be like to spend eleven hours in, which is the question that actually matters later."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "the-helicopter",
+      "name": "Behind the screen",
+      "skillOptions": [
+        "perception",
+        "stealth",
+        "diplomacy"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy. Nothing is being hidden -- the difficulty is only in thinking to look, and anybody who asks Hulda directly is simply told",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "The helicopter, airworthy, and the whole truth about it: nobody on this base is currently rated to fly one, the rating is a real course that costs real quarters, and Hulda will sign the paperwork the day somebody qualifies.",
+        "success": "A helicopter, under dust sheets, in working order, not on the chalk board.",
+        "failure": "Screens, dust sheets, and something large behind them. Asking anybody gets a straight answer, so this is barely a failure at all.",
+        "criticalFailure": "As failure, and they knock a screen over doing it. Noise, no harm, and Hulda is delighted rather than annoyed."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Individually -- each pilot meets their own machine"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--familiarisation",
+    "c1e2-the-night-off"
+  ],
+  "notes": "NO ROLL DECIDES WHO GETS WHICH MACHINE. If two players want the same one, that is a conversation between those two players and it belongs to them. Hulda Brack will not adjudicate it and says so.\n\nTHE HELICOPTER IS NOT A TEASE. There is a real route to it, it is stated plainly on any success, and the door is open. A long-term want with a known price is a gift to a player; a locked box is not.\n\nTHE CRITICAL FAILURE IN THE CAB IS COMEDY, NOT DAMAGE. Nothing breaks, nobody is hurt, and no machine is withheld as a result. The entire hangar looking round is the whole cost.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+}

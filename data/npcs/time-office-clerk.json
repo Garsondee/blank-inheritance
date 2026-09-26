@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "time-office-clerk",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Clerk, The Time Office",
   "pole": null,

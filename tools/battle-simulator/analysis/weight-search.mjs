@@ -38,7 +38,7 @@
 import { appendFileSync, existsSync, writeFileSync, readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { makeRng } from "../engine/rng.mjs";
+import { makeRng } from "../shared/rng.mjs";
 import { DEFAULT_WEIGHTS } from "../personnel-engine/evaluate/state-value.mjs";
 import { BASELINE_V1, assertCompleteWeights } from "../personnel-engine/ai-profiles.mjs";
 import { ARCHETYPES } from "../personnel-engine/archetypes.mjs";

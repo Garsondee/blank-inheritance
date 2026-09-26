@@ -11,7 +11,7 @@
  * FEET_PER_SQUARE is a hardcoded module constant imported by 9 Frame-scale files, and threading a
  * runtime parameter through all of them would risk the 351 tests already passing at that scale.
  * Same precedent `ground-layer/` already established for exactly this kind of split
- * (design/scale-and-chassis.md §2).
+ * (the retired two-scale design (deleted 2026-09-25) §2).
  */
 
 const FEET_PER_SQUARE = 5;

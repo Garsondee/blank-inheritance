@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--school-second-period",
+  "type": "audio-soundscape",
+  "title": "S1 · School: Second Period",
+  "note": "'A room full of jars and trays, or a room where six girls with headsets are concentrating.' Thoughtful pool for the same reason as Intake Medicals -- both rooms are quiet, close-attention work. No bed, for the same reason as First Period.",
+  "music": {
+    "pool": "thoughtful"
+  },
+  "ambience": [],
+  "fade": 3000
+}

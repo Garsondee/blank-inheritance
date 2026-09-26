@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/encounter.schema.json",
+  "id": "c1e1-flood-tunnel",
+  "type": "encounter",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Flood Tunnel Clearance",
+  "description": "Episode One's night quarter, and the campaign's first combat. Six Giant Centipedes, provoked by the party restarting a jammed drainage/compactor system they were sent to clear. Routine, sanctioned, paid by the head -- see ideas/story/bible/species/mitflits.md for why this is centipedes and not the mitflit nest the source material originally described. Runs the shared c1e1-compactor-cycle subsystem alongside it if that optional layer is in use.",
+  "partyLevel": 1,
+  "partySize": 6,
+  "intendedThreatLevel": "moderate",
+  "creatures": [
+    {
+      "creatureRef": null,
+      "name": "Giant Centipede",
+      "level": -1,
+      "count": 6,
+      "build": "Ships with the system: Tales from the Vast bestiary pack. AC 15, HP 8, land speed 30, Mandibles +6 for 1d4-1 piercing plus Giant Centipede Venom. Numbers read out of gamesystems/sf2e/packs/ rather than from memory.\n\nSpeed 30 against a flooded, murky, difficult-terrain floor is the whole tactical shape of this room: they cross the sludge faster than the party can, which is what makes the elevated walkways worth the climb rather than just scenery. No reskin -- these are exactly what they look like."
+    }
+  ],
+  "environment": "Cze & Peku's 'Trash Compactor' map. A single room: an elevated control platform to the north with the panels the party used to start the process, a step down to a large sunken central floor built around a glowing circular grate/compactor mechanism (flooded, murky, difficult terrain, poor light -- this is where the centipedes emerge from and where most of the fight happens), and conveyor-style walkways flanking both long walls, elevated and dry, giving a real tactical alternative to wading through the sludge. If the optional compactor-cycle subsystem is in play, the sunken floor also becomes actively dangerous ground as Encroachment rises -- the walkways are the reliable safe lane throughout.",
+  "specialRules": [
+    "TRIGGER: the fight starts the moment the party gets the drainage system running (power-the-line and clear-the-jam, both in episode-c1e1--flood-tunnel.json) -- the noise and disturbance wakes the nest. The centipedes are not surprised; treat this as a normal initiative roll for both sides, not a party ambush.",
+    "FOREKNOWLEDGE: if the party learned at Canteen that this wasn't just routine maintenance (c1e1-canteen.json's know-the-drains, ask-taka, or read-the-announcement checks), they enter already braced -- no mechanical bonus by default, just play them as prepared rather than blindsided. If a GM wants a real mechanical reward for investigating, the cleanest option is removing the centipedes' usual not-surprised status for that table only, letting an informed party roll for actual surprise -- optional, not the default.",
+    "OPTIONAL HAZARD: run alongside subsystems/c1e1-compactor-cycle.json for the 'closing in' version. The encounter and scene both work fine without it -- it's purely additive.",
+    "TONE, NOT SPOILER SPACE: what the party does to the centipedes (kill, drive off, or something else) is worth remembering for later continuity and for this specific party's own established character -- but centipedes are non-sentient animals with zero connection to the Watcher, so this is NOT the same thing as dossier-observer.md §16's Mirror mechanic. Don't conflate the two.",
+    "MORALE AND SURRENDER (added 2026-09-19): giant centipedes are non-sentient animals, not fanatics -- Alien Core's own guidance is that a creature's nature should inform 'whether it's willing to surrender or flee when losing a fight' (reference/srd/alien-core/1266-roleplaying-creatures.json, pg. 6). Once several are down or the survivors are clearly losing, it's a legitimate GM call (GM Core's own 'Choosing Adversaries' Actions' and 'Fleeing Enemies' guidance, reference/srd/gm-core/610-running-encounters.json, pg. 24-33) to have the rest break for the grate and the side pipes rather than fight to the last -- especially once the party is actively trying to demoralize or drive them off (episode-c1e1--flood-tunnel.json's drive-them-off beat) rather than kill every one. If the party doesn't pursue, per the same source's Fleeing Enemies procedure, the survivors are simply gone. This is what makes the scene brief's kill / drive off / find another way choicePoint mechanically real rather than purely narrative colour."
+  ],
+  "roundLimit": null,
+  "rewards": "Standard combat XP for six level -1 creatures (20 each, 120 total) -- see reference/tables/encounter-and-rewards-math.json. No accomplishment XP; this is the routine job, not a triumph. Full 120 regardless of how the fight actually ends -- kill, drive off, or the party finding another way through the room itself (episode-c1e1--flood-tunnel.json's drive-them-off / find-another-way beats) -- per GM Core's own Bypassed Encounters guidance that a fight ended through smart tactical play still earns the normal award, not a discount (reference/srd/gm-core/610-running-encounters.json). Don't let killing everything quietly become the only way to get paid.",
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--flood-tunnel",
+    "c1e1-compactor-cycle",
+    "ideas/story/blank-inheritance-ch1-v2.md",
+    "ideas/story/bible/species/mitflits.md"
+  ],
+  "notes": "THE MATH. 120 XP for six creatures at party level -2 (20 each) is Moderate for a SIX-PC party, not the bare four-PC table's Severe -- per reference/tables/encounter-and-rewards-math.json's partySizeScaling (add characterAdjustment per PC beyond 4: Moderate's own adjustment is 20, so 80 + 2*20 = 120). ch1-v2.md's original 'Moderate, 120' label is correct once party size is accounted for; worth stating explicitly since the bare threshold table alone would misread it as Severe. Adding the optional complex hazard (c1e1-compactor-cycle, 20 XP at relative level -2 per the hazardXpByRelativeLevel table) brings the total to 140 -- still comfortably under six-PC Severe (180), landing as a meaningfully weightier Moderate rather than a dangerous fight. That's deliberate: this is level 1's very first combat and should stay firmly survivable even with the hazard running.\n\nGiant Centipede's real stats (verified live against the Foundry 'Tales from the Vast' bestiary, 2026-09-09): HP 8, AC 15, Fort +7, Ref +6, Will +2, Mandibles (melee) with Giant Centipede Venom (Fortitude DC 14, Stage 1 1d4 poison, Stage 2 1d4 poison + Off-Guard). Full Strike bonus/damage, Speed, Perception and Stage 3 of the venom weren't captured in that pass -- pull them from the live Foundry actor at the table rather than treat any guess here as authoritative. No creature.schema.json file built yet for a portable stat block; a reasonable follow-up, not done here to avoid inventing numbers not actually confirmed.\n\nREVISED 2026-09-19: added the MORALE AND SURRENDER specialRule and the full-XP-regardless-of-resolution note, both grounded in real GM Core / Alien Core text (see citations above), so the scene brief's newly-authored three-way resolution (kill / drive off / find another way, now a real `choicePoint` on the-fight beat in episode-c1e1--flood-tunnel.json) has real mechanical backing here rather than living only as scene-brief prose. Nothing about the creature stats, XP math, or environment changed."
+}

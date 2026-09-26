@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-the-long-afternoon",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Long Afternoon",
+  "description": "Three checks across a free quarter. One is friction (getting off base legitimately), one is a thread (who countersigned), and one is a catch-all for whatever each player decided to do with their hour. None of them can return nothing.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "make-the-hour-count",
+      "name": "Get something out of the hour",
+      "skillOptions": [
+        "diplomacy",
+        "crafting",
+        "athletics",
+        "survival"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15, whichever skill the player's stated approach actually uses. This is a catch-all for a self-chosen activity, not a fixed task",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "The full version of whatever they went for, plus a reason to come back -- a standing invitation, an open door, or somebody who now knows their name and will use it.",
+        "success": "What they went for.",
+        "failure": "The smaller version. They still met the person, still saw the place, still have the hour -- they simply did not get the extra on top.",
+        "criticalFailure": "The smaller version, and something mildly humiliating that nobody holds against them. No door closes."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "get-a-pass",
+      "name": "Sign out for the afternoon",
+      "skillOptions": [
+        "society",
+        "diplomacy"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy -- a trainee with a free quarter on the board is entitled to a pass and this is friction rather than an obstacle",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "Signed, stamped, and she tells them what time the gate stops caring.",
+        "success": "Signed and stamped. Back by muster.",
+        "failure": "She is out of the right form. Come back in an hour, which costs part of the quarter and not the trip.",
+        "criticalFailure": "As failure, and the queue behind them has opinions about how long this is taking."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "chase-the-countersignature",
+      "name": "Find out who signed above him",
+      "skillOptions": [
+        "society",
+        "perception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. Requisition logs and signature blocks are open record -- the difficulty is knowing to ask and knowing how to ask, not getting past anybody",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "The name, Rand, and the department it belongs to, Medical -- which has no business countersigning a stores requisition.",
+        "success": "The name: Rand.",
+        "failure": "The log is there and the page is not. Signed out to another office, back Thursday, and the clerk is not curious about it.",
+        "criticalFailure": "As failure, and the clerk mentions in passing that somebody else asked about the same page recently. He does not remember who and is not interested."
+      },
+      "bySkill": {
+        "society": "Knowing that the log is open record at all, and which shelf it lives on.",
+        "perception": "Reading a signature block that has been countersigned in a different hand and a different ink.",
+        "diplomacy": "Getting the clerk to fetch it rather than pointing at the shelf, which is how you find out he would rather you got it yourself."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "read-it-to-me",
+      "name": "Put a document in front of the old man",
+      "skillOptions": [
+        "diplomacy",
+        "computers"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy. He wants to help and is doing most of the work -- the difficulty is thinking to bring him something rather than bringing him a question",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and he tells them how he knows: he spent a working life reading documents written by people who did not want them read, and the tell is always the same -- what a form asks for twice, and what it does not ask for at all. He says it as a dull professional habit rather than a confidence.",
+        "success": "He reads it properly and tells them what it actually says as opposed to what it appears to say: which parts are routine, which part is the only unusual thing on the page, and what somebody had to do to put it there. Concretely useful and completely undramatic.",
+        "failure": "He reads it, is interested, and has nothing to offer -- it is an ordinary piece of Directorate paperwork and he says so. He is apologetic about being no use and they have still had a good half hour.",
+        "criticalFailure": "They bring him a question rather than a document and he cannot help with a question. He is embarrassed on their behalf rather than his own, which is worse, and changes the subject to the tea."
+      },
+      "bySkill": {
+        "diplomacy": "Simply asking him. The intended route and the cheapest one.",
+        "society": "Knowing which of the papers they are carrying is the one worth showing him.",
+        "computers": "Bringing a requisition log or an order index rather than a single sheet, which gives him far more to work with.",
+        "perception": "Watching what he does with it -- he reads the parts nobody reads first, and that is the lesson."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Individually -- this is the episode's split scene"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--the-long-afternoon",
+    "c1e2-as-discussed"
+  ],
+  "notes": "NO RESULT RETURNS NOTHING. A failure on make-the-hour-count returns the smaller version of what the player went for -- they still met the person and still saw the place. A downtime menu that can return nothing teaches a table not to spend quarters on it.\n\nTHE CRITICAL FAILURE ON chase-the-countersignature IS NOT A THREAT. Somebody else having asked about the same page is texture, not surveillance. Do not let the clerk become suspicious and do not let it become a hook the party is being watched by -- if it becomes anything later, it will be because somebody decides so on purpose and writes it down.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give.\n\nREAD-IT-TO-ME IS THE PAYOFF FOR THE CONTACT ROUTE, AND IT DELIBERATELY ADVANCES NOTHING. The party's route back to the old man is the single most important thing recorded in Episode One, and the first thing it buys is a good half hour and a document read properly. No mystery moves.\n\nHE DOES NOT KNOW WHO SIGNED THE ROSTER. He does not work inside the Directorate, he does not know its people, and there is no DC that changes that. If the party comes for the countersignature they leave without it -- from the warmest, most willing source they have. That is the scene, not a failure of it.\n\nWHAT IT ACTUALLY BUYS: a real relationship with somebody who is pleased to have been asked. He said `Nobody's asked me anything in a very long time`, and somebody asked. Play that without sentiment -- he gets them a drink and is better company than yesterday, and says nothing about why.\n\nNOTHING HERE HINTS AT WHAT HE IS. Read `ideas/story/dossier-cicada.md` before running him and then play none of it. In this scene he is an old man in a tea house who is good with paperwork.\n\nWHO ELSE ASKED ABOUT THE SAME PAGE (the critical failure), if it ever matters: the Section Officer, trying to find out who signed above his head (proposal, LEDGER #34). It is still not a threat and still not surveillance."
+}

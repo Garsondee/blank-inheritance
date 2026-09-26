@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-hammer",
+  "type": "audio-soundscape",
+  "title": "S2 · The Hammer",
+  "note": "'A genuinely frightening room... then a two-hundred-year-old doctor asks for a private word.' Dramatic pool rather than tense -- it has to sit under both the confrontation and the quiet turn afterward without needing a swap, and dramatic is weighty without being combat-adjacent. No ambience bed, matching every other serious office scene this campaign has built.",
+  "music": {
+    "pool": "dramatic"
+  },
+  "ambience": [],
+  "fade": 4000
+}

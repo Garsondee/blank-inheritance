@@ -154,7 +154,7 @@ class TestBuildLocation(unittest.TestCase):
             },
             npc_refs=["shucks-mordant", "vault-custodian"],
             faction_refs=["directorate"],
-            episode_refs=["episode-c1s1--intake-medicals"],
+            episode_refs=["episode-c1e1--intake-medicals"],
             open_question_refs=["bleed-visibility"],
             bible_ref="locations/deep-storage.md",
             asset_refs=["deep-storage-concept"],
@@ -167,7 +167,7 @@ class TestBuildLocation(unittest.TestCase):
                          "Word gets back to whoever actually owns this level.")
         self.assertEqual(doc["npcRefs"], ["shucks-mordant", "vault-custodian"])
         self.assertEqual(doc["factionRefs"], ["directorate"])
-        self.assertEqual(doc["episodeRefs"], ["episode-c1s1--intake-medicals"])
+        self.assertEqual(doc["episodeRefs"], ["episode-c1e1--intake-medicals"])
         self.assertEqual(doc["openQuestionRefs"], ["bleed-visibility"])
         self.assertEqual(doc["bibleRef"], "locations/deep-storage.md")
         self.assertEqual(doc["assetRefs"], ["deep-storage-concept"])

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-override",
+  "type": "audio-soundscape",
+  "title": "S2 · The Override",
+  "note": "'An order arrives from above the Section Officer's head and he has to read it to them himself.' Tense pool. No ambience bed -- the same call as As Discussed's own office scene: a small, serious room needs no bed of its own, the quiet is the point.",
+  "music": {
+    "pool": "tense"
+  },
+  "ambience": [],
+  "fade": 3000
+}

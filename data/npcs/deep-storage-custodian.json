@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "deep-storage-custodian",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Custodian, Deep Storage",
   "pole": null,

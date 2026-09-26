@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-the-tram-back",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Tram Back",
+  "description": "One pure-texture check, matching The Road In's own a-flourish exactly -- costs nothing on any result, never mandatory.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "a-flourish",
+      "name": "A small, real moment",
+      "skillOptions": [
+        "athletics",
+        "acrobatics",
+        "crafting",
+        "diplomacy",
+        "medicine",
+        "performance"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy -- a treat, not a test, same convention as c1e1-the-road-in's own a-flourish",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "It lands exactly right -- whatever they did or said, somebody else on the tram actually noticed, in a small, real way.",
+        "success": "It goes fine, and it's theirs.",
+        "failure": "Nothing dramatic. The moment just doesn't quite land, which is a completely normal way for a quiet moment to go.",
+        "criticalFailure": "Mildly, harmlessly awkward -- the kind of thing that's funnier in a week than it is right now."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--the-tram-back"
+  ],
+  "notes": "Never mandatory. If nobody reaches for it, the scene loses nothing -- the whole point of this scene is unstructured player-led time, not a checklist."
+}

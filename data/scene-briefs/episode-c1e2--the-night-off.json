@@ -1,0 +1,264 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-night-off",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-night-off",
+  "title": "The Night Off",
+  "summary": "The first evening that belongs to them. Staying in gets them into an unlocked hangar the night before they are issued a machine. Going out means over the wire, into a city that is livelier after dark than it was that afternoon. Both are good, and getting back in is a real problem.",
+  "goal": "Every player chooses their own evening, gets something substantial out of it, and the ones who went out have to solve getting back.",
+  "howToPlay": "Loose, warm and a bit illicit. This is the episode's designed breather and its most player-driven scene, and the only thing the GM needs to do is keep both halves genuinely good.\n\n**The two halves must not be a reward and a consolation.** Staying in gets them inside a Frame a full night before anybody says they may -- that is not the boring option. Going out gets them a city and the people who run their lives being human in it.\n\n**Nobody has to agree with anybody.** This is a per-player choice, not a table vote, and a party that splits four-to-two is running the scene correctly. Everyone stays at the table and watches both halves.",
+  "runsAbout": "30-40 minutes",
+  "mode": "downtime",
+  "intro": {
+    "where": "The barracks block after muster, with the evening and the night boxes both empty on the board.",
+    "firstThing": "How much noise the base makes once it stops working -- pipes, a radio two rooms away, somebody running a bath at the wrong hour.",
+    "readAloud": "The fortnight resumes at six tomorrow and the Frames are at seven, and between here and either of those is an evening that nobody has claimed.\n\nThe gate closes at nine. It is not guarded so much as observed, by people who have observed it for a long time.",
+    "landmark": "the wire along the eastern fence, and the one place where the ground rises to meet it",
+    "holdInReserve": "The hangar lights are on. Somebody is working late in there, and the personnel door is not locked.",
+    "carriesIn": [
+      {
+        "when": "Anybody visited the machine shop in The Long Afternoon",
+        "then": "They know Hulda Brack runs a late crew the night before an issue. Nobody invited them, and nobody would stop them either."
+      },
+      {
+        "when": "Anybody got a pass that afternoon",
+        "then": "They know exactly how easy leaving is when it is allowed, which is the whole reason tonight feels different."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "shop-boss",
+      "npcRef": "shop-boss",
+      "label": "Hulda Brack",
+      "role": "Working a late crew in Hangar Two, if anybody stays in and goes to look.",
+      "walkOn": false,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Twelve machines ready for seven o'clock, and to find out tonight which of these children is going to look after one properly.",
+        "opensWith": "Not asking what they are doing there. Asking whether they can hold a light steady.",
+        "willDiscuss": [
+          {
+            "topic": "Any machine on the floor, in any amount of detail",
+            "note": "She will let somebody sit in one. She will not make a ceremony of it and she will keep talking the whole time."
+          },
+          {
+            "topic": "What she wants from a pilot",
+            "note": "Tell her what it did, not what you think is wrong with it. Bring it back. Bring yourself back, in that order, and she says the order out loud because it is funny and because she means it."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Which machine anybody should pick",
+            "why": "Not her job, and she says so cheerfully. She will say which ones come back needing least work, which is a different sentence and she knows it."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Enormous and warm even at midnight, entirely without ceremony.",
+          "tics": [
+            "Calls people by the machine they are responsible for until they have earned a name",
+            "Hands somebody a tool mid-sentence and keeps talking",
+            "Says the thing about the machines before the thing about the people, on purpose"
+          ],
+          "samples": [
+            "\"Can you hold a light steady? -- Then you're useful. Come here.\"",
+            "\"Go on. Sit in it. It's not going to bite you and you're going to be in one tomorrow anyway.\"",
+            "\"That one comes back filthy and working. That one comes back clean and broken. You'll learn which you'd rather.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "night-stand-cook",
+      "label": "The woman at the noodle stand",
+      "role": "Runs a late stand by the harbour where off-duty Directorate staff end up.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To sell out before midnight so she can go home.",
+        "opensWith": "Telling them what is left rather than what is on offer, because it is late.",
+        "willDiscuss": [
+          {
+            "topic": "Who is in tonight, and who is always in",
+            "note": "She knows every off-duty Directorate face by order rather than by name. This is where the base's real gossip lives and she is the index to it."
+          },
+          {
+            "topic": "That they are obviously trainees and obviously out of bounds",
+            "note": "She does not care and will not say anything. She has fed twenty years of trainees who were out of bounds."
+          }
+        ],
+        "willNotDiscuss": [],
+        "coercible": [],
+        "voice": {
+          "register": "Brisk, unsentimental, entirely unbothered by anybody's rank or age.",
+          "tics": [
+            "Identifies people by what they order",
+            "Answers a question while doing three other things"
+          ],
+          "samples": [
+            "\"Two left. You want them or not?\"",
+            "\"Him? He's a plotting-floor one. They all come in after the late watch and they all order the same thing.\"",
+            "\"You're out of bounds. -- I didn't say anything. Sit down.\""
+          ]
+        }
+      },
+      "npcRef": "noodle-stand-owner"
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-empty-evening",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Put the evening in front of them and let each player say what they are doing with it. Do not call for a group decision.",
+      "direction": "Say the three facts plainly: the gate shuts at nine, the hangar lights are on, and nobody is looking for any of them until six tomorrow. Then stop talking.\n\n**Take each player's answer individually.** If somebody wants to organise the others, that is their character doing that, not the scene requiring it.\n\nLet the sentence land before offering anything. Do not present a menu -- ask each of them what they are doing and take the first thing they say seriously, including nothing.",
+      "note": "HOW TO PLAY IT. Both halves are substantial and neither is safer in story terms -- one is unauthorised and one is not, and that is the only difference.\n\nSTAYING IN RETURNS: Hulda Brack's late crew in Hangar Two, and the chance to sit in a Frame the night before they are issued one. Also the roof of the barracks block, the kitchens, and an early night that actually restores somebody.\n\nGOING OUT RETURNS: the city after dark, the late noodle stand by the harbour where off-duty Directorate staff end up, and whatever the players go looking for.\n\nDo not describe either list as an option set. They are places.",
+      "readAloud": "Nobody wants anything from you until six tomorrow.\n\nThat has not been true since the letter arrived, and it takes a minute to recognise what it is."
+    },
+    {
+      "id": "over-the-wire",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Getting off the base unofficially. However they want to do it.",
+      "challengeRef": "c1e2-the-night-off",
+      "checkRef": "over-the-wire",
+      "when": {
+        "condition": "if any player goes off base without a pass"
+      },
+      "direction": "**Ask how before asking for a roll.** The fence, the laundry lorry, the drainage culvert, walking out of the main gate holding a clipboard like you belong -- all of them work, and the approach picks the skill.\n\nGoing out is the easy half. Say so by making this roll straightforwardly winnable, so the party learns the shape of the problem before meeting the hard half at the end of the night.\n\n**The read-aloud names no method on purpose.** Do not describe them climbing anything until they have said how they are going.",
+      "note": "HOW TO PLAY IT. A failure here does not stop them leaving. It means they leave having been noticed by somebody who has not decided what to do about it yet -- which makes getting back in harder, and is the real cost.\n\nIF SOMEBODY INVENTS A ROUTE: price it on the standard ladder and let it work. Every plausible way off this base is a real way off this base.",
+      "readAloud": "The wire is four feet of chain link with a rail along the top, and it has been there so long that the ground on both sides is worn where people cross it.\n\nNobody is watching. Nobody has ever really watched people leaving."
+    },
+    {
+      "id": "the-city-after-dark",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "What the ones who went out do with the evening.",
+      "challengeRef": "c1e2-the-night-off",
+      "checkRef": "the-city-after-dark",
+      "npcRef": "night-stand-cook",
+      "when": {
+        "condition": "for any player who left the base"
+      },
+      "direction": "The tea house is shut and Manako is not available tonight -- that is deliberate, do not open it.\n\nWhat is open: the picture house, the harbour front, a late noodle stand where off-duty Directorate people end up, and the whole of the ordinary city being ordinary. The stand is the one with content in it.\n\nOff-duty adults talking about work is the best information source in the episode, and it is available to anybody who buys food and listens.",
+      "note": "HOW TO PLAY IT. What listening at the stand actually returns, in rough order of how hard it is to get: that the plotting floor has been busier than usual this month; that nobody enjoys the new reporting forms; that somebody on the late watch thinks the board has been showing things that are not there.\n\nThat third one is real and is the only one that matters. Give it as gossip, from a tired adult, complaining. GM-ONLY: they are right. It connects to Unidentified Contact and nothing tonight confirms it.\n\nWHAT IT DOES NOT MEAN: nobody at the stand knows anything is coming, there is no warning being given, and nobody is trying to tell the party anything.\n\nTHE TEA HOUSE IS SHUT AND THAT IS DELIBERATE. He is a daylight relationship (see The Long Afternoon). Do not open it tonight, however much a player wants it.",
+      "readAloud": "The city at nine is a different city. The cranes have stopped and the trams are emptier and the light is all coming from windows rather than from the sky.\n\nSomewhere down the harbour front there is a noodle stand with a queue of people in Directorate coats, all of whom are off duty and none of whom care who you are."
+    },
+    {
+      "id": "the-unlocked-hangar",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "What the ones who stayed in do with the evening. The hangar lights are on and the personnel door is not locked.",
+      "challengeRef": "c1e2-the-night-off",
+      "checkRef": "the-late-crew",
+      "npcRef": "shop-boss",
+      "when": {
+        "condition": "for any player who stayed on base"
+      },
+      "direction": "**This is not the consolation option and it must not be played as one.** Hulda Brack is prepping twelve machines for seven o'clock and is short-handed. Anybody who turns up and can hold a light is useful, and useful gets you inside a Frame hours before anyone official says you may.\n\nLet somebody sit in one. Let them find out how big the cab is, how it smells, how much of it is older than they are.\n\n**Do not make this forbidden and do not make it safe.** Nobody has told them they cannot, nothing is alarmed, and there is genuinely no rule being broken -- which is worse, because it means whatever they do is entirely their own.\n\nIf somebody gets in, give them the cab cold and dark and much too big, and no power. Then let them sit in it for as long as they want.",
+      "note": "HOW TO PLAY IT. What this returns: the machines are no longer strangers at Familiarisation tomorrow, a real relationship with the person who keeps them alive, and -- on a good roll -- her telling them which ones come back needing least work, which is the most useful sentence anybody says all episode.\n\nSTAYING IN IS NOT SAFE-AND-DULL. It is early access. A player who stays gets something the ones who left cannot get, and vice versa. If either half starts feeling like the lesser choice, say what the other half is getting.",
+      "readAloud": "The personnel door is not locked, because nothing in Hangar Two is worth stealing and everybody knows it.\n\nTwelve machines under the lights, and the nearest one has its cab open and a set of steps folded down, because whoever was working on it finished and went to dinner.\n\nThe building is empty and it stays empty until seven."
+    },
+    {
+      "id": "getting-back-in",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "The hard half. Back over the wire, late, tired, and possibly carrying noodles.",
+      "challengeRef": "c1e2-the-night-off",
+      "checkRef": "getting-back-in",
+      "when": {
+        "condition": "for any player returning to the base unofficially"
+      },
+      "direction": "**This is the real problem of the night and it should take a minute of actual planning.** Going out was easy because nobody is watching people leave. Coming back is harder because the night watch is at its most awake at the end of its shift and the same route rarely works twice.\n\nLet them plan. Reward anything clever -- a distraction, a second route, somebody on the inside opening a door, arriving with a plausible reason to be up.\n\nIf players who stayed in want to help the ones coming back, that is the best possible version of this beat. Make it work.\n\n**Give them a minute of real planning before any roll.** This is the half of the night that is actually a problem, and a party that solves it together has done the best thing available to them this evening.",
+      "note": "HOW TO PLAY IT. Two halves of the party solving one problem together, from opposite sides of a fence, is the most fun available in this scene. If anybody suggests it, back it hard and let the inside help lower the DC or skip the roll entirely.\n\nIF THEY ARE CAUGHT: see the caught beat below. It is cheap.",
+      "readAloud": "The way out is not the way back. The gap you came through is lit now, and a watch at the end of its shift turns out to be far more awake than one at the start.\n\nIt is also considerably later than anybody meant it to be."
+    },
+    {
+      "id": "caught",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If somebody is caught coming back in, it costs very little the first time.",
+      "when": {
+        "condition": "on a failure at getting-back-in"
+      },
+      "direction": "A duty NCO, tired, at the end of a shift, who has caught two hundred trainees doing this and has a script for it. Names taken, a telling-off delivered without much conviction, and an extra job on the fortnight that is no worse than the jobs already on it.\n\n**It does not affect Familiarisation and it must not.** Nobody is confined to barracks, nobody is removed from tomorrow, and the Section Officer does not find out tonight.\n\nPlay the person on the torch as bored rather than triumphant. They are not going to make a thing of it and they are not going to pretend they did not see.\n\nFirst offence costs almost nothing and everybody involved knows that, including the party.",
+      "note": "HOW TO PLAY IT. First offence is cheap on purpose. A night out that can wreck tomorrow is a night out nobody takes, and then the scene has no content.\n\nIf it happens twice in the campaign, it gets more expensive. Tonight it does not.\n\nTHE SECTION OFFICER FINDING OUT LATER is available as a thread if it would be fun, and is not automatic. Decide it deliberately rather than by default.",
+      "readAloud": "The torch does not hurry. It comes along the fence at the pace of somebody who has done this a great many times and has never once had to run.\n\n\"Right.\" A pause, while whoever it is decides how much of their evening this is worth. \"Name and section.\""
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Everybody is back inside, asleep or not, and the hangar lights go off.",
+    "readAloud": "Six hours until the fortnight resumes. Seven until the Frames.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Award it for the two halves helping each other -- somebody inside opening a door for somebody outside is worth more than either half's own evening."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Breakfast is from half five and the hangar is at seven, and nobody is going to get any more sleep than they already have.",
+      "scatterRisk": false
+    },
+    "onwards": "Into Zero Six Hundred, where last night arrives at the breakfast table in front of everybody.",
+    "writeDown": [
+      "Who went out and who stayed in. This is characterisation, not a charge sheet -- see this scene's notes.",
+      "Anybody who got inside a Frame tonight. Familiarisation plays differently for them.",
+      "Whether anyone heard the late-watch gossip about the plotting board.",
+      "Anybody caught, and whether the two halves worked together to get anyone back in."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-lights-are-on",
+      "text": "The hangar lights are on and the personnel door is not locked. Somebody is working in there tonight."
+    },
+    {
+      "id": "the-gate-shuts-at-nine",
+      "text": "The gate shuts at nine. Nobody has actually said what happens to somebody who is not inside it."
+    },
+    {
+      "id": "help-from-the-inside",
+      "text": "Anybody who stayed in is on the useful side of a locked fence, and the ones outside have to come back over it eventually."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "both-halves-good",
+      "text": "Whether staying in and going out both felt worth doing, or whether one read as the obvious choice.",
+      "scaleNote": "0 = one option was clearly better, 10 = a genuinely hard call."
+    },
+    {
+      "id": "getting-back-in",
+      "text": "Whether getting back in produced real planning rather than a single roll."
+    },
+    {
+      "id": "two-halves-cooperated",
+      "text": "Whether the stay-behinds ended up helping the ones coming back -- the best available outcome of this scene."
+    },
+    {
+      "id": "sat-in-a-frame",
+      "text": "If anyone got inside a machine tonight, and what they made of it before being officially allowed."
+    },
+    {
+      "id": "caught-cost",
+      "text": "If anybody was caught -- whether the consequence landed as cheap and funny rather than as a punishment that soured the night."
+    }
+  ],
+  "notes": "THE DESIGNED BREATHER. Every session needs one beat whose entire job is relax, authored as deliberately as the climax. This is Episode Two's, and it is placed immediately before the turn -- the night before the Frames, the morning before the thing on the board.\n\nTHE TWO HALVES ARE EQUAL BY CONSTRUCTION. Going out returns the world and its gossip. Staying in returns early access to the machines and the woman who maintains them. Neither is the safe boring one. If the table starts treating one as obviously correct, say out loud what the other half is getting -- that is not spoiling anything, it is keeping a menu honest.\n\nWHO WENT OUT IS CHARACTERISATION, NOT A CHARGE SHEET. Write it down because it tells you who these people are, not because a reckoning is coming. There is no scheduled consequence for having gone over the wire and none should be invented as a gotcha. If it ever matters, it will be because somebody decides it should and writes it down first.\n\nMANAKO IS NOT AVAILABLE TONIGHT. The tea house is shut. He is a daylight relationship and a deliberate one -- keep the party's route to him as the thing they were given in Episode One rather than something they can reach at will."
+}

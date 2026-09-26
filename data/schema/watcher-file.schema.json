@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "watcher-file.schema.json",
+  "title": "Watcher's file",
+  "description": "GM-ONLY. What the Watcher has actually observed about one player character, and nothing else. The Watcher is the campaign's adversary and Claude plays it (ideas/story/dossier-observer.md); this file is the hard gate that keeps it fair: it may only exploit what is recorded here as known. Every observation comes from the fiction (a rolled check, a fight it watched, an in-character message or document it could read). Nothing real about a player may ever be recorded. Lives in data/watcher/, which is deliberately NOT synced to the Foundry server. Pure logic: module/blank-inheritance/scripts/core/watcher-file.mjs.",
+  "type": "object",
+  "required": ["id", "type", "subjectRef", "observations"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "description": "watcher-file--<subjectRef>" },
+    "type": { "const": "watcher-file" },
+    "subjectRef": { "type": "string", "description": "The id of the player character this file is about (a kid, or a Frame's pilot)." },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "category", "key"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "source": {
+            "enum": ["recall-knowledge", "combat-observation", "in-character-message", "correspondence", "phone", "journal"],
+            "description": "Where the Watcher saw it. Every source is inside the fiction. recall-knowledge is a check one of its children rolled openly against the character; the others are things it watched or read on the substrate it is native to."
+          },
+          "category": {
+            "enum": ["skill", "save", "defence", "tactic", "habit", "person", "place", "plan", "weakness"],
+            "description": "What kind of thing it learned."
+          },
+          "key": { "type": "string", "minLength": 1, "description": "What exactly, e.g. 'athletics', 'will', 'covers-the-left-flank-first', a named NPC the character cares about." },
+          "value": { "description": "What it learned about the key, if anything more than that it exists: a modifier, a description, a name." },
+          "degree": {
+            "enum": ["criticalSuccess", "success", "criticalFailure"],
+            "description": "For recall-knowledge only. A plain failure teaches nothing and is never recorded. A critical failure is recorded as a mistaken belief."
+          },
+          "mistaken": { "type": "boolean", "description": "True when the Watcher believes something false (a critically failed check). It will act on it, and the party can exploit that." },
+          "observedIn": { "type": "string", "description": "Where it happened: an episode, scene or encounter id." },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,455 @@
+{
+ "_id": "scAsJVU6xOuHlPS1",
+ "name": "Laurette Piraudrt",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/inquisitor_thundermace_.Avatar.webp?1688465946342",
+ "items": [
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/weapons/thundermace.webp",
+   "name": "Thundermace",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>This deceptively dangerous weapon is essentially a mace with a longer haft and larger, often flanged head.</p>"
+    },
+    "rules": [],
+    "slug": "thundermace",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "backswing"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Lost Omens: The Grand Bazaar",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 1,
+    "baseItem": "thundermace",
+    "bulk": {
+     "value": 2
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "sp": 2
+     }
+    },
+    "equipped": {
+     "carryType": "held",
+     "invested": null,
+     "handsHeld": 2
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": "cold-iron",
+     "grade": "low"
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Thundermace",
+      "img": "systems/pf2e/icons/unidentified_item_icons/weapon.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "held-in-two-hands"
+    },
+    "category": "simple",
+    "group": "club",
+    "bonus": {
+     "value": 0
+    },
+    "damage": {
+     "dice": 1,
+     "die": "d8",
+     "damageType": "bludgeoning",
+     "persistent": null
+    },
+    "bonusDamage": {
+     "value": 0
+    },
+    "splashDamage": {
+     "value": 0
+    },
+    "range": null,
+    "reload": {
+     "value": ""
+    },
+    "runes": {
+     "potency": 1,
+     "striking": 1,
+     "property": [
+      "thundering"
+     ]
+    },
+    "specific": null,
+    "subitems": [],
+    "property1": {
+     "value": "",
+     "dice": 0,
+     "die": "",
+     "damageType": "",
+     "critDice": 0,
+     "critDie": "",
+     "critDamage": "",
+     "critDamageType": "",
+     "strikeConditionType": "",
+     "strikeConditionValue": null,
+     "criticalConditionType": "",
+     "criticalConditionValue": null
+    }
+   },
+   "type": "weapon",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.3NQj5gtHIYFYlAch"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687962922769,
+    "modifiedTime": 1687962950105,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.3NQj5gtHIYFYlAch",
+    "duplicateSource": null
+   },
+   "_id": "AGYs3LY83MZZkPPK"
+  },
+  {
+   "name": "Thundermace",
+   "type": "melee",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "backswing",
+      "magical"
+     ]
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {
+     "hQpqKpsTMLnq2Woh": {
+      "damage": "2d8+9",
+      "damageType": "bludgeoning",
+      "category": null
+     },
+     "cTH2JuazOlidBjNf": {
+      "damage": "1d6",
+      "damageType": "sonic",
+      "category": null
+     }
+    },
+    "bonus": {
+     "value": 16
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "flags": {
+    "pf2e": {
+     "linkedWeapon": "AGYs3LY83MZZkPPK"
+    }
+   },
+   "_id": "UR1qVe1tNO5hTtLC",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687962950922,
+    "modifiedTime": 1687962950922,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  }
+ ],
+ "effects": [],
+ "folder": "lcidq4N2amU4VnaO",
+ "sort": 300000,
+ "flags": {},
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 10,
+    "temp": 0,
+    "max": 123,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 23,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 6
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 7
+   },
+   "dex": {
+    "mod": 4
+   },
+   "con": {
+    "mod": 7
+   },
+   "int": {
+    "mod": 2
+   },
+   "wis": {
+    "mod": 2
+   },
+   "cha": {
+    "mod": 4
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 11,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 18,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 14,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 11,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "athletics": {
+    "base": 0
+   },
+   "intimidation": {
+    "base": 0
+   }
+  },
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "prototypeToken": {
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   }
+  },
+  "height": 1,
+  "width": 1,
+  "name": "Ingrid Gardner",
+  "displayName": 20,
+  "actorLink": false,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false,
+    "type": null
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "attenuation": 0.5,
+   "color": null,
+   "negative": false,
+   "priority": 0
+  },
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "randomImg": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/inquisitor_thundermace_.Token.webp?1688465946342",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "sight": {
+   "angle": 360,
+   "enabled": false,
+   "range": 0,
+   "brightness": 1,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1687962815541,
+  "modifiedTime": 1721827584335,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

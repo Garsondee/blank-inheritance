@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "switchboard-supervisor",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Switchboard Supervisor, The Telephone Exchange",
   "pole": null,

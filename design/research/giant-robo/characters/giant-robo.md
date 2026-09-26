@@ -52,7 +52,7 @@
 
 **Worth avoiding:** frequency. See [../what-makes-it-tick.md](../what-makes-it-tick.md) §2 — this robot is scarce, and scarcity is the whole design.
 
-**Where it might attach:** our Frames are PCs with their own sheets (`design/scale-and-chassis.md`, `data/characters/frames/`), not NPC weapons, so the archetype does not transfer directly. What does transfer is the **cost-of-deployment** framing and the idea that a Frame is a political object other people have opinions about. `design/strategy-layer.md` is where that would live if it lives anywhere; this shelf does not put it there.
+**Where it might attach:** our Frames are PC-grade sheets that amplify their pilot (`open-questions.json#vehicle-and-frame-rules-model`), not NPC weapons, so the archetype does not transfer directly. What does transfer is the **cost-of-deployment** framing and the idea that a Frame is a political object other people have opinions about. `design/strategy-layer.md` is where that would live if it lives anywhere; this shelf does not put it there.
 
 ---
 

@@ -3,8 +3,11 @@
   "id": "campaign-managing-system",
   "type": "idea",
   "title": "Overall campaign-managing system (umbrella tool)",
-  "status": "new",
-  "domains": ["tooling", "ui"],
+  "status": "rejected",
+  "domains": [
+    "tooling",
+    "ui"
+  ],
   "summary": "A broader tool the dialogue panel and journal ingestion might live inside — scene-by-scene session planning, pilot/mech assignment tracking, and similar campaign-state bookkeeping the director's panel doesn't currently cover.",
   "description": "Floated more tentatively than the ideas it would contain ('the dialogue managing system could be part of an overall campaign managing system') — this is the least fleshed-out of the cluster, essentially a proposed umbrella for dialogue-management-panel plus general campaign-state tracking: defining how each scene could go, and organizing things like which pilot is currently using which Frame. Possibly this just IS the sum of the other accepted ideas in this cluster rather than a genuinely separate build item — worth revisiting once a couple of the more concrete pieces (dialogue panel, journal ingestion) actually exist, to see if an umbrella is still needed or if it naturally falls out of the director's panel work already designed. REVISITED 2026-09-06 (design/ux-doctrine.md §10): the answer to this entry's own first open sub-question looks like \"it falls out.\" That section designs the Director's console as a full-screen GM view whose drawers already absorb every part this umbrella was proposed to hold — the dialogue panel is a drawer, journal ingestion is a step in its end-of-session action, the chat-log scrape is its mechanical log, and scene-by-scene planning is its Scene drawer. On that reading it needs no separate build. Status deliberately left unchanged, since closing it is the user's call.",
   "capturedDate": "2026-08-22",
@@ -14,6 +17,11 @@
     "Whether this is a real separate system or just what the director's panel becomes once dialogue-management-panel and journal ingestion are built into it.",
     "What 'pilot/mech assignment tracking' actually needs beyond what frame.schema.json's pilotKidRef already carries — likely just a UI for editing that live during play."
   ],
-  "relatedRefs": ["dialogue-management-panel", "player-and-gm-journals-context-ingestion", "design/foundry-module-design.md#7-the-directors-panel-and-the-tv-show-feel", "design/ux-doctrine.md#10-the-directors-console"],
-  "resolution": null
+  "relatedRefs": [
+    "dialogue-management-panel",
+    "player-and-gm-journals-context-ingestion",
+    "design/foundry-module-design.md#7-the-directors-panel-and-the-tv-show-feel",
+    "design/ux-doctrine.md#10-the-directors-console"
+  ],
+  "resolution": "Rejected 2026-09-25 in the stale-material cull: absorbed by the Director's console (design/ux-doctrine.md §10), as this entry's own 2026-09-06 note already said. Nothing is left to build under this entry."
 }

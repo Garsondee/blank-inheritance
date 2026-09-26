@@ -197,22 +197,42 @@ test("real tree: the play-sequence set is small and scene-shaped, not the 232-lo
   const shifts = computePlaySequenceSet(catalog);
   const flat = flattenPlaySequenceSet(shifts);
 
-  assert.ok(shifts.length > 0, "Session One and Session Two's stub both have real drafted content -- an empty set here would mean the traversal is broken, not that nothing needs review");
-  assert.ok(flat.length < 50, `expected well under the full corpus (232 locations + 34 npcs + ...) -- got ${flat.length} total items across ${shifts.length} shifts`);
+  assert.ok(shifts.length > 0, "Episode One and Episode Two's stub both have real drafted content -- an empty set here would mean the traversal is broken, not that nothing needs review");
+
+  // This used to be an absolute cap of 50, calibrated when Episode Two was a
+  // stub with one authored scene. Wiring Episode Two's real scenes in took the
+  // queue to 71, which is not the defect this test is about -- authoring more
+  // content SHOULD put more in front of the reviewer. What must never happen is
+  // the queue drifting toward the whole corpus. So the bar is now relative to
+  // the corpus, and it does not need re-tuning every time a scene is written.
+  const corpusSize =
+    Object.keys(catalog.locations).length +
+    Object.keys(catalog.npcs).length +
+    Object.keys(catalog.challenges).length +
+    Object.keys(catalog.encounters).length +
+    Object.keys(catalog.subsystems).length;
+  assert.ok(
+    flat.length < corpusSize / 3,
+    `the queue should stay a small fraction of the corpus -- got ${flat.length} of ${corpusSize} across ${shifts.length} shifts`
+  );
   for (const shift of shifts) {
     assert.ok(shift.items.length <= 10, `${shift.episodeId}/${shift.sceneId} has ${shift.items.length} items -- a single scene's shift should stay single-digit, matching the design doc's own "twenty-minute job" sizing`);
   }
+  // The durable guard: a shift is a twenty-minute job, so the mean must stay low
+  // however much content exists.
+  const mean = flat.length / shifts.length;
+  assert.ok(mean < 5, `mean ${mean.toFixed(1)} items per shift -- a shift is meant to be a twenty-minute job`);
 
   // Specific real items, both directions.
   const flatIds = new Set(flat.map((i) => `${i.type}:${i.id}`));
   assert.ok(flatIds.has("npc:shucks-mordant"), "Shucks Mordant is genuinely cast into Intake Medicals");
-  assert.ok(flatIds.has("encounter:c1s1-flood-tunnel"), "the Flood Tunnel encounter is genuinely part of Session One");
-  assert.ok(flatIds.has("subsystem:c1s1-compactor-cycle"), "the compactor-cycle subsystem runs alongside that same encounter");
+  assert.ok(flatIds.has("encounter:c1e1-flood-tunnel"), "the Flood Tunnel encounter is genuinely part of Episode One");
+  assert.ok(flatIds.has("subsystem:c1e1-compactor-cycle"), "the compactor-cycle subsystem runs alongside that same encounter");
 
   // Locations NOT cast into any real scene must never appear, however many
   // there are (210+ of the 232 are exactly this -- background map filler).
-  assert.ok(!flatIds.has("location:the-rock"), "The Rock is not part of Session One's real scenes and must not appear just because it exists");
-  assert.ok(!flatIds.has("npc:the-rock-warden"), "the same for an NPC no Session One scene actually casts");
+  assert.ok(!flatIds.has("location:the-rock"), "The Rock is not part of Episode One's real scenes and must not appear just because it exists");
+  assert.ok(!flatIds.has("npc:the-rock-warden"), "the same for an NPC no Episode One scene actually casts");
 });
 
 test("real tree: The Walk Down is a deliberate relax beat with no challenge/encounter by design -- its shift (if any) must not fabricate one", () => {

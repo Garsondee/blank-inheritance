@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { rayToBoxEdge, clusterPositions, generateRandomArcDeployment } from "../../tools/battle-simulator/scenarios/random-deployment.mjs";
-import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
+import { makeRng } from "../../tools/battle-simulator/shared/rng.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 
 // ---------------------------------------------------------------------------

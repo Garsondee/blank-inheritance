@@ -326,9 +326,15 @@
         "skillOptions": { "type": "array", "items": { "type": "string" }, "description": "One or more skills/saves/Perception that can be used, e.g. [\"stealth\", \"society\"]. List low-DC-to-high-DC if they differ in difficulty." },
         "dc": { "$ref": "#/$defs/dc" },
         "outcomes": { "$ref": "#/$defs/degreeOfSuccessOutcome" },
+        "bySkill": {
+          "type": "object",
+          "description": "What a DIFFERENT skill actually gets you, keyed by skill slug — added 2026-09-19 after a real gap: a check offering diplomacy/deception/intimidation/society reached the exact same outcome regardless of which one a player rolled, short of this campaign's own settled ambition ('multiple named actions, each with its own consequence, so players are pushed to think laterally'). Distinct from `outcomes`, which is the SAME text no matter which listed skill got there — this is for the specific, deliberate case where the fiction should genuinely differ by approach. Optional: most checks correctly share one outcome across every skill, and inventing a difference where the fiction doesn't call for one is worse than not having this field at all.",
+          "additionalProperties": { "type": "string" }
+        },
         "repeatable": { "type": "boolean" },
         "maxAttempts": { "type": "integer" },
         "secret": { "type": "boolean", "description": "GM rolls, doesn't reveal the degree of success to the player." },
+        "anySkill": { "type": "boolean", "description": "The player names the skill, and any skill they can argue for is allowed; leave skillOptions empty. Added 2026-09-24 for The Road In's small problem (Ingram: \"We then ask them what skill they used to try and overcome it\"). The Scene Runner posts every SF2E skill as its own inline check and the player clicks the one they named (core/roll-intent.mjs#checkSkills), so the result still records itself." },
         "insight": { "type": "boolean", "description": "An Encyclopaedia check (design/encyclopaedia-checks.md) -- proactively offered, purely informational or set-up for a future advantage, and failure costs nothing mechanical (never a lost slice, resource, or opportunity -- a plausible wrong belief on a crit failure is fine, a real cost is not). Distinct from `secret`, which is about who sees the roll; this is about what a miss is allowed to cost. The two can combine." }
       }
     },

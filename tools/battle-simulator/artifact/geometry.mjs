@@ -27,7 +27,7 @@ export let COLS = 44;
 export let ROWS = 44;
 export let MAP_PX_W = COLS * CELL;
 export let MAP_PX_H = ROWS * CELL;
-export let FEET_PER_SQUARE = 50; // must match tools/battle-simulator/engine/grid.mjs's default
+export let FEET_PER_SQUARE = 50; // the frame-scale backward-compat default explained below (line ~34) -- frame-scale itself was removed 2026-09-19, but old logs using this default may still exist
 
 /**
  * Recompute every geometry constant for the run about to be rendered. `feetPerSquare` defaults to

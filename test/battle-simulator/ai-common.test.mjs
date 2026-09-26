@@ -1,13 +1,21 @@
 /**
  * Tests for the shared ai-common/ layer (design doc §57 — "Frame scale and 'personnel' scale should
- * be the same system, we only need one AI not two"; GitHub issues #4/#20). Three real concerns:
+ * be the same system, we only need one AI not two"; GitHub issues #4/#20). Two real concerns:
  * (1) the registry itself — registerPolicy/resolvePolicy/decideWithPolicy/assertValidAdapter behave
- * correctly, including their error cases; (2) BOTH real adapters (personnel, Frame) are genuinely
- * zero-wrapper re-exports of each engine's own real functions, not a reimplementation that could
- * silently drift; (3) the real, load-bearing claim of Stage 0 — that resolving `greedy-v1` against
- * either adapter reproduces THAT engine's own existing, already-tested decide() behavior exactly,
- * proven against personnel-engine's own pinned golden sequence (ai-profiles.test.mjs) and against a
- * real, direct Frame-scale decide() call, not just asserted by reading the wrapper code.
+ * correctly, including their error cases; (2) PERSONNEL_ADAPTER is genuinely a zero-wrapper
+ * re-export of personnel-engine's own real functions, not a reimplementation that could silently
+ * drift, and the real, load-bearing claim of Stage 0 — that resolving `greedy-v1` against it
+ * reproduces personnel-engine's own existing, already-tested decide() behavior exactly, proven
+ * against personnel-engine's own pinned golden sequence (ai-profiles.test.mjs), not just asserted
+ * by reading the wrapper code.
+ *
+ * TRIMMED 2026-09-19, at Ingram's direct instruction: this file used to also cover FRAME_ADAPTER
+ * (the frame-scale side of the shared registry, proving the same zero-wrapper/behavior-preserving
+ * claims against `ai/decide.mjs` and `engine/engine.mjs`). The frame-scale battle simulator those
+ * two files belonged to was deleted — unapproved, stale content, and lower quality than the
+ * personnel-scale work that superseded it. Every FRAME_ADAPTER-specific test, and the
+ * makeFrameMeleeState() helper they shared, went with it. The registry mechanism itself (still
+ * generic, still adapter-agnostic) and every PERSONNEL_ADAPTER assertion are untouched.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -17,7 +25,6 @@ import {
   assertValidAdapter, registerPolicy, resolvePolicy, listPolicyIds, decideWithPolicy, createBudgetTracker
 } from "../../tools/battle-simulator/ai-common/engine-adapter.mjs";
 import { PERSONNEL_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/personnel-adapter.mjs";
-import { FRAME_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/frame-adapter.mjs";
 import "../../tools/battle-simulator/ai-common/policies/greedy.mjs"; // registers "greedy-v1" as a side effect
 import "../../tools/battle-simulator/ai-common/policies/budget-demo.mjs"; // registers "budget-demo-v1" as a side effect
 
@@ -26,10 +33,6 @@ import { decide as personnelDecide, decisionRng as personnelDecisionRng, generat
 import { evaluateState as personnelEvaluateState, DEFAULT_WEIGHTS as PERSONNEL_DEFAULT_WEIGHTS } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { BASELINE_V1, decideOptionsForProfile } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
 
-import { decide as frameDecide, decisionRng as frameDecisionRng, generateProposals as frameGenerateProposals } from "../../tools/battle-simulator/ai/decide.mjs";
-import { forkTurnSandbox as frameForkTurnSandbox, checkOutcome as frameCheckOutcome } from "../../tools/battle-simulator/engine/engine.mjs";
-import { evaluateState as frameEvaluateState, DEFAULT_WEIGHTS as FRAME_DEFAULT_WEIGHTS } from "../../tools/battle-simulator/ai/evaluate/state-value.mjs";
-
 const fixturesDir = "tools/battle-simulator/data/raw-validation-fixtures";
 function loadFixture(file) { return JSON.parse(readFileSync(`${fixturesDir}/${file}`, "utf8")); }
 
@@ -37,7 +40,6 @@ function loadFixture(file) { return JSON.parse(readFileSync(`${fixturesDir}/${fi
 
 test("assertValidAdapter: passes silently on a real, complete adapter", () => {
   assert.doesNotThrow(() => assertValidAdapter(PERSONNEL_ADAPTER));
-  assert.doesNotThrow(() => assertValidAdapter(FRAME_ADAPTER));
 });
 
 test("assertValidAdapter: throws on a MISSING required field, naming it and the adapter id", () => {
@@ -109,24 +111,6 @@ test("PERSONNEL_ADAPTER: every re-exported field is REFERENCE-IDENTICAL to perso
   assert.equal(PERSONNEL_ADAPTER.feetPerSquare, 5);
 });
 
-test("FRAME_ADAPTER: every re-exported field is REFERENCE-IDENTICAL to Frame-scale's own real export", () => {
-  assert.equal(FRAME_ADAPTER.decisionRng, frameDecisionRng);
-  assert.equal(FRAME_ADAPTER.generateProposals, frameGenerateProposals);
-  assert.equal(FRAME_ADAPTER.forkTurnSandbox, frameForkTurnSandbox);
-  assert.equal(FRAME_ADAPTER.checkOutcome, frameCheckOutcome);
-  assert.equal(FRAME_ADAPTER.evaluateState, frameEvaluateState);
-  assert.equal(FRAME_ADAPTER.DEFAULT_WEIGHTS, FRAME_DEFAULT_WEIGHTS);
-  assert.equal(FRAME_ADAPTER.nativeGreedyDecide, frameDecide);
-  assert.equal(FRAME_ADAPTER.feetPerSquare, 50);
-});
-
-test("DEFAULT_WEIGHTS: the two adapters' real key sets genuinely differ — documents/verifies the asymmetry this module's own header claims, rather than assuming it", () => {
-  assert.ok("pileOnRisk" in PERSONNEL_ADAPTER.DEFAULT_WEIGHTS);
-  assert.ok(!("pileOnRisk" in FRAME_ADAPTER.DEFAULT_WEIGHTS));
-  assert.ok("actionDenial" in FRAME_ADAPTER.DEFAULT_WEIGHTS);
-  assert.ok(!("actionDenial" in PERSONNEL_ADAPTER.DEFAULT_WEIGHTS));
-});
-
 // --- GOLDEN SEQUENCE THROUGH THE REGISTRY (the real "zero behavior change" proof for personnel-scale) ---
 //
 // Identical scenario/seed to ai-profiles.test.mjs's own pinned golden sequence (BASELINE_V1 vs
@@ -191,47 +175,6 @@ test("GOLDEN SEQUENCE THROUGH THE REGISTRY: matches a direct decide() run of the
   assert.deepEqual(actionSequence(registryLog), actionSequence(directLog));
   assert.equal(registryLog.outcome.result, directLog.outcome.result);
   assert.equal(registryLog.rounds.length, directLog.rounds.length);
-});
-
-// --- Frame-scale: greedy-v1 through the registry matches a direct decide() call ---
-
-function makeFrameMeleeState() {
-  const me = {
-    id: "me", name: "Me", side: "party", size: "huge", currentHP: 100, maxHP: 100,
-    speed: 300, strikes: [{ name: "Fist", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
-    position: { col: 0, row: 0 }
-  };
-  const enemy = {
-    id: "enemy", name: "Enemy", side: "opposition", size: "huge", currentHP: 100, maxHP: 100,
-    speed: 0, strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
-    position: { col: 0, row: 1 }
-  };
-  const state = {
-    round: 1, seed: 7, gridSize: { cols: 44, rows: 44 },
-    combatants: new Map([["me", me], ["enemy", enemy]]),
-    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]]),
-    reactionAvailable: new Map([["me", true], ["enemy", true]])
-  };
-  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 300 } };
-  return { state, turn };
-}
-
-test("Frame-scale: decideWithPolicy(\"greedy-v1\", FRAME_ADAPTER, ...) reproduces a direct ai/decide.mjs decide() call exactly, on a real adjacent-melee state", () => {
-  const direct = makeFrameMeleeState();
-  const viaRegistry = makeFrameMeleeState();
-  const directResult = frameDecide(direct.state, "me", direct.turn, { competence: 1, weights: FRAME_DEFAULT_WEIGHTS });
-  const registryResult = decideWithPolicy("greedy-v1", FRAME_ADAPTER, viaRegistry.state, "me", viaRegistry.turn, { competence: 1, weights: FRAME_DEFAULT_WEIGHTS });
-  assert.ok(directResult, "expected a real decision, not null, from this adjacent-melee state");
-  assert.deepEqual(registryResult, directResult);
-});
-
-test("Frame-scale: FRAME_ADAPTER silently ignores personnel-only option fields instead of erroring — the real, documented asymmetry", () => {
-  const { state, turn } = makeFrameMeleeState();
-  const result = decideWithPolicy("greedy-v1", FRAME_ADAPTER, state, "me", turn, {
-    competence: 1, weights: FRAME_DEFAULT_WEIGHTS,
-    templates: ["unconstrained"], moraleEnabled: true, disabledActionTypes: ["trip"]
-  });
-  assert.ok(result, "extra personnel-only fields must not break Frame's own decide()");
 });
 
 // --- createBudgetTracker + budget-demo-v1 (design doc §59, GH issue #5) ---
@@ -318,15 +261,6 @@ test("budget-demo-v1: a small maxIterations budget genuinely stops early (examin
   const sandbox = PERSONNEL_ADAPTER.forkTurnSandbox({ state, turn });
   const result = sandbox.apply("lunar17", budgeted);
   assert.equal(result.legal, true, `budget-demo-v1's own budget-cut-off choice must still be a real, legal action: ${JSON.stringify(budgeted)}`);
-});
-
-test("budget-demo-v1: works identically (adapter-agnostic) on FRAME_ADAPTER too — a tiny budget still returns a real, legal Frame-scale decision", () => {
-  const { state, turn } = makeFrameMeleeState();
-  const budgeted = decideWithPolicy("budget-demo-v1", FRAME_ADAPTER, state, "me", turn, { budget: { maxIterations: 1 }, weights: FRAME_DEFAULT_WEIGHTS });
-  assert.ok(budgeted, "expected a real, non-null decision from Frame-scale too");
-  const sandbox = FRAME_ADAPTER.forkTurnSandbox({ state, turn });
-  const result = sandbox.apply("me", budgeted);
-  assert.equal(result.legal, true, `budget-demo-v1's Frame-scale choice must be real and legal: ${JSON.stringify(budgeted)}`);
 });
 
 test("budget-demo-v1: a budget of {maxIterations: 0} (a degenerate config, budget exhausted before any real work) STILL returns a real legal action, never null — the exact regression this policy's own null-on-illegal-first-candidate bug would have shipped without this test", () => {

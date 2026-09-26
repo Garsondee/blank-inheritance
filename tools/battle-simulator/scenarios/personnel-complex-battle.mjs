@@ -13,7 +13,7 @@ import { decide } from "../personnel-engine/decide.mjs";
 import { applyProfileToCombatant, decideOptionsForProfile } from "../personnel-engine/ai-profiles.mjs";
 import { GRID_SIZE, WALLS, SETUPS } from "../data/personnel-test-complex.mjs";
 import { generateRandomArcDeployment } from "./random-deployment.mjs";
-import { makeRng } from "../engine/rng.mjs";
+import { makeRng } from "../shared/rng.mjs";
 import { decideWithPolicy } from "../ai-common/engine-adapter.mjs";
 import { PERSONNEL_ADAPTER } from "../ai-common/adapters/personnel-adapter.mjs";
 import "../ai-common/policies/greedy.mjs"; // registers "greedy-v1" (design doc §57/#4) as a side effect

@@ -20,6 +20,10 @@ import { recordLogEntry } from "./session-log.mjs";
 import { quarterAt, quarterIndex } from "../core/day-ring.mjs";
 import { advanceSegment } from "./campaign-state.mjs";
 import { deckCastFor, deckDirectorFor } from "./deck.mjs";
+import { toggleSceneRunner } from "./scene-runner.mjs";
+import { toggleSoundDesk } from "./sound-desk.mjs";
+import { toggleDirectorPalette } from "./director-palette.mjs";
+import { toggleDemoRunner } from "./demo-runner.mjs";
 
 export class DirectorBar extends CommandBar {
   static SEAT = SEATS.DIRECTOR;
@@ -33,18 +37,30 @@ export class DirectorBar extends CommandBar {
       selectCast: DirectorBar.#onSelectCast,
       openCard: DirectorBar.#onOpenCard,
       castPage: DirectorBar.#onCastPage,
-      advanceSegment: DirectorBar.#onAdvanceSegment
+      advanceSegment: DirectorBar.#onAdvanceSegment,
+      openRunner: DirectorBar.#onOpenRunner,
+      openSoundDesk: DirectorBar.#onOpenSoundDesk,
+      openPalette: DirectorBar.#onOpenPalette,
+      openDemo: DirectorBar.#onOpenDemo,
+      // The Turn key under the right flank drives the encounter on this seat
+      // only (core/deck-combat.mjs#turnKeyState). A player's deck carries
+      // End Turn instead, wired on PlayerBar — never these three.
+      joinCombat: DirectorBar.#onJoinCombat,
+      startCombat: DirectorBar.#onStartCombat,
+      nextTurn: DirectorBar.#onNextTurn
     }
   };
 
-  /** Which page of the cast board is showing. Client memory — a hand position. */
-  #castPage = 0;
+  /**
+   * Which page of the cast board is showing, and which turn it last followed.
+   * Client memory — a hand position (foundry/deck.mjs#deckCastFor).
+   */
+  #castMemory = { page: 0, turnKey: null };
 
   /** @override */
   async _decorateZone(zone) {
     if (zone.id === "cast") {
-      zone.cast = deckCastFor(this.#castPage);
-      this.#castPage = zone.cast.page;
+      zone.cast = deckCastFor(this.#castMemory);
       return;
     }
     if (zone.id === "director") {
@@ -127,7 +143,7 @@ export class DirectorBar extends CommandBar {
 
   /** The cast board's hardware page keys. Clamped by core/deck-layout.mjs#pageOf. */
   static #onCastPage(event, target) {
-    this.#castPage = Math.max(0, this.#castPage + Number(target.dataset.step || 0));
+    this.#castMemory.page = Math.max(0, this.#castMemory.page + Number(target.dataset.step || 0));
     this.render({ parts: ["left"] });
   }
 
@@ -143,10 +159,90 @@ export class DirectorBar extends CommandBar {
   static async #onRollCheck(event, target) {
     const slug = target.dataset.slug;
     if (!slug) return;
-    if (event?.shiftKey) {
+    // With nothing selected the whole bank asks the table (2026-09-23): the
+    // same post shift has always made, now the plain press too, because
+    // there is no one creature for a plain press to roll for.
+    const actor = actorForSeat(DirectorBar.SEAT);
+    if (event?.shiftKey || !actor) {
       await postInlineCheck({ slug, label: target.dataset.label ?? null });
       return;
     }
-    await rollCheck({ actor: actorForSeat(DirectorBar.SEAT), slug, event });
+    await rollCheck({ actor, slug, event });
+  }
+
+  /**
+   * The Director's script, as a pill on the deck's own right shoulder rather
+   * than a floating circle bolted on beside it — Ingram's direct feedback,
+   * 2026-09-17, against the real server: "the scene runner button needs to
+   * be part of the main UI, not a circle off on its own." Same toggle
+   * chassis scene-runner.mjs already has; this just gives it a second, deck-
+   * native door in alongside its own standalone toggle button.
+   */
+  static #onOpenRunner() {
+    toggleSceneRunner();
+  }
+
+  /**
+   * The Deck's own door into the Sound Desk — 2026-09-18: the Deck should be
+   * one true control surface, not blind to what Sound Desk is doing (it now
+   * reads directorState() for the now-playing chip above; this is the other
+   * half, actually reaching the controls). Same pill idiom as openRunner.
+   */
+  static #onOpenSoundDesk() {
+    toggleSoundDesk();
+  }
+
+  /**
+   * The Director's Palette (Ctrl+K) — one search box over every scene, cast
+   * member, cue and Foundry command — given a key on the deck so it is
+   * findable by hand, not only by someone who remembers the shortcut.
+   */
+  static #onOpenPalette() {
+    toggleDirectorPalette();
+  }
+
+  /**
+   * The demo/walkthrough runner's own door — 2026-09-23, Ingram: "I think
+   * you need to put that into the UI for the GM only." It used to be a
+   * separate floating round button (.bi-demo-runner-btn, now hidden while
+   * the deck is mounted); this is the deck-native pill in its place, same
+   * idiom as openRunner/openSoundDesk. mountDemoRunner's own isGM guard
+   * already refuses to construct the panel for anyone else, and this action
+   * is only ever wired on DirectorBar (never PlayerBar or the shared
+   * chassis), so a player's deck carries no way to reach it at all.
+   */
+  static #onOpenDemo() {
+    toggleDemoRunner();
+  }
+
+  /**
+   * Put the selected tokens into an encounter — Foundry's own
+   * createCombatants, which builds the encounter first when there is none.
+   * The same thing the token HUD's "toggle combat" does, for a whole
+   * selection in one press.
+   */
+  static async #onJoinCombat() {
+    const tokens = (canvas?.tokens?.controlled ?? []).map((t) => t.document).filter((d) => !d.inCombat);
+    if (!tokens.length) return;
+    await foundry.utils.getDocumentClass("Token").createCombatants(tokens);
+  }
+
+  static async #onStartCombat() {
+    await game.combat?.startCombat();
+  }
+
+  /**
+   * Pass the turn on. Ctrl ends the encounter instead, through Foundry's own
+   * endCombat, which asks for confirmation itself — a mis-press costs a
+   * dialog, never a fight.
+   */
+  static async #onNextTurn(event) {
+    const combat = game.combat;
+    if (!combat) return;
+    if (event?.ctrlKey || event?.metaKey) {
+      await combat.endCombat();
+      return;
+    }
+    await combat.nextTurn();
   }
 }

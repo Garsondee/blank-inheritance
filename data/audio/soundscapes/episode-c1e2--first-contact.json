@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--first-contact",
+  "type": "audio-soundscape",
+  "title": "S2 · First Contact",
+  "note": "'Three Proto-Claimants on a harbour road, forty people behind a stopped tram, and six machines that were issued two hours ago.' Tense going in, real rain on the harbour road. The fight itself gets its own reserved track (04-masamichi-amano-charge-his-name-is-giant-robo, registered in asset-registry.json against this scene) rather than a shuffle -- the campaign's first Frame-scale fight earns the same treatment Flood Tunnel Clearance got for the first fight of any kind.",
+  "music": {
+    "pool": "tense"
+  },
+  "combat": {
+    "track": "04-masamichi-amano-charge-his-name-is-giant-robo"
+  },
+  "ambience": [
+    {
+      "track": "brs-rain-street-neighborhood-med-2",
+      "level": -6
+    },
+    {
+      "track": "abandoned-freighter-brig-1",
+      "level": -18
+    }
+  ],
+  "fade": 3000
+}

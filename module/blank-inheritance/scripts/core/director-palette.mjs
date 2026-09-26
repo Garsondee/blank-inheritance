@@ -25,7 +25,15 @@
  * which is the case a GM least needs help with.
  */
 export const COMMAND_GROUPS = Object.freeze([
+  // Commands built from what was just TYPED ("athletics 18", "dmg 2d6",
+  // "note they bribed the guard") — added 2026-09-23. Always first: the GM
+  // has already said exactly what they want.
+  { id: "quick", label: "Do it now" },
   { id: "off-script", label: "Off script" },
+  // Everything that acts on the token(s) selected on the canvas when the
+  // palette opened — damage, healing, conditions, hero points, secret rolls.
+  // Only present while something is selected (added 2026-09-23).
+  { id: "selected", label: "Selected" },
   { id: "scene", label: "Scenes" },
   { id: "cast", label: "Cast" },
   { id: "audio", label: "Audio" },
@@ -38,8 +46,20 @@ export const COMMAND_GROUPS = Object.freeze([
 
 const GROUP_ORDER = new Map(COMMAND_GROUPS.map((g, i) => [g.id, i]));
 
-/** Normalise for matching: case-insensitive, punctuation-insensitive. */
-const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+/**
+ * Normalise for matching: case-insensitive, punctuation-insensitive — except
+ * that a sign in front of a number is MEANING, not punctuation. Found live
+ * 2026-09-23: "Frightened +1" and "Frightened −1" both normalised to
+ * "frightened 1", tied, and typing "frightened −1" ran +1. A leading "+"
+ * now reads as "up" and a minus (any of - − –) as "down", in titles and
+ * queries alike.
+ */
+const norm = (s) => String(s ?? "")
+  .toLowerCase()
+  .replace(/\+\s*(?=\d)/g, " up ")
+  .replace(/(^|\s)[-−–]\s*(?=\d)/g, "$1 down ")
+  .replace(/[^a-z0-9]+/g, " ")
+  .trim();
 
 /**
  * How well a command answers a query, or 0 for "not at all".
@@ -58,6 +78,9 @@ const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").tr
  */
 export function scoreCommand(query, command) {
   const q = norm(query);
+  // A command built FROM the query (parseQuickIntent) is the answer to it by
+  // construction — it outranks every fuzzy match.
+  if (command.pinned) return q ? 5000 : 0;
   if (!q) return 1; // everything matches an empty box
   const title = norm(command.title);
   const hint = norm(command.hint);
@@ -108,6 +131,10 @@ export function matchCommands(query, commands, { recents = [], limit = 40 } = {}
   const scored = [];
   for (const command of commands) {
     if (command.hidden) continue;
+    // Big families (a secret roll per skill, a condition per slug) are found
+    // by typing, never dumped into the opening menu — forty condition rows
+    // would push every scene and panel off it (2026-09-23).
+    if (!q && command.searchOnly) continue;
     const score = scoreCommand(query, command);
     if (!score) continue;
     scored.push({ command, score });
@@ -157,6 +184,9 @@ export function paletteModel(query, commands, { recents = [], selected = 0, limi
       hint: command.hint ?? null,
       icon: command.icon ?? null,
       danger: command.danger === true,
+      // Shown but inert — a typed "dmg 5" with nothing selected still says
+      // what it WOULD do, and why it cannot yet.
+      disabled: command.disabled === true,
       isSelected: i === index
     });
   });
@@ -194,3 +224,106 @@ export const IMPROVISED_OUTCOMES = Object.freeze([
   "It went wrong",
   "Something else started"
 ]);
+
+/* ---------------------------------------------------------------- */
+/*  Quick intents: commands built from what was typed (2026-09-23)   */
+/* ---------------------------------------------------------------- */
+
+/**
+ * The conditions a GM hands out mid-scene, as the palette offers them for the
+ * selected token(s). `valued` conditions step up and down (Frightened 2 ->
+ * 3); the rest toggle. Slugs are sf2e's own (CONFIG.PF2E.conditionTypes);
+ * the adapter calls the actor's own increaseCondition / decreaseCondition /
+ * toggleCondition, so every rule the system attaches to a condition (off-guard
+ * from prone, the dying/wounded chain) still happens.
+ */
+export const PALETTE_CONDITIONS = Object.freeze([
+  { slug: "off-guard", label: "Off-Guard", valued: false },
+  { slug: "frightened", label: "Frightened", valued: true },
+  { slug: "prone", label: "Prone", valued: false },
+  { slug: "grabbed", label: "Grabbed", valued: false },
+  { slug: "restrained", label: "Restrained", valued: false },
+  { slug: "immobilized", label: "Immobilized", valued: false },
+  { slug: "hidden", label: "Hidden", valued: false },
+  { slug: "concealed", label: "Concealed", valued: false },
+  { slug: "dazzled", label: "Dazzled", valued: false },
+  { slug: "blinded", label: "Blinded", valued: false },
+  { slug: "deafened", label: "Deafened", valued: false },
+  { slug: "sickened", label: "Sickened", valued: true },
+  { slug: "stunned", label: "Stunned", valued: true },
+  { slug: "slowed", label: "Slowed", valued: true },
+  { slug: "quickened", label: "Quickened", valued: false },
+  { slug: "clumsy", label: "Clumsy", valued: true },
+  { slug: "enfeebled", label: "Enfeebled", valued: true },
+  { slug: "stupefied", label: "Stupefied", valued: true },
+  { slug: "drained", label: "Drained", valued: true },
+  { slug: "fatigued", label: "Fatigued", valued: false },
+  { slug: "confused", label: "Confused", valued: false },
+  { slug: "fascinated", label: "Fascinated", valued: false },
+  { slug: "fleeing", label: "Fleeing", valued: false },
+  { slug: "paralyzed", label: "Paralyzed", valued: false },
+  { slug: "unconscious", label: "Unconscious", valued: false },
+  { slug: "dying", label: "Dying", valued: true },
+  { slug: "wounded", label: "Wounded", valued: true },
+  { slug: "doomed", label: "Doomed", valued: true }
+]);
+
+const cap = (s) => String(s).replace(/(^|[\s-])([a-z])/g, (_, a, b) => a + b.toUpperCase());
+
+/**
+ * Read the box as an instruction, not only a search.
+ *
+ * A GM mid-scene types what they want — "athletics 18", "dmg 2d6+3",
+ * "heal 5", "flat 5", "r 1d20+4", "gmr 1d100", "note they bribed the guard" —
+ * and the palette should offer to DO exactly that as its first row, one
+ * Enter away, rather than make them find a command and then fill a prompt.
+ *
+ * Returns plain intent descriptors (no `run`): the adapter binds each `kind`
+ * to the real call. `skills` is [{ slug, label }] — the checks a GM can ask
+ * for; a skill is matched by the start of its slug or label, so "ath 18" and
+ * "percep 15" both work, and an ambiguous prefix offers every match (up to
+ * three) rather than guessing. Formulas are passed through untouched — the
+ * adapter validates them with Foundry's own Roll.validate.
+ */
+export function parseQuickIntent(query, { skills = [], hasSelection = false } = {}) {
+  const raw = String(query ?? "").trim();
+  if (!raw) return [];
+  const intents = [];
+  let m;
+
+  if ((m = /^(?:dmg|damage|hurt|hit)\s+(.+)$/i.exec(raw))) {
+    intents.push({ kind: "damage", formula: m[1].trim(), id: "quick.damage", title: `Damage selected: ${m[1].trim()}`, hint: hasSelection ? "applied through the system's own damage rules" : "select a token first", icon: "fa-solid fa-burst", disabled: !hasSelection });
+  }
+  if ((m = /^(?:heal|hp\+)\s+(.+)$/i.exec(raw))) {
+    intents.push({ kind: "heal", formula: m[1].trim(), id: "quick.heal", title: `Heal selected: ${m[1].trim()}`, hint: hasSelection ? "restores hit points" : "select a token first", icon: "fa-solid fa-heart-pulse", disabled: !hasSelection });
+  }
+  if ((m = /^flat\s+(?:dc\s*)?(\d{1,2})$/i.exec(raw))) {
+    intents.push({ kind: "flat", dc: Number(m[1]), id: "quick.flat", title: `Ask for a flat check, DC ${m[1]}`, hint: "posts a rollable flat check", icon: "fa-solid fa-dice-d20" });
+  }
+  if ((m = /^(?:r|roll)\s+(.+)$/i.exec(raw))) {
+    intents.push({ kind: "roll", formula: m[1].trim(), secret: false, id: "quick.roll", title: `Roll ${m[1].trim()}`, hint: "in the open, to chat", icon: "fa-solid fa-dice" });
+  }
+  if ((m = /^(?:gmr|sr|secret|blind)\s+(.+)$/i.exec(raw))) {
+    intents.push({ kind: "roll", formula: m[1].trim(), secret: true, id: "quick.roll-secret", title: `Roll ${m[1].trim()} secretly`, hint: "only you see it", icon: "fa-solid fa-eye-slash" });
+  }
+  if ((m = /^(?:note|log)\s*[:\-]?\s+(.+)$/i.exec(raw))) {
+    intents.push({ kind: "note", text: m[1].trim(), id: "quick.note", title: `Log: ${m[1].trim()}`, hint: "straight into the session log", icon: "fa-solid fa-pen" });
+  }
+
+  // "<skill> <dc>", "<skill> dc <dc>" or "dc <dc> <skill>".
+  const skillDc = /^([a-z][a-z \-]*?)\s+(?:dc\s*)?(\d{1,2})$/i.exec(raw) ?? (() => {
+    const r = /^dc\s*(\d{1,2})\s+([a-z][a-z \-]*)$/i.exec(raw);
+    return r ? [r[0], r[2], r[1]] : null;
+  })();
+  if (skillDc && !intents.length) {
+    const word = norm(skillDc[1]);
+    const dc = Number(skillDc[2]);
+    const hits = skills.filter((s) => norm(s.slug).startsWith(word) || norm(s.label).startsWith(word)).slice(0, 3);
+    for (const s of hits) {
+      const label = s.label ?? cap(s.slug);
+      intents.push({ kind: "ask", slug: s.slug, dc, id: `quick.ask.${s.slug}`, title: `Ask for ${label}, DC ${dc}`, hint: "posts a rollable check to chat", icon: "fa-solid fa-dice-d20" });
+    }
+  }
+
+  return intents.map((intent) => ({ ...intent, group: "quick", pinned: true }));
+}

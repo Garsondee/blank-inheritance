@@ -1,0 +1,284 @@
+{
+ "_id": "nvgQVVVJkaBit2z1",
+ "name": "Thornton Connor",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/thornton_connor.Avatar.webp?1676384786490",
+ "items": [
+  {
+   "_id": "GaJVrPODwLmuAT01",
+   "name": "New Melee",
+   "type": "melee",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "flags": {},
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {},
+    "bonus": {
+     "value": 11
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": null,
+    "systemVersion": null,
+    "coreVersion": "12.329",
+    "createdTime": null,
+    "modifiedTime": null,
+    "lastModifiedBy": null,
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  }
+ ],
+ "effects": [],
+ "folder": "kuCXTUnMbCnDATWU",
+ "sort": 600000,
+ "flags": {},
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 32,
+    "temp": 0,
+    "max": 32,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 17,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 2
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 3
+   },
+   "dex": {
+    "mod": 4
+   },
+   "con": {
+    "mod": 3
+   },
+   "int": {
+    "mod": 3
+   },
+   "wis": {
+    "mod": 3
+   },
+   "cha": {
+    "mod": 3
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 11,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 5,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 11,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 8,
+    "saveDetail": ""
+   }
+  },
+  "skills": {},
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "prototypeToken": {
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   }
+  },
+  "height": 1,
+  "width": 1,
+  "name": "Thornton Connor",
+  "displayName": 20,
+  "actorLink": false,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false,
+    "type": null
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "attenuation": 0.5,
+   "color": null,
+   "negative": false,
+   "priority": 0
+  },
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "randomImg": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/thornton_connor.Token.webp?1676384786490",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "sight": {
+   "angle": 360,
+   "enabled": false,
+   "range": 0,
+   "brightness": 1,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": null,
+  "modifiedTime": 1721827574155,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

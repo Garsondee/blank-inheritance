@@ -1,0 +1,104 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--from-up-here",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "from-up-here",
+  "title": "From Up Here",
+  "summary": "Scene 0. Before anybody speaks as their character, the GM talks for five or six minutes over one picture: the world from the edge of the sky, then down through the cloud to Kurose. It tells the table the history everybody in this city grew up with, what the Directorate is for, how the city feels about it, and what sort of time this is -- and then hands straight into The Road In.",
+  "goal": "Every player has heard the common-knowledge history of the world and the city before their character exists on screen: the rift at Kortos, the four who stopped it, the prophecy that named Kurose, the Directorate that came to keep the promise and built the city, and the city's mixed feelings about it.",
+  "howToPlay": "A single continuous speech over one picture, read like the opening narration of a long television series. **No questions to the table and no pauses for them** -- the players' turn is next scene, and it is a long one. Warm, a little grand, and funny where it says so. Move the camera down the picture as you go if the scene is set up for it: sky first, then the coast, then the city.",
+  "runsAbout": "6 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "Nowhere yet. High above the world, looking down.",
+    "firstThing": "The picture: the curve of the world, cumulus, a long bay with a beach, a city on the coast with a river through it, mountains behind, and the late sun on the sea.",
+    "readAloud": null,
+    "carriesIn": [
+      {
+        "when": "This is the campaign's first played scene",
+        "then": "Nothing carries in. Character sheets already exist from Induction, but nobody has spoken as their character yet and nobody should until The Road In."
+      }
+    ],
+    "holdInReserve": "If anybody asks a question after the speech rather than during it, answer it plainly from the speech and its notes below. Anything the speech does not say is not common knowledge, and the answer is \"your character has never heard\".",
+    "position": {
+      "locationRef": null,
+      "state": "scattered",
+      "note": "OFF-MAP, DELIBERATELY. This is narration over the whole city from very high up, before any character is anywhere. Positions begin at The Road In's close, exactly as before."
+    },
+    "landmark": "The long bay. The camera follows its curve all the way down to the city."
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "the-edge-of-the-sky",
+      "kind": "action",
+      "text": "Start high. The world, the rift at Kortos two hundred years ago, the four who stopped it, and the prophecy.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "Start high. High enough to see the world curve.\n\nThis is Golarion. Two hundred years ago, far to the west of here, past the edge of what you can see, something opened in the air above the island of Kortos and would not close. It ate. The more it ate, the faster it grew. It swallowed the mages who were sent to stop it, and it cut a jagged road across the island towards Absalom, the greatest city in the world. Every nation with magic sent help. At the last, four people stood in front of it -- Hyuck, Rupiah, Anabala and Shucks Mordant -- and it stopped, inside the city walls, in Pharasma's temple.\n\nThen Rupiah asked the gods the only question worth asking. Will it happen again?\n\nAnd the gods said yes. Not soon, and not there.\n\nHere.",
+      "direction": "Read it straight through. Slow down on the four names -- the table will hear one of them again inside the next half hour.",
+      "note": "EVERY SENTENCE HERE IS TRUE, and it is also the approved version. What it leaves out is what the approved version leaves out: how the rift began. GM-ONLY: the four opened it themselves, by accident (`ideas/story/dossier-first-impact.md` §3). Never add that, and never hint at it.\n\nTHE FOUR NAMES ARE A SETUP. Shucks Mordant is the skeleton who does their medical next scene, and his badge says MORDANT. That reveal is deliberate and early (LEDGER #28). The other three are revealed slowly -- say nothing here about any of them being alive.\n\nSOURCES: `ideas/story/bible/LEDGER.md` #24-#28; `dossier-first-impact.md` §3a and §10a."
+    },
+    {
+      "id": "come-east",
+      "kind": "action",
+      "text": "Down through the cloud to Kurose. The Directorate built it. The Frames, and the city's favourite joke.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "Come east. Across the sea, over the curve of the world, down through this cloud. That coast. That long bay. That city.\n\nKurose.\n\nA hundred and fifty years ago it was a fishing town with one road in. Then the four arrived, with a promise and a great deal of money, and built a harbour you could park a mountain in. What they built was called the Directorate, and everything you can see from here grew up around it: the old town on the cliffs, the smokestacks along the waterfront, the causeway out to the sea-fort in the channel, and the tram lines following the river inland.\n\nLower. Now you can see the Frames: machines taller than the warehouses, patched and riveted and loud, working the docks in the early light. One is unloading a freighter. One is trying to step over a tram and not quite managing it. Every child in Kurose can tell you the Directorate was built to save the world, and every child in Kurose has watched a Frame lift a crate of cabbages. It's the city's favourite joke: built to save the world, mostly moves cargo.",
+      "direction": "Let the tram land as a joke. It is one.",
+      "note": "THE FRAMES HERE ARE GEN 1 RUST BUCKETS, and this is now the table's first sight of one, so it carries the baseline The Road In used to have to place by hand (see that scene's `a-frame-at-a-distance`). Clanky, loud, visibly hard work. NEVER describe one moving gracefully or carefully -- that register belongs to Gen 2 (Mystery Ledger #11). Do not mention Gen 2, or generations at all.\n\nGM-ONLY: the Directorate came for the prophecy and found a buried ship under the city by digging. It is the search ship, a second ship that came looking for the one at Kortos, and its fuel is why the gods named Kurose (`ideas/story/dossier-first-impact.md` §1a). The speech says none of this."
+    },
+    {
+      "id": "a-promise-not-yet-due",
+      "kind": "action",
+      "text": "The gods did not say when. How the city feels about that, what sort of time this is, Cicada -- and down to the gate. It sent for you.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "The gods said Kurose. They didn't say when.\n\nSo this is a city built around a promise that hasn't come due, and it has feelings about that. On Founding Day there is a painting of the four in every shop window, and Rupiah still cuts the ribbon. He was cutting it when your grandparents were children, and the city finds this faintly embarrassing. The kingdom has its own army and its own navy, and they didn't build this city and don't answer to the people who did. Every year they grumble about a foreign base in their harbour, playing soldiers for a war nobody has scheduled.\n\nIt's a good time to be alive. The trams run on time and there's a radio in every kitchen. Magic is thinning out of the world and engines are filling the gap, and most people think that's fine. Anyone who looks too unusual for the neighbours tends to wear a fey glamour in public. Some call that good manners. Some say it's a city asking people to hide.\n\nAnd this spring there's a new name in the papers. A movement that calls itself Cicada. It says there's something the city needs to see.\n\nLower still. The base. The fence. The gate.\n\nA promise made two hundred years ago, by four people who could never have known your names, and somebody is going to have to keep it.\n\nEvery year the Directorate sends for new trainees. This year, it sent for you.",
+      "direction": "The Cicada line gets no weight and no pause. Then go straight on down to the gate. Stop after the last line and go straight into The Road In's letter. Do not ask the table anything yet.",
+      "note": "COMMON KNOWLEDGE ONLY. The city knows the four are long-lived and still about the base, and doesn't make a fuss of it (LEDGER #28); Rupiah at Founding Day is the one piece of that the speech spends. What each founder actually does now -- Rupiah in the administration, Shucks head of medical, Hyuck a test pilot of the worst Frame concepts, Anabala a free agent -- is revealed slowly and is NOT in this speech.\n\nTWO SERVICES (LEDGER #26): the kingdom's own army and navy are what everybody's parents did; the Directorate recruits separately and sits outside the kingdom's lines, which is where the grumbling comes from.\n\nCICADA IS PUBLIC. They name themselves and say what they want -- to be seen (`ideas/story/dossier-cicada.md` §2). Nothing else about them is common knowledge: not the founder, not the chemical, not the Envoy fifteen years ago, not the crime lords. Never connect this line to the violet mark in The Road In; the mark is a separate plant (`mystery-ledger-6`) and must be found, not handed over.\n\nTHE GLAMOUR LINE is what the whole party is doing, disguised as terrestrial from the first minute (the Induction design: every character arrives disguised as terrestrial). It is deliberately said as a fact about the city, not about them.\n\nTHIS IS THE HEART OF THE CAMPAIGN, SAID ONCE. The promise will come due in their time. GM-ONLY and never to be said to the table: the second rift is caused by the players and the antagonists about three-quarters of the way through, and the last quarter is a starship campaign (`design/campaign-arc.md`, LEDGER #26). \"Somebody is going to have to keep it\" is as far as the speech goes."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The last line of the speech. Stop there.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "\"This year, it sent for you.\" Then straight into the letter.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into The Road In, which opens on the acceptance letter and then goes round the table.",
+    "writeDown": [
+      "Any question a player asks once the speech is over, and what you answered. Whatever you told them is now true at this table."
+    ],
+    "position": {
+      "locationRef": null,
+      "state": "scattered",
+      "note": "Unchanged: nobody is anywhere yet. The Road In's intro takes it from here."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [
+    {
+      "id": "held-the-room",
+      "text": "The speech holding the table's attention all the way through, without anyone reaching for their phone."
+    },
+    {
+      "id": "the-cargo-joke",
+      "text": "\"Built to save the world, mostly moves cargo\" landing as a joke."
+    },
+    {
+      "id": "the-four-names",
+      "text": "Anyone connecting Shucks Mordant in the speech with the doctor's badge next scene."
+    }
+  ],
+  "notes": "WHY THIS SCENE EXISTS. Ingram asked for this: the GM should \"speak for a good while at first\" to set the world, the city, the era and the atmosphere, and to \"inspire the players to understand what the heart of the campaign is heading towards\" -- then ask each player about their road in. This is that speech; The Road In is the asking.\n\nTHE PICTURE. `artwork/scenes/episode-c1e1--from-up-here.png` (registered in `data/campaign/asset-registry.json`): an extreme high-altitude view -- the curve of the world, cumulus, the long bay and the city. The speech is written as one continuous camera descent through it.\n\nTHE RULES THIS SPEECH IS WRITTEN TO (read before changing a word): no outside references -- nothing from the real world, no named works, no decades; and never mention a thing in order to deny it. Everything said is common knowledge in Kurose and true. Nothing GM-only is in it: not the cause of the rift, not what the four looked like, not the hull, not the Watcher, not the final act.\n\nPLACES ARE NAMED ON PURPOSE (Ingram: \"Name places.\"): Golarion, Kortos, Absalom, Pharasma's temple, Kurose.\n\nNO CAST, NO ROLLS, NO CHOICES, AND THAT IS CORRECT AS WRITTEN. There is no optional beat, no temptation and no track on the strategy layer here, deliberately: it is six minutes of narration, and the agency in this stretch of the session all lives in The Road In, which follows immediately and is long."
+}

@@ -1,0 +1,221 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-board",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-board",
+  "title": "The Board",
+  "summary": "The fortnight goes up in the yard, and so does something none of them has ever had: an empty box with their name on it. Short scene, and the one that teaches the four-quarter day by making the party spend one rather than by explaining it.",
+  "goal": "Every player has seen a day drawn as four quarters, has found out that some of those quarters are theirs, has booked at least one thing into one of them, and has found out -- by losing one -- that slots run out.",
+  "howToPlay": "Brisk and slightly competitive. This is a teaching scene and the teaching must happen through the clerk refusing things and other people taking things, never through a lecture. **Do not explain the time economy. Let her rules-lawyer it at them and let a slot get taken.**\n\n**Run the gift and the theft as the same fact, in that order.** Every day of their lives since the letter arrived has been scheduled by somebody else, and this is the first board that has ever had a gap in it with their name against it. Then, thirty seconds later, somebody quicker takes a slot they wanted. Both halves are true and the scene is spoiled if only the second one lands.\n\nKeep the whole scene under ten minutes. If the table is enjoying haggling with the clerk, let it run -- that is the scene working.",
+  "runsAbout": "10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The yard, mid-morning, at the duty board outside the Time Office hatch.",
+    "firstThing": "The sound of it -- wooden slot-tiles being taken down and put back, a dozen people at once, like a slow game of dominoes.",
+    "readAloud": "The duty board is eight feet of painted plywood under a tin rain hood, and it is the loudest thing in the yard: wooden tiles going in and out of slots, chalk, and forty people trying to read over each other.\n\nYour fortnight is already up there, in a neat hand, in the section column. Every day is drawn as four boxes -- morning, afternoon, evening, night -- and most of your boxes are full.\n\nMost.",
+    "landmark": "the duty board under its tin hood",
+    "holdInReserve": "Beside the sea-wall job, in a different hand, the same task has been written and struck out on the two previous fortnights. Only for a player who actually reads the columns either side of their own.",
+    "carriesIn": [
+      {
+        "when": "As Discussed was played (it was)",
+        "then": "This is the roster he described, made real and public. If anybody got the countersignature off the wall in his office, the same hand is on the board here -- do not point at it."
+      },
+      {
+        "when": "Episode One was played (it was)",
+        "then": "Every hour of their first day was scheduled by somebody else, start to finish -- the road in, the medical, the assembly, two lessons, the stores, the errand, the canteen, the drain. Nobody has ever handed one of them an empty hour. That is why the gap on this board is worth anything, and it is why the scene is not purely a punishment."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "time-office-clerk",
+      "npcRef": "time-office-clerk",
+      "label": "The Time Office clerk",
+      "role": "Keeps the board. Hatch, stamp, ledger.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "The book to balance at end of day. Every quarter accounted for, every slip stamped, nothing pencilled in that isn't also written down.",
+        "opensWith": "Sliding the hatch open before anyone speaks, because she saw them coming and there is a queue.",
+        "willDiscuss": [
+          {
+            "topic": "What a quarter is and what fits in one",
+            "note": "Readily, and slightly too fast, because she says it forty times a day. She teaches by correction: she will not explain the rule until somebody gets it wrong in front of her."
+          },
+          {
+            "topic": "What is still free this fortnight",
+            "note": "Accurately, from the ledger, and she will tell them what is nearly gone. She is not doing them a favour -- she wants it booked so it stops being asked about."
+          },
+          {
+            "topic": "Whether two things fit in one quarter",
+            "note": "This is the rule worth getting across. Doing two things in a quarter is allowed and normal. BOOKING two is not, because the board records where a person can be found, not what they did."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Changing anything on the section column",
+            "why": "A section's duty roster is set by the section officer, not by her, and going over his head via her hatch is not a thing that works. She is not unsympathetic. She just has a job."
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "Writing something into the ledger that is not on the board",
+            "how": "Not charm and not pressure. Give her a reason the book still balances -- a swap, a name to put in the other column, a slip she can stamp. Offer her paperwork and she will meet you most of the way.",
+            "challengeRef": "c1e2-the-board"
+          }
+        ],
+        "voice": {
+          "register": "Fast, flat, kind underneath, entirely uninterested in being liked. Speaks in complete rules and then adds the exception.",
+          "tics": [
+            "Gives the rule, then the exception, then the form number",
+            "Answers the question after the one she was asked",
+            "Says 'that's fine' about things that are not fine yet, meaning 'that is fixable'"
+          ],
+          "samples": [
+            "\"Four boxes a day. You can be in one place per box. What you do in that place is your business and not mine.\"",
+            "\"You can do six things in an afternoon if you're quick. You can only be findable in one of them. That's what the board is for -- finding you.\"",
+            "\"Gone. Went at seven. -- That's fine, there's the Thursday one, nobody wants Thursday.\"",
+            "\"I can't move a section column. I could move you, if somebody else stands in the box. Have you got a somebody?\"",
+            "\"Bring me that on a 40-C and I'll stamp it. Don't bring me it on anything else.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "four-boxes",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Let them read the board and find their own fortnight on it.",
+      "npcRef": "time-office-clerk",
+      "direction": "Draw it for the table if that helps -- four boxes per day, the section's jobs already written into most of them, and gaps in the rest. The gaps are the point and they should be visible as gaps.\n\nDo not name the gaps as 'free time' or 'downtime'. They are empty boxes on a board.",
+      "note": "HOW TO PLAY IT. The rule the scene teaches: you are in one place per quarter, and the board records where you can be found rather than what you did. Everything else about the time economy follows from that and does not need saying tonight.\n\nTHE GIFT COMES FIRST AND IT IS REAL. Before anything gets taken, they see an empty box with their own section against it. That is the first unstructured time any of them has been given since the letter arrived, and Episode One deliberately contains none of it. Let somebody ask what it means before the clerk explains.\n\nAN EMPTY SLOT IS NOT A REST TILE, AND NOBODY SAYS SO. A REST tile is an instruction; an empty slot is an hour nobody has claimed. If a player asks the clerk what the gap means, she tells them plainly. If nobody asks, it stays a gap they can do something with.",
+      "readAloud": "Wooden tiles in slots, four to a day, and a chalk column for every section on the base.\n\nYours is second from the end. Monday is full. Tuesday is full. Wednesday has one box with nothing in it at all -- no tile, not even the one that says REST."
+    },
+    {
+      "id": "the-correction",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The first time a player tries to book two things into one box, the clerk corrects them -- and the correction is the rules explanation.",
+      "npcRef": "time-office-clerk",
+      "readAloud": "\"You can't have both. -- No, you can DO both, if you're quick and you don't mind running. You can't be findable in both.\"\n\nShe taps the ledger without looking down at it. \"One box, one place. Where do you want to be found?\"",
+      "direction": "If nobody tries to double-book, have the trainee ahead of them in the queue try it instead and get the same answer. The rule has to arrive as a refusal, not as a briefing.",
+      "note": "HOW TO PLAY IT. This is the whole mechanical teach and it takes one exchange. Do not follow it with a summary."
+    },
+    {
+      "id": "the-last-slot",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "While they are deciding, somebody from another section takes the last slot of something good. Name what it was as it goes.",
+      "direction": "Pick whatever the party has been eyeing, or the machine shop if they have not settled on anything. He wants the same slot they want and he got to the hatch first; there is no needle in it and he is pleased with himself rather than smug.\n\n**Do not let the party get it back this scene.** Something being gone is the lesson.\n\nName the thing that went and make it something they wanted. Do not let it be reversible, do not let an NPC offer them a replacement, and do not moralise about it.\n\nThe lesson is not that they were slow. It is that the board is a real economy with other people in it, and it moves whether or not they have decided.",
+      "note": "HOW TO PLAY IT. Scarcity has to be felt once, early, cheaply, at no real cost -- so that the choices in The Long Afternoon and The Night Off read as choices rather than as a menu. If the table shrugs at it, that is fine; do not press.",
+      "readAloud": "A hand comes past your shoulder -- not rudely, just faster than you -- and takes the tile out of the slot you were looking at.\n\nIt goes into a section column four along from yours. The slot it came out of is a rectangle of bare plywood now, slightly lighter than the board around it.\n\n\"Sorry. Were you --?\" He has already turned away. He is not being unkind; he was quicker and that is all it takes."
+    },
+    {
+      "id": "the-struck-out-job",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player reads the columns either side of their own, offer the check.",
+      "challengeRef": "c1e2-the-board",
+      "checkRef": "read-the-board",
+      "when": {
+        "condition": "if a player reads beyond their own section's column"
+      },
+      "nodeRefs": [
+        "mystery-ledger-6"
+      ],
+      "direction": "Give them the fact and nothing else: the sea-wall job was assigned to another section a fortnight ago and to a third section a fortnight before that, and struck out both times. On a critical success, add that neither section logged it as completed -- the job was reassigned, not finished.\n\nDo not offer a theory and do not let the clerk have one. She will say it happens, and that a job that keeps coming back usually means the wrong people keep getting sent.",
+      "note": "PLANT. This is the first half of the sea wall; the second half is the stencil under the growth in Slack Water.\n\nGM-ONLY: the previous sections did the work. The mark is what keeps coming back, and it comes back faster than weathering explains. Nothing tonight or next scene confirms that, and no NPC suspects it.\n\nWHAT IT DOES NOT MEAN: this is not sabotage, nobody is being prevented from finishing, and there is no one to catch in the act."
+    },
+    {
+      "id": "book-it",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Every player books at least one thing into one empty box, and the clerk stamps it.",
+      "npcRef": "time-office-clerk",
+      "direction": "Go round the table. Take whatever they say, however vague, and make her turn it into a booking with a place and a box -- that is her whole function and it converts a player's intention into a thing that exists.\n\nWhat is on offer is a starting menu, not a closed list: the machine shop floor, the range, the library, the school block, the canteen kitchens, the vehicle park, the wire. A player who invents something else gets it booked if she can find a column for it.",
+      "note": "HOW TO PLAY IT. Booking is free. Nothing here costs anything and nothing is being tested. The point is that each player has said out loud, in front of the others, what they want a piece of their fortnight for.\n\nWrite down what each of them booked. The Long Afternoon and The Night Off both pay these off.\n\nIF A PLAYER REFUSES TO BOOK ANYTHING: the box does not stay empty. The clerk writes them into quarters -- rest, barracks, findable -- because an unaccounted quarter is the one thing her ledger cannot carry. Play it without triumph. A player who wants their character to opt out of the institution choosing for them has just learned that opting out is also a choice the institution makes on their behalf, and they can come back to the hatch any time.",
+      "readAloud": "She takes the tile, checks the column, and stamps the ledger once.\n\nThat is it. That is the whole procedure. Whatever you just wrote down is where somebody will come looking for you."
+    },
+    {
+      "id": "off-the-book",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants something the board does not offer, offer the check.",
+      "challengeRef": "c1e2-the-board",
+      "checkRef": "talk-her-off-book",
+      "npcRef": "time-office-clerk",
+      "when": {
+        "condition": "if a player asks for something that is not a listed slot"
+      },
+      "direction": "She is winnable, and the way to win is to solve her problem rather than to charm her. Anything that keeps the ledger balanced works: a swap with a named person, a slip she can stamp, an offer to cover a box somebody else is dodging.\n\nOn a success she writes it in. On a critical success she writes it in and tells them which box nobody ever checks.",
+      "note": "HOW TO PLAY IT. Real width for a player who would rather solve an institution than obey it. Costs nothing on a failure -- she just says no and goes back to the queue.\n\nWhatever she writes in is real and binding for the fortnight. If a player books something strange, let it exist and pay it off later."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The section's fortnight is on the board, every player has something of their own in a box, and the queue behind them has stopped being patient.",
+    "readAloud": "Behind you the tiles keep going in and out of their slots. Your fortnight is up there in somebody else's handwriting, and four small boxes in it are now in yours.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "Move this if the party left able to say what a quarter is worth and what fits inside one. That is the whole job of this scene."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "There is a lesson on before the tide is low enough for the wall, and the board has that on it too.",
+      "scatterRisk": false
+    },
+    "onwards": "Into School: Period One. Low tide is at eleven, so there is a period of school first, and the board has already told them so.",
+    "writeDown": [
+      "What each player booked, and into which quarter. Both later downtime scenes pay these off.",
+      "Whether anyone read the neighbouring columns and found the struck-out sea-wall job.",
+      "Whether anyone got the clerk to write something off the book, and what it was."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "read-the-other-columns",
+      "text": "Their own column is the boring one -- the interesting reading is what the other sections got landed with this fortnight."
+    },
+    {
+      "id": "ask-what-is-nearly-gone",
+      "text": "She knows exactly what is nearly booked out, and she would rather tell somebody than be asked about it again."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "economy-taught-by-refusal",
+      "text": "Whether the four-quarter day landed through the clerk's correction rather than needing an out-of-character explanation.",
+      "scaleNote": "0 = had to explain it directly, 10 = the table picked it up from one refusal."
+    },
+    {
+      "id": "scarcity-felt",
+      "text": "The last slot going to somebody else -- whether losing it registered at all."
+    },
+    {
+      "id": "clerk-as-obstacle",
+      "text": "Whether the clerk read as a solvable institution rather than a wall, and whether anyone tried to solve her."
+    },
+    {
+      "id": "went-flat",
+      "text": "If the scene went flat -- a board being read is a hard thing to make interesting and this may need a livelier staging.",
+      "scaleNote": "0 = landed fine, 10 = rethink before reusing."
+    }
+  ],
+  "notes": "WHAT THIS SCENE IS FOR. It is the only teaching scene in the episode and it teaches one rule: one place per quarter, and the board records where you can be found. Everything else about downtime is learned by doing it in The Long Afternoon and The Night Off.\n\nWHY THE CLERK IS NOT AN OBSTACLE. She wants the book to balance, which means she wants things booked. A party that works out she is winnable by solving her problem has learned something about this institution that the Section Officer's office could never teach them: most of the Directorate is not hostile, it is just busy and procedural, and procedure has handles on it."
+}

@@ -1,0 +1,367 @@
+<title>{{TITLE}} Sign-Off</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Signika:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ---------------------------------------------------------------------------
+   Tokens. Palette lifted from module/blank-inheritance/styles/bi-tokens.css --
+   the project's own system, per the standing one-CSS-identity rule. Chosen for
+   low glare rather than for flavour: Ingram reads a lot of these and asked for
+   reading comprehension above in-universe style, so the warm paper ground and
+   the two-face pairing are here to be easy on tired eyes, not to be a costume.
+--------------------------------------------------------------------------- */
+:root {
+  --paper:        #efe8d8;
+  --paper-raised: #f7f2e6;
+  --paper-sunk:   #e3dac2;
+  --rule:         #c3b391;
+  --rule-strong:  #8d7c56;
+  --ink:          #241f16;
+  --ink-soft:     #5b5142;
+  --ink-faint:    #7d7362;
+
+  --clear:     #2f6a48;
+  --clear-bg:  #dfeadd;
+  --fix:       #8a5a10;
+  --fix-bg:    #f6e8cd;
+  --stop:      #a3301f;
+  --stop-bg:   #f6dcd6;
+  --waiting:   #1f5b64;
+  --waiting-bg:#d9e8ea;
+  --quiet:     #6f6754;
+  --quiet-bg:  #e6dfce;
+
+  --accent:    #d1402a;
+
+  --font-body: Signika, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+  --measure: 68ch;
+  --radius: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:        #1b1813;
+    --paper-raised: #241f18;
+    --paper-sunk:   #14120e;
+    --rule:         #3d3628;
+    --rule-strong:  #6f6754;
+    --ink:          #e8e0cd;
+    --ink-soft:     #b3a992;
+    --ink-faint:    #8d8371;
+
+    --clear:     #6fe39a;
+    --clear-bg:  #14251b;
+    --fix:       #f0a830;
+    --fix-bg:    #2a1f0c;
+    --stop:      #f07a63;
+    --stop-bg:   #2b120d;
+    --waiting:   #4fc8d8;
+    --waiting-bg:#0e2226;
+    --quiet:     #a99f88;
+    --quiet-bg:  #23201a;
+
+    --accent:    #e8604a;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:        #1b1813;
+  --paper-raised: #241f18;
+  --paper-sunk:   #14120e;
+  --rule:         #3d3628;
+  --rule-strong:  #6f6754;
+  --ink:          #e8e0cd;
+  --ink-soft:     #b3a992;
+  --ink-faint:    #8d8371;
+
+  --clear:     #6fe39a;
+  --clear-bg:  #14251b;
+  --fix:       #f0a830;
+  --fix-bg:    #2a1f0c;
+  --stop:      #f07a63;
+  --stop-bg:   #2b120d;
+  --waiting:   #4fc8d8;
+  --waiting-bg:#0e2226;
+  --quiet:     #a99f88;
+  --quiet-bg:  #23201a;
+
+  --accent:    #e8604a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+.page { padding-block: 0 72px; padding-left: 20px; padding-right: 20px; max-width: 960px; margin: 0 auto; }
+
+/* --- masthead ----------------------------------------------------------- */
+.masthead { padding-block: 28px 20px; border-bottom: 2px solid var(--rule-strong); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint);
+  margin: 0 0 8px;
+}
+h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.1; margin: 0 0 12px; font-weight: 700; text-wrap: balance; }
+.subline { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); margin: 0; }
+.subline b { color: var(--ink); font-weight: 600; }
+
+/* --- the four pass cards ------------------------------------------------ */
+.passes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 24px 0 0; }
+.passcard {
+  border: 1px solid var(--rule); border-left: 5px solid var(--quiet);
+  border-radius: var(--radius); background: var(--paper-raised);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+  text-decoration: none; color: inherit;
+}
+.passcard:hover, .passcard:focus-visible { border-color: var(--rule-strong); }
+.passcard .n { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--ink-faint); text-transform: uppercase; }
+.passcard .nm { font-weight: 600; font-size: 17px; }
+.passcard .vd { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+.passcard.is-clear   { border-left-color: var(--clear); }
+.passcard.is-clear   .vd { color: var(--clear); }
+.passcard.is-fix     { border-left-color: var(--fix); }
+.passcard.is-fix     .vd { color: var(--fix); }
+.passcard.is-stop    { border-left-color: var(--stop); }
+.passcard.is-stop    .vd { color: var(--stop); }
+.passcard.is-waiting { border-left-color: var(--waiting); }
+.passcard.is-waiting .vd { color: var(--waiting); }
+.passcard .prop { font-size: 13px; color: var(--ink-soft); }
+
+/* --- asks: the loudest thing on the page -------------------------------- */
+.asks { margin: 32px 0 0; border: 2px solid var(--accent); border-radius: var(--radius); background: var(--paper-raised); overflow: hidden; }
+.asks > header { background: var(--accent); color: #fff; padding: 10px 16px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.asks > header h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.01em; }
+.asks > header .count { font-family: var(--font-mono); font-size: 13px; font-weight: 600; opacity: 0.92; }
+.asklist { list-style: none; margin: 0; padding: 0; }
+.asklist > li { padding: 16px; border-top: 1px solid var(--rule); }
+.asklist > li:first-child { border-top: 0; }
+.ask-q { font-size: 18px; font-weight: 600; margin: 0 0 2px; line-height: 1.4; max-width: var(--measure); }
+.ask-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 8px; }
+.ask-meta .blocking { color: var(--stop); font-weight: 600; }
+.ask-detail { max-width: var(--measure); color: var(--ink-soft); }
+.ask-detail p:last-child { margin-bottom: 0; }
+.nothing { padding: 16px; margin: 0; color: var(--ink-soft); }
+
+/* Full context on every ask: where it stands, the options, my recommendation. */
+.lede {
+  display: block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px;
+}
+.ask-current { max-width: var(--measure); margin: 10px 0 14px; padding: 12px 14px; background: var(--paper-sunk); border-radius: var(--radius); }
+.ask-current p:last-child, .ask-rec p:last-child { margin-bottom: 0; }
+.ask-options { list-style: none; counter-reset: opt; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; max-width: var(--measure); }
+.ask-options > li {
+  counter-increment: opt; display: grid; grid-template-columns: 26px 1fr; gap: 2px 10px;
+  padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper);
+}
+.ask-options > li::before {
+  content: counter(opt, upper-alpha); grid-row: 1 / span 2;
+  font-family: var(--font-mono); font-weight: 600; font-size: 14px; color: var(--ink-faint);
+}
+.ask-options > li.is-rec { border-color: var(--clear); border-left-width: 4px; }
+.ask-options .opt { font-weight: 600; }
+.ask-options .imp { color: var(--ink-soft); font-size: 15px; line-height: 1.5; }
+.rec-tag {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--clear); background: var(--clear-bg);
+  padding: 1px 6px; border-radius: 3px; margin-left: 6px; white-space: nowrap;
+}
+.ask-rec { max-width: var(--measure); padding: 12px 14px; border-left: 4px solid var(--clear); background: var(--clear-bg); border-radius: 0 var(--radius) var(--radius) 0; }
+
+/* --- sections ----------------------------------------------------------- */
+section.pass { margin: 40px 0 0; scroll-margin-top: 16px; }
+section.pass > header { border-bottom: 1px solid var(--rule-strong); padding-bottom: 8px; margin-bottom: 16px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+section.pass h2 { margin: 0; font-size: 24px; font-weight: 700; }
+section.pass h2 .num { font-family: var(--font-mono); color: var(--ink-faint); font-weight: 500; font-size: 18px; margin-right: 6px; }
+.verdict-chip {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap;
+}
+.v-clear   { color: var(--clear);   background: var(--clear-bg); }
+.v-fix     { color: var(--fix);     background: var(--fix-bg); }
+.v-stop    { color: var(--stop);    background: var(--stop-bg); }
+.v-waiting { color: var(--waiting); background: var(--waiting-bg); }
+.v-quiet   { color: var(--quiet);   background: var(--quiet-bg); }
+
+.summary-line {
+  font-size: 19px; line-height: 1.5; max-width: var(--measure);
+  border-left: 4px solid var(--rule-strong); padding-left: 14px; margin: 0 0 20px;
+}
+.prose { max-width: var(--measure); }
+.prose h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+.prose p { margin: 0 0 14px; }
+.prose blockquote {
+  margin: 0 0 16px; padding: 12px 16px; background: var(--paper-sunk);
+  border-left: 4px solid var(--rule-strong); border-radius: 0 var(--radius) var(--radius) 0;
+}
+.prose blockquote p { margin: 0 0 8px; }
+.prose blockquote p:last-child { margin: 0; }
+.prose code { font-family: var(--font-mono); font-size: 0.88em; background: var(--paper-sunk); padding: 1px 5px; border-radius: 3px; }
+.prose ul { margin: 0 0 16px; padding-left: 22px; }
+.prose li { margin-bottom: 6px; }
+.prose strong { font-weight: 600; }
+
+/* --- findings ----------------------------------------------------------- */
+.findings { display: flex; flex-direction: column; gap: 16px; margin: 0 0 24px; }
+.finding { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-raised); overflow: hidden; }
+.finding > header { display: flex; gap: 10px; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.finding h3 { margin: 0; font-size: 18px; font-weight: 600; flex: 1 1 260px; line-height: 1.35; }
+.finding .body { padding: 14px 16px 2px; }
+.finding .body > .prose { max-width: var(--measure); }
+.finding.sev-applied { border-left: 5px solid var(--clear); }
+.finding.sev-noted   { border-left: 5px solid var(--fix); }
+.finding.sev-ok      { border-left: 5px solid var(--quiet); }
+.finding.sev-open    { border-left: 5px solid var(--stop); }
+
+/* --- diffs -------------------------------------------------------------- */
+.diff { display: flex; flex-direction: column; gap: 1px; margin: 0 0 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--rule); }
+.diff > div { padding: 10px 14px 10px 34px; position: relative; font-size: 16px; line-height: 1.55; }
+.diff .was { background: var(--stop-bg); color: var(--ink); }
+.diff .now { background: var(--clear-bg); color: var(--ink); }
+.diff > div::before {
+  position: absolute; left: 12px; top: 10px;
+  font-family: var(--font-mono); font-weight: 700; font-size: 15px;
+}
+.diff .was::before { content: "−"; color: var(--stop); }
+.diff .now::before { content: "+"; color: var(--clear); }
+
+/* --- check results ------------------------------------------------------ */
+.tally { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.tally span {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--rule);
+  background: var(--paper-raised);
+}
+.tally .t-fail { color: var(--stop); background: var(--stop-bg); border-color: currentColor; font-weight: 600; }
+.tally .t-ok { color: var(--clear); }
+details.checks { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-raised); margin: 0 0 8px; }
+details.checks > summary {
+  cursor: pointer; padding: 10px 14px; font-weight: 600; font-size: 15px;
+  list-style: none; display: flex; align-items: center; gap: 8px;
+}
+details.checks > summary::-webkit-details-marker { display: none; }
+details.checks > summary::before { content: "▸"; color: var(--ink-faint); font-size: 12px; }
+details.checks[open] > summary::before { content: "▾"; }
+.checkgrid { border-top: 1px solid var(--rule); }
+.checkrow { display: grid; grid-template-columns: 74px 1fr; gap: 0 12px; padding: 10px 14px; border-top: 1px solid var(--rule); align-items: start; }
+.checkgrid > .checkrow:first-child { border-top: 0; }
+.checkrow .id { font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+.checkrow .q { font-size: 15px; line-height: 1.45; }
+.checkrow .detail { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+.checkrow .detail code { font-family: var(--font-mono); font-size: 0.9em; }
+.state {
+  display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; margin-bottom: 2px;
+}
+.s-pass   { color: var(--clear);   background: var(--clear-bg); }
+.s-fail   { color: var(--stop);    background: var(--stop-bg); }
+.s-exempt { color: var(--quiet);   background: var(--quiet-bg); }
+.s-na     { color: var(--quiet);   background: var(--quiet-bg); }
+.s-waived { color: var(--fix);     background: var(--fix-bg); }
+.s-manual { color: var(--waiting); background: var(--waiting-bg); }
+.s-broken { color: var(--stop);    background: var(--stop-bg); }
+.checkrow.is-fail .q { font-weight: 600; }
+
+/* --- declined list ------------------------------------------------------ */
+.declined { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.declined li { display: grid; grid-template-columns: 120px 1fr; gap: 4px 14px; padding: 12px 14px; background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--radius); }
+.declined .ck { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink-faint); }
+.declined .what { font-weight: 600; }
+.declined .why { grid-column: 2; color: var(--ink-soft); font-size: 15px; }
+
+/* --- judged fine -------------------------------------------------------- */
+.fine { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.fine li { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: start; }
+.fine .ck { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--clear); padding-top: 3px; }
+.fine .note { max-width: var(--measure); }
+.fine .note p { margin: 0; }
+
+/* --- radar -------------------------------------------------------------- */
+.radar { display: flex; flex-direction: column; gap: 14px; margin: 0 0 18px; max-width: 640px; }
+.hz { display: grid; grid-template-columns: 172px 1fr 40px; gap: 12px; align-items: center; }
+.hz .lbl { font-size: 15px; font-weight: 600; }
+.hz .lbl small { display: block; font-weight: 400; font-size: 12.5px; color: var(--ink-faint); font-family: var(--font-mono); }
+.hz .bar { height: 14px; background: var(--paper-sunk); border-radius: 999px; overflow: hidden; border: 1px solid var(--rule); }
+.hz .bar i { display: block; height: 100%; background: var(--rule-strong); border-radius: 999px; }
+.hz.h-short .bar i { background: var(--clear); }
+.hz.h-med   .bar i { background: var(--fix); }
+.hz.h-long  .bar i { background: var(--waiting); }
+.hz .n { font-family: var(--font-mono); font-size: 16px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.hz.is-zero .n { color: var(--ink-faint); }
+
+/* --- misc --------------------------------------------------------------- */
+.note-block { max-width: var(--measure); padding: 14px 16px; border: 1px dashed var(--rule-strong); border-radius: var(--radius); background: var(--paper-sunk); margin: 0 0 20px; font-size: 15px; }
+.note-block strong { font-weight: 600; }
+.applied-item { border: 1px solid var(--rule); border-left: 5px solid var(--clear); border-radius: var(--radius); background: var(--paper-raised); padding: 14px 16px; margin: 0 0 14px; }
+.applied-item h3 { margin: 0 0 2px; font-size: 17px; font-weight: 600; }
+.applied-item .why { color: var(--ink-soft); font-size: 15px; margin: 0 0 12px; max-width: var(--measure); }
+footer.foot { margin: 48px 0 0; padding-top: 16px; border-top: 1px solid var(--rule); font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); }
+footer.foot p { margin: 0 0 4px; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .checkrow { grid-template-columns: 1fr; gap: 4px; }
+  .declined li { grid-template-columns: 1fr; }
+  .declined .why { grid-column: 1; }
+  .fine li { grid-template-columns: 1fr; gap: 2px; }
+  .hz { grid-template-columns: 1fr 40px; }
+  .hz .bar { grid-column: 1 / -1; order: 3; }
+}
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">Sign-Off report · checklist v{{CHECKLIST_VERSION}}</p>
+    <h1>{{TITLE}}</h1>
+    <p class="subline"><b>{{SCENE_ID}}</b> · scene {{ORDER}} of {{TOTAL}} in play order · {{EPISODE_TITLE}} · status <b>{{STATUS}}</b> · opened {{DATE}}</p>
+    <div class="passes">{{PASS_CARDS}}</div>
+  </header>
+
+  <div class="asks" id="asks">
+    <header>
+      <h2>What I need from you</h2>
+      <span class="count">{{ASK_COUNT}}</span>
+    </header>
+    {{ASKS}}
+  </div>
+
+  <div class="note-block" style="margin-top:32px">
+    <strong>Who records which verdict.</strong> <code>FIX</code>, <code>STOP</code> and <code>BLOCKED</code> are
+    findings and I record them myself. <code>CLEAR</code> is assent and only you give it — so a pass I believe is
+    clear shows here as <em>proposed</em> and stays off the record until you answer. Two rounds of <code>FIX</code>
+    per pass, then it clears either way.
+  </div>
+
+  {{SECTIONS}}
+
+  <section class="pass" id="applied">
+    <header><h2>Changes applied</h2><span class="verdict-chip v-clear">{{APPLIED_COUNT}}</span></header>
+    <p class="prose" style="margin-top:-6px;color:var(--ink-soft)">Nothing here needs approval — it was obvious, non-semantic, or you asked for it.</p>
+    {{APPLIED}}
+  </section>
+
+  <section class="pass" id="radar">
+    <header><h2>Consequence radar</h2></header>
+    <div class="radar">{{RADAR}}</div>
+    {{RADAR_NOTE}}
+  </section>
+
+  <section class="pass" id="na">
+    <header><h2>Not applicable here</h2><span class="verdict-chip v-quiet">{{NA_COUNT}}</span></header>
+    <p class="prose" style="margin-top:-6px;color:var(--ink-soft)">A check that cannot apply is not answered, not passed and not waived. Inventing an answer is noise; skipping one silently is indistinguishable from forgetting it.</p>
+    {{NOT_APPLICABLE}}
+  </section>
+
+  <footer class="foot">
+    <p>Generated by tools/scene-signoff/report.mjs from reviews/{{SCENE_ID}}.json</p>
+    <p>Process: design/scene-signoff.md · Checks: data/campaign/signoff-checklist.json · Record of record: data/episodes/&hellip;#scenes[].authoring.review</p>
+  </footer>
+</div>

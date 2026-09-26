@@ -15,8 +15,9 @@
  * header comments, data/characters/kids/README.md) flags this as
  * collaborative creative work, not something to fill in unilaterally.
  * This is a genuine first draft for Ingram's review, not a locked
- * decision — every name, class, Anchor, and pairing here is meant to be
- * freely revised, replaced, or thrown out.
+ * decision — every name, class, and pairing here is meant to be freely
+ * revised, replaced, or thrown out. (The Anchors it also drafted were
+ * removed on 2026-09-25: Anchors were cut on 2026-09-20.)
  *
  * Ability-boost pattern (kept uniform across all six for consistency,
  * not tuned per-kid): key ability reaches +4 via one boost each from
@@ -70,10 +71,6 @@ const KIDS = [
     concept: "The one who smooths things over — between classmates, between kids and the Directorate, between his own exhaustion and everyone else's need for him to have an answer. Nobody asked if he wanted the job.",
     armor: { name: "Light duty jacket", acBonus: 1, dexCap: 4, categoryRank: 1 },
     skills: { diplomacy: 1, society: 1, performance: 1, medicine: 1 },
-    anchors: [
-      { id: "hiroshi-anchor-person", anchorType: "person", description: "His little sister, who still thinks the Directorate is heroic — he hasn't told her what a Contact actually looks like from inside a Frame." },
-      { id: "hiroshi-anchor-need", anchorType: "need", description: "To be trusted with the truth instead of managed with it — the exact thing he does to everyone else, and hates having done to him." }
-    ],
     framePilotedRef: "kurogane"
   },
   {
@@ -83,11 +80,6 @@ const KIDS = [
     concept: "Keeps a shrine notebook nobody else has read, logging which of the old rites still feel like they mean something now that a kilometre-wide effect is something she can actually cast. Quiet, watchful, unnervingly calm in a crisis.",
     armor: { name: "Shrine robes (reinforced)", acBonus: 1, dexCap: 3, categoryRank: 1 },
     skills: { religion: 1, occultism: 1, medicine: 1, society: 1 },
-    anchors: [
-      { id: "etsuko-anchor-belief", anchorType: "belief", description: "That the Gap took something real and sacred from the city, not just \"history\" — and that piloting a Frame without understanding that is a kind of theft." },
-      { id: "etsuko-anchor-person", anchorType: "person", description: "Her grandmother, the last person who still performs the pre-Gap rites correctly, and who is running out of time to teach them to anyone." },
-      { id: "etsuko-anchor-need", anchorType: "need", description: "To be believed when she says something is wrong, without having to produce proof first." }
-    ],
     framePilotedRef: "suzukaze"
   },
   {
@@ -97,10 +89,6 @@ const KIDS = [
     concept: "Precise, controlled, misses nothing — has had to be, his whole life. Uses a tsūmei (an assumed Japanese name) at school and at the Directorate; the name on his own family's records is different. Nobody at school knows both halves of him, and he has strong opinions about who gets to.",
     armor: { name: "Fitted work coveralls", acBonus: 2, dexCap: 3, categoryRank: 1 },
     skills: { stealth: 1, society: 1, thievery: 1, acrobatics: 1 },
-    anchors: [
-      { id: "masaru-anchor-need", anchorType: "need", description: "To decide for himself, every time, who learns his real name — not to have it discovered, guessed, or \"found out\" by someone else's carelessness." },
-      { id: "masaru-anchor-belief", anchorType: "belief", description: "That precision is the one thing that can't be taken from him — if he's exact enough, careful enough, nobody gets to define him by anything else." }
-    ],
     framePilotedRef: "akatsuki"
   },
   {
@@ -110,10 +98,6 @@ const KIDS = [
     concept: "Grew up on the industrial waterfront, hauling cargo before school most mornings. Quiet intensity, the kind of physical confidence that doesn't need to perform itself. Doesn't talk much about the Frame — talks even less about what it feels like to be trusted with something that big.",
     armor: { name: "Dock coveralls, reinforced", acBonus: 2, dexCap: 2, categoryRank: 2 },
     skills: { athletics: 1, intimidation: 1, survival: 1, crafting: 1 },
-    anchors: [
-      { id: "ren-anchor-person", anchorType: "person", description: "His father, still working the same docks, who has never once asked what happens out past the causeway — and Ren isn't sure if that's respect or fear." },
-      { id: "ren-anchor-need", anchorType: "need", description: "To be more than the strongest kid in a room full of people who need lifting, carrying, holding the line." }
-    ],
     framePilotedRef: "tsukikage"
   },
   {
@@ -123,11 +107,6 @@ const KIDS = [
     concept: "Steps between danger and whoever's closest to it without deciding to first — it's just what her body does. Loud where Hiroshi is quiet, and the two of them argue constantly about whether that's a flaw or the whole point of her.",
     armor: { name: "Drill-issue field jacket", acBonus: 3, dexCap: 1, categoryRank: 2 },
     skills: { athletics: 1, intimidation: 1, survival: 1, acrobatics: 1 },
-    anchors: [
-      { id: "yumiko-anchor-belief", anchorType: "belief", description: "That standing in front of the hit is always the right call — untested against a cost big enough to actually make her doubt it." },
-      { id: "yumiko-anchor-person", anchorType: "person", description: "Etsuko, whose calm she finds genuinely unnerving and privately envies." },
-      { id: "yumiko-anchor-need", anchorType: "need", description: "To be needed for something other than absorbing damage — to be asked, not just deployed." }
-    ],
     framePilotedRef: "hibari"
   },
   {
@@ -137,10 +116,6 @@ const KIDS = [
     concept: "Sees the angle nobody else is looking from — a real asset in a fight, a genuinely exhausting quality in a classroom. Treats the boundary between \"the Gap's leftover magic\" and \"ordinary physics\" as a puzzle he's personally offended nobody's solved yet.",
     armor: { name: "Patched-together field coat", acBonus: 1, dexCap: 4, categoryRank: 1 },
     skills: { occultism: 1, arcana: 1, society: 1, computers: 1 },
-    anchors: [
-      { id: "susumu-anchor-need", anchorType: "need", description: "An answer — any real one — to what the Gap actually was, not another institutional non-explanation." },
-      { id: "susumu-anchor-belief", anchorType: "belief", description: "That the Directorate knows more than it's saying, and that finding out is worth more risk than most people around him think it is." }
-    ],
     framePilotedRef: "wakaba"
   }
 ];
@@ -184,9 +159,7 @@ for (const kid of KIDS) {
     armorClass,
     speed: { land: HUMAN.speed },
     heroPoints: 1,
-    groundRoleHistory: [],
     framePilotedRef: kid.framePilotedRef,
-    anchors: kid.anchors,
     status: "DRAFT — proposed 2026-08-22 at Ingram's request, open to full revision. Not yet confirmed.",
     notes: "Built via tools/character-builder/derive.mjs directly (real Player Core math for HP/AC/saves/skills/classDC), not the pregen-borrowing shortcut — the six Adventure Pregens are all non-human sci-fi ancestries, a mismatch for this setting. Ability-boost pattern and proficiency ranks (uniformly trained) are documented simplifications, not pack-verified per-class data — see build-real-kids.mjs's header comment."
   };

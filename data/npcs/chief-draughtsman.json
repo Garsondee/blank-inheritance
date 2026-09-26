@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "chief-draughtsman",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Chief Draughtsman, The Drawing Office",
   "pole": null,

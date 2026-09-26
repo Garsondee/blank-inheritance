@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema/encounter.schema.json",
+  "id": "c1e2-first-contact",
+  "type": "encounter",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "First Contact -- the harbour road",
+  "description": "Three unidentified contacts on a harbour road, forty civilians behind a stopped tram, and six machines issued two hours earlier. The objective is the road being empty of people, not the contacts being destroyed. Written as a situation, a map and a set of behaviours rather than as stat blocks -- build the three from existing creatures at the table.",
+  "partyLevel": 1,
+  "partySize": 6,
+  "intendedThreatLevel": "severe",
+  "creatures": [
+    {
+      "creatureRef": null,
+      "name": "Proto-Claimant, the heavy one (reskin: Cephalaspis Corpse, Starfinder Society bestiary)",
+      "level": 2,
+      "count": 1,
+      "build": "AC 17, HP 35, land speed 5, best Strike +10. Armored Deflection, Grab, Pummeling Loop, and a charge. Immune to bleed, death effects, disease, mental, paralysis, poison and unconscious -- it does not die the way an animal dies, which this encounter needs and which saves an argument at the table. The slowest thing on the road and the one that ends a Frame's turn if it gets hold of it. Reskin the crest and jaws as unfinished plating and a closing mechanism; keep every number."
+    },
+    {
+      "creatureRef": null,
+      "name": "Proto-Claimant, the one that scatters (reskin: String-of-Bombs, rulebook bestiary)",
+      "level": 2,
+      "count": 1,
+      "build": "AC 17, HP 30, land speed 10, best Strike +9 -- the poorest accuracy of the three, which is the point. Volatile Pods and Pod Panic give it real area damage without aiming, and Explosive Pod is a ranged Strike. Immune to mental, olfactory and visual: it has no senses to fool, so nothing the party does to distract it works. This is the one that makes the road dangerous to stand on and the reason the tram matters."
+    },
+    {
+      "creatureRef": null,
+      "name": "Proto-Claimant, the one that sprays (reskin: Lumocantha, Alien Core bestiary)",
+      "level": 2,
+      "count": 1,
+      "build": "AC 17, HP 30, land speed 10, best Strike +11. Laser Bloom, Burning Spines and Dye Splatter. The dye is worth keeping literally -- something marked by it stays marked after the fight, which is a free hook and costs nothing. Its Laser Spine Strike is ranged, so it is the one that can reach the seaward wall and the side streets without moving."
+    }
+  ],
+  "environment": "A straight harbour road below the old town, about two hundred yards of usable length. Tram tracks down the centre; the tram itself stopped broadside two-thirds along, doors open. LANDWARD SIDE: warehouse frontage -- loading bays, roller doors, stacked crates. Cover, corners, and partitions a Frame can shoulder through. SEAWARD SIDE: a low harbour wall, then a twenty-foot drop into deep water, with bollards and mooring gear along it. A machine survives going over; a person does not. TWO SIDE STREETS climb towards the old town, both narrow enough that a Frame fills one and a bike does not. Poor footing everywhere: wet setts, tram rails, and spilled cargo once anything starts hitting the warehouse frontage.",
+  "specialRules": [
+    "THE WIN CONDITION IS THE ROAD BEING EMPTY OF CIVILIANS. Not the contacts being destroyed. A party that evacuates the tram and withdraws has completed this encounter successfully and the fiction should say so out loud.",
+    "NOTHING DIES. A beaten contact comes apart -- structure failing, pieces going still, the remainder going elsewhere. No corpses, no salvage, no trophies. Do not allow looting and do not describe a body.",
+    "THE THREE DO NOT COORDINATE. They arrived together and behave independently. A party that works this out (see the what-are-they check) can split them, and splitting them is the single biggest tactical swing available.",
+    "THEY GO FOR MOVEMENT, NOT FOR PEOPLE. They attack the largest moving thing nearby. A machine deliberately drawing attention genuinely works, and is how a party protects a crowd without standing in front of it.",
+    "THEY DO NOT LOOK UP. Anything above about fifteen feet is effectively unnoticed until it acts. The crane rig, warehouse roofs and the upper windows of the old-town streets are all real advantages.",
+    "EACH HAS ONE UNFINISHED PLACE. On each of the three there is a patch where the surface has not finished forming, and it is somewhere different on each. Attacks there land properly; attacks elsewhere feel like hitting a building. A player who finds one has found it for that contact only.",
+    "THE HARBOUR WALL IS A REAL ANSWER. A contact that follows a machine over the wall goes into deep water and stops being a problem. This is discoverable from the terrain description and should be allowed to work the first time somebody tries it.",
+    "ENVIRONMENTAL DAMAGE IS CONSTANT AND MOSTLY UNAIMED. They are clumsy. They break the road, the frontage and the crates around them without meaning to, and that is where much of the danger to civilians actually comes from."
+  ],
+  "roundLimit": null,
+  "rewards": "Full standard encounter XP for resolving the situation, awarded identically whether the contacts were destroyed, driven into the water, outlasted until the response arrived, or simply held off while forty people got clear. Do not discount the award for a party that solved it without killing anything.",
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--first-contact",
+    "episode-c1e2--unidentified-contact",
+    "c1e2-the-exercise"
+  ],
+  "notes": "WHAT TO BUILD THEM FROM. Reskin three existing level-2 creatures rather than authoring new ones -- the design intent is three moderately-dangerous, clumsy, oddly-built things, not one boss. Single-target fights at this level are swingy and give both sides less room. What they look like matters far more than what they are built from, and no player will ever see the sheet.\n\nTHREE ARE NAMED IN `creatures` ABOVE, WITH THEIR REAL NUMBERS. They were chosen against four properties -- high AC, poor accuracy, a strong area effect, low mobility -- by reading the shipped sf2e bestiary packs directly rather than from memory. Of the fifty-one level-2 creatures in those packs, four have a land speed of 15 or less, and three of those four are on brief.\n\nUSE DIFFERENT ONES IF YOU PREFER, but use three DIFFERENT ones. The encounter's own rule is that the three do not coordinate and that a party who works this out can split them, and that is far easier to run and far more legible from the road when the three do visibly different things: one grabs and will not let go, one makes the ground unsafe without aiming at anybody, one reaches across the road without moving.\n\nWHY THEY ARE WRONG-LOOKING. Whatever made these has not done it before, and these are early attempts. They walk as though solving the problem fresh each step. Their surfaces are unfinished in places. They are dangerous by accident rather than by design. None of that is explained this episode and no character can explain it.\n\nDIFFICULTY. Severe by budget, against six players in machines that amplify them substantially. It should be frightening and it should be winnable, and the evacuation objective gives a struggling party a way to win without winning the fight. If it is going badly, the arriving Directorate response comes sooner -- that is a scene-ending device, not a difficulty dial, and it should never be used to rob a winning party of the finish.\n\nDO NOT KILL A CIVILIAN TO RAISE STAKES. Injury, entrapment under the tram, panic, and people who are simply too slow are all available and all sufficient.\n\nNO STAT BLOCKS IN THIS FILE, DELIBERATELY. This encounter is a situation, a map and a set of behaviours. The numbers are whichever three level-2 creatures the GM reaches for, and the reskin is the whole of the work."
+}

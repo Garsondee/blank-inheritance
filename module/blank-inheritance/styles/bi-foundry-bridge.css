@@ -185,6 +185,52 @@ body.bi-theme #bi-command-bar > * {
   pointer-events: auto;     /* ...its controls are not */
 }
 
+/* The Console window floats BETWEEN the session rail and the deck while the
+   deck is mounted (2026-09-23) — it used to rise from the bottom edge and
+   sit over the deck, hiding the very pills that open and close it. Pinned to
+   both ends of that band rather than a percentage height, so it always fills
+   exactly the room there is; opening fades and settles instead of sliding
+   up from behind the deck. */
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-window-standalone .bi-terminal {
+  top: 50px;
+  bottom: calc(var(--bi-bar-height) + 12px);
+  left: var(--bi-orb-center, 50%);
+  width: min(1480px, calc(100vw - 32px));
+  height: auto;
+  min-height: 0;
+  transform: translate(-50%, 14px);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 180ms ease-out, opacity 160ms ease-out, visibility 0s linear 180ms;
+}
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-window-standalone .bi-terminal--open {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform 180ms ease-out, opacity 160ms ease-out, visibility 0s;
+}
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-window-standalone .bi-terminal__frame {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 70%), 0 24px 60px rgb(0 0 0 / 60%);
+}
+
+/* The session rail (foundry/session-rail.mjs, 2026-09-23): the GM's thin
+   strip along the top edge. v14 leaves the top middle of the screen empty —
+   scene navigation is a column down the left and starts 16px down — so the
+   rail runs between that column and the sidebar, both measured live by
+   fitRail() into --bi-rail-left / --bi-rail-right. Same stacking as the deck:
+   under Foundry's own windows, over the canvas. A direct child of
+   #interface, never #ui-middle, for the transform reason the deck's own
+   mount explains. */
+body.bi-theme #bi-session-rail {
+  position: fixed;
+  top: 7px;
+  left: var(--bi-rail-left, 340px);
+  right: var(--bi-rail-right, 72px);
+  z-index: calc(var(--z-index-app) - 1);
+  pointer-events: none;
+}
+
 /* Give the macro hotbar room to sit above the chassis instead of behind
    it. Height is read from the same token the bar is built from, so the two
    can never drift apart.
@@ -245,12 +291,21 @@ body.bi-theme #bi-command-bar.bi-deck {
   transform-origin: 0 100%;
 }
 
-/* The deck carries its own keys for the comm device and the console window
-   (pill keys on its shoulders), so the two floating round buttons those
+/* The deck carries its own keys for the comm device, the console window and
+   (2026-09-17, Ingram's own feedback against the real server) the Director's
+   script — pill keys on its shoulders — so the floating round buttons those
    panels used to bring would be a second, detached way to do the same thing
-   bobbing above a panel that is meant to be one object. */
+   bobbing above a panel that is meant to be one object. .bi-runner-toggle
+   still exists and still works (the fallback entry point if the deck ever
+   fails to mount — same reasoning as .bi-phone-btn/.bi-console-btn above),
+   it is just not shown twice. .bi-desk-btn joins the list 2026-09-18 for the
+   identical reason, now the deck's own "Sound" pill (director-bar.mjs) opens
+   the Sound Desk directly. */
 body.bi-theme:has(#bi-command-bar.bi-deck) .bi-phone-btn,
-body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-btn {
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-btn,
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-runner-toggle,
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-desk-btn,
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-demo-runner-btn {
   display: none;
 }
 
@@ -273,14 +328,28 @@ body.bi-theme:has(#bi-command-bar.bi-deck) #ui-bottom {
    two flanks; it has to match the orb's REAL on-screen size
    (--bi-orb-collar is the authored, unscaled token — #hotbar itself is never
    inside the deck's own `transform: scale(...)`, so the gap is scaled by
-   hand here instead). #hotbar-controls-left (mute, main menu) rides along
-   with the left flank as its first two items, unmoved from where Foundry
-   already puts them in the DOM. */
+   hand here instead). #hotbar-controls-left (mute, main menu — 2 icons)
+   rides along with the left flank as its first items, and Foundry's own
+   #hotbar-controls-right (page nav plus lock/clear — 4 icons) rides along
+   with the right flank as its last, both unmoved from where Foundry already
+   puts them in the DOM.
+
+   FOUND LIVE 2026-09-17, against the real server: centering the WHOLE #hotbar
+   (both control clusters plus the ten slots) as a single box via
+   `left:center; translateX(-50%)` only lands the GAP on the orb's true
+   centreline if the two end clusters are equal width. They are not — left
+   carries 2 icons, right carries 4 — so the row's own geometric centre sat
+   to the right of the gap, which put the gap (and the whole right-hand
+   macro flank) left of true centre. --bi-hotbar-left-w/--bi-hotbar-right-w
+   (foundry/deck.mjs#fitDeck, measured every fit) correct for exactly that
+   asymmetry rather than re-guessing a fixed pixel offset. */
 body.bi-theme:has(#bi-command-bar.bi-deck) #hotbar {
   position: fixed;
   left: var(--bi-orb-center, 50%);
-  transform: translateX(-50%);
-  bottom: calc(var(--bi-deck-height) * var(--bi-deck-scale) - 6px);
+  transform: translateX(calc(-50% + (var(--bi-hotbar-right-w, 0px) - var(--bi-hotbar-left-w, 0px)) / 2));
+  /* +9px, not -6px: raised 15px on Ingram's review, 2026-09-23 — the macro
+     slots sat low enough that their feet crowded the deck's top trim. */
+  bottom: calc(var(--bi-deck-height) * var(--bi-deck-scale) + 9px);
   z-index: calc(var(--z-index-app) - 1);
   margin: 0;
 }
@@ -461,7 +530,8 @@ body.bi-theme #bi-scene-runner {
   position: absolute;
   left: 0;
   top: 0;
-  /* Stops where the deck starts, so the two never overlap. */
+  /* Stops where the deck starts WHILE CLOSED, so the drawer's own idle box
+     never sits underneath the deck's real footprint in that corner. */
   bottom: calc(var(--bi-bar-height) + 12px);
   width: var(--bi-runner-width);
   /* Same band as the deck: above the canvas, below Foundry's own windows,
@@ -472,6 +542,21 @@ body.bi-theme #bi-scene-runner {
      so the CLOSED drawer's invisible box sits here doing nothing rather
      than needing to move. Nothing else reserves space for it while closed:
      every rule below is scoped to :has(.bi-runner-shell--open). */
+}
+
+/* FULL SCREEN HEIGHT while OPEN (found live 2026-09-20, at 1280x720: the
+   drawer stopped at y=531 while the deck had already been pushed to start
+   at x=412, clear of the drawer entirely -- a ~190px dead strip at the foot
+   of the script nothing ever painted into). The bottom reservation above
+   only makes sense while closed: foundry/deck.mjs#fitDeck reads whether the
+   drawer is open and, if so, measures the drawer's own right edge as
+   `leftReserve`, which core/deck-layout.mjs#deckFit's own arithmetic
+   guarantees keeps the deck's left edge at least `margin` (16px) clear of
+   it -- so once the drawer is open, the deck can never occupy this column
+   at any height, and reserving room for it here is stale defence against a
+   collision that state already rules out. */
+body.bi-theme:has(#bi-scene-runner .bi-runner-shell--open) #bi-scene-runner {
+  bottom: 0;
 }
 
 /* Slide Foundry's left column clear of the drawer, and reserve the deck's
@@ -493,6 +578,29 @@ body.bi-theme #bi-scene-runner {
 body.bi-theme:has(#bi-scene-runner .bi-runner-shell--open) #ui-left {
   margin-left: var(--bi-runner-width);
   transition: margin-left 250ms ease;
+}
+
+/* While the GM drags the drawer's edge (foundry/scene-runner.mjs#beginResize),
+   the left column must follow the pointer rather than easing a quarter of a
+   second behind it, and a drag across text must not select it. */
+body.bi-theme.bi-runner-resizing #ui-left { transition: none; }
+body.bi-theme.bi-runner-resizing { cursor: col-resize; user-select: none; }
+
+/* The theatre-of-the-mind stage lays its portraits out beside an open
+   drawer, not under it (2026-09-24). The stage used to span the whole
+   window with a 110px inset each side, so the moment someone stood on the
+   left of a scene they stood behind a 560px drawer — and the drawer is now
+   twice that. Only the GM ever has a drawer, so every player's stage is
+   untouched. */
+body.bi-theme:has(#bi-scene-runner .bi-runner-shell--open) #bi-stage.bi-stage {
+  padding-left: calc(var(--bi-runner-width) + clamp(16px, 2vw, 48px));
+}
+
+/* The console window floats centred on the deck; beside an open drawer it
+   must also fit the space the drawer leaves, or its left edge slides under
+   the drawer's right one. */
+body.bi-theme:has(#bi-command-bar.bi-deck):has(#bi-scene-runner .bi-runner-shell--open) .bi-console-window-standalone .bi-terminal {
+  width: min(1480px, calc(100vw - var(--bi-runner-width) - 96px));
 }
 
 /* foundry/deck.mjs#fitDeck reads the drawer's own real rendered edge (only

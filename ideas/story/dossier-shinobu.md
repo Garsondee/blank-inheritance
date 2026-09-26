@@ -24,8 +24,13 @@ entirely willing to talk about it.
 Splashed point-blank at one of Cicada's demonstrations. Physical result: mild skin irritation, nothing
 else.
 
-Full-dose exposure at close range left her carrying a dense population of nanomachines — the colony
-(§6) — which is qualitatively different from the ordinary glimpse-and-fade exposure most witnesses get.
+Full-dose exposure at close range left her carrying a dense population of **the Watcher's own
+nanomachines** — the colony (§6) — which is qualitatively different from the ordinary glimpse-and-fade
+exposure most witnesses get.
+
+*(Clarified 2026-09-24, LEDGER #31: Sap is nanotech feedstock — raw building material for the Watcher's
+nanomachines, not a fuel. At point-blank the swarm had enough of it, on her and in her, to build a
+colony there, and the colony stayed.)*
 
 ---
 
@@ -57,7 +62,8 @@ to free her the first time. From outside, the Directorate now looks like an inst
 road-accident victims. It makes no sense, and it looks monstrous, and Cicada sympathisers and ordinary
 members of the public agree about that for once.
 
-*(Campaign placement: this lands in Chapter 5 — see §9.)*
+*(Campaign placement: Chapter 6 in the twenty-chapter draft, `blank-inheritance-twenty-chapters.md`;
+it was Chapter 5 in the old eight-chapter plan. See §9.)*
 
 ---
 
@@ -66,9 +72,9 @@ members of the public agree about that for once.
 She survived the lorry because of what she's carrying. The colony reinforces and repairs her. She is
 very slowly becoming something.
 
-She is permanently legible to the Observer. Not glimpsed occasionally, like most exposed people — held
-in its attention more or less continuously, because she is steeped in a substance it treats as
-important.
+She is permanently legible to the Watcher. Not glimpsed occasionally, like most exposed people — held
+in its attention more or less continuously, because part of it lives in her: the colony is its own
+nanomachines, built from the Sap she was soaked in.
 
 ---
 
@@ -78,11 +84,15 @@ Glass walls. Cameras on every face. Remote operators watching in shifts, permane
 underground.
 
 She is the most witnessed person in the city — by the Directorate's own apparatus, around the clock —
-and the Observer finds its way in anyway, to look at its favourite person, or at least at someone
-steeped in a substance it considers important.
+and the Watcher finds its way in anyway, to look at its favourite subject. **Its visits are
+surveillance.** Its objective is to keep observing (LEDGER #31), and nothing in the city is more worth
+watching than a colony of its own, growing inside a person.
+
+**Two watchers on one cell** — the institution's cameras and the Watcher's own attention. It is the
+campaign's surveillance theme at its smallest and most personal scale.
 
 There is no cruelty in this anywhere. The Directorate is being careful. The operators are doing their
-jobs. The Observer is only looking. It is the campaign's central question — *what does it mean to be
+jobs. The Watcher is only looking. It is the campaign's central question — *what does it mean to be
 seen?* — applied at maximum intensity to an innocent teenager, by nobody's malice at all.
 
 She is going nowhere, and she is entirely willing to talk. A point-blank eyewitness the party can
@@ -93,9 +103,10 @@ simply visit.
 ## 8. The People Around Her
 
 **Kudo (the Lawyer), her father.** Fought her out of military detention once and will do it louder the
-second time. He was once built as live scene data — a Session Five brief in which he confronts a
-Directorate information officer in public, unprompted, over her treatment. **That brief was deleted
-2026-09-13** along with every drafted beat beyond Session 0/1, so the scene no longer exists anywhere
+second time. He was once built as live scene data — an Episode Five brief (then called Session Five,
+"Head Height") in which he confronts a Directorate information officer in public, unprompted, over her
+treatment. **That brief was deleted 2026-09-13** along with every drafted beat beyond Episodes One and
+Two, so the scene no longer exists anywhere
 in the repo. **His voice, his relationship to Shinobu, and the speech below are lore and survive here
 unchanged** — they are the character, not the beat, and should be re-staged wherever this thread lands:
 
@@ -110,9 +121,12 @@ case file, rather than just "the girl in the news."
 **Satoru (the Advocate).** Has spent years trying to get her released and failing — and that specific,
 repeated failure is what radicalised him into believing the kids (and, by extension, people like her)
 should simply be told everything. Her case is the origin of his whole position in the campaign's
-institutional politics. **Already built and live in the same scene**, cast id `satoru`, `npcRef:
-"transparency-advocate"` — confirming Satoru is the Transparency Advocate, one of the Directorate's
-three poles (`data/npcs/transparency-advocate.json`).
+institutional politics. He was cast in the same deleted brief, as `satoru` with `npcRef:
+"transparency-advocate"` — which is what established that Satoru is the Transparency Advocate, one of
+the Directorate's three poles (`data/npcs/transparency-advocate.json`, whose `name` is still null).
+*(Corrected 2026-09-24: this said he was "already built and live in the same scene", but that scene
+went with the deleted brief. The Advocate is live elsewhere — teaching civics from the charter in
+`data/scene-briefs/episode-c1e2--school-period-two.json` — without the name or the Shinobu thread.)*
 
 ---
 
@@ -120,12 +134,14 @@ three poles (`data/npcs/transparency-advocate.json`).
 
 - **Chapter One** — planted as background news: a girl held without charge after a demonstration, her
   father on the radio. Not yet named to the party.
-- **Chapter One, Session Five** — Kudo's public confrontation. The party can earn her name here.
-  *(Already built — see §8.)*
-- **Chapter Five** — her situation becomes properly discoverable, and the lorry incident lands here if
-  it hasn't already: she walks off a direct hit and is re-arrested within the hour.
+- **Kudo's public confrontation** — once placed in Chapter One as the Episode Five brief, which was
+  deleted 2026-09-13 (§8). Re-stage it wherever this thread lands. The party can earn her name here.
+  *(Corrected 2026-09-24: this line said "already built".)*
+- **Chapter 6** in the twenty-chapter draft (Chapter Five in the old eight-chapter plan) — her
+  situation becomes properly discoverable, and the lorry incident lands here if it hasn't already: she
+  walks off a direct hit and is re-arrested within the hour.
 - **Thread:** she belongs to *Observed*, alongside the stray and the Mass Clock (dossier-observer.md
-  §16) — the throughline about what it costs to be seen.
+  §16–§17, renumbered in the 2026-09-24 rewrite) — the throughline about what it costs to be seen.
 
 **Peril Roster entry** (not scheduled to die):
 
@@ -144,3 +160,6 @@ three poles (`data/npcs/transparency-advocate.json`).
    if the party interviews her directly.
 3. Whether "becoming something" has an endpoint that's been decided, or whether it's meant to stay an
    open, unsettling process throughout.
+4. **Added 2026-09-24.** Whether the colony counts as one of the Watcher's children — and so whether,
+   given a new purpose, it could ever start making Sap of its own. LEDGER #31 item 8 makes that the
+   moment the runaway begins, which would put her at the centre of it. Raised, not decided.

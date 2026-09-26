@@ -1,0 +1,45 @@
+{{!--
+    The session rail (foundry/session-rail.mjs): tonight's real session as a
+    thin strip across the top of the GM's screen.
+
+      clock    — the time now, with a lamp that is lit while the session runs.
+      track    — the evening on a clock-time scale: the session's own span
+                 bracketed, the lead-in and overrun either side of it, the
+                 scenes it has passed through as labelled bands, every log
+                 entry as a pin (hover one for what was written), and a needle
+                 at now.
+      readout  — how long is left, or how far over.
+      Mark     — one press: a pin here and a line in the log.
+
+    Every position is a percentage computed in core/session-rail.mjs; nothing
+    here does arithmetic. Must render exactly ONE top-level element
+    (tier0-architecture's ApplicationV2 part rule).
+--}}
+<div class="bi-srail__body" data-phase="{{rail.phase}}"{{#if hidden}} hidden{{/if}}>
+    <span class="bi-srail__cap" aria-hidden="true"></span>
+    <span class="bi-srail__clock" data-tooltip="{{localize 'BLANKINHERITANCE.SessionRail.Label'}} {{rail.sessionLabel}}">
+        <i class="bi-srail__lamp" aria-hidden="true"></i>{{rail.clock}}
+    </span>
+    <div class="bi-srail__track" role="img" aria-label="{{rail.percent}}% · {{rail.remaining}}">
+        <span class="bi-srail__session" style="left: {{rail.sessionStartPct}}%; width: {{rail.sessionWidthPct}}%"></span>
+        <span class="bi-srail__over" style="width: {{rail.overPct}}%"></span>
+        {{#each rail.bands}}
+        <span class="bi-srail__band{{#if this.current}} is-current{{/if}}" data-shade="{{this.shade}}" style="left: {{this.startPct}}%; width: {{this.widthPct}}%"
+            data-tooltip="{{this.scene}} · {{this.from}}–{{this.to}} ({{this.length}})"><em>{{this.scene}}</em></span>
+        {{/each}}
+        <span class="bi-srail__elapsed" style="width: {{rail.nowPct}}%"></span>
+        {{#each rail.ticks}}
+        <span class="bi-srail__tick{{#if this.major}} is-major{{/if}}" style="left: {{this.pct}}%">{{#if this.label}}<b>{{this.label}}</b>{{/if}}</span>
+        {{/each}}
+        {{#each rail.marks}}
+        <span class="bi-srail__pin" data-kind="{{this.kind}}" data-tag="{{this.tag}}" style="left: {{this.pct}}%" data-tooltip="{{this.time}} · {{this.text}}"></span>
+        {{/each}}
+        <span class="bi-srail__now" style="left: {{rail.nowPct}}%"></span>
+    </div>
+    <span class="bi-srail__readout">
+        <b>{{rail.remaining}}</b>{{#if rail.currentScene}}<em>{{rail.currentScene}}</em>{{/if}}
+    </span>
+    <button type="button" class="bi-srail__mark" data-action="mark" data-tooltip="{{localize 'BLANKINHERITANCE.SessionRail.MarkHint'}}"
+        aria-label="{{localize 'BLANKINHERITANCE.SessionRail.MarkHint'}}">◆ {{localize "BLANKINHERITANCE.SessionRail.Mark"}}</button>
+    <span class="bi-srail__cap bi-srail__cap--right" aria-hidden="true"></span>
+</div>

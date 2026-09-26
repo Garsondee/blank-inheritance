@@ -1,0 +1,6590 @@
+{
+ "prototypeToken": {
+  "displayName": 20,
+  "displayBars": 20,
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   },
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "height": 1,
+  "width": 1,
+  "actorLink": true,
+  "sight": {
+   "enabled": true,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "name": "Huffly",
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/pc-images/mr_snuggly_wuffles.Token.webp?1671486132323",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0
+  },
+  "detectionModes": [],
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "name": "Mr Snuggly Wuffles",
+ "type": "character",
+ "ownership": {
+  "default": 1,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "effects": [],
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 97,
+    "temp": 0
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": []
+   }
+  },
+  "initiative": {
+   "statistic": "stealth"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 7
+   },
+   "biography": {
+    "appearance": "",
+    "backstory": "",
+    "birthPlace": "",
+    "attitude": "",
+    "beliefs": "",
+    "anathema": [],
+    "edicts": [],
+    "likes": "",
+    "dislikes": "",
+    "catchphrases": "",
+    "campaignNotes": "",
+    "allies": "",
+    "enemies": "",
+    "organizations": "",
+    "visibility": {
+     "appearance": true,
+     "backstory": false,
+     "personality": false,
+     "campaign": false
+    }
+   },
+   "keyability": {
+    "value": "str"
+   },
+   "xp": {
+    "value": 0,
+    "min": 0,
+    "max": 1000,
+    "pct": 0
+   },
+   "age": {
+    "value": "12"
+   },
+   "height": {
+    "value": ""
+   },
+   "weight": {
+    "value": ""
+   },
+   "gender": {
+    "value": "Male / He / Him"
+   },
+   "ethnicity": {
+    "value": ""
+   },
+   "nationality": {
+    "value": "Absolom"
+   }
+  },
+  "resources": {
+   "heroPoints": {
+    "value": 1,
+    "max": 3
+   }
+  },
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": null,
+  "skills": {
+   "acrobatics": {
+    "rank": 1
+   },
+   "arcana": {
+    "rank": 1
+   },
+   "athletics": {
+    "rank": 1
+   },
+   "crafting": {
+    "rank": 1
+   },
+   "deception": {
+    "rank": 0
+   },
+   "diplomacy": {
+    "rank": 0
+   },
+   "intimidation": {
+    "rank": 0
+   },
+   "medicine": {
+    "rank": 1
+   },
+   "nature": {
+    "rank": 0
+   },
+   "occultism": {
+    "rank": 1
+   },
+   "performance": {
+    "rank": 0
+   },
+   "religion": {
+    "rank": 1
+   },
+   "society": {
+    "rank": 1
+   },
+   "stealth": {
+    "rank": 2
+   },
+   "survival": {
+    "rank": 1
+   },
+   "thievery": {
+    "rank": 0
+   }
+  },
+  "pfs": {
+   "playerNumber": null,
+   "characterNumber": null,
+   "levelBump": false,
+   "currentFaction": "EA",
+   "school": null,
+   "reputation": {
+    "EA": null,
+    "GA": null,
+    "HH": null,
+    "VS": null,
+    "RO": null,
+    "VW": null
+   }
+  },
+  "exploration": [],
+  "saves": {},
+  "crafting": {
+   "formulas": []
+  },
+  "build": {
+   "attributes": {
+    "boosts": {
+     "1": [
+      "dex",
+      "int",
+      "con",
+      "str"
+     ],
+     "5": [
+      "str",
+      "dex",
+      "con",
+      "int"
+     ]
+    }
+   }
+  }
+ },
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/pc-images/mr_snuggly_wuffles.Avatar.webp?1671486132323",
+ "items": [
+  {
+   "_id": "0EseP7Fb84D6qriy",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/background.svg",
+   "name": "Magical Experiment (Enhanced Senses)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>At some point in your life, powerful people performed magical experiments on you that changed you permanently. You may have signed up for this voluntarily, but it may have been against your will. You still bear the marks, as well as the abilities.</p>\n<p>You gain one ability boost. It must be to <strong>Constitution</strong>.</p>\n<p>You're trained in Occultism and the Academia Lore skill. You gain one special ability as a result of the magical experimentation. Work with the GM to select an appropriate ability from the following list or to come up with another special ability.</p>\n<hr />\n<ul>\n<li><strong>Enhanced Senses</strong> You gain low-light vision (or darkvision if you already had low-light vision) and an imprecise sense with a range of 30 feet, such as scent, thoughtsense, tremorsense, or wavesense.</li>\n<li><strong>Resistant Skin</strong> The experiments rendered your skin tougher and resilient to a particular type of damage. You gain resistance equal to half your level (minimum resistance 1) against two of the following types of energy damage, one chosen by you and the other chosen by the GM: acid, cold, electricity, fire, or sonic.</li>\n<li><strong>Touch Telepathy</strong> The experiments to your body allowed you to link minds via touch. You gain telepathy with creatures as long as you are in physical contact. This allows you to communicate mentally with any creatures you're in physical contact with, as long as you both share a language. This doesn't give any special access to their thoughts, and communicates no more information than normal speech would.</li>\n</ul>"
+    },
+    "rules": [
+     {
+      "adjustName": true,
+      "choices": [
+       {
+        "label": "PF2E.SpecificRule.MagicalExperiment.EnhancedSenses",
+        "value": "enhanced-senses"
+       },
+       {
+        "label": "PF2E.SpecificRule.MagicalExperiment.ResistantSkin",
+        "value": "resistant-skin"
+       },
+       {
+        "label": "PF2E.SpecificRule.MagicalExperiment.TouchTelepathy",
+        "value": "touch-telepathy"
+       }
+      ],
+      "key": "ChoiceSet",
+      "prompt": "PF2E.UI.RuleElements.ChoiceSet.Prompt",
+      "rollOption": "background:magical-experiment",
+      "flag": "magicalExperiment",
+      "selection": "enhanced-senses"
+     },
+     {
+      "key": "Sense",
+      "label": "PF2E.SensesDarkvision",
+      "predicate": [
+       "self:low-light-vision:from-ancestry",
+       "background:magical-experiment:enhanced-senses"
+      ],
+      "selector": "darkvision"
+     },
+     {
+      "key": "Sense",
+      "label": "PF2E.SensesLowLightVision",
+      "predicate": [
+       "background:magical-experiment:enhanced-senses"
+      ],
+      "selector": "low-light-vision"
+     },
+     {
+      "adjustName": true,
+      "choices": [
+       {
+        "label": "PF2E.TraitAcid",
+        "value": "acid"
+       },
+       {
+        "label": "PF2E.TraitCold",
+        "value": "cold"
+       },
+       {
+        "label": "PF2E.TraitElectricity",
+        "value": "electricity"
+       },
+       {
+        "label": "PF2E.TraitFire",
+        "value": "fire"
+       },
+       {
+        "label": "PF2E.TraitSonic",
+        "value": "sonic"
+       }
+      ],
+      "flag": "energy1",
+      "key": "ChoiceSet",
+      "predicate": [
+       "background:magical-experiment:resistant-skin"
+      ]
+     },
+     {
+      "adjustName": true,
+      "choices": [
+       {
+        "label": "PF2E.TraitAcid",
+        "value": "acid"
+       },
+       {
+        "label": "PF2E.TraitCold",
+        "value": "cold"
+       },
+       {
+        "label": "PF2E.TraitElectricity",
+        "value": "electricity"
+       },
+       {
+        "label": "PF2E.TraitFire",
+        "value": "fire"
+       },
+       {
+        "label": "PF2E.TraitSonic",
+        "value": "sonic"
+       }
+      ],
+      "flag": "energy2",
+      "key": "ChoiceSet",
+      "predicate": [
+       "background:magical-experiment:resistant-skin"
+      ]
+     },
+     {
+      "key": "Resistance",
+      "predicate": [
+       "background:magical-experiment:resistant-skin"
+      ],
+      "type": "{item|flags.pf2e.rulesSelections.energy1}",
+      "value": "max(1,floor(@actor.level/2))"
+     },
+     {
+      "key": "Resistance",
+      "predicate": [
+       "background:magical-experiment:resistant-skin"
+      ],
+      "type": "{item|flags.pf2e.rulesSelections.energy2}",
+      "value": "max(1,floor(@actor.level/2))"
+     }
+    ],
+    "slug": "magical-experiment",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "rare"
+    },
+    "publication": {
+     "title": "Pathfinder Secrets of Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "boosts": {
+     "0": {
+      "value": [
+       "con"
+      ],
+      "selected": "con"
+     },
+     "1": {
+      "value": []
+     }
+    },
+    "items": {},
+    "trainedSkills": {
+     "value": [
+      "occultism"
+     ],
+     "lore": [
+      "Academia Lore"
+     ],
+     "custom": ""
+    }
+   },
+   "type": "background",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.backgrounds.Item.WIWR8jURAdSAzxIh"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486230653,
+    "modifiedTime": 1671526779171,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.backgrounds.Item.WIWR8jURAdSAzxIh",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "1OUr4hdLVKNXELpT",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/alchemical-items/alchemical-elixirs/antidote.webp",
+   "name": "Antidote (Moderate)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Activate</strong> <span class=\"pf2-icon\">A</span> Interact</p>\n<p>An antidote protects you against toxins. Upon drinking an antidote, you gain a +3 item bonus to Fortitude saving throws against poisons for 6 hours.</p>\n<p>@UUID[Compendium.pf2e.equipment-effects.Item.mi4Md1fB2XThCand]{Effect: Antidote (Moderate)}</p>"
+    },
+    "rules": [],
+    "slug": "antidote-moderate",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical",
+      "consumable",
+      "elixir",
+      "healing"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 35
+     }
+    },
+    "equipped": {
+     "carryType": "stowed",
+     "handsHeld": 0
+    },
+    "containerId": "H0UsanZbhlSWUjBS",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.AJ1dC7EtTIfBey0M"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1800000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671491991277,
+    "modifiedTime": 1671495262114,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.AJ1dC7EtTIfBey0M",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "1q1m5pTZXfK2TEMV",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Spyglass Modification",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Your enhanced visual gear includes a regulating scope and reflectors, combined in an ingenuous setup that allows you to see around corners within the area of your overwatch field. This permits your overwatch field to extend around a single corner or turn and allows you to see around that corner as well. This ability doesn't let you see through walls or other barriers. You can't use it to see around a second or further corner, and it doesn't allow you to make ranged attacks or perform other actions that require line of effect with your target.</p>"
+    },
+    "rules": [],
+    "slug": "spyglass-modification",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "archetype"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4,
+     "taken": 4
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "Overwatch Dedication"
+      }
+     ]
+    },
+    "location": "archetype-4"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.v6wYNnkoVDquzRpw"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672343629480,
+    "modifiedTime": 1672343629480,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.v6wYNnkoVDquzRpw",
+    "duplicateSource": null
+   }
+  },
+  {
+   "type": "lore",
+   "img": "systems/pf2e/icons/default-icons/lore.svg",
+   "name": "Shadow Plane",
+   "_id": "2IuY3QJ70TNHKfEU",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "mod": {
+     "value": 0
+    },
+    "proficient": {
+     "value": 1
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "flags": {},
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672351037917,
+    "modifiedTime": 1672351060933,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "4DzBMOAlXy6sP6ax",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Swift Intervention",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Trigger</strong> An ally within your overwatch field fails in their attempt to Arrest a Fall, Balance, Grab a Ledge, or Maneuver in Flight</p>\n<p><strong>Requirements</strong> You are wielding a ranged weapon.</p>\n<hr />\n<p>You're burdened with noticing potential threats at all times. Because of this, you've learned that a well-placed shot can prevent disaster. You make a shot to either pin an ally's clothing to stop a fall or secure them against a ledge, or you bounce an attack off their armor to correct their course as they stumble while attempting to balance or fly.</p>\n<p>Make a single ranged attack roll against the DC of the triggering check; your ally uses the result of your ranged attack roll in place of their original roll. You must have line of effect to your ally, and your attack roll includes any normal bonuses or penalties for a ranged attack with that weapon (such as the penalty for making a ranged attack beyond your first range increment).</p>"
+    },
+    "rules": [],
+    "slug": "swift-intervention",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "archetype"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6,
+     "taken": 6
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "reaction"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "Overwatch Dedication"
+      }
+     ]
+    },
+    "location": "archetype-6"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.Rh3KSd7BUfV12GBT"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672343641759,
+    "modifiedTime": 1672343641759,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.Rh3KSd7BUfV12GBT",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "4LzurTsizo2odhPP",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Skitter",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You can scoot swiftly across the ground. You can @UUID[Compendium.pf2e.actionspf2e.Item.Tj055UcNm6UEgtCg]{Crawl} up to half your Speed.</p>"
+    },
+    "rules": [],
+    "slug": "skitter",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "general"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3,
+     "taken": 3
+    },
+    "category": "general",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "Dexterity 16"
+      },
+      {
+       "value": "Fleet"
+      }
+     ]
+    },
+    "location": "general-3"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.wPHZhgKzNw4VcCFt"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486986518,
+    "modifiedTime": 1671486986518,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.wPHZhgKzNw4VcCFt",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "5syUac5D3FBC8oNQ",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Blast Lock",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Requirements</strong> You're wielding a loaded firearm.</p>\n<hr />\n<p>Sometimes taking the shortest distance between two points involves removing an obstacle or two. You shoot your firearm at a lock within 10 feet. Make an attack roll against the DC required to @UUID[Compendium.pf2e.actionspf2e.Item.2EE4aF4SZpYf0R6H]{Pick the Lock}</p>\n<hr />\n<p><strong>Critical Success</strong> You open the lock, or you achieve two successes toward opening a complex lock.</p>\n<p><strong>Success</strong> You open the lock, or you achieve one success toward opening a complex lock.</p>\n<p><strong>Failure</strong> You fail to open the lock, and your shot makes it harder to open. Future attempts to Pick the Lock or Blast the Lock take a -2 circumstance penalty.</p>\n<p><strong>Critical Failure</strong> You fail to open the lock, and your shot makes it much harder to open. Future attempts to Pick the Lock or Blast the Lock take a -4 circumstance penalty.</p>"
+    },
+    "rules": [],
+    "slug": "blast-lock",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1,
+     "taken": 1
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "action"
+    },
+    "actions": {
+     "value": 1
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "class-1"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.XLoRtMn48f2KKvsu"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486443219,
+    "modifiedTime": 1671486443219,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.XLoRtMn48f2KKvsu",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "6MX0ODIcxS5vurWf",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/adventuring-gear/spyglass.webp",
+   "name": "Effect: Scouting",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "selector": "initiative",
+      "type": "circumstance",
+      "value": 1
+     }
+    ],
+    "slug": "effect-scouting",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "duration": {
+     "value": -1,
+     "unit": "unlimited",
+     "expiry": "turn-start",
+     "sustained": false
+    },
+    "start": {
+     "value": -85201974257,
+     "initiative": null
+    },
+    "tokenIcon": {
+     "show": false
+    },
+    "badge": null,
+    "context": null,
+    "target": null,
+    "unidentified": false
+   },
+   "type": "effect",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.other-effects.Item.EMqGwUi3VMhCjTlF"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672691212800,
+    "modifiedTime": 1672691212800,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.other-effects.Item.EMqGwUi3VMhCjTlF",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "8xByTxtoBBqRZLnR",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Running Reload",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You can reload your weapon on the move. You Stride, @UUID[Compendium.pf2e.actionspf2e.Item.UHpkTuCtyaPqiCAB]{Step}, or @UUID[Compendium.pf2e.actionspf2e.Item.VMozDqMMuK5kpoX4]{Sneak}, then @UUID[Compendium.pf2e.actionspf2e.Item.pvQ5rY2zrtPI614F]{Interact}to reload.</p>"
+    },
+    "rules": [],
+    "slug": "running-reload",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger",
+      "ranger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4,
+     "taken": 4
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "action"
+    },
+    "actions": {
+     "value": 1
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "class-4"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.meQJfsKVar9tm6c9"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486475144,
+    "modifiedTime": 1671486475144,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.meQJfsKVar9tm6c9",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "A7PEptDo1fZK7WF7",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/talismans/peacemaker.webp",
+   "name": "Peacemaker",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Usage</strong> affixed to a weapon</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">a</span> envision, manipulate</p>\n<p><strong>Requirements</strong> Your last action was an Interact action to stow the affixed firearm or crossbow.</p>\n<hr />\n<p>This ragged piece of white cloth is wrapped around the grip, stock, or haft of the affixed weapon. When you activate the talisman, you gain the effects of a <em>@UUID[Compendium.pf2e.spells-srd.Item.8xRzLhwGL7Dgy3EZ]{Sanctuary}</em> spell (DC 20) lasting for 1 minute. If you draw the affixed firearm, the effect ends immediately and the talisman crumbles.</p>"
+    },
+    "rules": [],
+    "slug": "peacemaker",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "magical",
+      "talisman"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 35
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": "null",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "affixed-to-weapon"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.yO0CjTBpv5O9HhTJ"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672349864891,
+    "modifiedTime": 1672349864891,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.yO0CjTBpv5O9HhTJ",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "Ag1nbX7WrJXyibPb",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/other-consumables/golden-silencer.webp",
+   "name": "Golden Silencer (Standard)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> Interact</p>\n<p><strong>Requirements</strong> You're an expert in Stealth.</p>\n<hr />\n<p>The Golden Gunners are dreaded for their use of their golden silencers, which they put to good use in clandestine raids. They silence both the loud gunshot and the screams of creatures wounded by its shot. A weapon with a golden silencer attached emits no light and makes no noise when fired. A target hit by a ranged Strike from the affixed weapon must succeed at a @Check[type:fortitude|dc:20] save or be silenced as well until the start of its next turn. A silenced creature can't call for help or use sonic abilities, nor can it use abilities with the auditory trait. This prevents it from casting spells that include verbal components.</p>"
+    },
+    "rules": [],
+    "slug": "golden-silencer-standard",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "illusion",
+      "magical",
+      "talisman"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 50
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "affixed-to-firearm"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.M7Ful1B1IWeibSm7"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1672845848873,
+    "modifiedTime": 1672845848873,
+    "lastModifiedBy": "eFLSLetxPov1Bkz7",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.M7Ful1B1IWeibSm7",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "AgqJOHIdGer2CLbQ",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/alchemical-items/alchemical-elixirs/antiplague.webp",
+   "name": "Antiplague (Moderate)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Activate</strong> <span class=\"pf2-icon\">A</span> Interact</p>\n<p>Antiplague can fortify the body's defenses against diseases. Upon drinking an antiplague, you gain a +3 item bonus to Fortitude saving throws against diseases for 24 hours; this applies to your daily save against a disease's progression.</p>\n<p>@UUID[Compendium.pf2e.equipment-effects.Item.HeRHBo2NaKy5IxhU]{Effect: Antiplague (Moderate)}</p>"
+    },
+    "rules": [],
+    "slug": "antiplague-moderate",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical",
+      "consumable",
+      "elixir",
+      "healing"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 35
+     }
+    },
+    "equipped": {
+     "carryType": "stowed",
+     "handsHeld": 0
+    },
+    "containerId": "H0UsanZbhlSWUjBS",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.biRbqKo2C97XLfQ0"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1900000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671491992764,
+    "modifiedTime": 1671495263512,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.biRbqKo2C97XLfQ0",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "Al0YSul39r2tKRBN",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/ammunition/glue-bullet.webp",
+   "name": "Glue Bullet",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Ammunition</strong> round</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> Interact</p>\n<p>These cartridges are filled with sticky clear glue. When a glue bullet hits, a syrupy webbing coats the target and sticks to the ground or a nearby surface, hindering their movement. The target takes a -10-foot circumstance penalty to its Speeds for [[/r 2d4 #rounds]]{2d4 rounds}, or until it Escapes against a DC of 18. On a critical hit, the target is also @UUID[Compendium.pf2e.conditionitems.Item.eIcWbB5o3pP6OIMe]{Immobilized} until it Escapes.</p>"
+    },
+    "rules": [],
+    "slug": "glue-bullet",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical",
+      "consumable"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4
+    },
+    "quantity": 3,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 16
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": "null",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.L1tqtTYU8kk7G7h6"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 500000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671488991516,
+    "modifiedTime": 1672696853649,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.L1tqtTYU8kk7G7h6",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/treasure/currency/gold-pieces.webp",
+   "name": "Gold Pieces",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": "gold-pieces",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 100,
+    "baseItem": null,
+    "bulk": {
+     "value": 1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 1
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "stackGroup": "coins"
+   },
+   "type": "treasure",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.B6B7tBWJSqOBz5zz"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1672845620057,
+    "modifiedTime": 1672845620057,
+    "lastModifiedBy": "eFLSLetxPov1Bkz7",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.B6B7tBWJSqOBz5zz",
+    "duplicateSource": null
+   },
+   "_id": "BybDedxllLhAVMyU"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/actions/FreeAction.webp",
+   "name": "One Shot, One Kill",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Trigger</strong> You roll Stealth for initiative.</p>\n<hr />\n<p>Your first shot is the deadliest. Interact to draw a firearm or crossbow. On your first turn, your first Strike with that weapon deals an additional 1d6 precision damage. This precision damage increases to 2d6 at 9th level and 3d6 at 15th level.</p>"
+    },
+    "rules": [
+     {
+      "domain": "damage",
+      "key": "RollOption",
+      "option": "one-shot-one-kill",
+      "toggleable": true,
+      "value": true
+     },
+     {
+      "category": "precision",
+      "dieSize": "d6",
+      "key": "DamageDice",
+      "predicate": [
+       "one-shot-one-kill",
+       {
+        "or": [
+         "item:group:firearm",
+         "item:group:crossbow"
+        ]
+       }
+      ],
+      "selector": "strike-damage",
+      "value": {
+       "brackets": [
+        {
+         "end": 8,
+         "value": {
+          "diceNumber": 1
+         }
+        },
+        {
+         "end": 14,
+         "start": 9,
+         "value": {
+          "diceNumber": 2
+         }
+        },
+        {
+         "start": 15,
+         "value": {
+          "diceNumber": 3
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "slug": "one-shot-one-kill",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "actionType": {
+     "value": "free"
+    },
+    "category": null,
+    "actions": {
+     "value": null
+    },
+    "deathNote": false,
+    "requirements": {
+     "value": ""
+    },
+    "trigger": {
+     "value": ""
+    }
+   },
+   "type": "action",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.actionspf2e.Item.Tlrde2xh7AhesXNB"
+    },
+    "pf2e": {
+     "grantedBy": {
+      "id": "j7k9Weeve95REDDo",
+      "onDelete": "cascade"
+     }
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486199196,
+    "modifiedTime": 1672696800753,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.actionspf2e.Item.Tlrde2xh7AhesXNB",
+    "duplicateSource": null
+   },
+   "_id": "DIhSnDkiqxvzKZWg"
+  },
+  {
+   "_id": "DvSl1SONUFerVDOy",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Vicious Incisors",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You've let your incisors grow long enough to serve as formidable weapons. You gain a jaws unarmed attack that deals [[/r 1d6[piercing]]] damage. Your jaws are in the brawling group and have the finesse and unarmed traits. Unlike most creatures, you can file down your teeth and regrow them later on, enabling you to select this feat at any level, and to retrain into and out of this feat.</p>"
+    },
+    "rules": [
+     {
+      "category": "unarmed",
+      "damage": {
+       "base": {
+        "damageType": "piercing",
+        "dice": 1,
+        "die": "d6"
+       }
+      },
+      "group": "brawling",
+      "key": "Strike",
+      "label": "PF2E.Weapon.Base.jaws",
+      "range": null,
+      "traits": [
+       "finesse",
+       "unarmed"
+      ]
+     }
+    ],
+    "slug": "vicious-incisors",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "ratfolk"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "category": "ancestry",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": null
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.QHwajD5n8P3oS9Wb"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486499355,
+    "modifiedTime": 1671492075604,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.QHwajD5n8P3oS9Wb",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "DwYswG9AM4pndNfc",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/alternatives/ancestries/ratfolk.svg",
+   "name": "Ratfolk",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><em>Ysoki—as ratfolk call themselves—are a clever, adaptable, and fastidious ancestry who happily crowd their large families into the smallest of living spaces.</em></p>\n<hr />\n<p>Most surface-dwelling humanoids call ysoki 'ratfolk' and know them as a communal people who prefer cramped conditions, with up to 100 individuals living in a given house. If they can't find homes in town, ysoki may instead live in caves and cavern complexes, as these provide great storage for the many and varied goods they bring back from trading expeditions.</p>\n<p>Ratfolk love to travel, and they can often be found on the road in merchant caravans. They're good with their hands and have a keen eye for spotting anything out of the ordinary, from threats to treasures. They're also inveterate hoarders; ysoki warrens are crammed full of unusual odds and ends gathered by previous generations and stowed away in preparation for some future emergency.</p>\n<p>If you want a character who is smart, fast, well-traveled, and adaptable, try playing a ysoki!</p>\n<h2>You Might...</h2>\n<ul>\n<li>Have pride in your large extended family, and stay in contact with everyone in it.</li>\n<li>Like to travel near and far in search of new experiences, likely collecting trinkets along the way.</li>\n<li>Work well with others.</li>\n</ul>\n<h2>Others Probably...</h2>\n<ul>\n<li>Mistake you for a wererat or another monster.</li>\n<li>Are surprised by your careful grooming and other fastidious habits.</li>\n<li>Think you're crowding them and invading their personal space.</li>\n</ul>\n<h2>Physical Description</h2>\n<p>Ratfolk have whiskered snouts, large ears, and hairless tails, and typically have red eyes and short brown or black fur. A common ysoki is 4 feet tall and weighs around 80 pounds. Ratfolk vary considerably, however; even a single family group can exhibit substantial variation in hair color, eye color, or size.</p>\n<p>Instinct drives ysoki to maintain cleanliness, though this is also reinforced through their strong social structures. Other condescending humanoids often presume ratfolk are dirty or diseased, but in actuality, they are meticulous about personal hygiene. Because their appearance is often considered unnatural—and other people mistake them for wererats—ysoki often conceal their physical features with hoods, gloves, shoes, long-sleeved tunics, robes, and other layers of clothing when moving through spaces dominated by other ancestries.</p>\n<h2>Society</h2>\n<p>Ysoki culture values cooperation and community. Every ysoki learns—through communal games, social occasions, and sports—to forge fast friendships and connections with ysoki outside their family. You may never know whose help you're going to need, but when you do, you're going to need it now.</p>\n<p>With a long tradition of working as traders and tinkers, ysoki travel frequently from one town to another. Their wagons are usually grouped into caravans of up to half a dozen vehicles. Ysoki wagons are pulled by exceptionally large giant rats; many ysoki can speak to such animals.</p>\n<p>Discrimination against ysoki has shaped their culture, prompting them to rely on each other and strengthening their family and communal bonds. Ysoki are very good at differentiating between bad actors and those who are simply acting out of ignorance, modeling good behavior and slowly working to reverse generations of discrimination for those willing to learn. They are always on the lookout for members of other ancestries who don't judge them for their appearance, embracing these individuals as true friends and welcoming them into their communities. But they also can quickly spot determined bigots prone to violence and steer clear of such individuals, minimizing any opportunity for tragedy.</p>\n<h2>Alignment and Religion</h2>\n<p>Ysoki care more about their family than abstract concepts of good and evil. Their warrens might be chaotic dens filled with hoarded knickknacks, but they also obey strict social codes. Most ysoki are neutral.</p>\n<p>Though ysoki revere their ancestors and tend to acknowledge whatever deity is prevalent in their local area, Lao Shu Po has a special role in ysoki culture. Grandmother Rat, as she is sometimes known, embodies many things that are otherwise antithetical to ratfolk—she urges followers to put their own interests above others, and she encourages deceit and trickery. To most ysoki, Grandmother Rat accomplishes all those things ratfolk need done, but which no reasonable ratfolk would wish to do.</p>\n<h2>Adventurers</h2>\n<p>Ratfolk might take up the adventuring life to explore and travel, to defend their family or community, or for any number of other reasons.</p>\n<p>Their natural wit and nimble fingers make ratfolk excellent alchemists and rogues, while some specialize in ranged weapons as fighters or rangers.</p>\n<p>Typical ratfolk backgrounds include animal whisperer, artisan, merchant, medic, nomad, scout, and tinker, plus bandit, barber, scavenger, and teacher.</p>\n<h2>Names</h2>\n<p>Every ysoki family has perhaps two dozen names that have been passed down from generation to generation, sometimes with minor alterations or alternative nicknames. A grandfather might be Grivver, for example, while his daughter goes by Griva and her son is simply Griv. Ratfolk are often assigned nicknames and sobriquets by humanoids they interact with, but most ysoki find these names distasteful and endure them only when outside ysoki communities.</p>\n<h3><span style=\"text-decoration:underline\">Sample Names</span></h3>\n<p>Barnan, Chikis, Chonan, Deto, Jass, Jix, Knagi, Kubi, Lolo, Ninnec, Nos, Rak, Renzi, Skigim, Tali, Zess</p>\n<h2 style=\"border-bottom:1px solid var(--color-underline-header)\">Ratfolk Mechanics</h2>\n<p><strong>Hit Points</strong> 6</p>\n<p><strong>Size</strong> Small</p>\n<p><strong>Speed</strong> 25 feet</p>\n<p><strong>Ability Boosts</strong> Dexterity, Intelligence, Free</p>\n<p><strong>Ability Flaw</strong> Strength</p>\n<p><strong>Languages</strong> Common, Ysoki</p>\n<p><strong>Additional Languages</strong> equal to your Intelligence modifier (if positive). Choose from Aklo, Draconic, Dwarven, Gnoll, Gnomish, Goblin, Halfling, Orcish, Sakvroth, or any other languages to which you have access (such as the languages prevalent in your region).</p>\n<p><strong>Senses</strong> Low-Light Vision</p>"
+    },
+    "rules": [],
+    "slug": "ratfolk",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "humanoid",
+      "ratfolk"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "hp": 6,
+    "size": "sm",
+    "reach": 5,
+    "speed": 25,
+    "boosts": {
+     "0": {
+      "value": [
+       "dex"
+      ]
+     },
+     "1": {
+      "value": [
+       "int"
+      ]
+     },
+     "2": {
+      "value": [
+       "str",
+       "dex",
+       "con",
+       "int",
+       "wis",
+       "cha"
+      ],
+      "selected": "con"
+     }
+    },
+    "flaws": {
+     "0": {
+      "value": [
+       "str"
+      ]
+     }
+    },
+    "languages": {
+     "value": [
+      "common",
+      "ysoki"
+     ],
+     "custom": ""
+    },
+    "additionalLanguages": {
+     "count": 0,
+     "value": [
+      "aklo",
+      "draconic",
+      "dwarven",
+      "gnoll",
+      "gnomish",
+      "goblin",
+      "halfling",
+      "orcish",
+      "sakvroth"
+     ],
+     "custom": ""
+    },
+    "items": {},
+    "vision": "low-light-vision"
+   },
+   "type": "ancestry",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.ancestries.Item.P6PcVnCkh4XMdefw"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486164650,
+    "modifiedTime": 1671526774074,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.ancestries.Item.P6PcVnCkh4XMdefw",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "EgQ5pZjgiWmRNl5u",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/weapons/specific-magic-weapons/poisonous-dagger.webp",
+   "name": "Poisonous Dagger",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>This +1 striking dagger has an image of a snake emblazoned on its blade. When you critically succeed at an attack roll with the dagger, magical fangs emerge and poison the target, dealing @Localize[PF2E.PersistentDamage.Poison1d4.success].</p>"
+    },
+    "rules": [],
+    "slug": "poisonous-dagger",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "agile",
+      "finesse",
+      "magical",
+      "poison",
+      "thrown-10",
+      "versatile-s"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Beginners Box",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "quantity": 1,
+    "baseItem": "dagger",
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 150
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": null,
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Dagger",
+      "img": "systems/pf2e/icons/unidentified_item_icons/weapon.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "category": "simple",
+    "group": "knife",
+    "bonus": {
+     "value": 0
+    },
+    "damage": {
+     "dice": 1,
+     "die": "d4",
+     "damageType": "piercing",
+     "persistent": null,
+     "value": ""
+    },
+    "bonusDamage": {
+     "value": 0
+    },
+    "splashDamage": {
+     "value": 0
+    },
+    "range": null,
+    "reload": {
+     "value": "-"
+    },
+    "runes": {
+     "potency": 1,
+     "striking": 1,
+     "property": []
+    },
+    "specific": {
+     "material": {
+      "type": null,
+      "grade": null
+     },
+     "runes": {
+      "potency": 1,
+      "striking": 1,
+      "property": []
+     }
+    },
+    "subitems": [],
+    "property1": {
+     "value": "",
+     "dice": 0,
+     "die": "",
+     "damageType": "",
+     "critDice": 0,
+     "critDie": "",
+     "critDamage": "",
+     "critDamageType": "",
+     "strikeConditionType": "",
+     "strikeConditionValue": null,
+     "criticalConditionType": "",
+     "criticalConditionValue": null
+    }
+   },
+   "type": "weapon",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.hK5xPjOFd2hb81mi"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 700000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671489295055,
+    "modifiedTime": 1671492087117,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.hK5xPjOFd2hb81mi",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "FQXs9lVqUNGhzysC",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/talismans/emerald-grasshopper.webp",
+   "name": "Emerald Grasshopper",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Usage</strong> affixed to armor</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">F</span> Envision</p>\n<p><strong>Trigger</strong> You attempt a High Jump but haven't rolled yet</p>\n<p><strong>Requirements</strong> You're an expert in Athletics</p>\n<p>This metal grasshopper studded with emeralds is usually clasped to the legs of a suit of armor.</p>\n<p>When you activate it, if you succeed at the Athletics check, you Leap up to 50 feet vertically and up to 10 feet horizontally. If you critically succeed, you can Leap up to 75 feet vertically and 20 feet horizontally.</p>\n<p>If you don't end your jump on solid ground, you flutter in the air until the end of your turn, then fall harmlessly at a rate of 60 feet per round until you reach the ground.</p>"
+    },
+    "rules": [],
+    "slug": "emerald-grasshopper",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "magical",
+      "talisman"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 30
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "affixed-to-armor"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.3uhaf2YL9hmix3pe"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672350293039,
+    "modifiedTime": 1672350293039,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.3uhaf2YL9hmix3pe",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "H0UsanZbhlSWUjBS",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/held-items/bag-of-holding.webp",
+   "name": "Bag of Holding (Type II)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Though it appears to be a cloth sack decorated with panels of richly colored silk or stylish embroidery, a <em>bag of holding</em> opens into an extradimensional space larger than its outside dimensions. The Bulk held inside the bag doesn't change the Bulk of the <em>bag of holding</em> itself. The amount of Bulk the bag's extradimensional space can hold depends on its type.</p>\n<p>You can Interact with the <em>bag of holding</em> to put items in or remove them just like a mundane sack. Though the bag can hold a great amount of material, an object still needs to be able to fit through the opening of the sack to be stored inside.</p>\n<p>If the bag is overloaded or broken, it ruptures and is ruined, causing the items inside to be lost forever. If it's turned inside out, the items inside spill out unharmed, but the bag must be put right before it can be used again. A living creature placed inside the bag has enough air for 10 minutes before it begins to suffocate, and it can attempt to Escape against a DC of 13. An item inside the bag provides no benefits unless it's retrieved first. An item in the bag can't be detected by magic that detects only things on the same plane.</p>\n<p><strong>Capacity</strong> 50 Bulk</p>"
+    },
+    "rules": [],
+    "slug": "bag-of-holding-type-ii",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "extradimensional",
+      "magical"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 7
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 1,
+     "heldOrStowed": 1,
+     "capacity": 50,
+     "ignored": 50
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 300
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": null,
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "collapsed": false,
+    "stowing": true,
+    "usage": {
+     "value": "held-in-two-hands"
+    }
+   },
+   "type": "backpack",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.JBMBaN9dZLytfFLQ"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671492162048,
+    "modifiedTime": 1672351573954,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.JBMBaN9dZLytfFLQ",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "HkKkljGQ5ddezhez",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Pack Rat",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Years of packing for travel have taught you how to cram vast quantities into small spaces. You can fit an additional 50% of the listed Bulk capacity into mundane storage containers or vehicles.</p>\n<p>For example, you can fit 6 Bulk in a backpack, or 12 Bulk in a chest. This doesn't alter the items' Bulk, nor does it change how much you can store in a magical or extradimensional storage space, such as a @UUID[Compendium.pf2e.equipment-srd.Item.jaEEvuQ32GjAa8jy]{Bag of Holding}.</p>"
+    },
+    "rules": [],
+    "slug": "pack-rat",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "ratfolk"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1,
+     "taken": 5
+    },
+    "category": "ancestry",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "ancestry-5"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.hc4lWhWekIVb0wjL"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671492075490,
+    "modifiedTime": 1671492075490,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.hc4lWhWekIVb0wjL",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "MiNJ5yfnf68hD2nK",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Steady Balance",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You can keep your balance easily, even in adverse conditions. Whenever you roll a success using the Balance action, you get a critical success instead. You're not off-guard while attempting to Balance on narrow surfaces and uneven ground. Thanks to your incredible balance, you can attempt an Acrobatics check instead of a Reflex save to Grab an Edge.</p>"
+    },
+    "rules": [
+     {
+      "key": "Note",
+      "predicate": [
+       "action:balance"
+      ],
+      "selector": "acrobatics",
+      "text": "If you roll a success using the Balance action, you get a critical success instead.",
+      "title": "{item|name}"
+     }
+    ],
+    "slug": "steady-balance",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "general",
+      "skill"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1,
+     "taken": 2
+    },
+    "category": "skill",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "trained in Acrobatics"
+      }
+     ]
+    },
+    "location": "skill-2"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.CnqMJR8e9jqJR7MM"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486580458,
+    "modifiedTime": 1671486580458,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.CnqMJR8e9jqJR7MM",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "NjSOOBrHTcC3q8R4",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Advanced Shooter",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You've dedicated your training to the most complex and weird weapons of your favorite group. Choose firearms or crossbows. You gain proficiency with all advanced firearms as if they were martial firearms or with all advanced crossbows as if they were martial crossbows.</p>"
+    },
+    "rules": [],
+    "slug": "advanced-shooter",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6,
+     "taken": 6
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "class-6"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.HBZSP3ABqmsV9FXH"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486488835,
+    "modifiedTime": 1671486488835,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.HBZSP3ABqmsV9FXH",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "OUG4sU1Y9JDJspWV",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/conditions/fatigued.webp",
+   "name": "Fatigued",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You're tired and can't summon much energy. You take a -1 status penalty to AC and saving throws. While exploring, you can't choose an exploration activity.</p>\n<p>You recover from fatigue after a full night's rest.</p>"
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "selector": [
+       "ac",
+       "saving-throw"
+      ],
+      "slug": "fatigued",
+      "type": "status",
+      "value": -1
+     }
+    ],
+    "slug": "fatigued",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "group": null,
+    "duration": {
+     "value": 0,
+     "unit": "unlimited",
+     "expiry": null
+    },
+    "value": {
+     "isValued": false,
+     "value": null
+    },
+    "references": {
+     "children": [],
+     "overrides": [],
+     "overriddenBy": [],
+     "immunityFrom": []
+    },
+    "overrides": []
+   },
+   "type": "condition",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.conditionitems.Item.HL2l2VRSaQHu9lUw"
+    },
+    "scene-packer": {
+     "hash": "a76c65f80582a4e9be5bd1a5862e9f3aa8a7b3ad"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.8.2",
+    "coreVersion": "12.329",
+    "createdTime": 1699472982455,
+    "modifiedTime": 1699472982455,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.conditionitems.Item.HL2l2VRSaQHu9lUw",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "PYXVB96Wbt59sZcz",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Overwatch Dedication",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You have an innate knack for tactical observation, and you've innovated to apply that knack in a variety of ways that allow you to assist your allies. With the help of enhanced visual gear (such as a specially modified telescope, goggled visor, or binoculars), you're keenly aware of the movement of combatants on the battlefield. You quickly and efficiently disperse that information to your nearby allies so they can use it to direct their own observations and reactions to danger.</p>\n<p>You're surrounded by an overwatch field aura in a @Template[type:emanation|distance:30]. Your overwatch field aura grants you increased perception and allows you to call out warnings to your allies within the aura to point out threats. This aura has the auditory and visual traits. You and allies within your overwatch field receive a +2 circumstance bonus when using Perception for Initiative checks.</p>\n<p>@UUID[Compendium.pf2e.feat-effects.Item.AKKHagjg5bL1fMG5]{Effect: Overwatch Field}</p>\n<p><strong>Special</strong> You can't select another dedication feat until after you have gained at least two other feats from the @UUID[Compendium.pf2e.journals.JournalEntry.vx5FGEG34AxI2dow.JournalEntryPage.yOEiNjHLQ6XuOruq]{Overwatch} archetype.</p>"
+    },
+    "rules": [
+     {
+      "effects": [
+       {
+        "affects": "allies",
+        "events": [
+         "enter"
+        ],
+        "uuid": "Compendium.pf2e.feat-effects.Item.AKKHagjg5bL1fMG5"
+       }
+      ],
+      "key": "Aura",
+      "radius": 30,
+      "slug": "overwatch-field",
+      "traits": [
+       "auditory",
+       "visual"
+      ]
+     }
+    ],
+    "slug": "overwatch-dedication",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "archetype",
+      "dedication"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 2,
+     "taken": 2
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "expert in Perception"
+      }
+     ]
+    },
+    "location": "archetype-2"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.t03Tc5I4B8RHsyqs"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672343613284,
+    "modifiedTime": 1672343613284,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.t03Tc5I4B8RHsyqs",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "S4csNvaiZA5L2zig",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/potions/healing-potion.webp",
+   "name": "Healing Potion (Moderate)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A healing potion is a vial of a ruby-red liquid that imparts a tingling sensation as the drinker's wounds heal rapidly. When you drink a healing potion, you regain [[/r (3d8+10)[healing]]]{3d8+10 Hit Points}.</p>"
+    },
+    "rules": [],
+    "slug": "healing-potion-moderate",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "healing",
+      "magical",
+      "potion",
+      "vitality"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 8,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 50
+     }
+    },
+    "equipped": {
+     "carryType": "stowed",
+     "handsHeld": 0
+    },
+    "containerId": "H0UsanZbhlSWUjBS",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.G7haQ5gDt30ftJLC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1700000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671491420993,
+    "modifiedTime": 1672349496919,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.G7haQ5gDt30ftJLC",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "SaDArE2KbMejN8le",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/ancestry/shadow-rat.webp",
+   "name": "Shadow Rat",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Your ancestors lived in dark spaces underground, granting you dark fur and a vaguely unnatural mien that unnerves sapient creatures and frightens animals. You gain the trained proficiency rank in Intimidation and can use Intimidation to @UUID[Compendium.pf2e.actionspf2e.Item.tHCqgwjtQtzNqVvd]{Coerce} animals. When you @UUID[Compendium.pf2e.actionspf2e.Item.2u915NdUyQan6uKF]{Demoralize} an animal, you don't take a penalty for not sharing a language with it. If you would automatically become trained in Intimidation (from your background or class, for example), you become trained in another skill of your choice.</p>\n<p>Animals' attitudes toward you begin one degree worse than normal, usually starting at unfriendly instead of indifferent for domesticated animals, and hostile instead of unfriendly for wild animals.</p>"
+    },
+    "rules": [
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.skills.intimidation.rank",
+      "value": 1
+     },
+     {
+      "key": "Note",
+      "predicate": [
+       "action:demoralize",
+       "target:trait:animal"
+      ],
+      "selector": "intimidation",
+      "text": "When you Demoralize an animal, you don't take a penalty for not sharing a language with it.",
+      "title": "{item|name}"
+     }
+    ],
+    "slug": "shadow-rat",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "ancestry": {
+     "name": "Ratfolk",
+     "uuid": "Compendium.pf2e.ancestries.Item.P6PcVnCkh4XMdefw",
+     "slug": "ratfolk"
+    }
+   },
+   "type": "heritage",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.heritages.Item.tarfuEXmi0E0Enfy"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486190255,
+    "modifiedTime": 1671486190255,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.heritages.Item.tarfuEXmi0E0Enfy",
+    "duplicateSource": null
+   }
+  },
+  {
+   "type": "equipment",
+   "img": "systems/pf2e/icons/default-icons/equipment.svg",
+   "name": "MMRT Badge",
+   "_id": "UKVJzHbHkrjYNz3r",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Embossed with the emblem of the MMRT. Cast @UUID[Compendium.pf2e.spells-srd.Item.vLzFcIaSXs7YTIqJ]{Message} at will. </p>"
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "rare"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {}
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": null,
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Object",
+      "img": "systems/pf2e/icons/unidentified_item_icons/adventuring_gear.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "subitems": []
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "flags": {
+    "core": {
+     "sourceId": "Actor.3Oi7ivmZrrdsywNl.Item.vNjl8lPD3YUD7PFY"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672687442846,
+    "modifiedTime": 1672689180399,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Actor.3Oi7ivmZrrdsywNl.Item.vNjl8lPD3YUD7PFY",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "V29bPJfnMntpUwiP",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/ammunition/rounds-small.webp",
+   "name": "Rounds (Hand Cannon)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Firearms require ammunition consisting of a projectile and black powder. A round of ammo can vary in its composition but is typically either a prepackaged paper cartridge, including wadding, bullet, and black powder, or loose shot packed in manually. Some weapons, like hand cannons and blunderbusses, can fire other materials, but their ammunition has the same Price due to the cost of the black powder. Because making rounds of firearm ammunition requires creating black powder, you need the @UUID[Compendium.pf2e.feats-srd.Item.is3Oz9wt11lNq62K]{Alchemical Crafting} skill feat to make them. Firearm rounds are a valid option for magical ammunition, just like arrows or bolts. Crafting magical firearm ammunition requires you to be able to craft both alchemical and magical items.</p>"
+    },
+    "rules": [],
+    "slug": "rounds-hand-cannon",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 40,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "sp": 1
+     },
+     "per": 10
+    },
+    "equipped": {
+     "carryType": "stowed",
+     "handsHeld": 0
+    },
+    "containerId": "H0UsanZbhlSWUjBS",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Ammunition",
+      "img": "systems/pf2e/icons/unidentified_item_icons/ammunition.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.CmWkSgFyb6HB9KVK"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 950000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671490029221,
+    "modifiedTime": 1672349619658,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.CmWkSgFyb6HB9KVK",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "VBsch2ZYsGlVqawP",
+   "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/Garsondee_a_gun_made_from_the_mandibles_of_a_spider_with_the_ab_4fb2dfad-4ba6-47b5-86de-11fb55745806.png",
+   "name": "Spider Gun",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A <em>spider gun</em> is a <em>+1 striking weapon</em>. It's a distinct type of martial firearm made from the fangs and spinneret of a Large spider. It deals [[/r 1d10[poison]]] damage with a range increment of 30 feet and reload 1. On a critical hit, the venom clings to the target and they take @UUID[Compendium.pf2e.conditionitems.Item.lDVqvLKA6eF3Df60]{Persistent Poison Damage} equal to [[/r (1d4+@item.system.damage.dice)[persistent,poison]]]. A <em>spider gun</em> does not add critical specialization effects. The gun can be activated to fire webbing that hampers other creatures.</p>\n<hr />\n<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> Interact (conjuration, magical)</p>\n<p><strong>Frequency</strong> once per round</p>\n<hr />\n<p><strong>Effect</strong> You fire a mass of webbing at a square within 30 feet. That square becomes covered in webbing for 1 minute. A square covered with the webbing from a <em>spider gun</em> can be cleared by a single attack or effect that deals at least 5 slashing damage} or 1 fire damage. A square has AC 5, and it automatically fails its saving throws. The first time each turn a creature in the webbing begins to use a move action or enters the webbing during a move action, it must attempt an @Check[type:athletics|dc:20|name:Spider Gun Athletics|traits:conjuration] check or @Check[type:reflex|dc:20|name:Spider Gun Reflex|traits:conjuration] save against DC 20. On a success, it moves normally through the webbing and clears away the webbing from any squares it enters this turn. On a failure, it treats squares of webbing as difficult terrain this turn, and on a critical failure, it's @UUID[Compendium.pf2e.conditionitems.Item.eIcWbB5o3pP6OIMe]{Immobilized} for 1 round or until it @UUID[Compendium.pf2e.actionspf2e.Item.SkZAQRkLLkmBQNB9]{Escapes} (DC 20) or destroys the webbing.</p>\n<p><strong>Craft Requirements</strong> The initial raw materials for the <em>spider gun</em> must include the fangs and spinneret of a giant spider or other Large spider.</p>"
+    },
+    "rules": [
+     {
+      "key": "Note",
+      "outcome": [
+       "criticalSuccess"
+      ],
+      "selector": "{item|_id}-damage",
+      "text": "On a critical hit, the venom clings to the target and they take @UUID[Compendium.pf2e.conditionitems.Item.lDVqvLKA6eF3Df60]{Persistent Poison Damage} equal to [[/r (1d4+@item.system.damage.dice)[persistent,poison]]]. A <em>spider gun</em> does not add critical specialization effects.",
+      "title": "{item|name}"
+     }
+    ],
+    "slug": "spider-gun",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "magical"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 2
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 250
+     }
+    },
+    "equipped": {
+     "carryType": "held",
+     "invested": null,
+     "handsHeld": 2
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Firearm",
+      "img": "systems/pf2e/icons/unidentified_item_icons/weapon.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "held-in-two-hands"
+    },
+    "category": "martial",
+    "group": "firearm",
+    "bonus": {
+     "value": 0
+    },
+    "damage": {
+     "dice": 1,
+     "die": "d10",
+     "damageType": "poison",
+     "persistent": null,
+     "value": ""
+    },
+    "bonusDamage": {
+     "value": 0
+    },
+    "splashDamage": {
+     "value": 0
+    },
+    "range": 30,
+    "reload": {
+     "value": "1"
+    },
+    "runes": {
+     "potency": 1,
+     "striking": 1,
+     "property": []
+    },
+    "specific": {
+     "material": {
+      "type": null,
+      "grade": null
+     },
+     "runes": {
+      "potency": 1,
+      "striking": 1,
+      "property": []
+     }
+    },
+    "subitems": [],
+    "property1": {
+     "value": "",
+     "dice": 0,
+     "die": "",
+     "damageType": "",
+     "critDice": 0,
+     "critDie": "",
+     "critDamage": "",
+     "critDamageType": "",
+     "strikeConditionType": "",
+     "strikeConditionValue": null,
+     "criticalConditionType": "",
+     "criticalConditionValue": null
+    },
+    "selectedAmmoId": "jgVrHHvaxoSaMkdt"
+   },
+   "type": "weapon",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.70H54rIRjO9fJkdt"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 200000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1671487807925,
+    "modifiedTime": 1673213224095,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.70H54rIRjO9fJkdt",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "VsPvvUlEXR6uhleS",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/adventuring-gear/manacles.webp",
+   "name": "Manacles (Average)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You can manacle someone who is willing or otherwise at your mercy as an exploration activity taking 10-30 seconds depending on the creature's size and how many manacles you apply. A two‑legged creature with its legs bound takes a -15‑foot circumstance penalty to its Speeds, and a two‑handed creature with its wrists bound has to succeed at a @Check[type:flat|dc:5] any time it uses a manipulate action or else that action fails. This DC may be higher depending on how tightly the manacles constrain the hands. A creature bound to a stationary object is immobilized. For creatures with more or fewer limbs, the GM determines what effect manacles have, if any. Freeing a creature from average manacles requires four successful @Check[type:thievery|dc:27|traits:action:pick-a-lock] checks.</p>"
+    },
+    "rules": [],
+    "slug": "manacles-average",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 20
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": null
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "subitems": []
+   },
+   "type": "equipment",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.lWeADBqMFwFlVIuV"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1673090892965,
+    "modifiedTime": 1673090892965,
+    "lastModifiedBy": "eFLSLetxPov1Bkz7",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.lWeADBqMFwFlVIuV",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "W8DxRnJqfoPyTkkP",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Toughness",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You can withstand more punishment than most before succumbing. Increase your maximum Hit Points by your level. The DC of recovery checks is equal to 9 + your dying condition value.</p>"
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "selector": "hp",
+      "value": "@actor.level"
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "downgrade",
+      "path": "system.attributes.dying.recoveryDC",
+      "value": 9
+     }
+    ],
+    "slug": "toughness",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "general"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1,
+     "taken": 7
+    },
+    "category": "general",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "general-7"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.AmP0qu7c5dlBSath"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671487225079,
+    "modifiedTime": 1671487225079,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.AmP0qu7c5dlBSath",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "WjpHmSfIiqNRTwdG",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/worn-items/other-worn-items/blast-boots.webp",
+   "name": "Blast Foot",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>These prosthetic feet and legs, created by dwarven alchemists and spellcasters together, are engraved with simple but effective evocation symbols on the ball and heel, empowering you to leap to great heights and blast foes with your feet.</p>\n<hr />\n<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> envision</p>\n<p><strong>Frequency</strong> once per 10 minutes</p>\n<hr />\n<p><strong>Effect</strong> You blast off from the ground, using the force to leap through the air. The <em>blast feet</em> cast <em>@UUID[Compendium.pf2e.spells-srd.Item.Q7QQ91vQtyi1Ux36]{Jump}</em> on you.</p>\n<hr />\n<p><strong>Activate</strong> <span class=\"pf2-icon\">2</span> envision, Interact</p>\n<p><strong>Frequency</strong> once per day</p>\n<hr />\n<p><strong>Effect</strong> You blast from your feet, dealing [[/r 4d6[force]]] damage to all creatures in a @Template[type:cone|distance:15], with a @Check[type:reflex|dc:22|basic:true|traits:evocation,magical] save.</p>"
+    },
+    "rules": [],
+    "slug": "blast-foot",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Lost Omens: The Grand Bazaar",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 250
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": null
+    },
+    "containerId": "null",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "worn"
+    },
+    "subitems": []
+   },
+   "type": "equipment",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.U0R8AHRhK0Wu9r2i"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1100000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671490893425,
+    "modifiedTime": 1671492087117,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.U0R8AHRhK0Wu9r2i",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "YQ9MS5A2rPcP3GLr",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Know the Beat",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You become trained in your choice of Guild Lore, Legal Lore, Mercantile Lore, or Underworld Lore. You gain a +1 circumstance bonus to Diplomacy checks to Gather Information and to checks made to investigate crimes.</p>"
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "label": "to Gather Information (Know the Beat)",
+      "predicate": [
+       "action:gather-information"
+      ],
+      "selector": "diplomacy",
+      "type": "circumstance",
+      "value": 1
+     }
+    ],
+    "slug": "know-the-beat",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "archetype",
+      "skill"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder #149: Against the Scarlet Triad",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3,
+     "taken": 6
+    },
+    "category": "skill",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "Zephyr Guard Dedication"
+      }
+     ]
+    },
+    "location": "skill-6"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.9lyFxaoZjF1ZjVN9"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486874261,
+    "modifiedTime": 1671486874261,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.9lyFxaoZjF1ZjVN9",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "YjMyUvMDNj7bThlq",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/treasure/art-objects/lesser-art-object/simple-silver-circlet.webp",
+   "name": "Simple silver circlet",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": "simple-silver-circlet",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Gamemastery Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 10
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "stackGroup": null
+   },
+   "type": "treasure",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.CNLt74pUxM0GGjyl"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1672845602881,
+    "modifiedTime": 1672845602881,
+    "lastModifiedBy": "eFLSLetxPov1Bkz7",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.CNLt74pUxM0GGjyl",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/singular-expertise.webp",
+   "name": "Singular Expertise",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You have particular expertise with guns and crossbows that grants you greater proficiency with them and the ability to deal more damage. You gain a +1 circumstance bonus to damage rolls with firearms and crossbows.</p>\n<p>This intense focus on firearms and crossbows prevents you from reaching the same heights with other weapons. Your proficiency with unarmed attacks and with weapons other than firearms and crossbows can't be higher than trained, even if you gain an ability that would increase your proficiency in one or more other weapons to match your highest weapon proficiency (such as the weapon expertise feats many ancestries have). If you have gunslinger weapon mastery, the limit is expert, and if you have gunslinging legend, the limit is master.</p>"
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "selector": "firearm-weapon-group-damage",
+      "type": "circumstance",
+      "value": 1
+     },
+     {
+      "key": "FlatModifier",
+      "predicate": [
+       "item:group:crossbow"
+      ],
+      "selector": "bow-weapon-group-damage",
+      "type": "circumstance",
+      "value": 1
+     }
+    ],
+    "slug": "singular-expertise",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "kxbgaYIDZK2AZE61"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.vXbk7Nm1TOTTUNvF"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 100,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486199195,
+    "modifiedTime": 1671486199195,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.vXbk7Nm1TOTTUNvF",
+    "duplicateSource": null
+   },
+   "_id": "bKzDV9zTOMTcE1vG"
+  },
+  {
+   "_id": "cjjGv9dxarba9g3T",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/default-icons/feats.webp",
+   "name": "Cover Fire",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Frequency</strong> once per round</p>\n<p><strong>Requirements</strong> You're wielding a loaded firearm or crossbow.</p>\n<hr />\n<p>You lay down suppressive fire to protect allies by forcing foes to take cover from your wild attacks. Make a firearm or crossbow Strike; the target must decide before you roll your attack whether it will duck out of the way. If the target ducks, it gains a +2 circumstance bonus to AC against your attack, or a +4 circumstance bonus to AC if it has cover. It also takes a -2 circumstance penalty to ranged attack rolls until the end of its next turn. If the target chooses not to duck, you gain a +1 circumstance bonus to your attack roll for that Strike.</p>"
+    },
+    "rules": [],
+    "slug": "cover-fire",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1,
+     "taken": 2
+    },
+    "category": "class",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "action"
+    },
+    "actions": {
+     "value": 1
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "class-2"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.IzkL60LlKzbKIhY1"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486463208,
+    "modifiedTime": 1671486463208,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.IzkL60LlKzbKIhY1",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "eYl1d8XNykIsvNQv",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/armor/leather-armor.webp",
+   "name": "Leather Armor",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A mix of flexible and molded boiled leather, a suit of this type of armor provides some protection with maximum flexibility.</p>"
+    },
+    "rules": [],
+    "slug": "leather-armor",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 1,
+    "baseItem": "leather-armor",
+    "bulk": {
+     "value": 1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 2
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": true,
+     "inSlot": true,
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Leather Armor",
+      "img": "systems/pf2e/icons/unidentified_item_icons/armor.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "light",
+    "group": "leather",
+    "acBonus": 1,
+    "strength": 0,
+    "dexCap": 4,
+    "checkPenalty": -1,
+    "speedPenalty": 0,
+    "runes": {
+     "potency": 1,
+     "resilient": 1,
+     "property": []
+    },
+    "subitems": []
+   },
+   "type": "armor",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.4tIVTg9wj56RrveA"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 300000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671487939177,
+    "modifiedTime": 1671492087117,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.4tIVTg9wj56RrveA",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "h4O4vb1gue0pChPq",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/alchemical-items/alchemical-tools/smokestick.webp",
+   "name": "Smokestick (Greater)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Activate</strong> <span class=\"pf2-icon\">A</span> Interact</p>\n<p>With a sharp twist of this item, you instantly create a screen of thick, opaque smoke in a burst centered on one corner of your space. All creatures within that area are concealed, and all other creatures are concealed to them. The smoke lasts for 1 minute or until dispersed by a strong wind.</p>\n<p>The radius of the burst is 20 feet.</p>"
+    },
+    "rules": [],
+    "slug": "smokestick-greater",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical",
+      "consumable"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 7
+    },
+    "quantity": 2,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 53
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.ehss8yPTXxiUdVlJ"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1400000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1671491253045,
+    "modifiedTime": 1673205012432,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.ehss8yPTXxiUdVlJ",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/weapon-specialization.webp",
+   "name": "Weapon Specialization",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Champion, Fighter, Gunslinger, Inventor, Investigator, Magus, Monk, Ranger, Rogue, Swashbuckler</strong>: You've learned how to inflict greater injuries with the weapons you know best. You deal 2 additional damage with weapons and unarmed attacks in which you are an expert. This damage increases to 3 if you're a master, and to 4 if you're legendary.</p>\n<p><strong>Alchemist, Bard, Cleric, Druid, Oracle, Psychic, Sorcerer, Summoner, Witch, Wizard</strong> You've learned how to inflict grave wounds with your most practiced weapons. You deal 2 additional damage with weapons and unarmed attacks in which you are an expert. This damage increases to 3 if you're a master, and to 4 if you're legendary.</p>\n<p><strong>Barbarian</strong>: Your rage helps you hit harder. You deal an additional 2 damage with weapons and unarmed attacks in which you have expert proficiency. This damage increases to 3 if you're a master, and 4 if you're legendary.</p>\n<p>You gain your instinct's specialization ability. See specific instincts for more information.</p>"
+    },
+    "rules": [
+     {
+      "hideIfDisabled": true,
+      "key": "FlatModifier",
+      "label": "PF2E.WeaponSpecialization",
+      "predicate": [
+       {
+        "gte": [
+         "item:proficiency:rank",
+         2
+        ]
+       }
+      ],
+      "selector": "strike-damage",
+      "slug": "weapon-specialization",
+      "value": 2
+     },
+     {
+      "key": "AdjustModifier",
+      "mode": "upgrade",
+      "predicate": [
+       "item:proficiency:rank:3"
+      ],
+      "priority": 0,
+      "selector": "strike-damage",
+      "slug": "weapon-specialization",
+      "value": 3
+     },
+     {
+      "key": "AdjustModifier",
+      "mode": "upgrade",
+      "predicate": [
+       "item:proficiency:rank:4"
+      ],
+      "priority": 0,
+      "selector": "strike-damage",
+      "slug": "weapon-specialization",
+      "value": 4
+     }
+    ],
+    "slug": "weapon-specialization",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 7
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "kxbgaYIDZK2AZE61"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.9EqIasqfI8YIM3Pt"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486355796,
+    "modifiedTime": 1671486355796,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.9EqIasqfI8YIM3Pt",
+    "duplicateSource": null
+   },
+   "_id": "hYKMsK7QtecR5krq"
+  },
+  {
+   "_id": "i6PLc4YYeaSEGgM6",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/held-items/flare-beacon.webp",
+   "name": "Flare Beacon (Moderate)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Activate</strong> <span class=\"pf2-icon\">d</span> Interact</p>\n<hr />\n<p>Flare beacons create an incredibly bright light for a brief period of time. They are often used to signal others to the beacon's location, to coordinate assaults, to request rescue, or for other similar reasons. Higher-level beacons have a radius so large that they can be seen from miles away at night. When you Activate a flare beacon, you can either place it on the ground in a space within your reach or toss it up to 60 feet straight up. A flare beacon in the air falls at a rate of 10 feet per round.</p>\n<hr />\n<p>The beacon shines bright light in a 60-foot radius and dim light in the next 60 feet. Creatures within a 10-foot radius of the beacon must succeed at a @Check[type:fortitude|dc:20|name:Fortitude|traits:dazzle] save or be dazzled until they are no longer within 10 feet of it.</p>"
+    },
+    "rules": [],
+    "slug": "flare-beacon-moderate",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "gadget"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 35
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": "H0UsanZbhlSWUjBS",
+    "size": "sm",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.WAQABCTFGuHvC0yR"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672349750697,
+    "modifiedTime": 1672349750697,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.WAQABCTFGuHvC0yR",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "igX91o5JlEJGmusm",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/worn-items/other-worn-items/ring-of-the-ram.webp",
+   "name": "Ring of the Ram",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>This heavy iron ring is shaped to look like the head of a ram, with curling horns.</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">A</span> or more (Interact)</p>\n<p><strong>Frequency</strong> once per minute</p>\n<hr />\n<p><strong>Effect</strong> A ram-shaped blast of force slams into one foe that you can see within 60 feet. The number of actions you spend to Activate this Item (from 1 to 3) determines the intensity of the force.</p>\n<p>The blow deals 2d6 force damage per action spent and pushes the target 5 feet per action spent. The target must attempt a @Check[type:fortitude|dc:22] save.</p>\n<p><span class=\"pf2-icon\">1</span> [[/r 2d6[force]]] damage</p>\n<p><span class=\"pf2-icon\">2</span> [[/r 4d6[force]]] damage</p>\n<p><span class=\"pf2-icon\">3</span> [[/r 6d6[force]]] damage</p>\n<hr />\n<p><strong>Critical Success</strong> The target is unaffected.</p>\n<p><strong>Success</strong> The target takes half damage and is pushed half the distance.</p>\n<p><strong>Failure</strong> The target takes full damage and is pushed the full distance.</p>\n<p><strong>Critical Failure</strong> The target takes double damage and is pushed twice the distance.</p>"
+    },
+    "rules": [],
+    "slug": "ring-of-the-ram",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "force",
+      "invested",
+      "magical"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 220
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": true,
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "worn"
+    },
+    "subitems": []
+   },
+   "type": "equipment",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.s97FDCHi2UcfzKGn"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1300000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671490950787,
+    "modifiedTime": 1671492087118,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.s97FDCHi2UcfzKGn",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/way-of-the-sniper.webp",
+   "name": "Way of the Sniper",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You practice a style of shooting that relies on unerring accuracy and perfect placement of your first shot. You keep hidden or at a distance, staying out of the fray and bringing unseen death to your foes.</p>\n<p><strong>Slinger's Reload</strong> @UUID[Compendium.pf2e.actionspf2e.Item.gBhWEy3ToxQeCLQm]{Covered Reload}</p>\n<p><strong>Deeds</strong> <em>Initial</em> @UUID[Compendium.pf2e.actionspf2e.Item.Tlrde2xh7AhesXNB]{One Shot, One Kill}; <em>Advanced</em> @UUID[Compendium.pf2e.actionspf2e.Item.vO0Y1dVjNfbDyT4S]{Vital Shot}; <em>Greater</em> @UUID[Compendium.pf2e.actionspf2e.Item.O1iircZOOCo42r9Y]{Ghost Shot}</p>\n<p><strong>Way Skill</strong> Stealth</p>"
+    },
+    "rules": [
+     {
+      "key": "GrantItem",
+      "predicate": [
+       "class:gunslinger"
+      ],
+      "uuid": "Compendium.pf2e.actionspf2e.Item.gBhWEy3ToxQeCLQm",
+      "flag": "coveredReload"
+     },
+     {
+      "key": "GrantItem",
+      "predicate": [
+       "class:gunslinger"
+      ],
+      "uuid": "Compendium.pf2e.actionspf2e.Item.Tlrde2xh7AhesXNB",
+      "flag": "oneShotOneKill"
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.skills.stealth.rank",
+      "value": 1
+     }
+    ],
+    "slug": "way-of-the-sniper",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": null
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.QWXvksGJhOjXbBqi"
+    },
+    "pf2e": {
+     "grantedBy": {
+      "id": "q2R3FlkM6XiV8fEU",
+      "onDelete": "cascade"
+     },
+     "itemGrants": {
+      "coveredReload": {
+       "id": "zjN5NMEaIUaJngo9",
+       "onDelete": "detach"
+      },
+      "oneShotOneKill": {
+       "id": "DIhSnDkiqxvzKZWg",
+       "onDelete": "detach"
+      }
+     }
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486199196,
+    "modifiedTime": 1671486199196,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.QWXvksGJhOjXbBqi",
+    "duplicateSource": null
+   },
+   "_id": "j7k9Weeve95REDDo"
+  },
+  {
+   "_id": "jenuF64LsF3IoXOt",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/treasure/art-objects/lesser-art-object/quality-painting-by-an-unknown.webp",
+   "name": "Quality painting by an unknown",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": "quality-painting-by-an-unknown",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Gamemastery Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 10
+     }
+    },
+    "equipped": {
+     "carryType": "worn"
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "stackGroup": null
+   },
+   "type": "treasure",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.iz7Mv2xGwqyicNiA"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1672845511040,
+    "modifiedTime": 1672845511040,
+    "lastModifiedBy": "eFLSLetxPov1Bkz7",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.iz7Mv2xGwqyicNiA",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "jgVrHHvaxoSaMkdt",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/ammunition/rounds-small.webp",
+   "name": "Rounds (Hand Cannon)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Firearms require ammunition consisting of a projectile and black powder. A round of ammo can vary in its composition but is typically either a prepackaged paper cartridge, including wadding, bullet, and black powder, or loose shot packed in manually. Some weapons, like hand cannons and blunderbusses, can fire other materials, but their ammunition has the same Price due to the cost of the black powder. Because making rounds of firearm ammunition requires creating black powder, you need the @UUID[Compendium.pf2e.feats-srd.Item.is3Oz9wt11lNq62K]{Alchemical Crafting} skill feat to make them. Firearm rounds are a valid option for magical ammunition, just like arrows or bolts. Crafting magical firearm ammunition requires you to be able to craft both alchemical and magical items.</p>"
+    },
+    "rules": [],
+    "slug": "rounds-hand-cannon",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 0
+    },
+    "quantity": 31,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "sp": 1
+     },
+     "per": 10
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": "null",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "Unusual Ammunition",
+      "img": "systems/pf2e/icons/unidentified_item_icons/ammunition.webp",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.CmWkSgFyb6HB9KVK"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1672349580332,
+    "modifiedTime": 1673214184548,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.CmWkSgFyb6HB9KVK",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "kxbgaYIDZK2AZE61",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/classes/gunslinger.webp",
+   "name": "Gunslinger",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><em>While some fear projectile weapons, you savor the searing flash, wild kick, and cloying smoke that accompanies a gunshot, or snap of the cable and telltale thunk of your crossbow just before your bolt finds purchase. Ready to draw a bead on an enemy at every turn, you rely on your reflexes, steady hand, and knowledge of your weapons to riddle your foes with holes.</em></p>\n<p><strong>Key Ability: DEXTERITY</strong></p>\n<p>At 1st level, your class gives you an ability boost to Dexterity.</p>\n<p><strong>Hit Points: 8 plus your Constitution modifier</strong></p>\n<p>You increase your maximum number of HP by this number at 1st level and every level thereafter.</p>\n<h1>Roleplaying the Gunslinger</h1>\n<h2>During Combat Encounters...</h2>\n<p>You strike from range with your firearms, seeking to defeat your opponents before they can pose a true threat. Depending on your choice of weapon, you might prefer to strike your opponent from a hidden position before they ever realize you're there, dash through a frenzied melee with pistols blazing, or glide effortlessly across the battlefield, waiting for the perfect moment to end the conflict with a single, well-placed shot.</p>\n<h2>During Social Encounters...</h2>\n<p>You have a keen eye and can see things coming from farther than most. You might not be the life of the party, but your companions know to pay attention when your subtle nod or concerned grunt indicates that something's amiss.</p>\n<h2>While Exploring...</h2>\n<p>You scout the group's position for incoming threats and help search for secret doors and @UUID[Compendium.pf2e.conditionitems.Item.iU0fEDdBp3rXpTMC]{Hidden} passages, keeping a weather eye out for unexpected threats.</p>\n<h2>In Downtime...</h2>\n<p>You might craft ammunition or keep your complex weapons clean and maintained, and you might look for work that matches your unique talents, such as working as a blacksmith, engineer, or part of the local watch. You might wander from town to town, or stay put for a spell to enjoy the silence that lingers between gunfights.</p>\n<h2>You Might...</h2>\n<ul>\n<li>Seek out areas of great conflict where your unique choice of weaponry can help build your reputation.</li>\n<li>Explore new horizons, trusting your honed senses and deadly weapon to keep you safe.</li>\n<li>Demonstrate extensive knowledge about various types of guns and ammunition, along with curiosity about the latest in gun technology.</li>\n</ul>\n<h2>Others Probably...</h2>\n<ul>\n<li>Assume that since you know how your gun works, you must also understand how to resolve other mechanical challenges.</li>\n<li>Underestimate you at first glance, thinking you rely on your gun because you lack any other skills.</li>\n<li>Respect your eternal vigilance, unyielding grit, and excellent aim.</li>\n</ul>\n<h1>Initial Proficiencies</h1>\n<p>At 1st level, you gain the listed proficiency ranks in the following statistics. You are untrained in anything not listed unless you gain a better proficiency rank in some other way.</p>\n<h2>Perception</h2>\n<p>Expert in Perception</p>\n<h2>Saving Throws</h2>\n<p>Expert in Fortitude</p>\n<p>Expert in Reflex</p>\n<p>Trained in Will</p>\n<h2>Skills</h2>\n<p>Trained in one or more skills determined by your gunslinger's way</p>\n<p>Trained in a number of additional skills equal to 3 plus your Intelligence modifier</p>\n<h2>Attacks</h2>\n<p>Expert in simple firearms and crossbows</p>\n<p>Expert in martial firearms and crossbows</p>\n<p>Trained in advanced firearms and crossbows</p>\n<p>Trained in simple weapons</p>\n<p>Trained in martial weapons</p>\n<p>Trained in unarmed attacks</p>\n<h2>Defenses</h2>\n<p>Trained in light armor</p>\n<p>Trained in medium armor</p>\n<p>Trained in unarmored defense</p>\n<h2>Class DC</h2>\n<p>Trained in gunslinger class DC</p>\n<h1>Class Features</h1>\n<p>You gain these features as a gunslinger. Abilities gained at higher levels list the levels at which you gain them next to the features' names.</p>\n<table class=\"pf2-table\">\n<thead>\n<tr>\n<th>Your Level</th>\n<th>Class Features</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>Ancestry and background, initial proficiencies, gunslinger's way, initial deed, gunslinger feat, singular expertise</td>\n</tr>\n<tr>\n<td>2</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>3</td>\n<td>General feat, skill increase, stubborne</td>\n</tr>\n<tr>\n<td>4</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>5</td>\n<td>Ability boosts, ancestry feat, gunslinger weapon mastery, skill increase</td>\n</tr>\n<tr>\n<td>6</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>7</td>\n<td>General feat, skill increase, vigilant senses, weapon specialization</td>\n</tr>\n<tr>\n<td>8</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>9</td>\n<td>Advanced deed, ancestry feat, gunslinger expertise, skill increase</td>\n</tr>\n<tr>\n<td>10</td>\n<td>Ability boosts, gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>11</td>\n<td>Evasion, general feat, skill increase</td>\n</tr>\n<tr>\n<td>12</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>13</td>\n<td>Ancestry feat, gunslinging legend, medium armor expertise, skill increase</td>\n</tr>\n<tr>\n<td>14</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>15</td>\n<td>Ability boosts, general feat, greater deed, greater weapon specialization, skill increase</td>\n</tr>\n<tr>\n<td>16</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>17</td>\n<td>Ancestry feat, juggernaut, shootist's edge, skill increase</td>\n</tr>\n<tr>\n<td>18</td>\n<td>Gunslinger feat, skill feat</td>\n</tr>\n<tr>\n<td>19</td>\n<td>General feat, incredible senses, medium armor mastery, skill increase</td>\n</tr>\n<tr>\n<td>20</td>\n<td>Ability boosts, gunslinger feat, skill feat</td>\n</tr>\n</tbody>\n</table>\n<h2>Ancestry and Background</h2>\n<p>In addition to the abilities provided by your class at 1st level, you have the benefits of your selected ancestry and background.</p>\n<h2>Gunslinger's Way</h2>\n<p>All gunslingers have a particular way they follow, a combination of philosophy and combat style that defines both how they fight and the weapons they excel with. At 1st level, your way grants you an initial deed, a unique reload action called a slinger's reload, and proficiency with a particular skill. You also gain advanced and greater deeds at later levels, as well as access to way-specific feats. The gunslinger ways are described in detail on page 108. The following ways are presented in this book.</p>\n<p><strong>Way of the Drifter</strong> You wander across the battlefield, equally at home in and out of the fray.</p>\n<p><strong>Way of the Pistolero</strong> You carefully maintain your distance at a duelist's 10 paces with pistol in hand.</p>\n<p><strong>Way of the Sniper</strong> You practice a methodical style of shooting, striking from far cover.</p>\n<p><strong>Way of the Vanguard</strong> You rely on a brutal combat style that uses heavy weapons and explosive attacks.</p>\n<h2>Gunslinger Feats</h2>\n<p>At 1st level and every even-numbered level, you gain a gunslinger class feat.</p>\n<h2>Singular Expertise</h2>\n<p>You have particular expertise with guns and crossbows that grants you greater proficiency with them and the ability to deal more damage. You gain a +1 circumstance bonus to damage rolls with firearms and crossbows.</p>\n<p>This intense focus on firearms and crossbows prevents you from reaching the same heights with other weapons. Your proficiency with unarmed attacks and with weapons other than firearms and crossbows can't be higher than trained, even if you gain an ability that would increase your proficiency in one or more other weapons to match your highest weapon proficiency (such as the weapon expertise feats many ancestries have). If you have gunslinger weapon mastery, the limit is expert, and if you have gunslinging legend, the limit is master.</p>\n<h2>Skill Feats<span style=\"float:right\">Level 2</span></h2>\n<p>At 2nd level and every even-numbered level, you gain a skill feat. You must be trained or better in the corresponding skill to select a skill feat.</p>\n<h2>General Feats<span style=\"float:right\">Level 3</span></h2>\n<p>At 3rd level and every 4 levels thereafter, you gain a general feat.</p>\n<h2>Skill Increases<span style=\"float:right\">Level 3</span></h2>\n<p>At 3rd level and every 2 levels thereafter, you gain a skill increase. You can use this increase either to increase your proficiency rank to trained in one skill you're untrained in, or to increase your proficiency rank in one skill in which you're already trained to expert.</p>\n<p>At 7th level, you can use skill increases to become a master in a skill in which you're already an expert, and at 15th level, you can use them to become legendary in a skill in which you're already a master.</p>\n<h2>Stubborn<span style=\"float:right\">Level 3</span></h2>\n<p>You don't like being told what to do, and you don't give up. Your proficiency rank for Will saves increases to expert. When you fail, but don't critically fail, a Will save against an effect that would give you the controlled condition, you can attempt a second save against the effect at the start of your next turn. On a successful second save, the controlled condition ends, though any other effects remain. As normal, failing this second save doesn't allow you to attempt a third save on the subsequent turn.</p>\n<h2>Ability Boosts<span style=\"float:right\">Level 5</span></h2>\n<p>At 5th level and every 5 levels thereafter, you boost four different ability scores. You can use these ability boosts to increase your ability scores above 18. Boosting an ability score increases it by 1 if it's already 18 or above, or by 2 if it starts out below 18.</p>\n<h2>Ancestry Feats<span style=\"float:right\">Level 5</span></h2>\n<p>In addition to the ancestry feat you started with, you gain an ancestry feat at 5th level and every 4 levels thereafter.</p>\n<h2>Gunslinger Weapon Mastery<span style=\"float:right\">Level 5</span></h2>\n<p>You fully understand the best way to utilize your unique weapons. Your proficiency rank increases to master with simple and martial firearms and crossbows. Your proficiency rank for advanced firearms and crossbows, simple weapons, martial weapons, and unarmed attacks increases to expert. You gain access to the critical specialization effects for firearms and crossbows.</p>\n<h2>Vigilant Senses<span style=\"float:right\">Level 7</span></h2>\n<p>Through your adventures, you've developed keen awareness and attention to detail. Your proficiency rank for Perception increases to master.</p>\n<h2>Weapon Specialization<span style=\"float:right\">Level 7</span></h2>\n<p>You've learned how to inflict greater injuries with the weapons you know best. You deal 2 additional damage with weapons and unarmed attacks in which you are an expert. This damage increases to 3 if you're a master, and 4 if you're legendary.</p>\n<h2>Advanced Deed<span style=\"float:right\">Level 9</span></h2>\n<p>You've learned a powerful new technique of your chosen way. You gain the advanced deed ability of the way you chose at 1st level.</p>\n<h2>Gunslinger Expertise<span style=\"float:right\">Level 9</span></h2>\n<p>Your special shots become harder for opponents to predict or resist. Your proficiency rank for your gunslinger class DC increases to expert.</p>\n<h2>Evasion<span style=\"float:right\">Level 11</span></h2>\n<p>You've learned to move quickly to avoid explosions, dragon's breath, and worse. Your proficiency rank for Reflex saves increases to master. When you roll a success on a Reflex save, you get a critical success instead.</p>\n<h2>Gunslinging Legend<span style=\"float:right\">Level 13</span></h2>\n<p>You've learned unique techniques for wielding firearms and crossbows that give you unmatched skill in their use. Your proficiency rank increases to legendary with simple and martial firearms and crossbows and to master with advanced firearms and crossbows. Your proficiency rank for simple weapons, martial weapons, and unarmed attacks increases to expert.</p>\n<h2>Medium Armor Expertise<span style=\"float:right\">Level 13</span></h2>\n<p>You've learned to defend yourself better against attacks. Your proficiency ranks for light armor, medium armor, and unarmored defense increase to expert.</p>\n<h2>Greater Deed<span style=\"float:right\">Level 15</span></h2>\n<p>You've mastered the pinnacle technique of your chosen way. You gain the greater deed ability of the way you chose at 1st level.</p>\n<h2>Greater Weapon Specialization<span style=\"float:right\">Level 15</span></h2>\n<p>Your damage from weapon specialization increases to 4 with weapons and unarmed attacks in which you're an expert, 6 if you're a master, and 8 if you're legendary.</p>\n<h2>Juggernaut<span style=\"float:right\">Level 17</span></h2>\n<p>Your body has become accustomed to physical hazards and resistant to ailments. Your proficiency rank for Fortitude saves increases to master. When you roll a success on a Fortitude save, you get a critical success instead.</p>\n<h2>Shootist's Edge<span style=\"float:right\">Level 17</span></h2>\n<p>You make shots others find impossible. Your proficiency rank for your gunslinger class DC increases to master. When using a ranged weapon in which you have master or greater proficiency, you ignore the penalty for attacking within the weapon's second and third range increments.</p>\n<h2>Incredible Senses<span style=\"float:right\">Level 19</span></h2>\n<p>You notice things that most people can't detect. Your proficiency rank for Perception increases to legendary.</p>\n<h2>Medium Armor Mastery<span style=\"float:right\">Level 19</span></h2>\n<p>Your skill with light and medium armor improves, increasing your ability to dodge or absorb blows. Your proficiency ranks for light armor, medium armor, and unarmored defense increase to master.</p>"
+    },
+    "rules": [
+     {
+      "definition": [
+       "item:category:simple",
+       {
+        "or": [
+         "item:group:firearm",
+         "item:group:crossbow"
+        ]
+       }
+      ],
+      "key": "MartialProficiency",
+      "label": "PF2E.SpecificRule.MartialProficiency.SimpleFirearmsCrossbows",
+      "slug": "simple-firearms-crossbows",
+      "value": 2
+     },
+     {
+      "definition": [
+       "item:category:martial",
+       {
+        "or": [
+         "item:group:firearm",
+         "item:group:crossbow"
+        ]
+       }
+      ],
+      "key": "MartialProficiency",
+      "label": "PF2E.SpecificRule.MartialProficiency.MartialFirearmsCrossbows",
+      "slug": "martial-firearms-crossbows",
+      "value": 2
+     },
+     {
+      "definition": [
+       "item:category:advanced",
+       {
+        "or": [
+         "item:group:firearm",
+         "item:group:crossbow"
+        ]
+       }
+      ],
+      "key": "MartialProficiency",
+      "label": "PF2E.SpecificRule.MartialProficiency.AdvancedFirearmsCrossbows",
+      "slug": "advanced-firearms-crossbows",
+      "value": 1
+     }
+    ],
+    "slug": "gunslinger",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "keyAbility": {
+     "value": [
+      "dex"
+     ]
+    },
+    "items": {
+     "0f5gd": {
+      "img": "systems/pf2e/icons/features/classes/evasion.webp",
+      "level": 11,
+      "name": "Evasion",
+      "uuid": "Compendium.pf2e.classfeatures.Item.MV6XIuAgN9uSA0Da"
+     },
+     "182it": {
+      "img": "systems/pf2e/icons/features/classes/shootists-edge.webp",
+      "level": 17,
+      "name": "Shootist's Edge",
+      "uuid": "Compendium.pf2e.classfeatures.Item.RkofVX55ciXZyfAA"
+     },
+     "1qqd9": {
+      "img": "systems/pf2e/icons/features/classes/gunslinger-expertise.webp",
+      "level": 9,
+      "name": "Gunslinger Expertise",
+      "uuid": "Compendium.pf2e.classfeatures.Item.aKr6OE8vI2BsJzf1"
+     },
+     "5m24f": {
+      "img": "systems/pf2e/icons/features/classes/greater-deed.webp",
+      "level": 15,
+      "name": "Greater Deed",
+      "uuid": "Compendium.pf2e.classfeatures.Item.yc9RuXXxmZ9YidH6"
+     },
+     "5vutv": {
+      "img": "systems/pf2e/icons/features/classes/advanced-deed.webp",
+      "level": 9,
+      "name": "Advanced Deed",
+      "uuid": "Compendium.pf2e.classfeatures.Item.3JLW5vPshsJf3nCY"
+     },
+     "6sihc": {
+      "img": "systems/pf2e/icons/features/classes/medium-armor-expertise.webp",
+      "level": 13,
+      "name": "Medium Armor Expertise",
+      "uuid": "Compendium.pf2e.classfeatures.Item.FCEp9jjxxgRJDJV3"
+     },
+     "8ndxn": {
+      "img": "systems/pf2e/icons/features/classes/choice-feature.webp",
+      "level": 1,
+      "name": "Gunslinger's Way",
+      "uuid": "Compendium.pf2e.classfeatures.Item.LDqVxLKrwEqSegiu"
+     },
+     "bskyv": {
+      "img": "systems/pf2e/icons/features/classes/medium-armor-mastery.webp",
+      "level": 19,
+      "name": "Medium Armor Mastery",
+      "uuid": "Compendium.pf2e.classfeatures.Item.cGMSYAErbUG5E8X2"
+     },
+     "emlsp": {
+      "img": "systems/pf2e/icons/features/classes/gunslinging-legend.webp",
+      "level": 13,
+      "name": "Gunslinging Legend",
+      "uuid": "Compendium.pf2e.classfeatures.Item.ULOAZWZEokbJC6Rq"
+     },
+     "g7b2s": {
+      "img": "systems/pf2e/icons/features/classes/weapon-specialization.webp",
+      "level": 7,
+      "name": "Weapon Specialization",
+      "uuid": "Compendium.pf2e.classfeatures.Item.9EqIasqfI8YIM3Pt"
+     },
+     "gfou8": {
+      "img": "systems/pf2e/icons/features/classes/resolve.webp",
+      "level": 3,
+      "name": "Stubborn",
+      "uuid": "Compendium.pf2e.classfeatures.Item.Wpdeh6EkcAKA60oH"
+     },
+     "gpkfl": {
+      "img": "systems/pf2e/icons/features/classes/singular-expertise.webp",
+      "level": 1,
+      "name": "Singular Expertise",
+      "uuid": "Compendium.pf2e.classfeatures.Item.vXbk7Nm1TOTTUNvF"
+     },
+     "kh0qp": {
+      "img": "systems/pf2e/icons/features/classes/gunslinger-weapon-mastery.webp",
+      "level": 5,
+      "name": "Gunslinger Weapon Mastery",
+      "uuid": "Compendium.pf2e.classfeatures.Item.9nRT8aq05Fy2D3i3"
+     },
+     "pi0ik": {
+      "img": "systems/pf2e/icons/features/classes/incredible-sense.webp",
+      "level": 19,
+      "name": "Incredible Senses",
+      "uuid": "Compendium.pf2e.classfeatures.Item.nLwPMPLRne1HnL00"
+     },
+     "rqnn0": {
+      "img": "systems/pf2e/icons/features/classes/vigilant-senses.webp",
+      "level": 7,
+      "name": "Vigilant Senses",
+      "uuid": "Compendium.pf2e.classfeatures.Item.0npO4rPscGm0dX13"
+     },
+     "uq3mi": {
+      "img": "systems/pf2e/icons/features/classes/juggerenaut.webp",
+      "level": 17,
+      "name": "Juggernaut",
+      "uuid": "Compendium.pf2e.classfeatures.Item.OMZs5y16jZRW9KQK"
+     },
+     "zmmy3": {
+      "img": "systems/pf2e/icons/features/classes/greater-weapon-specialization.webp",
+      "level": 15,
+      "name": "Greater Weapon Specialization (Level 15)",
+      "uuid": "Compendium.pf2e.classfeatures.Item.Z7HX6TeFsaup7Dx9"
+     }
+    },
+    "hp": 8,
+    "trainedSkills": {
+     "value": [],
+     "additional": 3
+    },
+    "perception": 2,
+    "savingThrows": {
+     "fortitude": 2,
+     "reflex": 2,
+     "will": 1
+    },
+    "attacks": {
+     "simple": 1,
+     "martial": 1,
+     "advanced": 0,
+     "unarmed": 1,
+     "other": {
+      "name": "Simple Firearms, Martial Firearms",
+      "rank": 2
+     }
+    },
+    "defenses": {
+     "unarmored": 1,
+     "light": 1,
+     "medium": 1,
+     "heavy": 0
+    },
+    "spellcasting": 0,
+    "ancestryFeatLevels": {
+     "value": [
+      1,
+      5,
+      9,
+      13,
+      17
+     ]
+    },
+    "classFeatLevels": {
+     "value": [
+      1,
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20
+     ]
+    },
+    "generalFeatLevels": {
+     "value": [
+      3,
+      7,
+      11,
+      15,
+      19
+     ]
+    },
+    "skillFeatLevels": {
+     "value": [
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20
+     ]
+    },
+    "skillIncreaseLevels": {
+     "value": [
+      3,
+      5,
+      7,
+      9,
+      11,
+      13,
+      15,
+      17,
+      19
+     ]
+    }
+   },
+   "type": "class",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classes.Item.Z9li154CPNmun29Q"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486199193,
+    "modifiedTime": 1671486199193,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classes.Item.Z9li154CPNmun29Q",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/resolve.webp",
+   "name": "Stubborn",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You don't like being told what to do, and you don't give up. Your proficiency rank for Will saves increases to expert. When you fail, but don't critically fail, a Will save against an effect that would give you the controlled condition, you can attempt a second save against the effect at the start of your next turn. On a successful second save, the controlled condition ends, though any other effects remain. As normal, failing this second save doesn't allow you to attempt a third save on the subsequent turn.</p>"
+    },
+    "rules": [
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.saves.will.rank",
+      "value": 2
+     }
+    ],
+    "slug": "stubborn",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "kxbgaYIDZK2AZE61"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.Wpdeh6EkcAKA60oH"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486355795,
+    "modifiedTime": 1671486355795,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.Wpdeh6EkcAKA60oH",
+    "duplicateSource": null
+   },
+   "_id": "ng8os2ggXVmLkMbl"
+  },
+  {
+   "_id": "oob783Ultsn6h9oG",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/alchemical-items/alchemical-tools/skinitch-salve.webp",
+   "name": "Skinstitch Salve",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>This sticky salve stubbornly holds wounds closed and encourages swift natural healing. You can activate the salve in either of the following ways.</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> Interact</p>\n<hr />\n<p><strong>Effect</strong> You @UUID[Compendium.pf2e.actionspf2e.Item.MHLuKy4nQO2Z4Am1]{Administer First Aid} without requiring @UUID[Compendium.pf2e.equipment-srd.Item.s1vB3HdXjMigYAnY]{Healer's Tools}. You either gain a +2 item bonus to the Medicine check, or you can use the skinstitch salve's Medicine modifier of [[/r 1d20+13]] instead of your own.</p>\n<hr />\n<p><strong>Activate</strong> <span class=\"pf2-icon\">F</span> Interact</p>\n<p><strong>Trigger</strong> You @UUID[Compendium.pf2e.actionspf2e.Item.1kGNdIIhuglAjIp9]{Treat Wounds} or use @UUID[Compendium.pf2e.feats-srd.Item.wYerMk6F1RZb0Fwt]{Battle Medicine}</p>\n<hr />\n<p><strong>Effect</strong> You gain a +2 item bonus to the triggering Medicine check. If you roll a success on the Medicine check, you get a critical success instead.</p>\n<p>@UUID[Compendium.pf2e.equipment-effects.Item.zlSNbMDIlTOpcO8R]{Effect: Skinstitch Salve}</p>"
+    },
+    "rules": [],
+    "slug": "skinstitch-salve",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical",
+      "consumable",
+      "healing"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 7
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 55
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.FgAPV0iLE6R1QMJ5"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1650000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671491399789,
+    "modifiedTime": 1672687352107,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.FgAPV0iLE6R1QMJ5",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "pWVAhLSG0M49sGKd",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Shadow Mark",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You have learned special tricks that help you follow individuals without them noticing you.</p>\n<p>When you attempt a Stealth check to @UUID[Compendium.pf2e.actionspf2e.Item.IE2nThCmoyhQA0Jn]{Avoid Notice} while following a specific target, the target takes a -2 circumstance penalty to their Perception DC. If you have master proficiency in Stealth, the penalty is -3 or -4 if you're legendary.</p>\n<p>If you start an encounter with the target while shadowing them, the target takes this penalty to their initiative roll and to their Perception DC to determine if they notice you, as normal for @UUID[Compendium.pf2e.actionspf2e.Item.VMozDqMMuK5kpoX4]{Sneak}.</p>"
+    },
+    "rules": [],
+    "slug": "shadow-mark",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "general",
+      "skill"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 2,
+     "taken": 4
+    },
+    "category": "skill",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": [
+      {
+       "value": "expert in Stealth"
+      }
+     ]
+    },
+    "location": "skill-4"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.N7IsnLDFt73r7x56"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486591215,
+    "modifiedTime": 1671486591215,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.N7IsnLDFt73r7x56",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/choice-feature.webp",
+   "name": "Gunslinger's Way",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>All gunslingers have a particular way they follow, a combination of philosophy and combat style that defines both how they fight and the weapons they excel with. At 1st level, your way grants you an initial deed, a unique reload action called a slinger's reload, and proficiency with a particular skill. You also gain advanced and greater deeds at later levels, as well as access to way-specific feats.</p>\n<p><strong>@UUID[Compendium.pf2e.classfeatures.Item.a3pSIKkDVTvvNSRO]{Way of the Drifter}</strong> You wander across the battlefield, equally at home in and out of the fray.</p>\n<p><strong>@UUID[Compendium.pf2e.classfeatures.Item.qRLRrHf0kzaJ7xt0]{Way of the Pistolero}</strong> You carefully maintain your distance at a duelist's 10 paces with pistol in hand.</p>\n<p><strong>@UUID[Compendium.pf2e.classfeatures.Item.QWXvksGJhOjXbBqi]{Way of the Sniper}</strong> You practice a methodical style of shooting, striking from far cover.</p>\n<p><strong>@UUID[Compendium.pf2e.classfeatures.Item.vB0yVFxJVZwalt2g]{Way of the Vanguard}</strong> You rely on a brutal combat style that uses heavy weapons and explosive attacks.</p>\n<p><strong>@UUID[Compendium.pf2e.classfeatures.Item.YryaWAGcHeaRnXzS]{Way of the Triggerbrand}</strong> You prefer firearms that work well as weapons in both melee and ranged combat</p>"
+    },
+    "rules": [
+     {
+      "adjustName": false,
+      "allowedDrops": {
+       "label": "level 1 gunslinger class feature",
+       "predicate": [
+        "item:level:1",
+        "item:trait:gunslinger",
+        "item:type:feature"
+       ]
+      },
+      "choices": [
+       {
+        "value": "Compendium.pf2e.classfeatures.Item.a3pSIKkDVTvvNSRO"
+       },
+       {
+        "value": "Compendium.pf2e.classfeatures.Item.qRLRrHf0kzaJ7xt0"
+       },
+       {
+        "value": "Compendium.pf2e.classfeatures.Item.QWXvksGJhOjXbBqi"
+       },
+       {
+        "predicate": [
+         "class:gunslinger"
+        ],
+        "value": "Compendium.pf2e.classfeatures.Item.OmgtSDV1FubDUqWR"
+       },
+       {
+        "value": "Compendium.pf2e.classfeatures.Item.vB0yVFxJVZwalt2g"
+       },
+       {
+        "value": "Compendium.pf2e.classfeatures.Item.YryaWAGcHeaRnXzS"
+       }
+      ],
+      "flag": "way",
+      "key": "ChoiceSet",
+      "prompt": "PF2E.SpecificRule.Gunslinger.Way.Prompt",
+      "selection": "Compendium.pf2e.classfeatures.Item.QWXvksGJhOjXbBqi"
+     },
+     {
+      "key": "GrantItem",
+      "uuid": "{item|flags.pf2e.rulesSelections.way}",
+      "flag": "wayOfTheSniper"
+     }
+    ],
+    "slug": "gunslingers-way",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "kxbgaYIDZK2AZE61"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.LDqVxLKrwEqSegiu"
+    },
+    "pf2e": {
+     "itemGrants": {
+      "wayOfTheSniper": {
+       "id": "j7k9Weeve95REDDo",
+       "onDelete": "detach"
+      }
+     }
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486199194,
+    "modifiedTime": 1671486199194,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.LDqVxLKrwEqSegiu",
+    "duplicateSource": null
+   },
+   "_id": "q2R3FlkM6XiV8fEU"
+  },
+  {
+   "_id": "qtsBFXfpKfg97lmH",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/potions/healing-potion.webp",
+   "name": "Healing Potion (Lesser)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A healing potion is a vial of a ruby-red liquid that imparts a tingling sensation as the drinker's wounds heal rapidly. When you drink a healing potion, you regain [[/r (2d8+5)[healing]]]{2d8+5 Hit Points}.</p>"
+    },
+    "rules": [],
+    "slug": "healing-potion-lesser",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "healing",
+      "magical",
+      "potion",
+      "vitality"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3
+    },
+    "quantity": 2,
+    "baseItem": null,
+    "bulk": {
+     "value": 0.1
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 12
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": "H0UsanZbhlSWUjBS",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.e0vSAQfxhHauiAoD"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672700463709,
+    "modifiedTime": 1672700465918,
+    "lastModifiedBy": "eFLSLetxPov1Bkz7",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.e0vSAQfxhHauiAoD",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "reD14Mlk6lanoq4E",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/deity/Abadar.webp",
+   "name": "Abadar",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Abadar is worshipped as the god of cities, law, merchants, and wealth. Abadar's cathedral-banks are found in many cities and places where order thrives or is gaining a foothold. Aristocrats, city guards, merchants, and those working in legal practice or who have the well-being of their community on their mind are common worshippers of the god of cities, along with dwarves in general. Abadaran priests living in cities often serve as judges, lawyers, and clerks, while those who live on the frontier work as roving magistrates, acting as judge, jury, and executioners in the name of order.</p>\n<p><strong>Edicts</strong> bring civilization to the frontiers, earn wealth through hard work and trade, follow the rule of law</p>\n<p><strong>Anathema</strong> engage in banditry or piracy, steal, undermine a law-abiding court</p>\n<p><strong>Areas of Concern</strong> cities, law, merchants, and wealth</p>"
+    },
+    "rules": [],
+    "slug": "abadar",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": []
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "category": "deity",
+    "sanctification": {
+     "modal": "can",
+     "what": [
+      "holy",
+      "unholy"
+     ]
+    },
+    "domains": {
+     "primary": [
+      "cities",
+      "earth",
+      "travel",
+      "wealth"
+     ],
+     "alternate": [
+      "duty"
+     ]
+    },
+    "font": [
+     "harm",
+     "heal"
+    ],
+    "attribute": [
+     "con",
+     "int"
+    ],
+    "skill": [
+     "society"
+    ],
+    "weapons": [
+     "crossbow"
+    ],
+    "spells": {
+     "1": "Compendium.pf2e.spells-srd.Item.2oH5IufzdESuYxat",
+     "4": "Compendium.pf2e.spells-srd.Item.TUj8eugNqAvB1vVR",
+     "7": "Compendium.pf2e.spells-srd.Item.vPWMEyVTreMOoFnm"
+    }
+   },
+   "type": "deity",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.deities.Item.d56paSkcwvll2OhR"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1672346994961,
+    "modifiedTime": 1672346994961,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.deities.Item.d56paSkcwvll2OhR",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/vigilant-senses.webp",
+   "name": "Vigilant Senses",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Through your adventures, you've developed keen awareness and attention to detail. Your proficiency rank in Perception increases to master.</p>"
+    },
+    "rules": [
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.perception.rank",
+      "value": 3
+     }
+    ],
+    "slug": "vigilant-senses",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 7
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "kxbgaYIDZK2AZE61"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.0npO4rPscGm0dX13"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486355796,
+    "modifiedTime": 1671486355796,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.0npO4rPscGm0dX13",
+    "duplicateSource": null
+   },
+   "_id": "sv88hE3skKNZA79q"
+  },
+  {
+   "_id": "uiLpODKgrBbmLcUL",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/feats/feats.webp",
+   "name": "Rat Familiar",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You have a pet rat that has become magically bonded to you. You gain a familiar, and this familiar must be a rat. It still gets the benefits of familiar abilities, but its base form remains a rat.</p>"
+    },
+    "rules": [
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.attributes.familiarAbilities.value",
+      "priority": 9,
+      "value": 2
+     }
+    ],
+    "slug": "rat-familiar",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "ratfolk"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1,
+     "taken": 1
+    },
+    "category": "ancestry",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "ancestry-1"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.feats-srd.Item.W2LmEXJH75tyeCSn"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486424074,
+    "modifiedTime": 1671486424074,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.feats-srd.Item.W2LmEXJH75tyeCSn",
+    "duplicateSource": null
+   }
+  },
+  {
+   "type": "lore",
+   "img": "systems/pf2e/icons/default-icons/lore.svg",
+   "name": "Underworld Lore",
+   "_id": "wSY8LqAfvmfrmduT",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "mod": {
+     "value": 0
+    },
+    "proficient": {
+     "value": 1
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "flags": {},
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486879216,
+    "modifiedTime": 1671486884711,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "x8XEHOT3H6FW1qf1",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/ammunition/stepping-stone-shot.webp",
+   "name": "Stepping Stone Shot",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Ammunition</strong> round</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> envision, Interact</p>\n<p>A series of small stone discs pressed into a single round make up this ammunition. When you fire an activated <em>stepping stone shot</em>, whether you hit or miss your target, the shot creates a series of supports in a line that creatures can walk on as if solid ground. The line can ascend or descend at a 45-degree angle. The discs support any amount of weight, but don't otherwise pose any sort of obstacle; creatures and attacks can move through them if they wish. They crumble to dust if anything attempts to move or otherwise manipulate them. A creature can use a two-action activity, which has the manipulate trait, to Stride up to its speed on the stones while causing them to crumble behind it. This ammunition does not work in firearms with the scatter trait.</p>\n<p>The stones reach up to 100 feet, and they last up to the end of your next turn if no one collapses them. However, the line also can't extend beyond the maximum distance for a Strike from your firearm (usually six times the firearm's range increment).</p>"
+    },
+    "rules": [],
+    "slug": "stepping-stone-shot",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "alchemical",
+      "consumable",
+      "magical"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 7
+    },
+    "quantity": 0,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 65
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": "null",
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "held-in-one-hand"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.uNdRC0j1hY3F4pP1"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "eFLSLetxPov1Bkz7": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.6.3",
+    "coreVersion": "12.329",
+    "createdTime": 1672845682703,
+    "modifiedTime": 1673206650797,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.uNdRC0j1hY3F4pP1",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "xsZDAAUoBrkqEGZT",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/consumables/ammunition/golden-cased-bullet.webp",
+   "name": "Golden-Cased Bullet (Standard)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p><strong>Ammunition</strong> round</p>\n<p><strong>Activate</strong> <span class=\"pf2-icon\">1</span> envision</p>\n<hr />\n<p>The magic-infused metal of this bullet's golden casing allows it to curve just a bit in flight once the bullet has been fired, allowing you to ignore the bonus to AC granted to a target in lesser cover.</p>"
+    },
+    "rules": [],
+    "slug": "golden-cased-bullet-standard",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "consumable",
+      "magical"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4
+    },
+    "quantity": 2,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 20
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "category": "other",
+    "uses": {
+     "value": 1,
+     "max": 1,
+     "autoDestroy": true
+    },
+    "damage": null,
+    "usage": {
+     "value": "other"
+    },
+    "stackGroup": null,
+    "spell": null
+   },
+   "type": "consumable",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.LlmRVR4qv6H2AGPT"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 600000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671489034968,
+    "modifiedTime": 1672349385388,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.LlmRVR4qv6H2AGPT",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "yPxh9askJ1uixg4c",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/worn-items/other-worn-items/aeon-stone-western-star.webp",
+   "name": "Aeon Stone (Western Star)",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>This aeon stone must be activated to provide a benefit.</p>\n<hr />\n<p><strong>Activate</strong> <span class=\"pf2-icon\">2</span> envision, Interact</p>\n<hr />\n<p><strong>Effect</strong> You activate the aeon stone to gain the effects of a 1st-level <em>@UUID[Compendium.pf2e.spells-srd.Item.i35dpZFI7jZcRoBo]{Illusory Disguise}</em>.</p>\n<p>The resonant power allows you to render all of your aeon stones and your wayfinder @UUID[Compendium.pf2e.conditionitems.Item.zJxUflt9np0q4yML]{Invisible} whenever you use the activation to gain the effects of illusory disguise.</p>"
+    },
+    "rules": [],
+    "slug": "aeon-stone-western-star",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "invested",
+      "magical"
+     ],
+     "rarity": "uncommon"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 6
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+     "value": 0
+    },
+    "hp": {
+     "value": 0,
+     "max": 0
+    },
+    "hardness": 0,
+    "price": {
+     "value": {
+      "gp": 225
+     }
+    },
+    "equipped": {
+     "carryType": "worn",
+     "invested": true,
+     "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+     "type": null,
+     "grade": null
+    },
+    "identification": {
+     "status": "identified",
+     "unidentified": {
+      "name": "",
+      "img": "",
+      "data": {
+       "description": {
+        "value": ""
+       }
+      }
+     },
+     "misidentified": {}
+    },
+    "usage": {
+     "value": "worn"
+    },
+    "subitems": []
+   },
+   "type": "equipment",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.equipment-srd.Item.V5kv7e1r2qV2k3lf"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 1000000,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671490866085,
+    "modifiedTime": 1671492087117,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.V5kv7e1r2qV2k3lf",
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/features/classes/gunslinger-weapon-mastery.webp",
+   "name": "Gunslinger Weapon Mastery",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You fully understand the best way to utilize your unique weapons. Your proficiency rank increases to master with simple and martial firearms and crossbows. Your proficiency rank for advanced firearms and crossbows, simple weapons, martial weapons, and unarmed attacks increases to expert. You gain access to the critical specialization effects for firearms and crossbows.</p>"
+    },
+    "rules": [
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.proficiencies.attacks.unarmed.rank",
+      "value": 2
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.proficiencies.attacks.simple.rank",
+      "value": 2
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.proficiencies.attacks.martial.rank",
+      "value": 2
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.proficiencies.attacks.advanced-firearms-crossbows.rank",
+      "value": 2
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.proficiencies.attacks.simple-firearms-crossbows.rank",
+      "value": 3
+     },
+     {
+      "key": "ActiveEffectLike",
+      "mode": "upgrade",
+      "path": "system.proficiencies.attacks.martial-firearms-crossbows.rank",
+      "value": 3
+     },
+     {
+      "key": "CriticalSpecialization",
+      "predicate": [
+       {
+        "or": [
+         "item:group:firearm",
+         "item:group:crossbow"
+        ]
+       }
+      ]
+     }
+    ],
+    "slug": "gunslinger-weapon-mastery",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "category": "classfeature",
+    "onlyLevel1": false,
+    "maxTakable": 1,
+    "actionType": {
+     "value": "passive"
+    },
+    "actions": {
+     "value": null
+    },
+    "prerequisites": {
+     "value": []
+    },
+    "location": "kxbgaYIDZK2AZE61"
+   },
+   "type": "feat",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.classfeatures.Item.9nRT8aq05Fy2D3i3"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486355796,
+    "modifiedTime": 1671486355796,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.classfeatures.Item.9nRT8aq05Fy2D3i3",
+    "duplicateSource": null
+   },
+   "_id": "zNeLIcKeLPJ84dlC"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/actions/OneAction.webp",
+   "name": "Covered Reload",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You duck into a safe position or minimize your profile while reloading to make your next attack. Either @UUID[Compendium.pf2e.actionspf2e.Item.ust1jJSCZQUhBZIz]{Take Cover} or attempt to @UUID[Compendium.pf2e.actionspf2e.Item.XMcnh4cSI32tljXa]{Hide}, then Interact to reload. As normal, you must meet the requirements to Take Cover or Hide; you must be @UUID[Compendium.pf2e.conditionitems.Item.j91X7x0XSomq8d60]{Prone}, benefiting from cover, or near a feature that allows you to Take Cover, and you need to be benefiting from cover or @UUID[Compendium.pf2e.conditionitems.Item.DmAIPqOBomZ7H95W]{Concealed} to a creature to Hide from that creature.</p>"
+    },
+    "rules": [],
+    "slug": "covered-reload",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "gunslinger"
+     ],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Guns & Gears",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "actionType": {
+     "value": "action"
+    },
+    "category": null,
+    "actions": {
+     "value": 1
+    },
+    "deathNote": false,
+    "requirements": {
+     "value": ""
+    },
+    "trigger": {
+     "value": ""
+    }
+   },
+   "type": "action",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.actionspf2e.Item.gBhWEy3ToxQeCLQm"
+    },
+    "pf2e": {
+     "grantedBy": {
+      "id": "j7k9Weeve95REDDo",
+      "onDelete": "cascade"
+     }
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "jv6bVYoOxUbXALP8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.5.1",
+    "coreVersion": "12.329",
+    "createdTime": 1671486199196,
+    "modifiedTime": 1671486199196,
+    "lastModifiedBy": "jv6bVYoOxUbXALP8",
+    "compendiumSource": "Compendium.pf2e.actionspf2e.Item.gBhWEy3ToxQeCLQm",
+    "duplicateSource": null
+   },
+   "_id": "zjN5NMEaIUaJngo9"
+  }
+ ],
+ "folder": "lcidq4N2amU4VnaO",
+ "sort": 500000,
+ "flags": {
+  "pf2e": {
+   "freeCrafting": false
+  },
+  "exportSource": {
+   "world": "mmrt-magical-monsters-response-team",
+   "system": "pf2e",
+   "coreVersion": "10.291",
+   "systemVersion": "4.10.4"
+  },
+  "pf2e-fatigue": {
+   "startTime": -30676956,
+   "isFatigued": true
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1671486041238,
+  "modifiedTime": 1721827584335,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ },
+ "_id": "5YlDR6a2Z7rmsiOI"
+}

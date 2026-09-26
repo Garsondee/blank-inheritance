@@ -180,6 +180,41 @@ export function stageGroups(cast = [], layout = STAGE_LAYOUTS.LINE) {
 }
 
 /**
+ * Build one cast member from a plain descriptor — the shape "summon anyone
+ * to any scene" needs. `descriptor` is `{id, name, img?, actorId?, isPc?}`;
+ * `id` is required and becomes the member's stable `portraitId`, so summoning
+ * the same descriptor twice updates the existing member (moved, re-revealed)
+ * rather than duplicating them.
+ *
+ * Deliberately accepts a summon with no `actorId` at all — a real Foundry
+ * Actor does not have to exist for someone to stand on the stage
+ * (foundry/stage.mjs's own #onOpenCard already treats "a cast member with no
+ * Actor behind them" as a legitimate state, not an error), which matters
+ * because most of this campaign's NPCs are still unnamed placeholders per
+ * this project's own stub policy.
+ */
+export function castMemberFromDescriptor(descriptor) {
+  if (!descriptor?.id) throw new Error("castMemberFromDescriptor: descriptor needs an id");
+  const member = {
+    portraitId: `summon-${descriptor.id}`,
+    label: descriptor.name ?? descriptor.id,
+    kind: descriptor.isPc ? "pc" : "npc",
+    revealed: true,
+    // An authored scene-brief cast member can carry its own `arrival` tier
+    // (scene-brief.schema.json) — a beat calling for a big reveal should not
+    // have to rely on the Director remembering to click Announced/Splash by
+    // hand every time it's staged. Quiet, same as before, when nothing was
+    // authored (a plain summon, or arrival: null — "they are simply already
+    // there").
+    sting: descriptor.sting || "quiet",
+    stingSeq: Date.now()
+  };
+  if (descriptor.img) member.img = descriptor.img;
+  if (descriptor.actorId) member.actorId = descriptor.actorId;
+  return member;
+}
+
+/**
  * How big a frame can be before the stage is full.
  *
  * The staging document's open question 2 asks this and does not settle it.

@@ -10,7 +10,7 @@
  *
  * EXTENDED (skill-actions-in-combat expansion): checkSaveAttackLegal (a target rolls a saving
  * throw instead of the attacker rolling to hit — the mechanism explicitly out of scope through
- * Phase 3, per design/scale-and-chassis.md §19's own "no saving-throw mechanism" note) and
+ * Phase 3, per tools/battle-simulator/DESIGN-LOG.md §19's own "no saving-throw mechanism" note) and
  * checkDemoralizeLegal (Intimidation's Demoralize action, Player Core pg. 200, mirrored verbatim
  * at reference/srd/player-core/skill-8-intimidation.json).
  *

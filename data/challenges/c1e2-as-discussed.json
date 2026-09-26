@@ -1,0 +1,85 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-as-discussed",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "As Discussed",
+  "description": "Three checks around the Section Officer's reaction to the vial requisition. Unlike Episode One, these are NOT free -- contesting him has a real, small, entirely legitimate cost, because this is the session where the campaign starts having consequences. The cost is always tedium, never danger.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "contest-the-credit",
+      "name": "Refuse to let him have it",
+      "skillOptions": [
+        "diplomacy",
+        "deception",
+        "intimidation"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1 DC 15, one step hard -- he is on his own ground, holding the roster, and entirely within his authority",
+        "adjustment": "hard"
+      },
+      "outcomes": {
+        "criticalSuccess": "He stops. He looks at whoever said it for slightly too long, and then says, quietly and only once, 'Yes. All right.' He does not repeat it and he will deny it later. The fortnight is merely dull instead of punitive, and one member of the party has his genuine, grudging attention for the rest of the chapter.",
+        "success": "He does not concede and he does not escalate. The roster stands as written -- dull, long, and no worse than it was going to be. They have not won, but they have not paid either.",
+        "failure": "He agrees with them warmly, at length, in a way that concedes nothing, and adds a second inventory rotation to the fortnight. Entirely within regulation.",
+        "criticalFailure": "As failure, and from here he reads every piece of paperwork Section Nine files, personally, for a month. Nothing they do is ever quite wrong and nothing is ever quite finished."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "read-the-countersignature",
+      "name": "Whose name is on it",
+      "skillOptions": [
+        "society",
+        "perception"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1 DC 15, one step hard -- it is a signature block on a form they are not being shown on purpose",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "They get the name, Rand, and the department, Medical, which is not one that has any business countersigning stores requisitions.",
+        "success": "They get a name: Rand. It means nothing to them yet. Write it down -- they should have it in their notes long before it matters.",
+        "failure": "The form is face-down, or in the out-tray, or he moves it. No.",
+        "criticalFailure": "As failure, and he notices them looking."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "read-the-room",
+      "name": "How he is actually taking it",
+      "skillOptions": [
+        "perception",
+        "medicine"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 DC 15, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, plus the thing in the out-tray: a memorandum with his name on it, from above, which he has read several times. Nobody is being disciplined. Somebody has simply been asked to explain, in writing, and he has had to.",
+        "success": "He is furious and hiding it competently. The performance is for them and it is costing him something to give.",
+        "failure": "He seems pleased. He said he was pleased.",
+        "criticalFailure": "He seems pleased, and one of them concludes the whole thing was probably a genuine assessment after all."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--as-discussed",
+    "c1e1-the-errand",
+    "ideas/story/bible/characters/the-section-officer.md"
+  ],
+  "notes": "THE COST IS ALWAYS TEDIUM, NEVER DANGER. He cannot get them hurt, charged or removed -- the worst he can do is make a fortnight miserable, and every route he takes is within his authority and therefore unappealable. That constraint is what keeps him a petty tyrant rather than a threat, and it is stated in his bible file as a hard rule.\n\ncontest-the-credit is the scene's real decision and the table should feel the trade. Letting him have the credit costs nothing and is the smart play. Contesting it is the satisfying play and might cost a fortnight. Both are correct answers to different questions, which is what makes it a choice rather than a test."
+}

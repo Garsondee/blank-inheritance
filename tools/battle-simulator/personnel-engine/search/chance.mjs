@@ -45,7 +45,7 @@
  * trip only" limit) — named honestly, not silently dropped.
  */
 import { forkTurnSandbox } from "../engine.mjs";
-import { degreeProbabilities, averageStrikeDamage, averageDamage, mitigateDamage } from "../../engine/resolve.mjs";
+import { degreeProbabilities, averageStrikeDamage, averageDamage, mitigateDamage } from "../../shared/resolve.mjs";
 
 const STOCHASTIC_TYPES = new Set(["strike", "trip"]);
 

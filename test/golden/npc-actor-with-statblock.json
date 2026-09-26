@@ -93,5 +93,19 @@
         }
       }
     }
-  ]
+  ],
+  "prototypeToken": {
+    "ring": {
+      "enabled": true,
+      "colors": {
+        "ring": "#f0a830",
+        "background": "#121615"
+      },
+      "effects": 3,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    }
+  }
 }

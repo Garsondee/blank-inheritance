@@ -62,23 +62,11 @@ for the Director's console and treats both halves as one problem.
 
 ### And what this campaign adds
 
-This campaign has, independently and repeatedly, expressed power as **permission rather than
-bonus**. It says so outright:
-
-> "Neither ever produces a numeric combat bonus larger than +2 — the difference between a
-> well-synced and poorly-synced pilot is **what they're allowed to do**, not how good they are at
-> doing it."
->
-> — `data/campaign/config.json`, `twoTracksPrinciple`
-
-Resonance does not give you +2; it gives you a third action, or takes your reaction away
-entirely. Damage does not worsen your attack rolls; it caps your actions. Scale disparity does
-not make a kid harder to hit; it makes them *untargetable*. Every one of these is a permission.
-
-**Therefore the console is, above all else, a permissions display.** The single question it must
-answer instantly, at all times, is: *what may I do right now, and what will it cost?*
-
-If a player has to ask that question out loud, the interface has failed.
+*(Cut 2026-09-20: this subsection's case that the campaign expresses power as permission rather
+than bonus, which rested on Resonance and on the two-scale model's untargetable kids. Removed from
+this document 2026-09-25.)* The question it ended on still governs the player console (§4,
+Law 10): *what may I do right now, and what will it cost?* If a player has to ask that question
+out loud, the interface has failed.
 
 ---
 
@@ -196,76 +184,30 @@ character can currently take. There is no excuse for hiding a legal basic action
 
 ## 3. What this campaign adds
 
-### Resonance is the action-economy governor, not a flavour gauge
-
-`data/campaign/config.json` sets, per band: **actions per turn**, **whether you have a reaction at
-all**, **which tier of abilities is unlocked**, and **how many rounds of internal power you have**.
-
-| Band | Actions | Reaction | Abilities | Internal power |
-|---|---|---|---|---|
-| Dead Weight (<40%) | **2** | **none** | Baseline only | 3–4 rounds |
-| Nominal (40–64%) | 3 | yes | + Attuned | 6 rounds |
-| Harmonised (65–84%) | 3 | yes | + Resonant | 8 rounds |
-| Absolute (85%+) | 3 + free Strike ignoring MAP | yes | + Absolute | 10 rounds |
-
-**Nominal was 2 actions until 2026-09-06.** Changed deliberately, and it reverses what an earlier
-draft of this section said: three actions is now the *norm* from Nominal upward, and 2 is a penalty
-state with exactly two causes — Dead Weight sync, or Frame damage (below). The reasoning is in
-`design/resonance-and-bleed.md` §2 and the sequencing principle it serves is
-`design/design-layers.md`: SF2E is architecturally a three-action system, so a 2-action baseline
-plays a degraded version of it rather than a tense one.
-
-*Obligation:* Resonance belongs in the permissions readout, not in a vitals panel. Four separate
-consequences hang off one number, and a pilot must be able to see all four without doing a lookup.
-And since the action count no longer moves between Nominal, Harmonised and Absolute, **the tray can
-no longer carry the band on its own** — ability tier and internal-power duration are now what
-distinguish those three, so the permissions plate has to show them with equal weight rather than
-treating pips as the headline.
-
 ### Damage caps actions
 
-`design/scale-and-chassis.md` §8: Degraded caps a Frame or chassis at **2 actions**; Critical caps
-it at **1**; Hulked is 0. This is explicitly the lever chosen to make machines feel different from
-people — a kid never loses actions to damage; a Frame does.
+Degraded caps a Frame or vehicle at **2 actions**; Critical caps it at **1**; Hulked is 0. This is the
+lever chosen to make machines feel different from people: a kid never loses actions to damage; a Frame
+does. *(Recorded in `config.json`'s `frameEconomy.damageStateEffects`. It comes from the retired
+two-scale design and hasn't been re-confirmed since lockstep; `open-questions.json#frame-damage-action-caps`.)*
 
 *Obligation:* the action tray must show the *real* current budget and, on demand, *why* it is what
 it is. "2 actions — Degraded" is a complete explanation. Three greyed pips with no reason is not.
 
 ### Some things cannot be rolled, so they must be clocks
 
-§3 and §11 of scale-and-chassis: dismounted personnel at Frame scale **do not roll saves**, because
-+4 against DC 32 is not a roll. Instead the GM states a countdown out loud. Internal power duration
-is a countdown. The Contact Pool runs on quiet mornings. The session bar we already built is a
-countdown.
+The Contact Pool runs on quiet mornings. The session bar we already built is a countdown.
 
 *Obligation:* **the clock is a first-class interface component**, not ad-hoc text. Several
 unrelated systems in this campaign resolve into "a stated number of rounds/days remaining," and
 they should all render the same way so players learn to read one thing.
 
-### Marked is a binary life-or-death state
-
-Loud actions make a chassis **Marked** until the end of its next turn, and only a Marked chassis
-can be Struck by a Frame-scale creature at all (§10).
-
-*Obligation:* Marked cannot be one condition icon among twelve. It changes whether you are a legal
-target. It gets its own unmissable state.
-
-### Never mix scales in one readout
-
-The campaign's hardest rule — *"a personnel-scale number never appears on the same side of a
-comparison as a Frame-scale number"* — has a direct interface consequence. A kid's +7 must never be
-displayed adjacent to a Claimant's DC 32 in a way that invites comparison. Ground-role checks are
-rolled at **the kid's own level's DC**, and the *effect* lands at Frame scale
-(`data/campaign/ground-roles.json`).
-
-*Obligation:* ground crew and pilots get different readouts, not the same readout with different
-numbers in it.
-
 ### Downtime is the segment mechanic — the same system GitHub issue #109 was asking about
 
 An earlier draft of this section called downtime "a menu with a visible budget of 2." That was too
-small an idea, and it turned out to already have a name: `design/session-flow-and-overworld.md`'s
-sign-up/multi-group/time-segment mechanic (tracked as GitHub issue #109), which that issue's own
+small an idea, and it turned out to already have a name: the sign-up/multi-group/time-segment
+mechanic from an early session-flow draft (tracked as GitHub issue #109; the draft itself was retired
+on 2026-09-25 once this section and the built scene set had absorbed it), which that issue's own
 text says has "no existing mechanical precedent anywhere in this repo." Confirmed as one system,
 not two related ones, on 2026-09-06 — the full procedure #109's open questions were waiting on:
 
@@ -373,7 +315,7 @@ one generic button, and — reasonably, though not yet confirmed — is likely w
 fatigue check back down. **Tracked as an open question** (`rest-activity-roster`, same file),
 linked to the fatigue question above since the two are clearly related. Three named starting
 options, each grounded in a real rule (Long-Term Rest's doubled HP recovery, Treat Wounds, and a
-Bleed-reduction hook for the social option), are proposed in `design/downtime-activities.md` §2 —
+social-check bonus for the social option), are proposed in `design/downtime-activities.md` §2 —
 still a proposal, not a lock.
 
 #### Commit, then resolve — a real two-phase gate, not a queue
@@ -406,10 +348,10 @@ made literal — advancing one quarter *is* this ceremony, not an animation bolt
 #### Scope: the whole campaign, confirmed
 
 Settled 2026-09-06, closing #109's own first open question directly: this mechanic runs for the
-**entire campaign** — the hand-authored Day 1-6 arc and the procedural Day 7+ Contact Pool phase
-alike. The Contact Pool stays exactly what it already was: a separate, independently-firing daily
-trigger deciding *whether* a Claimant shows up, layered on top of downtime rather than replacing
-how downtime itself is spent.
+**entire campaign** — the hand-authored episodes and the procedural Contact Pool phase alike. The
+Contact Pool stays exactly what it already was: a separate, independently-firing daily trigger
+deciding *whether* a Claimant shows up, layered on top of downtime rather than replacing how
+downtime itself is spent.
 
 *Obligation, and it is a substantial one:* the interface must make **six things visible at once** —
 what is on offer, which quarters it's eligible in, whether it costs a slice, what expires soonest,
@@ -428,7 +370,7 @@ content; `private` shows to no one but the participants, per §7a), a resolution
 for the GM's queue, and the closed list of outcomes the scene-close dialogue offers (§10.3a). A
 character also needs a `segmentsSinceRest` counter and, once the open questions above resolve, a
 `restType` the player last took. Also worth noting: `order` presumes a fixed sequence, which is
-right for the authored Episode 1 and wrong for scheduled play, where scenes are offered rather than
+right for the authored Episode One and wrong for scheduled play, where scenes are offered rather than
 sequenced. Designing those fields is a data
 task, not this document's, but the interface cannot be built before they exist.
 
@@ -448,10 +390,10 @@ This is the most important structural claim in this document.
 | Failure mode | can't find my own button | lost track of who's hurt |
 
 **There are exactly two shapes, and there will not be a third.** Confirmed 2026-09-06: *"There are
-only two shapes, player and GM."* Ground crew are players in a different seat, not a third kind of
-user — the same person may be in a Frame one scene and on the ground the next, and that is a
-costume change (§7b), not a different console. This closes the door on a third shape being built
-from either of these two.
+only two shapes, player and GM."* A player in a Frame and a player on foot are the same kind of
+user in different seats — the same person may be in a Frame one scene and on the ground the next,
+and that is a costume change (§7b), not a different console. This closes the door on a third shape
+being built from either of these two.
 
 **A GM console must never be built as a player console with more buttons.** The GM's problem is
 breadth: six PCs plus three to eight adversaries is up to fourteen things with HP and conditions.
@@ -519,7 +461,7 @@ The user named this case specifically, and it changes the answer. With no map:
   named button. This is the strongest possible argument for the Tier 1/2 bar.
 - **Range becomes a band, not a number.** Engaged / Near / Far, not "35 feet." This matters more
   here than in most campaigns because distances run at 10× the standard grid
-  (`design/scale-and-chassis.md` §14), so raw footage is actively unhelpful to intuition.
+  (`tools/battle-simulator/DESIGN-LOG.md` §14), so raw footage is actively unhelpful to intuition.
 - **Who is present must be listed**, because it cannot be seen. That listing now has a real shape:
   the **Character Card** (`design/npc-social-intel.md`), a GM-toggled popup showing exactly who is
   in a scene, with GM-only full visibility and a player-facing view redacted to only what's been
@@ -549,7 +491,7 @@ The rulebook's own GM priorities (§1) anchor the top of this list rather than m
 7. **Reveal information deliberately** — Recall Knowledge results in particular.
 8. **Pace the session** — what the session bar now serves.
 9. **Track the campaign's slow clocks** — Contact Pool, Frame damage states, technician-days,
-   Bleed, Anchors, the Time Economy. These are Director Mode's existing job.
+   the Time Economy. These are Director Mode's existing job.
 
 Items 1–7 are *in-encounter* and belong on the chassis. Items 8–9 are *between-turn* and belong in
 the Director's terminal. That split is not arbitrary; it is Law 13 below.
@@ -592,9 +534,9 @@ completely different object.
 ├── THE BAR ───────────────────────────────────────────────────────────┤
 │  WHO I AM        │   BUDGET    │  WHAT I FACE  │  WHAT I MAY DO       │
 │  permissions:    │   ⬤ ⬤ ⬤ ⟳   │  (the dome)   │  Strike  +17         │
-│  Resonance band  │   and why   │  target, AC,  │  Strike  +12         │
-│  damage state    │   it is 2   │  off-guard?   │  Stride  25 ft       │
-│  Bleed · HP      │             │  or the scene │  ── tier 2 row ──    │
+│  damage state    │   and why   │  target, AC,  │  Strike  +12         │
+│  HP              │   it is 2   │  off-guard?   │  Stride  25 ft       │
+│                  │             │  or the scene │  ── tier 2 row ──    │
 │                  │             │               │  [ my repertoire ]   │
 └───────────────────────────────────────────────────────────────────────┘
 ```
@@ -603,7 +545,7 @@ completely different object.
 
 | Zone | Encounter | Exploration | Downtime |
 |---|---|---|---|
-| Who I am | Resonance band, damage state, Bleed, HP | same, quieter | condition, fatigue since last rest |
+| Who I am | damage state, HP | same, quieter | condition, fatigue since last rest |
 | Budget | action pips + reaction | *hidden* | **4 slices, one per quarter** |
 | What I face | current target | the scene / who's present | the day ring, and what is on it (§7a) |
 | What I may do | Tier 1 + 2 + repertoire | exploration activities + skills | available scenes + Time Economy options |
@@ -722,28 +664,28 @@ This is the best kind of design answer, because it is free and it means somethin
 - **It characterises without a word of exposition.** In a Frame you are inside a war machine. On
   the ground you are a child with a duty folder, a timetable and a form to fill in. The interface
   says which one you are before anyone narrates it.
-- **It makes Law 8 structural.** Two scales must never share a readout, and the surest way to
-  guarantee that is that they cannot appear together — a paper form and a phosphor gauge simply
-  cannot be mistaken for one instrument.
 
 What still does **not** change: the zones. Muscle memory is the entire reason zones are stable, and
 a costume change that relocated the action tray would cost more than it earns. The same information
 lives in the same place; it is rendered on paper instead of behind glass.
 
-Two things to get right when this is built, both real risks rather than hypotheticals:
+One thing to get right when this is built, a real risk rather than a hypothetical:
 
 1. **Paper must not lose affordance.** The GLASS register makes it obvious what is pressable. A
    paper aesthetic can quietly stop looking interactive, which would be a direct violation of Law 7.
    Printed forms have their own vocabulary for this — boxes to tick, ruled fields, carbon-copy
    duplicates, rubber stamps landing when something is committed — and that vocabulary should do
    the work rather than pressing glass buttons onto paper.
-2. **The ground has vehicles, and a vehicle is not paper.** Personnel scale includes the fast,
-   fragile civil-defence chassis. The resolution that fits the period: the folder is the console,
-   and the vehicle is a **status card clipped into it** — a small instrumented insert on an
-   otherwise paper surface. Offered as an idea, not a decision.
 
 The transition between the two is worth spending something on, since it is the moment the fiction
 changes. Foundry ships thirteen `canvas.transition` effects that cost nothing to use.
+
+⚠ **One named exception, 2026-09-19: the Scene Runner panel and the scene-close dialogue it opens
+(§10.3a) are no longer PAPER.** Corrected live, reacting to a screenshot of the NPC gallery: *"We're
+not even locked to the paper look. The goal is comprehension and understandability."* Both now use
+their own `--sr-*` token system (light/dark, switchable) judged on legibility alone. This is a
+narrow, deliberate carve-out for the one surface a GM stares at continuously while running a table —
+everywhere else in this section, the GLASS/PAPER split stands as written.
 
 ---
 
@@ -764,8 +706,9 @@ Numbered so they can be cited in review. These are meant to settle arguments.
 6. **Nothing on screen that the current mode cannot use.**
 7. **Frequency sets distance from the hand.** Tier 1 never moves. Nothing important is more than one
    tap away.
-8. **Never put a personnel-scale number beside a Frame-scale number.** The campaign's hardest rule,
-   applied to pixels.
+8. *(Cut 2026-09-20: never put a personnel-scale number beside a Frame-scale number, the two-scale
+   model's rule for its level gap, which lockstep removed. Removed from this document 2026-09-25; the
+   number is kept so the laws after it keep their citations.)*
 9. **When the maths cannot honestly be rolled, show a clock.** Clocks are one component, used
    everywhere they apply.
 10. **The player console answers "what may I do." The GM console answers "what happens next."**
@@ -796,8 +739,8 @@ Numbered so they can be cited in review. These are meant to settle arguments.
     decides the slice, never "is it mandatory." Conflating the two questions in the interface is a
     bug even when it happens to give the right answer on a given scene. See §3.
 21. **A mandatory event must be visually unmistakable before it's opened.** Not discovered by
-    reading it, not a subtle border colour — recognisable at a glance, the same standard Marked
-    already holds to (§3): it cannot be one icon among twelve, it needs to read instantly.
+    reading it, not a subtle border colour — recognisable at a glance: it cannot be one icon among
+    twelve, it needs to read instantly.
 
 ---
 
@@ -813,7 +756,7 @@ Applying Law 13 to what exists today. This is a proposal, not a change already m
 | **Actions pod** | It is the game. It is currently one pod among ten, with a three-key row. It should be the largest thing on the bar, with per-MAP Strike buttons and a full Tier 2 row. |
 | **Order of Battle rail** | This is the initiative queue. It needs an explicit **on deck** marker — rules-mandated, currently absent. |
 | **Checks pod** | Directly serves the user's own "so that any improvisation is possible" requirement, and it is the whole interface in exploration mode. |
-| **Pilot ID / Status** | Becomes the *permissions* plate: Resonance band with its four consequences spelled out, damage state, action cap. |
+| **Pilot ID / Status** | Becomes the *permissions* plate: damage state and action cap, spelled out. |
 
 ### Fix
 
@@ -883,9 +826,9 @@ unless capturing it costs nothing at the moment it happens.
 > task, it will not happen, because the GM is the busiest person at the table.
 
 This has one strong consequence that shapes the entire design: **recording is a side effect of
-doing, never a job of its own.** When the GM applies damage, that is a log entry. When they raise a
-pilot's Bleed, that is a log entry. When they cue a scene, that is a log entry. The mechanical
-record writes itself in full, for free, because the console is the thing mediating the actions.
+doing, never a job of its own.** When the GM applies damage, that is a log entry. When they cue a
+scene, that is a log entry. The mechanical record writes itself in full, for free, because the
+console is the thing mediating the actions.
 
 That leaves exactly one thing a machine cannot supply: what any of it *meant*. Which is the one
 thing the GM must type, and therefore the one thing that has to be effortless.
@@ -981,7 +924,6 @@ note.
 | `decision` | what they chose, and over what | — |
 | `reaction` | what landed, what didn't | — |
 | `thread` | opened / closed / deliberately ignored | becomes next session's prep list |
-| `anchor` | an Anchor pressed, and how it went | **offers the Resonance adjustment** |
 | `setup` | something planted that nobody bit on | resurfaces at a later scene break |
 | `npc` | a name, voice or fact improvised on the spot | added to the cast so it stays consistent |
 | `rule` | an ad-hoc ruling made at the table | resurfaces when the same case recurs |
@@ -1014,6 +956,55 @@ withdrawn for the reason above.
 
 ### 10.3a The scene-close dialogue
 
+> ⚠ **PARTLY SUPERSEDED 2026-09-22, by Ingram, reacting to the built dialogue live.** She could not
+> finish closing a scene with it: *"Scene close UI has grown so massive I cannot comprehend it and I
+> cannot even scroll down to hit accept. This is a dangerous error since it would kill a session."*
+> On The Road In the dialogue had grown to roughly sixty-six interactive targets — a completion
+> checkbox, four endings, five costs, a notes box and **fifty-five 0-10 rating buttons** (five
+> authored prompts × an eleven-button scale) — stacked in one 420px-wide column with the Confirm
+> button pushed off the bottom of the screen.
+>
+> **Two things in this section are now dead, and one governing rule replaces them.**
+>
+> 1. **"Forced" is reversed.** The required-dropdown gate below is exactly what strands a GM in a
+>    popup mid-session, and a gate that can do that is a worse failure than a missing field. The new
+>    rule is **one press closes a scene**: a single required verdict, and every other field —
+>    ending, carries-forward, notes — optional and incapable of blocking it.
+> 2. **The 0-10 reaction scale is cut** (the "fourth capability" paragraph further down). Its
+>    content is not: a scene's authored `reactionPrompts` are now the **agenda** for the in-depth
+>    session review, recorded verbatim on the log entry when the GM flags a scene, so the questions
+>    get asked properly afterwards instead of rated at speed during play.
+> 3. **The cost axis is cut too**, for a second and independent reason: three of the seven costs
+>    this section named (Bleed, an Anchor violated, and the Frame/technician economy around them)
+>    belong to systems CUT on 2026-09-20, so the picker was offering consequences that no longer
+>    exist — and the dialogue's footer was reporting "Anchors violated so far" off a dead counter.
+>
+> **What replaces the accept button: three big buttons at the foot of a wide, height-capped
+> dialogue**, Ingram's own set and her own order —
+>
+> | Verdict | Means | Flags a review? | Table moves on? |
+> |---|---|---|---|
+> | **Panic!** | Something is going wrong right now. Eventually this reaches an LLM that helps correct things mid-session; for now it records and flags. | yes | **no** — a GM in trouble must not be teleported to the next location |
+> | **Note** | Go through this scene in depth in the session review. Its authored prompts become the questions asked. | yes | yes |
+> | **Positive** | It went well enough to call done; strong feedback would be manufactured. | no | yes |
+>
+> Red → amber → green, so the row reads as a severity scale rather than needing to be read as words.
+> The layout rule is structural and tested: the body is a three-row grid (head / two columns /
+> verdicts) with a hard `max-height`, and the **only** element permitted to scroll is the read-only
+> recap inside its own column. Nothing above the verdict row can grow, so nothing can displace it.
+>
+> **What survives this section unchanged:** the scene boundary as the right moment to capture (the
+> reasoning in the next paragraph is still correct — it is only the *amount* asked for that was
+> wrong); the free-text notes; Law 15's "advances state, does not merely record", now honoured by
+> one real counter (scenes flagged for review, which the review actually consumes) instead of two
+> mocked ones; the unspent-setup and `sceneHighlights` recap, which was always the good half; and
+> the "not locked to PAPER" register correction at the end.
+>
+> Current truth lives in `module/blank-inheritance/scripts/core/scene-close.mjs`'s header and
+> `test/tier3-scene-close-review-contract.test.mjs`, whose first test is the regression test for the
+> off-screen accept button. Read those before changing this dialogue; read what follows as the
+> reasoning that got us here, not as the spec.
+
 The log bar handles capture *during* a scene at zero friction. Scene boundaries get the opposite
 treatment, and this is the user's own design, given 2026-09-06:
 
@@ -1037,8 +1028,8 @@ stands in the doorway.
 **The dropdowns must be short and identical every time.** Four to six options is a decision; twenty
 is a form, and a form at a scene boundary will start getting dismissed by the third session. Two
 axes cover most of it — how it ended, and what it cost — with the campaign's own costs as the
-second list, since those are the ones that carry forward: casualties, Frame damage, Bleed,
-technician-days, time, an Anchor violated, or nothing.
+second list, since those are the ones that carry forward: casualties, Frame damage,
+technician-days, time, or nothing.
 
 **Where the options come from.** For authored scenes, from the scene's own data, so a fight offers
 fight outcomes and a negotiation offers negotiation outcomes. The vocabulary itself is the user's
@@ -1046,16 +1037,52 @@ to set and belongs in the schema alongside the other scheduling fields §3 lists
 improvised scenes there has to be a generic fallback, because improvisation is a first-class mode
 here and a dialogue that only works for prepared material would be worse than none.
 
-**And it advances state, it does not merely record.** This is Law 15 at its clearest. A result of
-"heavy casualties" feeds the casualty track, which `ground-roles.json` already says becomes next
-episode's Resonance penalty. A result of "Anchor violated" adjusts a baseline. Closing the scene
-honestly *is* the mechanical act, so there is no separate bookkeeping step afterwards and no way for
-the record and the campaign state to drift apart.
+**And it advances state, it does not merely record.** This is Law 15 at its clearest. Closing the
+scene honestly *is* the mechanical act, so there is no separate bookkeeping step afterwards and no
+way for the record and the campaign state to drift apart.
 
 This also settles what a scene-break suggestion looks like, which was previously undecided: the
-suggestions §10.4 promises — an untouched Anchor, an unspent setup, pacing against the session bar,
-a scene about to expire — belong in this same dialogue. It is already the moment the GM's attention
-is at a boundary, and putting them anywhere else would mean interrupting twice.
+suggestions §10.4 promises — an unspent setup, pacing against the session bar, a scene about to
+expire — belong in this same dialogue. It is already the moment the GM's attention
+is at a boundary, and putting them anywhere else would mean interrupting twice. **Built and live,
+2026-09-19: the unspent-setup suggestion** (`core/scene-close.mjs#openSetups`, cross-scene, newest
+first) **alongside a second, related recap this section didn't originally ask for** —
+`sceneHighlights()` surfaces the closing scene's own `decision:`/`reaction:`/`thread:`/`npc:`/`rule:`
+-tagged log lines right where the GM is about to write the notes a future session gets written from,
+so what already got typed live during the scene doesn't have to be re-typed at the close. The other
+suggestion, a scene about to expire, remains unbuilt; it depends on the four-quarter Time Economy.
+**"Pacing against the session bar" is now actively retired, not merely unbuilt**: it would mean nudging the GM to wrap up on a clock, which the user's
+own later standing order explicitly rules out — sessions organise mini-arcs and run until content
+runs out, never against a runtime.
+
+**A fourth capability, added 2026-09-19, genuinely beyond this section's original scope: the
+reaction-review scale.** Ingram's own request, given reacting to the built dialogue rather than in
+the original 2026-09-06 conversation this section quotes: *"every scene carries a complex section
+which is designed for this scene closing dialogue to read... try to cover all the likely outcomes of
+a scene, we then try to cover some ways the scene might go badly... a simple row of 10 -> 0 number
+buttons and the ability to rank how well the group responded to each element... we could also use
+the same scale for things like how happy something made the group or how angry another thing made
+them."* A scene brief now optionally authors `reactionPrompts` — one sentence per likely outcome, bad
+turn, or specific moment worth checking the table's reaction to — and the dialogue renders each as an
+0-10 button row (`core/scene-close.mjs#REACTION_SCALE`). One shared scale for every prompt rather
+than a separate outcome-picker plus a mood-slider, deliberately: the prompt's own wording carries
+what a 0 vs. a 10 means, the same way this section's own dropdown labels always have. A prompt
+nobody taps is dropped, not defaulted to zero — silence means "didn't come up," matching how the
+setup/highlight recap above already treats an untagged log line. The scored result rides alongside
+the log line rather than replacing free-text notes, which stay exactly as this section originally
+specified them.
+
+**The visual register is no longer fixed to this document's own §7b split, for this dialogue and the
+Scene Runner panel it opens from specifically.** Corrected 2026-09-19, reacting to a live screenshot
+of the NPC gallery ("needs a lot of work... pick a high readability and easy to comprehend design...
+comprehension is key"), then explicitly overriding §7b's PAPER/GLASS assignment when the obvious next
+step reached for it: *"We're not even locked to the paper look. The goal is comprehension and
+understandability. Rapid access to information. First order retrieval."* Both surfaces now share a
+`--sr-*` CSS custom-property token system (`bi-components.css`) judged purely on legibility, with a
+real dark theme (default) and light theme, toggled per-client and persisted
+(`foundry/runner-theme.mjs`) so the two can never disagree. §7b's split still governs everywhere
+else; this is a named, deliberate exception for the one surface a GM stares at continuously while
+running a table, not a reopening of the register question generally.
 
 **One shape, not two flows — but not one uniform weight either.** Asked directly whether a routine
 pick like Frame repair skips the dialogue entirely, the answer, 2026-09-06: *"Everything goes
@@ -1088,13 +1115,9 @@ last.
 That produces three bands, and it happens to line up with what is and is not already built (§11):
 
 **Automate hard, because we invented it and nothing else will.**
-Resonance band resolving to action count, reaction availability, ability tier and internal-power
-duration. Damage state resolving to an action cap. Contact Pool target by quiet morning, and the
-forced-Contact ceiling. Bleed, including berserk firing at 10 with its rolled duration. Frame
-damage-state track and the shared technician-day pool. Time Economy slices. Scale disparity and
-Marked, both of which decide whether a creature is a legal target at all. Every clock. Ground-role
-rotation eligibility, which `ground-roles.json` already states as a rule ("nobody should play the
-same one twice in a row") and which is therefore bookkeeping the console can simply own.
+Damage state resolving to an action cap. Contact Pool target by quiet morning, and the
+forced-Contact ceiling. Frame damage-state track and the shared technician-day pool. Time Economy
+slices. Every clock.
 
 **Automate by delegation, because sf2e already does it.**
 Multiple attack penalty, persistent damage and its flat check, condition values and their
@@ -1103,10 +1126,9 @@ present in the shipped system (§11). Our job here is *presentation*, never comp
 proposal to recompute one of these is a bug in the proposal.
 
 **Never automate, because it is an artistic choice.**
-Whether a check is warranted at all. Whether an Anchor was affirmed or violated. Whether a player
-is Suppressing, which is a judgment about a person's intent rather than about a number. Casualty
-outcomes as narrative. Every pacing decision. The console may *offer* here — an ad-hoc DC gets the
-table value pre-filled and freely overridden — but it never decides.
+Whether a check is warranted at all. Casualty outcomes as narrative. Every pacing decision. The
+console may *offer* here — an ad-hoc DC gets the table value pre-filled and freely overridden — but
+it never decides.
 
 **One thing still gets a confirm rather than silence: anything the players will see.**
 `Scene#activate()` pulls every connected client's view. Revealing a document, issuing a check, and
@@ -1115,10 +1137,10 @@ already seen it. Loudness here is not about the console's confidence in the arit
 the action reaching people.
 
 **Proactivity is bounded by the user's answer: silent during a scene, offers at scene breaks.**
-What it offers at a break: an Anchor untouched for several scenes, a `setup` nobody has taken,
-pacing against the session bar, a Frame that will not be deployable next Contact. The one standing
-exception is a small always-visible pacing readout, because that is ambient rather than an
-interruption — and Law 14 already allows only two interruptions, neither of which is a suggestion.
+What it offers at a break: a `setup` nobody has taken, pacing against the session bar, a Frame
+that will not be deployable next Contact. The one standing exception is a small always-visible
+pacing readout, because that is ambient rather than an interruption — and Law 14 already allows
+only two interruptions, neither of which is a suggestion.
 
 ### 10.5 The layout
 
@@ -1175,14 +1197,8 @@ One row per combatant, in initiative order, always visible in both densities:
 
 `⟨init⟩ ⟨name⟩ ⟨HP⟩ ⟨conditions as chips⟩ ⟨damage entry⟩`
 
-with campaign extensions per row type — a Frame also shows damage state and its resulting action
-cap, a pilot shows Resonance band, and a kid on a Frame-scale map shows their clock rather than an
-AC, because by §11 of scale-and-chassis they cannot be Struck at all.
-
-**The board is grouped by scale, with a visible divider**, which is how Law 8 survives contact with
-a shared initiative order. Frame-scale and personnel-scale combatants share an *order*; their
-*numbers* never sit adjacent. This is the one place the two scales legitimately appear on one
-screen, and the grouping is what keeps it honest.
+with a campaign extension for one row type — a Frame also shows damage state and its resulting
+action cap.
 
 Rows show what the *party* knows, not what the GM knows, so an unidentified creature reads as
 unidentified. That is not only a screen-sharing safeguard; it is also the answer to "have they
@@ -1212,6 +1228,38 @@ Context-swapped, one at a time, in the right column:
   rather than inside a full-screen three-column console, so §12's settled "full screen" answer is
   now "full screen eventually, a drawer today". It is also **all PAPER**, where the rest of the
   console is glass; see §12's answered question 3 for what that turned out to teach.
+
+  **REBUILT 2026-09-24 as a wide, columned drawer** (Ingram: *"Reconsider it carefully... it needs
+  to be wider to get more contents on screen and so the actual 'scene' part will have to shrink for
+  the GM again"*; her screen is 4K at 150% display scaling, a 2560px page, where the old 560px cap
+  made the runner a strip down a fifth of it). What it is now, and why:
+  - **Width**: about 43% of the window by default (`--bi-runner-width`), draggable at its right edge,
+    remembered per GM as a share of the window, double-click to reset. Never so wide the canvas can't
+    hold the deck. Foundry's left column, the stage portraits, the session rail, the console window and
+    a staged scene's camera all fit themselves beside it — the camera now covers the band the GM can
+    see, centred there, instead of leaving the middle of the room behind the drawer.
+  - **Layout**: a header that never scrolls (scene, clock, required-beat segments, the episode's
+    running order as numbered steps with this scene and the next named, the rooms, Close this scene),
+    then columns chosen by the drawer's own width (container queries): the *script* (goal, opening,
+    running order, ending, Close this scene again at the foot), the *people* (who is on stage now with
+    a way to take each off, the clock, the temptations, a card per cast member) and the *kit*
+    (handouts, things to keep, summon anyone, the rules search), then the note bar.
+  - **One line per beat, the beat being run open** — the "one actionable line, detail peekable
+    underneath" shape settled on 2026-09-09, which the old panel never delivered (it printed every beat
+    in full). The "now" marker follows the GM: the beat they last acted on, else the one it was on
+    while still live, else the next live beat after the last one ticked. The opening opens itself until
+    something has happened; the ending opens itself once every required beat is done.
+  - **Each degree of success shows its authored consequence**, pressed to record it. Every one of the
+    64 checks in the data has per-degree outcome text; the panel had never shown any of it.
+  - **Rolls come back by themselves.** Every check the runner posts carries a roll option naming its
+    brief and beat; the result a player rolls from it records itself against that beat when nothing is
+    recorded yet (never over the GM's own call), every result is listed on the beat, and any can be
+    used instead with one press. This is §11 applied: sf2e computes the degree, the runner only reads it.
+  - **The person the current beat is about opens beside it**, with their voice and lines.
+  - **Clocks can be moved by hand** (+/−, clamped to the pool), read against their ceiling when they
+    fill up, and name the threshold now in force and the next one coming (Law 19).
+  Full reasoning in `scripts/core/runner-view.mjs` and the header of `templates/runner/panel.hbs`;
+  pinned by `test/tier1-runner-view.test.mjs` and `test/tier3-scene-runner-rebuild-contract.test.mjs`.
   This drawer is also the **scene board**: every pending scene the players have not taken, with its
   kind, its eligible quarters, its expiry and who it belongs to (§3). The player's day ring shows
   them their own choices; this shows the GM the whole board, including what is about to lapse and
@@ -1232,8 +1280,8 @@ Context-swapped, one at a time, in the right column:
   will not cross, what is coercible, and a list of subjects each with a DC and one-click
   degree-of-success recording. Those recorded outcomes are log entries like any other, and a
   revealed Fact is too, via the log bar's existing `npc` tag.
-- **Campaign** — the slow clocks. Contact Pool, Frame damage states, technician-days, Bleed,
-  Anchors, casualty track, Time Economy. Director Mode already prototypes four of these.
+- **Campaign** — the slow clocks. Contact Pool, Frame damage states, technician-days, casualty
+  track, Time Economy. Director Mode already prototypes three of these.
 - **Log** — the full history, filterable by type and scene. The review surface, and where a
   post-session pass happens if the GM wants one.
 
@@ -1318,11 +1366,9 @@ sorts automation accordingly.
 
 ### What only we can build
 
-Everything the campaign invented, because nothing else will ever implement it: Resonance bands and
-their action/reaction/ability consequences, Bleed and berserk, the Frame damage-state track and its
-action caps, the shared technician-day pool, the Contact Pool, False Contact types, Ground Roles
-and their rotation, scale disparity and Marked, clocks in place of unrollable saves, the Time
-Economy and the day ring, Anchors, and the whole Director's corpus in §10.
+Everything the campaign invented, because nothing else will ever implement it: the Frame
+damage-state track and its action caps, the shared technician-day pool, the Contact Pool, False
+Contact types, the Time Economy and the day ring, and the whole Director's corpus in §10.
 
 Plus the look, which is `design/visual-identity.md`'s job and is not a thing any system ships.
 
@@ -1347,20 +1393,20 @@ sections they govern; this is the index, so that nothing gets silently re-litiga
 | 7 | Do raw rolls count? | Best-effort attribution by proximity; GM fills the blanks | §10.2 |
 | 8 | Are players told journals are read? | No — the premise is surveillance and they do not know it | §10.2 |
 | 9 | Log bar or Foundry chat? | A separate GM-only surface, so a secret cannot be broadcast | §10.3 |
-| 10 | Does ground crew get a third shape? | No. Two shapes only, player and GM | §4, Law 10 |
-| 11 | Is Bleed player-visible? | Not initially — build visibility as a switch, not an assumption | below |
+| 10 | Does any seat get a third shape? | No. Two shapes only, player and GM | §4, Law 10 |
+| 11 | Is GM-only data player-visible? (Asked about Bleed, cut 2026-09-20.) | Not initially — build visibility as a switch, not an assumption | below |
 | 12 | One console across scales, or two? | One, but scale is a visible costume change | §7b |
-| 13 | What does a scene break look like? | A forced scene-close dialogue: complete?, required outcome dropdowns, notes | §10.3a |
+| 13 | What does a scene break look like? | ~~A forced scene-close dialogue~~ — REVISED 2026-09-22: a wide, height-capped dialogue closed by one of three verdict buttons (Panic!/Note/Positive), with the ending, carries-forward and notes all optional | §10.3a |
 | 14 | How far apart are the two costumes? | Far. Frame scale is GLASS, personnel scale is PAPER | §7b |
 | 15 | Do slices map to quarters or float? | Quarters carry eligibility, slices carry the budget | §7a |
 | 16 | Do other players see a teammate has a personal mission? | Visible with content by default; a per-mission `private` flag hides it from everyone but the assignee | §7a |
 
 Three of those carry a consequence worth stating on its own:
 
-- **Bleed is "not visible to players *initially*."** That word is doing work. Build per-datum
-  visibility as a **switch**, so that changing the answer later is a configuration change rather
-  than a rewrite. The same applies to anything else currently GM-only; `pilotVisibility: null` in
-  `config.json` remains an open *campaign* question even though the UI question is answered.
+- **GM-only data is "not visible to players *initially*."** That word is doing work. Build
+  per-datum visibility as a **switch**, so that changing the answer later is a configuration change
+  rather than a rewrite. The answer was first given about Bleed, cut 2026-09-20; it applies to
+  anything currently GM-only.
 - **Kids and Frames are interchangeable seats, not different characters.** *"Sometimes people will
   be in frames, sometimes not... the goal is to make both options attractive for different
   reasons. Frames are stronger but slower and vehicles are extremely fast but fragile and
@@ -1368,9 +1414,9 @@ Three of those carry a consequence worth stating on its own:
   console must make the trade legible — durability and force against speed and fragility — or the
   choice collapses into "take the Frame, it is better." Making both attractive is partly a balance
   problem and partly a presentation one, and the presentation half is this document's.
-- **Two shapes, permanently.** Player and GM. Ground crew are players in a different seat, not a
-  third kind of user. Law 10 says neither console is built from the other; this closes the door on
-  a third being built from either.
+- **Two shapes, permanently.** Player and GM. A player on foot is a player in a different seat,
+  not a third kind of user. Law 10 says neither console is built from the other; this closes the
+  door on a third being built from either.
 
 ### What is still genuinely undecided
 
@@ -1378,9 +1424,12 @@ Every design question this document has raised is now answered (§12's table, si
 What is left is not a design question but implementation groundwork — things that need building or
 choosing a vocabulary for, not deciding:
 
-1. **The scene-outcome vocabulary itself.** §10.3a fixes the shape — two short required dropdowns,
-   four to six options each, identical every time. The actual words are the user's to choose and
-   belong in the schema, not here.
+1. **~~The scene-outcome vocabulary itself.~~ ANSWERED 2026-09-22 by cutting most of it.** This
+   entry described two short required dropdowns of four to six options each. There is now one
+   optional four-option axis (how it ended) and one required three-option verdict — see §10.3a's
+   banner. The cost vocabulary this entry was waiting on words for is gone: half of it named CUT
+   systems, and the informational nuance the rest carried is captured properly by the Note verdict's
+   review agenda instead of by a five-second tap.
 2. **The scheduling fields.** §3 lists what the interface needs that `episode.schema.json` does not
    carry: kind, eligible quarters, expiry, consequence-if-missed, assignee, `visibility`, outcome
    list. That is a data task and it blocks building the day ring for real.

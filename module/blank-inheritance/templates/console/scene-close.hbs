@@ -1,55 +1,135 @@
 {{!--
-    The scene-close dialogue (design/ux-doctrine.md §10.3a). The one place in
-    the whole console where friction is deliberate -- Ingram's own word is
-    "forced". Complete + both dropdowns confirmed is the ONLY way Confirm
-    enables; there is no way to skip the dropdowns for a scene marked complete.
+    The scene-close dialogue. REBUILT 2026-09-22 — read
+    core/scene-close.mjs's header first; it records the live failure this
+    replaces ("I cannot even scroll down to hit accept... it would kill a
+    session") and everything that was cut.
+
+    Three rules govern this layout, all three from Ingram directly:
+
+    1. WIDE, NOT TALL. Two columns side by side, never stacked — the recap
+       on the left, the (few) decisions on the right. The body's own CSS
+       caps its height and lets the recap column scroll INSIDE itself, so
+       the verdict row below can never leave the screen.
+
+    2. HALF THE CHOICES. The old form had ~66 targets. This has nine: four
+       ending chips, one carries-forward toggle, a notes box, and the three
+       verdict buttons. The cost picker and the fifty-five-button 0-10 grid
+       are gone, not hidden.
+
+    3. THREE BIG BUTTONS AT THE BOTTOM. Panic! / Note / Positive, red to
+       amber to green, each one a complete close on its own press. There is
+       no separate Confirm any more, and nothing here is ever disabled — a
+       flustered GM presses one button and is out.
+
+    Visual system unchanged: this shares the Runner's own --sr-* tokens and
+    light/dark theme (bi-components.css's ".bi-runner, .bi-scene-close__body"
+    rule). This div is named __body, not .bi-scene-close bare, because
+    Foundry's own ApplicationV2 window frame already claims that class
+    (DEFAULT_OPTIONS.classes in foundry/scene-close.mjs) — reusing it here
+    would silently paint two nested elements from the same rule, and the
+    outer one has no data-bi-theme to ever pick up a theme change.
 --}}
-<div class="bi-scene-close">
-    {{!-- Which scene this is closing. Opened from the Scene Runner it knows;
-          opened cold from the palette it does not, and says nothing rather
-          than guessing at the canvas scene, which is often a map. --}}
-    {{#if sceneTitle}}<p class="bi-scene-close__scene">{{sceneTitle}}</p>{{/if}}
+<div class="bi-scene-close__body" data-bi-theme="{{theme}}">
+    {{!-- Which scene this is closing, and the review pile it is joining.
+          Opened from the Scene Runner it knows the title; opened cold from
+          the palette it does not, and says nothing rather than guessing at
+          the canvas scene, which is often a map. --}}
+    <header class="bi-scene-close__head">
+        {{#if sceneTitle}}<p class="bi-scene-close__scene">{{sceneTitle}}</p>{{/if}}
+        {{#if reviewCount}}
+        <p class="bi-scene-close__counters">{{localize "BLANKINHERITANCE.SceneClose.Counters" count=reviewCount}}</p>
+        {{/if}}
+    </header>
 
-    <label class="bi-scene-close__complete">
-        <input type="checkbox" data-action="toggleComplete" {{#if complete}}checked{{/if}}>
-        {{localize "BLANKINHERITANCE.SceneClose.IsComplete"}}
-    </label>
+    <div class="bi-scene-close__columns">
+        {{!-- LEFT: read-only. Two sources — this scene's own tagged log lines
+              and doctrine's cross-scene "unspent setup" scene-break
+              suggestion (§10.3a) — in one card so the GM reads before they
+              decide. Scrolls inside itself; never grows the dialogue. --}}
+        <section class="bi-scene-close__recap">
+            <p class="bi-scene-close__recap-title">{{localize "BLANKINHERITANCE.SceneClose.RecapTitle"}}</p>
 
-    {{#if complete}}
-    <section class="bi-scene-close__block">
-        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.SceneClose.EndingLabel"}}</div>
-        <div class="bi-scene-close__scale">
-            {{#each endings}}
-            <button type="button" class="bi-scene-close__option{{#if this.current}} bi-scene-close__option--current{{/if}}"
-                data-action="setEnding" data-ending-id="{{this.id}}">{{localize this.labelKey}}</button>
-            {{/each}}
+            <div class="bi-scene-close__label">{{localize "BLANKINHERITANCE.SceneClose.HighlightsLabel"}}</div>
+            {{#if highlights.length}}
+            <ul class="bi-scene-close__highlight-list">
+                {{#each highlights}}
+                <li class="bi-scene-close__highlight">
+                    <span class="bi-scene-close__highlight-tag">{{this.tag}}</span>
+                    <span class="bi-scene-close__highlight-text">{{this.text}}</span>
+                </li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p class="bi-scene-close__hint">{{localize "BLANKINHERITANCE.SceneClose.HighlightsEmpty"}}</p>
+            {{/if}}
+
+            {{#if setups.length}}
+            <div class="bi-scene-close__setups">
+                <div class="bi-scene-close__label">{{localize "BLANKINHERITANCE.SceneClose.SetupsLabel"}}</div>
+                <ul class="bi-scene-close__setup-list">
+                    {{#each setups}}
+                    <li class="bi-scene-close__setup">{{this.text}}{{#if this.scene}} <span class="bi-scene-close__setup-scene">— {{this.scene}}</span>{{/if}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </section>
+
+        {{!-- RIGHT: everything optional. Nothing in this column gates a
+              verdict; a GM with no spare attention skips the lot. --}}
+        <div class="bi-scene-close__decide">
+            <section class="bi-scene-close__block">
+                <div class="bi-scene-close__label">
+                    {{localize "BLANKINHERITANCE.SceneClose.EndingLabel"}}
+                    <span class="bi-scene-close__optional">{{localize "BLANKINHERITANCE.SceneClose.Optional"}}</span>
+                </div>
+                <div class="bi-scene-close__chips">
+                    {{#each endings}}
+                    <button type="button" class="bi-scene-close__chip{{#if this.current}} bi-scene-close__chip--current{{/if}}"
+                        data-action="setEnding" data-ending-id="{{this.id}}"
+                        aria-pressed="{{this.current}}">{{localize this.labelKey}}</button>
+                    {{/each}}
+                </div>
+            </section>
+
+            {{!-- The old "This scene is complete" checkbox, inverted and
+                  demoted: finished is the default, because it is the
+                  overwhelmingly common case. Ticking this is the only thing
+                  that stops the table advancing on a clean verdict. --}}
+            <button type="button" class="bi-scene-close__carry{{#if carriesForward}} bi-scene-close__carry--on{{/if}}"
+                data-action="toggleCarriesForward" aria-pressed="{{carriesForward}}">
+                <i class="fa-solid {{#if carriesForward}}fa-square-check{{else}}fa-square{{/if}}"></i>
+                {{localize "BLANKINHERITANCE.SceneClose.CarriesForward"}}
+            </button>
+
+            <section class="bi-scene-close__block bi-scene-close__block--notes">
+                <div class="bi-scene-close__label">
+                    {{localize "BLANKINHERITANCE.SceneClose.NotesLabel"}}
+                    <span class="bi-scene-close__optional">{{localize "BLANKINHERITANCE.SceneClose.Optional"}}</span>
+                </div>
+                <textarea class="bi-scene-close__notes" data-scene-close-notes
+                    placeholder="{{localize 'BLANKINHERITANCE.SceneClose.NotesPlaceholder'}}"></textarea>
+            </section>
         </div>
-    </section>
+    </div>
 
-    <section class="bi-scene-close__block">
-        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.SceneClose.CostLabel"}}</div>
-        <div class="bi-scene-close__scale">
-            {{#each costs}}
-            <button type="button" class="bi-scene-close__option{{#if this.current}} bi-scene-close__option--current{{/if}}"
-                data-action="setCost" data-cost-id="{{this.id}}">{{localize this.labelKey}}</button>
-            {{/each}}
-        </div>
-    </section>
-    {{else}}
-    <p class="bi-legend">{{localize "BLANKINHERITANCE.SceneClose.CarriesForward"}}</p>
-    {{/if}}
+    {{!-- Ingram's own three, in her own order: red, amber, green. Each is a
+          complete close. Never disabled, never gated, always on screen.
 
-    <section class="bi-scene-close__block">
-        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.SceneClose.NotesLabel"}}</div>
-        <textarea class="bi-scene-close__notes" data-scene-close-notes rows="2"
-            placeholder="{{localize 'BLANKINHERITANCE.SceneClose.NotesPlaceholder'}}"></textarea>
-    </section>
-
-    <p class="bi-scene-close__counters">
-        {{localize "BLANKINHERITANCE.SceneClose.Counters" casualties=counters.casualties anchors=counters.anchorViolations}}
-    </p>
-
-    <button type="button" class="bi-scene-close__confirm" data-action="confirm" {{#unless canConfirm}}disabled{{/unless}}>
-        {{localize "BLANKINHERITANCE.SceneClose.Confirm"}}
-    </button>
+          The colour modifier is three separate {{#if}} blocks rather than a
+          concatenated `bi-scene-close__verdict--{{this.id}}`, matching every
+          other dynamic class in this module's templates (runner/beat.hbs,
+          stage/banner.hbs): tier0-architecture.test.mjs's class lint can only
+          see a literal class name sitting OUTSIDE a {{ }} expression, and an
+          unstyled verdict button is precisely the kind of silent CSS failure
+          that lint exists to catch. --}}
+    <footer class="bi-scene-close__verdicts">
+        {{#each verdicts}}
+        <button type="button" class="bi-scene-close__verdict{{#if this.isPanic}} bi-scene-close__verdict--panic{{/if}}{{#if this.isNote}} bi-scene-close__verdict--note{{/if}}{{#if this.isPositive}} bi-scene-close__verdict--positive{{/if}}"
+            data-action="verdict" data-verdict-id="{{this.id}}">
+            <span class="bi-scene-close__verdict-label">{{localize this.labelKey}}</span>
+            <span class="bi-scene-close__verdict-sub">{{localize this.subLabelKey}}</span>
+        </button>
+        {{/each}}
+    </footer>
 </div>

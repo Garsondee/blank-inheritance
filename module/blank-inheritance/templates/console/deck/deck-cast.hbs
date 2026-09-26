@@ -1,29 +1,39 @@
 {{!--
     The Director's left shoulder: everyone in this scene, on a black screen
-    inset into the silver, one shallow row each — a BOARD. Five rows a page,
+    inset into the silver, one shallow row each — a BOARD. Six rows a page,
     paged with hardware keys; never scrolled (the deck's one rule).
+
+    In a fight (2026-09-23) the same board becomes the turn order: each row
+    leads with its initiative, the current combatant is marked, the defeated
+    are struck through, and the page follows the turn by itself
+    (foundry/deck.mjs#deckCastFor). Every row, fight or not, carries a
+    hairline HP gauge — who is hurt, readable from across the room.
 
     Clicking a row selects that token, which is what the key banks and the
     central instrument read. GM-only by construction: a player's client never
     instantiates DirectorBar, so this partial is never reached there.
 --}}
-<div class="bi-deck-shoulder bi-deck-cast">
-    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="bi-deck__well bi-deck-cast__well">
-        <div class="bi-deck-cast__head">
-            <span class="bi-deck__plate">{{localize "BLANKINHERITANCE.Deck.Cast"}}</span>
+<div class="bi-deck-shoulder bi-deck-cast" data-fighting="{{#if cast.fighting}}1{{else}}0{{/if}}">
+    <div class="bi-deck-shoulder__head">
+        <span class="bi-deck__grille bi-deck__grille--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="bi-deck__engraved">{{#if cast.fighting}}{{localize "BLANKINHERITANCE.Deck.Initiative"}}{{else}}{{localize "BLANKINHERITANCE.Deck.Cast"}}{{/if}}</span>
+        <span class="bi-deck-shoulder__readouts">
             <span class="bi-deck-cast__count">{{cast.summaryText}}</span>
-        </div>
+        </span>
+    </div>
+    <div class="bi-deck__well bi-deck-cast__well">
         <ol class="bi-deck__screen bi-deck-cast__rows">
             {{#each cast.slots}}
             <li class="bi-deck-cast__slot">
                 {{#if this}}
-                <button type="button" class="bi-deck-cast__row{{#if this.selected}} is-selected{{/if}}" data-action="selectCast"
+                <button type="button" class="bi-deck-cast__row{{#if this.selected}} is-selected{{/if}}{{#if this.current}} is-current{{/if}}{{#if this.defeated}} is-defeated{{/if}}" data-action="selectCast"
                     data-token-id="{{this.id}}" data-disposition="{{this.disposition}}" {{#unless this.hasActor}}disabled{{/unless}}
-                    data-preview-title="{{this.name}}" data-preview-value="{{#if this.isPC}}PC{{else}}NPC{{/if}}" data-preview-sub="{{this.dispositionLabel}}">
+                    data-preview-title="{{this.name}}" data-preview-value="{{#if this.hp}}{{this.hp.pct}}%{{else}}{{#if this.isPC}}PC{{else}}NPC{{/if}}{{/if}}" data-preview-sub="{{this.dispositionLabel}}">
                     <i class="bi-deck-cast__lamp" aria-hidden="true"></i>
+                    {{#if ../cast.fighting}}<span class="bi-deck-cast__init">{{#if this.current}}▶{{else}}{{#if this.initiativeLabel}}{{this.initiativeLabel}}{{else}}·{{/if}}{{/if}}</span>{{/if}}
                     <span class="bi-deck-cast__name">{{this.name}}</span>
                     {{#if this.hidden}}<span class="bi-deck-cast__flag">H</span>{{/if}}
+                    {{#if this.hp}}<span class="bi-deck-cast__hp" data-tier="{{this.hp.tier}}" aria-hidden="true"><i style="width: {{this.hp.pct}}%"></i></span>{{/if}}
                 </button>
                 {{#if this.hasActor}}
                 <button type="button" class="bi-deck-cast__card" data-action="openCard" data-actor-id="{{this.actorId}}"

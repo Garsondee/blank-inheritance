@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--unidentified-contact",
+  "type": "audio-soundscape",
+  "title": "S2 · Unidentified Contact",
+  "note": "'Three contacts appear on the plotting board without having travelled to get there.' Tense pool, tight fade. A very quiet radio-static layer under the room rather than a room tone that does not exist in the library -- a comms floor is mostly the sound of nothing quite being wrong yet.",
+  "music": {
+    "pool": "tense"
+  },
+  "ambience": [
+    {
+      "track": "radio-static-no-signal-42",
+      "level": -22
+    }
+  ],
+  "fade": 2500
+}

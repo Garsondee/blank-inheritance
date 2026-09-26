@@ -2,24 +2,43 @@
   "$schema": "../schema/asset-registry.schema.json",
   "id": "asset-registry",
   "type": "asset-registry",
-  "description": "Source of truth for which artwork has been confirmed and assigned. artwork/ itself is gitignored (bulk, large); this file is tracked, so it's the only durable record that an assignment happened. Check this before assigning anything new -- the same picture must never get used for two things. A `kind: \"npc\"` entry's `ref` is the character's canonical id (matching its ideas/story/bible/characters/<id>.md filename stem where one exists) -- it will NOT resolve against data/npcs/*.json for any character that hasn't been promoted to a real NPC file yet (Shucks Mordant, Hyuck, Rupiah and Anabala all currently have none). That's expected, not a bug: the portrait exists and is assigned before the data file does. Scene-brief cast ids are kept aligned to this same canonical id where practical (episode-c1s1--intake-medicals.json's Shucks cast entry was renamed shucks -> shucks-mordant 2026-09-09 for exactly this reason).",
+  "description": "Source of truth for which artwork has been confirmed and assigned. artwork/ itself is gitignored (bulk, large); this file is tracked, so it's the only durable record that an assignment happened. Check this before assigning anything new -- the same picture must never get used for two things. A `kind: \"npc\"` entry's `ref` is the character's canonical id (matching its ideas/story/bible/characters/<id>.md filename stem where one exists) -- it will NOT resolve against data/npcs/*.json for any character that hasn't been promoted to a real NPC file yet (Shucks Mordant, Hyuck, Rupiah and Anabala all currently have none). That's expected, not a bug: the portrait exists and is assigned before the data file does. Scene-brief cast ids are kept aligned to this same canonical id where practical (episode-c1e1--intake-medicals.json's Shucks cast entry was renamed shucks -> shucks-mordant 2026-09-09 for exactly this reason).",
   "assets": [
     {
-      "id": "episode-c1s1--the-road-in",
+      "id": "episode-c1e1--from-up-here",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--the-road-in.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-road-in" },
-      "assignedDate": "2026-09-09",
-      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_a2d86dfc-b90f-4cd3-9611-f34bf23be9b1.png",
-      "note": "An elevated coastal highway curving toward the city skyline, dramatic cumulus cloud bank, warm evening light. The road the six spotlights of The Road In are each travelling, from a distance."
+      "path": "artwork/scenes/episode-c1e1--from-up-here.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--from-up-here"
+      },
+      "assignedDate": "2026-09-24",
+      "sourceFilename": "extreme_zoomed_out_map.png",
+      "note": "Episode One's new opening scene, added 2026-09-24 ahead of The Road In at Ingram's request (a \"Scene 0\" GM speech that sets up the world). An extreme high-altitude view at golden hour: the curve of the planet along the top of frame, thin high cloud to the horizon, big cumulus banked in the foreground corners. Below, a long curving bay with a pale beach running its whole length, a dense city packed along the coast with a river winding through the middle of it and out through a delta to the sea, farmland and rolling hills inland, darker mountains behind. Sun glinting off the open water on the right.\n\nWhy it is right: the opening speech is one continuous camera descent from the edge of the sky down to the city, and this is the top of that descent -- high enough to see the world is round, low enough that the city is already unmistakably the subject of the shot. Nothing in frame is close enough to date or place the city by its buildings, which is what a picture at this height should do: the speech supplies the particulars on the way down, and The Road In's own shot picks up at street level where this one leaves off."
+    },
+    {
+      "id": "episode-c1e1--the-road-in",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e1--the-road-in.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--the-road-in"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "city_01.png",
+      "note": "Commissioned by Ingram for this scene. A road running downhill toward the city at golden hour, filling the bottom third of frame: armco on the seaward side, telegraph poles and a tangle of overhead wire on the landward. Below and ahead, dense low-rise housing steps down the hillside to a working harbour -- a row of dock cranes, a ship alongside, a long quay running out into the bay, two chimneys, and a bare excavated hillside behind the town. Big cumulus. No tall buildings anywhere; the cranes and the chimneys are the tallest things in the city.\n\nWhy it is right: the scene is six separate journeys told as a montage with no shared beat, so the road has to be one somebody is ARRIVING along rather than a view being admired -- and this road runs toward the city with the whole of it laid out ahead. It is also specifically this city rather than a city: the Assembly speech names the yards, the wharves and the tramway, and says the dig came first and the work never stopped. The cranes, the quay and the cut-away hillside are all in shot.\n\nReplaces two earlier attempts. The original had a skyline of modern glass towers, which is the wrong century, and was assigned by filename without being opened. Its replacement was period-correct but generic -- a distant hazy city that could have been anywhere."
     },
     {
       "id": "shucks-mordant",
       "kind": "image",
       "category": "character-portraits",
       "path": "artwork/character-portraits/shucks-mordant.png",
-      "assignedTo": { "kind": "npc", "ref": "shucks-mordant" },
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "shucks-mordant"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "ShucksMordant.png",
       "note": "Already named by the artist -- a skeletal figure in a white coat and stethoscope, arms folded, standing in a cluttered clinic office with a wall clock and a first-aid kit. Matches the bible's doctor-founder exactly."
@@ -29,7 +48,10 @@
       "kind": "image",
       "category": "character-portraits",
       "path": "artwork/character-portraits/shucks-mordant--hand-detail.png",
-      "assignedTo": { "kind": "npc", "ref": "shucks-mordant" },
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "shucks-mordant"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "ShucksMordant_LeftHand.png",
       "note": "Companion detail shot -- his skeletal hand resting on a desk edge, warm side light. A close-up variant, not the primary portrait."
@@ -39,7 +61,10 @@
       "kind": "image",
       "category": "character-portraits",
       "path": "artwork/character-portraits/hyuck.png",
-      "assignedTo": { "kind": "npc", "ref": "hyuck" },
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "hyuck"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "Hyuck.png",
       "note": "Already named by the artist -- a massive gnoll warrior, feathers and painted bands, low-angle heroic framing. Confirms the gnoll-statue connection: Hyuck himself is the gnoll. Founder, alongside Shucks Mordant and Rupiah (blank-inheritance-master-timeline.md, ~200 years ago)."
@@ -49,7 +74,10 @@
       "kind": "image",
       "category": "character-portraits",
       "path": "artwork/character-portraits/rupiah.png",
-      "assignedTo": { "kind": "npc", "ref": "rupiah" },
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "rupiah"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "Rupiah.png",
       "note": "Already named by the artist -- an elf-eared figure in golden window light, moths nearby, contemplative profile. The third founder alongside Hyuck and Shucks Mordant. Confirmed 2026-09-10 (LEDGER.md #8): elf, elf nobility specifically -- the portrait's reading was accurate."
@@ -59,87 +87,114 @@
       "kind": "image",
       "category": "character-portraits",
       "path": "artwork/character-portraits/anabala.png",
-      "assignedTo": { "kind": "npc", "ref": "anabala" },
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "anabala"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "Anabala.png",
       "note": "Already named by the artist, found under character-portraits/mitflits/ -- blue-skinned, tall-eared, wide-brimmed hat and round tinted glasses. The mitflit founder who recruited Hyuck, Shucks Mordant and Rupiah to intervene ~200 years ago (mitflits.md already names her as the founder)."
     },
     {
-      "id": "episode-c1s1--canteen",
+      "id": "episode-c1e1--canteen",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--canteen.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--canteen" },
+      "path": "artwork/scenes/episode-c1e1--canteen.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--canteen"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "canteen_01.png",
       "note": "A spacious dining hall, tall windows with tree light, rows of wooden tables and chairs, papers stacked on side counters. Matches 'a room built for hundreds' -- picked as primary over canteen_02 (more classroom-like, kept as an alternate)."
     },
     {
-      "id": "episode-c1s1--canteen--alt",
+      "id": "episode-c1e1--canteen--alt",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--canteen--alt.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--canteen" },
+      "path": "artwork/scenes/episode-c1e1--canteen--alt.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--canteen"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "canteen_02.png",
       "note": "Alternate angle -- reads more like a classroom/study hall (chalkboard visible) than a dining hall. Kept as a secondary variant, not the primary."
     },
     {
-      "id": "episode-c1s1--intake-medicals",
+      "id": "episode-c1e1--intake-medicals",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--intake-medicals.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--intake-medicals" },
+      "path": "artwork/scenes/episode-c1e1--intake-medicals.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--intake-medicals"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "hospital_waiting_room.png",
       "note": "An institutional waiting room, rows of bench seating, notices pinned to a peeling wall, a wall clock. Matches 'the medical hall, first morning' -- The Queue beat."
     },
     {
-      "id": "episode-c1s1--intake-medicals--exam-room",
+      "id": "episode-c1e1--intake-medicals--exam-room",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--intake-medicals--exam-room.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--intake-medicals" },
+      "path": "artwork/scenes/episode-c1e1--intake-medicals--exam-room.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--intake-medicals"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "hospital_examination_room.png",
       "note": "A real examination room -- gurney, equipment, city view through blinds. This is specifically Shucks's own room for the 'one at a time' private beat, pairs with his portrait."
     },
     {
-      "id": "episode-c1s1--kit-issue",
+      "id": "episode-c1e1--kit-issue",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--kit-issue.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--kit-issue" },
+      "path": "artwork/scenes/episode-c1e1--kit-issue.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--kit-issue"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "equipment_storage.png",
       "note": "Quartermaster's stores -- shelving of gear, a pegboard of tools, jackets on hooks, red storage crates. Matches Kit Issue's counter/stores exactly."
     },
     {
-      "id": "episode-c1s1--flood-tunnel",
+      "id": "episode-c1e1--flood-tunnel",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--flood-tunnel.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--flood-tunnel" },
+      "path": "artwork/scenes/episode-c1e1--flood-tunnel.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--flood-tunnel"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "sewer_trash_compactor.png",
       "note": "A vaulted underground chamber, ankle-deep sludge lit green, a control panel and archway at the back. Primary image for the compactor chamber itself."
     },
     {
-      "id": "episode-c1s1--flood-tunnel--generator-room",
+      "id": "episode-c1e1--flood-tunnel--generator-room",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--flood-tunnel--generator-room.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--flood-tunnel" },
+      "path": "artwork/scenes/episode-c1e1--flood-tunnel--generator-room.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--flood-tunnel"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "generator_room.png",
       "note": "A large cylindrical generator/turbine with a control panel beside it. Matches the 'power-the-line' basic check specifically -- an adjacent room to the main chamber."
     },
     {
-      "id": "episode-c1s1--flood-tunnel--machine-room",
+      "id": "episode-c1e1--flood-tunnel--machine-room",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--flood-tunnel--machine-room.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--flood-tunnel" },
+      "path": "artwork/scenes/episode-c1e1--flood-tunnel--machine-room.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--flood-tunnel"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "underground_machine.png",
       "note": "Another industrial machine bay, radiators and a press, a green door at the back. Third variant/detail shot for the same underground complex."
@@ -149,7 +204,10 @@
       "kind": "image",
       "category": "locations",
       "path": "artwork/locations/directorate-headquarters--exterior.png",
-      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedTo": {
+        "kind": "location",
+        "ref": "directorate-headquarters"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "building_entrance_01.png",
       "note": "A brick building entrance, stone steps, lit doorway among trees. NOT tied to one specific scene brief -- general Directorate facility exterior. No dedicated bible/locations/directorate-headquarters.md exists yet; flagged for the user rather than assumed onto a specific scene."
@@ -159,7 +217,10 @@
       "kind": "image",
       "category": "locations",
       "path": "artwork/locations/directorate-headquarters--loading-dock.png",
-      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedTo": {
+        "kind": "location",
+        "ref": "directorate-headquarters"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "building_entrance_02.png",
       "note": "An industrial roller-shutter loading entrance, cluttered storefront-style stockroom, a vending machine outside. Same caveat as the exterior shot -- general facility image, not scene-specific."
@@ -169,7 +230,10 @@
       "kind": "image",
       "category": "locations",
       "path": "artwork/locations/directorate-headquarters--lobby.png",
-      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedTo": {
+        "kind": "location",
+        "ref": "directorate-headquarters"
+      },
       "assignedDate": "2026-09-09",
       "sourceFilename": "building_entrance_interior_01.png",
       "note": "An interior corridor/lobby -- double doors, bookshelves, a noticeboard, a wall clock. Same caveat -- general facility interior, not scene-specific."
@@ -179,70 +243,754 @@
       "kind": "audio",
       "category": "music",
       "path": "audio/library/music/01-masamichi-amano-main-title.ogg",
-      "assignedTo": { "kind": "moment", "ref": "campaign-open" },
+      "assignedTo": {
+        "kind": "moment",
+        "ref": "campaign-open"
+      },
       "assignedDate": "2026-09-17",
       "sourceFilename": "01 - Main Title.mp3",
-      "note": "The campaign's own overture. Reserved out of the (otherwise empty) moment-of-cool pool so it can never turn up at random -- it plays exactly once, cold-opening 'The Road In', and nowhere else. See data/audio/soundscapes/episode-c1s1--the-road-in.json."
+      "note": "The campaign's own overture. Reserved out of the (otherwise empty) moment-of-cool pool so it can never turn up at random -- it plays exactly once, cold-opening the campaign, and nowhere else. MOVED 2026-09-24 from The Road In to From Up Here, the new opening GM speech Ingram asked for ahead of it: the overture belongs to whatever scene the campaign actually opens on, and that is now From Up Here. See data/audio/soundscapes/episode-c1e1--from-up-here.json; The Road In has its own music now (see its soundscape's note)."
     },
     {
       "id": "26-masamichi-amano-jintetsu-no-toujou",
       "kind": "audio",
       "category": "music",
       "path": "audio/library/music/26-masamichi-amano-jintetsu-no-toujou.ogg",
-      "assignedTo": { "kind": "scene", "ref": "flood-tunnel" },
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "flood-tunnel"
+      },
       "assignedDate": "2026-09-17",
       "sourceFilename": "26 - JINTETSU no Toujou.mp3",
-      "note": "'Section Nine's first blood' -- the campaign's very first fight (six Giant Centipedes, c1s1-flood-tunnel) gets a track of its own rather than a shuffle from the 27-track battle pool, on Ingram's own instruction to reserve specific songs for specific events. Title translates roughly to '<a name>'s Appearance/Entrance' -- fits creatures erupting out of the sludge better than anything generic. Bound as both the soundscape's combat.track (if a real Foundry Combat is tracked) and a dedicated cue on the 'the-fight' beat (fires with zero Foundry combat setup, which is the more reliable path for a scene run straight off the Scene Runner)."
+      "note": "'Section Nine's first blood' -- the campaign's very first fight (six Giant Centipedes, c1e1-flood-tunnel) gets a track of its own rather than a shuffle from the 27-track battle pool, on Ingram's own instruction to reserve specific songs for specific events. Title translates roughly to '<a name>'s Appearance/Entrance' -- fits creatures erupting out of the sludge better than anything generic. Bound as both the soundscape's combat.track (if a real Foundry Combat is tracked) and a dedicated cue on the 'the-fight' beat (fires with zero Foundry combat setup, which is the more reliable path for a scene run straight off the Scene Runner)."
     },
     {
-      "id": "ost2-04-a-crystalline-night-sky",
-      "kind": "audio",
-      "category": "music",
-      "path": "audio/library/music/ost2-04-a-crystalline-night-sky.ogg",
-      "assignedTo": { "kind": "moment", "ref": "cicada-motif" },
-      "assignedDate": "2026-09-17",
-      "sourceFilename": "ost2-04 - A Crystalline Night Sky.mp3",
-      "note": "Reserved for the cicada-stencil mystery thread (ideas/entries/cicada-motif.json) -- NOT used as a music cue in Session 0/1 itself (see data/audio/cues/cicada-motif-appears.json, which uses only a quiet ambience layer so nothing has to explain what music to return to afterward). Reserved now, ahead of use, so it can never be discovered by a future GM already sitting in the mystery pool's shuffle before this thread deserves its own cue -- the actual musical moment is future work."
-    },
-    {
-      "id": "episode-c1s1--the-errand",
+      "id": "episode-c1e1--the-errand",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--the-errand.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-errand" },
+      "path": "artwork/scenes/episode-c1e1--the-errand.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--the-errand"
+      },
       "assignedDate": "2026-09-17",
       "sourceFilename": "tea-house-exterior.png",
       "note": "A wooden shopfront under a huge tree, flowers in pots down the steps, deep summer light. The hero image for The Errand -- the quarter around The General Store, and the Tea House a few doors down that takes messages for the old man."
     },
     {
-      "id": "episode-c1s1--the-errand--tea-house",
+      "id": "episode-c1e1--the-errand--tea-house",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--the-errand--tea-house.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-errand" },
+      "path": "artwork/scenes/episode-c1e1--the-errand--tea-house.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--the-errand"
+      },
       "assignedDate": "2026-09-17",
       "sourceFilename": "tea-house-interior.png",
       "note": "Inside the tea house. Where a message for him is left, and where at least one player leaves with a way to reach him again."
     },
     {
-      "id": "episode-c1s1--the-errand--alley",
+      "id": "episode-c1e1--the-errand--alley",
       "kind": "image",
       "category": "scenes",
-      "path": "artwork/scenes/episode-c1s1--the-errand--alley.png",
-      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-errand" },
+      "path": "artwork/scenes/episode-c1e1--the-errand--alley.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--the-errand"
+      },
       "assignedDate": "2026-09-17",
       "sourceFilename": "cicada-graffiti-alley.png",
       "note": "An alley wall carrying the cicada stencil. Cut to this for the-mark-again beat; the audio cue of the same name slips a real cicada drone into the ambience under it (data/audio/cues/cicada-motif-appears.json). Deliberately NOT scored as ominous -- see design/audio-system.md 11."
+    },
+    {
+      "id": "hospital-chief-of-staff",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hospital-chief-of-staff.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "hospital-chief-of-staff"
+      },
+      "assignedDate": "2026-09-18",
+      "sourceFilename": "garsondee_a_japanese_1050s_military_doctor_portrait_1950s_han_715f298b-c959-4e1a-9ba5-6d419ec26be8_1.png",
+      "note": "A weathered, focused man in a white coat with a stethoscope round his neck, clinical three-quarter framing. First portrait assigned to a still-placeholder (unnamed) Directorate NPC rather than a named bible character -- picked for the Dynamic Token Ring pipeline proof (2026-09-18). SELF-CORRECTED during that same pass: the first candidate tried (172ffcd7..._1.png, same 'military doctor' filename tag) turned out on inspection to show a sunglassed officer with no medical iconography at all -- a reminder that the filename tag is a hint, not proof (asset-assignment-process). That file was returned to in-tray unused rather than force-assigned elsewhere."
+    },
+    {
+      "id": "school-history-teacher",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/school-history-teacher.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "school-history-teacher"
+      },
+      "assignedDate": "2026-09-18",
+      "sourceFilename": "garsondee_school_portrait_picture_school_teacher_gym_hand-pai_c20889d2-3acb-4f5b-9145-3e767e04e5e0_2.png",
+      "note": "A moustached man in wire-rimmed glasses, shirtsleeves and suspenders, standing in a school gymnasium (basketball hoop visible behind him). Confirmed fit for a placeholder school-staff NPC; Dynamic Token Ring pipeline proof (2026-09-18)."
+    },
+    {
+      "id": "works-manager",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/works-manager.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "works-manager"
+      },
+      "assignedDate": "2026-09-18",
+      "sourceFilename": "garsondee_a_japanese_1050s_military_officer_portrait_1950s_ha_9c634f69-3315-437a-85d9-2079a39c6578_1.png",
+      "note": "A clean-cut man in a collared coat and tie over a white shirt, serious, direct gaze. Confirmed fit for a placeholder Directorate administrative NPC; Dynamic Token Ring pipeline proof (2026-09-18)."
+    },
+    {
+      "id": "section-officer",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/section-officer.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "section-officer"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "section_officer_new.png",
+      "note": "Commissioned by Ingram specifically for this character, replacing the earlier placeholder. A man in a high-collared pale institutional tunic holding a clipboard flat against his chest with both hands, pen in the breast pocket, standing in an industrial interior under hard sunlight. The expression is put-upon rather than cruel.\n\nWhy it is right: the clipboard is held like a shield rather than carried, which is the whole character -- a man whose authority is entirely procedural and who knows it. He turns up at the end of tasks to tell people what is wrong with the work, and every item he assigns is a real job that genuinely needs doing.\n\nThe superseded placeholder (a peaked cap, round sunglasses, visible sidearm, low-angle framing) is kept at section-officer--superseded-placeholder.png. It read as a military strongman, which is the wrong register entirely -- he is not frightening, he is petty and correct."
+    },
+    {
+      "id": "repair-chief-ishikawa",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/repair-chief-ishikawa.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "repair-chief-ishikawa"
+      },
+      "assignedDate": "2026-09-18",
+      "sourceFilename": "garsondee_a_japanese_1050s_haz_suit_wearing_liquidator_portra_7a796d11-e20a-4568-9102-cf605e3c3577_0.png",
+      "note": "A full hazsuit and sealed helmet, no face visible -- fitting for a Frame repair crew chief (hazardous-bay technician work) whose 'personality, name, and how they relate to [their pilot] specifically are all open' per repair-chief-ishikawa.json's own designNotes. Dynamic Token Ring pipeline proof (2026-09-18)."
+    },
+    {
+      "id": "repair-chief-kaneda",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/repair-chief-kaneda.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "repair-chief-kaneda"
+      },
+      "assignedDate": "2026-09-18",
+      "sourceFilename": "garsondee_a_japanese_1050s_military_police_officer_with_a_ful_78bd7b9d-4267-4976-8243-31e1604f5078_0.png",
+      "note": "A full-face gas mask and goggles under a peaked cap with a red star, uniformed shoulders. Same 'personality open, anonymizing gear fits' reasoning as repair-chief-ishikawa.png. Dynamic Token Ring pipeline proof (2026-09-18)."
     },
     {
       "id": "directorate-headquarters--atrium",
       "kind": "image",
       "category": "locations",
       "path": "artwork/locations/directorate-headquarters--atrium.png",
-      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedTo": {
+        "kind": "location",
+        "ref": "directorate-headquarters"
+      },
       "assignedDate": "2026-09-17",
       "sourceFilename": "directorate_02.png",
       "note": "A monumental brutalist atrium -- curved concrete piers, a spiral stair, two tiny figures for scale. The Directorate at its most impersonal; general facility image, not scene-specific."
+    },
+    {
+      "id": "episode-c1e2--as-discussed",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--as-discussed.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--as-discussed"
+      },
+      "assignedDate": "2026-09-18",
+      "sourceFilename": "office_01.png",
+      "note": "A small, tidy 1950s institutional office -- one desk, a duty-roster grid pinned on the wall, papers stacked but working rather than scattered, a single centred window with blinds and warm afternoon light behind them. Chosen over office_02 (harbour view, but two large windows -- reads bigger than 'small'), office_03 and office_04_business (both grander -- pendant lamps, a rug, a visitor's chair -- than 'no grandeur whatsoever' wants), and office_mess_conspiracy (a floor-to-ceiling evidence wall, wrong register entirely for this scene, worth keeping in-tray for something that actually wants it). GitHub issue #164."
+    },
+    {
+      "id": "school-natural-history-teacher",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/school-natural-history-teacher.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "school-natural-history-teacher"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_school_portrait_picture_scientist_school_teacher_gy_7eeec3a7-dd4a-4163-a113-4958300aeded_3.png",
+      "note": "A woman in a lab coat with glasses, chin on hand, half-smiling at whoever just spoke. Specimen jars and shelving behind her, a pen in the coat pocket, a notebook and a mug on the desk. Cast because the expression is the character: somebody delighted that a question was asked, which is her entire want."
+    },
+    {
+      "id": "deputy-director",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/deputy-director.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "deputy-director"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_school_portrait_picture_military_school_teacher_gym_6107c190-e135-4d7a-ba9d-cfbf9a8ef113_0.png",
+      "note": "Middle-aged man, pale summer suit, spotted tie, pocket square, wire glasses, flat teal ground. A formal studio portrait rather than a candid -- the kind that hangs in a building. Cast because the framing itself is institutional and the expression is composed rather than stern: a man who tells you that you were wrong and that he is glad you are alive, and means both."
+    },
+    {
+      "id": "switchboard-supervisor",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/switchboard-supervisor.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "switchboard-supervisor"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_a_japanese_1950s_NERV_administrator_high_tech_portr_26d726d1-d1d1-4330-9bd1-649699d0b8ba_2.png",
+      "note": "A young technician in a lab coat over shirt and tie, wire glasses, looking up from work, equipment racks and paper notices behind. Cast to the switchboard rather than to an administrator role despite the source filename: the setting is a working technical room, which is where this character always is."
+    },
+    {
+      "id": "nobu",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/nobu.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "nobu"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_053b32d7-d110-42da-948f-18bbff310a89_1.png",
+      "note": "A young man in a white shirt with the sleeves rolled and braces over it, round glasses, no jacket, against a flat teal ground. Cast as the quartermaster because the clothing is exactly right -- somebody who works with his hands all day from behind a counter, dressed for it rather than for rank. The expression is calmer than he plays; his energy comes from the scene, not the portrait."
+    },
+    {
+      "id": "shop-boss",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/shop-boss.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "shop-boss"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "Brack.png",
+      "note": "Commissioned by Ingram for this character. A nuar woman -- bovine head, heavy curving horns, red-brown hide -- in work overalls over a white shirt with the sleeves rolled past the elbow, one gloved hand holding an enormous spanner. Shot from a low angle against gantry steelwork and open sky.\n\nWhy it is right: the low angle is the character. She is the single most important person on this base to be on the right side of, and the framing says so before she has said anything. The rolled sleeves and the working glove say she is still on the floor rather than running it from an office, which is the whole of Hulda Brack -- she will tell a trainee exactly what they did wrong in front of everyone and then stay two hours past her shift helping them fix it.\n\nFills what was the largest art gap in Episodes One and Two: she appears in five scenes and nothing bovine existed anywhere in the in-tray."
+    },
+    {
+      "id": "comms-officer",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/comms-officer.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "comms-officer"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "comms_officer.png",
+      "note": "Commissioned by Ingram for this character. A woman at a radio console in a blue-grey uniform blouse with the sleeves pushed up, a soft cap, a headset with a boom mic, a heavy wrist watch, a unit flash on the shoulder. One hand is up at the earpiece and the other is on the set; she is looking off to the side, listening, with banks of equipment and paper behind her.\n\nWhy it is right: she is mid-transmission, which is the only state the party will ever know her in. The hand at the ear is someone taking a report rather than giving an order -- her authority is that she knows the picture, not that she outranks anybody -- and the watch is on the hand she works the set with, which is a person whose whole job is how old the picture is.\n\nReplaces the portrait cast earlier the same day (a woman in a white shirt in a cluttered office), which was a reasonable adult professional and was not doing the job. That one is back in the in-tray as comms-officer--superseded.png, unassigned, and is still a good face for somebody."
+    },
+    {
+      "id": "range-safety-officer",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/range-safety-officer.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "range-safety-officer"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_a_japanese_1950s_security_guard_high_tech_portrait__c05b20c2-27d1-465e-a4e4-ed13817c5e68_0.png",
+      "note": "A man in a pale uniform shirt with epaulettes and a dark tie, a leather cross-strap over one shoulder, an armband, two pens clipped in the breast pocket, glasses. Chin slightly raised, watching something past the viewer.\n\nWhy it is right: the cross-strap and the armband are duty-appointment kit rather than rank -- he is wearing the job, not a position, which is exactly what a Range Safety Officer is. The pens say he writes everything down. He is not looking at the person in front of him because he is looking at the line, and on the range that is the whole of him: his no is not arguable in the moment and it is never personal."
+    },
+    {
+      "id": "taka",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/taka.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "taka"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_f031ab33-d47b-463e-b4c2-283cb5d4b345_0.png",
+      "note": "A young man, nineteen or thereabouts, with big untidy dark hair, one earring, an open-collared white shirt under a dark jacket, a small mark over one eyebrow. He looks straight out, direct and unhurried.\n\nWhy it is right: the hair and the open collar are a person entirely unbothered about what hour it is or who is looking, which is the surface of him. The direct gaze is the rest: he arrives at a table and claims it as settled fact rather than asking. Deliberately NOT the alternative -- a cadet portrait with collar patches -- because `data/npcs/taka.json` leaves his rank, role and age open on purpose, and insignia would have quietly settled all three."
+    },
+    {
+      "id": "time-office-clerk",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/time-office-clerk.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "time-office-clerk"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_old_man_formal_school_portrait_picture_student_port_f2ee764e-74f2-4bf0-90fa-3c6516a0a11c_3.png",
+      "note": "An elderly man in a white shirt and braces with a bow tie and round wire glasses, in an office with window light striping the wall behind him and stacked paper at his elbow.\n\nWhy it is right: he looks like somebody's harmless grandfather and he is holding, without ever thinking of it as records, a minute-by-minute account of where several thousand people were on any given day. The gap between what he looks like and what he has is the point of him, and this picture is entirely on the harmless side of it.\n\nFLAG FOR INGRAM: filename again says 'formal school portrait picture student'. He is about seventy."
+    },
+    {
+      "id": "transparency-advocate",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/transparency-advocate.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "transparency-advocate"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_school_teacher_portrait_hand-painted_gouache_and_wa_00f2dd15-72b3-45d3-a161-38ece0b24baa_0.png",
+      "note": "Round glasses, dark wavy hair, a checked jacket over a white collared shirt, papers held at the bottom of frame, looking up and away with real conviction.\n\nWhy it is right: this is the person who brings the document to the meeting and reads out the paragraph nobody wanted read. Right in principle and destructive in practice is not played by somebody imposing; it is played by somebody earnest with paperwork. They teach civics from the founding charter that hangs on the wall with a paragraph painted out of it, and this is a face that has noticed the paint.\n\nThe portrait deliberately does not settle a gender read. `data/npcs/transparency-advocate.json` is written in they/them throughout."
+    },
+    {
+      "id": "hangar-crew-chief",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hangar-crew-chief.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-mech-hangar"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_a_japanese_1050s_street_thug_portrait_1950s_hand-pa_3720abf8-d03d-46f9-91c0-9fcd6922b4d8_1.png",
+      "note": "A working man in a flat cap and a worn denim jacket over a collarless shirt, cigarette in the corner of his mouth, a sidelong wry look, in a doorway with a notice board beside him.\n\nWhy it is right: reference art for the hangar crew chiefs in `episode-c1e2--familiarisation`, NOT a cast portrait for a named NPC. There are six of them, one per pilot, and each is attached to the specific machine they are handing over. They must stay unnamed until the six PCs exist, so this file is registered against the location rather than a person -- it is what the chiefs look like, for the GM and for a future scene image, not who any one of them is."
+    },
+    {
+      "id": "episode-c1e1--assembly",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e1--assembly.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--assembly"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_95f8b06f-32d2-439e-b0b5-c85af3e15717.png",
+      "note": "A hall the width of the frame, wooden floor, a wall of tall steel-framed windows standing open onto sea and sky with a single cumulus tower out over the water. Empty, and big enough to hold an entire intake standing in ranks.\n\nWhy it is right: Assembly is the scene where the institution first speaks to them all at once, and the room has to be able to swallow them. The open windows onto the sea say fortress island without a single fortification in shot."
+    },
+    {
+      "id": "location--school-classroom",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--school-classroom.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-school-complex"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_4c274d0f-de41-40ee-bb87-65b54a464ed2.png",
+      "note": "A classroom at the end of the day: paired desks and steel-framed chairs in rows, a long green chalkboard wiped but not clean, an octagonal wall clock, noticeboards dense with pinned paper, tall windows full of leaf light, strip lights off.\n\nWhy it is right: this is the general teaching room, and it is registered to the SCHOOL rather than to a single scene because several scenes legitimately happen in it -- Local Studies, Civics, and whatever else the timetable puts there. Reuse is deliberate here; a school has a handful of rooms and the same room hosts different lessons.\n\nCORRECTS A WRONG CLAIM: data/campaign/scene-backdrop-proposal.md said 'no classroom or school interior in 150 images'. That was written from filenames. There are at least three."
+    },
+    {
+      "id": "location--school-specimen-room",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--school-specimen-room.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-school-complex"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_d69fcbb1-a560-4af7-a0a7-32ec384f2046.png",
+      "note": "The natural history room: a long demonstration bench with glassware and a brass microscope, a rank of old television sets and monitors stacked on the side counter, glazed specimen cabinets, bookshelves under the windows, a green board the width of the wall.\n\nWhy it is right: the Second Period natural history class needs a room whose walls are the lesson. Registered to the school for the same reason as the classroom."
+    },
+    {
+      "id": "location--school-prep-room",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--school-prep-room.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-school-complex"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_fca0a4af-8393-4f61-a67e-152b68f5634b.png",
+      "note": "A brighter, larger teaching lab: demonstration bench, globe, microscope, a television on a trolley, clock, deep sunlight coming in hard across the board from a wall of windows.\n\nWhy it is right: the third distinct school room, so four school periods across two episodes do not all play in the same picture. This is the one for Field Medicine and Signals -- equipment on the bench, not specimens in cases."
+    },
+    {
+      "id": "episode-c1e1--the-tram-back",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e1--the-tram-back.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--the-tram-back"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "train-platform-industrial.png",
+      "note": "An industrial tram platform under a steel canopy at dusk: a stopped car with its interior lights on, hanging lamps, gear and crates stacked along the platform edge, rails in the foreground.\n\nWhy it is right: the scene is the ride home after the first day, and the picture is already the end of a shift. The lit interior against the dark canopy is where the party will be sitting."
+    },
+    {
+      "id": "episode-c1e1--the-walk-down",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e1--the-walk-down.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e1--the-walk-down"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_c7189299-d466-4501-b130-a05818f62c67.png",
+      "note": "A road running out under an enormous cumulus sky, power lines along it, low green either side, late gold light.\n\nWhy it is right: The Walk Down is the episode's deliberate relax beat -- no challenge attached to it by design. It should look like room to breathe, and a road with nothing on it and a sky doing all the work is exactly that."
+    },
+    {
+      "id": "episode-c1e2--the-board",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-board.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-board"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_a_military_concrete_bunker_with_a_cicada_logo_paint_e5f15ddf-9ca2-4e76-a0ee-2ca46b68d91a_2.png",
+      "note": "The end wall of a military hangar: a vast roller shutter, a faded red emblem high on the concrete, a bare apron in front of it, hard morning light down one side.\n\nWhy it is right: The Board is a muster -- people standing on concrete reading what they have been given. The picture is entirely wall and yard, which leaves the whole foreground for the party and the duty board."
+    },
+    {
+      "id": "episode-c1e2--the-long-afternoon",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-long-afternoon.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-long-afternoon"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "peaceful-garage.png",
+      "note": "A quiet working garage: open frontage, a strip of daylight across the floor, plants growing in against the wall, nothing urgent happening.\n\nWhy it is right: the scene is the party scattering to do their own things for an afternoon, and it wants a picture that is somewhere to be rather than somewhere to do something."
+    },
+    {
+      "id": "episode-c1e2--the-override",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-override.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-override"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "office_02.png",
+      "note": "A working office: a desk under a window with the blind half up, files and a lamp, pinned notices, papers squared off. Ordinary, occupied, slightly too tidy.\n\nWhy it is right: the Override is a procedural ambush -- somebody in an office has signed something that changes the party's day. The room has to look like paperwork, not power."
+    },
+    {
+      "id": "episode-c1e2--the-night-off",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-night-off.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-night-off"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_japanese_brightly_lit_arcade_concrete_neon_signs_buil_2bbd6000-e510-42e7-8eeb-8436fa7dcbfd.png",
+      "note": "A night street corner: a three-storey building stacked with lit windows and neon, an izakaya frontage glowing red at ground level, wet road, city towers behind.\n\nWhy it is right: the one scene in two episodes where nobody is telling the party what to do. It should be the warmest, busiest, most inviting picture in the set, and it is."
+    },
+    {
+      "id": "episode-c1e2--familiarisation",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--familiarisation.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--familiarisation"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "repair-bay-01.png",
+      "note": "A repair bay with a Frame standing in it under a high glazed roof, light coming down in shafts across gantries and staging.\n\nWhy it is right: the machines have to read as heavy plant rather than as gods (the scene's own standing note), and this is a workshop with something big in it, not a temple."
+    },
+    {
+      "id": "episode-c1e2--the-exercise",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-exercise.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-exercise"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_2c595030-8f05-434a-b09b-b09398639f73.png",
+      "note": "An enormous concrete wall running away into haze, quarried terraces at its foot, three excavators working the churned ground, standing water in the ruts, a cumulus tower over it all.\n\nWhy it is right: the exercise is manoeuvre qualification on ground that is already a works site. The scale of the wall gives a Frame something to be measured against, and the plant machinery says this place is used, not staged."
+    },
+    {
+      "id": "episode-c1e2--unidentified-contact",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--unidentified-contact.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--unidentified-contact"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_command_and_control_room_with_retro_futuristic_contro_374d52e3-6f69-4aed-9c20-4783eb31fb8f.png",
+      "note": "A plotting console the width of the room: banked dials and switches, a circular screen glowing pale, one empty chair pulled back, the room behind it dark.\n\nWhy it is right: this is where the party find out something is out there. The empty chair is the whole scene -- somebody has just got up."
+    },
+    {
+      "id": "episode-c1e2--first-contact",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--first-contact.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--first-contact"
+      },
+      "assignedDate": "2026-09-22",
+      "sourceFilename": "night_tram.png",
+      "note": "Commissioned by Ingram for this scene. A tram on wet rails at night in heavy rain, headlamp lit, windows glowing warm, running along a harbour road: warehouses and shuttered loading bays to the left, a low sea wall and dock cranes to the right silhouetted in the rain haze, wet cobbles throwing every light back twice.\n\nWhy it is right: rain, tram, rails, the harbour road, and dock cranes on the seaward side are all exactly the scene's own brief. One honest difference from the brief as written -- this tram is moving head-on rather than stopped broadside with its doors open -- but every other element is dead-on and it is a large improvement on the atmospheric-but-generic rainy lane it replaces, which is kept, unassigned, as first-contact--superseded-rainy-lane.png."
+    },
+    {
+      "id": "episode-c1e2--the-hammer",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-hammer.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-hammer"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "office_04_business.png",
+      "note": "A senior officer's room: a heavy wooden desk square to the window, framed pictures, a reading lamp, dark panelling, everything in its place.\n\nWhy it is right: The Hammer is the scene where an adult with real authority tells the party what the night cost. The room should outrank them before anybody speaks."
+    },
+    {
+      "id": "episode-c1e2--the-names-are-still-up",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--the-names-are-still-up.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--the-names-are-still-up"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "workshop_blackboard.png",
+      "note": "Commissioned by Ingram for this scene. The machine hall at night with nobody in it: an overhead travelling gantry spanning the roof, a wall of tall steel-framed windows gone dark blue, a riveted tracked excavator with a grapple arm parked along the left, a chevron-striped army truck along the right, a crane rig behind. Wet concrete floor throwing the lamps back. Against the site office on the right, a chalk board under a single hanging lamp, with a bench beneath it.\n\nWhy it is right: the board is the only lit thing in the picture. The scene is six people walking into a dark hall after everybody has gone home and finding their names chalked up again under tomorrow's date, and the composition has exactly one place to stand, with the rest of the hall swallowed. The board is also close to blank, which is deliberate -- what is written on it is the reveal and the GM delivers it, so art that spelled it out would either contradict them or spoil it.\n\nIt reads as the same building as the two other hangar images: same gantry, same high windows. And the plant is plant -- rivets, tracks, chevrons, a grapple arm where a hand should be. A digger, not a god, which is Familiarisation's own standing note.\n\nReplaces a bright blue foundry interior that was the weakest pick in the set: a working daylight picture for a scene whose whole point is that the working day is over. That one is back in the tray, unassigned."
+    },
+    {
+      "id": "reference--cicada-shutter",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/reference--cicada-shutter.png",
+      "assignedTo": {
+        "kind": "moment",
+        "ref": "cicada-motif-appears"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "shipping-crate.png",
+      "note": "A corrugated roller shutter the width of a warehouse bay with an enormous cicada painted across it in faded red, crates stacked at its foot, low sun raking the ribs of the metal.\n\nWhy it is held back: this is not a backdrop for a scene in Episodes One or Two. It is the Cicada's mark at architectural scale, and spending it on a passing beat would spend it for nothing. Registered now so it does not get cast as generic warehouse art by accident later."
+    },
+    {
+      "id": "location--school-gymnasium",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--school-gymnasium.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-school-complex"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_e47cb360-1cb7-4ef3-80d3-dc8092b14f12.png",
+      "note": "A school gymnasium: sprung wooden floor, a basketball hoop, stacked equipment against the end wall, a wall of tall windows full of trees.\n\nWhy it is registered now: the civil defence instructor drills shelter procedure and muster points, and a gym is where a school does that. Registered to the school ahead of the scene that will use it, so the room exists before the lesson does."
+    },
+    {
+      "id": "manako",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/manako.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "manako"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "Manako.png",
+      "note": "Commissioned by Ingram for this character. An elderly man with long white hair and a full white beard, in layered earth-coloured robes with a deep teal scarf and hood, heavy carved beads and a medallion at his chest, pouring from a battered pewter teapot into a small cup. A worn tea table in front of him with a red clay pot and scattered cups; behind him, hanging paper signs in a covered street.\n\nWhy it is right: he is doing something with his hands and looking down at it, which is how he is written -- he handles the object before he speaks. He is old and frail and completely unthreatening, and the party will meet him as the first friendly stranger in the campaign. Nothing in the picture asks to be investigated.\n\nTHIS IS THE ONLY ONE THE PARTY MAY SEE IN EPISODES ONE AND TWO."
+    },
+    {
+      "id": "manako--masked",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/manako--masked.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "manako"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "Manako_Masked.png",
+      "note": "Commissioned by Ingram. The same man robed and hooded in violet, face covered by a pale beaked mask with blank round eyeholes, the robes crawling with glowing violet sigils, standing in a street lit by orange lanterns.\n\nGM-ONLY, HELD BACK. This is the Cicada reveal and it is not for a player in Episodes One or Two. The violet is the campaign's resonance colour (bi-tokens.css), which is exactly why showing it early costs so much: the mask does not spoil a name, it spoils the fact that the old man in the tea house is anybody at all.\n\nPaired with manako--unmasked, which is the same figure with the mask off."
+    },
+    {
+      "id": "manako--unmasked",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/manako--unmasked.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "manako"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "Manako_Unmasked.png",
+      "note": "Commissioned by Ingram. The reveal: the same violet hood and sigil-covered robes, mask removed, and the face inside is the old man from the tea house -- grey hair, grey beard, lined, looking straight out without apology.\n\nGM-ONLY, HELD BACK. This is the single image the whole first arc is built towards, and it only works if manako--masked has been seen first and manako (tea house) has been seen long before that. Show it in that order or it is just a picture of a man in a costume."
+    },
+    {
+      "id": "the-city",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/the-city.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "the-city"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "city_02.png",
+      "note": "Commissioned by Ingram alongside city_01. A higher vantage further along the same coast: the road curving away around a cliff, the city compact on its headland across a wide bay, dock cranes and a quay along its waterfront, winding gear and headframes on the ridge behind it where the digging goes on, one chimney, and open water filling half the frame.\n\nWhy it is here rather than on The Road In: the road curves AWAY, which makes it a view rather than an arrival, and the scene it would have taken is six people separately turning up. As an establishing shot it is the better of the two paintings -- more negative space, and the headframes on the ridge say out loud that this is a city on top of a working dig.\n\nFills `the-city` in scene-set.json, which is in its own group there and had no art at all."
+    },
+    {
+      "id": "location--hangar-two-floor",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--hangar-two-floor.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-mech-hangar"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "repair-bay-02.png",
+      "note": "The hangar floor in working hours: an overhead travelling gantry crane the width of the building, tall steel-framed windows two storeys up, a machine standing mid-repair on stands with scaffold towers built around it, benches and crates and cable runs, work lights, and small figures actually working at the foot of it.\n\nWhy it is here: this is the second angle of a location the party returns to for the rest of the campaign, and it is the one that shows the hangar as a place people WORK rather than a place machines are kept. Familiarisation's own image is the same building from another position -- same gantry, same high windows -- which is the point; two pictures of one place are worth more than two pictures of two places.\n\nUse it for the crew chiefs, for any scene where a machine is being repaired rather than issued, and for the request-fulfilment loop that runs through Brack."
+    },
+    {
+      "id": "location--the-plot-room--wide",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--the-plot-room--wide.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-plot-room"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "garsondee_command_and_control_room_with_retro_futuristic_contro_63582c53-9dca-4d76-928a-785022b81d13.png",
+      "note": "The plotting floor wide: banked equipment along the whole length of the room, a wall of tall windows above it, chairs pulled up at intervals, paper everywhere.\n\nWhy it is here: the Comms Officer works this room, and she is the voice the party hears more than any other once operations start -- so this is a location that recurs for the whole campaign on the strength of one NPC. Unidentified Contact's image is a single console close in, with one empty chair; this is the room that console is in. Close for a scene about one report, wide for a scene about a watch."
+    },
+    {
+      "id": "location--hangar-two-night-shift",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/location--hangar-two-night-shift.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "main-mech-hangar"
+      },
+      "assignedDate": "2026-09-21",
+      "sourceFilename": "workshop_01.png",
+      "note": "The same hall at night, deeper into it, and still working: heavy plant and a crane rig along the left, trucks out in the middle distance, a site office right, and an upper-storey office window lit at the back with people still in it.\n\nWhy it is NOT The Names Are Still Up: that lit window with figures in it says somebody is still here, and the one thing that scene must say is that everybody has gone home. Here the same detail is the whole value -- this is the hangar on a night when the place has not stopped, which is what every call-out, every late repair and every sortie briefing will need.\n\nThird angle of a location the party returns to for the rest of the campaign. Day shift, dead of night, and a night that is still busy."
+    },
+    {
+      "id": "04-masamichi-amano-charge-his-name-is-giant-robo",
+      "kind": "audio",
+      "category": "music",
+      "path": "audio/library/music/04-masamichi-amano-charge-his-name-is-giant-robo.ogg",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "first-contact"
+      },
+      "assignedDate": "2026-09-22",
+      "sourceFilename": "(see library.json)",
+      "note": "Reserved for the campaign's first Frame-scale fight (episode-c1e2--first-contact, combat.track in its own soundscape). The title translates as close to \"his name is Giant Robo\" -- a mecha announcing itself in battle for the first time, which is exactly what six machines issued two hours ago are doing here. Same treatment as Flood Tunnel Clearance's reserved combat track for the campaign's first fight of any kind."
+    },
+    {
+      "id": "ost2-04-a-crystalline-night-sky",
+      "kind": "audio",
+      "category": "music",
+      "path": "audio/library/music/ost2-04-a-crystalline-night-sky.ogg",
+      "assignedTo": {
+        "kind": "moment",
+        "ref": "cicada-motif"
+      },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "ost2-04 - A Crystalline Night Sky.mp3",
+      "note": "Reserved for the cicada-stencil mystery thread (ideas/entries/cicada-motif.json) -- NOT used as a music cue in Session 0/1 itself (see data/audio/cues/cicada-motif-appears.json, which uses only a quiet ambience layer so nothing has to explain what music to return to afterward). Reserved now, ahead of use, so it can never be discovered by a future GM already sitting in the mystery pool shuffle before this thread deserves its own cue -- the actual musical moment is future work.\n\nBRIEFLY UNRESERVED 2026-09-22 over a tone concern that Ingram then explicitly reversed the same day ('EVA music is fine'): restored to this exact track and note."
+    },
+    {
+      "id": "episode-c1e2--slack-water",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--slack-water.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--slack-water"
+      },
+      "assignedDate": "2026-09-22",
+      "sourceFilename": "sea_wall.png",
+      "note": "Commissioned by Ingram for this scene. A massive fitted-stone sea wall running away down the frame at low tide: weed and barnacle crusting the stone to well above head height, iron rungs and mooring rings set into it, exposed rock and standing pools at the foot, the water a long way out, dock cranes tiny in the haze at the far end. Flat, cold, overcast light.\n\nWhy it is right: every element of the scene's own brief is in the frame -- the scale of the wall against six people, the tide genuinely out, the working harbour still present but distant. This was the last genuine art gap in either episode; the scene previously had nothing."
+    },
+    {
+      "id": "episode-c1e2--zero-six-hundred",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1e2--zero-six-hundred.png",
+      "assignedTo": {
+        "kind": "scene",
+        "ref": "episode-c1e2--zero-six-hundred"
+      },
+      "assignedDate": "2026-09-22",
+      "sourceFilename": "night_canteen.png",
+      "note": "Commissioned by Ingram for this scene. The same canteen, empty, before dawn: chairs stacked on most of the tables, cold blue pre-dawn light through the tall windows, one serving hatch open and lit with steam rising from it, the rest of the counter dark, a clock on the wall, a wet floor throwing the one warm light back across the room.\n\nWhy it is right: the whole scene is the contrast between last night's full loud canteen and this. It previously borrowed episode-c1e1--canteen's own image, which is the same room at the wrong hour -- this gives the scene its own picture instead."
+    },
+    {
+      "id": "school-civil-defence-instructor",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/school-civil-defence-instructor.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "school-civil-defence-instructor"
+      },
+      "assignedDate": "2026-09-22",
+      "sourceFilename": "civil defence instructor.png",
+      "note": "Commissioned by Ingram for this character. A woman in her forties, arms crossed, in a plain olive uniform tunic with the sleeves rolled to the elbow, a whistle on a lanyard at her chest, hair pulled back plainly. Direct, level gaze, not smiling and not unkind.\n\nWhy it is right: a serving NCO of eleven years who drills rather than explains and is entirely unhurried about doing it again. The crossed arms and the level gaze are patience with a limit, not warmth, which is exactly how the character is written. This was the last portrait gap in either episode."
+    },
+    {
+      "id": "directorate-seal",
+      "kind": "image",
+      "category": "emblems",
+      "path": "artwork/emblems/directorate-seal.png",
+      "assignedTo": {
+        "kind": "faction",
+        "ref": "directorate"
+      },
+      "assignedDate": "2026-09-23",
+      "sourceFilename": "Honbu_Paper Transparent.png",
+      "note": "The Directorate's own seal: a fortified watchtower on a rocky sea-girt island amid wave crests, ringed by interlocking gear teeth, engraved vermilion linework, alpha-cut by Ingram so it drops onto any background. Companion to directorate-seal-paper.png (the same design as a stamped hanko impression on cream paper). Generated from a Midjourney brief built around the resolved name, 特別対策本部 (Tokubetsu Taisaku Honbu) -- see data/factions/directorate.json. Unlettered pictorial mark only -- see directorate-seal-lettered.png for the finished, approved logo with the name typeset onto it."
+    },
+    {
+      "id": "directorate-seal-paper",
+      "kind": "image",
+      "category": "emblems",
+      "path": "artwork/emblems/directorate-seal-paper.png",
+      "assignedTo": {
+        "kind": "faction",
+        "ref": "directorate"
+      },
+      "assignedDate": "2026-09-23",
+      "sourceFilename": "Honbu_Paper.png",
+      "note": "Same seal design as directorate-seal.png, rendered as a traditional vermilion hanko stamp impression on aged cream paper rather than cut out. Reference/prop version -- the literal look of the mark as it would appear stamped on a real Directorate document (Form 12-B, the induction letter). Unlettered -- see directorate-seal-paper-lettered.png for the finished, approved version."
+    },
+    {
+      "id": "directorate-seal-lettered",
+      "kind": "image",
+      "category": "emblems",
+      "path": "artwork/emblems/directorate-seal-lettered.png",
+      "assignedTo": {
+        "kind": "faction",
+        "ref": "directorate"
+      },
+      "assignedDate": "2026-09-23",
+      "sourceFilename": "seal_transparent_lettered.png (hand-typeset, not Midjourney output)",
+      "note": "APPROVED 2026-09-23 (\"v2 gets my seal of approval\") -- the finished Directorate logo. directorate-seal.png's transparent cutout with 特別対策本部 arced above (Shippori Mincho 700, the one bundled face with full CJK coverage -- Yuji Syuku was tried first and silently dropped four of six characters, since it's a UI-vocabulary-only subset per visual-identity.md's own documented gotcha) and \"SPECIAL COUNTERMEASURES HEADQUARTERS\" arced below (Bruno Ace, chosen because the font manifest documents it specifically as \"engraved panel legends\"). Both in #be3219 (--bi-vermilion-seal / --bi-vermilion -- see bi-tokens.css), Ingram's own reference, now the Directorate's colour of choice project-wide. Placement is measured, not eyeballed: ring outer ink radius 747 from centre (1028,1028) in the 2048x2048 canvas, confirmed by scanning actual pixels before placing either arc, after a first pass overlapped the ring by trusting an unverified radius carried over from a different font. Composited with Python/Pillow (arc_text in the session's own scratch build script), not Midjourney -- Midjourney cannot render legible kanji reliably. Paper-stamp companion: directorate-seal-paper-lettered.png, identical text/placement."
+    },
+    {
+      "id": "directorate-seal-paper-lettered",
+      "kind": "image",
+      "category": "emblems",
+      "path": "artwork/emblems/directorate-seal-paper-lettered.png",
+      "assignedTo": {
+        "kind": "faction",
+        "ref": "directorate"
+      },
+      "assignedDate": "2026-09-23",
+      "sourceFilename": "seal_final_v2.png (hand-typeset, not Midjourney output)",
+      "note": "APPROVED 2026-09-23, companion to directorate-seal-lettered.png -- same fonts, sizes, arc radii and #be3219 colour, composited onto directorate-seal-paper.png's cream-paper stamp impression instead of the transparent cutout. Use this one wherever a paper/document presentation is wanted (e.g. a prop letterhead); use directorate-seal-lettered.png wherever the mark needs to sit on something other than paper."
     }
   ]
 }

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "frame.schema.json",
   "title": "Frame",
-  "description": "A player's mech: a full, standard SF2E PC (see common/sf2e-common.schema.json#/$defs/pcStatblock) — pick a class, build it exactly as any PC of the same level — reflavored at the fiction layer, plus Resonance-band gating and campaign repair-economy fields. Starts at level 12 and stays fixed there only through the six-day opening arc; from Day 7 onward it levels up in lockstep with its pilot's own milestone leveling (see design/campaign-arc.md's 8-level arc). At any level, abilityBands still controls which of the full statblock's feats/classFeatures/abilities/spellcasting/strikes are actually usable at the pilot's current Resonance band (see data/campaign/config.json resonance.bands) — leveling and band-gating are independent axes. One file per Frame in data/characters/frames/.",
+  "description": "A player's mech, as a PC-grade character sheet (see common/sf2e-common.schema.json#/$defs/pcStatblock). REWORKED 2026-09-20 for the lockstep model; every level-12 and Resonance assumption from the previous version is gone. A Frame does NOT replace its pilot's own character sheet — it AMPLIFIES it, contributing hardness and high AC (the properties that make Frame-scale combat survivable) and extending what the pilot can already do, so a spellcaster's magic reaches across huge distances rather than becoming a different spell list. Level is LOCKSTEP with the pilot: one shared level, starting at 1, advancing on milestone XP at the same moment the pilot advances — never independently, never drifting. Progression is bought with a credit BUDGET spent on the machine's own feats, weapons, armour and equipment, exactly like kitting out a PC; it never buys levels. Every Frame starts with a loadout mirroring the job the machine was actually built for, and how that tool behaves when used in a fight — a crane rig plays like a reach weapon at city scale. SF2E's own vehicle rules are deliberately NOT used (open-questions.json#vehicle-and-frame-rules-model). Vehicles use this same shape and sit alongside Frames as an equal track: Frames are slow, tough and near-blind; vehicles are fast, fragile, carry up to three, and some of them see extremely well. One file per Frame in data/characters/frames/.",
   "allOf": [
     { "$ref": "common/sf2e-common.schema.json#/$defs/pcStatblock" },
     {
@@ -15,23 +15,64 @@
         "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
         "name": { "type": ["string", "null"] },
         "pilotKidRef": { "type": ["string", "null"], "description": "id of the kid who pilots this Frame." },
-        "level": { "type": "integer", "minimum": 12, "default": 12, "description": "12 through the opening arc (Days 1-6); rises in lockstep with the pilot's kid level from Day 7 onward, gated by a major Claimant defeat plus enough downtime to refit. See design/campaign-arc.md." },
-        "classAssignmentMethod": {
-          "enum": ["player-chosen", "psych-profile-verdict", null],
-          "description": "Open design question — see campaign/open-questions.json #frame-class-assignment."
+        "generation": {
+          "enum": ["gen1", "gen2", null],
+          "default": "gen1",
+          "description": "Gen 1 is the classic century-and-a-half-old utility fleet the party starts on — converted diggers, cranes, disaster-response rigs — reverse-engineered from a single fragment and flyable by anyone. Gen 2 is built from genuinely recovered ship material, DNA-gated, and arrives MUCH later (roughly level 4 at the earliest). See ideas/story/dossier-second-generation-frames.md."
         },
-        "concept": { "type": ["string", "null"], "description": "One or two sentence reflavoring concept (e.g. what a Strike/spell looks like at mech scale)." },
-        "abilityBands": {
-          "type": "object",
-          "description": "Which of this Frame's full level-12 statblock entries (from the pcStatblock fields above: feats, classFeatures, abilities, spellcasting.slots/focusSpells, strikes) are gated at each Resonance band. Each entry is a {refType, refName} pointer into this same file's arrays — refName should match that entry's \"name\" (or spell name / slot rank) exactly. A Dead Weight Frame should still be competent; sort generously rather than dumping everything into the top band.",
-          "properties": {
-            "deadWeight": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Baseline abilities, always available (below 40% Resonance)." },
-            "attuned": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Unlocked at Nominal (40-64%)." },
-            "resonant": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Unlocked at Harmonised (65-84%)." },
-            "absolute": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Unlocked at Absolute (85%+)." }
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "LOCKSTEP with the pilot's own level. Starts at 1. Advances on milestone XP at the same time every other pilot, Frame and vehicle in the party advances — there is no independent Frame level, no drift cap, and no per-machine XP. See open-questions.json#frame-scale-starting-level and #levelling-and-request-fulfilment."
+        },
+        "utilityRole": {
+          "type": ["string", "null"],
+          "description": "The job this machine was actually built to do — lifting, digging, demolition, disaster response, recon. Drives the starting loadout: the initial kit should mirror this job and how that tool behaves when it is used in a fight."
+        },
+        "concept": { "type": ["string", "null"], "description": "One or two sentences on how this machine reads in play, and what its pilot's own abilities look like once amplified to Frame scale." },
+        "loadout": {
+          "type": "array",
+          "description": "The machine's own weapons, armour, gear and consumables — bought with the pilot's credit budget, exactly like kitting out a PC. This replaces the old Resonance-gated abilityBands, which are deleted.",
+          "items": {
+            "type": "object",
+            "required": ["name", "kind"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "kind": {
+                "enum": ["weapon", "armour", "equipment", "consumable", "feat"],
+                "description": "feat covers the machine's own Frame feats, which work like PC feats."
+              },
+              "permanence": {
+                "enum": ["permanent", "consumable", "renewable"],
+                "description": "permanent kit stays; consumable is spent; renewable is restocked between operations."
+              },
+              "usageLimit": {
+                "enum": ["at-will", "once-per-round", "once-per-hour", "once-per-day", null],
+                "description": "For permanent kit carrying an activated ability."
+              },
+              "creditCost": { "type": ["number", "null"] },
+              "description": { "type": "string" },
+              "startingKit": { "type": "boolean", "default": false, "description": "True if this came with the machine as part of its utility-role loadout rather than being bought." }
+            }
           }
         },
-        "damageState": { "enum": ["operational", "degraded", "critical", "hulked"], "default": "operational" },
+        "vision": {
+          "type": "object",
+          "description": "Sight is a real mechanical axis, not flavour — see ideas/entries/vision-as-chassis-axis.json and foundry-vision-restricted-spotting.json, both accepted. Frames are near-blind giants; armour costs vision. Long-ranged weapons need somebody else close enough to actually see the target, which is what makes recon chassis matter.",
+          "properties": {
+            "range": { "type": ["number", "null"], "description": "Effective sight range, in the campaign's own map units." },
+            "quality": { "enum": ["poor", "fair", "good", "excellent", null] },
+            "stealth": { "enum": ["poor", "fair", "good", "excellent", null], "description": "How well this chassis avoids being seen. Recon vehicles are excellent at this; helicopters are deliberately terrible at it despite seeing well themselves." },
+            "canSpotForOthers": { "type": "boolean", "default": false, "description": "Whether this chassis can mark targets for teammates who cannot see them." }
+          }
+        },
+        "damageState": {
+          "enum": ["operational", "degraded", "critical", "hulked"],
+          "default": "operational",
+          "description": "Frame HP is a campaign resource, not an encounter resource — machines do not heal between fights, they move down this track and are repaired. See config.json#frameEconomy."
+        },
         "repairLog": {
           "type": "array",
           "items": {
@@ -57,20 +98,14 @@
             }
           }
         },
-        "internalPowerRoundsRemaining": { "type": ["integer", "null"], "description": "Encounter-scoped tracker; clear between fights. Max value is set by the pilot's Resonance band (3-4/6/8/10 rounds)." },
+        "syncedPilotRefs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Gen 2 only. Pilots who have already taken Frame Sickness in THIS machine and cleared it. A pilot not on this list takes Slowed 1 for their entire first fight in it — a one-time, per-machine cost that exists to make adopting one Frame better than hopping between them, and which players are warned about in advance. See open-questions.json#gen2-sync-duration-mechanism."
+        },
         "deployable": { "type": "boolean", "default": true },
         "notes": { "type": "string" }
       }
     }
-  ],
-  "$defs": {
-    "bandRef": {
-      "type": "object",
-      "required": ["refType", "refName"],
-      "properties": {
-        "refType": { "enum": ["feat", "classFeature", "ability", "spell", "strike"] },
-        "refName": { "type": "string", "description": "Must match the \"name\" (or spell name within spellcasting) of an entry elsewhere in this file." }
-      }
-    }
-  }
+  ]
 }

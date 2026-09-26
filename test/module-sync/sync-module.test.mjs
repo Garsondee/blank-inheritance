@@ -133,6 +133,72 @@ test("runModuleSync: a LOCAL storage/ file is excluded from the upload itself, n
   }
 });
 
+test("runModuleSync: a remote-only data/campaign/ entry is excluded before comparing (that tree is sync-campaign-data.mjs's own job)", async () => {
+  const localMap = await computeLocalChecksums(fixtureDir);
+  const remoteMap = new Map(localMap);
+  remoteMap.set("data/campaign/scene-briefs/whatever.json", "irrelevant-hash-never-compared");
+
+  const { remote } = createMockRemote({ remoteChecksums: remoteMap });
+  const { lines, exitCode } = await runModuleSyncCaptured(baseConfig(), remote);
+
+  assert.ok(
+    lines.some((l) => l.includes("2 files remotely (excluding storage/ and data/campaign/")),
+    "expected the data/campaign/ entry to be excluded from the reported remote count"
+  );
+  assert.ok(lines.some((l) => l.includes("VERIFIED")), "a data/campaign/-only difference must not break verification");
+  assert.equal(exitCode, undefined);
+});
+
+test("runModuleSync: a LOCAL data/campaign/ file is excluded from the upload itself (regression, found live 2026-09-20/21)", async () => {
+  // The bug this guards: a shell accident had dumped tens of thousands of
+  // unrelated files into a developer's local module/blank-inheritance/data/
+  // campaign/ (a manually-refreshed mirror, not the git-tracked module
+  // itself), and nothing stopped computeLocalChecksums's "hash everything,
+  // skip nothing" contract from handing all of it straight to
+  // uploadDirectory alongside real module code -- the push only failed
+  // (loudly, before anything left the machine) because the OS's own
+  // command-line-length limit was hit first. data/campaign/ has its own
+  // dedicated, allow-listed push (sync-campaign-data.mjs) and should never
+  // be part of this wholesale one regardless of what's sitting in the local
+  // copy at push time.
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "bi-sync-module-campaign-test-"));
+  try {
+    await writeFile(path.join(tempDir, "module.json"), "{}");
+    await mkdir(path.join(tempDir, "data", "campaign", "scene-briefs"), { recursive: true });
+    await writeFile(path.join(tempDir, "data", "campaign", "scene-briefs", "whatever.json"), '{"not":"actually pushed from here"}');
+
+    // The raw walk, with no skip, still sees it -- that is the unguarded input.
+    const localMap = await computeLocalChecksums(tempDir);
+    assert.ok(localMap.has("data/campaign/scene-briefs/whatever.json"), "sanity check: the raw local map (pre-fix input) really does contain the data/campaign/ file");
+
+    // With the skip sync-module now passes, it is never even read. 2026-09-22:
+    // the original fix excluded data/campaign/ from the UPLOAD but still walked
+    // and SHA-256'd it, which meant 13,182 junk files were hashed on every push
+    // and the push stopped completing at all.
+    const skipped = await computeLocalChecksums(tempDir, {
+      skip: (rel) => rel === "data/campaign" || rel.startsWith("data/campaign/")
+    });
+    assert.deepEqual([...skipped.keys()], ["module.json"], "the skip predicate must prevent the walk, not just the upload");
+
+    const { remote, calls } = createMockRemote({ remoteChecksums: new Map() });
+    const { lines } = await runModuleSyncCaptured(baseConfig({ localDir: tempDir }), remote);
+
+    assert.equal(calls.uploadDirectory.length, 1);
+    assert.equal(
+      calls.uploadDirectory[0].localMap.has("data/campaign/scene-briefs/whatever.json"),
+      false,
+      "the data/campaign/ file must never reach uploadDirectory's localMap"
+    );
+    assert.deepEqual([...calls.uploadDirectory[0].localMap.keys()], ["module.json"]);
+    assert.ok(
+      lines.some((l) => l.includes("1 files locally") && l.includes("data/campaign/ excluded")),
+      "the local-file-count line should say so plainly, not just silently drop it"
+    );
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 test("runModuleSync: a real mismatch (remote missing a file) is reported and fails the exit code", async () => {
   const localMap = await computeLocalChecksums(fixtureDir);
   const remoteMap = new Map(localMap);

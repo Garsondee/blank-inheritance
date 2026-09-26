@@ -1,0 +1,457 @@
+{
+ "prototypeToken": {
+  "displayName": 20,
+  "displayBars": 20,
+  "flags": {
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": false
+   },
+   "monks-enhanced-journal": {
+    "chatbubble": ""
+   },
+   "aedifs-tactical-grid": {
+    "viewDistance": null,
+    "viewShape": "",
+    "color": ""
+   },
+   "perceptive": {
+    "canbeSpottedFlag": true,
+    "PPDCFlag": -1,
+    "APDCFlag": null,
+    "resetSpottedbyMoveFlag": false,
+    "StealthEffectsFlag": "",
+    "OverrideWorldSEffectsFlag": false
+   },
+   "pf2e": {
+    "linkToActorSize": true,
+    "autoscale": true
+   }
+  },
+  "sight": {
+   "color": null,
+   "enabled": true,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "height": 1,
+  "width": 1,
+  "name": "susan",
+  "actorLink": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/mother.Token.webp?1699469788373",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "tint": "#ffffff",
+   "alphaThreshold": 0.75
+  },
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0,
+   "color": null
+  },
+  "detectionModes": [],
+  "randomImg": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "name": "Mother",
+ "type": "npc",
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "effects": [],
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 206,
+    "temp": 0,
+    "max": 206,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 36,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 15
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   }
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 6
+   },
+   "dex": {
+    "mod": 6
+   },
+   "con": {
+    "mod": 6
+   },
+   "int": {
+    "mod": 8
+   },
+   "wis": {
+    "mod": 8
+   },
+   "cha": {
+    "mod": 8
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 26,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 23,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 26,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 29,
+    "saveDetail": ""
+   }
+  },
+  "skills": {},
+  "traits": {
+   "value": [
+    "construct",
+    "incorporeal"
+   ],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "_id": "XyCl4E5mezwe0YGh",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/mother.Avatar.webp?1699469788373",
+ "items": [
+  {
+   "name": "Strike",
+   "type": "melee",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {},
+    "bonus": {
+     "value": 24
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "_id": "YYsVh2mSseqqtzU5",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {
+    "scene-packer": {
+     "hash": "61ae6055194b038945dc4237bf641b6ee4012bd6"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.8.2",
+    "coreVersion": "12.329",
+    "createdTime": 1699469802149,
+    "modifiedTime": 1699469802149,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "name": "Spellcasting",
+   "type": "spellcastingEntry",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "ability": {
+     "value": "cha"
+    },
+    "spelldc": {
+     "value": 28,
+     "dc": 36
+    },
+    "tradition": {
+     "value": "arcane"
+    },
+    "prepared": {
+     "value": "innate"
+    },
+    "showSlotlessLevels": {
+     "value": true
+    },
+    "proficiency": {
+     "value": 1
+    },
+    "slots": {
+     "slot0": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot1": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot2": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot3": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot4": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot5": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot6": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot7": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot8": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot9": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot10": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot11": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     }
+    },
+    "autoHeightenLevel": {
+     "value": null
+    },
+    "showUnpreparedSpells": {
+     "value": true
+    },
+    "displayLevels": {}
+   },
+   "_id": "wlG3kcs4ZfO9kXm5",
+   "img": "systems/pf2e/icons/default-icons/spellcastingEntry.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {
+    "scene-packer": {
+     "hash": "253e6bceef4a7665add6d1ff070714a7b4b87d57"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.8.2",
+    "coreVersion": "12.329",
+    "createdTime": 1699469802273,
+    "modifiedTime": 1699469802273,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  }
+ ],
+ "folder": null,
+ "sort": 0,
+ "flags": {
+  "scene-packer": {
+   "hash": "7806fe5e93b3deb305795700ce3027f2ce66c087"
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1699451211930,
+  "modifiedTime": 1721827584335,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

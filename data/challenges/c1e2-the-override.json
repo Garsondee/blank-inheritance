@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-the-override",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Override",
+  "description": "One optional check at evening muster: reading the man delivering the order rather than the order itself. It cannot fail the scene and it cannot cost anything -- what it buys is an accurate picture of how far above the Section Officer this came from.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "read-him",
+      "name": "Watch him rather than the paper",
+      "skillOptions": [
+        "perception",
+        "medicine",
+        "diplomacy"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15 -- offered to anyone who says they are watching him, not a specialist's roll",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, plus the header at the top of the sheet: a department, Medical, and not his. If anybody has chased the countersignature, it is the same one.",
+        "success": "He did not request this, he was not consulted, and he found out this afternoon. He is not frightened of it -- he is embarrassed, which for him is worse.",
+        "failure": "A man reading an order out. He is in a hurry to be finished, which he usually is.",
+        "criticalFailure": "A man reading an order out, and a conviction that he arranged this himself to keep them busy. Do not correct it."
+      },
+      "bySkill": {
+        "perception": "The physical tells -- how long he has had the sheet, how many times he has turned it over, that he does not put it down.",
+        "society": "The institutional read: this did not come up through his chain, and an order that skips a rung has usually skipped it for a reason nobody at his level is told.",
+        "diplomacy": "Reading the person rather than the document. He is not angry with them tonight. He is not really thinking about them at all, which is new."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--the-override",
+    "c1e2-as-discussed",
+    "c1e2-the-long-afternoon"
+  ],
+  "notes": "THE CRITICAL FAILURE IS A FALSE CONCLUSION, AND IT SHOULD STAND. A player who decides the Section Officer engineered this himself has drawn a reasonable, wrong inference from real evidence -- he has spent two scenes controlling their entire week. Do not correct it at the table. It costs nothing mechanically, it will be disproved by events, and being wrong about something for a session is a better experience than being handed a correction.\n\nNOTHING HERE GATES THE SCENE. The order is read either way, the names are read either way, and the party is in Hangar Two at 0700 either way.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+}

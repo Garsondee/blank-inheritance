@@ -1,0 +1,1279 @@
+{
+ "_id": "UKTc0EIJMr0rBOvx",
+ "name": "Kanika",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/inquisitor_truth_.Avatar.webp?1688465985464",
+ "items": [
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/impeccable-flow.webp",
+   "name": "Impeccable Flow",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You attune yourself to an underlying cosmic order to the world. While you remain in tune with this power, you gain a +1 status bonus to Perception checks, saving throws, and skill checks. If you critically fail any check while under the effects of this spell, the bonus ends and you instead have a -1 status penalty to all checks for the remaining duration.</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.slI9P4jUp3ERPCqX]{Spell Effect: Impeccable Flow}</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.F10ofwC0k1ELIaV4]{Spell Effect: Impeccable Flow (Critical Failure Effect)}</p>\n<hr />\n<p><strong>Heightened (5th)</strong> The status bonus increases to +2.</p>\n<p><strong>Heightened (8th)</strong> The status bonus increases to +3.</p>\n<hr />\n<p><em>Note: The automation for the critical failure effect defaults to 10 rounds and must be altered manually.</em></p>"
+    },
+    "rules": [],
+    "slug": "impeccable-flow",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "uncommon",
+     "traditions": [
+      "arcane",
+      "divine"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder #169: Kindled Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 2
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 2
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.8VzbumNyMEdSzZSz"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963099522,
+    "modifiedTime": 1687963099522,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.8VzbumNyMEdSzZSz",
+    "duplicateSource": null
+   },
+   "_id": "CVLCdA8UpGNQbsmW"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/bless.webp",
+   "name": "Bless",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Blessings from beyond help your companions strike true. You and your allies gain a +1 status bonus to attack rolls while within the emanation. Once per turn, starting the turn after you cast bless, you can use a single action, which has the concentrate trait, to increase the emanation's radius by 5 feet.</p>\n<p>Bless can counteract <em>@UUID[Compendium.pf2e.spells-srd.Item.7ZinJNzxq0XF0oMx]{Bane}</em>.</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.Gqy7K6FnbLtwGpud]{Spell Effect: Bless}</p>"
+    },
+    "rules": [],
+    "slug": "bless",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate",
+      "mental"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "divine",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "you and allies in the area"
+    },
+    "range": {
+     "value": ""
+    },
+    "area": {
+     "type": "emanation",
+     "value": 5
+    },
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 1
+    },
+    "counteraction": true
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.XSujb7EsSwKl19Uu"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963240315,
+    "modifiedTime": 1687963240315,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.XSujb7EsSwKl19Uu",
+    "duplicateSource": null
+   },
+   "_id": "CcXjJbamzNQyzK9u"
+  },
+  {
+   "name": "New Melee",
+   "type": "melee",
+   "effects": [],
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {},
+    "bonus": {
+     "value": 0
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "_id": "DxOmiUotJwSpz2TD",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {},
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963073181,
+    "modifiedTime": 1687963073181,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/zone-of-truth.webp",
+   "name": "Zone of Truth",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You designate an area in which creatures are compelled to speak only truth. Creatures within or entering the area have difficulty lying. Each potentially affected creature must attempt a Will save when the spell is cast or when the creature first enters the area. It uses the results of this initial save if it leaves and reenters the area. Affected creatures are aware of this enchantment; therefore, they can avoid answering questions to which they would normally respond with a lie, or they can be evasive as long as they remain within the boundaries of the truth.</p>\n<hr /><strong>Critical Success</strong> The target is unaffected.\n<p><strong>Success</strong> The target takes a -2 status penalty to Deception checks.</p>\n<p><strong>Failure</strong> The target can't speak any deliberate and intentional lies, and it takes a -2 status penalty to Deception checks.</p>\n<p><strong>Critical Failure</strong> The target can't speak any deliberate and intentional lies and takes a -4 status penalty to Deception checks.</p>"
+    },
+    "rules": [],
+    "slug": "zone-of-truth",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate",
+      "mental"
+     ],
+     "rarity": "uncommon",
+     "traditions": [
+      "divine",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": "30 feet"
+    },
+    "area": {
+     "type": "burst",
+     "value": 20
+    },
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "10 minutes",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": {
+     "save": {
+      "statistic": "will",
+      "basic": false
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 3
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.aewxsale5xWEPKLk"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963165616,
+    "modifiedTime": 1687963165616,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.aewxsale5xWEPKLk",
+    "duplicateSource": null
+   },
+   "_id": "ME7Svf1IsYgm2bG9"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/admonishing-ray.webp",
+   "name": "Admonishing Ray",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A ray of energy bludgeons your target into submission without causing lasting harm. When you cast this spell, you choose whether the ray feels like a strong punch or slap. Make a spell attack roll. The ray deals 2d6 bludgeoning damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage.</p>\n<p><strong>Success</strong> The target takes full damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "admonishing-ray",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "manipulate",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine"
+     ],
+     "selected": {
+      "attack": "Attack",
+      "necromancy": "Necromancy",
+      "nonlethal": "Nonlethal"
+     }
+    },
+    "publication": {
+     "title": "Pathfinder #158: Sixty Feet Under",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "formula": "2d6",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 1,
+     "uses": {
+      "max": 3,
+      "value": 3
+     }
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963209053,
+    "modifiedTime": 1687963295417,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC",
+    "duplicateSource": null
+   },
+   "_id": "bjUjBpC5vvGXVOFV"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/daze.webp",
+   "name": "Daze",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You cloud the target's mind and daze it with a mental jolt. The jolt deals mental damage equal to your spellcasting ability modifier; the target must attempt a basic Will save. If the target critically fails the save, it is also @UUID[Compendium.pf2e.conditionitems.Item.dfCMdR4wnpbYNTix]{Stunned 1}.</p>\n<hr />\n<p><strong>Heightened (+2)</strong> The damage increases by 1d6.</p>"
+    },
+    "rules": [],
+    "slug": "daze",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "cantrip",
+      "concentrate",
+      "manipulate",
+      "mental",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 round",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": true,
+      "formula": "0",
+      "type": "mental",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "will",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE"
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d6"
+     },
+     "interval": 2,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.4gBIw4IDrSfFHik4"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963276431,
+    "modifiedTime": 1687963276431,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.4gBIw4IDrSfFHik4",
+    "duplicateSource": null
+   },
+   "_id": "dsJxIlWIWGxTnjG6"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/admonishing-ray.webp",
+   "name": "Admonishing Ray",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A ray of energy bludgeons your target into submission without causing lasting harm. When you cast this spell, you choose whether the ray feels like a strong punch or slap. Make a spell attack roll. The ray deals 2d6 bludgeoning damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage.</p>\n<p><strong>Success</strong> The target takes full damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "admonishing-ray",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "manipulate",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine"
+     ],
+     "selected": {
+      "attack": "Attack",
+      "necromancy": "Necromancy",
+      "nonlethal": "Nonlethal"
+     }
+    },
+    "publication": {
+     "title": "Pathfinder #158: Sixty Feet Under",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "formula": "2d6",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 3,
+     "uses": {
+      "max": 3,
+      "value": 3
+     }
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963214205,
+    "modifiedTime": 1687963290070,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC",
+    "duplicateSource": null
+   },
+   "_id": "mEsyW56T8Pd3qh4j"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/admonishing-ray.webp",
+   "name": "Admonishing Ray",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A ray of energy bludgeons your target into submission without causing lasting harm. When you cast this spell, you choose whether the ray feels like a strong punch or slap. Make a spell attack roll. The ray deals 2d6 bludgeoning damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage.</p>\n<p><strong>Success</strong> The target takes full damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "admonishing-ray",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "manipulate",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine"
+     ],
+     "selected": {
+      "attack": "Attack",
+      "necromancy": "Necromancy",
+      "nonlethal": "Nonlethal"
+     }
+    },
+    "publication": {
+     "title": "Pathfinder #158: Sixty Feet Under",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "formula": "2d6",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 2,
+     "uses": {
+      "max": 3,
+      "value": 3
+     }
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963212099,
+    "modifiedTime": 1687963292538,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC",
+    "duplicateSource": null
+   },
+   "_id": "qUuziszuDmCQIyDL"
+  },
+  {
+   "name": "Creature Spellcasting",
+   "type": "spellcastingEntry",
+   "effects": [],
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "ability": {
+     "value": "cha"
+    },
+    "spelldc": {
+     "value": 0,
+     "dc": 0
+    },
+    "tradition": {
+     "value": "arcane"
+    },
+    "prepared": {
+     "value": "innate"
+    },
+    "showSlotlessLevels": {
+     "value": true
+    },
+    "proficiency": {
+     "value": 1
+    },
+    "slots": {
+     "slot0": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot1": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot2": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot3": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot4": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot5": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot6": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot7": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot8": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot9": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot10": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot11": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     }
+    },
+    "autoHeightenLevel": {
+     "value": null
+    },
+    "showUnpreparedSpells": {
+     "value": false
+    },
+    "displayLevels": {}
+   },
+   "_id": "rUNs8lyH0E8RAoEE",
+   "img": "systems/pf2e/icons/default-icons/spellcastingEntry.svg",
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {},
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963073252,
+    "modifiedTime": 1687963073252,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/anticipate-peril.webp",
+   "name": "Anticipate Peril",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You grant the target brief foresight. The target gains a +1 status bonus to its next initiative roll, after which the spell ends.</p>\n<hr />\n<p><strong>Heightened (+2)</strong> The status bonus increases by 1, to a maximum of +4 at 7th level.</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.4ag0OHKfjROmR4Pm]{Spell Effect: Anticipate Peril}</p>"
+    },
+    "rules": [],
+    "slug": "anticipate-peril",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Lost Omens: Gods & Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "30 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "10 minutes",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "rUNs8lyH0E8RAoEE",
+     "heightenedLevel": 2
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.EUMjrJJwSgsqNidi"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.0.2",
+    "coreVersion": "12.329",
+    "createdTime": 1687963150627,
+    "modifiedTime": 1687963150627,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.EUMjrJJwSgsqNidi",
+    "duplicateSource": null
+   },
+   "_id": "sRvnqeyVEVN0WU2y"
+  }
+ ],
+ "effects": [],
+ "folder": "lcidq4N2amU4VnaO",
+ "sort": 400000,
+ "flags": {},
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 75,
+    "temp": 0,
+    "max": 75,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 21,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 6
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 4
+   },
+   "dex": {
+    "mod": 4
+   },
+   "con": {
+    "mod": 4
+   },
+   "int": {
+    "mod": 5
+   },
+   "wis": {
+    "mod": 5
+   },
+   "cha": {
+    "mod": 5
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 14,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 11,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 14,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 18,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "religion": {
+    "base": 0
+   },
+   "society": {
+    "base": 0
+   }
+  },
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "prototypeToken": {
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   }
+  },
+  "height": 1,
+  "width": 1,
+  "name": "Julianna Seales",
+  "displayName": 20,
+  "actorLink": false,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false,
+    "type": null
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "attenuation": 0.5,
+   "color": null,
+   "negative": false,
+   "priority": 0
+  },
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "randomImg": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/inquisitor_truth_.Token.webp?1688465985464",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "sight": {
+   "angle": 360,
+   "enabled": false,
+   "range": 0,
+   "brightness": 1,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1687963031157,
+  "modifiedTime": 1721827594059,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

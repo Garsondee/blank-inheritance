@@ -1,6 +1,22 @@
 {{!--
     One line of the running order.
 
+    FOLDED (every beat but the one being run): the tick, the instruction, and
+    a row of chips saying what the beat involves — who it is about, the DC,
+    a fight, a handout, notes already written, and what was recorded. That is
+    Ingram's 2026-09-09 shape, "one actionable line per beat, detail peekable
+    underneath", which the panel before 2026-09-24 never actually delivered:
+    it printed every beat in full.
+
+    OPEN (the beat being run, the one just resolved, or any the GM opens):
+    the read-aloud, the direction, the note, a choice, the fight, and the
+    check — each degree of success WITH its authored consequence, pressed to
+    record it — then who has rolled it and the notes written against it.
+
+    The row is a role="button" div, not a <button>, because it holds real
+    buttons of its own (the tick, inline trigger chips) that a <button> may
+    not contain; foundry/scene-runner.mjs#_onRender gives it Enter/Space.
+
     Every state class is written as a literal inside its own {{#if}} rather
     than interpolated (`bi-runner__beat--{{state}}` would be invisible to the
     tier-0 class lint, which strips Handlebars before it looks). The booleans
@@ -12,30 +28,163 @@
     a screen reader its state, and .bi-runner__tick draws the mark off that
     same attribute rather than off a modifier class.
 --}}
-<li class="bi-runner__beat{{#if isDone}} bi-runner__beat--done{{/if}}{{#if isPending}} bi-runner__beat--pending{{/if}}{{#if isConditional}} bi-runner__beat--conditional{{/if}}{{#if isNotTaken}} bi-runner__beat--nottaken{{/if}}{{#if mandatory}} bi-runner__beat--mandatory{{/if}}"
-    data-beat-id="{{id}}">
+<li class="bi-runner__beat{{#if isDone}} bi-runner__beat--done{{/if}}{{#if isPending}} bi-runner__beat--pending{{/if}}{{#if isConditional}} bi-runner__beat--conditional{{/if}}{{#if isNotTaken}} bi-runner__beat--nottaken{{/if}}{{#if mandatory}} bi-runner__beat--mandatory{{/if}}{{#if isNow}} bi-runner__beat--now{{/if}}{{#if isOpen}} bi-runner__beat--open{{/if}}"
+    data-beat-id="{{id}}"{{#if isNow}} aria-current="step"{{/if}}>
 
-    <button type="button" class="bi-runner__tick" data-action="toggleBeat"
-        data-beat-id="{{id}}" aria-pressed="{{isDone}}"
-        title="{{#if isDone}}{{localize "BLANKINHERITANCE.Runner.Untick"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Tick"}}{{/if}}"></button>
+    <div class="bi-runner__beat-row">
+        <button type="button" class="bi-runner__tick" data-action="toggleBeat"
+            data-beat-id="{{id}}" aria-pressed="{{isDone}}"
+            title="{{#if isDone}}{{localize "BLANKINHERITANCE.Runner.Untick"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Tick"}}{{/if}}"></button>
 
+        <div class="bi-runner__beat-summary" data-action="toggleBeatDetail" data-beat-id="{{id}}"
+            role="button" tabindex="0" aria-expanded="{{isOpen}}">
+            {{#if isNow}}<span class="bi-runner__now">{{localize "BLANKINHERITANCE.Runner.Now"}}</span>{{/if}}
+            {{#if whenLabel}}<span class="bi-runner__when">{{whenLabel}}</span>{{/if}}
+            <p class="bi-runner__beat-text">
+                {{#if isSolo}}<span class="bi-runner__tag bi-runner__tag--solo">{{localize "BLANKINHERITANCE.Runner.Solo"}}</span>{{/if}}
+                {{#if isPassive}}<span class="bi-runner__tag bi-runner__tag--passive">{{localize "BLANKINHERITANCE.Runner.Passive"}}</span>{{/if}}
+                {{#if isInsight}}<span class="bi-runner__tag bi-runner__tag--insight">{{localize "BLANKINHERITANCE.Runner.Insight"}}</span>{{/if}}
+                {{{decoratedText}}}
+            </p>
+        </div>
+
+        <div class="bi-runner__beat-chips">
+            {{#if recorded}}<span class="bi-runner__chip bi-runner__chip--recorded" data-degree="{{recordedDegree}}" data-tooltip="{{recorded}}">{{recorded}}</span>{{/if}}
+            {{#if npcName}}<span class="bi-runner__chip bi-runner__chip--npc">{{npcName}}</span>{{/if}}
+            {{#if check}}<span class="bi-runner__chip bi-runner__chip--check" data-tooltip="{{check.name}} — {{check.label}}"><i class="fa-solid fa-dice-d20"></i> {{#if check.dc}}{{check.dc}}{{else}}{{localize "BLANKINHERITANCE.Runner.Check"}}{{/if}}</span>{{/if}}
+            {{#if encounter}}<span class="bi-runner__chip bi-runner__chip--fight"><i class="fa-solid fa-burst"></i> {{localize "BLANKINHERITANCE.Runner.Fight"}}</span>{{/if}}
+            {{#if handout}}<span class="bi-runner__chip"><i class="fa-regular fa-file-lines"></i> {{localize "BLANKINHERITANCE.Runner.Handout"}}</span>{{/if}}
+            {{#if noteCount}}<span class="bi-runner__chip" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.NotesHere'}}"><i class="fa-solid fa-pen"></i> {{noteCount}}</span>{{/if}}
+            {{#if isConditional}}
+            <button type="button" class="bi-runner__stamp" data-action="openBeat" data-beat-id="{{id}}"
+                title="{{localize 'BLANKINHERITANCE.Runner.OpenHint'}}">{{localize "BLANKINHERITANCE.Runner.Open"}}</button>
+            {{/if}}
+        </div>
+    </div>
+
+    {{#if isOpen}}
     <div class="bi-runner__beat-body">
-        {{#if whenLabel}}<span class="bi-runner__when">{{whenLabel}}</span>{{/if}}
-
-        <p class="bi-runner__beat-text">
-            {{#if isSolo}}<span class="bi-runner__tag bi-runner__tag--solo">{{localize "BLANKINHERITANCE.Runner.Solo"}}</span>{{/if}}
-            {{#if isPassive}}<span class="bi-runner__tag bi-runner__tag--passive">{{localize "BLANKINHERITANCE.Runner.Passive"}}</span>{{/if}}
-            {{#if isInsight}}<span class="bi-runner__tag bi-runner__tag--insight">{{localize "BLANKINHERITANCE.Runner.Insight"}}</span>{{/if}}
-            {{text}}
-        </p>
-
         {{!-- Verbatim, and set in a different face from the stage direction
-              above it — reading a note to yourself out loud by mistake is a
-              real error and the typography is what prevents it. --}}
-        {{#if readAloud}}<div class="bi-runner__read">{{readAloud}}</div>{{/if}}
+              around it — reading a note to yourself out loud by mistake is a
+              real error and the typography is what prevents it. Triple-stache:
+              decoratedReadAloud is pre-escaped HTML with inline trigger chips
+              already spliced in (core/inline-triggers.mjs), not raw text. --}}
+        {{#if decoratedReadAloud}}<div class="bi-runner__read">{{{decoratedReadAloud}}}</div>{{/if}}
 
-        {{#if direction}}<p class="bi-runner__direction">{{direction}}</p>{{/if}}
-        {{#if note}}<p class="bi-runner__note">{{note}}</p>{{/if}}
+        {{#if direction}}<p class="bi-runner__direction">{{{decoratedDirection}}}</p>{{/if}}
+        {{#if note}}<p class="bi-runner__note">{{{decoratedNote}}}</p>{{/if}}
+
+        {{!-- A disclosed choicePoint (design/scene-triggers-and-depth.md §2.4,
+              ux-doctrine.md Law 21) -- deliberately a louder, bordered block
+              rather than an inline chip, since a real fork is rarer and
+              higher-stakes than an ordinary trigger. --}}
+        {{#if choicePoint}}
+        <div class="bi-runner__choice">
+            <p class="bi-runner__choice-label">{{choicePoint.label}}</p>
+            <div class="bi-runner__choice-options">
+                {{#each choicePoint.options}}
+                <button type="button" class="bi-runner__choice-option{{#if isPicked}} bi-runner__choice-option--picked{{/if}}"
+                    data-action="recordChoice" data-beat-id="{{../id}}" data-option-id="{{id}}"
+                    {{#if consequence}}title="{{consequence}}"{{/if}}>{{label}}{{#if consequence}}<span class="bi-runner__choice-consequence">{{consequence}}</span>{{/if}}</button>
+                {{/each}}
+            </div>
+            {{#if choicePoint.allowsInventedOption}}
+            <p class="bi-runner__choice-invented">{{localize "BLANKINHERITANCE.Runner.ChoiceInvented"}}</p>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{!-- A beat that IS a fight: what is coming and how hard, from the
+              encounter file itself. --}}
+        {{#if encounter}}
+        <div class="bi-runner__fight">
+            <p class="bi-runner__fight-name"><i class="fa-solid fa-burst"></i> {{encounter.name}}{{#if encounter.threat}} <span class="bi-runner__fight-threat">{{encounter.threat}}</span>{{/if}}</p>
+            <ul class="bi-runner__fight-list">
+                {{#each encounter.creatures}}
+                <li>{{count}}&times; {{name}}{{#if level}} <span class="bi-runner__fight-level">L{{level}}</span>{{/if}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        {{/if}}
+
+        {{!-- #176: a beat whose own text implies a specific GM tool gets
+              a real button that opens it, instead of a macro UUID
+              nobody can see from here. --}}
+        {{#if gmTool}}
+        <div class="bi-runner__actions">
+            <button type="button" class="bi-runner__stamp bi-runner__stamp--tool" data-action="openGmTool" data-tool-id="{{gmTool.id}}"
+                title="{{localize 'BLANKINHERITANCE.Runner.GmToolHint'}}">{{gmTool.label}}</button>
+        </div>
+        {{/if}}
+
+        {{#if check}}
+        <div class="bi-runner__checkbox{{#if isInsight}} bi-runner__checkbox--insight{{/if}}">
+            <div class="bi-runner__check-head">
+                <span class="bi-runner__check-name" title="{{check.title}}">{{check.name}}</span>
+                <span class="bi-runner__check-skills">{{check.skills}}{{#if check.dc}} · DC {{check.dc}}{{/if}}</span>
+                <button type="button" class="bi-runner__stamp{{#if isInsight}} bi-runner__stamp--insight{{/if}}" data-action="postCheck"
+                    data-beat-id="{{id}}" title="{{check.title}}"><i class="fa-solid fa-dice-d20"></i> {{localize "BLANKINHERITANCE.Runner.PostCheck"}}</button>
+            </div>
+            {{!-- Recording WHICH degree it came out at, not just that it
+                  happened. A plain tick cannot open a degree-gated branch,
+                  which is most of what branching is for — found live, the
+                  first time a fork was clicked at. Each degree shows what it
+                  MEANS, so the GM reads the consequence and records it in the
+                  same place, in one press. --}}
+            <div class="bi-runner__outcomes">
+                {{#each outcomes}}
+                <button type="button" class="bi-runner__outcome{{#if isPicked}} bi-runner__outcome--picked{{/if}}{{#if isOther}} bi-runner__outcome--other{{/if}}"
+                    data-action="recordOutcome" data-beat-id="{{../id}}" data-degree="{{degree}}" aria-pressed="{{isPicked}}">
+                    <span class="bi-runner__outcome-label" data-degree="{{degree}}">{{label}}</span>
+                    {{#if consequence}}<span class="bi-runner__outcome-text">{{consequence}}</span>{{/if}}
+                </button>
+                {{/each}}
+            </div>
+            {{!-- Who has rolled it, read back out of the chat log. The first
+                  result recorded itself; any other can be used instead with
+                  one press (foundry/scene-runner.mjs#recordRollResult). --}}
+            {{#if rolls.length}}
+            <ul class="bi-runner__rolls">
+                {{#each rolls}}
+                <li class="bi-runner__roll{{#if isRecorded}} bi-runner__roll--recorded{{/if}}">
+                    <span class="bi-runner__roll-who">{{#if name}}{{name}}{{else}}?{{/if}}</span>
+                    <span class="bi-runner__roll-degree" data-degree="{{degree}}">{{label}}</span>
+                    {{#if total}}<span class="bi-runner__roll-total">{{total}}</span>{{/if}}
+                    {{#if isRecorded}}<span class="bi-runner__roll-used">{{localize "BLANKINHERITANCE.Runner.RollUsed"}}</span>{{else}}<button type="button" class="bi-runner__linkbtn" data-action="useRoll" data-message-id="{{messageId}}">{{localize "BLANKINHERITANCE.Runner.UseRoll"}}</button>{{/if}}
+                </li>
+                {{/each}}
+            </ul>
+            {{/if}}
+            {{#if check.bySkill}}
+            {{!-- A different skill gets a genuinely different fictional
+                  result -- design/ux-doctrine.md's own "multiple named
+                  actions, each with its own consequence" ambition, made
+                  concrete rather than left as a same-outcome flavour pick.
+                  Read this BEFORE the roll lands, not after. --}}
+            <ul class="bi-runner__by-skill">
+                {{#each check.bySkill}}
+                <li><b class="bi-runner__by-skill-name">{{this.skill}}</b> {{this.text}}</li>
+                {{/each}}
+            </ul>
+            {{/if}}
+            {{#if check.tally}}
+            {{!-- How many times each degree has actually landed, across
+                  every attempt ever logged -- run state itself only ever
+                  keeps the latest, so this is the only place this history
+                  is visible. Requested 2026-09-19. --}}
+            <p class="bi-runner__tally">
+                {{#each check.tally}}<span class="bi-runner__tally-item{{#if this.count}} bi-runner__tally-item--hit{{/if}}">{{this.label}} {{this.count}}</span>{{/each}}
+            </p>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if handout}}
+        <div class="bi-runner__actions">
+            <button type="button" class="bi-runner__stamp" data-action="revealHandout"
+                data-beat-id="{{id}}" data-handout-id="{{handout.id}}">{{#if isSolo}}{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Reveal"}}{{/if}}</button>
+        </div>
+        {{/if}}
 
         {{!-- What the GM wrote while this was happening. Read back out of the
               session log by subject, so this margin and the record can never
@@ -47,27 +196,6 @@
             {{/each}}
         </ul>
         {{/if}}
-
-        <div class="bi-runner__actions">
-            {{#if isConditional}}
-            <button type="button" class="bi-runner__stamp" data-action="openBeat" data-beat-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Open"}}</button>
-            {{/if}}
-            {{#if check}}
-            <button type="button" class="bi-runner__stamp{{#if isInsight}} bi-runner__stamp--insight{{/if}}" data-action="postCheck"
-                data-beat-id="{{id}}" title="{{check.title}}">{{check.label}}</button>
-            {{!-- Recording WHICH degree it came out at, not just that it
-                  happened. A plain tick cannot open a degree-gated branch,
-                  which is most of what branching is for — found live, the
-                  first time a fork was clicked at. --}}
-            {{#each outcomes}}
-            <button type="button" class="bi-runner__stamp{{#if isPicked}} bi-runner__stamp--picked{{/if}}"
-                data-action="recordOutcome" data-beat-id="{{../id}}" data-degree="{{degree}}">{{label}}</button>
-            {{/each}}
-            {{/if}}
-            {{#if handout}}
-            <button type="button" class="bi-runner__stamp" data-action="revealHandout"
-                data-beat-id="{{id}}" data-handout-id="{{handout.id}}">{{#if isSolo}}{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Reveal"}}{{/if}}</button>
-            {{/if}}
-        </div>
     </div>
+    {{/if}}
 </li>

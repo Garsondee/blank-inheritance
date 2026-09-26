@@ -87,7 +87,7 @@
 
 **[R]** An honest audit, because a catalogue that pretends to be complete is worse than a short one. Giant Robo has no equivalent of the following, and our campaign needs several of them:
 
-- **A peer rival of the PCs' own age.** There is no schoolmate-antagonist, no rival pilot, nobody the protagonist competes with as an equal. For a campaign with six kids in a school, this is the largest gap in the sweep. The planned **Evangelion sweep** is likely to be the better source for it.
+- **A peer rival of the PCs' own age.** There is no schoolmate-antagonist, no rival pilot, nobody the protagonist competes with as an equal. For a campaign with six kids in a school, this is the largest gap in the sweep. The **Evangelion sweep**, since done, is the better source for it.
 - **Named civilians.** The world is made of institutions. Almost nobody in it is a shopkeeper, a neighbour or a parent who is not also a scientist.
 - **Teachers, and school life of any kind.** Nothing.
 - **A female member of the enemy council.** The cabal's one notable woman is dead before the series and appears as a line in a husband's biography; the other is a child. If a council is cast here, do not inherit that shape by accident.
@@ -101,7 +101,7 @@
 **[U]** Turning this catalogue into an actual cast for our adventure requires decisions this shelf cannot make:
 
 - **Which factions exist**, beyond the Directorate (`data/factions/directorate.json`, `data/npcs/`) — a council-shaped enemy is a structural claim about the setting.
-- **Names.** `data/campaign/naming-placeholders.json` is the register, and the naming conventions are in `design/prose-craft-and-naming.md` §11–13 and [epithets-and-name-calling.md](epithets-and-name-calling.md).
+- **Names.** The naming placeholders in `data/campaign/open-questions.json` are the register, and the naming conventions are in `design/prose-craft-and-naming.md` §11–13 and [epithets-and-name-calling.md](epithets-and-name-calling.md).
 - **The six kids and their Frames**, which CLAUDE.md reserves explicitly as collaborative creative work with the user, and which nothing on this shelf touches.
 - **The open questions** that any antagonist economy would brush against, in `data/campaign/open-questions.json`.
 
@@ -113,4 +113,4 @@
 
 **Related on this shelf:** [the-recurring-antagonist-engine.md](the-recurring-antagonist-engine.md), [the-magnificent-ten-as-an-org-chart.md](the-magnificent-ten-as-an-org-chart.md), [legendary-sources-china-and-japan.md](legendary-sources-china-and-japan.md), [what-makes-it-tick.md](what-makes-it-tick.md).
 
-**Related in this project:** `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/dialogue-and-character-voice.md`, `design/character-creation-and-progression.md`, `ideas/story/bible/`, `data/campaign/naming-placeholders.json`.
+**Related in this project:** `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/dialogue-and-character-voice.md`, `design/character-creation-and-progression.md`, `ideas/story/bible/`, `data/campaign/open-questions.json` (the naming placeholders).

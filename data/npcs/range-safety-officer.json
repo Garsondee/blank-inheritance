@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "range-safety-officer",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Range Safety Officer, The Proving Ground",
   "pole": null,
@@ -10,5 +13,29 @@
   "designNotes": "Placeholder role, not a character -- created 2026-09-12 alongside the location itself, following the standing convention (see commander.json, repair-chief-sato.json). Name, personality, and how strict they actually are are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
-  "status": "placeholder — not yet named or cast"
+  "status": "placeholder — not yet named or cast",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "his-call-is-not-arguable",
+        "text": "His call on a machine or a pilot is final. Arguing with it is the single thing that will get a trainee pulled off the ground, and it is not personal when it happens.",
+        "revealTrigger": {
+          "narrative": "Watching him make one call on somebody else's qualification."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "will-explain-if-asked-first",
+        "text": "He will explain his criteria in full, patiently, to anybody who asks before their run. Nobody ever asks before, and he has noticed.",
+        "revealTrigger": {
+          "skill": "diplomacy",
+          "dc": 13
+        },
+        "revealed": false,
+        "revealedNote": null
+      }
+    ]
+  }
 }

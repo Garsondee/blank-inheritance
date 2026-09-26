@@ -4,103 +4,193 @@
   "title": "Scene Set",
   "description": "The real Foundry Scenes this campaign ships: one landing scene, one per beat of the story, the sub-locations inside a beat, and the campaign map they are all reached from. Generated into a live world by scripts/foundry/scene-build.mjs, idempotently and by deterministic id, exactly like the audio playlists -- so a scene is authored HERE and rebuilt there, never hand-made in the world where it cannot be rebuilt or reviewed.\n\nReplaces stage-demo.json, which built four demonstration scenes with a placeholder cast. Those were the proof that theatre-of-the-mind staging worked; these are the real thing, and they carry the same `stage` capability.",
   "type": "object",
-  "required": ["$schema", "id", "type", "groups", "scenes"],
+  "required": [
+    "$schema",
+    "id",
+    "type",
+    "groups",
+    "scenes"
+  ],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "id": { "const": "scene-set" },
-    "type": { "const": "scene-set" },
-    "description": { "type": "string" },
-    "notes": { "type": "array", "items": { "type": "string" } },
-
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "const": "scene-set"
+    },
+    "type": {
+      "const": "scene-set"
+    },
+    "description": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "artRoot": {
       "type": "string",
       "description": "Module-relative directory holding the WebP derivatives every scene's `art` names. The masters live in artwork/ and are registered in asset-registry.json; these are regenerable derivatives, not assignments."
     },
-
     "groups": {
       "type": "array",
       "description": "Scene folders, in sidebar order.",
       "items": {
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "colour": { "type": ["string", "null"] }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "colour": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
-
     "scenes": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "art", "group", "kind"],
+        "required": [
+          "id",
+          "name",
+          "art",
+          "group",
+          "kind"
+        ],
         "additionalProperties": false,
         "properties": {
           "id": {
             "type": "string",
             "description": "Stable authoring id. The Foundry document id is derived from it (core/ids.mjs#deriveFoundryId), so renaming this orphans the built scene -- rename the `name`, not this."
           },
-          "name": { "type": "string" },
+          "name": {
+            "type": "string"
+          },
           "art": {
             "type": "string",
             "description": "Filename stem under artRoot, without extension. The generator appends .webp."
           },
-          "group": { "type": "string", "description": "A groups[].id." },
+          "group": {
+            "type": "string",
+            "description": "A groups[].id."
+          },
           "kind": {
-            "enum": ["landing", "beat", "sub", "hub", "place"],
+            "enum": [
+              "landing",
+              "beat",
+              "sub",
+              "hub",
+              "place"
+            ],
             "description": "landing: where a player who logs in with nothing else active lands. beat: one section of the story. sub: a room inside a beat, cut to from the Scene Runner rather than navigated to. hub: the campaign map. place: a location that exists but is not a beat of this session."
           },
-          "order": { "type": ["integer", "null"], "description": "Sort within the group." },
+          "order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Sort within the group."
+          },
           "navigation": {
             "type": "boolean",
             "default": true,
             "description": "Whether it appears in Foundry's own scene navigation bar. Sub-scenes default to false -- twelve tabs of sub-rooms buries the six that matter."
           },
           "briefRef": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The scene-brief id this scene serves (data/scene-briefs/). What lets the Scene Runner and this scene find each other, and what ties a soundscape to a picture: both are keyed by the same brief id."
           },
           "locationRef": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The gazetteer location this happens at (data/locations/). The campaign map's pin for this scene is placed from that location's own derived.centroidPx -- never from a coordinate copied into this file, so a location that moves takes its pin with it."
           },
           "locationNote": {
-            "type": ["string", "null"],
-            "description": "Set when locationRef is a PROPOSED correspondence rather than an exact one, saying so plainly. A guess recorded as a fact is how a map stops being trustworthy."
+            "type": "string",
+            "description": "Why this scene sits at this location -- the Place pass's own reasoning, written back so a later review does not re-derive it or, worse, re-site the scene. Added 2026-09-22 during the siting run that closed 6 of the 11 unsited scenes."
           },
           "blurb": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "PLAYER-FACING. What the map pin's journal says about this place. Written from what a newcomer could actually know -- never what is waiting for them there."
           },
-          "width": { "type": "integer", "default": 3072 },
-          "height": { "type": "integer", "default": 1536 },
-          "mapScale": {
-            "type": ["number", "null"],
-            "description": "hub only. Multiply a campaign-map master pixel (data/map/campaign-map.json, 12400 square) by this to get a pixel in this scene. The shipped map art is the 6200px half-scale derivative, so 0.5."
+          "width": {
+            "type": "integer",
+            "default": 3072
+          },
+          "height": {
+            "type": "integer",
+            "default": 1536
+          },
+          "adoptSceneNamed": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "One-time bridge for a real Scene that already existed in Foundry before this manifest entry did, by exact Foundry Scene name -- the real production \"Campaign Map\" Scene (built by hand before this hub concept existed) is the one confirmed case. Checked ONLY when no scene is found by deterministic id or by a previously-stamped sourceId flag: scene-build.mjs then looks this name up (game.scenes.getName) and adopts it (stamps our flags, updates authored fields, keeps its own real id forever) instead of creating a duplicate. Deliberately narrow and explicit -- a name match is fragile in general, so this only ever fires for a scene an author named here on purpose, never as an automatic heuristic over every scene in the world."
           },
           "pins": {
             "type": "array",
             "description": "hub only. One per scene reachable from the map.",
             "items": {
               "type": "object",
-              "required": ["sceneRef"],
+              "required": [
+                "sceneRef"
+              ],
               "additionalProperties": false,
               "properties": {
-                "sceneRef": { "type": "string", "description": "A scenes[].id -- the scene this pin travels to." },
-                "label": { "type": ["string", "null"], "description": "Overrides the target scene's name on the map." },
+                "sceneRef": {
+                  "type": "string",
+                  "description": "A scenes[].id -- the scene this pin travels to."
+                },
+                "label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Overrides the target scene's name on the map."
+                },
                 "offsetPx": {
-                  "type": ["array", "null"],
-                  "items": { "type": "number" },
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "number"
+                  },
                   "minItems": 2,
                   "maxItems": 2,
                   "description": "Nudge, in THIS scene's pixels, applied after the location's centroid. Two real buildings eleven pixels apart need their signposts further apart than they are; the pin is a signpost, not a survey mark."
                 }
               }
             }
+          },
+          "approximate": {
+            "type": "boolean",
+            "default": false,
+            "description": "Set when locationRef is a PROPOSED correspondence rather than an exact one, saying so plainly. A guess recorded as a fact is how a map stops being trustworthy. **This description survived in the file while the field itself did not** -- found 2026-09-22 during the first siting run, when writing `approximate: false` failed validation. The Sign-Off's P2 check reads this field, so for as long as it was undeclared P2 could never fail: every scene reported 'exact' whether or not anybody had ever confirmed it."
           }
         }
       }

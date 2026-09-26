@@ -1,0 +1,214 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-override",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-override",
+  "title": "The Override",
+  "summary": "An order arrives from above the Section Officer's head and he has to read it to them himself. It does not cancel the fortnight; it stacks on top of it. And it is addressed to six people by name.",
+  "goal": "The party learns they are on Frame and vehicle familiarisation at 0700, that the fortnight stands regardless, and that somebody senior asked for them specifically.",
+  "howToPlay": "Short, dry, and uncomfortable for exactly one person in the room. He is not angry -- he is off balance, which he hates more.\n\n**The detail that matters is that the order names them individually.** Not 'Section Nine'. Six names, in a list, in a document from a department that has no business knowing they exist. Read the names out as a list. Do not comment on it, do not let him comment on it, and do not let anybody in the scene find it significant.\n\nUnder ten minutes. This scene turns the episode and then gets out of the way.",
+  "runsAbout": "8-10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "Evening muster in the yard, under the board.",
+    "firstThing": "He is holding a single sheet of paper at arm's length, the way people hold a thing they have already read twice and did not enjoy either time.",
+    "readAloud": "Muster, and he is already there, which he never is.\n\nHe has one sheet of paper. He does not put it down for the whole of what follows, and he does not look up from it much either.",
+    "landmark": "the duty board behind him, with the fortnight still on it",
+    "holdInReserve": "The sheet has a departmental header on it, and it is not his department's. Only for somebody who gets close enough to see the top of the page.",
+    "carriesIn": [
+      {
+        "when": "Anyone got the countersignature name in The Long Afternoon",
+        "then": "The header on this sheet is the same department. Do not point at it -- let whoever has that name in their notes make the connection or not."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "label": "The Section Officer",
+      "role": "Delivering an order he did not write, did not want, and cannot change.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To deliver this without anybody noticing it was not his idea. Failing that, to make absolutely clear that the fortnight stands.",
+        "opensWith": "Reading from the sheet without preamble, starting mid-formality, because starting properly would mean acknowledging the sheet.",
+        "willDiscuss": [
+          {
+            "topic": "The fortnight, which stands",
+            "note": "Emphatically, twice, unprompted. This is the part he has authority over and he leans on it."
+          },
+          {
+            "topic": "Times, places, kit, and what 0700 means",
+            "note": "Precisely and correctly. He is good at this part and it is a relief to him to be on it."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Who ordered it and why",
+            "why": "He does not know. That is the real answer and it costs him something to give it, so he gives it in as few words as possible and moves on."
+          },
+          {
+            "topic": "Why the order names them individually",
+            "why": "He has noticed. He has no explanation and does not intend to speculate in front of trainees. If pressed he says it is how the department that wrote it does things, which he does not believe."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped, procedural, and for once slightly too fast -- he wants this over.",
+          "tics": [
+            "Says 'as discussed' about things that were not discussed",
+            "Calls them 'Section Nine', and tonight has to read six names instead, which he does flatly",
+            "Answers a question by reading the relevant clause aloud",
+            "When surprised, pauses exactly one beat and recasts the surprise as expected"
+          ],
+          "samples": [
+            "\"Familiarisation. Frame and vehicle. Hangar Two, zero seven hundred, tomorrow.\"",
+            "\"This does not affect the roster. The roster stands. You'll do both.\"",
+            "\"I don't know. It came down this afternoon and it came down past me.\"",
+            "\"It's addressed as it's addressed. Take it up with the people who addressed it, if you can find them.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "he-reads-it",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He reads the order out. Familiarisation, Frame and vehicle, Hangar Two, 0700 tomorrow.",
+      "npcRef": "section-officer",
+      "readAloud": "\"Right. Familiarisation -- Frame and vehicle. Hangar Two, zero seven hundred, tomorrow morning.\"\n\nHe turns the sheet over, finds nothing on the back, and turns it again.\n\n\"This does not affect the roster. The roster stands. You will do both.\"",
+      "direction": "Play the paper. He handles it more than he needs to, because it is the only thing in the yard he cannot simply be correct about.\n\nDo not editorialise. He reads it, he adds the bit about the roster twice, and he waits to see whether anybody is going to make this harder than it needs to be.",
+      "note": "HOW TO PLAY IT. The comedy and the unease are the same beat: a man who has spent two scenes being immovably in charge of their lives is holding a piece of paper that went over his head, and he is handling it like it is slightly warm."
+    },
+    {
+      "id": "six-names",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He reads the distribution list. It is not addressed to Section Nine -- it names all six of them, individually.",
+      "npcRef": "section-officer",
+      "direction": "**Read the names out as a flat list, using the players' actual character names.** Then move straight on to logistics. No pause, no weight, nobody in the scene reacts.\n\nIf a player asks why, he gives the honest answer -- he does not know -- and then the deflection about how that department does things, which he plainly does not believe.\n\n**Read all six names aloud, actually, one at a time.** It takes four seconds and it is the entire beat.\n\nHe does not comment on it and must not be played as rattled. What he does is slow down slightly and then carry on, and a player watching him is the only person in the room who sees that happen.\n\nIf anybody asks what order the names are in, nobody knows, including him.",
+      "nodeRefs": [
+        "arc-mitflit-frame-core-link"
+      ],
+      "note": "PLANT. Third touch on the same thread: they were flagged together at intake, streamed into one section, and are now being named individually in an order from a department with no business giving it: Medical, the department that took their blood.\n\nGM-ONLY: the marker they all carry is why. Nothing tonight or tomorrow confirms that and no character in this episode knows it except Shucks, who says nothing, and Rand, who wrote the order.\n\nWHAT IT DOES NOT MEAN: nobody is being singled out for punishment, nobody is under suspicion, and this is not a trap. It is an administrative consequence of a fact about their blood that nobody has told them.\n\nIF NOBODY REACTS: that is fine and common. The fact is now in the room and in their notes. It does not need to land tonight.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): the order is Rand's, Shucks's detached right hand, signed \"Rand\" over the Medical stamp in Shucks's old handwriting. If a player works out a pattern at the table, write down what they said and confirm nothing -- see `arc-the-countersignature`.",
+      "readAloud": "He reads the distribution list because he reads everything, and about a third of the way through it he slows down.\n\nIt is not addressed to Section Nine. It is addressed to six people, by name, in an order that is not alphabetical and is not the order on his roster.\n\nHe finishes reading it out anyway."
+    },
+    {
+      "id": "read-him",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches him rather than listening to the order, offer the check.",
+      "challengeRef": "c1e2-the-override",
+      "checkRef": "read-him",
+      "npcRef": "section-officer",
+      "when": {
+        "condition": "if a player attends to how he is delivering it rather than to what it says"
+      },
+      "direction": "What a success buys: he did not request this, he was not consulted, and he found out this afternoon. He is not frightened of it. He is embarrassed by it, which for him is worse.\n\nOn a critical success, add the header on the sheet -- a department, not his, and the same one on the countersignature if anybody has chased that.",
+      "note": "HOW TO PLAY IT. This is the scene's real content for an observant player, and it is genuinely useful: it establishes that the Section Officer is a small man in a large building, not the author of their problems. That reframing matters for the rest of the campaign and it is better discovered than told.\n\nWIDTH. Works for a socially-attentive player, and the crit-success header version works for a detail-hunting one.",
+      "nodeRefs": [
+        "arc-the-countersignature"
+      ]
+    },
+    {
+      "id": "what-they-say",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If the party knows the countersignature name, they can choose to let him know they know it.",
+      "when": {
+        "condition": "if anyone found the name in The Long Afternoon and decides to use it here"
+      },
+      "direction": "This is a real, cheap, consequential choice and it belongs to the players entirely. Saying the name out loud to him tells him they have been in the records office.\n\nHe does not punish it. He looks at whoever said it for slightly too long, says nothing about it, and finishes the muster. From then on he is careful around that player specifically -- not hostile, careful, which is a different and more interesting relationship.\n\nIf they say nothing, they keep a small private advantage and he keeps thinking of them as trainees who do what they are told.\n\n**An invented fourth option is likely here and should work.** Asking him whether he requested them, without naming anybody; mentioning the department on the header rather than the person; telling him later, alone, away from the other five. Treat any of those as saying it -- he is not slow -- but let the private version cost less, because it is a kindness and he will register it as one.",
+      "note": "HOW TO PLAY IT. Both branches are good and neither is a trap. Do not prompt for this -- if nobody thinks to use the name, it stays in their pocket and is still there next time.\n\nNo roll. This is a decision, not a test.",
+      "choicePoint": {
+        "label": "Do they let him know they have the name?",
+        "options": [
+          {
+            "id": "say-it",
+            "label": "Say the name out loud",
+            "consequence": "It tells him they have been in the records office. He does not punish it -- he looks at whoever said it for slightly too long, says nothing about it, and finishes the muster. From then on he is careful around that player specifically. Not hostile. Careful, which is a different and more interesting relationship."
+          },
+          {
+            "id": "keep-it",
+            "label": "Keep it",
+            "consequence": "They hold a small private advantage, and he goes on thinking of them as trainees who do what they are told."
+          }
+        ],
+        "allowsInventedOption": true
+      }
+    },
+    {
+      "id": "dismissed",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He dismisses them. The evening is still theirs.",
+      "npcRef": "section-officer",
+      "direction": "One line and gone. He does not linger and he takes the sheet with him.",
+      "note": "HOW TO PLAY IT. The evening box on the board is still empty, and 0700 is a long way off. Move straight into The Night Off while the table is still holding both of those facts.",
+      "readAloud": "\"That's all. Zero seven hundred, Hangar Two, and the roster still stands.\" He folds the sheet along a crease it did not arrive with. \"The evening is your own.\"\n\nIt is the first thing he has given them all day and he does not appear to notice that he has."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "He walks off with the sheet.",
+    "readAloud": "Frames in the morning. The sea wall again the day after. Both of those are apparently true at the same time, and the evening in between is still empty.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "standing",
+        "delta": null,
+        "why": "Somebody well above him has now spent attention on Section Nine twice. Move this if the party noticed that rather than noticing his face."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Nothing moves them on. The evening box is empty and muster is over, which is the whole invitation.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into The Night Off.",
+    "writeDown": [
+      "Whether anyone clocked that the order names them individually, and whether they said anything about it.",
+      "Whether anybody read him, and whether they now know he did not request this.",
+      "If anyone used the countersignature name in front of him -- and who."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "watch-him-not-the-paper",
+      "text": "He has read that sheet before and he is still holding it wrong. Worth watching him rather than listening to it?"
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-paper",
+      "text": "Whether his discomfort with the sheet landed -- a man who cannot be correct about something, in public."
+    },
+    {
+      "id": "six-names",
+      "text": "Whether the individually-addressed order registered at all, and what if anything the table made of it.",
+      "scaleNote": "0 = went straight past, 10 = somebody wrote the detail down."
+    },
+    {
+      "id": "used-the-name",
+      "text": "If anyone played the countersignature name at him, and how that changed the room."
+    },
+    {
+      "id": "too-slight",
+      "text": "If the scene felt too slight to be worth stopping for -- it is deliberately short, but short is not the same as thin.",
+      "scaleNote": "0 = did its job cleanly, 10 = needs more in it."
+    }
+  ],
+  "notes": "WHAT THIS SCENE IS FOR. Three things, in about nine minutes: the party is going to touch a Frame tomorrow, the punishment did not go away, and somebody senior asked for them by name. The third is the one that matters and it is the one nobody in the scene remarks on.\n\nTHE SECTION OFFICER GETS SMALLER HERE, ON PURPOSE. Two scenes of him being the immovable fact of their lives, and now a single sheet of paper demonstrates how far up the building goes above him. He is not humiliated and should not be played as pitiable -- he is simply revealed as mid-sized. A party that reads him correctly comes away understanding their actual situation better.\n\nNO CLIFFHANGER. Do not engineer a dramatic beat to end the evening on. The scene ends with him walking off and an empty box on the board, and what happens next is whatever the party decides to do with a free evening."
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-names-are-still-up",
+  "type": "audio-soundscape",
+  "title": "S2 · The Names Are Still Up",
+  "note": "'Hangar Two after dark... nobody adult is present to tell them what any of it meant.' Sad pool -- the campaign's actual quiet-reflective register, not merely 'thoughtful'. A very faint industrial layer, the same family as Flood Tunnel's, at a fraction of the level: the hall is enormous, dark and empty, and the point is how little is in it.",
+  "music": {
+    "pool": "sad"
+  },
+  "ambience": [
+    {
+      "track": "factory-mechanical-s011-ssfx",
+      "level": -22
+    }
+  ],
+  "fade": 4500
+}

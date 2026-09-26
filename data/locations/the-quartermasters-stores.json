@@ -1,0 +1,126 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-quartermasters-stores",
+  "type": "location",
+  "tier": "site",
+  "name": "The Quartermaster's Stores",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": 2,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21802517,
+          34.68216595
+        ],
+        [
+          135.21810713,
+          34.68179832
+        ],
+        [
+          135.2196226,
+          34.68202863
+        ],
+        [
+          135.21954278,
+          34.68238684
+        ],
+        [
+          135.21954522,
+          34.6823867
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6993,
+          5195.3
+        ],
+        [
+          7020.2,
+          5226.6
+        ],
+        [
+          7126.8,
+          5134
+        ],
+        [
+          7100.3,
+          5103.5
+        ],
+        [
+          7100.5,
+          5103.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7059.84,
+      5165.07
+    ],
+    "cells": [
+      "D3·34",
+      "D3·44",
+      "D3·35",
+      "D3·45"
+    ],
+    "ref": "D3·34",
+    "areaM2": 5776.5,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-554",
+    "promotedDate": "2026-09-18"
+  },
+  "authoring": {
+    "note": "The Garrison's own supply counter: personnel kit issued against a docket, signed for, and gone again inside a minute. Nobu runs it alone at a pace that should be impossible and somehow isn't -- every candidate leaves kitted, logged, and one item richer than their budget said they should be.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The Garrison's own supply counter: personnel kit issued against a docket, signed for, and gone again inside a minute. Nobu runs it alone at a pace that should be impossible and somehow isn't -- every candidate leaves kitted, logged, and one item richer than their budget said they should be.",
+    "playerFacing": "A long counter backed by shelving that runs floor to ceiling, everything labelled, nothing decorative. The room smells of machine oil and stamped paperwork, and it is never quiet -- a radio somewhere behind the shelving, a phone that rings and gets answered mid-sentence, a man talking to three people at once and somehow finishing every conversation. Whatever's on the docket is on the counter before the door's finished swinging shut.",
+    "gmOnly": "This is Kit Issue's real location -- see data/scene-briefs/episode-c1e1--kit-issue.json for the full scripted beat and data/npcs/nobu.json / ideas/story/bible/characters/nobu.md for his voice and the material that must never be played early. Outside that scripted scene, treat the stores as the standing answer to 'where does personnel equipment come from' -- a resupply, an exchange, a lost-kit replacement can all be run here on the same register: fast, functional, Nobu mid-sentence throughout.\n\nIf a scene here ever needs tension, find it somewhere other than Nobu's manner -- he is never the source of unease."
+  },
+  "scene": {
+    "hooks": [
+      "A candidate corners Nobu after hours hoping for a second of his undivided attention, and gets exactly the same fast, warm thirty seconds everyone else does -- which lands as reassuring to some and as a small, specific disappointment to others.",
+      "The queue backs up past the door on a day the Garrison's short-staffed, and whoever's waiting has time to actually look at the shelves instead of the counter -- and the shelves say more about what this base expects to need than the catalogue does."
+    ],
+    "activities": [
+      "Draw or exchange personnel equipment against a standing docket.",
+      "Report lost or damaged kit and get it replaced -- no questions beyond the paperwork.",
+      "Catch Nobu between three conversations for thirty seconds of his actual, undivided attention."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "nobu"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e1--kit-issue"
+  ],
+  "playlistRefs": []
+}

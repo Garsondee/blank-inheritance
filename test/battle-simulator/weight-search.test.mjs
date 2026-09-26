@@ -12,7 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
+import { makeRng } from "../../tools/battle-simulator/shared/rng.mjs";
 import { DEFAULT_WEIGHTS } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { BASELINE_V1, assertCompleteWeights } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
 import { MINDLESS_V1, ZEALOT_V1 } from "../../tools/battle-simulator/personnel-engine/archetypes.mjs";

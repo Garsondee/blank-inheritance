@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-zero-six-hundred",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Zero Six Hundred",
+  "description": "One optional check, for a player who talks to Taka rather than eating and leaving. It costs nothing on any result, because the scene it sits in has no stakes and should not grow any.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "ask-him-what-its-like",
+      "name": "Get the advice he got up at five to give",
+      "skillOptions": [
+        "diplomacy",
+        "piloting"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy. He came here specifically to tell them this and is doing most of the work -- the difficulty is engaging with him at all at six in the morning",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the thing he has never said out loud: he was sick in front of a Section Officer on his own first day, and it did not matter, and nobody remembers it but him. Given as a gift rather than a confession, at speed, and then immediately talked over.",
+        "success": "Real, specific, accurate advice: what the hangar is like, what the Range Safety Officer is actually watching for, what he wishes somebody had told him. All of it turns out to be true within the hour.",
+        "failure": "He talks for four minutes about a machine he liked and they come away with nothing usable and quite a lot of enthusiasm. No cost, and it is a pleasant four minutes.",
+        "criticalFailure": "As failure, and he eats something off their tray while doing it."
+      },
+      "bySkill": {
+        "diplomacy": "Asking him properly, which is all it takes. The intended route and the cheapest one.",
+        "society": "Knowing that somebody a year ahead is the best source on this island and treating him as one.",
+        "perception": "Noticing the cold cup and working out he has been sitting here since before they arrived, which changes what they ask him.",
+        "piloting": "Talking to him about the machines rather than about the day, which gets him going properly."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any one player, though the whole table hears the answer"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--zero-six-hundred",
+    "episode-c1e2--familiarisation",
+    "episode-c1e2--the-exercise"
+  ],
+  "notes": "NOTHING HERE COSTS ANYTHING ON ANY RESULT, including critical failure. This is a breakfast scene between a night off and a hangar, and it should not grow stakes it was not built with.\n\nTAKA'S WARNING IS NOT GATED ON THIS CHECK. He delivers it whether or not anybody rolls -- it is a friend telling them over breakfast that everybody over-grips the controls and their hands will seize up by eleven. What the check buys is the rest: what the hangar is like and what the Range Safety Officer is watching for.\n\nPAYS OFF WITHIN THE HOUR in Familiarisation and The Exercise. A success is real advice that turns out to be accurate. Do not announce that it was worth anything, and do not convert it into a numeric bonus -- a player who knows what is coming plays the next scene differently, which is the whole reward.\n\nTHE CRITICAL SUCCESS IS A CONFIDENCE, NOT AN ADVANTAGE. He admits he was sick in front of a Section Officer on his own first day. It buys nothing mechanically. It is there because a character who gives you something embarrassing about themselves at six in the morning is doing something, and the party should get to have that.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+}

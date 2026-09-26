@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "landing-end-duty-nco",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": null,
+  "role": "Duty NCO, The Landing End",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Whoever is standing duty NCO for the Landing End on a given watch -- covers the maintenance log, the drain-cover checks after a high tide, and whatever else turns up on a quiet night shift that technically isn't in anyone's job description.",
+  "designNotes": "Created 2026-09-18 with The Drain Head (data/locations/the-drain-head.json), to fill that location's scene-depth npcRef honestly rather than leaving it blank -- this is a rotating duty posting, not a fixed recurring character. Name, manner, and whether it's ever played as the same person twice are all open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast; a rotating duty role, not a fixed character"
+}

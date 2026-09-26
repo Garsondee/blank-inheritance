@@ -25,6 +25,7 @@ const MODULE_ID = "blank-inheritance";
 export class EquipmentPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #actingAsUserId = null;
   #force = false;
+  #bonus = false;
 
   static DEFAULT_OPTIONS = {
     id: "bi-equipment-panel",
@@ -41,7 +42,8 @@ export class EquipmentPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       returnOne: EquipmentPanel.#onReturn,
       revoke: EquipmentPanel.#onRevoke,
       setActingAs: EquipmentPanel.#onSetActingAs,
-      toggleForce: EquipmentPanel.#onToggleForce
+      toggleForce: EquipmentPanel.#onToggleForce,
+      toggleBonus: EquipmentPanel.#onToggleBonus
     }
   };
 
@@ -60,14 +62,15 @@ export class EquipmentPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         ]
       : [];
 
-    return { ...context, force: this.#force, actingAsOptions };
+    return { ...context, force: this.#force, bonus: this.#bonus, actingAsOptions };
   }
 
   static async #onTake(event, target) {
     const result = await requestGrant({
       itemId: target.dataset.itemId,
       actingAsUserId: this.#actingAsUserId,
-      force: this.#force
+      force: this.#force,
+      kind: this.#bonus ? "bonus" : "issue"
     });
     if (result && result.ok === false) {
       ui.notifications.warn(game.i18n.format("BLANKINHERITANCE.Equipment.TakeFailed", { reason: result.reason }));
@@ -94,6 +97,12 @@ export class EquipmentPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static #onToggleForce() {
     this.#force = !this.#force;
+    this.render();
+  }
+
+  /** GM-only, mirrors #onToggleForce exactly -- see equipment-state.mjs's own "kind" comment for why this exists (#178: telling Nobu's free extra item apart from a normal budgeted pick, after the fact, without asking the GM to remember). */
+  static #onToggleBonus() {
+    this.#bonus = !this.#bonus;
     this.render();
   }
 }

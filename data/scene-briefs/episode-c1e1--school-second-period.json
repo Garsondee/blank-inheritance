@@ -1,0 +1,245 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--school-second-period",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "school-second-period",
+  "title": "School: Second Period",
+  "summary": "The last lesson before they are let off campus. A room full of jars and trays and things caught within a mile of where they now sit, or a room where six girls with headsets are connecting every telephone call on the island and nobody has ever thought about it.",
+  "goal": "Every player has sat a second lesson of their own choosing and come out with something, and the party has two more things in their hands that nobody has explained.",
+  "howToPlay": "Short, and warmer than anything else today. Run both rooms in parallel and keep the whole thing to about fifteen minutes.\n\n**Both rooms are run by people who are pleased somebody is interested.** After a morning of being processed, weighed and addressed, this is the first hour of the day where an adult is glad to see them, and that is the scene's real job -- more than either check.\n\nNeither room announces what a good roll is worth or what a bad one costs.",
+  "runsAbout": "15 minutes for both, run in parallel",
+  "mode": "downtime",
+  "intro": {
+    "where": "Two rooms on the ground floor, on opposite sides of a stairwell. One of them is louder than a classroom should be and it is not the one with the animals in it.",
+    "firstThing": "Two doors, and only one of them is making a noise.",
+    "readAloud": "Two more doors. The left one smells of seawater and preserving fluid and is full, wall to wall, of trays and jars with things in them.\n\nThe right one is making a noise like a shed full of crickets, which turns out to be eleven switchboard positions and the people working them.",
+    "landmark": "the stairwell between the two doors, with a fire-drill notice on it that nobody has updated in years",
+    "holdInReserve": "The jar at the end of the top shelf has no label. She took it off herself, because the label was a guess and she did not want to keep repeating one.",
+    "carriesIn": [
+      {
+        "when": "Kit Issue was played (it was, immediately before)",
+        "then": "Somebody is carrying a stores docket and a joke the Section Officer thought was funny. They are not allowed off the island until after this lesson, so it sits in a pocket through a room full of jars or a live switchboard."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "school-natural-history-teacher",
+      "npcRef": "school-natural-history-teacher",
+      "label": "The natural history teacher",
+      "role": "Teaches what lives in, on and under the island, almost all of it caught personally within a mile of the room.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Somebody, anybody, to be interested in the things she has spent thirty years pulling out of the drains and the tide-line. She has largely given up expecting it and has not stopped hoping.",
+        "opensWith": "A tray already out on the front desk with something on it, and no preamble at all.",
+        "willDiscuss": [
+          {
+            "topic": "Anything in the room, at length",
+            "note": "Delighted. She will drop the lesson entirely to answer a real question and she considers that a good trade."
+          },
+          {
+            "topic": "What actually lives in the flooded levels under the old town",
+            "note": "Specifically and usefully. Centipedes the length of an arm, and why they are down there, and what they do when a light comes round a corner."
+          },
+          {
+            "topic": "The things she cannot identify",
+            "note": "Cheerfully and without embarrassment. She has three. She will show them one."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Anything outside her own mile of coastline",
+            "why": "Not reticence -- she will simply tell them she has not caught one and therefore does not know, and she is not interested in repeating somebody else's guess. It is the same principle as the unlabelled jar."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Fast, delighted, slightly too much. Talks about animals the way other people talk about family.",
+          "tics": [
+            "Hands them the jar rather than describing it",
+            "Says the Latin and then immediately says the real name",
+            "Admits she does not know and treats that as the interesting part"
+          ],
+          "samples": [
+            "\"Ask me something. Anything. I have four minutes and nobody ever asks me anything.\"",
+            "\"That one bites. It won't kill you. It will absolutely ruin a fortnight.\"",
+            "\"I don't know. Isn't that wonderful? Somebody will, eventually, and it might be one of you.\"",
+            "\"Put it back where it was, exactly, or it sulks.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "switchboard-supervisor",
+      "npcRef": "switchboard-supervisor",
+      "label": "The switchboard supervisor",
+      "role": "Runs the island's telephone exchange, and takes the signals period because the exchange is the only place to teach it.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Them to understand that every word spoken between any two parts of this organisation goes through eleven people in this room, and to behave accordingly.",
+        "opensWith": "Putting a spare headset on one of them mid-sentence and letting them listen to a live position.",
+        "willDiscuss": [
+          {
+            "topic": "Procedure -- callsigns, priority, what a proper transmission sounds like",
+            "note": "Exactly and well. It is a real skill and they teach it as one."
+          },
+          {
+            "topic": "What the exchange can and cannot hear",
+            "note": "Straightforwardly. Their operators connect every call on the island. They do not listen. They could."
+          },
+          {
+            "topic": "What it sounds like when somebody is frightened on a radio",
+            "note": "Quietly, and from experience. This is the part of the lesson that is not about procedure at all."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Anything they have ever overheard",
+            "why": "Flatly and finally. It is the one thing that would end their career and they are not remotely tempted."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Quiet, exact, a little tired. Used to being the most informed person in a room and never once using it.",
+          "tics": [
+            "Gives the correct phrasing rather than describing the correct phrasing",
+            "Pauses before answering, because they are checking whether they are allowed to",
+            "Says 'the position' rather than 'the operator'"
+          ],
+          "samples": [
+            "\"Say it the way it goes out. Not what you mean -- what goes out. Those are different and the difference is the whole lesson.\"",
+            "\"Eleven positions in this room and every call on this island goes through one of them. We do not listen. I would like you to notice that I said do not.\"",
+            "\"You will know when somebody is frightened. It is not in the words. They will use all the right words.\"",
+            "\"That is not procedure. -- No, I am not telling you off, I am telling you that you would know it if you heard it.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "which-room-again",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Two more doors, and they do not have to go the same way they went this morning.",
+      "choicePoint": {
+        "label": "Second period. Left or right?",
+        "options": [
+          {
+            "id": "natural-history",
+            "label": "Natural history -- jars, trays, and everything that lives under this island.",
+            "consequence": "A woman who is genuinely delighted somebody came, and who knows exactly what is in the flooded levels."
+          },
+          {
+            "id": "signals",
+            "label": "Signals -- the telephone exchange, live, with a spare headset going round.",
+            "consequence": "How to talk on a radio properly, taught in the room where every call on the island is physically connected by hand."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "direction": "Take each pick individually. Players may swap from their morning choice and it costs nothing.\n\nSkipping both is allowed and costs nothing. A player who would rather go and look at the docket, or find out where the trams leave from, has done a reasonable thing with a free period.",
+      "note": "HOW TO PLAY IT. Natural history pays off tonight in the flood tunnel, six hours from now, on `what-lives-down-there`. Signals pays off next episode in Unidentified Contact, and changes how that scene reads rather than helping any check. Say neither.\n\nWrite down who went where.\n\nAN INVENTED THIRD OPTION SHOULD BE BACKED. Plausible ones: the library, the canteen at a quiet hour, going to find the tram timetable for this afternoon, or going back to the workshop. Price on the standard ladder and return something real."
+    },
+    {
+      "id": "natural-history",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "A tray already out, a jar handed over without warning, and thirty years of things pulled out of the drains.",
+      "challengeRef": "c1e1-school-second-period",
+      "checkRef": "what-lives-down-there",
+      "npcRef": "school-natural-history-teacher",
+      "when": {
+        "condition": "for players who chose natural history, and only if one of them engages"
+      },
+      "readAloud": "\"Hold that. -- No, properly, both hands, it is heavier than it looks and it is the only one I have.\n\nRight. There are things down in the old flooded levels the length of your arm, and they are not interested in you at all until you put a light on them. Everyone finds them horrible and everyone is wrong, and I have about four minutes to fix that.\"",
+      "direction": "Play her fast and delighted. She will abandon the lesson to answer a real question and considers that a good trade.\n\nIf anybody asks about the unlabelled jar at the end of the top shelf, she is completely open: she has had it eleven years, she does not know what it is, and she took the label off because the label was a guess.",
+      "note": "HOW TO PLAY IT. She is the first adult all day who is pleased to see them, and after a morning of being processed that should land.\n\nPAYS OFF TONIGHT. A success here means the player has already made the Recall Knowledge check on what they meet in the flood tunnel -- see the challenge file. Use a real SF2E action rather than inventing anything, and do not mention it now.\n\nPLANT. The unlabelled jar is a real plant and it goes nowhere in Episodes One or Two. She does not know what it is, she says so, and that is the whole beat.\n\nWHAT IT DOES NOT MEAN: it is not Frame biology, it is not a Proto-Claimant, and it is not connected to anything the party will meet. Nothing should imply otherwise. If it ever becomes one of those things, that is a decision for Ingram and it goes on a Node first."
+    },
+    {
+      "id": "signals",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "A live exchange, a spare headset, and the difference between what you mean and what goes out.",
+      "challengeRef": "c1e1-school-second-period",
+      "checkRef": "radio-procedure",
+      "npcRef": "switchboard-supervisor",
+      "when": {
+        "condition": "for players who chose signals, and only if one of them engages"
+      },
+      "readAloud": "\"Say it the way it goes out. Not what you mean -- what goes out. Those are different, and the difference is the whole lesson.\n\nEleven positions in this room, and every call on this island goes through one of them. We do not listen.\" A pause. \"I would like you to notice that I said do not.\"",
+      "direction": "Quiet, exact, slightly tired. They are the best-informed person on the island and have never once used it, and they would like the party to understand why that is a choice.\n\nThe last part of the lesson is not procedure. It is what a frightened voice sounds like when it is still using all the correct words, and they teach it from experience without saying whose.",
+      "note": "HOW TO PLAY IT. The lesson is procedure. The thing worth having is the last two minutes of it.\n\nPAYS OFF NEXT EPISODE, and it changes a scene rather than helping with a check. In Unidentified Contact the Comms Officer tells the party to hold position and stay clear. A player who took this lesson can hear that she is off procedure -- that what she said was not the instruction the book gives, and that she said it anyway. Her warning stops being an order and becomes a person being frightened for them. Do not mention any of that now.\n\nWHAT IT DOES NOT MEAN: the exchange is not spying on anybody and the supervisor is not hinting that they are. The line about not listening is a statement of professional ethics, delivered to children, on purpose."
+    },
+    {
+      "id": "corridor-again",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Out, and off campus, with a docket somebody has handed them.",
+      "direction": "Thirty seconds to compare, same as this morning, and then they are let off the island.",
+      "note": "HOW TO PLAY IT. Same thirty seconds as first period, with one difference: somebody is carrying a stores docket and they are about to be let off the island."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The bell, and a docket, and a pass off the island.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "Only if somebody came out of natural history knowing what lives under this island, or out of signals understanding what a correct transmission sounds like."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Somebody needs something from a shop in the city and the six of them are the people not currently doing anything.",
+      "scatterRisk": false
+    },
+    "onwards": "Into The Errand.",
+    "writeDown": [
+      "Who went to which room. Natural history pays tonight; signals pays next episode.",
+      "Anybody who asked about the unlabelled jar.",
+      "Anybody carrying extra work out of this, and what it costs them tonight."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-unlabelled-jar",
+      "text": "There is one jar on the top shelf with no label on it and she has not mentioned it."
+    },
+    {
+      "id": "listen-to-a-position",
+      "text": "The spare headset is live and there is a call going through it right now."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "glad-to-see-them",
+      "text": "Whether both teachers landed as the first adults all day who were pleased somebody turned up.",
+      "scaleNote": "0 = read as more processing, 10 = a real change of temperature after the morning."
+    },
+    {
+      "id": "the-jar",
+      "text": "Whether the unlabelled jar got noticed, and whether her cheerful 'I don't know' landed better than a mystery would have."
+    },
+    {
+      "id": "do-not-listen",
+      "text": "The switchboard supervisor's line about not listening -- whether the table caught the emphasis."
+    },
+    {
+      "id": "four-rooms",
+      "text": "Across both periods, whether the four rooms felt genuinely different from each other."
+    }
+  ],
+  "notes": "WHY THIS SCENE IS HERE. It is the second half of the pair, and its real job is contrast: first period was a map and a machine shop, this one is living things and voices. Four rooms across one morning, none of them the same kind of room.\n\nTHE SAME THREE RULES. Not rolling is free. Risks and rewards are not announced. Failure and critical failure cost something real, and what that is differs from first period on purpose -- see the challenge file.\n\nBOTH TEACHERS ARE GLAD SOMEBODY CAME. After a morning of medicals, an assembly and a kit queue, this is the first hour where an adult is pleased to see them. That is the scene's actual emotional job and it matters more than either check.\n\nTWO PLANTS, NEITHER RESOLVED. A jar she cannot identify and has been honest about for eleven years, and a room full of people who could hear everything and do not. Neither goes anywhere in Episodes One or Two.\n\nSIGNALS CHANGES A LATER SCENE RATHER THAN HELPING A LATER CHECK, and it pays off in Unidentified Contact. That is deliberate and it is the more interesting kind of reward: a player who sat this lesson hears the Comms Officer break procedure to warn them, and nobody tells them that is what happened."
+}

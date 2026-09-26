@@ -86,6 +86,7 @@ export const STYLESHEETS = Object.freeze([
   "styles/bi-fonts.css",
   "styles/bi-tokens.css",
   "styles/bi-components.css",
+  "styles/bi-agreement.css",
   "styles/bi-foundry-bridge.css"
 ]);
 
@@ -104,15 +105,28 @@ export const THEME_SETTINGS = Object.freeze([
     key: "rosterInBar",
     name: "BLANKINHERITANCE.Settings.RosterInBar.Name",
     hint: "BLANKINHERITANCE.Settings.RosterInBar.Hint",
-    scope: "client",
+    // world, not client (changed live 2026-09-17): this started as a
+    // per-browser preference, but that meant a client-scoped `default: true`
+    // only actually hides the roster for a browser that has never touched
+    // the setting before — anyone (GM or player) who had it stored from
+    // before the default flipped keeps seeing Foundry's roster regardless,
+    // with no way for the table to fix it except hunting down that one
+    // obscure checkbox in Foundry's own Configure Settings, once per
+    // browser. Found live on the real server: Ingram's own browser still
+    // showed the roster after this exact default change shipped. Whether
+    // Foundry's roster is redundant with the deck's own ident/cast modules
+    // is a campaign-wide fact, not a personal taste — a world setting, GM-
+    // set once, is instant for the whole table via the onChange below and
+    // needs nobody else to go looking for it.
+    scope: "world",
     config: true,
     type: Boolean,
     // Defaults true as of the deck (2026-09-17): the deck's own ident
     // (player) and cast (Director) modules now cover who's in this scene,
     // and Ingram asked directly to hide Foundry's own roster now that a
-    // replacement exists. Still a real client setting, not a hard removal —
-    // a GM who wants the connection/online status the deck doesn't show can
-    // switch it back on.
+    // replacement exists. Still a real setting, not a hard removal — a GM
+    // who wants the connection/online status the deck doesn't show can
+    // switch it back on for everyone.
     default: true
   }
 ]);

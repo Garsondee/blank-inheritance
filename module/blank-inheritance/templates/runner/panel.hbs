@@ -14,9 +14,35 @@
     slide-offscreen transform never carries it away: a closed drawer must
     still be findable.
 
-    The panel itself is rendered entirely in the PAPER register. This is a
-    document a person wrote, not a readout a machine produced, and
-    design/visual-identity.md §1b's split is semantic before it is decorative.
+    REBUILT 2026-09-24 at Ingram's request: "Reconsider it carefully... it
+    needs to be wider to get more contents on screen and so the actual
+    'scene' part will have to shrink for the GM again." The old panel was one
+    560px column and a nine-thousand-pixel scroll: every beat printed in full,
+    the people two screens below the beats in a closed fold. This one is a
+    wide drawer (about 43% of the screen, and draggable) laid out as columns:
+
+      header    — where the table is: scene, clock, required beats, the
+                  episode's running order, the rooms, Close this scene
+      script    — the goal, then the scene in the order it is run: the
+                  opening, one line per beat with the beat being run open,
+                  the ending, and Close this scene again at the foot
+      people    — who is on stage, the clock, what to tempt them with, and a
+                  card per cast member (the one the current beat is about
+                  opens by itself, so their voice sits beside the line)
+      kit       — handouts, things they keep, summon anyone, the rules
+      composer  — the note bar, always at the foot
+
+    Below ~760px of drawer the columns stack into one scroll; above ~1320px
+    the people and the kit get a column each (container queries on
+    .bi-runner, bi-components.css).
+
+    Redesigned 2026-09-19 at Ingram's own direction, reacting to a live
+    screenshot: "We're not even locked to the paper look. The goal is
+    comprehension and understandability. Rapid access to information.
+    First order retrieval." This panel carries its own --sr-* token theme
+    (bi-components.css, ".bi-runner" and ".bi-runner[data-bi-theme=dark]"),
+    switchable per client via the theme toggle in the tier-1 row, dark by
+    default per Ingram's own stated preference the same day.
 --}}
 <div class="bi-runner-frame">
     <button type="button" class="bi-runner-toggle" data-action="toggle" aria-pressed="{{open}}"
@@ -24,229 +50,518 @@
         <i class="fa-solid fa-clipboard-list bi-runner-toggle__glyph"></i>
     </button>
 <section class="bi-runner-shell{{#if open}} bi-runner-shell--open{{/if}}">
-<section class="bi-runner">
+<section class="bi-runner" data-bi-theme="{{theme}}">
     <header class="bi-runner__head">
-        {{#if episodeTitle}}<p class="bi-runner__episode">{{episodeTitle}}</p>{{/if}}
-        <h2 class="bi-runner__title">{{#if title}}{{title}}{{else}}{{localize "BLANKINHERITANCE.Runner.Title"}}{{/if}}</h2>
-        {{#if summary}}<p class="bi-runner__summary">{{summary}}</p>{{/if}}
+        <div class="bi-runner__head-line">
+            <p class="bi-runner__episode">{{#if episodeTitle}}{{episodeTitle}}{{else}}{{localize "BLANKINHERITANCE.Runner.Title"}}{{/if}}{{#if position}} <span class="bi-runner__position">{{position}}</span>{{/if}}</p>
 
-        {{!-- The episode's own scene list, which §10.7 asks the Scene drawer
-              to carry anyway. It is also the only thing binding "the scene
-              we are running" to authored content: canvas.scene is a MAP, and
-              most of a theatre-of-the-mind session has no map at all. --}}
-        {{#if scenes.length}}
-        <ul class="bi-runner__scenes">
-            {{#each scenes}}
-            <li><button type="button" class="bi-runner__scene" data-action="pickScene"
-                    data-brief-id="{{briefRef}}" aria-current="{{isCurrent}}">{{order}}. {{title}}</button></li>
-            {{/each}}
-        </ul>
-        {{/if}}
-
-        {{!-- The PICTURES for this brief: the room it opens in and every
-              room inside it, one click each. The episode list above picks
-              which script to run; this picks what the table is looking at. --}}
-        {{#if backdrops.length}}
-        <ul class="bi-runner__backdrops">
-            {{#each backdrops}}
-            <li><button type="button"
-                    class="bi-runner__backdrop{{#if this.isSub}} bi-runner__backdrop--sub{{/if}}{{#if this.isCurrent}} bi-runner__backdrop--on{{/if}}"
-                    data-action="cutTo" data-scene-id="{{this.id}}"
-                    data-tooltip="{{localize 'BLANKINHERITANCE.Runner.CutTo'}}">{{this.name}}</button></li>
-            {{/each}}
-        </ul>
-        {{/if}}
-
-        <div class="bi-runner__headfoot">
-            {{#if progress}}
-            <p class="bi-runner__progress">{{localize "BLANKINHERITANCE.Runner.Progress"}} <b>{{progress.mandatoryDone}}/{{progress.mandatory}}</b></p>
-            {{/if}}
-            <button type="button" class="bi-runner__palette" data-action="openPalette"
-                data-tooltip="{{localize 'BLANKINHERITANCE.Palette.Keybinding'}}">
-                <i class="fa-solid fa-terminal"></i> {{localize "BLANKINHERITANCE.Runner.Palette"}}
-            </button>
+            {{!-- TIER 1 -- design/ux-doctrine.md Law 7: "frequency sets
+                  distance from the hand... nothing important is more than
+                  one tap away." The header never scrolls. Close Scene is the
+                  loudest thing in it; the Palette ("Anything else...") is
+                  the smallest and quietest, the backup for when nothing else
+                  fits. --}}
+            <div class="bi-runner__tier1">
+                {{#if title}}
+                <button type="button" class="bi-runner__tier1-btn bi-runner__tier1-btn--close" data-action="closeScene">
+                    <i class="fa-solid fa-flag-checkered"></i> {{localize "BLANKINHERITANCE.Runner.CloseScene"}}
+                </button>
+                {{/if}}
+                <button type="button" class="bi-runner__tier1-btn" data-action="jumpToSummon" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.SummonHint'}}">
+                    <i class="fa-solid fa-masks-theater"></i> {{localize "BLANKINHERITANCE.Runner.Summon.Title"}}
+                </button>
+                <button type="button" class="bi-runner__tier1-btn" data-action="focusRules" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Rules.Placeholder'}}">
+                    <i class="fa-solid fa-book"></i> {{localize "BLANKINHERITANCE.Runner.Rules.Title"}}
+                </button>
+                <button type="button" class="bi-runner__theme-toggle" data-action="toggleTheme"
+                    title="{{localize 'BLANKINHERITANCE.Runner.ThemeToggle'}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Runner.ThemeToggle'}}">
+                    {{#if themeIsDark}}<i class="fa-solid fa-sun"></i>{{else}}<i class="fa-solid fa-moon"></i>{{/if}}
+                </button>
+                <button type="button" class="bi-runner__tier1-palette" data-action="openPalette"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.Palette.Keybinding'}}"
+                    title="{{localize 'BLANKINHERITANCE.Runner.Palette'}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Runner.Palette'}}">
+                    <i class="fa-solid fa-terminal"></i>
+                </button>
+                <button type="button" class="bi-runner__tier1-palette" data-action="toggle"
+                    title="{{localize 'BLANKINHERITANCE.Runner.Hide'}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Runner.Hide'}}">
+                    <i class="fa-solid fa-angles-left"></i>
+                </button>
+            </div>
         </div>
+
+        <div class="bi-runner__head-main">
+            <h2 class="bi-runner__title">{{#if title}}{{title}}{{else}}{{localize "BLANKINHERITANCE.Runner.PickScene"}}{{/if}}</h2>
+            {{#if title}}
+            <div class="bi-runner__status">
+                {{!-- How long this has been running, against how long it said
+                      it would. A statement of fact, not a countdown: a GM
+                      twelve minutes over on a scene the table is enjoying is
+                      not doing anything wrong. Kept current between renders
+                      by #startTimer. --}}
+                {{#if pacing.started}}
+                <span class="bi-runner__timer{{#if pacing.isOver}} bi-runner__timer--over{{/if}}"
+                    data-pace-started="{{pacing.startedAt}}" data-pace-runs="{{runsAbout}}"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.Runner.TimerHint'}}">
+                    <i class="fa-regular fa-clock"></i> <span class="bi-runner__timer-value">{{pacing.label}}</span>
+                </span>
+                {{else}}
+                {{#if runsAbout}}<span class="bi-runner__timer bi-runner__timer--idle" data-tooltip="{{runsAbout}}"><i class="fa-regular fa-clock"></i> {{#if pacing.label}}{{pacing.label}}{{else}}{{localize "BLANKINHERITANCE.Runner.NotStarted"}}{{/if}}</span>{{/if}}
+                {{/if}}
+                {{#if mode}}<span class="bi-runner__pill">{{mode}}</span>{{/if}}
+                {{#if accomplishment}}<span class="bi-runner__pill" data-tooltip="{{accomplishment.forWhat}}">{{accomplishment.xp}} XP</span>{{/if}}
+                {{#if clock}}<span class="bi-runner__pill bi-runner__pill--clock{{#if clock.exhausted}} bi-runner__pill--spent{{/if}}">{{clock.name}} {{clock.current}}/{{clock.limit}}</span>{{/if}}
+                {{#if requiredSegments.length}}
+                <span class="bi-runner__progress" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Progress'}}">
+                    {{localize "BLANKINHERITANCE.Runner.Required"}}
+                    <span class="bi-runner__meter">{{#each requiredSegments}}<span class="bi-runner__meter-seg{{#if done}} bi-runner__meter-seg--done{{/if}}{{#if ruledOut}} bi-runner__meter-seg--out{{/if}}"></span>{{/each}}</span>
+                    <b>{{progress.mandatoryDone}}/{{progress.mandatory}}</b>
+                </span>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+
+        {{!-- The episode's running order -- every scene one press away, which
+              both loads its script AND cues its own Scene (2026-09-19: these
+              used to be two separate steps, the second one undiscoverable).
+              Closed scenes are marked; only this one and the next one print
+              their titles, the rest keep theirs in a tooltip, so eleven scenes
+              fit one line instead of three. --}}
+        {{#if steps.length}}
+        <nav class="bi-runner__steps" aria-label="{{localize 'BLANKINHERITANCE.Runner.RunningOrder'}}">
+            <ol class="bi-runner__scenes">
+                {{#each steps}}
+                <li><button type="button" class="bi-runner__scene" data-action="cueScene"
+                        data-brief-id="{{briefRef}}" aria-current="{{isCurrent}}" data-closed="{{isClosed}}" data-next="{{isNext}}"
+                        data-tooltip="{{order}}. {{title}} — {{localize 'BLANKINHERITANCE.Runner.CueSceneHint'}}"><span class="bi-runner__scene-order">{{order}}</span>{{#if showTitle}}<span class="bi-runner__scene-title">{{#if isNext}}{{localize "BLANKINHERITANCE.Runner.Next"}} {{/if}}{{title}}</span>{{/if}}</button></li>
+                {{/each}}
+            </ol>
+
+            {{!-- The PICTURES for this brief: the room it opens in and every
+                  room inside it, one press each. The running order picks
+                  which script to run; this picks what the table looks at. --}}
+            {{#if backdrops.length}}
+            <ul class="bi-runner__backdrops" aria-label="{{localize 'BLANKINHERITANCE.Runner.Rooms'}}">
+                {{#each backdrops}}
+                <li><button type="button"
+                        class="bi-runner__backdrop{{#if this.isSub}} bi-runner__backdrop--sub{{/if}}{{#if this.isCurrent}} bi-runner__backdrop--on{{/if}}"
+                        data-action="cutTo" data-scene-id="{{this.id}}"
+                        data-tooltip="{{localize 'BLANKINHERITANCE.Runner.CutTo'}}: {{this.name}}">{{this.label}}</button></li>
+                {{/each}}
+            </ul>
+            {{/if}}
+        </nav>
+        {{/if}}
+
+        {{!-- The table is looking at a different scene from the script on
+              screen -- reading ahead, or a cut from somewhere else. Said out
+              loud, with the way back, rather than left for the GM to notice
+              when a player asks why the room looks wrong. --}}
+        {{#if tableElsewhere}}
+        <p class="bi-runner__elsewhere">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{localize "BLANKINHERITANCE.Runner.TableElsewhere"}} <b>{{tableElsewhere.sceneName}}</b></span>
+            <button type="button" class="bi-runner__stamp" data-action="cutTo" data-scene-id="{{tableElsewhere.targetId}}">{{localize "BLANKINHERITANCE.Runner.CutHere"}}</button>
+        </p>
+        {{/if}}
     </header>
 
+    <div class="bi-runner__cols">
+        {{!-- THE SCRIPT: the scene in the order it is run. --}}
+        <div class="bi-runner__script">
+            {{#unless title}}
+            <div class="bi-runner__empty">
+                <p>{{localize "BLANKINHERITANCE.Runner.NoScene"}}</p>
+                {{#if steps.length}}
+                <ol class="bi-runner__pick">
+                    {{#each steps}}
+                    <li><button type="button" class="bi-runner__pick-scene" data-action="cueScene" data-brief-id="{{briefRef}}"><span class="bi-runner__scene-order">{{order}}</span> {{title}}</button></li>
+                    {{/each}}
+                </ol>
+                {{/if}}
+            </div>
+            {{/unless}}
+
+            {{!-- The goal box. First, always, and stating a checkable outcome
+                  rather than a theme — "what has to be true when this ends".
+                  The summary and how to play it sit under it; `howToPlay`
+                  carries the one bold instruction the author marked as the
+                  one that breaks the scene if missed. --}}
+            {{#if goal}}
+            <section class="bi-runner__goalbox">
+                <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.Goal"}}</p>
+                <p class="bi-runner__goal">{{goal}}</p>
+                {{#if summary}}<p class="bi-runner__summary">{{summary}}</p>{{/if}}
+                {{#if howToPlayHtml}}<p class="bi-runner__howto">{{{howToPlayHtml}}}</p>{{/if}}
+            </section>
+            {{/if}}
+
+            {{!-- OPENING. design/environmental-storytelling-and-place.md §7:
+                  three details by FUNCTION, one landmark to orbit, one held
+                  in reserve for when someone leans in. Open by itself until
+                  the first beat is marked, then folded to one line — it is
+                  read once, at the top, and then it is in the way. --}}
+            {{#if intro}}
+            <section class="bi-runner__bookend{{#if introOpen}} bi-runner__bookend--open{{/if}}" data-section="intro">
+                <div class="bi-runner__bookend-head" data-action="toggleBookend" data-section="intro" role="button" tabindex="0" aria-expanded="{{introOpen}}">
+                    <span class="bi-runner__bookend-label">{{localize "BLANKINHERITANCE.Runner.Intro"}}</span>
+                    {{#if intro.where}}<span class="bi-runner__bookend-line">{{intro.where}}</span>{{/if}}
+                    <i class="fa-solid fa-chevron-down bi-runner__chevron"></i>
+                </div>
+                {{#if introOpen}}
+                <div class="bi-runner__bookend-body">
+                    {{#if intro.where}}<p class="bi-runner__bookend-lead">{{intro.where}}</p>{{/if}}
+                    {{#if intro.firstThing}}<p class="bi-runner__note">{{intro.firstThing}}</p>{{/if}}
+                    {{#if intro.decoratedReadAloud}}<div class="bi-runner__read">{{{intro.decoratedReadAloud}}}</div>{{/if}}
+                    {{#if intro.landmark}}<p class="bi-runner__landmark"><b>{{localize "BLANKINHERITANCE.Runner.Landmark"}}</b> {{intro.landmark}}</p>{{/if}}
+                    {{#each intro.carriesIn}}
+                    <p class="bi-runner__carries"><b>{{when}}</b> — {{then}}</p>
+                    {{/each}}
+                    {{#if intro.holdInReserve}}
+                    <details class="bi-runner__reserve">
+                        <summary>{{localize "BLANKINHERITANCE.Runner.HoldInReserve"}}</summary>
+                        <p>{{intro.holdInReserve}}</p>
+                    </details>
+                    {{/if}}
+                </div>
+                {{/if}}
+            </section>
+            {{/if}}
+
+            {{!-- THE RUNNING ORDER. One line per beat; the beat being run is
+                  open, with everything needed to run it. Ingram, 2026-09-09:
+                  "peekable information which makes it easy to go from a broad
+                  overhead to delve into specifics." --}}
+            {{#if beats.length}}
+            <section class="bi-runner__section bi-runner__order">
+                <div class="bi-runner__order-head">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}} <span class="bi-runner__count">{{progress.done}}/{{progress.total}}</span></h3>
+                    <button type="button" class="bi-runner__linkbtn" data-action="toggleShowAll" aria-pressed="{{showAll}}">
+                        {{#if showAll}}{{localize "BLANKINHERITANCE.Runner.ShowNow"}}{{else}}{{localize "BLANKINHERITANCE.Runner.ShowAll"}}{{/if}}
+                    </button>
+                </div>
+                <ul class="bi-runner__beats">
+                    {{#each beats}}
+                    {{> "modules/blank-inheritance/templates/runner/beat.hbs"}}
+                    {{/each}}
+                </ul>
+            </section>
+            {{/if}}
+
+            {{!-- ENDING. Opens by itself once every required beat is done —
+                  the moment it is needed — and stays one line until then. --}}
+            {{#if outro}}
+            <section class="bi-runner__bookend bi-runner__bookend--ending{{#if outroOpen}} bi-runner__bookend--open{{/if}}" data-section="outro">
+                <div class="bi-runner__bookend-head" data-action="toggleBookend" data-section="outro" role="button" tabindex="0" aria-expanded="{{outroOpen}}">
+                    <span class="bi-runner__bookend-label">{{localize "BLANKINHERITANCE.Runner.Outro"}}</span>
+                    {{#if outro.endsWhen}}<span class="bi-runner__bookend-line">{{outro.endsWhen}}</span>{{/if}}
+                    <i class="fa-solid fa-chevron-down bi-runner__chevron"></i>
+                </div>
+                {{#if outroOpen}}
+                <div class="bi-runner__bookend-body">
+                    {{#if outro.endsWhen}}<p class="bi-runner__bookend-lead">{{outro.endsWhen}}</p>{{/if}}
+                    {{#if outro.decoratedReadAloud}}<div class="bi-runner__read">{{{outro.decoratedReadAloud}}}</div>{{/if}}
+                    {{#each outro.tracks}}
+                    <p class="bi-runner__track"><b>{{track}}</b> {{why}}</p>
+                    {{/each}}
+                    {{!-- The connective tissue to whatever comes next -- found
+                          missing 2026-09-19 (Kit Issue's own outro named the
+                          wrong scene AND gave no reason to go there). Shown
+                          ahead of the plain `onwards` prose because this is
+                          the actionable half: the concrete thing a GM does or
+                          says to move the table. --}}
+                    {{#if outro.transition}}
+                    <p class="bi-runner__transition{{#if outro.transition.scatterRisk}} bi-runner__transition--scatter{{/if}}">
+                        <b class="bi-runner__transition-mechanism">{{outro.transition.mechanism}}</b>
+                        {{#if outro.transition.line}}{{outro.transition.line}}{{/if}}
+                        {{#if outro.transition.scatterRisk}}<span class="bi-runner__transition-warn">{{localize "BLANKINHERITANCE.Runner.TransitionScatterRisk"}}</span>{{/if}}
+                    </p>
+                    {{/if}}
+                    {{#if outro.onwardsHtml}}<p class="bi-runner__note">{{{outro.onwardsHtml}}}</p>{{/if}}
+                    {{#if outro.writeDown.length}}
+                    <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.WriteDown"}}</p>
+                    {{!-- Law 15: recording is a side effect of doing, never a
+                          separate task. What's already in the log for THIS
+                          scene, shown first -- so writeDown reads as "anything
+                          still missing?" rather than "remember everything". --}}
+                    {{#if outro.alreadyLogged.length}}
+                    <p class="bi-runner__already-logged-label">{{localize "BLANKINHERITANCE.Runner.AlreadyLogged"}}</p>
+                    <ul class="bi-runner__jotted">
+                        {{#each outro.alreadyLogged}}
+                        <li class="bi-runner__jot">{{#if this.tag}}<b class="bi-runner__jot-tag">{{this.tag}}</b> {{/if}}{{this.text}}</li>
+                        {{/each}}
+                    </ul>
+                    {{/if}}
+                    {{!-- #178: the equipment locker's own real grant records,
+                          not a memory test -- "issue" (what budget bought) and
+                          "bonus" (Nobu's free extra) kept apart since Kit
+                          Issue's writeDown prompts ask about them separately. --}}
+                    {{#if outro.equipmentIssued.length}}
+                    <p class="bi-runner__already-logged-label">{{localize "BLANKINHERITANCE.Runner.EquipmentIssued"}}</p>
+                    <ul class="bi-runner__jotted">
+                        {{#each outro.equipmentIssued}}
+                        <li class="bi-runner__jot"><b class="bi-runner__jot-tag">{{this.userName}}</b> {{this.quantity}}&times; {{this.itemName}}</li>
+                        {{/each}}
+                    </ul>
+                    {{/if}}
+                    {{#if outro.equipmentBonus.length}}
+                    <p class="bi-runner__already-logged-label">{{localize "BLANKINHERITANCE.Runner.EquipmentBonus"}}</p>
+                    <ul class="bi-runner__jotted">
+                        {{#each outro.equipmentBonus}}
+                        <li class="bi-runner__jot"><b class="bi-runner__jot-tag">{{this.userName}}</b> {{this.quantity}}&times; {{this.itemName}}</li>
+                        {{/each}}
+                    </ul>
+                    {{/if}}
+                    <ul class="bi-runner__topics">
+                        {{#each outro.writeDown}}
+                        <li class="bi-runner__topic">{{this}}</li>
+                        {{/each}}
+                    </ul>
+                    {{/if}}
+                    {{#if carryForward.length}}
+                    <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.CarryForward"}}</p>
+                    <ul class="bi-runner__topics">
+                        {{#each carryForward}}
+                        <li class="bi-runner__topic">{{this}}</li>
+                        {{/each}}
+                    </ul>
+                    {{/if}}
+                </div>
+                {{/if}}
+            </section>
+            {{/if}}
+
+            {{!-- The foot-of-the-script Close Scene button. Ingram, 2026-09-22:
+                  "we need a 'Close Scene' button at the bottom of each scene
+                  in the scene runner, like we have at the top, so that when
+                  you scroll all the way to the bottom there is a button
+                  waiting there for me to press to move things along."
+
+                  Deliberately the SAME data-action as the header's, so it is
+                  the identical handler and the two can never drift apart. The
+                  only difference is what reaching it means: you have read to
+                  the end of the scene. Guarded by {{#if title}} for the same
+                  reason the header's is -- with no scene loaded there is
+                  nothing to close. The last thing in the script column. --}}
+            {{#if title}}
+            <div class="bi-runner__footer-close">
+                <button type="button" class="bi-runner__tier1-btn bi-runner__tier1-btn--close bi-runner__footer-close-btn" data-action="closeScene">
+                    <i class="fa-solid fa-flag-checkered"></i> {{localize "BLANKINHERITANCE.Runner.CloseScene"}}
+                </button>
+                <p class="bi-runner__footer-close-hint">{{localize "BLANKINHERITANCE.Runner.CloseSceneFooterHint"}}</p>
+            </div>
+            {{/if}}
+        </div>
+
+        <aside class="bi-runner__side">
+            {{!-- PEOPLE: who is here, and what keeps the table moving. --}}
+            <div class="bi-runner__people">
+                {{!-- Who the table can see right now, whoever put them there,
+                      each with a way to take them off again. --}}
+                <section class="bi-runner__onstage">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.OnStageNow"}}</h3>
+                    <div class="bi-runner__onstage-row">
+                        {{#each onStageNow}}
+                        <span class="bi-runner__onstage-chip{{#if isPc}} bi-runner__onstage-chip--pc{{/if}}">{{label}}<button type="button" class="bi-runner__onstage-off" data-action="unstagePerson" data-portrait-id="{{portraitId}}" aria-label="{{localize 'BLANKINHERITANCE.Runner.TakeOff'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.TakeOff'}}">&times;</button></span>
+                        {{else}}
+                        <span class="bi-runner__onstage-none">{{localize "BLANKINHERITANCE.Runner.NobodyOnStage"}}</span>
+                        {{/each}}
+                        <button type="button" class="bi-runner__linkbtn" data-action="jumpToSummon">+ {{localize "BLANKINHERITANCE.Runner.Summon.Title"}}</button>
+                    </div>
+                </section>
+
+                {{#if clock}}
+                <section class="bi-runner__section bi-runner__clockbox">
+                    <h3 class="bi-runner__section-title">{{clock.name}}</h3>
+                    {{!-- The GM's own hand on the dial, one step either way. --}}
+                    <p class="bi-runner__clock{{#if clock.exhausted}} bi-runner__clock--spent{{/if}}">
+                        <button type="button" class="bi-runner__clock-nudge" data-action="nudgeClock" data-delta="-1"
+                            aria-label="{{localize 'BLANKINHERITANCE.Runner.ClockDown'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.ClockDown'}}"{{#unless clock.canLower}} disabled{{/unless}}>&minus;</button>
+                        <span class="bi-runner__clock-value">{{clock.current}}</span>
+                        <span class="bi-runner__clock-of">{{localize "BLANKINHERITANCE.Runner.Of"}} {{clock.limit}}</span>
+                        <button type="button" class="bi-runner__clock-nudge" data-action="nudgeClock" data-delta="1"
+                            aria-label="{{localize 'BLANKINHERITANCE.Runner.ClockUp'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.ClockUp'}}"{{#unless clock.canRaise}} disabled{{/unless}}>+</button>
+                    </p>
+                    {{!-- What the table is living under now, and what comes
+                          next -- Law 19: nothing lands without its cost having
+                          been visible first. --}}
+                    {{#if clock.latest}}
+                    <p class="bi-runner__threshold"><b>{{localize "BLANKINHERITANCE.Runner.ClockNow"}}</b> {{clock.latest.effect}}</p>
+                    {{/if}}
+                    {{#if clock.next}}
+                    <p class="bi-runner__threshold bi-runner__threshold--next"><b>{{localize "BLANKINHERITANCE.Runner.ClockNext"}} {{clock.next.atValue}}:</b> {{clock.next.effect}}</p>
+                    {{/if}}
+                    {{#if spends.length}}
+                    <div class="bi-runner__spends">
+                        {{#each spends}}
+                        <button type="button" class="bi-runner__stamp" data-action="spend" data-spend-id="{{id}}"
+                            title="{{note}}">{{label}}</button>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </section>
+                {{/if}}
+
+                {{!-- design/scene-triggers-and-depth.md §3: one sentence the
+                      GM can say out loud, unprompted, whenever the table
+                      stalls. Always visible, never folded -- see the CSS
+                      comment for why. --}}
+                {{#if temptations.length}}
+                <section class="bi-runner__section bi-runner__temptations">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Temptations"}}</h3>
+                    <ul class="bi-runner__temptation-list">
+                        {{#each temptations}}
+                        <li class="bi-runner__temptation">
+                            <span class="bi-runner__temptation-text">{{text}}</span>
+                            <button type="button" class="bi-runner__temptation-use" data-action="useTemptation"
+                                data-temptation-id="{{id}}" title="{{localize 'BLANKINHERITANCE.Runner.TemptationUsedHint'}}">{{localize "BLANKINHERITANCE.Runner.TemptationUsed"}}</button>
+                        </li>
+                        {{/each}}
+                    </ul>
+                </section>
+                {{/if}}
+
+                {{#if cast.length}}
+                <section class="bi-runner__section bi-runner__castlist">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}} <span class="bi-runner__count">{{cast.length}}</span></h3>
+                    {{#each cast}}
+                    {{> "modules/blank-inheritance/templates/runner/person.hbs"}}
+                    {{/each}}
+                </section>
+                {{/if}}
+            </div>
+
+            {{!-- KIT: what can be handed over, anyone else, and the rules. --}}
+            <div class="bi-runner__kit">
+                {{#if handouts.length}}
+                <section class="bi-runner__section">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Handouts"}} <span class="bi-runner__count">{{handouts.length}}</span></h3>
+                    {{#each handouts}}
+                    <article class="bi-runner__prop">
+                        <h4 class="bi-runner__prop-name">{{title}}</h4>
+                        {{#if gmNotes}}<p class="bi-runner__note">{{gmNotes}}</p>{{/if}}
+                        {{#if catchables.length}}
+                        <ul class="bi-runner__topics">
+                            {{#each catchables}}
+                            <li class="bi-runner__topic">{{this}}</li>
+                            {{/each}}
+                        </ul>
+                        {{/if}}
+                        <div class="bi-runner__actions">
+                            <button type="button" class="bi-runner__stamp" data-action="revealHandout"
+                                data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Reveal"}}</button>
+                            <button type="button" class="bi-runner__stamp" data-action="revealHandoutSolo"
+                                data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}</button>
+                        </div>
+                    </article>
+                    {{/each}}
+                </section>
+                {{/if}}
+
+                {{#if artefacts.length}}
+                <section class="bi-runner__section">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Artefacts"}} <span class="bi-runner__count">{{artefacts.length}}</span></h3>
+                    {{#each artefacts}}
+                    <article class="bi-runner__prop">
+                        <h4 class="bi-runner__prop-name">{{title}}</h4>
+                        {{#if earnedBy}}<p class="bi-runner__person-role">{{earnedBy}}</p>{{/if}}
+                        {{#if gmNote}}<p class="bi-runner__note">{{gmNote}}</p>{{/if}}
+                        <div class="bi-runner__actions">
+                            {{#if granted}}
+                            <span class="bi-runner__held">{{localize "BLANKINHERITANCE.Runner.Held"}}</span>
+                            {{else}}
+                            <button type="button" class="bi-runner__stamp" data-action="grantArtefact"
+                                data-artefact-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Grant"}}</button>
+                            {{/if}}
+                        </div>
+                    </article>
+                    {{/each}}
+                </section>
+                {{/if}}
+
+                {{!-- Summon anyone, onto whatever scene the table is looking
+                      at -- a general GM action independent of the loaded
+                      brief, so it works with no brief open at all. Folded in
+                      2026-09-18 from what used to be its own floating panel. --}}
+                <details class="bi-runner__section bi-runner__section--fold" data-section="summon"{{#if sections.summon}} open{{/if}}>
+                    <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Summon.Title"}}</summary>
+                    {{#if summon.hasScene}}
+                    <p class="bi-summon__scene">{{localize "BLANKINHERITANCE.Runner.Summon.OntoScene"}} <b>{{summon.sceneName}}</b></p>
+                    {{else}}
+                    <p class="bi-summon__scene bi-summon__scene--none">{{localize "BLANKINHERITANCE.Runner.Summon.NoScene"}}</p>
+                    {{/if}}
+                    {{#if summon.party.length}}
+                    <h4 class="bi-summon__group-title">{{localize "BLANKINHERITANCE.Runner.Summon.Party"}}</h4>
+                    <ul class="bi-summon__list">
+                        {{#each summon.party}}{{> "modules/blank-inheritance/templates/runner/summon-row.hbs"}}{{/each}}
+                    </ul>
+                    {{/if}}
+                    {{#if summon.others.length}}
+                    <h4 class="bi-summon__group-title">{{localize "BLANKINHERITANCE.Runner.Summon.Others"}}</h4>
+                    <ul class="bi-summon__list">
+                        {{#each summon.others}}{{> "modules/blank-inheritance/templates/runner/summon-row.hbs"}}{{/each}}
+                    </ul>
+                    {{/if}}
+                </details>
+
+                {{!-- design/ux-doctrine.md §10.7's Rules drawer: a search box
+                      over the locally mirrored SRD, answering "the rulebook's
+                      own first-listed GM priority... answering questions
+                      quickly and decisively." Always open now -- a search box
+                      that has to be unfolded before it can be typed in is a
+                      box nobody uses mid-scene. --}}
+                <section class="bi-runner__section bi-runner__rules" data-section="rules">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Rules.Title"}}</h3>
+                    <input type="text" class="bi-runner__rules-input" autocomplete="off" value="{{rules.query}}"
+                        placeholder="{{localize 'BLANKINHERITANCE.Runner.Rules.Placeholder'}}"
+                        aria-label="{{localize 'BLANKINHERITANCE.Runner.Rules.Placeholder'}}">
+                    {{#if rules.results.length}}
+                    <ul class="bi-rules__results">
+                        {{#each rules.results}}
+                        <li class="bi-rules__result">
+                            <p class="bi-rules__result-title">{{this.title}}</p>
+                            <p class="bi-rules__result-excerpt">{{this.excerpt}}</p>
+                            {{#if this.pageCitation}}<p class="bi-rules__result-citation">{{this.pageCitation}}</p>{{/if}}
+                        </li>
+                        {{/each}}
+                    </ul>
+                    {{else}}
+                    {{#if rules.query}}<p class="bi-legend">{{localize "BLANKINHERITANCE.Runner.Rules.NoResults"}}</p>{{/if}}
+                    {{/if}}
+                </section>
+            </div>
+        </aside>
+    </div>
+
     {{!-- The note bar. Doctrine §10.3: capture during a scene has to cost
-          nothing, so this is one field, always here, Enter to save, and it
-          says up front which beat the line will attach itself to. --}}
+          nothing, so this is one field, always at the foot, Enter to save,
+          and it says up front which beat the line will attach itself to.
+          The tag keys are the log's own accelerators (core/log-entry.mjs),
+          offered rather than remembered -- never required. --}}
     {{#if title}}
-    <div class="bi-runner__notebar">
+    <footer class="bi-runner__notebar">
+        <i class="fa-solid fa-pen bi-runner__note-glyph" aria-hidden="true"></i>
         <input type="text" class="bi-runner__note-input" autocomplete="off"
                placeholder="{{localize 'BLANKINHERITANCE.Runner.NotePlaceholder'}}"
                aria-label="{{localize 'BLANKINHERITANCE.Runner.NotePlaceholder'}}">
         <span class="bi-runner__note-target">
             {{#if noteTarget}}→ {{noteTarget.text}}{{else}}{{localize "BLANKINHERITANCE.Runner.NoteScene"}}{{/if}}
         </span>
-    </div>
+        <span class="bi-runner__note-tags">
+            <button type="button" class="bi-runner__note-tag" data-action="noteTag" data-tag="decision">decision</button>
+            <button type="button" class="bi-runner__note-tag" data-action="noteTag" data-tag="reaction">reaction</button>
+            <button type="button" class="bi-runner__note-tag" data-action="noteTag" data-tag="thread">thread</button>
+            <button type="button" class="bi-runner__note-tag" data-action="noteTag" data-tag="npc">npc</button>
+        </span>
+    </footer>
     {{/if}}
 
-    <div class="bi-runner__scroll">
-        {{#unless title}}
-        <p class="bi-runner__empty">{{localize "BLANKINHERITANCE.Runner.NoScene"}}</p>
-        {{/unless}}
-
-        {{!-- The goal box. First, always, and stating a checkable outcome
-              rather than a theme — "what has to be true when this ends". --}}
-        {{#if goal}}
-        <section class="bi-runner__section bi-runner__goalbox">
-            <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.Goal"}}</p>
-            <p class="bi-runner__goal">{{goal}}</p>
-            {{#if howToPlay}}<p class="bi-runner__howto">{{howToPlay}}</p>{{/if}}
-            <p class="bi-runner__meta">
-                {{!-- How long this has been running, against how long it said
-                      it would. A statement of fact, not a countdown: a GM
-                      twelve minutes over on a scene the table is enjoying is
-                      not doing anything wrong. --}}
-                {{#if pacing.started}}<span class="bi-runner__pace{{#if pacing.isOver}} bi-runner__pace--over{{/if}}">{{pacing.label}}</span>{{/if}}
-                {{#if runsAbout}}<span>{{runsAbout}}</span>{{/if}}
-                {{#if mode}}<span>{{mode}}</span>{{/if}}
-                {{#if accomplishment}}<span>{{accomplishment.xp}} XP — {{accomplishment.forWhat}}</span>{{/if}}
-            </p>
-        </section>
-        {{/if}}
-
-        {{#if intro}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="intro"{{#if sections.intro}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Intro"}}</summary>
-            {{#if intro.where}}<p class="bi-runner__beat-text">{{intro.where}}</p>{{/if}}
-            {{#if intro.firstThing}}<p class="bi-runner__note">{{intro.firstThing}}</p>{{/if}}
-            {{#if intro.readAloud}}<div class="bi-runner__read">{{intro.readAloud}}</div>{{/if}}
-            {{#each intro.carriesIn}}
-            <p class="bi-runner__carries"><b>{{when}}</b> — {{then}}</p>
-            {{/each}}
-        </details>
-        {{/if}}
-
-        {{#if clock}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="clock"{{#if sections.clock}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{clock.name}}</summary>
-            <p class="bi-runner__clock{{#if clock.exhausted}} bi-runner__clock--spent{{/if}}">
-                <span class="bi-runner__clock-value">{{clock.current}}</span>
-                <span class="bi-runner__clock-of">{{localize "BLANKINHERITANCE.Runner.Of"}} {{clock.start}}</span>
-            </p>
-            {{#each clock.crossed}}
-            <p class="bi-runner__threshold">{{effect}}</p>
-            {{/each}}
-            {{#if spends.length}}
-            <div class="bi-runner__spends">
-                {{#each spends}}
-                <button type="button" class="bi-runner__stamp" data-action="spend" data-spend-id="{{id}}"
-                    title="{{note}}">{{label}}</button>
-                {{/each}}
-            </div>
-            {{/if}}
-        </details>
-        {{/if}}
-
-        {{#if beats.length}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="beats"{{#if sections.beats}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}} <span class="bi-runner__count">{{progress.mandatoryDone}}/{{progress.mandatory}}</span></summary>
-            <ul class="bi-runner__beats">
-                {{#each beats}}
-                {{> "modules/blank-inheritance/templates/runner/beat.hbs"}}
-                {{/each}}
-            </ul>
-        </details>
-        {{/if}}
-
-        {{#if cast.length}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="cast"{{#if sections.cast}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}} <span class="bi-runner__count">{{cast.length}}</span></summary>
-            {{#each cast}}
-            {{> "modules/blank-inheritance/templates/runner/person.hbs"}}
-            {{/each}}
-        </details>
-        {{/if}}
-
-        {{#if handouts.length}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="handouts"{{#if sections.handouts}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Handouts"}} <span class="bi-runner__count">{{handouts.length}}</span></summary>
-            {{#each handouts}}
-            <article class="bi-runner__person">
-                <h4 class="bi-runner__person-name">{{title}}</h4>
-                {{#if gmNotes}}<p class="bi-runner__note">{{gmNotes}}</p>{{/if}}
-                {{#if catchables.length}}
-                <ul class="bi-runner__topics">
-                    {{#each catchables}}
-                    <li class="bi-runner__topic">{{this}}</li>
-                    {{/each}}
-                </ul>
-                {{/if}}
-                <div class="bi-runner__actions">
-                    <button type="button" class="bi-runner__stamp" data-action="revealHandout"
-                        data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Reveal"}}</button>
-                    <button type="button" class="bi-runner__stamp" data-action="revealHandoutSolo"
-                        data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}</button>
-                </div>
-            </article>
-            {{/each}}
-        </details>
-        {{/if}}
-
-        {{#if artefacts.length}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="artefacts"{{#if sections.artefacts}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Artefacts"}} <span class="bi-runner__count">{{artefacts.length}}</span></summary>
-            {{#each artefacts}}
-            <article class="bi-runner__person">
-                <h4 class="bi-runner__person-name">{{title}}</h4>
-                {{#if earnedBy}}<p class="bi-runner__person-role">{{earnedBy}}</p>{{/if}}
-                {{#if gmNote}}<p class="bi-runner__note">{{gmNote}}</p>{{/if}}
-                <div class="bi-runner__actions">
-                    {{#if granted}}
-                    <span class="bi-runner__held">{{localize "BLANKINHERITANCE.Runner.Held"}}</span>
-                    {{else}}
-                    <button type="button" class="bi-runner__stamp" data-action="grantArtefact"
-                        data-artefact-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Grant"}}</button>
-                    {{/if}}
-                </div>
-            </article>
-            {{/each}}
-        </details>
-        {{/if}}
-
-        {{#if outro}}
-        <details class="bi-runner__section bi-runner__section--fold" data-section="outro"{{#if sections.outro}} open{{/if}}>
-            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Outro"}}</summary>
-            {{#if outro.endsWhen}}<p class="bi-runner__beat-text">{{outro.endsWhen}}</p>{{/if}}
-            {{#if outro.readAloud}}<div class="bi-runner__read">{{outro.readAloud}}</div>{{/if}}
-            {{#each outro.tracks}}
-            <p class="bi-runner__track"><b>{{track}}</b> {{why}}</p>
-            {{/each}}
-            {{#if outro.onwards}}<p class="bi-runner__note">{{outro.onwards}}</p>{{/if}}
-            {{#if outro.writeDown.length}}
-            <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.WriteDown"}}</p>
-            <ul class="bi-runner__topics">
-                {{#each outro.writeDown}}
-                <li class="bi-runner__topic">{{this}}</li>
-                {{/each}}
-            </ul>
-            {{/if}}
-        </details>
-        {{/if}}
-
-        {{#if carryForward.length}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.CarryForward"}}</h3>
-            <ul class="bi-runner__topics">
-                {{#each carryForward}}
-                <li class="bi-runner__topic">{{this}}</li>
-                {{/each}}
-            </ul>
-        </section>
-        {{/if}}
-        {{!-- Where a GM actually finishes a scene. The same dialogue the
-              palette and a scene change open — doctrine §10.3a is explicit
-              that there is one shape, signposted, not a second flow. --}}
-        {{#if title}}
-        <div class="bi-runner__closebar">
-            <button type="button" class="bi-runner__close" data-action="closeScene">
-                <i class="fa-solid fa-flag-checkered"></i> {{localize "BLANKINHERITANCE.Runner.CloseScene"}}
-            </button>
-        </div>
-        {{/if}}
-    </div>
+    {{!-- Drag to make the drawer wider or narrower; double-click to go back
+          to the default. --}}
+    <div class="bi-runner__grip" title="{{localize 'BLANKINHERITANCE.Runner.ResizeHint'}}" aria-hidden="true"></div>
 </section>
 </section>
 </div>

@@ -1,0 +1,269 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-long-afternoon",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-long-afternoon",
+  "title": "The Long Afternoon",
+  "summary": "The first free quarter of the fortnight. The party splits and each player takes a short spotlight somewhere of their own choosing, on base or off it. Every option returns something real.",
+  "goal": "Every player has spent a quarter on something they chose, and come back with something -- a person, a fact, an advantage, or a thing in their pocket.",
+  "howToPlay": "Bright, loose and quick. This is a peaceful hour, which is exactly the kind of scene that should split -- short solo or paired spotlights, three to five minutes each, rotating fast.\n\n**Run it as a rotation, not as six interviews.** Take a player, give them their place, play one exchange or one roll, hand them something, move on. Come back round for seconds if there is appetite. A spotlight that runs long starves five other people.\n\n**Two players who pick the same place share a scene.** Say so up front -- it makes pairing attractive and halves the rotation.",
+  "runsAbout": "25-35 minutes for the whole rotation",
+  "mode": "downtime",
+  "intro": {
+    "where": "Wherever each of them decides. The base is open to them until evening muster, and a pass will get them off it.",
+    "firstThing": "The particular quiet of a working day that has stopped needing you -- other people's jobs continuing in the middle distance, none of them yours.",
+    "readAloud": "The wall is behind you, the paint is mostly out from under your nails, and the board has your name against an empty box until evening muster.\n\nNobody is looking for you.",
+    "landmark": "the yard clock, which everyone can see from everywhere and which is what evening muster is measured against",
+    "carriesIn": [
+      {
+        "when": "The Board was played",
+        "then": "Whatever each player booked into this box is what they are already committed to. Start there rather than asking again -- and anyone who booked nothing simply has a free afternoon, which is also fine."
+      },
+      {
+        "when": "Slack Water went badly at the inspection",
+        "then": "There is a second inspection somewhere in the fortnight now. It does not eat this quarter and nobody should mention it this afternoon."
+      }
+    ],
+    "holdInReserve": "The pass off the island is a numbered chit and somebody writes the number down when it is issued. Give this to anybody planning to be somewhere they should not be."
+  },
+  "cast": [
+    {
+      "id": "shop-boss",
+      "npcRef": "shop-boss",
+      "label": "Hulda Brack",
+      "role": "Head of the machine shop. On the floor, if anybody goes to the floor.",
+      "walkOn": false,
+      "arrival": "announced",
+      "brief": {
+        "wants": "Her machines back in one piece, with the people inside them also in one piece, in that order and she will say so in that order.",
+        "opensWith": "Calling them by the machine they are responsible for, which is nothing yet, which she finds funny.",
+        "willDiscuss": [
+          {
+            "topic": "Anything mechanical, at volume, for as long as anybody keeps asking",
+            "note": "She is delighted to be asked and terrible at brevity. She will put a tool in somebody's hand within a minute of them arriving."
+          },
+          {
+            "topic": "What her crews actually do, and what they need from a pilot",
+            "note": "Blunt and useful: tell her what it did, not what you think is wrong with it. Nothing leaves her floor she has not signed off."
+          },
+          {
+            "topic": "The machines the party is about to be issued",
+            "note": "She has seen the list. She has opinions. She will not tell anyone which to pick, because that is not her job, but she will say which ones come back needing least."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether the Section Officer is being unreasonable",
+            "why": "She will not be drawn into criticising another department's officer in front of trainees. Not loyalty -- she has a floor to run and no appetite for that conversation. She changes the subject to the work in front of her."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Enormous, warm, entirely without ceremony. Carries the length of a workshop without appearing to raise her voice.",
+          "tics": [
+            "Calls people by the machine they are responsible for until they have earned a name",
+            "Hands somebody a tool mid-sentence and keeps talking",
+            "Tells you exactly what you did wrong, in front of everyone, and then stays to help you fix it"
+          ],
+          "samples": [
+            "\"You're the ones off the wall. -- Hold that. No, like you mean it.\"",
+            "\"Tell me what it did. Don't tell me what you think is wrong with it, you've no idea what's wrong with it, tell me what it DID.\"",
+            "\"I want them back undamaged. And the pilots, where possible.\" (This is a joke. It is also the order she says it in.)",
+            "\"Everything on that list is older than your parents and half of it is better than anything they'll build you new. Pick the one you can be bothered to look after.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "registry-clerk",
+      "npcRef": "registry-clerk",
+      "label": "The registry clerk",
+      "role": "Records office, if anybody goes looking for paperwork.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To be left alone with a filing backlog that is three weeks deep and getting deeper.",
+        "opensWith": "Not looking up, and asking what it is regarding.",
+        "willDiscuss": [
+          {
+            "topic": "Anything a trainee is entitled to see",
+            "note": "Which is more than most trainees expect. Duty rosters, standing orders, requisition logs and the signature blocks on them are all open record. He will produce them if asked correctly, because producing them is less work than arguing."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Personnel files, medical records, anything above their clearance",
+            "why": "Flatly and without drama, and he is right. He does not report the asking."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Tired, precise, not unfriendly, permanently mid-task.",
+          "tics": [
+            "Asks what it is regarding before he asks who you are",
+            "Tells you the correct form number as a way of ending a conversation"
+          ],
+          "samples": [
+            "\"Regarding?\"",
+            "\"That's open record, it's in the day book, it's on the shelf behind you and I'd rather you got it yourself.\"",
+            "\"I don't know why a name is on a thing. I know that it is. That's the whole of my job.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-menu",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Lay out where they can go, take everyone's pick, then run the rotation. Anything a player invents that is reachable in an afternoon is on the menu.",
+      "direction": "Offer the list as places, not as activities with labelled rewards -- the machine shop, the range, the records office, the school block, the kitchens, the vehicle park, or off base with a pass. Do not describe what any of them 'gives'.\n\n**Every option below returns something real.** That is a promise to keep, not a thing to announce.",
+      "note": "HOW TO PLAY IT, and the whole scene in one instruction: take a player, put them in their place, play ONE exchange or ONE roll, hand them something concrete, move to the next player. Three to five minutes each. Come back round if there is appetite.\n\nTHE MENU AND WHAT EACH ONE ACTUALLY RETURNS:\n\n(1) MACHINE SHOP FLOOR -- Hulda Brack, in person, plus a tool in the hand within a minute. Returns: she puts a name to the face, which matters at Familiarisation, and one genuinely useful piece of advice about which machines come back needing least work.\n\n(2) THE RANGE -- the Range Safety Officer, running somebody else's qualification. Returns: knowing how he calls a run before it is their run being called, at the Exercise tomorrow. He will let a trainee watch and will explain his own criteria if asked.\n\n(3) RECORDS OFFICE -- the registry clerk and an open shelf. Returns: the countersignature thread. Requisition logs and signature blocks are open record, and nobody has thought to tell the party that.\n\n(4) THE SCHOOL BLOCK -- they are still students, and there is a lesson going on without them. Returns: a normal hour, a teacher who treats them as a pupil rather than as personnel, and whatever a player wants to make of being sixteen in a term they are missing.\n\n(5) THE KITCHENS -- warm, loud, permanently short-staffed, and delighted by free labour. Returns: food to take away, which is a real object a player can give to somebody else later, plus the base's gossip, which is where the trainee rumour mill actually lives.\n\n(6) THE VEHICLE PARK -- rows of covered machines nobody has introduced them to yet. Returns: a genuine preview before Familiarisation, and first refusal on anything they get properly interested in.\n\n(7) OFF BASE, WITH A PASS -- legitimate, signed, and back by muster. The general store is reachable and so is the tea house, and the tea house is the one that matters. Returns: see GOING BACK TO THE TEA HOUSE below. Anything else in the city returns whatever the city returns.\n\n(8) SLEEP -- always available, never a lesser choice. Returns: rest, and a player saying out loud that their character is tired is worth more than most rolls.\n\nGOING BACK TO THE TEA HOUSE. If the player holding the contact route from Episode One uses it -- or if anybody simply walks in -- he is there, on a Thursday, exactly as he said he would be.\n\nWHAT HE IS PLEASED ABOUT, AND DO NOT UNDERPLAY IT: somebody came. He said `Nobody's asked me anything in a very long time` and then somebody asked. He does not make a speech about it and he does not thank them. He gets them a drink without being asked and he is noticeably better company than he was a day ago.\n\nWHAT HE CAN ACTUALLY DO: read a document and tell them what it really says. That is the same thing he did with the docket and it is the whole of his usefulness. Show him the roster, the countersignature, a requisition, anything written -- and he will read it properly.\n\nWHAT HE CANNOT DO, AND THIS MATTERS MORE: he does not work inside the Directorate and he does not know its people. Asked who signed the roster, he does not know and says so immediately. He is not withholding and there is no roll that gets it out of him, because there is nothing to get. **The party's most valuable relationship is useless for the thing they most want, and that is correct.**\n\nSee `c1e2-the-long-afternoon`'s `read-it-to-me` check. Nothing here advances any mystery; it deepens the one relationship the campaign is built on."
+    },
+    {
+      "id": "the-pass",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "solo",
+      "text": "Going off base this afternoon is legitimate and needs a signed pass. If anyone wants one, it is a trip back to the hatch.",
+      "challengeRef": "c1e2-the-long-afternoon",
+      "checkRef": "get-a-pass",
+      "when": {
+        "condition": "if a player wants to leave the base during the free quarter"
+      },
+      "direction": "This is friction, not an obstacle. A pass is a normal thing a trainee can have. The clerk issues it if the box on the board says the quarter is theirs -- which it does.\n\nOn a failure she has run out of the right form and they can come back in an hour, which costs them part of the quarter but not the trip.",
+      "note": "HOW TO PLAY IT. The pass exists so that going over the wire at night reads as a different act. Tonight, leaving is allowed and boring. Later, it will not be.\n\nIf a player would rather climb out than queue for a form this afternoon, let them, and do not roll for it. Nobody is watching in daylight and getting caught out of bounds in the afternoon costs a telling-off."
+    },
+    {
+      "id": "the-signature-block",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "solo",
+      "text": "If anyone goes to records chasing who countersigned the roster, offer the check.",
+      "challengeRef": "c1e2-the-long-afternoon",
+      "checkRef": "chase-the-countersignature",
+      "npcRef": "registry-clerk",
+      "when": {
+        "condition": "if a player goes looking for the requisition log or the roster's signature block"
+      },
+      "direction": "Give them the name flatly: **Rand**. Do not weight it, do not pause on it, and do not let the clerk find it interesting.\n\nOn a critical success they also get the department, **Medical**, which has no business countersigning a stores requisition.",
+      "note": "PLANT, unassigned. Second touch on the same thread As Discussed opened.\n\nGM-ONLY: whose name it is and why a senior officer spent four minutes on Section Nine is not decided. Do not invent it at the table without writing it down afterwards -- and if you do invent it, it becomes canon and belongs on a Node.\n\nWHAT IT DOES NOT MEAN: nobody is protecting the party, nobody is watching them, and this is not a patron. The honest state of this thread is that a name exists and its owner has not been characterised.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): Rand is Shucks's detached right hand. The clerk has never heard of Rand and doesn't find that interesting. See `ideas/story/bible/characters/rand.md`."
+    },
+    {
+      "id": "spotlight",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "solo",
+      "text": "Each player gets one exchange or one roll in the place they chose. Their own skill, their own approach.",
+      "challengeRef": "c1e2-the-long-afternoon",
+      "checkRef": "make-the-hour-count",
+      "direction": "Let the player say what they are trying to get out of the hour and price it on the standard ladder. Most of these are not really tests -- they are an excuse for a scene, and the roll decides how much extra comes back rather than whether anything does.\n\n**Everybody comes back with something, on any result.** That is the rule for this scene.\n\nA player who wants to do nothing may do nothing, and it is not a wasted quarter -- it is the first hour since they arrived that nobody has wanted anything from them. Offer no roll and let the scene move on.",
+      "note": "HOW TO PLAY IT. A failure returns the smaller version, never nothing. Somebody who fails at the machine shop still met Hulda Brack; they just do not also get the advice.\n\nIF A PLAYER CANNOT THINK OF ANYTHING: offer the kitchens or sleep, in that order, and do not make it a thing. A player who spends the hour asleep and says so is roleplaying, not opting out."
+    },
+    {
+      "id": "the-tea-house",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anybody spends their quarter going back to the old man, he is there.",
+      "challengeRef": "c1e2-the-long-afternoon",
+      "checkRef": "read-it-to-me",
+      "when": {
+        "condition": "if a player uses the contact route from Episode One, or simply walks into the tea house"
+      },
+      "readAloud": "He looks up, and it takes him a second, and then it does not. \"Oh -- you came back.\"\n\nHe is already getting up to get them something, which is not what he did last time.\n\n\"Sit down. Sit down. What have they had you doing?\"",
+      "direction": "**Somebody came.** He said nobody had asked him anything in a very long time and then somebody asked, and the whole beat is him being quietly, undramatically pleased about it. He does not say so and he does not thank them.\n\nHe is useful for exactly one thing: reading a document properly. Anything written, he will read. Anything about the Directorate's people, he genuinely does not know.",
+      "note": "HOW TO PLAY IT. Warm, ordinary, and completely without agenda. Read `ideas/story/dossier-cicada.md` before running him and then play absolutely none of it.\n\nTHE USEFUL REFUSAL: asked who countersigned the roster, he does not know and says so at once. No DC reaches it. The party's warmest source is useless for the thing they most want, and that is the design.\n\nWHAT IT DOES NOT MEAN: he is not recruiting them, not testing them, and not hinting. Nothing in this scene foreshadows anything."
+    },
+    {
+      "id": "muster",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Evening muster. Everyone back in the same place, and whatever anybody picked up comes back with them.",
+      "direction": "Two minutes, whole table. Go round once and let each player say where they went, in character, to the others -- this is where a split scene becomes shared, and skipping it wastes the rotation.\n\nAnything physical somebody brought back is now a real object in the fiction.\n\nGive each player one line to say what they came back with, if they want it. Do not require it and do not go round in order.\n\nThe point of the beat is that the afternoon was genuinely theirs and nobody is auditing it.",
+      "note": "HOW TO PLAY IT. The rotation was six private scenes. This is the beat that makes them one afternoon. Do not cut it, and do not let it become a debrief -- it is people telling each other what they did with an afternoon.",
+      "readAloud": "Evening muster is a line on a cold square, and all six of you are in it.\n\nSomebody has paint on their hands still. Somebody has a pass folded in a pocket. Somebody knows a name they did not know at lunch.\n\nNobody asks any of you where you have been."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Muster, and the board rolls over to the evening box.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Only if two or more of them chose to spend the hour together, or if somebody came back with something they gave to somebody else."
+      },
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "If anyone came back with the countersignature name or anything real from records."
+      }
+    ],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "The Section Officer is at muster with a piece of paper he did not write and is not pleased about.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into The Override.",
+    "writeDown": [
+      "Where each player went and what they came back with. All of it is live for the rest of the episode.",
+      "Anyone who met Hulda Brack properly -- Familiarisation plays differently for them.",
+      "Whether anyone got the countersignature name, and whether they told the others.",
+      "Whether anybody went back to the tea house, and what they took to show him. He remembers being asked."
+    ],
+    "readAloud": "Six people back in one place, and between them a pass, a name, a piece of advice and somebody's paint still under their nails.\n\nNobody asks any of you where you have been."
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-shop-floor-is-open",
+      "text": "The machine shop doors are open and there is somebody in there shouting cheerfully at a gearbox. Nobody has said the party cannot go and look."
+    },
+    {
+      "id": "open-record",
+      "text": "Duty rosters and requisition logs are open record. Nobody has told them that, and nobody would stop them reading one."
+    },
+    {
+      "id": "you-are-still-at-school",
+      "text": "There is a lesson happening in the school block right now that they are all supposed to be in."
+    },
+    {
+      "id": "he-said-most-days",
+      "text": "He said he is in on a Thursday and most other days if he is honest. It is a Thursday."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "rotation-pace",
+      "text": "Whether the rotation stayed brisk -- three to five minutes a head -- or whether one spotlight ate the quarter.",
+      "scaleNote": "0 = one player dominated, 10 = everyone got a real turn."
+    },
+    {
+      "id": "every-option-paid",
+      "text": "Whether every player came back with something concrete, including anyone who failed their roll."
+    },
+    {
+      "id": "hulda-landed",
+      "text": "If anyone went to the machine shop -- whether Hulda Brack landed as the warm, loud, unceremonious ally she is meant to be."
+    },
+    {
+      "id": "muster-shared-it",
+      "text": "Whether the go-round at muster turned six private scenes into one shared afternoon."
+    },
+    {
+      "id": "menu-too-thin",
+      "text": "If the menu felt thin or if players wanted something that was not on it -- what they reached for is worth knowing.",
+      "scaleNote": "0 = plenty to do, 10 = they wanted options that did not exist."
+    }
+  ],
+  "notes": "THE PROMISE THIS SCENE MAKES. Every option returns something real -- a person, a fact, an advantage, or an object. A downtime menu where one choice is obviously correct is not a menu, and one where a choice returns nothing teaches players not to bother next time.\n\nWHY IT SPLITS. A peaceful hour is exactly the kind of scene that should split; a long dangerous one is not. Slack Water was whole-party on purpose and so is the fight. This one is six short private scenes deliberately, and muster is what stitches them back together.\n\nTHE MENU IS A FLOOR, NOT A CEILING. Anything a player invents that is reachable in an afternoon is on it. If somebody wants to go and look at the sea wall again, or find the trainee who took their slot, or sleep for four hours, all of that is a real answer and all of it returns something.\n\nOFF BASE IS LEGITIMATE TODAY. That is the point. A signed pass this afternoon is what makes going over the wire tonight feel like a different act, and neither scene works properly without the other."
+}

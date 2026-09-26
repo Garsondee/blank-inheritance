@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "the-rock-warden",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Warden, The Rock",
   "pole": null,

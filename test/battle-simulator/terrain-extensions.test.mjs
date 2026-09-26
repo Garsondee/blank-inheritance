@@ -1,5 +1,7 @@
 /**
- * Tests for this session's two additions to the shared `engine/terrain.mjs` (design doc §22):
+ * Tests for this session's two additions to the shared `terrain.mjs` (design doc §22; moved from
+ * `engine/terrain.mjs` to `shared/terrain.mjs` 2026-09-19 when the frame-scale engine it used to
+ * sit alongside was deleted):
  * standard cover (`hasCover`/`STANDARD_COVER_AC_BONUS`, Player Core pg. 416) and the
  * `moveBlockedBetween` performance fix (a cached edge index replacing an O(walls) linear scan).
  * Kept in a new file rather than appended to terrain.test.mjs, which has its own real, separately
@@ -8,7 +10,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
-import { hasCover, STANDARD_COVER_AC_BONUS, moveBlockedBetween, lineOfEffect, wallBlocksMove, wallBlocksSight } from "../../tools/battle-simulator/engine/terrain.mjs";
+import { hasCover, STANDARD_COVER_AC_BONUS, moveBlockedBetween, lineOfEffect, wallBlocksMove, wallBlocksSight } from "../../tools/battle-simulator/shared/terrain.mjs";
 
 // --- hasCover ---
 

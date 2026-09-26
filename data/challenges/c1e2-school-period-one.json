@@ -1,0 +1,76 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-school-period-one",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "School: Period One",
+  "description": "One optional roll per classroom. Unlike every check in Episode One, these can cost something -- failure buys extra work that eats a quarter, and a critical failure costs a quarter and a night's sleep. Not rolling at all is completely free and is a normal thing for a student to do.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "read-between-the-lines",
+      "name": "Notice what the textbook does not say",
+      "skillOptions": [
+        "society",
+        "occultism",
+        "academia-lore"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1 DC 15, one step hard. Finding the seams in a two-hundred-year-old approved text is genuinely difficult and nobody has managed it in nineteen years of this man teaching it",
+        "adjustment": "hard"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the cupboard: an older edition, two printings back, with a memorial plate in the front where the painting now is. The plate shows the same four. One of them is very small. One of them is not human at all. Every later printing replaced it with the four tall humans in the painting.",
+        "success": "The passage says who closed the rift and never once says how it opened -- it goes from nothing to catastrophe in a single sentence. The dates in the margin do not reconcile with the dates in the chapter before it. Something happened here that the book is describing without saying.",
+        "failure": "They keep pushing after he has already given them the honest answer and moved on, in front of a class that wants to get to break. He sets them the chapter to summarise, without any malice at all. It costs one free quarter.",
+        "criticalFailure": "They tell him, out loud, that the book is wrong -- to a man who has taught it for nineteen years and has never been given a reason to think so. He is not offended. He is embarrassed for them, briefly and visibly, and the room sees it. The chapter, and the two either side of it: a quarter and most of the night, and his attitude to that character drops one step, from Friendly to Indifferent. He is not wounded and does not retaliate -- he answers their questions from now on exactly as written and volunteers nothing beyond it, which costs more than it sounds, because he is the one adult in the campaign who will cheerfully read out a paragraph nobody asked about."
+      },
+      "bySkill": {
+        "society": "The institutional read -- an official account that tells you who closed a thing and never who or what opened it has been edited, and the editing is the information.",
+        "occultism": "A rift does not open by itself. A textbook that skips from nothing to catastrophe in one sentence is skipping the part that mattered.",
+        "perception": "The physical book: the resets in the type, the margin dates, the painting glued in over something older, and the fact that the cupboard editions are thicker than the desk ones.",
+        "academia-lore": "Knowing how an approved syllabus gets made, and therefore knowing what kind of sentence survives the process."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "learn-the-alert-states",
+      "name": "Actually learn the alert states",
+      "skillOptions": [
+        "society",
+        "medicine"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy. She is a good instructor teaching simple material and wants them to have it -- the difficulty is caring enough to engage, not the content",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the thing that is not in the manual: how to tell a test from the real thing. Three sounds for ninety seconds on a drill and then stops. On a live alert it does not stop. She tells them this flatly, as a piece of trivia about her own job, and it is the single most useful sentence anybody says to them this week.",
+        "success": "The four alert states cold, and what each one means for somebody standing in the open. They will recognise a siren by what it is asking for.",
+        "failure": "They mix three and four up in front of her and are made to say the list back until they do not. Extra drill after class: it costs one free quarter and is extremely boring.",
+        "criticalFailure": "As failure, and she keeps them long enough that it costs a quarter and most of the evening. They begin the next day Fatigued, and she is entirely unapologetic about it."
+      },
+      "bySkill": {
+        "society": "Understanding what the states are actually for -- moving a population, not informing it.",
+        "perception": "Hearing the difference between the sirens rather than memorising the list, which is the version that works when one is actually sounding.",
+        "diplomacy": "Getting her talking about what she would really do, which is where the crowd procedure comes from.",
+        "medicine": "The casualty side of it -- muster points, where the injured are supposed to go, and why the procedure puts them there."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Individually -- each player is in one room or the other"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--school-period-one",
+    "c1e2-first-contact"
+  ],
+  "notes": "NOT ROLLING IS FREE. A player who sits through a lesson without engaging pays nothing, loses nothing, and has done an entirely normal thing. Only offer the roll to a player who engages with the material. This is the rule that makes unannounced risks fair.\n\nRISKS ARE NOT ANNOUNCED. Neither class states what a good roll buys or what a bad one costs. That is deliberate. The cost is always the same currency -- a free quarter -- which the party learned to value at the board that morning.\n\nFATIGUED IS A REAL SF2E CONDITION and is the correct weight for a critical failure here: it is recoverable, it is not dangerous, and it makes the next day harder without closing anything off. Do not invent a bespoke debuff when the system already has one.\n\nLEARN-THE-ALERT-STATES PAYS OFF IN FIRST CONTACT, AND ITS CRITICAL SUCCESS IS DELIBERATELY NOT THE CROWD PROCEDURE. Any PC with Society can already give a drilled instruction in the right words -- `clear-the-road` hands that out free -- so buying it again would be buying nothing. What the critical success buys instead is test-versus-real: three sounds for ninety seconds on a drill and does not stop on a live alert. In The Exercise that makes the siren test legible as a test. In First Contact it means one player knows, immediately and with certainty, that this one is not. Nobody else on the field has that.\n\nREAD-BETWEEN-THE-LINES PLANTS AND NEVER RESOLVES. No result identifies the four founders, confirms anybody is alive, or connects the plate to the statue in the harbour square. All three are open questions and belong to Ingram.\n\nONE OF THE FOUR TEACHES THE AFTERNOON CLASS. Shucks Mordant is on that plate. If a player gets the critical success here and then sits in his field medicine lesson in period two, they are holding both halves and nobody in the fiction connects them. Do not connect them either. If a player connects them out loud, that is theirs -- confirm nothing, and write down that they said it.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give.\n\nTHE HISTORY ROOM HAS A DIEGETIC WARNING AND MUST KEEP IT. Before any player rolls, another student argues with the text and is set extra work for it, in front of everybody. That is the whole fairness mechanism for an unannounced risk in this room: the cost is never stated, but it is visibly demonstrated on somebody else first. Do not cut that beat to save time."
+}

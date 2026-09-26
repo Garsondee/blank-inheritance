@@ -1,0 +1,241 @@
+{
+ "name": "Dave",
+ "type": "familiar",
+ "ownership": {
+  "default": 1,
+  "Np5cw2vU0Pa84Rx8": 3,
+  "kU2x2DENB2jVGtoX": 3
+ },
+ "prototypeToken": {
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   },
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "height": 0.5,
+  "width": 0.5,
+  "actorLink": true,
+  "sight": {
+   "enabled": true,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "name": "Dave",
+  "displayName": 20,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/dave.Token.webp?1669157263636",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0
+  },
+  "detectionModes": [],
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/dave.Avatar.webp?1669157263636",
+ "system": {
+  "master": {
+   "id": "rETK2gNirPCSyuJR",
+   "ability": "cha"
+  },
+  "attributes": {
+   "hp": {
+    "value": 35,
+    "temp": 0
+   }
+  },
+  "details": {
+   "creature": {
+    "value": ""
+   }
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  }
+ },
+ "items": [
+  {
+   "_id": "M6ktbI9eDjPJMmUX",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/adventuring-gear/spyglass.webp",
+   "name": "Effect: Scouting",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "removeAfterRoll": [
+       "check:type:initiative"
+      ],
+      "selector": "initiative",
+      "type": "circumstance",
+      "value": 1
+     }
+    ],
+    "slug": "effect-scouting",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "duration": {
+     "value": -1,
+     "unit": "unlimited",
+     "expiry": "turn-start",
+     "sustained": false
+    },
+    "start": {
+     "value": -30599628,
+     "initiative": null
+    },
+    "tokenIcon": {
+     "show": true
+    },
+    "badge": null,
+    "context": null
+   },
+   "type": "effect",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.other-effects.Item.EMqGwUi3VMhCjTlF"
+    },
+    "scene-packer": {
+     "hash": "8979ada8aac1631df46ebca773686a191b5cbc82"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.8.2",
+    "coreVersion": "12.329",
+    "createdTime": 1699473355872,
+    "modifiedTime": 1699473355872,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.other-effects.Item.EMqGwUi3VMhCjTlF",
+    "duplicateSource": null
+   }
+  }
+ ],
+ "effects": [],
+ "folder": null,
+ "sort": 2356250,
+ "flags": {},
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1669157205832,
+  "modifiedTime": 1721827611353,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ },
+ "_id": "mNJqdondJg0Qsqnh"
+}

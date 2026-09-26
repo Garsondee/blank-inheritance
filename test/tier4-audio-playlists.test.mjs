@@ -202,14 +202,14 @@ const readJson = (rel) => JSON.parse(readFileSync(path.join(repoRoot, rel), "utf
 
 /** A world holding the REAL library and one real soundscape. */
 function realWorld(soundscapeOverrides = null) {
-  const scape = readJson("data/audio/soundscapes/episode-c1s1--canteen.json");
+  const scape = readJson("data/audio/soundscapes/episode-c1e1--canteen.json");
   if (soundscapeOverrides) Object.assign(scape, soundscapeOverrides);
   return installAudioMock({
     moduleFiles: {
       [`${AUDIO_DIR}/library.json`]: readJson("data/audio/library.json"),
       [`${AUDIO_DIR}/review.json`]: readJson("data/audio/review.json"),
       "data/campaign/campaign/asset-registry.json": readJson("data/campaign/asset-registry.json"),
-      [`${AUDIO_DIR}/soundscapes/episode-c1s1--canteen.json`]: scape
+      [`${AUDIO_DIR}/soundscapes/episode-c1e1--canteen.json`]: scape
     }
   });
 }
@@ -239,11 +239,11 @@ test("a world whose playlists were never built builds them on demand rather than
     const { playlists, director } = await freshAudio();
     assert.equal(playlists.generatedPlaylists().size, 0, "this world starts with nothing built");
 
-    await assert.doesNotReject(() => director.applySoundscape("episode-c1s1--canteen"));
+    await assert.doesNotReject(() => director.applySoundscape("episode-c1e1--canteen"));
 
     assert.ok(playlists.generatedPlaylists().size > 0, "the playlists should have been built on the way");
     const state = director.directorState();
-    assert.equal(state.soundscapeId, "episode-c1s1--canteen");
+    assert.equal(state.soundscapeId, "episode-c1e1--canteen");
     assert.ok(state.music.length > 0, "and the music should actually be playing");
   } finally {
     mock.restore();
@@ -257,7 +257,7 @@ test("a soundscape whose music cannot start still lays its ambience beds down", 
     const { playlists, director } = await freshAudio();
     await playlists.syncAudioPlaylists({ notify: false });
 
-    await assert.doesNotReject(() => director.applySoundscape("episode-c1s1--canteen"));
+    await assert.doesNotReject(() => director.applySoundscape("episode-c1e1--canteen"));
 
     const state = director.directorState();
     assert.equal(state.music.length, 0, "the music could not start");

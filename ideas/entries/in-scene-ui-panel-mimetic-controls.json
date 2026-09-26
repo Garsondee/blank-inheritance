@@ -18,8 +18,10 @@
   "openSubQuestions": [
     "Exact GM-panel vs player-panel feature lists — partially answered (players: common actions + roll access; GM: prepared-material access + improv tools + timestamped log) but not fully enumerated.",
     "How this panel actually gets injected into every Foundry scene (a module-injected DOM overlay? part of the director's panel work already designed?).",
-    "Technical approach for automatic loudness normalization/checking across a mixed library of ~200 incoming audio files of very different original sources.",
     "Whether the GM's timestamped log feeds chat-log-knowledge-base directly (same store, two write paths) or stays a separate record that gets reconciled later."
+  ],
+  "resolvedSubQuestions": [
+    "Technical approach for automatic loudness normalization/checking across a mixed library of ~200 incoming audio files of very different original sources. ANSWERED 2026-09-17 by the audio pipeline (tools/audio-pipeline/, design/audio-system.md): per-kind EBU R128 normalisation, checked by its verify step (see the description's 2026-09-17 note)."
   ],
   "relatedRefs": [
     "mech-radio-chatter-audio",

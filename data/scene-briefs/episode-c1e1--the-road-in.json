@@ -1,0 +1,155 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--the-road-in",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-road-in",
+  "title": "The Road In",
+  "goal": "Every player has said how their character looks, how we first see them, and one small problem their character hit on the way into Kurose -- and has rolled the skill they chose for it and told us, in a few sentences, how it went.",
+  "howToPlay": "A montage, not a scene. Go round the table one player at a time; each spotlight is that character's first appearance, as if they had just walked into an episode of a television series already running. **The player tells the story; the GM asks the questions and writes down the answers.** This is the only stretch all session where each of them is, for a moment, the only person on screen. **Do not have them meet each other here.** The waiting room next scene is the first time this group is a group, on purpose, and it lands harder for being held back one beat longer.",
+  "runsAbout": "25-35 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "Six separate mornings, six separate places. Weeks ago, each of them got the same letter.",
+    "firstThing": "An envelope from a city none of them had reason to visit, addressed correctly, from an institution that has never written to them before.",
+    "readAloud": "Six separate mornings, six separate places, weeks apart. Whatever you were doing that day, you stopped doing it -- because an envelope had arrived, addressed to you, from a city you had never had a reason to visit.",
+    "carriesIn": [
+      {
+        "when": "From Up Here has just been read (it should always come first)",
+        "then": "The table has just heard the whole common-knowledge history and the last line, \"This year, it sent for you.\" Go straight into the letter without recapping anything."
+      }
+    ],
+    "holdInReserve": "The letter is a printed form with the name typed into a gap, and the typewriter that did it has a broken lower-case e. Give this to anybody who studies the letter rather than reading it. Its letterhead is bilingual -- 特別対策本部 in small type above 'SPECIAL COUNTERMEASURES HEADQUARTERS' in English -- the same as every other Directorate form the six of them will see all year.",
+    "position": {
+      "locationRef": null,
+      "state": "scattered",
+      "note": "OFF-MAP, DELIBERATELY. Six separate mornings in six separate places, weeks apart, none of them having met another -- the one edge in the campaign that legitimately is. The origins are PLAYER-AUTHORED: each player invents their own home and journey in this scene and the GM writes it down.\n\nTRACKING STARTS AT THIS SCENE'S CLOSE, NOT ITS OPEN. The six starting points stay 'Scattered' throughout; coordinates begin only once they converge on the Candidate Gate at the end. The one constraint on any of the six journeys is the letter's: somewhere reachable by the Monday it names, on transport a candidate could afford."
+    }
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "the-letter",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the letter once, to the whole table, before anyone speaks as their character.",
+      "readAloud": "Dear Candidate,\n\nYour application to Tokubetsu Taisaku Honbu has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n\nPlease bring nothing you cannot carry, and nothing you cannot leave.\n\nWe look forward to your service.",
+      "direction": "The same letter, six times over, weeks apart. Say nothing else about it. Let the table sit with \"nothing you cannot leave\" for a second before moving on -- it is doing real work and does not need pointing at.\n\nThe primary reading is practical, not a planted clue (ratified, LEDGER #9): pack light, this is enlistment, not moving house, the Directorate provides what is needed. The evocative phrasing is house style -- Directorate documents run to unusual, slightly poetic language throughout -- not a hidden key with one correct unlock. Don't build a future beat that treats this line as foreshadowing something specific."
+    },
+    {
+      "id": "your-opening",
+      "kind": "action",
+      "text": "Go round the table. Ask each player three things, one at a time: what does your character look like, how do we first see them, and what small problem did they hit on the way into the city?",
+      "mandatory": true,
+      "delivery": "each",
+      "direction": "Ask the three questions in order and wait for each answer.\n\n1. **\"What does your character look like?\"** Take whatever they give you. A single line is a complete answer.\n2. **\"How do we first see them?\"** The opening shot -- where the camera finds them, what they are doing, as if they had just walked into an episode already running. If a player is stuck, offer \"Where are you, and what are you doing with your hands?\"\n3. **\"On the way into Kurose, something small went wrong. What was it?\"** Small means small: a missed tram, a torn strap, a stubborn ticket clerk, a wrong turning, a dog. Nothing dangerous and nothing that stops them arriving.\n\nThen go straight into `the-small-problem` for the same player before moving on to the next one.",
+      "note": "WHY IT IS SHAPED THIS WAY. Ingram asked for exactly this: ask \"how their character looks, how we first see them (as if they were joining the episode of a TV show)\" and \"to describe a small problem they hit on the journey in to the city\". It is the first example of a pattern this campaign will use regularly -- a player narrating a moment of their own (`design/campaign-arc.md`, \"Player moments\").\n\nIF SOMEBODY WANTS AN EXAMPLE OF A JOURNEY: a battered motorbike that shouldn't still run, and does. The early commuter train, with forty strangers going nowhere else. The causeway on foot, because the fare wasn't worth what it cost. In by boat with the morning catch. These are inspiration, not a script. A player's idea always wins.\n\nTHEY ARE ALL IN DISGUISE. Every character arrives looking terrestrial (the Induction design). Whatever a player says their character looks like is what the world sees; what is under the disguise is theirs to mention or not."
+    },
+    {
+      "id": "the-small-problem",
+      "kind": "check",
+      "text": "Ask which skill they used to deal with the problem. They roll it against DC 15, then they tell us how it went.",
+      "mandatory": true,
+      "delivery": "each",
+      "challengeRef": "c1e1-the-road-in",
+      "checkRef": "the-small-problem",
+      "direction": "Ask: **\"What skill do you use to try to get past it?\"** Any skill they can argue for is fine -- do not argue back. Post the check (it offers every skill; they click the one they named), and they roll against DC 15.\n\nTell them the degree of success, then hand it back: **\"Tell us how it goes.\"** A few sentences is plenty. The result shapes their story; they tell it. Write down the problem, the skill, the result and one line of how it went.\n\nA player who would rather not roll does not have to: they just tell us how it went, and nothing is lost.",
+      "note": "NOTHING RIDES ON THIS ROLL MECHANICALLY, ON ANY RESULT. A failure is a story, never a cost: every character still reaches the city by the Monday the letter names. What the roll decides is the shape of a small anecdote the player tells about their own character, and the GM keeps it for a callback.\n\nTHE DC IS THE NORMAL ONE. Level 1, no adjustment -- Ingram asked for \"a normal DC\" -- so some of the six will fail, and that is fine and often funnier."
+    },
+    {
+      "id": "a-mark-at-head-height",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "When a player finishes telling how their problem went, if their journey ends somewhere people wait and stand still -- a ticket queue, a tram stop, a ferry waiting room -- describe a small deep-violet mark at head height on the wall they are facing. Describe it before anyone rolls, then offer the check.",
+      "challengeRef": "c1e1-the-road-in",
+      "checkRef": "a-mark-at-head-height",
+      "when": {
+        "condition": "if an arrival passes somewhere a mark like this could plausibly be"
+      },
+      "nodeRefs": [
+        "mystery-ledger-6"
+      ],
+      "note": "HOW TO PLAY IT. Offer this to as many of the six as it naturally fits. The mark turning up more than once, in the same exact shade, is the hook; no single sighting is. Never explain what it means or who is putting them there.\n\nSITING, per dossier-cicada.md §2: always a wall a crowd stands in front of, always facing away from any road. These mark future demonstration ground, not passing traffic -- never a crate, never a train window, because a moving vantage point cannot be a crowd's fixed one.\n\nGUARANTEED: do not let this go begging. If no arrival naturally passes a queue, a tram stop or a waiting room, pick a player at random and place the mark in their spotlight anyway -- the same discipline as Intake Medicals' three all-six fallbacks.\n\nWHAT IT DOES NOT MEAN: nothing here identifies the mark, and no result in this scene can. Which chapter pays it off lives on the `mystery-ledger-6` Node."
+    },
+    {
+      "id": "a-frame-at-a-distance",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player's arrival passes anywhere a Frame could plausibly be working -- the docks, a maintenance yard, a road crew -- give everyone at the table a first sight of one at a distance before any roll: scale, noise, the ground answering its weight, and how plainly it is a machine being wrestled rather than driven. Then offer the check to the whole table, not only the player whose arrival triggered it.",
+      "challengeRef": "c1e1-the-road-in",
+      "checkRef": "a-frame-at-a-distance",
+      "when": {
+        "condition": "if any arrival passes somewhere a Frame could plausibly be seen"
+      },
+      "note": "NO LONGER GUARANTEED: From Up Here now gives the whole table its first sight of Gen 1 Frames at the docks, so this beat only runs if an arrival naturally passes one. THIS IS A GEN 1 FRAME, AND IT IS A RUST BUCKET. Describe a utility machine -- rivets, a grapple arm, a road-crew chevron stripe -- and describe it as clanky, loud and visibly hard work to drive. Gen 1 Frames are century-and-a-half-old crude human reconstructions built from one bisected fragment (dossier-second-generation-frames.md §2); they are everywhere, unglamorous, and horrible. The awe-inspiring register belongs to Gen 2, chapters away.\n\nWHAT THIS BEAT IS FOR. It plants the BASELINE, not an anomaly. The party's first sight of a Frame should establish that these things fight their pilots -- so that when something finally moves with unusual grace, many chapters later, the table has a standard to measure it against. A critical success buys the strongest version of that: you can see the pilot correcting.\n\nDO NOT PLANT MYSTERY LEDGER #11 HERE. A Gen 1 machine does not move gracefully -- the grace in Ledger #11 is the Gen 2 tell, hyper-advanced Mitflit biotechnology, DNA-gated, which almost nobody has ever seen operated. Planting it on a Gen 1 utility mech at the docks on day one would contradict the generation distinction and spend the contrast before it is set up.\n\nOffer this once for the table, not once per player. A plain success is real information about what a Frame is, which none of them have had reason to know yet, and none of them know they will ever pilot one.\n\nGUARANTEED: if no arrival naturally passes the docks, a maintenance yard or a road crew, pick a player at random and place the sighting in their spotlight anyway -- a different player from the one used for a-mark-at-head-height.",
+      "nodeRefs": [
+        "arc-gen1-baseline-inverted-by-gen2"
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "All six openings are done, each with its problem rolled and told. Stop there -- do not stage a shared arrival or have them notice each other. That's next scene's opening, not this one's ending.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The letter itself already set the terms -- report by Monday, be processed. Nobody has to say a word to move them on; time simply skips to the queue.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into Intake Medicals. Time skips a few days on its own -- that scene opens already inside the queue, and this is where the six of them actually become a group for the first time.",
+    "writeDown": [
+      "For each player: how their character looks, the opening shot, the small problem, the skill they chose, the result, and one line of how it went. These are callbacks, and the first entries in each character's own story.",
+      "Who succeeded on a-mark-at-head-height, and how many times the violet mark came up across the six. The repetition is the point.",
+      "Whether anyone crit-succeeded on a-frame-at-a-distance and saw the pilot correcting, if that beat ran at all."
+    ],
+    "position": {
+      "locationRef": "candidate-gate",
+      "state": "converging",
+      "note": "All six converging on the Candidate Gate, separately, to arrive by the Monday the letter names. The journeys themselves are not played -- the scene skips a few days. This is the first tracked coordinate in the campaign, and the FROM end of the first travel leg."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "what-did-you-leave",
+      "text": "If an opening is landing thin, one follow-up almost always opens it up: what did you leave behind to answer this letter?"
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "montage-rhythm",
+      "text": "The six openings keeping an even pace rather than one or two eating the whole scene."
+    },
+    {
+      "id": "characterful-arrivals",
+      "text": "Each opening landing as a real, characterful first impression of who that person is."
+    },
+    {
+      "id": "players-telling-it",
+      "text": "Players telling how their small problem went, rather than waiting for the GM to narrate it.",
+      "scaleNote": "0 = every player handed it back to the GM, 10 = every player told their own."
+    },
+    {
+      "id": "the-letter-line",
+      "text": "\"Please bring nothing you cannot carry, and nothing you cannot leave\" landing with real weight, unexplained."
+    },
+    {
+      "id": "the-violet-mark",
+      "text": "The violet mark at head height being noticed as an actual repeating detail, not background noise.",
+      "scaleNote": "0 = nobody registered it as odd, 10 = the table's already asking questions about it."
+    },
+    {
+      "id": "one-spotlight-ran-long",
+      "text": "If one player's spotlight ran long enough that the others felt shortchanged.",
+      "scaleNote": "0 = stayed evenly paced, 10 = badly lopsided."
+    }
+  ],
+  "notes": "NO CAST, DELIBERATELY. This scene has no NPCs and no speaking parts at all: the six spotlights are the players describing their own arrivals, and putting a guard, a conductor or a neighbour on screen would give them somebody to react to instead of something to invent. The first face in this campaign is Shucks, in the next scene, on purpose.\n\nNO SHARED BEAT AND NO ARTEFACT, DELIBERATELY. The group forming is Intake Medicals' job and this scene must not spend that moment early. Character sheets already exist from Induction, so the-small-problem has real stats to roll against from the first line.\n\nREBUILT AROUND EACH PLAYER'S OPENING, at Ingram's request. From Up Here now comes first and carries the world; this scene is the players' turn. Each player: how they look, how we first see them, a small problem on the way in, the skill they used, a roll against DC 15, and a few sentences of how it went, told by the player. The old optional flourish roll is gone -- the small problem is its replacement, and it is not optional.\n\nZERO MECHANICAL STAKES THROUGHOUT. Every check here costs nothing on every result, including critical failure. A bad roll on the-small-problem is a story the player tells, never a cost: the scene is built so that nobody's first roll with their own character can hurt them.\n\nTHE VIOLET MARK IS GUARANTEED; THE FRAME IS NOT ANY MORE. The mark is a plant (`mystery-ledger-6`): if no journey naturally ends somewhere people wait, place it at the end of a randomly chosen player's spotlight anyway. A plant that depends on a player happening to describe the right journey is not a plant. The Frame sighting was a baseline rather than a plant, and From Up Here now gives it to the whole table, so a-frame-at-a-distance only runs when an arrival naturally passes one.\n\nMITFLITS. Read `ideas/story/bible/species/mitflits.md` before writing anything anywhere that involves them. They are a species this party's world has treated badly and the bible sets hard limits on how that may be depicted.\n\nNO LANDMARK AND NO TRACK MOVEMENT, BOTH CORRECT. A landmark is the fixed thing a room orbits, and this scene is six rooms in six towns -- there is nothing shared to orbit and inventing one would flatten the six spotlights into one place. Nothing on the strategy layer moves either, because none of it exists yet: they have not met the institution, each other, or the city. A future audit flagging either of these should read this note and move on."
+}

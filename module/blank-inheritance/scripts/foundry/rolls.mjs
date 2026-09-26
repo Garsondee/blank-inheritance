@@ -103,10 +103,10 @@ export function checkGroupsFor(actor) {
  * button, and an undc'd @Check is still rollable — the GM reads the result.
  * Attaching a DC is the obvious next refinement.
  */
-export async function postInlineCheck({ slug, label = null }) {
+export async function postInlineCheck({ slug, label = null, dc = null }) {
   let content;
   try {
-    content = enricherFor({ slug });
+    content = enricherFor({ slug, dc });
   } catch (err) {
     console.error("Blank Inheritance | Refusing to post an inline check:", err);
     ui.notifications?.error(game.i18n.localize("BLANKINHERITANCE.Console.Checks.BadSlug"));
@@ -197,6 +197,148 @@ export function rollStrike({ actor, actionIndex, variantIndex, event = null }) {
     metaKey: event?.metaKey ?? false
   };
   return variant.roll({ event: syntheticEvent });
+}
+
+/**
+ * Roll a strike's damage — or its critical damage — through sf2e's own
+ * `strike.damage` / `strike.critical`, the exact calls the sheet's Damage and
+ * Critical buttons make (both verified present on a live character's
+ * `system.actions[n]`, 2026-09-23). Same synthetic-event reasoning as
+ * rollStrike above: the wrapper derives its own dialog choice from the
+ * event's shiftKey against the user's real setting, here showDamageDialogs.
+ */
+export function rollStrikeDamage({ actor, actionIndex, critical = false, event = null }) {
+  const target = actor ?? consoleActor();
+  const strike = target?.system?.actions?.[actionIndex];
+  const roll = critical ? strike?.critical : strike?.damage;
+  if (typeof roll !== "function") {
+    ui.notifications?.warn(game.i18n.localize("BLANKINHERITANCE.Console.Checks.NoCharacter"));
+    return null;
+  }
+  const params = rollParamsFromEvent(event, {
+    showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
+    isGM: game.user?.isGM ?? false
+  });
+  const syntheticEvent = {
+    shiftKey: strikeEventShiftKeyFor(params.skipDialog, !!game.user?.settings?.showDamageDialogs),
+    ctrlKey: event?.ctrlKey ?? false,
+    metaKey: event?.metaKey ?? false
+  };
+  return roll({ event: syntheticEvent });
+}
+
+/**
+ * What the deck's Action selector needs to know about each action it lists,
+ * read off sf2e's own registry: its localised name, its cost, the names of
+ * its variants, and `preview({actor})` — the statistic(s) it rolls and the
+ * real modifier for THIS creature (sf2e computes it with the action's own
+ * modifiers applied, so the key can print the number that will actually be
+ * rolled). An action whose preview throws is kept with no preview rather
+ * than dropped: it still works, it just cannot say its number.
+ *
+ * game.pf2e stays confined to this file (tier0-architecture's lint), which is
+ * why the registry is read here and handed to core/deck-actions.mjs as plain
+ * data.
+ */
+export function actionRegistryFor(actor, slugs = []) {
+  const registry = {};
+  const actions = game.pf2e?.actions;
+  if (!actions?.get) return registry;
+  for (const slug of new Set(slugs)) {
+    const action = actions.get(slug);
+    if (!action) continue;
+    const variants = {};
+    for (const variant of action.variants?.values?.() ?? []) {
+      variants[variant.slug] = game.i18n.localize(variant.name ?? variant.slug);
+    }
+    let preview = [];
+    if (actor && typeof action.preview === "function") {
+      try {
+        const first = action.variants?.size > 1 ? action.variants.values().next().value?.slug : undefined;
+        preview = action.preview({ actor, variant: first }) ?? [];
+      } catch {
+        preview = [];
+      }
+    }
+    registry[slug] = { name: game.i18n.localize(action.name), cost: action.cost ?? null, variants, preview };
+  }
+  return registry;
+}
+
+/**
+ * Use one action for this creature — sf2e's own `action.use`, which rolls the
+ * right statistic with the action's own modifiers and traits and posts its
+ * card (a simple action like Take Cover posts its card and applies its
+ * effect). The console's own dialog default applies: plain click rolls, shift
+ * opens sf2e's modifier dialog.
+ */
+export async function useAction({ actor, slug, variant = null, event = null }) {
+  const target = actor ?? consoleActor();
+  const action = game.pf2e?.actions?.get(slug);
+  if (!target || !action) {
+    ui.notifications?.warn(game.i18n.localize("BLANKINHERITANCE.Console.Checks.NoCharacter"));
+    return null;
+  }
+  const params = rollParamsFromEvent(event, {
+    showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
+    isGM: game.user?.isGM ?? false
+  });
+  const syntheticEvent = {
+    shiftKey: strikeEventShiftKeyFor(params.skipDialog, !!game.user?.settings?.showCheckDialogs),
+    ctrlKey: event?.ctrlKey ?? false,
+    metaKey: event?.metaKey ?? false
+  };
+  try {
+    return await action.use({ actors: [target], event: syntheticEvent, ...(variant ? { variant } : {}) });
+  } catch (err) {
+    console.error(`Blank Inheritance | Could not use ${slug}:`, err);
+    ui.notifications?.warn(err?.message ?? String(err));
+    return null;
+  }
+}
+
+/**
+ * The table-scale actions sf2e ships as plain functions on its action
+ * registry rather than as checks — Rest for the Night, Treat Wounds, Take a
+ * Breather — run exactly as the system's own macros run them (each opens its
+ * own confirmation or options dialog). Named explicitly rather than by a
+ * free string, so a typo is a thrown error here instead of a silent no-op at
+ * the table. Added 2026-09-23 for the Director's Palette.
+ */
+const SYSTEM_TABLE_ACTIONS = Object.freeze(["restForTheNight", "treatWounds", "takeABreather"]);
+
+export async function runSystemAction(name, actors = []) {
+  if (!SYSTEM_TABLE_ACTIONS.includes(name)) throw new Error(`Unknown system action "${name}".`);
+  // The registry is a Collection keyed by these names (sf2e also calls them
+  // as properties, e.g. its own sheet's `game.pf2e.actions.restForTheNight`).
+  const registry = game.pf2e?.actions;
+  const action = registry?.get?.(name) ?? registry?.[name];
+  if (typeof action !== "function") {
+    ui.notifications?.warn(`This system has no "${name}" action.`);
+    return null;
+  }
+  return action({ actors });
+}
+
+/**
+ * Roll this creature into the current encounter — sf2e's own
+ * `actor.initiative.roll`, which finds (or, on the GM's side, creates) the
+ * combatant and writes the result to the tracker.
+ */
+export async function rollInitiative({ actor, event = null }) {
+  const target = actor ?? consoleActor();
+  if (!target?.initiative?.roll) return null;
+  const params = rollParamsFromEvent(event, {
+    showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
+    isGM: game.user?.isGM ?? false
+  });
+  return target.initiative.roll(params);
+}
+
+/** The creature's initiative modifier, for the key's printed number. */
+export function initiativeMod(actor) {
+  const mod = actor?.initiative?.mod;
+  return Number.isFinite(mod) ? mod : null;
 }
 
 /**

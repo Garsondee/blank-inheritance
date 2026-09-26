@@ -11,7 +11,7 @@
  *   Engage  — the ordinary arrival. Most people, most scenes.
  *   Shutter — Directorate business, someone arriving in an official capacity.
  *   Alert   — a hostile or unwelcome arrival.
- *   Signal  — anything touching Resonance, Bleed or a Claimant.
+ *   Signal  — anything touching a Claimant.
  *
  * This file decides WHICH treatment a newly-arrived member gets and WHO
  * counts as newly arrived. foundry/stage.mjs owns the CSS trigger (a
@@ -40,10 +40,10 @@ const KNOWN_KINDS = new Set(Object.values(ENTRANCE_KINDS));
  * faction genuinely earns a different treatment.
  *
  * Alert and Signal have NO faction mapping here on purpose — "hostile" and
- * "touches Resonance" are not properties any faction has by default (a
+ * "touches a Claimant" are not properties any faction has by default (a
  * Directorate NPC can still turn hostile in a given scene), so both stay
  * reachable ONLY via an explicit `member.entrance` override until this
- * project has a real per-scene disposition or Resonance-tag signal to read
+ * project has a real per-scene disposition or Claimant-tag signal to read
  * instead of guessing at one.
  */
 const FACTION_ENTRANCES = Object.freeze({

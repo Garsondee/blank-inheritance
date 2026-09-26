@@ -11,7 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as geometry from "../../tools/battle-simulator/artifact/geometry.mjs";
-import { reachFeetForStrike } from "../../tools/battle-simulator/engine/grid.mjs";
+import { reachFeetForStrike } from "../../tools/battle-simulator/personnel-engine/grid.mjs";
 
 // Deliberately reading these OFF THE NAMESPACE OBJECT, not destructured, throughout this file —
 // they're mutable `let` exports now (design doc §19: the library holds both Frame- and
@@ -63,7 +63,12 @@ test("feetToPx: a long-range weapon's real increment (2000ft) converts to a prop
 });
 
 test("reachFeetForStrikeLocal: cross-checked against the real engine's reachFeetForStrike for melee strikes (with and without a reach trait) — must never silently diverge", () => {
-  setMapScale({ cols: 44, rows: 44, feetPerSquare: 50 }); // explicit, not relying on a previous test's leftover state
+  // MOVED 2026-09-19 from tools/battle-simulator/engine/grid.mjs (50ft/square) to personnel-engine/
+  // grid.mjs (5ft/square, a real hardcoded constant that does NOT move with setMapScale -- see that
+  // file's own header) when the frame-scale engine was removed. Scale set to match it, not the old
+  // frame-scale default, so this is still a real cross-check against whatever the surviving engine
+  // actually computes, not a stale, now-mismatched constant baked into this test.
+  setMapScale({ cols: 12, rows: 8, feetPerSquare: 5 }); // explicit, not relying on a previous test's leftover state
   const withReach = { strikeType: "melee", traits: ["reach-300"] };
   const withoutReach = { strikeType: "melee", traits: [] };
   assert.equal(reachFeetForStrikeLocal(withReach), reachFeetForStrike(withReach));
@@ -235,7 +240,7 @@ test("isBurstAction: false for an ordinary Strike, a spell ATTACK roll, Demorali
 
 // design doc §36 — Ingram's own ask: render the acting token's real Line of Effect during its own
 // turn. lineOfEffectLocal cross-checked against the real engine/terrain.mjs function throughout.
-import { lineOfEffect as engineLineOfEffect } from "../../tools/battle-simulator/engine/terrain.mjs";
+import { lineOfEffect as engineLineOfEffect } from "../../tools/battle-simulator/shared/terrain.mjs";
 const { lineOfEffectLocal, segmentsIntersectLocal } = geometry;
 
 test("lineOfEffectLocal: no walls at all means unconditionally clear — cross-checked against the real engine", () => {

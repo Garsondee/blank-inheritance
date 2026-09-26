@@ -7,10 +7,15 @@
   "nameJa": null,
   "namingPlaceholderRef": null,
   "kind": "military",
-  "tags": [],
+  "tags": [
+    "checkpoint",
+    "landing-end",
+    "candidate-housing",
+    "curfew"
+  ],
   "classification": null,
   "rank": null,
-  "depth": "named",
+  "depth": "scene",
   "geometry": {
     "rings": [
       [
@@ -113,26 +118,46 @@
     "promotedDate": "2026-09-13"
   },
   "authoring": {
-    "note": "The single staffed checkpoint at the housing rows' only road entrance. Every candidate signs in and out here, badge checked against a roster, curfew logged. Small guard booth, a barrier arm, a weather-beaten awning where the off-duty proctors actually spend most of their shift talking rather than checking anyone.",
+    "note": "The single staffed checkpoint at the housing rows' only road entrance. Every candidate signs in and out here, badge checked against a roster, curfew logged. Small guard booth, a barrier arm, a weather-beaten awning where the off-duty proctors actually spend most of their shift talking rather than checking anyone.\n\nRaised from depth `named` to `scene` on 2026-09-22, in the Sign-Off's Place pass for The Road In. Ingram's standing rule, same day: \"if a location is in a scene even for a moment we should write that down in its own detailed location file so that if we ever come back here we don't contradict an earlier scene in this location.\" The anti-contradiction record is the point; the prose is the means.",
     "status": "drafted"
   },
   "lore": {
-    "summary": "The single staffed checkpoint at the housing rows' only road entrance. Every candidate signs in and out here, badge checked against a roster, curfew logged. Small guard booth, a barrier arm, a weather-beaten awning where the off-duty proctors actually spend most of their shift talking rather than checking anyone.",
-    "playerFacing": "",
-    "gmOnly": ""
+    "summary": "The single staffed checkpoint at the housing rows' only road entrance, on the landward side of the causeway. Every candidate signs in and out here, badge checked against a roster, curfew logged. A small guard booth, a barrier arm, and a weather-beaten awning where the off-duty proctors actually spend most of their shift talking rather than checking anyone.\n\nIt is the first Directorate object any of the six will ever stand in front of, and the last one between them and leaving. Both of those matter more than the building does: the gate is not impressive and is not meant to be. It is a booth, a pole and a ledger, and it is completely sufficient, because nobody who lives behind it has anywhere else to go.",
+    "playerFacing": "A red-and-white barrier arm across a single lane of road, and a booth barely bigger than a telephone box beside it. The awning over the booth has gone the colour of weak tea. There is a board screwed to the barrier post with the curfew times on it in stencilled figures, and somebody has corrected the second figure by hand. Past the arm the housing rows start immediately -- identical roofs in identical lines, close enough that you can hear a door on the nearest one.\n\nThe proctor on duty does not ask who you are. He reads your name off the roster before you give it, which is somehow worse.",
+    "gmOnly": "THE ROSTER IS ALWAYS AHEAD OF THE PERSON. Candidates are expected before they arrive and logged before they speak; this is the gate's whole character and it is the personnel-scale echo of the letter in The Road In, which was addressed correctly by an institution that had never written to them before. Play it as administratively unremarkable, never as sinister. Nobody at this gate is watching anybody. The Directorate is simply better at paperwork than it is at people.\n\nSIGN-OUTS ARE REAL AND THEY ARE THE HOOK. The ledger is the one honest record of who was outside the rows and when, so any night excursion becomes a line in a book somebody can later read. That is the cost of leaving, and it should be stated plainly to players rather than sprung on them -- see `night-excursion-consequences`.\n\nTHE CORRECTED CURFEW FIGURE IS NOT A CLUE. Somebody changed the time by hand once and never reprinted the board. It means the Directorate does not repaint signs. Do not build a reveal on it."
   },
   "scene": {
-    "hooks": [],
-    "activities": [],
+    "hooks": [
+      "Signing out after curfew, or trying to come back in past it -- the ledger is the record, and the proctor is not the obstacle so much as the witness.",
+      "Waiting at the arm for somebody who has not come back yet.",
+      "The first arrival: the moment a candidate stops being a person with a letter and becomes a name on a roster. The Road In stops just before this, on purpose."
+    ],
+    "activities": [
+      "Sign in or out, and read the ledger upside-down while the proctor writes -- who else is out, and since when. A Deception or Diplomacy check to get a name struck off it, or a Perception check to read it without asking.",
+      "Talk to the off-duty proctors under the awning. They are bored, they are not officers, and they know the housing rows' gossip better than anyone with a rank does.",
+      "Get something through the arm that should not go through it -- kit, a person, a bottle. The gate is the only road in, so smuggling is a gate problem by definition."
+    ],
     "history": "",
-    "consequences": ""
+    "consequences": "Anything logged here is logged permanently. A curfew breach recorded at this gate is the raw material for a later administrative consequence, and the log is the reason it cannot simply be talked away."
   },
   "realWorld": {},
-  "factionRefs": [],
-  "npcRefs": [],
-  "episodeRefs": [],
-  "openQuestionRefs": [],
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "landing-end-duty-nco"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
+  "openQuestionRefs": [
+    "night-excursion-consequences"
+  ],
   "bibleRef": null,
-  "assetRefs": [],
-  "playlistRefs": []
+  "assetRefs": [
+    "episode-c1e1--the-road-in"
+  ],
+  "playlistRefs": [
+    "episode-c1e1--the-road-in"
+  ]
 }

@@ -1,7 +1,23 @@
 {{!--
-    The Director's right shoulder: the log, the session clock, and the ways off
-    the deck. Running the session and recording it are one act (ux-doctrine
-    Law 15), so the log field is always here, in every mode.
+    The Director's right shoulder: the log, and the ways off the deck.
+    Running the session and recording it are one act (ux-doctrine Law 15), so
+    the log field is always here, in every mode.
+
+    Rebuilt 2026-09-23 (Ingram: "the log window is tiny, practically useless
+    for actually displaying anything beyond two lines of text"). The session
+    clock moved up to the session rail across the top of the screen, the vent
+    grille shrank into the shoulder's engraved header, and the room went to
+    the log: six lines, newest first, each with the time it was written. The
+    Log key in the header opens the Console's full Log tab (filters, the
+    whole evening) — the same key closes it again.
+
+    Demo joined the pill row 2026-09-23 (Ingram: "put that into the UI for
+    the GM only") -- folded in from a separate floating round button
+    (.bi-demo-runner-btn, now hidden while the deck is mounted,
+    bi-foundry-bridge.css) into the deck's own door row, GM-only by the same
+    structural guarantee every other Director-seat control already has: a
+    player's client never constructs DirectorBar, so this partial is never
+    reached there.
 
     The input's name= is load-bearing: ApplicationV2 only restores focus across
     a part re-render when the focused element has an id or a name
@@ -9,37 +25,72 @@
     the caret every time a log entry lands.
 --}}
 <div class="bi-deck-shoulder bi-deck-director">
-    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="bi-deck__well bi-deck-director__well">
-        <div class="bi-deck-director__head">
-            <span class="bi-deck__plate">{{localize "BLANKINHERITANCE.Deck.Log"}}</span>
-            <span class="bi-deck-session" data-phase="{{director.session.phase}}"
-                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Session'}}" data-preview-value="{{director.session.clock}}" data-preview-sub="{{director.session.label}}">
-                <span class="bi-deck-session__track">
-                    <i class="bi-deck-session__band" style="left: {{director.session.startPct}}%; width: {{director.session.spanPct}}%"></i>
-                    <i class="bi-deck-session__now" style="left: {{director.session.nowPct}}%"></i>
-                </span>
+    <div class="bi-deck-shoulder__head">
+        <span class="bi-deck__grille bi-deck__grille--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="bi-deck__engraved">{{localize "BLANKINHERITANCE.Deck.Log"}}</span>
+        <span class="bi-deck-shoulder__readouts">
+            {{#if director.audio.nowPlaying}}
+            <span class="bi-deck__chip bi-deck__chip--wide" data-preview-title="{{localize 'BLANKINHERITANCE.Deck.NowPlaying'}}" data-preview-value="{{director.audio.nowPlaying}}" data-preview-sub="">
+                <em>{{localize "BLANKINHERITANCE.Deck.NowPlaying"}}</em><b>{{director.audio.nowPlaying}}</b>
             </span>
-        </div>
+            {{/if}}
+            {{#if director.staged}}
+            <span class="bi-deck__chip" data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Staged'}}" data-preview-value="{{director.staged}}" data-preview-sub="">
+                <em>{{localize "BLANKINHERITANCE.Deck.Staged"}}</em><b>{{director.staged}}</b>
+            </span>
+            {{/if}}
+        </span>
+    </div>
+    <div class="bi-deck__well bi-deck-director__well">
         <input type="text" name="bi-log-entry" class="bi-deck__screen bi-deck-log__input" data-bi-log-input autocomplete="off"
             placeholder="{{localize 'BLANKINHERITANCE.Console.Log.Placeholder'}}"
             aria-label="{{localize 'BLANKINHERITANCE.Console.Log.Placeholder'}}">
-        <ul class="bi-deck__screen bi-deck-log__recent">
+        <ol class="bi-deck__screen bi-deck-log__recent">
             {{#each director.entries}}
-            <li class="bi-deck-log__entry">{{#if this.tag}}<b>{{this.tag}}</b>{{/if}}<span>{{this.text}}</span></li>
+            <li class="bi-deck-log__entry" data-tag="{{this.tag}}"
+                data-preview-title="{{#if this.tag}}{{this.tag}} · {{/if}}{{this.time}}" data-preview-value="{{this.context.scene}}" data-preview-sub="{{this.text}}">
+                <time>{{this.time}}</time>{{#if this.tag}}<b>{{this.tag}}</b>{{/if}}<span>{{this.text}}</span>
+            </li>
             {{else}}
             <li class="bi-deck-log__entry is-empty">{{localize "BLANKINHERITANCE.Console.Log.Empty"}}</li>
             {{/each}}
-        </ul>
+        </ol>
+        <button type="button" class="bi-deck-log__more" data-action="openConsoleTab" data-tab="log"
+            aria-label="{{localize 'BLANKINHERITANCE.Deck.WholeLog'}}"
+            data-preview-title="{{localize 'BLANKINHERITANCE.Deck.WholeLog'}}" data-preview-value="{{director.total}}" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.WholeLogSub'}}">
+            <span>{{director.total}}</span>
+        </button>
     </div>
-    <div class="bi-deck__pills">
+    <div class="bi-deck__pills bi-deck__pills--tight">
         <span class="bi-deck-pill">
-            <button type="button" class="bi-deck-pill__cap" data-action="openConsole" aria-label="{{localize 'BLANKINHERITANCE.Deck.Console'}}"></button>
+            <button type="button" class="bi-deck-pill__cap" data-action="openRunner" aria-label="{{localize 'BLANKINHERITANCE.Deck.Runner'}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Runner'}}" data-preview-value="" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.RunnerSub'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Runner"}}</span>
+        </span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openSoundDesk" aria-label="{{localize 'BLANKINHERITANCE.Deck.Sound'}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Sound'}}" data-preview-value="" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.SoundSub'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Sound"}}</span>
+        </span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openPalette" aria-label="{{localize 'BLANKINHERITANCE.Deck.Find'}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Find'}}" data-preview-value="Ctrl+K" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.FindSub'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Find"}}</span>
+        </span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openConsole" aria-label="{{localize 'BLANKINHERITANCE.Deck.Console'}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Console'}}" data-preview-value="" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.ConsoleSub'}}"></button>
             <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Console"}}</span>
         </span>
         <span class="bi-deck-pill">
-            <button type="button" class="bi-deck-pill__cap" data-action="openComms" aria-label="{{localize 'BLANKINHERITANCE.Deck.Comms'}}"></button>
+            <button type="button" class="bi-deck-pill__cap" data-action="openComms" aria-label="{{localize 'BLANKINHERITANCE.Deck.Comms'}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Comms'}}" data-preview-value="" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.CommsSub'}}"></button>
             <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Comms"}}</span>
+        </span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openDemo" aria-label="{{localize 'BLANKINHERITANCE.Deck.Demo'}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Demo'}}" data-preview-value="" data-preview-sub="{{localize 'BLANKINHERITANCE.Deck.DemoSub'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Demo"}}</span>
         </span>
     </div>
 </div>

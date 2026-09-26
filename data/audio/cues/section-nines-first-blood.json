@@ -5,7 +5,7 @@
   "title": "The nest wakes",
   "note": "The campaign's first fight gets a reserved track, not a shuffle from the battle pool (Ingram, 2026-09-17: 'carefully pick and choose... some songs unique, special, or associated with particular... events'). Fired directly off the 'the-fight' beat rather than waiting on a live Foundry Combat -- the more reliable path for a scene run straight off the Scene Runner, and it still works exactly the same way if the GM does track initiative. The soundscape's own combat.track binds the same asset as a second, automatic path.",
   "triggers": [
-    { "on": "beat", "brief": "episode-c1s1--flood-tunnel", "beat": "the-fight" }
+    { "on": "beat", "brief": "episode-c1e1--flood-tunnel", "beat": "the-fight" }
   ],
   "steps": [
     { "do": "music", "track": "26-masamichi-amano-jintetsu-no-toujou", "loop": true, "fade": 300 }

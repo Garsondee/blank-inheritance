@@ -21,7 +21,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { sampleDeterminizedWorld } from "../../tools/battle-simulator/personnel-engine/search/determinization.mjs";
 import { reachableCells } from "../../tools/battle-simulator/personnel-engine/world/pathfind.mjs";
-import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
+import { makeRng } from "../../tools/battle-simulator/shared/rng.mjs";
 
 function twoRoomWall(gridSize) {
   const walls = [];

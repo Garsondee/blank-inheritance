@@ -125,19 +125,14 @@ a requirement that one happen.
 Each Fact carries a **reveal trigger**, authored once per NPC:
 
 - **Usually a check** — Sense Motive to read them cold, a successful social action during an
-  unrelated conversation, a relevant Recall Knowledge. Same shape as the Sensor Operator ground
-  role already uses against Claimants: *"each success = one true fact the pilot can act on"*
-  (`data/campaign/ground-roles.json`) — this is that exact pattern, aimed at people instead of
-  machines.
+  unrelated conversation, a relevant Recall Knowledge.
 - **Sometimes narrative** — reading a personnel file (which may itself be redacted; the redaction
   machinery already built this project is a real, available gate here, not a hypothetical one),
   a scene where the NPC lets something slip unprompted, a Gather Information result.
 
 **Revealing is party-wide, proposed as the default.** Once one player learns it, the whole table
 knows it from then on — matching how the muster board already treats "what the party knows" as one
-shared flag rather than one per player, and matching the Sensor Operator role's own framing (a fact
-the *pilot* can act on, gathered by someone else entirely). Worth confirming rather than assuming;
-see open questions.
+shared flag rather than one per player. Worth confirming rather than assuming; see open questions.
 
 **Revealing writes itself into the log for free.** The existing `npc` log-bar tag —
 *"a name, voice or fact improvised on the spot, added to the cast so it stays consistent"*
@@ -176,8 +171,8 @@ the GM — never automated, the same line §10.4 already draws.
 
 ## 6. Data this needs
 
-`npc.schema.json` currently has no field for any of this. Proposed addition, a `socialProfile`
-object:
+`npc.schema.json` had no field for any of this when this was written; the `socialProfile` object
+proposed here has since been added to it:
 
 ```
 socialProfile: {

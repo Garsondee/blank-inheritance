@@ -79,22 +79,28 @@ test("counts are per beat, for the running order's margin", () => {
 
 import { RUNNER_SECTIONS, sectionOpen, sectionStates } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
 
-test("the panel opens on what gets used every minute, not on what is read once", () => {
-  // Measured: Intake Medicals was 5,293px of panel in a 655px window, with
-  // the running order below two screens of read-once material.
-  const open = RUNNER_SECTIONS.filter((s) => s.open).map((s) => s.id);
-  const shut = RUNNER_SECTIONS.filter((s) => !s.open).map((s) => s.id);
-  assert.ok(open.includes("beats"), "the running order is the one thing that must never be hidden");
-  assert.ok(open.includes("goal"), "the goal is short and is the point");
-  assert.ok(shut.includes("cast"), "the cast's full briefs are looked up when someone speaks");
-  assert.ok(shut.includes("outro"), "how it ends is needed once, at the end");
-  assert.ok(shut.includes("intro"), "and 'getting in' is read once, out loud, at the top — leaving it open kept the beats below the fold");
+test("the only remembered layout choices are the summon gallery and 'every beat in full', both off by default", () => {
+  // Rebuilt 2026-09-24: the running order, the goal, the people and the
+  // kit are always on screen now, and the opening, the ending, the beat
+  // being run and the person it is about open by THEMSELVES at their own
+  // moment (core/runner-view.mjs). What is left is what a GM chooses once.
+  assert.deepEqual(RUNNER_SECTIONS.map((s) => s.id).sort(), ["detail", "summon"]);
+  assert.ok(RUNNER_SECTIONS.every((s) => s.open === false), "a wall of portraits and every beat in full are both things to ask for, not defaults");
 });
 
 test("a GM's own toggle beats the default, in both directions", () => {
-  assert.equal(sectionOpen("cast", {}), false, "closed by default");
-  assert.equal(sectionOpen("cast", { cast: true }), true, "opened by the GM stays open");
-  assert.equal(sectionOpen("beats", { beats: false }), true === false, "and a GM may close even the beats");
+  assert.equal(sectionOpen("summon", {}), false, "closed by default");
+  assert.equal(sectionOpen("summon", { summon: true }), true, "opened by the GM stays open");
+  assert.equal(sectionOpen("detail", { detail: true }), true, "every beat in full, once asked for, stays asked for");
+  assert.equal(sectionOpen("detail", { detail: false }), false);
+});
+
+test("REGRESSION (found writing the 2026-09-24 rebuild): 'detail' is a KNOWN section, so it does not fall into the unknown-opens rule", () => {
+  // The template reads sections.detail to decide whether to print every
+  // beat in full. Unknown sections deliberately default OPEN (the test
+  // below), so a missing registration here would have shipped the runner
+  // showing every beat in full to every GM who had never touched it.
+  assert.equal(sectionStates({}).detail, false);
 });
 
 test("an unknown section opens rather than hiding itself", () => {
@@ -104,11 +110,10 @@ test("an unknown section opens rather than hiding itself", () => {
 });
 
 test("sectionStates answers for every section at once, for a template that cannot call a function", () => {
-  const states = sectionStates({ cast: true });
+  const states = sectionStates({ summon: true });
   assert.equal(Object.keys(states).length, RUNNER_SECTIONS.length);
-  assert.equal(states.beats, true);
-  assert.equal(states.cast, true, "the override is applied");
-  assert.equal(states.outro, false);
+  assert.equal(states.summon, true, "the override is applied");
+  assert.equal(states.detail, false);
   assert.deepEqual(sectionStates(), sectionStates({}), "no overrides is the same as empty overrides");
 });
 
@@ -138,7 +143,7 @@ test("a scene already closed never asks again", () => {
 import { expectedMinutes, pacing } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
 
 test("the expected length is read out of the brief's own prose", () => {
-  // These are the real strings the seven Session One briefs carry.
+  // These are the real strings the seven Episode One briefs carry.
   assert.deepEqual(expectedMinutes("20-25 minutes"), { low: 20, high: 25 });
   assert.deepEqual(expectedMinutes("30-40 minutes, because every player gets a private scene"), { low: 30, high: 40 });
   assert.deepEqual(

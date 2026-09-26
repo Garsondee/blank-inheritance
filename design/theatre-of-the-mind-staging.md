@@ -273,7 +273,7 @@ Entrance treatments worth building, bound to what the arrival *means* rather tha
 | **Engage** | Frame snaps up from the stage floor on `--bi-ease-servo`, plates stamping in a beat behind the art | The ordinary arrival. Most people, most scenes. |
 | **Shutter** | The scope irises open over the art, plates already in place | Directorate business — someone arriving in an official capacity |
 | **Alert** | Hard cut in, lamp flares vermilion first, frame settles after | A hostile or unwelcome arrival |
-| **Signal** | Art resolves out of `glitch`/scanline noise, tinted `--bi-resonance` | Anything touching Resonance, Bleed or a Claimant |
+| **Signal** | Art resolves out of `glitch`/scanline noise, tinted `--bi-resonance` | Anything touching a Claimant |
 
 Departures get the same treatment in reverse and **must not be the entrance played backwards** —
 that reads as a mistake. A departure should be quieter and shorter: the lamp goes dark first, then
@@ -377,12 +377,12 @@ matching the console's whole "machined object" thesis (not shipped — would nee
 of new fragment-shader GLSL plus a small filter-class wrapper, reusing everything else for free; real
 but shallow work for a codebase that has never written a shader, and worth doing live in the engine
 rather than blind, since a broken shader fails the ugly way described above), and the shipped
-**`glitch`**, reserved *specifically* for Resonance and Claimant events so that distortion always
-means the same thing — free the moment there is a Resonance-flavoured scene to set it on (§9 step 8).
+**`glitch`**, reserved *specifically* for Claimant events so that distortion always
+means the same thing — free the moment there is a Claimant-flavoured scene to set it on (§9 step 8).
 
 The same discipline as §5 applies, for the same reason: **a transition should mean something.** Bind
 types to kinds of event — ordinary travel fades, Directorate business shutters, anything touching
-Resonance glitches — rather than varying them for novelty, or none of them carries information.
+a Claimant glitches — rather than varying them for novelty, or none of them carries information.
 
 One implementation fact, so it is not rediscovered the hard way: there is **no hook that fires when
 a transition starts or ends** (verified). Anything that must happen *after* one — including a sting
@@ -489,7 +489,7 @@ worked scenes — one per arrangement. What that pass actually established, beyo
    plate landing a beat behind the art), Shutter (a mechanical iris over the art, Directorate
    arrivals), Alert (a hard cut plus a vermilion lamp flare, hostile arrivals, reachable only by
    explicit override — nothing in the data says "hostile" yet), Signal (a `steps()` glitch tinted
-   through `hue-rotate`, same override-only reachability for Resonance/Claimant). `core/engage.mjs`
+   through `hue-rotate`, same override-only reachability for Claimant arrivals). `core/engage.mjs`
    selects the treatment the same way `core/splash.mjs` selects a faction accent — a small hardcoded
    table, an explicit `member.entrance` override always winning. A real bug found live, not in a
    test: the `updateScene` hook had always called both `syncStage()` and `refreshStage()` back to
@@ -562,8 +562,12 @@ Genuine ones — not rhetorical, and not for me to settle alone.
    there is a fourth kind of sting for an exit that matters, or those moments are simply not stings.
 8. **What does a splash do to audio?** A full-screen takeover with the scene's playlist continuing
    underneath at full level is the version that feels cheap. Ducking, a one-shot cue, or nothing at
-   all are all defensible; the audio system does not exist yet, so this is a placeholder for when it
-   does.
+   all are all defensible. **Corrected 2026-09-19, this line was stale:** this used to say the audio
+   system doesn't exist yet, as the reason to leave this as a placeholder — but the audio system was
+   BUILT and live-verified 2026-09-17 (`design/audio-system.md`), including a real ducking mix chain.
+   The system existing doesn't answer this question; picking between ducking, a one-shot cue, or
+   nothing for a splash specifically is still a genuine open call, just one that now has a real
+   mechanism to implement whichever answer it gets, rather than a hypothetical one.
 
 ---
 
@@ -581,7 +585,7 @@ attempted here."* Ingram's own description of the real table ritual, verbatim:
 > UI or things like that from them for the intro sequence."*
 
 **The data half is already there.** `episode.schema.json`'s `title` field is exactly "the name of
-each episode organised in advance" — `data/episodes/episode-c1s1-mothers-maiden-name.json` already
+each episode organised in advance" — `data/episodes/episode-c1e1-mothers-maiden-name.json` already
 carries one ("Mother's Maiden Name (Again)"). Nothing new to author; this is a rendering problem, not
 a data problem.
 
@@ -614,8 +618,8 @@ different things, and only one is built:
   Filed as its own issue (#155) rather than folded into #99, since it's a distinct technical unknown.
 
 **The transition rule, hardened from a guideline to a floor.** §6 already argues a transition should
-mean something — *"ordinary travel fades, Directorate business shutters, anything touching Resonance
-glitches... rather than varying them for novelty."* Ingram's "we ALWAYS use transitions" confirms that
+mean something — *"ordinary travel fades, Directorate business shutters, anything touching
+a Claimant glitches... rather than varying them for novelty."* Ingram's "we ALWAYS use transitions" confirms that
 as firm production practice, not a suggestion, and closes off the specific failure mode §6 already
 found by reading the real shader source: a Scene with no `transition` set doesn't fail loudly, it
 silently hard-cuts with zero console output. "Always" means every Scene document declares one — the

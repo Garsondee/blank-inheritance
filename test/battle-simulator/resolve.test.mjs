@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
+import { makeRng } from "../../tools/battle-simulator/shared/rng.mjs";
 import {
   degreeOfSuccess, resolveStrike, applyHardness, mitigateDamage, resolveSave, basicSaveDamage, resolveFieldRepair, resolveEvacuation,
   averageDamage, averageFormula, averageStrikeDamage, degreeProbabilities, expectedStrikeDamage, expectedSaveDamage, hitProbability, expectedRepairHealing, expectedEvacuationCivilians
-} from "../../tools/battle-simulator/engine/resolve.mjs";
-import { rollFormula } from "../../tools/battle-simulator/engine/rng.mjs";
+} from "../../tools/battle-simulator/shared/resolve.mjs";
+import { rollFormula } from "../../tools/battle-simulator/shared/rng.mjs";
 
 test("degreeOfSuccess: the four bands, no natural-roll shift", () => {
   assert.equal(degreeOfSuccess(10, 30, 20), "criticalSuccess"); // >= DC+10
@@ -93,7 +93,7 @@ test("expectedSaveDamage: Hardness reduces it exactly like an ordinary Strike's 
   assert.ok(withHardness < withoutHardness, "Hardness must reduce expected save-attack damage");
 });
 
-test("resolveFieldRepair: healing amount matches design/scale-and-chassis.md §6 exactly per degree", () => {
+test("resolveFieldRepair: healing amount matches the retired two-scale design (deleted 2026-09-25) §6 exactly per degree", () => {
   // repairBonus so high it guarantees critical success against any real DC
   const rng = makeRng(3);
   const result = resolveFieldRepair(rng, { repairBonus: 100, handlingDC: 16 });

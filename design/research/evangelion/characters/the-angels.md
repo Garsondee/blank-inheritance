@@ -45,7 +45,7 @@
 
 **Worth avoiding:** the ambiguity about what they were for. The series never fully commits, and it is one of the things the ending is criticised for.
 
-**Where it might attach:** `data/antagonists/claimants/claimant-guidelines.json` holds build rules and lore for Claimants, and no individual Claimants exist yet. **Everything in §3 is a method for populating that file, not a proposal about what a Claimant is** — which is settled material in `design/scale-and-chassis.md` and the user's to change.
+**Where it might attach:** `data/antagonists/claimants/claimant-guidelines.json` holds build rules and lore for Claimants, and no individual Claimants exist yet. **Everything in §3 is a method for populating that file, not a proposal about what a Claimant is** — which is the user's to settle (the Watcher's children, `ideas/story/dossier-observer.md`).
 
 ---
 

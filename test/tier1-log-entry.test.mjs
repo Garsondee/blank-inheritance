@@ -30,7 +30,12 @@ test("a recognised leading token becomes a tag", () => {
 
 test("tags are case-insensitive to type but stored lowercase", () => {
   assert.deepEqual(parseLogLine("NPC: the caretaker lies"), { tag: "npc", text: "the caretaker lies" });
-  assert.deepEqual(parseLogLine("Anchor: she chose the school"), { tag: "anchor", text: "she chose the school" });
+  assert.deepEqual(parseLogLine("Decision: she chose the school"), { tag: "decision", text: "she chose the school" });
+});
+
+test("`anchor` is no longer a tag: Anchors were cut on 2026-09-20, so the line stays plain text", () => {
+  assert.equal(LOG_TAGS.includes("anchor"), false);
+  assert.deepEqual(parseLogLine("anchor: she chose the school"), { tag: null, text: "anchor: she chose the school" });
 });
 
 test("an UNrecognised leading word is left alone, colon and all", () => {
@@ -69,7 +74,7 @@ test("empty and non-string input produce an empty line rather than throwing", ()
 
 test("an entry carries the context the GM did not have to type", () => {
   const entry = stampEntry({
-    text: "anchor: she chose the school over the launch",
+    text: "decision: she chose the school over the launch",
     at: AT,
     scene: "Arcology Deck 4",
     mode: "theatre",
@@ -78,7 +83,7 @@ test("an entry carries the context the GM did not have to type", () => {
   });
 
   assert.equal(entry.at, AT);
-  assert.equal(entry.tag, "anchor");
+  assert.equal(entry.tag, "decision");
   assert.equal(entry.text, "she chose the school over the launch");
   assert.deepEqual(entry.context, {
     scene: "Arcology Deck 4",

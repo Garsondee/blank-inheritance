@@ -2,99 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "campaign-config.schema.json",
   "title": "Campaign Config",
-  "description": "Core numeric/procedural rules: Resonance, Bleed, Anchors, Suppression, Frame economy, Time Economy, Contact Pool, False Contact. Singleton file: data/campaign/config.json.",
+  "description": "Core numeric/procedural rules: Frame economy, Time Economy, Contact Pool, False Contact. Singleton file: data/campaign/config.json. (Resonance, Bleed, Anchors and Suppression were cut 2026-09-20 and removed 2026-09-25.)",
   "type": "object",
-  "required": ["id", "resonance", "bleed"],
+  "required": ["id"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "const": "config" },
-    "twoTracksPrinciple": { "type": "string" },
-    "resonance": {
-      "type": "object",
-      "properties": {
-        "bandDesignNote": { "type": "string" },
-        "actionEconomyRevisionNote": { "type": "string" },
-        "boundaryConvention": { "type": "string" },
-        "range": {
-          "type": "object",
-          "properties": { "min": { "type": "number" }, "max": { "type": "number" } }
-        },
-        "bands": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["id", "name"],
-            "properties": {
-              "id": { "enum": ["dead-weight", "nominal", "harmonised", "absolute"] },
-              "name": { "type": "string" },
-              "rangeLabel": { "type": "string" },
-              "min": { "type": "number" },
-              "max": { "type": ["number", "null"] },
-              "actionsPerTurn": { "type": "integer" },
-              "actionNote": { "type": "string" },
-              "reaction": { "type": "boolean" },
-              "abilitiesAvailable": { "type": "string" },
-              "internalPowerDuration": { "type": "string" }
-            }
-          }
-        },
-        "pushMechanic": {
-          "type": "object",
-          "properties": {
-            "description": { "type": "string" },
-            "resolution": { "type": "string" }
-          }
-        }
-      }
-    },
-    "bleed": {
-      "type": "object",
-      "properties": {
-        "min": { "type": "number" },
-        "max": { "type": "number" },
-        "sources": { "type": "array", "items": { "type": "string" } },
-        "berserkThreshold": { "type": "number" },
-        "berserk": {
-          "type": "object",
-          "properties": {
-            "gmControlDuration": { "type": "string" },
-            "effect": { "type": "string" },
-            "narrationRule": { "type": "string" }
-          }
-        },
-        "pilotVisibility": {
-          "enum": ["hidden", "visible", "tested", null],
-          "description": "Resolved 2026-09-06 to \"tested\": a pilot buys the number with a discretionary slice rather than seeing it passively or never. \"hidden\" and \"visible\" are the two alternatives that were considered and rejected; null still means undecided."
-        },
-        "visibilityMechanism": { "type": "string" },
-        "openQuestionRef": {
-          "type": ["string", "null"],
-          "description": "Null once the question is resolved, per the project convention that a null ref means there is no open question rather than that one is missing."
-        }
-      }
-    },
-    "anchors": {
-      "type": "object",
-      "properties": {
-        "countPerKid": {
-          "type": "object",
-          "properties": { "min": { "type": "integer" }, "max": { "type": "integer" } }
-        },
-        "writtenBy": { "type": "string" },
-        "types": { "type": "array", "items": { "type": "string" } },
-        "affirmEffect": { "type": "string" },
-        "violateEffect": { "type": "string" },
-        "gmLever": { "type": "string" }
-      }
-    },
-    "suppression": {
-      "type": "object",
-      "properties": {
-        "trigger": { "type": "string" },
-        "cost": { "type": "string" },
-        "designIntent": { "type": "string" }
-      }
-    },
+    "cutSystemsNote": { "type": "string", "description": "Where the cut systems went (Resonance, Bleed, Anchors, Suppression, the ground roles; cut 2026-09-20)." },
     "frameEconomy": {
       "type": "object",
       "properties": {
@@ -110,25 +24,24 @@
         },
         "upgradePoints": {
           "type": "object",
-          "description": "How Frames level up. Individual per-pilot points earned from downtime and combat; see design/campaign-arc.md and open-questions.json#frame-upgrade-economy.",
+          "description": "What a pilot's machine budget buys: capability, never levels (lockstep since 2026-09-20). See open-questions.json#frame-upgrade-economy.",
           "properties": {
-            "confirmed": { "type": "string" },
+            "model": { "type": "string" },
+            "earnedFrom": { "type": "string" },
             "pool": { "type": "string" },
-            "guaranteedFloor": { "type": "string" },
-            "levelDrift": { "type": "string" },
+            "acquisition": { "type": "string" },
             "overInvestmentCost": { "type": "string" },
             "openQuestionRef": { "type": "string" }
           }
         },
         "repairCrew": {
           "type": "object",
-          "description": "Each pilot's own standing NPC repair crew, whose relationship scales repair effectiveness. Distinct from the PC-played Ground Roles in campaign/ground-roles.json.",
+          "description": "Each pilot's own standing NPC repair crew, whose relationship scales repair effectiveness.",
           "properties": {
             "confirmed": { "type": "string" },
             "goodStanding": { "type": "string" },
             "neglected": { "type": "string" },
             "whyItIsNotRedundantWithTechnicianDays": { "type": "string" },
-            "terminologyWarning": { "type": "string" },
             "openQuestionRef": { "type": "string" }
           }
         },

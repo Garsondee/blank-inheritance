@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--the-walk-down",
+  "type": "audio-soundscape",
+  "title": "S1 · The Walk Down",
+  "note": "'Alone together, for the first time all day with no adult in the room... the session's one deliberately designed relax-and-connect beat.' Relaxed pool. A real cicada bed at a natural level -- summer-evening background rather than anything to do with the stencil motif, the same ordinary use design/research keeps calling 'cicada-summer stillness.'",
+  "music": {
+    "pool": "relaxed"
+  },
+  "ambience": [
+    {
+      "track": "cicadas-174",
+      "level": -14
+    }
+  ],
+  "fade": 3500
+}

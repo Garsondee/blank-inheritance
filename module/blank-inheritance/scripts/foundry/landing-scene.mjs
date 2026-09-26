@@ -28,6 +28,11 @@
  * below now DEFERS to that scene when it exists and only falls back to making
  * its own when it does not.
  *
+ * (2026-09-24: the authored landing scene is now "From Up Here", a new opening
+ * GM speech ahead of The Road In, which became an ordinary beat. Nothing here
+ * names either, so nothing here changed -- but note that induction's token
+ * placement below now lands new characters on that high-altitude view.)
+ *
  * Without that deference this module recreated its own lobby on every startup,
  * beside the authored one, with art that had since been replaced by a WebP
  * derivative -- two scenes of the same name, one of them blank. Found live.

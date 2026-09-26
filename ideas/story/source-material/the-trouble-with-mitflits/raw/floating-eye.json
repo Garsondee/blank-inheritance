@@ -1,0 +1,1122 @@
+{
+ "prototypeToken": {
+  "displayName": 20,
+  "displayBars": 20,
+  "flags": {
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": false
+   },
+   "monks-enhanced-journal": {
+    "chatbubble": ""
+   },
+   "aedifs-tactical-grid": {
+    "viewDistance": null,
+    "viewShape": "",
+    "color": ""
+   },
+   "perceptive": {
+    "canbeSpottedFlag": true,
+    "PPDCFlag": -1,
+    "APDCFlag": null,
+    "resetSpottedbyMoveFlag": false,
+    "StealthEffectsFlag": "",
+    "OverrideWorldSEffectsFlag": false,
+    "RevealwhenSpottedFlag": false,
+    "SpottingRangeFlag": -1,
+    "SpottingMessageFlag": "",
+    "LockPPDCFlag": false,
+    "MATTTriggerTileFlag": "",
+    "MATTTriggerConditionsFlag": {
+     "NewlySpotted": "never"
+    }
+   },
+   "pf2e": {
+    "linkToActorSize": true,
+    "autoscale": true
+   },
+   "token-z": {
+    "zIndex": 0
+   },
+   "tokencover": {
+    "maximumCoverGrant": "4"
+   },
+   "splatter": {
+    "bloodColor": ""
+   },
+   "monks-combat-marker": {
+    "token-highlight-scale": 1.5,
+    "token-combat-animation": "",
+    "token-highlight": ""
+   },
+   "monks-bloodsplats": {
+    "bloodsplat-type": "",
+    "bloodsplat-colour": ""
+   },
+   "image-hover": {
+    "hideArt": false,
+    "specificArt": "path/image.png"
+   }
+  },
+  "sight": {
+   "color": null,
+   "enabled": true,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "height": 1,
+  "width": 1,
+  "name": "Floating Eye",
+  "actorLink": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "texture": {
+   "src": "tokenizer/npc-images/floating_eye.Token.webp?1712498751525",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 12,
+   "coloration": 1,
+   "dim": 24,
+   "attenuation": 1,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": "torch",
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "color": "#9043b5",
+   "negative": false,
+   "priority": 0
+  },
+  "detectionModes": [],
+  "randomImg": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "name": "Floating Eye",
+ "type": "npc",
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "effects": [],
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 71,
+    "temp": 0,
+    "max": 71,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 23,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 6
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   }
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 4
+   },
+   "dex": {
+    "mod": 4
+   },
+   "con": {
+    "mod": 4
+   },
+   "int": {
+    "mod": 5
+   },
+   "wis": {
+    "mod": 5
+   },
+   "cha": {
+    "mod": 5
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 18,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 11,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 14,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 14,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "acrobatics": {
+    "base": 11
+   },
+   "athletics": {
+    "base": 11
+   },
+   "intimidation": {
+    "base": 15
+   }
+  },
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "sm"
+   }
+  }
+ },
+ "_id": "HauyCNLxvdWCi526",
+ "img": "tokenizer/npc-images/floating_eye.Avatar.webp?1712498751525",
+ "items": [
+  {
+   "img": "systems/pf2e/icons/spells/see-invisibility.webp",
+   "name": "See the Unseen",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Your gaze pierces through illusions and finds @UUID[Compendium.pf2e.conditionitems.Item.zJxUflt9np0q4yML]{Invisible} creatures and spirits. You can see invisible creatures as though they weren't invisible, although their features are blurred, making them @UUID[Compendium.pf2e.conditionitems.Item.DmAIPqOBomZ7H95W]{Concealed} and difficult to identify. You can also see incorporeal creatures, like ghosts, phased through an object from within 10 feet of an object's surface as blurry shapes seen through those objects. Subtler clues also grant you a +2 status bonus to checks you make to disbelieve illusions.</p>\n<hr />\n<p><strong>Heightened (5th)</strong> This spell has a duration of 8 hours.</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.T5bk6UH7yuYog1Fp]{Spell Effect: See the Unseen}</p>"
+    },
+    "rules": [],
+    "slug": "see-the-unseen",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate",
+      "revelation"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Player Core",
+     "authors": "",
+     "license": "ORC",
+     "remaster": true
+    },
+    "level": {
+     "value": 2
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "10 minutes",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "lcTbfgno25ywTlkv"
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.jwK43yKsHTkJQvQ9"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498629043,
+    "modifiedTime": 1712498629043,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.jwK43yKsHTkJQvQ9",
+    "duplicateSource": null
+   },
+   "_id": "AteRHo3uEA4Q8psz"
+  },
+  {
+   "img": "systems/pf2e/icons/spells/wall-of-shadow.webp",
+   "name": "Wall of Shadow",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You form a wall of pure darkness in a straight line up to 60 feet long and 10 feet high. You must create the wall in an unbroken open space so its edges don't pass through any creatures or objects, or the spell is lost. The wall stands vertically and, if you wish, can be of a shorter length or height. The wall prevents light from passing through and appears as a sheet of pure darkness to creatures observing it.</p>\n<p>Creatures without darkvision or those unable to see through darkness can't see creatures on the other side of the wall. The wall is too thin for creatures to @UUID[Compendium.pf2e.actionspf2e.Item.XMcnh4cSI32tljXa]{Hide} in the darkness itself, but creatures can Hide from creatures on the other side of the wall as normal.</p>\n<hr />\n<p><strong>Heightened (5th)</strong> Creatures with darkvision (but not greater darkvision) can barely see through the wall. They treat targets seen through the wall as @UUID[Compendium.pf2e.conditionitems.Item.DmAIPqOBomZ7H95W]{Concealed}.</p>\n<p><strong>Heightened (7th)</strong> Creatures with greater darkvision can barely see through the darkness. They treat targets seen through the wall as concealed. All other creatures are unable to see through the darkness at all.</p>"
+    },
+    "rules": [],
+    "slug": "wall-of-shadow",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "darkness",
+      "manipulate"
+     ],
+     "rarity": "uncommon",
+     "traditions": [
+      "arcane",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder #172: Secrets of the Temple-City",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": "30 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "3"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "lcTbfgno25ywTlkv"
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.DeF63UTmr7rchF60"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498666155,
+    "modifiedTime": 1712498666155,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.DeF63UTmr7rchF60",
+    "duplicateSource": null
+   },
+   "_id": "LnLH5RrV8HLJlfFi"
+  },
+  {
+   "name": "Strike",
+   "type": "melee",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "weaponType": {
+     "value": "melee"
+    },
+    "attack": {
+     "value": ""
+    },
+    "damageRolls": {},
+    "bonus": {
+     "value": 12
+    },
+    "attackEffects": {
+     "value": []
+    }
+   },
+   "_id": "TkU4vPg36NoToVh8",
+   "img": "systems/pf2e/icons/default-icons/melee.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {},
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498396238,
+    "modifiedTime": 1712498396238,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "icons/magic/movement/trail-streak-impact-blue.webp",
+   "name": "Ray of Frost",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You blast an icy ray. Make a spell attack roll. The ray deals 2d4 cold damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage and takes a -10-foot status penalty to its Speeds for 1 round.</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.I4PsUAaYSUJ8pwKC]{Spell Effect: Ray of Frost}</p>\n<p><strong>Success</strong> The target takes normal damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 1d4.</p>"
+    },
+    "rules": [],
+    "slug": "ray-of-frost",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "cantrip",
+      "cold",
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "120 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "category": null,
+      "formula": "2d4",
+      "kinds": [
+       "damage"
+      ],
+      "materials": [],
+      "type": "cold"
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "lcTbfgno25ywTlkv"
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d4"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.gYjPm7YwGtEa1oxh"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498460483,
+    "modifiedTime": 1712498479450,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.gYjPm7YwGtEa1oxh",
+    "duplicateSource": null
+   },
+   "_id": "fXho63SF2qsvBnUm"
+  },
+  {
+   "name": "Spellcasting",
+   "type": "spellcastingEntry",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "ability": {
+     "value": "cha"
+    },
+    "spelldc": {
+     "value": 16,
+     "dc": 24
+    },
+    "tradition": {
+     "value": "arcane"
+    },
+    "prepared": {
+     "value": "innate"
+    },
+    "showSlotlessLevels": {
+     "value": true
+    },
+    "proficiency": {
+     "value": 1
+    },
+    "slots": {
+     "slot0": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot1": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot2": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot3": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot4": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot5": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot6": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot7": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot8": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot9": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot10": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot11": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     }
+    },
+    "autoHeightenLevel": {
+     "value": null
+    },
+    "showUnpreparedSpells": {
+     "value": true
+    }
+   },
+   "_id": "lcTbfgno25ywTlkv",
+   "img": "systems/pf2e/icons/default-icons/spellcastingEntry.svg",
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {},
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498396375,
+    "modifiedTime": 1712498396375,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "systems/pf2e/icons/spells/admonishing-ray.webp",
+   "name": "Admonishing Ray",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A ray of energy bludgeons your target into submission without causing lasting harm. When you cast this spell, you choose whether the ray feels like a strong punch or slap. Make a spell attack roll. The ray deals 2d6 bludgeoning damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage.</p>\n<p><strong>Success</strong> The target takes full damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "admonishing-ray",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "manipulate",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine"
+     ],
+     "selected": {
+      "attack": "Attack",
+      "necromancy": "Necromancy",
+      "nonlethal": "Nonlethal"
+     }
+    },
+    "publication": {
+     "title": "Pathfinder #158: Sixty Feet Under",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "category": null,
+      "formula": "2d6",
+      "kinds": [
+       "damage"
+      ],
+      "materials": [],
+      "type": "bludgeoning"
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "lcTbfgno25ywTlkv",
+     "heightenedLevel": 2
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498404324,
+    "modifiedTime": 1712498404324,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC",
+    "duplicateSource": null
+   },
+   "_id": "p23w64w1fkomlKk6"
+  },
+  {
+   "img": "systems/pf2e/icons/spells/admonishing-ray.webp",
+   "name": "Admonishing Ray",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A ray of energy bludgeons your target into submission without causing lasting harm. When you cast this spell, you choose whether the ray feels like a strong punch or slap. Make a spell attack roll. The ray deals 2d6 bludgeoning damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage.</p>\n<p><strong>Success</strong> The target takes full damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "admonishing-ray",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "manipulate",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine"
+     ],
+     "selected": {
+      "attack": "Attack",
+      "necromancy": "Necromancy",
+      "nonlethal": "Nonlethal"
+     }
+    },
+    "publication": {
+     "title": "Pathfinder #158: Sixty Feet Under",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "category": null,
+      "formula": "2d6",
+      "kinds": [
+       "damage"
+      ],
+      "materials": [],
+      "type": "bludgeoning"
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "lcTbfgno25ywTlkv"
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498410354,
+    "modifiedTime": 1712498410354,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC",
+    "duplicateSource": null
+   },
+   "_id": "pvHdMSGOFf9nbwsP"
+  },
+  {
+   "img": "systems/pf2e/icons/spells/admonishing-ray.webp",
+   "name": "Admonishing Ray",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A ray of energy bludgeons your target into submission without causing lasting harm. When you cast this spell, you choose whether the ray feels like a strong punch or slap. Make a spell attack roll. The ray deals 2d6 bludgeoning damage.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage.</p>\n<p><strong>Success</strong> The target takes full damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "admonishing-ray",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "concentrate",
+      "manipulate",
+      "nonlethal"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine"
+     ],
+     "selected": {
+      "attack": "Attack",
+      "necromancy": "Necromancy",
+      "nonlethal": "Nonlethal"
+     }
+    },
+    "publication": {
+     "title": "Pathfinder #158: Sixty Feet Under",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "category": null,
+      "formula": "2d6",
+      "kinds": [
+       "damage"
+      ],
+      "materials": [],
+      "type": "bludgeoning"
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "lcTbfgno25ywTlkv",
+     "heightenedLevel": 3
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.15.0",
+    "coreVersion": "12.329",
+    "createdTime": 1712498406604,
+    "modifiedTime": 1712498406604,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.uToa7ksKAzmEpkKC",
+    "duplicateSource": null
+   },
+   "_id": "qU5WmtwOWjHIcHYA"
+  }
+ ],
+ "folder": null,
+ "sort": 0,
+ "flags": {},
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1712498352286,
+  "modifiedTime": 1721827594059,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

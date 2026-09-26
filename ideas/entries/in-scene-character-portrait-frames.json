@@ -3,7 +3,7 @@
   "id": "in-scene-character-portrait-frames",
   "type": "idea",
   "title": "In-scene character portrait frames — faction theming, comms-light notifications, NPC flavor dialogue",
-  "status": "accepted",
+  "status": "in-progress",
   "domains": [
     "ui",
     "narrative",
@@ -34,5 +34,5 @@
     "design/npc-social-intel.md",
     "design/theatre-of-the-mind-staging.md"
   ],
-  "resolution": "ACCEPTED and specified 2026-09-07 as design/theatre-of-the-mind-staging.md, written at Ingram's direct request (\"That's a great idea worth expanding upon in a document\") after he corrected the V2 console's theatre-of-the-mind mode: a scene is a composed stage, not a list of names. The doc settles the structural half of this idea -- the frame reuses V1's .bi-marker__card vocabulary, the whole frame is a button opening the seat-appropriate Character Card, the Foundry Scene supplies the background art (we do NOT build a second rendering surface), and reveal/conceal is Law 11 removal rather than CSS hiding. It also adds a piece this entry never had: the ARRIVAL STING, a three-tier ladder (Quiet / Announced / Splash) for characters joining or leaving a scene, where the loud tier is full-screen character art with display typography resolving down into the frame. Build order is that doc's section 9. NOT built yet -- accepted, not in-progress."
+  "resolution": "ACCEPTED and specified 2026-09-07 as design/theatre-of-the-mind-staging.md, written at Ingram's direct request (\"That's a great idea worth expanding upon in a document\") after she corrected the V2 console's theatre-of-the-mind mode: a scene is a composed stage, not a list of names. The doc settles the structural half of this idea -- the frame reuses V1's .bi-marker__card vocabulary, the whole frame is a button opening the seat-appropriate Character Card, the Foundry Scene supplies the background art (we do NOT build a second rendering surface), and reveal/conceal is Law 11 removal rather than CSS hiding. It also adds a piece this entry never had: the ARRIVAL STING, a three-tier ladder (Quiet / Announced / Splash) for characters joining or leaving a scene, where the loud tier is full-screen character art with display typography resolving down into the frame. Build order is that doc's section 9. NOT built yet -- accepted, not in-progress."
 }

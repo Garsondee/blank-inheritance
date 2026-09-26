@@ -11,8 +11,8 @@ Ingram, 2026-09-09: *"The best way to prove that we've got a good concept is you
 you play all the roles at once, you simulate roleplaying but you also do rounds where you simulate
 potential problems and see how scenes would hold up to curve balls."*
 
-This project has already done exactly this once, on the combat-AI side. `design/scale-and-chassis.md`
-§16 ran a deliberately maximal stress-test scenario and found six real, previously-invisible bugs —
+This project has already done exactly this once, on the combat-AI side. The battle simulator's design log
+(`tools/battle-simulator/DESIGN-LOG.md`) §16 ran a deliberately maximal stress-test scenario and found six real, previously-invisible bugs —
 and §17 states the rule this document borrows outright: *"Predictions were written down **before**
 any of it was run, because a battery whose expectations are set after seeing the results proves
 nothing."* Everything below is that same discipline applied to scenes and the panel instead of
@@ -90,7 +90,7 @@ Per §1's borrowed rule, this section is written and saved **before** the transc
 Reading §6 knowing these were locked first is the whole point — if every prediction turns out
 right, the exercise proved nothing; the interesting result is which ones are wrong.
 
-**Scene under test: `episode-c1s1--intake-medicals` (Act 1, Scene 1).** Already live-verified for
+**Scene under test: `episode-c1e1--intake-medicals` (Act 1, Scene 1).** Already live-verified for
 mechanics (ticks, spends, artefact grant all confirmed working against the real panel). This run is
 testing the CONTENT and the READING ORDER, not the plumbing.
 
@@ -142,7 +142,7 @@ found live this session.
 ## 6a. The first run — against predictions, not after them
 
 Run 2026-09-09, same session the predictions in §5 were committed. Full transcript is
-`docs/simulations/episode-c1s1--intake-medicals-2026-09-09.md`; excerpted findings below.
+`docs/simulations/episode-c1e1--intake-medicals-2026-09-09.md`; excerpted findings below.
 
 ### Predictions vs. what happened
 
@@ -190,6 +190,6 @@ been run a few more times and the shape has stopped changing — see #136-adjace
 
 ---
 
-*Related: `design/scale-and-chassis.md` §16-17 (the methodology this borrows);
+*Related: `tools/battle-simulator/DESIGN-LOG.md` §16-17 (the methodology this borrows);
 `design/strategy-layer.md` (create → analyse → critique → evolve);
-`data/scene-briefs/episode-c1s1--intake-medicals.json` (the scene under test).*
+`data/scene-briefs/episode-c1e1--intake-medicals.json` (the scene under test).*

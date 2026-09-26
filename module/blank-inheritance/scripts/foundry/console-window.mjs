@@ -26,8 +26,8 @@ import { consoleActor, actorForSeat, rollCheck, rollStrike, castSpell } from "./
 import { sheetOverview, sheetSkillGroups, sheetStrikes, sheetSpellcasting, sheetInventory, sheetFeats, creditsOnHand } from "./sheet-data.mjs";
 import { hasAnySpell, nonEmptySpellBlocks } from "../core/sheet-model.mjs";
 import { partyOverviewData } from "./party.mjs";
-import { currentEntries } from "./session-log.mjs";
-import { formatLogEntriesForDisplay } from "../core/phone.mjs";
+import { currentEntries, localClock } from "./session-log.mjs";
+import { formatLogEntriesForDisplay, filterLogEntries, logFilterOptions } from "../core/phone.mjs";
 import { openDirectorPanel } from "./director-panel.mjs";
 import { openSceneRunner } from "./scene-runner.mjs";
 import { openEquipmentPanel } from "./equipment-panel.mjs";
@@ -93,8 +93,23 @@ async function buildHubTab() {
   return { tiles: HUB_TILES.map((t) => ({ id: t.id, labelKey: t.labelKey, faIcon: t.faIcon })) };
 }
 
-async function buildLogTab() {
-  return { entries: formatLogEntriesForDisplay(currentEntries()) };
+async function buildLogTab(app) {
+  const all = formatLogEntriesForDisplay(currentEntries());
+  const { types, scenes } = logFilterOptions(all);
+  const { type, scene } = app.logFilters;
+  const entries = filterLogEntries(all, { type, scene }).map((e) => ({ ...e, clock: localClock(e.at) }));
+  return {
+    entries,
+    count: game.i18n.format("BLANKINHERITANCE.Console.Window.Log.Count", { shown: entries.length, total: all.length }),
+    typeFilters: [
+      { value: "", label: game.i18n.localize("BLANKINHERITANCE.Console.Window.Log.AllTypes"), active: !type },
+      ...types.map((t) => ({ value: t, label: t, active: t === type }))
+    ],
+    sceneFilters: [
+      { value: "", label: game.i18n.localize("BLANKINHERITANCE.Console.Window.Log.AllScenes"), active: !scene },
+      ...scenes.map((s) => ({ value: s, label: s, active: s === scene }))
+    ]
+  };
 }
 
 // Each `template` is written as a fully static path literal, one per tab,
@@ -124,6 +139,11 @@ const TAB_TEMPLATES = Object.fromEntries([...SHEET_TABS, ...DIRECTOR_ONLY_TABS].
 export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   #open = false;
   #activeTabId = "overview";
+  // The Log tab's own filter state -- client-transient like SceneRunner's
+  // #rulesQuery, never a world setting: which entries a GM narrowed down to
+  // is a fact about one person's own review pass, not the campaign.
+  #logTypeFilter = "";
+  #logSceneFilter = "";
 
   static DEFAULT_OPTIONS = {
     id: "bi-console-window",
@@ -137,7 +157,8 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       rollStrike: ConsoleWindow.#onRollStrike,
       castSpell: ConsoleWindow.#onCastSpell,
       openHubTile: ConsoleWindow.#onOpenHubTile,
-      selectPartyRow: ConsoleWindow.#onSelectPartyRow
+      selectPartyRow: ConsoleWindow.#onSelectPartyRow,
+      setLogFilter: ConsoleWindow.#onSetLogFilter
     }
   };
 
@@ -147,6 +168,11 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
 
   get tabs() {
     return game.user.isGM ? [...SHEET_TABS, ...DIRECTOR_ONLY_TABS] : SHEET_TABS;
+  }
+
+  /** Read by the free buildLogTab() function below, which cannot reach a private field directly. */
+  get logFilters() {
+    return { type: this.#logTypeFilter, scene: this.#logSceneFilter };
   }
 
   /** Same idiom as command-bar.mjs/phone.mjs — persistent chrome mounts into #interface, not document.body. */
@@ -162,7 +188,7 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     const tabs = this.tabs;
     const active = tabs.find((t) => t.id === this.#activeTabId) ?? tabs[0];
     this.#activeTabId = active?.id ?? "overview";
-    const data = active ? await active.build() : {};
+    const data = active ? await active.build(this) : {};
     return {
       open: this.#open,
       isGM: game.user.isGM,
@@ -175,6 +201,24 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Open or close the window from outside its own button — the deck's Sheet and Console pills. */
   toggle() {
     ConsoleWindow.#onToggle.call(this);
+  }
+
+  /**
+   * Open straight onto one tab — the deck's Spells, Gear and Log pills. A
+   * press on the pill for the tab already showing closes the window again,
+   * so the same key is both door and way out (feedback_midsession_ui_one_press).
+   * An id this seat has no tab for (a player asking for Log) opens the
+   * window on its first tab rather than doing nothing.
+   */
+  openTab(tabId) {
+    const exists = this.tabs.some((t) => t.id === tabId);
+    if (this.#open && (!exists || this.#activeTabId === tabId)) {
+      this.#open = false;
+    } else {
+      this.#open = true;
+      if (exists) this.#activeTabId = tabId;
+    }
+    this.render();
   }
 
   static #onToggle() {
@@ -221,6 +265,17 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     selectCastRow(token.id);
     refreshCommandBar(["right"]);
   }
+
+  /**
+   * One chip per real tag or scene actually present in the log, plus "All" —
+   * both filter rows share this one handler, told apart by data-axis, rather
+   * than two near-identical handlers for what is the same interaction twice.
+   */
+  static #onSetLogFilter(_event, target) {
+    if (target.dataset.axis === "scene") this.#logSceneFilter = target.dataset.value ?? "";
+    else this.#logTypeFilter = target.dataset.value ?? "";
+    this.render({ parts: ["body"] });
+  }
 }
 
 let active = null;
@@ -240,4 +295,9 @@ export function refreshConsoleWindow() {
 /** Open or close the mounted console window; mounts it first if nothing has yet. */
 export function toggleConsoleWindow() {
   (active ?? mountConsoleWindow()).toggle();
+}
+
+/** Open (or, if already showing it, close) the console on one tab. */
+export function openConsoleTab(tabId) {
+  (active ?? mountConsoleWindow()).openTab(tabId);
 }

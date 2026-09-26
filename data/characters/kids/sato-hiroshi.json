@@ -2,6 +2,9 @@
   "$schema": "../../schema/kid.schema.json",
   "id": "sato-hiroshi",
   "type": "kid",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": "Sato Hiroshi",
   "player": null,
   "age": 17,
@@ -138,20 +141,7 @@
     "land": 25
   },
   "heroPoints": 1,
-  "groundRoleHistory": [],
-  "framePilotedRef": "kurogane",
-  "anchors": [
-    {
-      "id": "hiroshi-anchor-person",
-      "anchorType": "person",
-      "description": "His little sister, who still thinks the Directorate is heroic — he hasn't told her what a Contact actually looks like from inside a Frame."
-    },
-    {
-      "id": "hiroshi-anchor-need",
-      "anchorType": "need",
-      "description": "To be trusted with the truth instead of managed with it — the exact thing he does to everyone else, and hates having done to him."
-    }
-  ],
-  "status": "DRAFT — proposed 2026-08-22 at Ingram's request, open to full revision. Not yet confirmed.",
+  "framePilotedRef": null,
+  "status": "TEST ONLY — a test character for testing purposes, not one of the real six (Ingram, 2026-09-24, LEDGER #34). MUST BE REMOVED BEFORE SESSION 0/1 (GitHub #202). Drafted 2026-08-22 at Ingram's request as a proposed roster for the real six; that proposal is withdrawn. Its Anchors and ground-role history (both cut on 2026-09-20) were stripped on 2026-09-25, and nothing in it is canon.",
   "notes": "Built via tools/character-builder/derive.mjs directly (real Player Core math for HP/AC/saves/skills/classDC), not the pregen-borrowing shortcut — the six Adventure Pregens are all non-human sci-fi ancestries, a mismatch for this setting. Ability-boost pattern and proficiency ranks (uniformly trained) are documented simplifications, not pack-verified per-class data — see build-real-kids.mjs's header comment."
 }

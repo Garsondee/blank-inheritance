@@ -1,66 +1,6 @@
 {
   "$schema": "../schema/naming-placeholders.schema.json",
   "id": "naming-placeholders",
-  "placeholders": [
-    {
-      "id": "directorate-name",
-      "label": "The Directorate",
-      "description": "The organisation's actual name.",
-      "finalName": null
-    },
-    {
-      "id": "city-name",
-      "label": "The city",
-      "description": "The campaign's home city.",
-      "finalName": null
-    },
-    {
-      "id": "the-gap-name",
-      "label": "The Gap",
-      "description": "The missing span of history predating the setting — a Second Impact analogue.",
-      "finalName": null
-    },
-    {
-      "id": "kids-and-frames",
-      "label": "The six kids and their six Frames",
-      "description": "All twelve PCs.",
-      "finalName": null
-    },
-    {
-      "id": "the-watcher-name",
-      "label": "The Watcher",
-      "description": "Antagonist working name.",
-      "finalName": null
-    },
-    {
-      "id": "excavation-site-name",
-      "label": "The dig site",
-      "description": "The excavation that produced the Frames and, at the campaign's midpoint, the spaceship. Distinct from \"the Gap\" (the missing span of history) — this is the physical site.",
-      "finalName": null
-    },
-    {
-      "id": "excavated-spaceship-name",
-      "label": "The excavated spaceship",
-      "description": "The midpoint-arc ship, unearthed from the same dig site as the Frames, running on the same sync/Resonance technology. Becomes the party's shared asset. See design/campaign-arc.md.",
-      "finalName": null
-    },
-    {
-      "id": "school-name",
-      "label": "The school",
-      "description": "Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see open-questions.json #school-facility-same-location, resolved) -- this and \"the huge facility\" from the design bible are one location, so may end up sharing a single name rather than needing two. REFINED 2026-09-12 (LEDGER #13): one campus, one island, but NOT co-sited. The island's north-west end -- causeway, Roadgate, Frame hangar, workshops, vehicle control point, candidate camp -- is \"pure military and checkpoints\" in Ingram's words; the school is further south-east on the same island. Entry 12's deliberate military/school mix is achieved by walking between the two ends, not by blending them in one place. A single name may therefore still be wrong; check before assuming.",
-      "finalName": null
-    },
-    {
-      "id": "the-original-cultist",
-      "label": "The Original Cultist",
-      "description": "Working name, 2026-09-13, explicitly not final. The designation for Cicada's unidentified founder. IN-FICTION this is a label for a person nobody has a name for -- the Directorate has never identified him (LEDGER #17), so any term the party or the institution uses is one they invented for a gap in the file. That makes the label itself a piece of characterisation: an institution that gives a case number to someone it cannot name. Whatever this becomes, it must read as something people would actually say out loud in a briefing.",
-      "finalName": null
-    },
-    {
-      "id": "section-officer-name",
-      "label": "The Section Officer",
-      "description": "The party's immediate superior and the campaign's in-house petty tyrant (data/npcs/section-officer.json). Needs a name that sounds like a middling rank on a duty roster rather than a villain -- the joke is that he is completely ordinary. Whatever it is, the party will say it a great deal, usually while complaining.",
-      "finalName": null
-    }
-  ]
+  "status": "MERGED into open-questions.json, 2026-09-19 -- see design/node-registry.md §12. All ten ids below moved there unchanged (same id, same meaning: label -> label, description -> notes, finalName -> resolution) and are referenced from data files the same way as before -- `namingPlaceholderRef` still resolves correctly, nothing that pointed here needs to change. Kept as an empty stub rather than deleted outright, per the standing 'back things up just in case' rule on tooling that touches many files at once. A handful of markdown citations that still literally say `naming-placeholders.json#<id>` (data/campaign/naming-placeholders.json#the-original-cultist, #school-name, #section-officer-name -- see the citation sweep behind design/node-registry.md §12) have not all been repointed to open-questions.json yet; the ids they point to are still correct and findable there, just via this note rather than a direct hop.",
+  "placeholders": []
 }

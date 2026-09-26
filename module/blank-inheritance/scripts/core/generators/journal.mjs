@@ -100,7 +100,6 @@ export function episodeToJournalSource(episode) {
   const overviewParts = [
     paragraph("Summary", episode.summary),
     paragraph("Deployment", episode.deploymentRule),
-    paragraph("Ground roles", episode.groundRoleRule),
     paragraph("Downtime", episode.downtime),
     paragraph("Design requirement", episode.designRequirement),
     paragraph("Structure", episode.structure),

@@ -21,8 +21,8 @@
  * side + dyingValue, and a redundant stored flag would just be one more thing that could get out of
  * sync with the truth (exactly how a hand-rolled special case goes wrong).
  */
-import { rollD20 } from "../engine/rng.mjs";
-import { degreeOfSuccess } from "../engine/resolve.mjs";
+import { rollD20 } from "../shared/rng.mjs";
+import { degreeOfSuccess } from "../shared/resolve.mjs";
 
 /**
  * Player Core pg. 435 ("Redundant Conditions With Values", reference/srd/player-core/

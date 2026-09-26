@@ -15,17 +15,16 @@
  *
  * A DIRECTOR MODE PASS added a second identity for the same big panel:
  * in GM mode, the exact same button opens a different object entirely —
- * not the same personal phone with a few extra pages unlocked (nobody
- * would keep six pilots' private Bleed levels on a kid's own handset),
- * a genuinely separate Director's console, per data/campaign/
+ * not the same personal phone with a few extra pages unlocked, a
+ * genuinely separate Director's console, per data/campaign/
  * config.json's own previously-unvisualised procedural systems: the
- * Contact Pool roll, the Frame damage-state economy, a GM-only Bleed
- * board, and a Scene Cue list mocking the real director's-panel design
- * (design/foundry-module-design.md §7) a live Foundry instance will
- * eventually provide for real.
+ * Contact Pool roll, the Frame damage-state economy, and a Scene Cue list
+ * mocking the real director's-panel design (design/foundry-module-design.md
+ * §7) a live Foundry instance will eventually provide for real. (A GM-only
+ * Bleed board was removed 2026-09-25: Bleed was cut on 2026-09-20.)
  *
  * Pure logic (dice, staggered-alert delays, fortune, the pet's state
- * machine, Snake, the Contact Pool roll, Frame damage states, Bleed)
+ * machine, Snake, the Contact Pool roll, Frame damage states)
  * lives in scripts/core/phone.mjs and scripts/core/director.mjs and is
  * unit-tested there; this file is the thin DOM adapter plus every app's
  * own layout, which is deliberately light — first-pass content, not
@@ -49,11 +48,7 @@ import {
   DAMAGE_STATES,
   damageStepDown,
   damageStepUp,
-  isDeployable,
-  BLEED_MAX,
-  adjustBleed,
-  isBerserk,
-  rollBerserkDuration
+  isDeployable
 } from "../../module/blank-inheritance/scripts/core/director.mjs";
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -181,7 +176,6 @@ const ICONS = {
   medical: `<svg viewBox="0 0 24 24" fill="none"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4Z" fill="currentColor"/></svg>`,
   contactPool: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.4" opacity=".6"/><circle cx="12" cy="12" r="10.2" stroke="currentColor" stroke-width="1.4" opacity=".3"/></svg>`,
   frames: `<svg viewBox="0 0 24 24" fill="none"><rect x="8" y="3" width="8" height="7" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M12 10v5M7 21l2.5-6h5L17 21M9 15h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  bleed: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 4.5 6 8 6 11.5A6 6 0 0 1 6 14.5C6 11 9 7.5 12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
   cues: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M8 6 6 3M14 6l-2-3M20 6l-2-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="9" width="16" height="12" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
 };
 
@@ -194,12 +188,6 @@ const ICONS = {
 const FRAME_NUMBERS = ["01", "02", "03", "04", "05", "06"];
 const frameState = Object.fromEntries(FRAME_NUMBERS.map((n) => [n, "operational"]));
 let technicianDays = 6;
-
-const bleedState = Object.fromEntries(FRAME_NUMBERS.map((n) => [n, 0]));
-// Rolled once when a pilot crosses into berserk, held steady until it
-// resolves — NOT re-rolled on every repaint, which would flicker the
-// duration every time any other pilot's Bleed changed.
-const bleedBerserkDuration = {};
 
 // Demo scene data for the director's panel. These nine were lifted verbatim
 // from episode-01-contact-unclassified, an episode deleted 2026-09-13 along
@@ -258,12 +246,11 @@ const PLAYER_APPS = [
   { id: "medical", label: "Medical Report", glyph: ICONS.medical, color: "var(--bi-brass)", render: renderMedical, paper: true }
 ];
 
-/* The Director's own four apps — a full identity swap when GM mode is on,
+/* The Director's own three apps — a full identity swap when GM mode is on,
  * not extra pages unlocked on the player's list. See the file header. */
 const DIRECTOR_APPS = [
   { id: "contact-pool", label: "Contact Pool", glyph: ICONS.contactPool, color: "var(--bi-vermilion)", render: renderContactPool },
   { id: "frame-status", label: "Frame Status", glyph: ICONS.frames, color: "var(--bi-cyan)", render: renderFrameStatus },
-  { id: "bleed-board", label: "Bleed Board", glyph: ICONS.bleed, color: "var(--bi-resonance)", render: renderBleedBoard },
   { id: "scene-cues", label: "Scene Cues", glyph: ICONS.cues, color: "var(--bi-amber)", render: renderSceneCues }
 ];
 
@@ -638,49 +625,6 @@ function renderFrameStatus(main) {
     paint();
   });
   $("#frames-add-day", main).addEventListener("click", () => { technicianDays += 1; paint(); });
-  paint();
-}
-
-/* --- Bleed Board (Director, GM-only) ------------------------------------ */
-function renderBleedBoard(main) {
-  main.innerHTML = `
-    <div class="bi-bleed-board">
-      <div class="bi-bleed-board__notice">GM-ONLY — Bleed pilotVisibility is an open question. Do not show this to players.</div>
-      <div id="bleed-list"></div>
-    </div>`;
-  const list = $("#bleed-list", main);
-
-  function paint() {
-    list.innerHTML = FRAME_NUMBERS.map((no) => {
-      const val = bleedState[no];
-      const berserk = isBerserk(val);
-      const ticks = Array.from({ length: BLEED_MAX }, (_, i) =>
-        `<span class="bi-bleed-board__tick${i < val ? " bi-bleed-board__tick--lit" : ""}${berserk ? " bi-bleed-board__tick--berserk" : ""}"></span>`
-      ).join("");
-      return `
-        <div class="bi-bleed-board__row${berserk ? " bi-bleed-board__row--berserk" : ""}">
-          <span class="bi-bleed-board__name">Pilot ${no}</span>
-          <div class="bi-bleed-board__track">${ticks}</div>
-          <span class="bi-bleed-board__value">${val}</span>
-          <div class="bi-bleed-board__stepper">
-            <button type="button" data-pilot="${no}" data-delta="-1" aria-label="Decrease Bleed">&minus;</button>
-            <button type="button" data-pilot="${no}" data-delta="1" aria-label="Increase Bleed">+</button>
-          </div>
-        </div>
-        ${berserk ? `<p style="margin:-4px 0 2px 118px;font-family:var(--bi-font-readout);font-size:10px;color:var(--bi-vermilion)">BERSERK — ${bleedBerserkDuration[no] || "?"} round(s), GM control.</p>` : ""}`;
-    }).join("");
-  }
-  list.addEventListener("click", (ev) => {
-    const btn = ev.target.closest("[data-pilot]");
-    if (!btn) return;
-    const no = btn.dataset.pilot;
-    const wasBerserk = isBerserk(bleedState[no]);
-    bleedState[no] = adjustBleed(bleedState[no], Number(btn.dataset.delta));
-    const nowBerserk = isBerserk(bleedState[no]);
-    if (nowBerserk && !wasBerserk) bleedBerserkDuration[no] = rollBerserkDuration();
-    if (!nowBerserk) delete bleedBerserkDuration[no];
-    paint();
-  });
   paint();
 }
 

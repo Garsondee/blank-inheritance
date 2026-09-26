@@ -1,0 +1,201 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-exercise",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-exercise",
+  "title": "The Exercise",
+  "summary": "A manoeuvre qualification on the proving ground: cones, checkpoints, a stopwatch and a man whose call is not arguable. Nothing is at stake and everything is new, which is the best possible way to learn what a machine can do.",
+  "goal": "Every player has run the course in their own machine, found out what it can and cannot do, and heard the siren in a context where it means nothing.",
+  "howToPlay": "Competitive, quick and funny. **Dull in the fiction, not at the table** -- the qualification is routine, the stakes are zero, and six teenagers are driving enormous machinery badly in front of each other, which is inherently entertaining.\n\nRun it as a short round robin with times posted. Let them watch each other. The best material in this scene comes from five people commentating on the sixth.\n\n**The Range Safety Officer's call is final and is never arguable.** That is not him being unreasonable -- it is the one rule that makes a proving ground safe, and he will explain it once, plainly, if asked.",
+  "runsAbout": "25-30 minutes",
+  "mode": "exploration",
+  "intro": {
+    "where": "The proving ground, a mile out from the base -- flat, cindered, marked out with painted drums and a timing hut.",
+    "firstThing": "Wind, and no shelter from it. The proving ground is the most open place any of them has stood since they arrived.",
+    "readAloud": "The proving ground is a half-mile of cinder and painted oil drums, and a timing hut with a man standing outside it holding a clipboard and a stopwatch.\n\nHe has been here since half past six, and looks as though he could have been there since the drums were painted.",
+    "landmark": "the timing hut, and the chalked board beside it where the times go up",
+    "holdInReserve": "The siren post at the far corner of the ground. It is part of the course furniture and it will be tested during the drill.",
+    "carriesIn": [
+      {
+        "when": "Anybody watched him run somebody else's qualification in The Long Afternoon",
+        "then": "They already know how he calls a run and what he will not tolerate. Let that be a genuine advantage -- they can tell the others before the first run."
+      },
+      {
+        "when": "Anybody was in a cab last night with the late crew",
+        "then": "They are not fighting the controls this morning. Give them a visibly better first run and let the others notice."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "range-safety-officer",
+      "npcRef": "range-safety-officer",
+      "label": "The Range Safety Officer",
+      "role": "Runs the proving ground. His call on a machine or a pilot is final.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Nobody hurt on his ground. Not today, not ever, and his record on that is the thing he is proudest of in a long career.",
+        "opensWith": "The safety brief, which he gives identically every time and will not shorten for anybody.",
+        "willDiscuss": [
+          {
+            "topic": "The course, the rules, and exactly what he is scoring",
+            "note": "Completely openly. He would rather everybody knew the standard than have somebody guess at it. He is not trying to catch anyone out."
+          },
+          {
+            "topic": "Why his call is final",
+            "note": "If asked properly he explains it once: a range where the safety call can be argued with is a range where somebody eventually dies. He has seen it. He does not elaborate on where."
+          },
+          {
+            "topic": "Any machine on the ground, mechanically",
+            "note": "Dry and precise and surprisingly generous with advice, in between runs, to anybody who asks."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Reversing a call",
+            "why": "It does not happen. Not out of pride -- he regards it as the single structural rule that keeps the ground safe, and he would say the same to the Deputy Director."
+          },
+          {
+            "topic": "Where he saw somebody die",
+            "why": "He will not, and the refusal is quiet rather than dramatic. Let it go."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Flat, unhurried, entirely without theatre. A man who has said the same eleven sentences for twenty years and still means them.",
+          "tics": [
+            "Says the word 'no' on its own, without explanation, and waits",
+            "Gives a time and then the thing that cost it",
+            "Refers to every machine by its number rather than its type"
+          ],
+          "samples": [
+            "\"Brief first. I know you've heard it. You haven't heard it from me.\"",
+            "\"No. -- Bring it back round and do it again.\"",
+            "\"Four twelve. Would have been three fifty if you'd stopped looking at the drum you'd already passed.\"",
+            "\"My call's final. That's not me being awkward. A range where it isn't is a range where somebody gets killed eventually, and I've worked one of those.\"",
+            "\"That'll be the siren. Ignore it, it's on the list.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-brief",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He gives the safety brief. All of it, identically, to six people who want to be driving.",
+      "npcRef": "range-safety-officer",
+      "direction": "Play it straight and let it be slightly too long. The comedy is entirely in the party's impatience and not in him being ridiculous -- every word of it is sensible.\n\nThe brief includes, flatly, that a siren test is scheduled during the drill and is to be ignored.",
+      "note": "HOW TO PLAY IT. The siren line is planted here, in the most boring possible context, spoken by a man reading a list. Do not give it any weight at all.\n\nGM-ONLY: they will hear that sound again before the end of the session, meaning something entirely different.",
+      "readAloud": "\"Right. Safety brief. All of it, because I give all of it, every time, and I have never once been thanked for it.\"\n\nIt takes eleven minutes. It is completely thorough. In eleven years this ground has an unblemished safety record and he intends to keep it."
+    },
+    {
+      "id": "the-course",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Each player runs the course in their machine. Times go up on the board.",
+      "challengeRef": "c1e2-the-exercise",
+      "checkRef": "run-the-course",
+      "direction": "Round robin, one run each, quick. Let everybody watch everybody.\n\n**Let the machines be different and let the difference show.** A crane rig will be slow and will place a drum exactly where it is asked to. A bike will be round in half the time and will knock two over. Neither is failing the exercise -- they are being what they are, and the party learning that today is the point.\n\nPost the times. A leaderboard makes six people care about a cone course.",
+      "note": "HOW TO PLAY IT. The roll measures the run, not the person. A bad time is funny and costs nothing. Let players describe their own runs and only narrate the outcome.\n\nSECOND RUNS: he will allow one, for anybody who asks, if there is time. Anybody who takes one and improves has earned it. This is the entire extent of his generosity and it is real."
+    },
+    {
+      "id": "the-siren",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Partway through the runs, the siren on the far post goes off. It is on the list. Nobody stops.",
+      "direction": "**Two sentences and move on.** He notes it without looking up, somebody on the ground keeps working, and the next run starts.\n\nDescribe the sound properly and specifically -- it is worth one clear image now so that it is recognisable later -- and then give it absolutely no significance.\n\n**Time it out loud if the table is quiet -- ninety seconds, and then it stops.** That is the whole beat and it is a plant, not an event.\n\nA player who took civil defence and got the critical success knows what that means: a drill stops, and a live alert does not. Do not say so, and do not signal that anybody should be paying attention.",
+      "note": "HOW TO PLAY IT. This is the plant and the whole technique is underplaying it. If the table reacts, the honest in-fiction answer is that it is a scheduled test and they were told about it in the brief.\n\nGM-ONLY: the same siren, not a test, is what the city does when the plotting floor puts something on the board. Nobody says that today.",
+      "readAloud": "The siren on the far post goes off at eleven exactly, the way it does on the first Wednesday of every month.\n\nNobody on the proving ground stops. The man with the clipboard does not look up. Somewhere across the water a dog starts and then gives up.\n\nIt runs for ninety seconds and then it stops."
+    },
+    {
+      "id": "what-it-can-do",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants to find out what their machine can really do rather than just pass the course, offer the check.",
+      "challengeRef": "c1e2-the-exercise",
+      "checkRef": "push-it",
+      "when": {
+        "condition": "if a player deliberately tries something the course does not ask for"
+      },
+      "direction": "This is for the player who would rather learn the machine than win the morning. Reward it -- a success gives them one real, specific thing their machine can do that is not obvious and that will matter later.\n\nOn a failure the RSO calls it, they bring it round, and they do it again. His call, not arguable, and no lasting cost.",
+      "note": "HOW TO PLAY IT. What a success gives: the excavator's arm will take a person's weight. The crane will reach a second-floor window. The tunneller can shoulder through a wall that is not load-bearing. The truck's canvas back will hide six people. The bike will go up a flight of steps. The car will outrun anything on the base.\n\nGive one, concretely, to the player who went looking for it. Every one of those is usable in a fight nobody has told them about yet.\n\nWIDTH. This is the beat for an experimental player, and it is the single most valuable optional beat in the episode."
+    },
+    {
+      "id": "the-board",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Times go up. He reads them out with the thing that cost each one.",
+      "npcRef": "range-safety-officer",
+      "direction": "One line per player, and every line is a time followed by the specific error that cost it. He is not unkind and he is completely accurate.\n\nIf somebody was genuinely good, he says the time and nothing else, which from him is enormous.\n\n**Give every player their one line, and make it specific to what they actually did.** He is not ranking them against each other -- he is telling each of them the one thing that would have mattered somewhere real, and within the hour it does.",
+      "note": "HOW TO PLAY IT. Everybody qualifies. This is a familiarisation exercise and the qualification is not in doubt -- what the board records is bragging rights and one accurate sentence each about what they personally need to work on.\n\nIF A PLAYER REFUSES TO RUN: they qualify anyway, on his say-so, after a conversation in which he asks once whether there is a problem with the machine and accepts whatever answer he gets. He does not make anybody drive. He does note it, without comment, in the log.",
+      "readAloud": "He reads the times off the board without commentary, and then adds one line to each: what it cost.\n\n\"Fast. Wide on three, so it would have been a wall.\" \"Slow. Nothing wide. I'd have you on a road.\""
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The last time is on the board and he is packing the stopwatch away.",
+    "readAloud": "Six times chalked up on a board beside a hut, in the wind, a mile from anywhere.\n\nAnd then the radio in the timing hut starts talking, and the man with the clipboard stops what he is doing to listen to it.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "comprehension",
+        "delta": null,
+        "why": "Move this if the party came off the proving ground able to say what their own machine is good at and what it is not. The whole scene exists to establish that while nothing is at stake."
+      }
+    ],
+    "transition": {
+      "mechanism": "needed",
+      "line": "He stops mid-sentence to listen to a radio, which he has not done all morning. Nobody has to be told that something has changed.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into Unidentified Contact, without a break.",
+    "writeDown": [
+      "The times, and what he said cost each of them. It is a real record and a callback.",
+      "Anything a player discovered their machine can do. All of it is live in the fight.",
+      "Whether the siren registered at all."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "find-out-what-it-does",
+      "text": "The course only asks for the things the course asks for. Nobody has said what else the machine will do."
+    },
+    {
+      "id": "ask-him-about-the-machine",
+      "text": "He knows every machine on this ground by number and he is oddly generous with advice between runs."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "dull-in-fiction-fun-at-table",
+      "text": "Whether a routine cone course was actually entertaining -- six people driving badly in front of each other.",
+      "scaleNote": "0 = it was as dull at the table as in the fiction, 10 = they were laughing at each other's runs."
+    },
+    {
+      "id": "machines-felt-different",
+      "text": "Whether the machines read as genuinely different from each other in the hands of their pilots."
+    },
+    {
+      "id": "the-rso",
+      "text": "The Range Safety Officer -- whether final-and-not-arguable landed as professional rather than as officious."
+    },
+    {
+      "id": "siren-planted-quietly",
+      "text": "Whether the siren test went past without weight, as intended.",
+      "scaleNote": "0 = the table clocked it as a plant immediately, 10 = it was completely unremarkable."
+    }
+  ],
+  "notes": "DULL IN THE FICTION, NOT AT THE TABLE. The qualification is routine and the stakes are zero. What makes it play is that six people are operating unfamiliar heavy machinery in front of each other with a stopwatch running. Post times, let them watch each other, and keep it moving.\n\nTHE SIREN IS THE WHOLE POINT OF THE SCENE STRUCTURALLY. Planted flat, in a safety brief, then heard once in a context where it means nothing. When it sounds for real, nobody has to explain what it is.\n\nTHE RSO IS NOT AN ANTAGONIST. He is the second competent, decent adult the party has met in two episodes, after Shucks and alongside Hulda Brack. His refusal to allow his call to be argued with is a safety principle he can explain and defend, and he explains it once if asked. Playing him as petty wastes him.\n\nEVERYBODY QUALIFIES. The exercise cannot be failed. What varies is the time on the board and one accurate sentence about what each pilot needs to work on."
+}

@@ -161,7 +161,7 @@ test("resolveTokenRing: every actor gets a ring, enabled, with Ring Pulse on, re
 });
 
 test("resolveTokenRing: npc ring color is vermilion for the Directorate, amber otherwise (faction identification, Ingram 2026-09-18)", () => {
-  assert.equal(resolveTokenRing("npc", { affiliation: "directorate" }).colors.ring, "#d1402a");
+  assert.equal(resolveTokenRing("npc", { affiliation: "directorate" }).colors.ring, "#be3219");
   assert.equal(resolveTokenRing("npc", { affiliation: null }).colors.ring, "#f0a830");
   assert.equal(resolveTokenRing("npc", { affiliation: "some-other-faction" }).colors.ring, "#f0a830");
   assert.equal(resolveTokenRing("npc", {}).colors.ring, "#f0a830", "missing affiliation must not throw");
@@ -195,7 +195,7 @@ test("resolveTokenRing: ring.subject.texture is ALWAYS null -- it is not where a
 
 test("buildNpcActorData/buildCreatureActorData/buildCharacterActorData: every Actor carries prototypeToken.ring, and tokenImage flows to prototypeToken.texture.src -- NOT ring.subject.texture", async () => {
   const npcData = await buildNpcActorData({ id: "x", affiliation: "directorate" }, { tokenImage: "modules/blank-inheritance/assets/tokens/x.webp" });
-  assert.equal(npcData.prototypeToken.ring.colors.ring, "#d1402a");
+  assert.equal(npcData.prototypeToken.ring.colors.ring, "#be3219");
   assert.equal(npcData.prototypeToken.texture.src, "modules/blank-inheritance/assets/tokens/x.webp");
   assert.equal(npcData.prototypeToken.ring.subject.texture, null, "the portrait must not ALSO be written to ring.subject.texture");
 
@@ -275,12 +275,12 @@ test("validateJournalEntry: a missing page is reported as a failed check, not si
   assert.ok(failed.length > 0, "dropping a page must surface at least one failed check");
 });
 
-test("episodeToJournalSource: a real episode with authored scenes (Session One) produces one overview page plus one page per scene", async () => {
+test("episodeToJournalSource: a real episode with authored scenes (Episode One) produces one overview page plus one page per scene", async () => {
   // Repointed 2026-09-13 from episode-01-contact-unclassified, which was deleted
-  // along with every other drafted beat beyond Session 0/1. Session One is now
+  // along with every other drafted beat beyond Session 0/1. Episode One is now
   // the only real episode in the repo, and is the better fixture anyway: it is
   // the one we actually intend to run.
-  const episode = readRealData("episodes/episode-c1s1-mothers-maiden-name.json");
+  const episode = readRealData("episodes/episode-c1e1-mothers-maiden-name.json");
   // Real content is still "drafted" today (issue #166's backfill, nothing
   // promoted yet) -- this test is about page structure/content shape, not
   // the withholding gate (that's tier1-writer-audit and tier4-mocked-adapter's
@@ -289,27 +289,31 @@ test("episodeToJournalSource: a real episode with authored scenes (Session One) 
   episode.scenes = episode.scenes.map((scene) => ({ ...scene, authoring: { ...scene.authoring, status: "sound" } }));
   const source = episodeToJournalSource(episode);
 
-  assert.equal(source.id, "episode-c1s1-mothers-maiden-name");
+  assert.equal(source.id, "episode-c1e1-mothers-maiden-name");
   assert.equal(source.name, "Mother's Maiden Name (Again)");
   assert.equal(source.pages.length, 1 + episode.scenes.length, "one overview page plus one per authored scene");
   assert.equal(source.pages[0].id, "overview");
   assert.match(source.pages[0].content, /Six volunteers/, "overview page must include the episode summary");
-  assert.match(source.pages[0].content, /Make the table love Taka/, "overview page must include the casting note");
+  // Phrase updated 2026-09-20: the casting note used to read "Make the table love Taka tonight",
+  // which asserts what the table will feel. That's now a standing violation — a scene states what it
+  // puts on the table, never what the players do with it. The assertion still proves the same thing
+  // (castingNote reaches the overview page), just against wording that follows the rule.
+  assert.match(source.pages[0].content, /Taka is built to be immediately likeable/, "overview page must include the casting note");
 
-  // Session One's scenes carry their own `id`, so the page is keyed on that
+  // Episode One's scenes carry their own `id`, so the page is keyed on that
   // rather than falling back to `scene-${order}`. The old fixture had no scene
   // ids at all, so this branch of journal.mjs was never actually covered.
   const fightPage = source.pages.find((p) => p.id === "flood-tunnel");
   assert.ok(fightPage, "expected a page for the flood tunnel scene, keyed on the scene's own id");
-  // Order number asserted loosely rather than hardcoded: Session One's own
+  // Order number asserted loosely rather than hardcoded: Episode One's own
   // running order has grown twice already (5 scenes -> 6 with Flood Tunnel
   // -> 8 with The Tram Back/The Walk Down added 2026-09-19), and the exact
   // position isn't what this test is checking -- the scene's own id-keyed
   // page and its content are. Assert the title text, not its numeric prefix.
   assert.match(fightPage.name, /\. Flood Tunnel Clearance$/);
   assert.match(fightPage.content, /Giant Centipedes/, "scene page must include the scene's own description");
-  assert.match(fightPage.content, /c1s1-flood-tunnel/, "scene page must surface its encounterRef");
-  assert.match(fightPage.content, /c1s1-compactor-cycle/, "scene page must surface its subsystemRef");
+  assert.match(fightPage.content, /c1e1-flood-tunnel/, "scene page must surface its encounterRef");
+  assert.match(fightPage.content, /c1e1-compactor-cycle/, "scene page must surface its subsystemRef");
 
   // This is real prose, so it must actually build into a valid JournalEntry, not just look right.
   const data = await buildJournalEntryData(source);

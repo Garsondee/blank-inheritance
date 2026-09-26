@@ -1,0 +1,78 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-school-second-period",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "School: Second Period",
+  "description": "One optional roll per room. Not rolling is free. The cost of failing is deliberately different from first period's: this one is late enough in the day that extra work eats the evening instead of the afternoon, and the party goes down into the flood tunnel tired.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "what-lives-down-there",
+      "name": "Listen to the woman who has been pulling them out of the drains for thirty years",
+      "skillOptions": [
+        "nature",
+        "medicine",
+        "survival"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1 DC 15, one step easy. She is thrilled that somebody asked and is actively handing them the answer -- the difficulty is being interested, not the content",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the behaviour: they go for movement and light rather than for people, they do not hold ground once two of them are down, and a hard light held steady will turn one before it commits. Treat this as a critical success on the same Recall Knowledge, and give the player the creature's weakest save as well.",
+        "success": "They know what is down there before they see it. When the party meets the centipedes tonight, this player has already made the Recall Knowledge check: they may name the creature and take one piece of real information from its stat block, exactly as a successful Recall Knowledge would give them, without spending an action.",
+        "failure": "They handle something they were told to handle carefully and it goes across the floor, and getting it back takes the rest of the lesson and a good deal of the evening. They go into the flood tunnel tonight Fatigued.",
+        "criticalFailure": "As failure, and the jar does not survive it. She stops, and for about four seconds she is somewhere else entirely -- eleven years of a thing she pulled out of a drain herself, in pieces on a classroom floor. Then she is cheerful again, which is worse than if she had stayed upset. They stay until the room is right: Fatigued tonight, and the work follows them into next episode and costs their first free quarter."
+      },
+      "bySkill": {
+        "nature": "The direct route. What they are, where they sit, and what they actually do.",
+        "medicine": "The bite, what it does, and how long somebody has -- which is the half of it that matters at two in the morning.",
+        "survival": "Reading the flooded levels as habitat, which is what tells them where the things will be rather than what they are.",
+        "perception": "Watching what she does with her hands rather than listening to what she says, which is how she actually handles them safely."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "radio-procedure",
+      "name": "Learn what goes out, not what you meant",
+      "skillOptions": [
+        "computers",
+        "perception",
+        "crafting"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. Procedure is teachable in an hour; hearing the difference between a correct transmission and a frightened one is not, and that is what the check is actually for",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and they can hear it in a voice rather than in the words. Next episode, when the Comms Officer tells them to hold position, they know she is frightened for them specifically and that she has put herself outside procedure to say so.",
+        "success": "Correct radio procedure -- callsigns, priority, the phrasing that goes out. Next episode they can tell that the Comms Officer's warning was not the instruction the book gives.",
+        "failure": "They talk over a live position and put somebody's call on the floor. Putting it right takes the rest of the lesson and most of the evening: they go into the flood tunnel tonight Fatigued.",
+        "criticalFailure": "They talk over a live position and then argue about it, and eleven people who are mid-call all hear them do it. Nobody says anything. The supervisor writes down the number of the call that was dropped and hands it to them, and they find out whose it was. Fatigued tonight, and the letter they are made to write follows them into next episode and costs their first free quarter."
+      },
+      "bySkill": {
+        "society": "Procedure as a social instrument -- what the phrasing is for, and therefore what breaking it means.",
+        "computers": "The exchange itself, the positions, and how a call is physically routed, which is the version that sticks.",
+        "diplomacy": "Getting the supervisor onto the last two minutes of the lesson, which is the only part that is not procedure and the only part that matters later.",
+        "perception": "Hearing it directly off the live headset rather than being told about it. The cleanest route to the critical success."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Individually -- each player is in one room or the other"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--school-second-period",
+    "c1e1-flood-tunnel",
+    "episode-c1e2--unidentified-contact"
+  ],
+  "notes": "NOT ROLLING IS FREE. Same rule as every school period. Only offer the roll to a player who engages.\n\nRISKS ARE NOT ANNOUNCED.\n\nTHE COST IS DIFFERENT FROM FIRST PERIOD ON PURPOSE. First period takes the afternoon's slack in the city. This one is too late in the day for that, so it takes the evening instead and the party goes down into the tunnel Fatigued. A player who failed both does not lose the same thing twice.\n\nTHE CRITICAL FAILURE REACHES INTO NEXT EPISODE. Unfinished work costs their first free quarter, which lands in the same scene where The Board finally names the four-quarter day. That delay is deliberate and it should not be softened.\n\nWHAT-LIVES-DOWN-THERE USES A REAL SF2E ACTION AND INVENTS NOTHING. A success means the player has already made the Recall Knowledge check on the flood tunnel's centipedes and takes its result for free, without spending an action in the fight. A critical success gives the critical-success result, including the weakest save. Do not build a bespoke mechanic on top of this -- Recall Knowledge already is the mechanic.\n\nRADIO-PROCEDURE CHANGES A SCENE RATHER THAN HELPING A CHECK. It does not give a bonus to anything. What it gives is the ability to hear that the Comms Officer broke procedure to warn them in Unidentified Contact, which turns an order into a person being afraid for them. That is worth more than a +2 and the party will never be told it was a reward.\n\nFATIGUED IS A REAL SF2E CONDITION and is the correct weight here. Do not invent a bespoke debuff.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+}

@@ -1,0 +1,1325 @@
+{
+ "name": "Castria Anne Baldwin",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/a11.webp",
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 139,
+    "temp": 0,
+    "max": 139,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 26,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   }
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 8
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 4
+   },
+   "dex": {
+    "mod": 4
+   },
+   "con": {
+    "mod": 4
+   },
+   "int": {
+    "mod": 4
+   },
+   "wis": {
+    "mod": 4
+   },
+   "cha": {
+    "mod": 4
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 16,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 16,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 16,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 16,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "religion": {
+    "base": 0
+   },
+   "society": {
+    "base": 0
+   },
+   "stealth": {
+    "base": 0
+   }
+  },
+  "traits": {
+   "value": [],
+   "rarity": "common",
+   "size": {
+    "value": "med"
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "a11",
+  "displayName": 20,
+  "actorLink": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/a11.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "width": 1,
+  "height": 1,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "color": null,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "flags": {
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "randomImg": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "items": [
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/ice-storm.webp",
+   "name": "Ice Storm",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You create a gray storm cloud that pelts creatures with an icy deluge. When you @UUID[Compendium.pf2e.actionspf2e.Item.aBQ8ajvEBByv45yz]{Cast the Spell}, a burst of magical hail deals [[/r 2d8[bludgeoning]]] damage and [[/r 2d8[cold]]] damage to each creature in the area below the cloud (basic Reflex save). Snow and sleet continue to rain down in the area for the remainder of the spell's duration, making the area difficult terrain, causing creatures in the storm to be @UUID[Compendium.pf2e.conditionitems.Item.DmAIPqOBomZ7H95W], and making creatures outside the storm Concealed from those inside the storm. Any creature that ends its turn in the storm takes [[/r 2[cold]]] damage. If you Cast this Spell outdoors, you can create two non-overlapping clouds instead of one. As normal, if a Large or larger creature is in both clouds, it still only takes the initial damage once and the continuing damage once per turn.</p>\n<hr />\n<p><strong>Heightened (+2)</strong> The initial bludgeoning damage and cold damage increase by 1d8 each, and the cold damage creatures take at the end of their turns increases by 1.</p>"
+    },
+    "rules": [],
+    "slug": "ice-storm",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "cold",
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": "120 feet"
+    },
+    "area": {
+     "type": "burst",
+     "value": 20
+    },
+    "time": {
+     "value": "3"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": true
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "formula": "2d8",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     },
+     "wnlxzlrxtrkk2bh3": {
+      "applyMod": false,
+      "formula": "2d8",
+      "type": "cold",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "reflex",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ",
+     "heightenedLevel": 4
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d8",
+      "wnlxzlrxtrkk2bh3": "1d8"
+     },
+     "interval": 2,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.kHyjQbibRGPNCixx"
+    },
+    "scene-packer": {
+     "hash": "6568036dfd11bedb3bf6e5f51dad87a8f5aa0f60"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687206927969,
+    "modifiedTime": 1687206927969,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.kHyjQbibRGPNCixx",
+    "duplicateSource": null
+   },
+   "_id": "7LcxIh0WVAXD5n0H"
+  },
+  {
+   "name": "Creature Spellcasting",
+   "type": "spellcastingEntry",
+   "effects": [],
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [],
+    "slug": null,
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": []
+    },
+    "publication": {
+     "title": "",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "ability": {
+     "value": "cha"
+    },
+    "spelldc": {
+     "value": 0,
+     "dc": 0
+    },
+    "tradition": {
+     "value": "arcane"
+    },
+    "prepared": {
+     "value": "innate"
+    },
+    "showSlotlessLevels": {
+     "value": true
+    },
+    "proficiency": {
+     "value": 1
+    },
+    "slots": {
+     "slot0": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot1": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot2": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot3": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot4": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot5": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot6": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot7": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot8": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot9": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot10": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     },
+     "slot11": {
+      "prepared": [],
+      "value": 0,
+      "max": 0
+     }
+    },
+    "autoHeightenLevel": {
+     "value": null
+    },
+    "showUnpreparedSpells": {
+     "value": false
+    },
+    "displayLevels": {}
+   },
+   "_id": "CEDBrV1oKzseV8sZ",
+   "img": "systems/pf2e/icons/default-icons/spellcastingEntry.svg",
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "flags": {
+    "scene-packer": {
+     "hash": "ace466e7c6f5ba30f8336037445cf17d90ff50ec"
+    }
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687206765259,
+    "modifiedTime": 1687206765259,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": null,
+    "duplicateSource": null
+   }
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/ray-of-frost.webp",
+   "name": "Ray of Frost",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You blast an icy ray. Make a spell attack roll. The ray deals cold damage equal to 1d4 + your spellcasting ability modifier.</p>\n<hr />\n<p><strong>Critical Success</strong> The target takes double damage and takes a -10-foot status penalty to its Speeds for 1 round.</p>\n<p>@UUID[Compendium.pf2e.spell-effects.Item.I4PsUAaYSUJ8pwKC]</p>\n<p><strong>Success</strong> The target takes normal damage.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 1d4.</p>"
+    },
+    "rules": [],
+    "slug": "ray-of-frost",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "attack",
+      "cantrip",
+      "cold",
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 creature"
+    },
+    "range": {
+     "value": "120 feet"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": true,
+      "formula": "1d4",
+      "type": "cold",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ"
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d4"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.gYjPm7YwGtEa1oxh"
+    },
+    "scene-packer": {
+     "hash": "4aed8d2f52650d9e7d2c5c319400683bef329843"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687206906124,
+    "modifiedTime": 1687206906124,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.gYjPm7YwGtEa1oxh",
+    "duplicateSource": null
+   },
+   "_id": "GA5HhNrzLpqiLjNG"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/endure-elements.webp",
+   "name": "Endure Elements",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You shield the target against dangerous temperatures. Choose severe cold or heat. The target is protected from the temperature you chose (but not extreme cold or heat).</p>\n<hr />\n<p><strong>Heightened (3rd)</strong> The target is protected from severe cold and heat.</p>\n<p><strong>Heightened (5th)</strong> The target is protected from severe cold, severe heat, extreme cold, and extreme heat.</p>"
+    },
+    "rules": [],
+    "slug": "endure-elements",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 2
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 willing creature"
+    },
+    "range": {
+     "value": "touch"
+    },
+    "area": null,
+    "time": {
+     "value": "10 minutes"
+    },
+    "duration": {
+     "value": "until the next time you make your daily preparations",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ",
+     "heightenedLevel": 2
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.5esP2GVzvxWsMgaX"
+    },
+    "scene-packer": {
+     "hash": "879dd0197f5b9e9da3e30b0ae1c2fc271f6483f2"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207298498,
+    "modifiedTime": 1687207298498,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.5esP2GVzvxWsMgaX",
+    "duplicateSource": null
+   },
+   "_id": "Gu095MU56dVcaYKo"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/rime-slick.webp",
+   "name": "Rime Slick",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You call down a chill wind. When you Cast this Spell, you deal 2d4 cold damage to each creature in the area (basic Reflex save). If a creature in the area critically fails its Reflex save and was standing, it also falls @UUID[Compendium.pf2e.conditionitems.Item.j91X7x0XSomq8d60].</p>\n<p>You also create a layer of ice on all surfaces in the area, which become difficult terrain. Unattended objects in the area become slick with ice, and picking them up requires a successful Reflex save or Acrobatics check against your spell DC. The ice melts on any object that takes fire damage as well as in any square included in the area of a higher-level spell or effect with the fire trait.</p>\n<hr />\n<p><strong>Heightened (5th)</strong> The damage increases to 8d4 cold damage and the area is a 30-foot burst.</p>\n<p><strong>Heightened (8th)</strong> The damage increases to 14d4 cold damage and the area is a 60-foot burst.</p>"
+    },
+    "rules": [],
+    "slug": "rime-slick",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "cold",
+      "concentrate",
+      "manipulate"
+     ],
+     "rarity": "uncommon",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder #151: The Show Must Go On",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 2
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": "60 feet"
+    },
+    "area": {
+     "type": "burst",
+     "value": 15
+    },
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "formula": "2d4",
+      "type": "cold",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "reflex",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ",
+     "heightenedLevel": 2
+    },
+    "counteraction": false,
+    "heightening": {
+     "levels": {
+      "5": {
+       "area": {
+        "areaType": "burst",
+        "value": "30"
+       },
+       "damage": {
+        "0": {
+         "applyMod": false,
+         "formula": "8d4",
+         "type": "cold",
+         "materials": []
+        }
+       }
+      },
+      "8": {
+       "area": {
+        "areaType": "burst",
+        "value": "60"
+       },
+       "damage": {
+        "0": {
+         "applyMod": false,
+         "formula": "14d4",
+         "type": "cold",
+         "materials": []
+        }
+       }
+      }
+     },
+     "type": "fixed"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.Popa5umI3H33levx"
+    },
+    "scene-packer": {
+     "hash": "b834f559f5e427ef2ebdf9a5e1e66c46d45fd307"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207125789,
+    "modifiedTime": 1687207125789,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.Popa5umI3H33levx",
+    "duplicateSource": null
+   },
+   "_id": "aio5M6DxnabYBkLq"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/mantle-of-the-frozen-heart.webp",
+   "name": "Mantle of the Frozen Heart",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You surround yourself in a mantle of frigid ice magic, and your skin and armor morph into cold blue ice. Freezing air emanates from your body, sending a chill down anyone's spine who draws too close and leaving a fine dusting of frost in your wake. Upon Casting this Spell, pick two of the options below. As a single action, which has the concentrate trait, you can change one of your chosen abilities to a different option from the list.</p>\n<ul>\n<li><strong>Chilling Ice</strong> The ice around your body thickens, melting off to protect you from heat while inuring you from the cold. You gain resistance 10 to cold.</li>\n<li><strong>Heart of Ice</strong> Your body temperature plummets to blistering cold. Any creature that touches you, or that hits you with a melee unarmed attack or non‑reach melee weapon attack, takes [[/r 2d6[cold]]] damage.</li>\n<li><strong>Ice Glide</strong> Ice trails from your feet for an instant as you move, allowing you to skate rapidly along the ice. You don't need to Balance on ice, and you ignore difficult terrain caused by ice or snow. While moving along a smooth surface, you gain a +20-foot status bonus to your land Speed. @UUID[Compendium.pf2e.spell-effects.Item.YCno88Te0nfwFgVo]</li>\n<li><strong>Icy Claws</strong> Your hands morph into vicious, piercing claws of ice useful for attacking or climbing. As long as you have both hands free, you gain a climb Speed equal to your land Speed. You gain a claw unarmed attack with the agile and finesse traits, in the brawling weapon group. Your claw attack deals 1d6 piercing damage as its base damage, plus an additional 2d6 cold damage. @UUID[Compendium.pf2e.spell-effects.Item.wqh8D9kHGItZBvtQ]</li>\n</ul>"
+    },
+    "rules": [],
+    "slug": "mantle-of-the-frozen-heart",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "cold",
+      "concentrate",
+      "manipulate",
+      "morph"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Secrets of Magic",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 5
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "1 minute",
+     "sustained": false
+    },
+    "damage": {},
+    "defense": null,
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ",
+     "heightenedLevel": 5
+    },
+    "counteraction": false
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.CcXtbTxtdV9MKQfu"
+    },
+    "scene-packer": {
+     "hash": "9ffc0b1cbe629ebdfd5b9d7ba9c2fa48b3350e86"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687206966348,
+    "modifiedTime": 1687206966348,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.CcXtbTxtdV9MKQfu",
+    "duplicateSource": null
+   },
+   "_id": "fOWsf71TheWroBa0"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/hydraulic-torrent.webp",
+   "name": "Hydraulic Torrent",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>A swirling torrent of water manifests along a straight line, battering creatures and unattended objects in its path and possibly pushing them away from you. The torrent deals 8d6 bludgeoning damage. Each creature in the area must attempt a basic Fortitude save; unattended objects automatically fail. Creatures that fail the save are also knocked back 5 feet (10 feet on a critical failure).</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "hydraulic-torrent",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate",
+      "water"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 4
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": {
+     "type": "line",
+     "value": 60
+    },
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "formula": "8d6",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "fortitude",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ",
+     "heightenedLevel": 4
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.Y3G6Y6EDgCY0s3fq"
+    },
+    "scene-packer": {
+     "hash": "d98991396ce8898a01e03472ba413d09634e066f"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207055691,
+    "modifiedTime": 1687207055691,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.Y3G6Y6EDgCY0s3fq",
+    "duplicateSource": null
+   },
+   "_id": "sPsixkT0E2QP6sxX"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/crashing-wave.webp",
+   "name": "Crashing Wave",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>You summon a crashing wave that sweeps away from you. You deal 6d6 bludgeoning damage to creatures in the area. The water also extinguishes non-magical fires in the area.</p>\n<hr />\n<p><strong>Heightened (+1)</strong> The damage increases by 2d6.</p>"
+    },
+    "rules": [],
+    "slug": "crashing-wave",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "concentrate",
+      "manipulate",
+      "water"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "primal"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Advanced Player's Guide",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 3
+    },
+    "requirements": "",
+    "target": {
+     "value": ""
+    },
+    "range": {
+     "value": ""
+    },
+    "area": {
+     "type": "cone",
+     "value": 30
+    },
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": false,
+      "formula": "6d6",
+      "type": "bludgeoning",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "reflex",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ",
+     "heightenedLevel": 3
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "2d6"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.T4QKmtYPeCgYxVGe"
+    },
+    "scene-packer": {
+     "hash": "66b8df2032396344e664b4fff56a62291f18de28"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687207034470,
+    "modifiedTime": 1687207034470,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.T4QKmtYPeCgYxVGe",
+    "duplicateSource": null
+   },
+   "_id": "uICXWMHTcIGuygHh"
+  },
+  {
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/spells/chill-touch.webp",
+   "name": "Chill Touch",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>Siphoning negative energy into yourself, your hand radiates a pale darkness. Your touch weakens the living and disorients undead, possibly even causing them to flee. The effect depends on whether the target is living or undead.</p>\n<ul>\n<li><strong>Living Creature</strong> The spell deals negative damage equal to 1d4 plus your spellcasting modifier. The target attempts a basic Fortitude save, but is also @UUID[Compendium.pf2e.conditionitems.Item.MIRkyAjyBeXivMa7]{Enfeebled 1} for 1 round on a critical failure.</li>\n<li><strong>Undead Creature</strong> The target is @UUID[Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg] for 1 round on a failed Fortitude save. On a critical failure, the target is also @UUID[Compendium.pf2e.conditionitems.Item.sDPxOjQ9kx2RZE8D] for 1 round unless it succeeds at a Will save.</li>\n</ul>\n<hr />\n<p><strong>Heightened (+1)</strong> The negative damage to living creatures increases by 1d4.</p>"
+    },
+    "rules": [],
+    "slug": "chill-touch",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [
+      "cantrip",
+      "concentrate",
+      "manipulate",
+      "void"
+     ],
+     "rarity": "common",
+     "traditions": [
+      "arcane",
+      "divine",
+      "occult"
+     ]
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "requirements": "",
+    "target": {
+     "value": "1 living or undead creature"
+    },
+    "range": {
+     "value": "touch"
+    },
+    "area": null,
+    "time": {
+     "value": "2"
+    },
+    "duration": {
+     "value": "",
+     "sustained": false
+    },
+    "damage": {
+     "0": {
+      "applyMod": true,
+      "formula": "1d4",
+      "type": "void",
+      "category": null,
+      "materials": [],
+      "kinds": [
+       "damage"
+      ]
+     }
+    },
+    "defense": {
+     "save": {
+      "statistic": "fortitude",
+      "basic": true
+     }
+    },
+    "cost": {
+     "value": ""
+    },
+    "location": {
+     "value": "CEDBrV1oKzseV8sZ"
+    },
+    "counteraction": false,
+    "heightening": {
+     "damage": {
+      "0": "1d4"
+     },
+     "interval": 1,
+     "type": "interval"
+    }
+   },
+   "type": "spell",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.spells-srd.Item.mAMEt4FFbdqoRnkN"
+    },
+    "scene-packer": {
+     "hash": "0689a32269d79987b028b65432da7b16551ad443"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.12.9",
+    "coreVersion": "12.329",
+    "createdTime": 1687206910761,
+    "modifiedTime": 1687206910761,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.spells-srd.Item.mAMEt4FFbdqoRnkN",
+    "duplicateSource": null
+   },
+   "_id": "yDQIPkdKaq2tpGee"
+  }
+ ],
+ "effects": [],
+ "folder": "F0bowww63iKxd9DO",
+ "sort": 200000,
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "flags": {
+  "scene-packer": {
+   "hash": "55e1bf680c525f60b0c49e30830c9a4c509bda89"
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1684225542557,
+  "modifiedTime": 1721827603047,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ },
+ "_id": "xLqzf0K56AYm3QQL"
+}

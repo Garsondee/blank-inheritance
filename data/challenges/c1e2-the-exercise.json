@@ -1,0 +1,79 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-the-exercise",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Exercise",
+  "description": "Two checks on the proving ground. The qualification itself, which cannot be failed and only produces a time, and an optional one for a pilot who would rather learn what their machine can really do than win a cone course. The second is the valuable one.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "run-the-course",
+      "name": "Run the manoeuvre course",
+      "skillOptions": [
+        "piloting",
+        "crafting",
+        "acrobatics",
+        "athletics"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. Nobody can fail the qualification -- this produces a time and one accurate note about what cost it. Use whatever skill the system and the machine actually call for; this campaign has not settled a single piloting skill and the GM should use the closest fit rather than stop play over it",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "A time good enough that he reads it out and says nothing after it, which from him is enormous and everybody present will understand.",
+        "success": "A clean run and a respectable time.",
+        "failure": "A drum goes over, or a checkpoint gets taken wide, and the time reflects it. He tells them precisely what cost it, accurately and without cruelty.",
+        "criticalFailure": "Something spectacular, slow and completely harmless -- a machine beached on a drum, a bike laid down on cinder, a crane rig stopped at an angle that takes four people to sort out. No injury and no damage that matters. He says 'no', waits, and sends them round again."
+      },
+      "bySkill": {
+        "piloting": "The direct route, where the system offers it.",
+        "crafting": "Understanding the machine's limits rather than fighting them -- knowing what it will not do and not asking it to.",
+        "acrobatics": "Fine control in the tight sections, which is where the times are actually won.",
+        "athletics": "Muscling an unfamiliar machine through by main force, which works and is exhausting and shows on the clock.",
+        "perception": "Reading the course ahead rather than the drum in front, which he will specifically praise."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "push-it",
+      "name": "Find out what it can really do",
+      "skillOptions": [
+        "crafting",
+        "athletics",
+        "acrobatics"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1 DC 15, one step hard -- this is asking the machine for something the course does not require, on a first acquaintance",
+        "adjustment": "hard"
+      },
+      "outcomes": {
+        "criticalSuccess": "They find the thing, and they find its limit too -- they know exactly how far it can be pushed before it stops working, which is the more useful half.",
+        "success": "One real, specific, non-obvious capability, established as true from now on. See the scene brief for the list by machine.",
+        "failure": "The Range Safety Officer calls it. Bring it round, do it again, no lasting cost and no mark against them. His call, not arguable.",
+        "criticalFailure": "As failure, and he takes them off the ground for ten minutes to explain why, once, without heat. They are back on it afterwards."
+      },
+      "bySkill": {
+        "crafting": "Reasoning from what the machine is built of to what it will therefore tolerate.",
+        "athletics": "Simply trying it, physically, and finding out.",
+        "acrobatics": "The delicate version -- what it can do precisely rather than what it can do forcefully.",
+        "perception": "Watching what the machine does rather than what the controls say it is doing."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Every pilot runs the course; push-it is individual and optional"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--the-exercise",
+    "c1e2-familiarisation"
+  ],
+  "notes": "THE QUALIFICATION CANNOT BE FAILED. Everybody qualifies regardless of result. The board records a time and one accurate sentence, and that is all that is at stake.\n\nPUSH-IT IS THE VALUABLE CHECK AND IT PAYS OFF IN FIRST CONTACT, WITHIN THE HOUR. Each success establishes one concrete capability that is true from then on -- an arm that will take a person's weight, a crane that reaches a second-floor window, a canvas back that hides six people, a bike that will take steps. Every one of those is usable in a fight the party does not yet know is coming, and a player who went looking for it should get to use what they found.\n\nNO PILOTING SKILL IS SETTLED IN THIS CAMPAIGN. Use the closest fit the system offers rather than stopping play to resolve it. If this becomes a recurring friction it belongs in open-questions.json as a real decision, not as a house ruling made mid-scene.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+}

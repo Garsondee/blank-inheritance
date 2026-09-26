@@ -13,7 +13,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage, attackOptions, usefulRangeFeet, maxLegalRangeFeet } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
-import { degreeProbabilities } from "../../tools/battle-simulator/engine/resolve.mjs";
+import { degreeProbabilities } from "../../tools/battle-simulator/shared/resolve.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 import { alliesWithPositions } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 

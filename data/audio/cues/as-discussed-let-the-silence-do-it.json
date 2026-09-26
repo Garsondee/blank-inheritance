@@ -5,7 +5,7 @@
   "title": "The choice",
   "note": "The brief's own instruction: 'say nothing to prompt them -- let the silence do it.' A gentle dip rather than a stop, since this is the party thinking out loud at a table, not a scored beat -- the score should get out of the way, not vanish.",
   "triggers": [
-    { "on": "beat", "brief": "episode-c1s2--as-discussed", "beat": "the-choice" }
+    { "on": "beat", "brief": "episode-c1e2--as-discussed", "beat": "the-choice" }
   ],
   "steps": [
     { "do": "mix", "music": -6, "fade": 2000 }

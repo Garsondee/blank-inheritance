@@ -102,6 +102,14 @@
           34.67032625704691
         ],
         [
+          135.21629790273695,
+          34.671203311924195
+        ],
+        [
+          135.21286782169977,
+          34.67707480169253
+        ],
+        [
           135.21485855904965,
           34.67775588014474
         ],
@@ -142,8 +150,12 @@
           34.681859242619296
         ],
         [
-          135.21079909574064,
-          34.68147721399209
+          135.21087631597527,
+          34.681410846876155
+        ],
+        [
+          135.21071441627635,
+          34.68138978482449
         ]
       ],
       [
@@ -336,6 +348,14 @@
           6504.1
         ],
         [
+          7474.9,
+          6323.0
+        ],
+        [
+          6873.1,
+          5921.9
+        ],
+        [
           6991.8,
           5764.1
         ],
@@ -376,8 +396,12 @@
           5551.5
         ],
         [
-          6461.6,
-          5597.7
+          6471.436125718332,
+          5600.443236817134
+        ],
+        [
+          6459.847259331387,
+          5609.996542904407
         ]
       ],
       [
@@ -480,8 +504,8 @@
       ]
     ],
     "centroidPx": [
-      6757.85,
-      6368.55
+      6770.29,
+      6380.34
     ],
     "cells": [
       "D3·16",
@@ -490,11 +514,9 @@
       "D3·17",
       "D3·27",
       "D3·37",
-      "D3·47",
       "D3·18",
       "D3·28",
       "D3·38",
-      "D3·48",
       "D3·09",
       "D3·19",
       "D3·29",
@@ -507,12 +529,14 @@
       "D4·30",
       "D4·40",
       "D4·50",
+      "D4·60",
       "D4·01",
       "D4·11",
       "D4·21",
       "D4·31",
       "D4·41",
       "D4·51",
+      "D4·61",
       "C4·92",
       "D4·02",
       "D4·12",
@@ -534,7 +558,7 @@
       "D4·35"
     ],
     "ref": "D3·16",
-    "areaM2": 926785.6,
+    "areaM2": 931015.6,
     "withinRegionRef": null,
     "containsRefs": [
       "assistants-row-no-3-396",
@@ -543,12 +567,15 @@
       "assistants-row-no-6-414",
       "candidate-gate",
       "east-tower",
+      "instructors-row-no-1-394",
       "instructors-row-no-2-412",
       "intake-infirmary",
       "junior-staff-row-no-21-403",
       "junior-staff-row-no-23-409",
       "long-hall",
-      "main-mech-hangar",
+      "no-2-landing-bunker",
+      "no-3-landing-bunker",
+      "no-4-landing-bunker",
       "north-tower",
       "row-a-block-1",
       "row-a-block-4",
@@ -571,12 +598,15 @@
       "row-g-block-1",
       "row-g-block-4",
       "the-canteen-window",
+      "the-drain-head",
       "the-long-terrace-no-10-401",
       "the-long-terrace-no-12-404",
       "the-long-terrace-no-13-405",
       "the-long-terrace-no-15-410",
       "the-long-terrace-no-17-415",
       "the-long-terrace-no-8-392",
+      "the-long-terrace-no-9-400",
+      "the-muster-yard",
       "the-roadgate",
       "the-stationers-419",
       "wash-house",

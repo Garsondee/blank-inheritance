@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "school-registrar",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Registrar, Main School Complex",
   "pole": null,

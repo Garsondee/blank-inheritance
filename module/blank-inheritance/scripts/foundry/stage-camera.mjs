@@ -35,28 +35,27 @@
  * its own. It has to be replaced, not merely fitted.
  */
 
+import { coverFrame } from "../core/camera-fit.mjs";
+
 const MODULE_ID = "blank-inheritance";
 
 /** The prototype method we replaced, so unlock is exact rather than approximate. */
 let originalConstrainView = null;
 
 /**
- * The scale at which the scene rectangle covers the whole window.
+ * How much of the window, from its left edge, the GM's Scene Runner covers
+ * right now — 0 on every player's client (the runner is never mounted there)
+ * and whenever the drawer is shut.
  *
- * COVER, not contain: a letterboxed picture with two black bands is a slide,
- * and this is meant to be the room the characters are standing in. The cost is
- * that a wide image loses a little off each side, which is why the staged
- * backgrounds are authored at 2:1 — the crop lands in the margins rather than
- * through the middle of anything.
- *
- * Recomputed on every call rather than captured, so a window resize simply
- * produces the right answer next time `pan` runs (Canvas#_onResize calls
- * `pan` at board.mjs:2460, which calls this).
+ * The drawer HOST never moves; only its inner shell slides (see
+ * foundry/deck.mjs#fitDeck, which reads it the same way), so the host's
+ * right edge is where the drawer's edge is once it has finished opening —
+ * the right answer to give a camera being set at the moment it opens.
  */
-function coverScale(dimensions) {
-  const { sceneWidth, sceneHeight } = dimensions;
-  if (!(sceneWidth > 0 && sceneHeight > 0)) return 1;
-  return Math.max(window.innerWidth / sceneWidth, window.innerHeight / sceneHeight);
+function drawerInset() {
+  const host = globalThis.document?.getElementById("bi-scene-runner");
+  if (!host?.querySelector(".bi-runner-shell--open")) return 0;
+  return Math.max(0, host.getBoundingClientRect().right);
 }
 
 /** True when this scene is meant to be staged rather than played on. */
@@ -82,11 +81,33 @@ export function lockCamera() {
 
   proto._constrainView = function biStageConstrainView() {
     const d = this.dimensions;
-    const scale = coverScale(d);
-    // Dead centre of the SCENE rect, not the padded canvas rect. With
-    // padding 0 they are the same thing, but a staged scene created by hand
-    // may not have padding 0, and the picture should still be centred.
-    return { x: d.sceneX + d.sceneWidth / 2, y: d.sceneY + d.sceneHeight / 2, scale };
+    // COVER, not contain: a letterboxed picture with two black bands is a
+    // slide, and this is meant to be the room the characters are standing
+    // in. The cost is that a wide image loses a little off each side, which
+    // is why the staged backgrounds are authored at 2:1 -- the crop lands in
+    // the margins rather than through the middle of anything.
+    //
+    // Covers the part of the window the viewer can SEE: the whole window for
+    // a player, the band right of the Scene Runner for a GM who has it open
+    // (core/camera-fit.mjs#coverFrame). Centred on the SCENE rect, not the
+    // padded canvas rect -- with padding 0 they are the same thing, but a
+    // staged scene created by hand may not have padding 0, and the picture
+    // should still be centred. Recomputed on every call rather than
+    // captured, so a window resize or the drawer opening simply produces the
+    // right answer the next time `pan` runs (Canvas#_onResize calls `pan` at
+    // board.mjs:2460, which calls this; foundry/scene-runner.mjs calls
+    // refitStageCamera when the drawer opens, shuts or is dragged).
+    return (
+      coverFrame({
+        sceneX: d.sceneX,
+        sceneY: d.sceneY,
+        sceneWidth: d.sceneWidth,
+        sceneHeight: d.sceneHeight,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        leftInset: drawerInset()
+      }) ?? { x: d.sceneX + d.sceneWidth / 2, y: d.sceneY + d.sceneHeight / 2, scale: 1 }
+    );
   };
 
   // NOT ALSO CONFIG.Canvas.minZoom/maxZoom, though that is the obvious second
@@ -119,6 +140,19 @@ export function unlockCamera() {
 export function syncCameraToScene(scene = canvas?.scene) {
   if (isStagedScene(scene)) return lockCamera();
   return unlockCamera();
+}
+
+/**
+ * Re-pin a locked camera after the space beside it changed — the Scene
+ * Runner opening, shutting or being dragged wider. A plain `pan` rather than
+ * `animatePan`: the override above ignores whatever position it is asked
+ * for, so an animated pan would jump on its first frame anyway. A no-op on
+ * an ordinary (unlocked) scene, where the GM owns the camera.
+ */
+export function refitStageCamera() {
+  if (!originalConstrainView || !canvas?.ready) return false;
+  canvas.pan({});
+  return true;
 }
 
 /** Test seam: is the camera currently pinned? */

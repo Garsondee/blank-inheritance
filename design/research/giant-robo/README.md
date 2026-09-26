@@ -2,7 +2,7 @@
 
 *Written 2026-09-13. A research sweep of **Giant Robo: The Day the Earth Stood Still** (ジャイアントロボ THE ANIMATION -地球が静止する日, Yasuhiro Imagawa, seven OVA episodes, 1992–1998), gathered to feed NPC creation for this campaign. It exists because the campaign's tone is already locked to this series (see the `feedback_tone_giant_robo_not_eva` memory and `design/campaign-arc.md`), and because we need a stocked shelf of **archetypes** — not borrowed characters — before casting a full adventure's worth of NPCs.*
 
-***This is not a decision document, and none of it is lore.*** *Nothing here overrides `ideas/story/blank-inheritance-v4.md`, `ideas/story/bible/`, `design/campaign-arc.md`, `design/scale-and-chassis.md`, or any entry in `data/campaign/open-questions.json`. No character described here exists in our world. No name, faction or power written here is claimed for our setting until the user places it deliberately. A research document may name a gap; it may never fill one.*
+***This is not a decision document, and none of it is lore.*** *Nothing here overrides `ideas/story/bible/LEDGER.md`, `ideas/story/blank-inheritance-v4.md`, `ideas/story/bible/`, `design/campaign-arc.md`, or any entry in `data/campaign/open-questions.json`. No character described here exists in our world. No name, faction or power written here is claimed for our setting until the user places it deliberately. A research document may name a gap; it may never fill one.*
 
 ---
 

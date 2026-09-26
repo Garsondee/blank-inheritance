@@ -1,6 +1,6 @@
 # Epithets, Name-Calling and Named Techniques
 
-*Part of the [Giant Robo research shelf](README.md). Every significant character in the series carries a descriptive title used as their name, and the convention is inherited from wuxia via Yokoyama's *Water Margin* adaptation. This document catalogues the patterns, gives generators, and covers the named-technique convention that goes with them. **This is not a decision document**; it names nobody in our setting and does not touch `data/campaign/naming-placeholders.json`. Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
+*Part of the [Giant Robo research shelf](README.md). Every significant character in the series carries a descriptive title used as their name, and the convention is inherited from wuxia via Yokoyama's *Water Margin* adaptation. This document catalogues the patterns, gives generators, and covers the named-technique convention that goes with them. **This is not a decision document**; it names nobody in our setting and does not touch the naming placeholders in `data/campaign/open-questions.json`. Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
 
 ---
 
@@ -85,4 +85,4 @@
 
 **Related on this shelf:** [legendary-sources-china-and-japan.md](legendary-sources-china-and-japan.md), [ham-and-sincerity.md](ham-and-sincerity.md), [the-recurring-antagonist-engine.md](the-recurring-antagonist-engine.md) §5, [characters/zangetsu.md](characters/zangetsu.md), [characters/yuki-the-twilight.md](characters/yuki-the-twilight.md).
 
-**Related in this project:** `design/prose-craft-and-naming.md` §11–13, `design/japanese-narrative-conventions.md` §7, `data/campaign/naming-placeholders.json`, `design/ux-doctrine.md`.
+**Related in this project:** `design/prose-craft-and-naming.md` §11–13, `design/japanese-narrative-conventions.md` §7, `data/campaign/open-questions.json` (the naming placeholders), `design/ux-doctrine.md`.

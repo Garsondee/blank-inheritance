@@ -38,7 +38,19 @@ export const SLIVER_WIDTH_M = 6.0;
 export const BLOCKY_RECTANGULARITY = 0.85;
 export const COMPLEX_RECTANGULARITY = 0.62;
 
-export const SHAPES = ["degenerate", "sliver", "strip", "blocky", "complex", "irregular"];
+/** The isoperimetric ratio is exactly 1.0 for a true circle and falls off
+ *  fast for anything else (a square manages ~0.785). See shape.py's own
+ *  comment for the real session (hand-drawn bunkers and watchtowers) this
+ *  was measured against -- ~0.997 for this tool's own 32-point circle
+ *  draft, comfortably clear of a square's ceiling. */
+export const CIRCLE_COMPACTNESS = 0.9;
+/** A true circle's minimum-area rectangle is a square (elongation ~1.0).
+ *  Required alongside compactness, not instead of it -- an oval has fairly
+ *  high compactness too, and an oval is a strip with rounded ends, not a
+ *  circle. */
+export const CIRCLE_MAX_ELONGATION = 1.3;
+
+export const SHAPES = ["degenerate", "sliver", "strip", "blocky", "complex", "irregular", "circle"];
 
 /** Total floor area needed to carry each depth rung. Mirrors CAPACITY_FLOORS. */
 export const CAPACITY_FLOORS = [
@@ -180,11 +192,17 @@ export function minAreaRect(ring) {
 /**
  * The one headline label, most to least consequential.
  *
- * `sliver` needs BOTH narrow and long: a 5 x 5 m shed is narrow and is not a
- * wall, it is just small, and floor area already says so.
+ * `circle` is checked before everything that reads the min-area rectangle:
+ * a circle's own rectangularity (~0.785, pi/4) sits between the complex
+ * and blocky thresholds and would otherwise read as a coin-flip between
+ * the two, when it is neither. `sliver` needs BOTH narrow and long: a 5 x
+ * 5 m shed is narrow and is not a wall, it is just small, and floor area
+ * already says so.
  */
-export function classify(elongation, rectangularity, widthM) {
+export function classify(elongation, rectangularity, widthM, compactness = null) {
   if (elongation === null || !Number.isFinite(elongation) || elongation <= 0) return "degenerate";
+  if (compactness !== null && compactness >= CIRCLE_COMPACTNESS
+      && elongation <= CIRCLE_MAX_ELONGATION) return "circle";
   if (widthM < SLIVER_WIDTH_M && elongation >= STRIP_ELONGATION) return "sliver";
   if (rectangularity < COMPLEX_RECTANGULARITY) return "complex";
   if (elongation >= STRIP_ELONGATION) return "strip";
@@ -255,7 +273,7 @@ export function metrics(ring, opts = {}) {
     // Page-relative, not true north: the sheet is rotated 31 degrees and this
     // answers "does it run along the street as drawn".
     bearingDeg: round((angle * 180) / Math.PI, 1),
-    shape: classify(elongation, rectangularity, widthM),
+    shape: classify(elongation, rectangularity, widthM, compactness),
     levels: lv,
     heightM: round(h, 1),
     heightSource: src,
@@ -332,6 +350,8 @@ export function capacity(m) {
     reasons.push(`The plan fills only ${(100 * m.rectangularity).toFixed(0)}% of its own bounding rectangle -- an L, a U, a cross or a courtyard. Free interior structure; use it.`);
   } else if (shape === "blocky") {
     reasons.push(`A plain ${(100 * m.rectangularity).toFixed(0)}% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.`);
+  } else if (shape === "circle") {
+    reasons.push(`A circle, ${m.lengthM.toFixed(0)} m across: the classic footprint for a gun position, a tank, a watchtower or a rotunda. No corner or wing to lean on, so whatever makes it distinctive has to be built into the ring itself.`);
   }
 
   const roomsLine = roomsPhrase(m.rooms);

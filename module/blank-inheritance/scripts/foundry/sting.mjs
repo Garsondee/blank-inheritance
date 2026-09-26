@@ -62,13 +62,12 @@ function clockStamp() {
 
 async function buildPlate(notice) {
   const html = await foundry.applications.handlebars.renderTemplate(TEMPLATE_PATH, {
-    // Four booleans rather than a bare `kind` string -- see banner.hbs's own
+    // Three booleans rather than a bare `kind` string -- see banner.hbs's own
     // comment on why the class has to be spelled out in the template, not
     // assembled from an interpolated suffix.
     isInfo: notice.kind === "info",
     isCaution: notice.kind === "caution",
     isAlert: notice.kind === "alert",
-    isResonance: notice.kind === "resonance",
     capWord: NOTICE_CAP[notice.kind],
     text: notice.text,
     count: notice.count,

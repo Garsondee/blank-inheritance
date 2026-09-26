@@ -35,7 +35,7 @@
  * own comment for the scoping reason.
  */
 import { forkTurnSandbox } from "./engine.mjs";
-import { makeRng } from "../engine/rng.mjs";
+import { makeRng } from "../shared/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, blocksPassage, FEET_PER_SQUARE } from "./grid.mjs";
 import { splitByRelation, isHostileTo } from "./factions.mjs";
 import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet, maxLegalRangeFeet } from "./evaluate/state-value.mjs";

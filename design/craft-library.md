@@ -2,7 +2,7 @@
 
 *Written 2026-09-13. This is the index to the sixteen craft reference documents in `design/`. It exists to answer one question quickly: **I am about to write something — which documents should I read first?** Use §1 as a lookup table, not as reading material. The library covers narrative theory, game and TTRPG design, and fantasy/science-fiction writing convention, gathered because this campaign's own design was already arriving at a lot of it independently and it is worth having the theory alongside the instinct.*
 
-*Nothing in this library is a decision document. No document here overrides `ideas/story/blank-inheritance-v4.md`, the per-entity bible at `ideas/story/bible/`, `design/campaign-arc.md`, `design/scale-and-chassis.md`, or any entry in `data/campaign/open-questions.json`. Where a library document touches a live design question it names it and stops.*
+*Nothing in this library is a decision document. No document here overrides `ideas/story/blank-inheritance-v4.md`, the per-entity bible at `ideas/story/bible/`, `design/campaign-arc.md`, or any entry in `data/campaign/open-questions.json`. Where a library document touches a live design question it names it and stops.*
 
 ---
 
@@ -25,11 +25,11 @@ Find the row that matches the task. Read the **primary** documents in full befor
 | **Character creation, progression, a sheet** | `character-creation-and-progression.md` | `rpg-systems-design.md`, `induction.md` (outside this library) |
 | **Dialogue, an NPC's voice, a topic list** | `dialogue-and-character-voice.md` | `japanese-narrative-conventions.md` (register and honorifics), `prose-craft-and-naming.md` |
 | **Lore, history, an institution, a species** | `worldbuilding-craft.md` | `japanese-narrative-conventions.md`, `science-fiction-and-mecha-conventions.md`, and **always** `ideas/story/bible/` first |
-| **Anything mecha, or a Frame at scale** | `science-fiction-and-mecha-conventions.md` | `science-fiction-and-mecha-conventions.md` §11 (rendering scale in prose), `environmental-storytelling-and-place.md` §7 (theatre of the mind), `scale-and-chassis.md` (outside this library) |
+| **Anything mecha, or a Frame at scale** | `science-fiction-and-mecha-conventions.md` | `science-fiction-and-mecha-conventions.md` §11 (rendering scale in prose), `environmental-storytelling-and-place.md` §7 (theatre of the mind), `data/schema/frame.schema.json` (outside this library — the current Frame and vehicle model) |
 | **Anything set in the city, school, or era** | `japanese-narrative-conventions.md` | `worldbuilding-craft.md`, `environmental-storytelling-and-place.md` |
 | **Player-facing description read at the table** | `prose-craft-and-naming.md`, `environmental-storytelling-and-place.md` | `japanese-narrative-conventions.md` |
-| **GM-facing instructions or prep** | `prose-craft-and-naming.md` §1 (the two registers) | `ttrpg-campaign-and-session-craft.md` §7 (prep philosophy) |
-| **A name for anything** | `prose-craft-and-naming.md` §11–13 (sound, table distinctiveness, tracked placeholders) | `japanese-narrative-conventions.md` §7 (order and ownership), and check `data/campaign/naming-placeholders.json` first |
+| **GM-facing instructions or prep** | `prose-craft-and-naming.md` §1 (the two registers) | `ttrpg-campaign-and-session-craft.md` §7 (prep philosophy), `scene-writing-session-record.md` (what a full pass over two episodes actually found) |
+| **A name for anything** | `prose-craft-and-naming.md` §11–13 (sound, table distinctiveness, tracked placeholders) | `japanese-narrative-conventions.md` §7 (order and ownership), and check `data/campaign/open-questions.json` first (naming gaps live there now, merged from `naming-placeholders.json` 2026-09-19) |
 
 **If there is no time to read anything, read the twelve heuristics at the end of `pacing-and-the-responsive-campaign.md` §6.** They compress the whole library into what can be held in mind while improvising.
 
@@ -88,4 +88,4 @@ Research shelves tag their claims **[S]** source / **[R]** reading / **[U]** sug
 
 ---
 
-*Related in this project: `ideas/story/bible/README.md` (the per-entity bible discipline and its mandatory "what NOT to do" sections); `ideas/story/bible/LEDGER.md` (the append-only record of lore questions already answered — check before asking); `data/campaign/open-questions.json` (the live design questions this library may inform but never resolve); `design/ux-doctrine.md` (the lodestone for interface work); `design/design-layers.md` (build Layer 0 first, then overlay).*
+*Related in this project: `ideas/story/bible/README.md` (the per-entity bible discipline and its mandatory "what NOT to do" sections); `ideas/story/bible/LEDGER.md` (the append-only record of lore questions already answered — check before asking); `data/campaign/open-questions.json` (the live design questions this library may inform but never resolve); `design/ux-doctrine.md` (the lodestone for interface work); `design/design-layers.md` (build Layer 0 first, then overlay); `design/scene-audit.md` (turns this library into a concrete pre-signoff checklist — read it once a scene is drafted, not while writing it).*

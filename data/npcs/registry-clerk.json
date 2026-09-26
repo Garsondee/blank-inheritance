@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "registry-clerk",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Registry Clerk, The Registry",
   "pole": null,

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--school-period-two",
+  "type": "audio-soundscape",
+  "title": "S2 · School: Period Two",
+  "note": "'Field medicine, taught by the skeleton who took their blood... or civics.' Relaxed pool for variety against the other three school periods, which all lean thoughtful -- both of today's teachers are genuinely warm registers (Shucks, the Transparency Advocate). No bed, matching the others.",
+  "music": {
+    "pool": "relaxed"
+  },
+  "ambience": [],
+  "fade": 3000
+}

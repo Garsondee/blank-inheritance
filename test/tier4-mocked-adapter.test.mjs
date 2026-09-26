@@ -57,7 +57,7 @@ function loadFixtureModuleFiles() {
  * mechanics work correctly, not to re-prove the withholding gate (that has
  * its own dedicated tests further down) -- so they simulate "as if this had
  * already been promoted" in the in-memory copy handed to the mock. This never
- * touches the real files on disk; promoting Shucks/Nobu/the clerk/Session One
+ * touches the real files on disk; promoting Shucks/Nobu/the clerk/Episode One
  * for real is Ingram's own call, made through the Desk once it exists.
  */
 function loadRealCampaignModuleFiles({ promoteToSound = false } = {}) {
@@ -74,10 +74,10 @@ function loadRealCampaignModuleFiles({ promoteToSound = false } = {}) {
     if (promoteToSound) npc.authoring = { ...npc.authoring, status: "sound" };
     moduleFiles[`data/campaign/npcs/${id}.json`] = npc;
   }
-  // Session One is the only episode left in the repo -- every other drafted beat
+  // Episode One is the only episode left in the repo -- every other drafted beat
   // beyond Session 0/1 was deleted 2026-09-13. Keep this list in step with
   // REAL_EPISODE_PATHS in scripts/foundry/sync.mjs.
-  for (const name of ["episode-c1s1-mothers-maiden-name.json"]) {
+  for (const name of ["episode-c1e1-mothers-maiden-name.json"]) {
     const episode = JSON.parse(readFileSync(path.join(dataRoot, "episodes", name), "utf8"));
     if (promoteToSound) {
       episode.authoring = { ...episode.authoring, status: "sound" };
@@ -399,7 +399,7 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other three 
   }
 });
 
-test("runRealContentSync: Session One and the established NPCs sync cleanly against actual campaign data", async (t) => {
+test("runRealContentSync: Episode One and the established NPCs sync cleanly against actual campaign data", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
@@ -418,7 +418,7 @@ test("runRealContentSync: Session One and the established NPCs sync cleanly agai
     // removed at Ingram's direct instruction, unapproved and stale, along with the rest of the
     // frame-scale battle simulator it was the single source of truth for. Restore to 5 once a new,
     // approved Claimant exists and REAL_CLAIMANT_PATH is restored in sync.mjs.
-    assert.equal(report.results.length, 4, "3 npcs (Shucks Mordant, Nobu, the Intake Medicals clerk) + 1 episode (Session One is the only one left)");
+    assert.equal(report.results.length, 4, "3 npcs (Shucks Mordant, Nobu, the Intake Medicals clerk) + 1 episode (Episode One is the only one left)");
     for (const result of report.results) {
       const failed = result.checks.filter((c) => !c.pass);
       assert.deepEqual(failed, [], `expected all checks to pass for ${result.sourceId}: ${JSON.stringify(failed)}`);
@@ -441,15 +441,15 @@ test("runRealContentSync: Session One and the established NPCs sync cleanly agai
     assert.ok(clerk, "the Intake Medicals clerk's Actor must actually exist in the mock world");
     assert.equal(clerk.system.attributes.hp.value, 1, "a statblock-less NPC gets the 1-HP non-combat default, not 0");
 
-    const sessionOneId = await deriveFoundryId("episode-c1s1-mothers-maiden-name");
+    const sessionOneId = await deriveFoundryId("episode-c1e1-mothers-maiden-name");
     const sessionOneJournal = world.journal.get(sessionOneId);
-    assert.ok(sessionOneJournal, "Session One's JournalEntry must exist");
+    assert.ok(sessionOneJournal, "Episode One's JournalEntry must exist");
     // Scene count asserted against the real episode file itself rather than
-    // hardcoded: Session One's own running order keeps growing as real
+    // hardcoded: Episode One's own running order keeps growing as real
     // content gets authored (5 scenes -> 6 with Flood Tunnel -> 8 with The
     // Tram Back/The Walk Down added 2026-09-19), and this test's own job is
     // "one page per authored scene, plus the overview," not a specific count.
-    const realSceneCount = realCampaignModuleFiles["data/campaign/episodes/episode-c1s1-mothers-maiden-name.json"].scenes.length;
+    const realSceneCount = realCampaignModuleFiles["data/campaign/episodes/episode-c1e1-mothers-maiden-name.json"].scenes.length;
     assert.equal(sessionOneJournal.pages.length, 1 + realSceneCount, `1 overview page + ${realSceneCount} authored scenes`);
 
     // Real content must not touch the diagnostic path's documents or vice versa.
@@ -533,7 +533,7 @@ test("runRealContentSync: issue #168 -- real content is genuinely still drafted 
     const report = await runRealContentSync();
     assert.equal(report.fatalError, null);
 
-    const npcResults = report.results.filter((r) => r.sourceId !== "episode-c1s1-mothers-maiden-name");
+    const npcResults = report.results.filter((r) => r.sourceId !== "episode-c1e1-mothers-maiden-name");
     assert.equal(npcResults.length, 3, "Shucks Mordant, Nobu, and the Intake Medicals clerk");
     for (const result of npcResults) {
       assert.equal(result.withheld, true, `expected ${result.sourceId} to be withheld -- it is still "drafted"`);
@@ -546,7 +546,7 @@ test("runRealContentSync: issue #168 -- real content is genuinely still drafted 
     // #168's design choice: a scene is the Desk's real grading unit, so
     // journal.mjs withholds page-by-page instead -- see
     // test/tier1-generators.test.mjs's own withheld-content tests for that).
-    const episodeResult = report.results.find((r) => r.sourceId === "episode-c1s1-mothers-maiden-name");
+    const episodeResult = report.results.find((r) => r.sourceId === "episode-c1e1-mothers-maiden-name");
     assert.equal(episodeResult.withheld, undefined, "the episode case is not gated at this level");
     assert.equal(world.journal.size, 1, "the journal still gets created -- with withheld placeholder pages, not withheld entirely");
   } finally {

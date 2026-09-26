@@ -6,39 +6,314 @@
   "$defs": {
     "authoring": {
       "type": "object",
-      "$comment": "OWNER: foundry-approvals-desk (design/approvals-desk.md, design/data-ownership.md). status/gradedAt/gradedBy/batchId may only be raised above the baseline by the Desk's own promote()/cutItem() paths (#167, #171) -- every generator, authoring script and sync path must emit 'drafted' (or 'needs-lore') and otherwise leave this block alone. note/uncertainty/dependsOn are repo-authored input TO the Desk, not its output, and stay freely editable here.",
-      "required": ["status"],
+      "$comment": "OWNER: split by entity type, declared here because this block is shared. For every entity EXCEPT a scene brief the owner is foundry-approvals-desk: status/gradedAt/gradedBy/batchId may only be raised to 'sound'/'final' by the Desk's own promote()/cutItem() paths (#167, #171). For a SCENE BRIEF the owner is scene-signoff (tools/scene-signoff/seal.mjs -> core/promote.mjs's seal()), the sole legal writer of 'live' and of the `review` block, and it may only write them from a completed Sign-Off conversation (design/scene-signoff.md). Every generator, authoring script and sync path emits 'drafted' (or 'needs-lore') and otherwise leaves this block alone -- assertNotPromotedStatus() guards all four advanced values. note/uncertainty/dependsOn are repo-authored input TO a reviewer, not its output, and stay freely editable here.",
+      "required": [
+        "status"
+      ],
       "additionalProperties": false,
       "properties": {
         "status": {
-          "enum": ["needs-lore", "drafted", "sound", "final", "cut"],
+          "enum": [
+            "needs-lore",
+            "drafted",
+            "sound",
+            "final",
+            "live",
+            "cut"
+          ],
           "default": "drafted",
-          "description": "needs-lore: scoped/promoted with a note but no written content yet -- a queue pointed at Claude, not Ingram (the Desk's out-tray). drafted: written, unread -- grants nothing: not citable as canon, not syncable, not player-visible. sound: read -- the substance is right, may now be built on and cited as canon. final: read -- the words themselves are right, safe to put in front of players verbatim. cut: read and killed -- not a failure, a decision (design/approvals-desk.md §2/§6); the item stays on record rather than vanishing, same as data/audio/review.json's 'rejected'. Only the Desk's own promote()/cutItem() paths may write 'sound', 'final' or 'cut'; every other writer emits 'drafted' or 'needs-lore'."
+          "description": "needs-lore: scoped/promoted with a note but no written content yet -- a queue pointed at Claude, not Ingram (the Desk's out-tray). drafted: written, unread -- grants nothing: not citable as canon, not syncable, not player-visible. sound: read -- the substance is right, may now be built on and cited as canon. final: read -- the words themselves are right, safe to put in front of players verbatim. cut: read and killed -- not a failure, a decision (design/approvals-desk.md §2/§6); the item stays on record rather than vanishing, same as data/audio/review.json's 'rejected'. Only the Desk's own promote()/cutItem() paths may write 'sound', 'final' or 'cut'; every other writer emits 'drafted' or 'needs-lore'. live: SCENE BRIEFS ONLY -- all four Sign-Off passes cleared and Ingram sealed it; the material is ready for actual players to enjoy and the scene can be run at the table as written. The top rung, and the only status a scene brief is ever promoted to: for a runnable unit there is no useful difference between 'the substance is right' and 'the words are right', because running it needs both (design/scene-signoff.md §3)."
+        },
+        "review": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "The Sign-Off record (design/scene-signoff.md). Scene briefs only, written pass by pass as the conversation happens, which is what makes sealing enforceable by construction: seal() refuses a scene whose record does not show all four passes CLEAR. Null until the first pass runs. Lives on the entity rather than in a log file, per the Desk's own no-new-storage-bin rule.",
+          "additionalProperties": false,
+          "required": [
+            "checklistVersion",
+            "passes"
+          ],
+          "properties": {
+            "checklistVersion": {
+              "type": "integer",
+              "description": "The data/campaign/signoff-checklist.json version this scene was reviewed against. When that file's version rises, a sealed scene with a lower number is STALE against the specific checks added since, and re-clearing it is a targeted look at those alone -- not a fresh review. This field is the whole extensibility mechanism."
+            },
+            "passes": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "comprehension": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "verdict",
+                    "date"
+                  ],
+                  "properties": {
+                    "verdict": {
+                      "enum": [
+                        "CLEAR",
+                        "FIX",
+                        "STOP",
+                        "BLOCKED"
+                      ],
+                      "description": "CLEAR: nothing left worth doing in this pass. FIX: a bounded, enumerated list of changes, capped at two rounds (design/scene-signoff.md §4). STOP: a fault editing cannot repair -- the scene needs rewriting or cutting, and the Sign-Off ends. BLOCKED: waiting on Ingram to draw, place or decide something; a legitimate resting state, Place only."
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "rounds": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "How many times this pass ran. Two rounds of FIX is the cap; a third run must CLEAR."
+                    },
+                    "note": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "One line: what this pass actually changed, or why it cleared with findings outstanding."
+                    }
+                  }
+                },
+                "completeness": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "verdict",
+                    "date"
+                  ],
+                  "properties": {
+                    "verdict": {
+                      "enum": [
+                        "CLEAR",
+                        "FIX",
+                        "STOP",
+                        "BLOCKED"
+                      ],
+                      "description": "CLEAR: nothing left worth doing in this pass. FIX: a bounded, enumerated list of changes, capped at two rounds (design/scene-signoff.md §4). STOP: a fault editing cannot repair -- the scene needs rewriting or cutting, and the Sign-Off ends. BLOCKED: waiting on Ingram to draw, place or decide something; a legitimate resting state, Place only."
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "rounds": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "How many times this pass ran. Two rounds of FIX is the cap; a third run must CLEAR."
+                    },
+                    "note": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "One line: what this pass actually changed, or why it cleared with findings outstanding."
+                    }
+                  }
+                },
+                "place": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "verdict",
+                    "date"
+                  ],
+                  "properties": {
+                    "verdict": {
+                      "enum": [
+                        "CLEAR",
+                        "FIX",
+                        "STOP",
+                        "BLOCKED"
+                      ],
+                      "description": "CLEAR: nothing left worth doing in this pass. FIX: a bounded, enumerated list of changes, capped at two rounds (design/scene-signoff.md §4). STOP: a fault editing cannot repair -- the scene needs rewriting or cutting, and the Sign-Off ends. BLOCKED: waiting on Ingram to draw, place or decide something; a legitimate resting state, Place only."
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "rounds": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "How many times this pass ran. Two rounds of FIX is the cap; a third run must CLEAR."
+                    },
+                    "note": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "One line: what this pass actually changed, or why it cleared with findings outstanding."
+                    }
+                  }
+                },
+                "seam": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "verdict",
+                    "date"
+                  ],
+                  "properties": {
+                    "verdict": {
+                      "enum": [
+                        "CLEAR",
+                        "FIX",
+                        "STOP",
+                        "BLOCKED"
+                      ],
+                      "description": "CLEAR: nothing left worth doing in this pass. FIX: a bounded, enumerated list of changes, capped at two rounds (design/scene-signoff.md §4). STOP: a fault editing cannot repair -- the scene needs rewriting or cutting, and the Sign-Off ends. BLOCKED: waiting on Ingram to draw, place or decide something; a legitimate resting state, Place only."
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "rounds": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "How many times this pass ran. Two rounds of FIX is the cap; a third run must CLEAR."
+                    },
+                    "note": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "One line: what this pass actually changed, or why it cleared with findings outstanding."
+                    }
+                  }
+                },
+                "quality": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "verdict",
+                    "date"
+                  ],
+                  "properties": {
+                    "verdict": {
+                      "enum": [
+                        "CLEAR",
+                        "FIX",
+                        "STOP",
+                        "BLOCKED"
+                      ],
+                      "description": "CLEAR: nothing left worth doing in this pass. FIX: a bounded, enumerated list of changes, capped at two rounds (design/scene-signoff.md §4). STOP: a fault editing cannot repair -- the scene needs rewriting or cutting, and the Sign-Off ends. BLOCKED: waiting on Ingram to draw, place or decide something; a legitimate resting state, Place only."
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "rounds": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "How many times this pass ran. Two rounds of FIX is the cap; a third run must CLEAR."
+                    },
+                    "note": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "One line: what this pass actually changed, or why it cleared with findings outstanding."
+                    }
+                  }
+                }
+              },
+              "description": "One entry per Sign-Off pass. `seam` was added 2026-09-22 with checklist v4 -- five passes, not four. This list and core/promote.mjs's SIGNOFF_PASSES must agree, and test/tier1-signoff.test.mjs asserts they do: an omission here makes a real verdict unwritable, because additionalProperties is false and the write fails validation rather than being ignored."
+            },
+            "waived": {
+              "type": "array",
+              "description": "Required checks deliberately declined, each with its reason. A waiver is a decision on the record, not a suppression flag -- the reason is worth more to the next reader than a silent exemption (design/scene-audit.md §8's own rule).",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "check",
+                  "why"
+                ],
+                "properties": {
+                  "check": {
+                    "type": "string",
+                    "description": "Check id from signoff-checklist.json, e.g. \"M18\"."
+                  },
+                  "why": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "notApplicable": {
+              "type": "array",
+              "description": "Checks that cannot apply to this scene, each with the reason -- NOT the same thing as `waived`. A waiver says \"this applies and I am declining it\"; n/a says \"this cannot apply here\". Only the first is a decision worth seeing on a board, and conflating them was how 7 unanswerable checks on a montage had to be either invented or silently skipped (design/scene-signoff.md §4a). Most structural cases are decided once, for the whole corpus, by a check's own appliesWhenAuto; this list is for the rest.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "check",
+                  "why"
+                ],
+                "properties": {
+                  "check": {
+                    "type": "string",
+                    "description": "Check id from signoff-checklist.json."
+                  },
+                  "why": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "sessionRef": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Which Sign-Off conversation this record came out of, so a decision can be traced back to the exchange that made it."
+            }
+          }
         },
         "note": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "The rough brief this item was authored/scoped from -- e.g. a gazetteer drawing session's note. Repo-authored; corrections append, they do not overwrite."
         },
         "uncertainty": {
-          "type": ["string", "null"],
-          "description": "What Claude was unsure about when writing this -- \"I invented a surname here\", \"this assumes the ground roles survive\". design/approvals-desk.md §4: the single highest-value thing on the Desk's card, since it points straight at the part most likely to be wrong. Repo-authored; clearing it is the Desk's business, not a rule enforced here."
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "What Claude was unsure about when writing this -- \"I invented a surname here\", \"this assumes a rule nobody has confirmed\". design/approvals-desk.md §4: the single highest-value thing on the Desk's card, since it points straight at the part most likely to be wrong. Repo-authored; clearing it is the Desk's business, not a rule enforced here."
         },
         "dependsOn": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Other entities (by id, any type) this item's own soundness assumes. Lets the Desk flag a dependency that is itself still drafted (design/approvals-desk.md §4) -- a safety check, not a second ordering axis."
         },
         "gradedAt": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "date",
           "description": "When the Desk last changed `status`. Null until first graded. Desk-owned."
         },
         "gradedBy": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Who graded it. Named rather than assumed, per data-ownership.md's rule that a lifecycle field's advanced values have exactly one legal writer. Desk-owned."
         },
         "batchId": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Set when this item was cleared as part of a machine-proposed batch rather than read individually (design/approvals-desk.md §5), so a problem traced back later can see it was a sweep, not a read. Desk-owned; null for an individually-graded item."
         }
       }

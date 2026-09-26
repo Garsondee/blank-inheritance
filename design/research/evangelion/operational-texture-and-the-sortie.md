@@ -48,12 +48,11 @@
 
 ## 5. For this campaign **[U]**
 
-The Directorate is currently a faction file and three unnamed poles, and `design/strategy-layer.md` already models the campaign above the session as five tracks with Clearance rungs and an Observer's turn. Suggestions, all narrow:
+The Directorate is currently a faction file and three unnamed poles, and `design/strategy-layer.md` already models the campaign above the session as five tracks with Clearance rungs and the Watcher's turn. Suggestions, all narrow:
 
 - **Deployment should cost something stated and visible each time.** The Giant Robo shelf reaches the same conclusion from the other direction ([the inherited weapon](../giant-robo/characters/giant-robo.md) §4). Two independent sources agreeing is the strongest signal on either shelf.
 - **The invoice.** Damage caused by the party's own operations should occasionally arrive as a bill, a complaint, or a repair queue. This is the single cheapest way to make a city feel inhabited, and it is funny, which suits our register.
 - **A rival programme** competing for the same budget is a ready-made strategy-layer track. Whether the strategy layer gains one is the user's call and `design/strategy-layer.md`'s business, not this file's.
-- **A publicly-read performance number.** Our campaign has Resonance bands, which are already public-facing in a comparable way — **but see [the-machine-and-the-pilot.md](the-machine-and-the-pilot.md) §5 before drawing any line between the two systems**, because that comparison touches live open questions.
 - **The authorisation chain** belongs in the Clearance rungs that `design/strategy-layer.md` already defines. Using an existing rung as an obstacle costs no new system.
 
 ---

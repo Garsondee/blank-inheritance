@@ -15,6 +15,7 @@ import {
   canGrant,
   projectCatalogue,
   logEntries,
+  grantsForScene,
   catalogueItemToSf2eItemData
 } from "../module/blank-inheritance/scripts/core/equipment.mjs";
 
@@ -178,6 +179,30 @@ test("logEntries: resolves item names, newest first, and drops revoked rows", ()
   assert.equal(log.length, 2, "the revoked long-arm grant must not appear");
   assert.deepEqual(log.map((g) => g.itemId), ["medpatch", "sidearm"], "newest timestamp first");
   assert.equal(log[0].itemName, "Medpatch");
+});
+
+test("logEntries: tags kind:\"bonus\" grants with isBonus, and leaves an ordinary issue false", () => {
+  const grants = [
+    { userId: "u1", itemId: "sidearm", quantity: 1, unitPrice: 30, timestamp: 100, kind: "issue" },
+    { userId: "u1", itemId: "medpatch", quantity: 1, unitPrice: 30, timestamp: 200, kind: "bonus" }
+  ];
+  const log = logEntries(CATALOGUE, grants);
+  assert.equal(log.find((g) => g.itemId === "sidearm").isBonus, false);
+  assert.equal(log.find((g) => g.itemId === "medpatch").isBonus, true);
+});
+
+test("grantsForScene (#178): only grants tagged with that scene, oldest first, empty for no scene name", () => {
+  const grants = [
+    { userId: "u1", itemId: "sidearm", quantity: 1, unitPrice: 30, timestamp: 200, scene: "Kit Issue" },
+    { userId: "u2", itemId: "medpatch", quantity: 1, unitPrice: 30, timestamp: 100, scene: "Kit Issue" },
+    { userId: "u1", itemId: "long-arm", quantity: 1, unitPrice: 45, timestamp: 150, scene: "The Errand" },
+    { userId: "u1", itemId: "long-arm", quantity: 1, unitPrice: 45, timestamp: 50 } // predates the `scene` field entirely
+  ];
+  const kitIssue = grantsForScene("Kit Issue", CATALOGUE, grants);
+  assert.deepEqual(kitIssue.map((g) => g.itemId), ["medpatch", "sidearm"], "oldest first, and only this scene's own grants");
+
+  assert.deepEqual(grantsForScene(null, CATALOGUE, grants), [], "no scene name -- nothing to match, not everything");
+  assert.deepEqual(grantsForScene("A Scene Nobody Granted Anything In", CATALOGUE, grants), []);
 });
 
 test("catalogueItemToSf2eItemData: maps category to the real sf2e Item type", () => {

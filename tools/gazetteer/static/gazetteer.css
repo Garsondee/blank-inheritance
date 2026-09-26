@@ -107,6 +107,29 @@ body {
   color: var(--bi-paper);
   border-color: var(--bi-paper-ink);
 }
+
+/* Region/Site's draft-shape palette -- a secondary choice under the main
+   toolbar, smaller and dimmer at rest than a .gz-tool so it never
+   competes with which TOOL is armed, only clarifies how it draws. */
+.gz-shape-modes { display: flex; gap: 3px; margin-left: auto; }
+.gz-shape-mode {
+  font-family: var(--bi-font-condensed);
+  font-size: 11px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border: 1px solid var(--bi-paper-rule);
+  background: var(--bi-paper);
+  color: var(--bi-paper-ink-2);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.gz-shape-mode:hover { background: #f6efdd; color: var(--bi-paper-ink); }
+.gz-shape-mode.is-active {
+  background: var(--bi-paper-ink);
+  color: var(--bi-paper);
+  border-color: var(--bi-paper-ink);
+}
 .gz-btn--danger { color: var(--bi-vermilion); }
 .gz-btn--danger.is-armed {
   background: var(--bi-vermilion);

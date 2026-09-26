@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "watcher-file",
+  "type": "idea",
+  "title": "The Watcher's file: a GM-only record per PC of what the adversary has actually observed",
+  "status": "in-progress",
+  "domains": ["antagonists", "mechanics", "tooling", "technical-architecture"],
+  "summary": "One record per player character holding only what the Watcher has observed through in-fiction channels (rolled Recall Knowledge, fights it watched, in-character messages, letters, phone use, journals). It is the hard gate that keeps the Claude-played adversary fair: it may only exploit what is recorded as known. The core and schema are built; filling the records from the session harvest is not.",
+  "description": "Approved by Ingram on 2026-09-24 (LEDGER #32, N10: \"Yes.\"), after the Casebook proposed it as the first thing worth building for the Watcher, which Claude plays (LEDGER #31). It turns 'convincingly fair, not omniscient' from an aspiration into a data constraint, as the watcher-recall-knowledge-on-party idea first proposed.\n\nBuilt: data/schema/watcher-file.schema.json (the shape); module/blank-inheritance/scripts/core/watcher-file.mjs (pure logic: emptyWatcherFile, recordObservation, knows, believes, canExploit, summarise); data/watcher/README.md (the rules, and where records live); test/tier1-watcher-file.test.mjs.\n\nRules enforced in code: in-fiction sources only, with anything flagged out of character refused (nothing real about a player is ever recorded); a plain failed Recall Knowledge teaches nothing; a critical failure is recorded as a mistaken belief the Watcher will act on but can never 'exploit'; canExploit opens only for true, recorded knowledge.\n\nTwo guards, also tested: data/watcher/ is not in the campaign-data sync allow-list (it must never reach the Foundry server, where a player's browser could fetch it), and nothing in the synced data directories may say who plays the Watcher or that it reads the players' writing (the players are not told, D14).",
+  "capturedDate": "2026-09-24",
+  "lastTouchedDate": "2026-09-24",
+  "sourceContext": "The Casebook, version 2 (B3.2, N10), and Ingram's answer in LEDGER #32.",
+  "openSubQuestions": [
+    "Filling the records: which harvest feeds them first (chat-log-knowledge-base's scraped rolls, the in-universe correspondence sync, player journals, combat logs), and whether Claude writes them between sessions or the module writes them live.",
+    "How the GM sees a PC's file at the table: a panel in the Director's console, or only between sessions.",
+    "Whether a PC who deliberately feeds the Watcher false messages should be modelled as a separate 'planted' observation, so the party's counter-play is visible in the record."
+  ],
+  "relatedRefs": [
+    "ideas/story/dossier-observer.md",
+    "ideas/entries/adaptive-antagonist-combat-ai.json",
+    "ideas/entries/watcher-reads-all-comms.json",
+    "ideas/entries/watcher-recall-knowledge-on-party.json",
+    "ideas/entries/chat-log-knowledge-base.json",
+    "ideas/story/bible/LEDGER.md"
+  ]
+}

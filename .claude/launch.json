@@ -4,14 +4,42 @@
     {
       "name": "gazetteer",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["tools/gazetteer/server.py", "--no-browser"],
+      "runtimeArgs": [
+        "tools/gazetteer/server.py",
+        "--no-browser"
+      ],
       "port": 8767
     },
     {
       "name": "ui-prototypes",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["design/ui/serve.py", "4175"],
+      "runtimeArgs": [
+        "design/ui/serve.py",
+        "4175"
+      ],
       "port": 4175
+    },
+    {
+      "name": "agreement-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "tools/induction-terminal/serve.py",
+        "4191"
+      ],
+      "port": 4191,
+      "url": "http://localhost:4191"
+    },
+    {
+      "name": "foundry",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "foundryvtt/Foundry Virtual Tabletop/resources/app/main.js",
+        "--dataPath=C:/Users/HiveDisco/AppData/Local/FoundryVTT",
+        "--port=30000",
+        "--noupnp",
+        "--headless"
+      ],
+      "port": 30000
     }
   ]
 }

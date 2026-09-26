@@ -8,10 +8,16 @@ exists so that doesn't happen twice.*
 
 ## What this is, and why it's not `ideas/story/`'s own source documents
 
-`ideas/story/` holds five tier-1 source documents, and this directory expands on all of them:
+`ideas/story/` holds the tier-1 source documents, and this directory expands on all of them:
 
-- `blank-inheritance-v4.md`, `blank-inheritance-ch1-v2.md` — the compressed novel and Chapter One
-  as eight sessions. The whole campaign's shape, written once, dense.
+- `blank-inheritance-v4.md` — the older story bible, slimmed on 2026-09-25 to what exists nowhere else.
+  `LEDGER.md` #25–#36 override it wherever they disagree, and the dossiers, the master timeline and the
+  twenty-chapter outline supersede it wherever they overlap. Its chapter plan (§17, §19) was removed;
+  the few facts only it held are in its "Kept from removed sections" list.
+- `blank-inheritance-ch1-v2.md` — Chapter One. Only its method, premise, texture, mystery plants and
+  Episode One survive; its other drafted episodes were deleted on 2026-09-13.
+- `blank-inheritance-twenty-chapters.md` — the current campaign outline, twenty Chapters in five Books.
+  A flexible draft.
 - `blank-inheritance-master-timeline.md` — everything that happened before Day 1, in order. Added
   2026-09-09.
 - `dossier-observer.md`, `dossier-cicada.md`, `dossier-first-impact.md`, `dossier-shinobu.md` — the
@@ -23,10 +29,12 @@ exists so that doesn't happen twice.*
   founders, what the Watcher and the Frames actually are, and this world's loose relationship to
   Golarion. `dossier-shinobu.md` (added 2026-09-10) is a sympathetic witness NPC, not an antagonist,
   but her material was dossier-length rather than a few sentences, so it lives here on the same
-  pattern. **Check these before writing anything involving the Watcher, Cicada, Manako, Nobu, Shucks
-  Mordant, the founders, or Shinobu** — they're already more complete than a bible/ entry would be for
-  the same subject, which is why none of these get a duplicate file in `bible/`; this directory's job
-  for them is cross-referencing and flagging contradictions, not re-summarizing.
+  pattern. `dossier-the-directorate.md` (2026-09-13) and `dossier-second-generation-frames.md`
+  (2026-09-19) joined the family later. **Check these before writing anything involving the Watcher,
+  Cicada, Manako, Nobu, Shucks Mordant, the founders, or Shinobu** — they're more complete than a
+  bible/ entry would be for the same subject. Several of these people have since been given files in
+  `characters/` as well (Manako, Nobu, Shucks Mordant, Anabala, Hori), so read both; this directory's
+  job for them is cross-referencing and flagging contradictions, not re-summarizing.
 
 They're where a species, a character or a place gets its first few sentences — or, for the two
 dossiers, considerably more than a few.

@@ -2,11 +2,50 @@
   "$schema": "../schema/npc.schema.json",
   "id": "transparency-advocate",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "The Transparency Advocate",
   "pole": "radical-honesty",
   "affiliation": "directorate",
   "description": "Believes the kids should be told everything, immediately. Right in principle, destructive in practice. Exists so the players never have an obviously correct ally among the adults.",
-  "openQuestionRefs": ["third-npc-pole"],
-  "status": "placeholder — open question on whether this pole is kept, reshaped, or cut"
+  "openQuestionRefs": [
+    "third-npc-pole"
+  ],
+  "status": "placeholder — open question on whether this pole is kept, reshaped, or cut",
+  "socialProfile": {
+    "attitude": "friendly",
+    "facts": [
+      {
+        "id": "will-arm-you-against-the-institution",
+        "text": "Their job is openness and they take it literally: they will tell a trainee exactly what can and cannot be required of them, unprompted, knowing the institution would rather they did not.",
+        "revealTrigger": {
+          "narrative": "Asking them any question at all about rights, duties or standing orders."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "asked-three-times-and-was-refused",
+        "text": "They have asked three times to see the unredacted founding charter and been told each time that the original is not held here. They will say so plainly, and it is the one subject that makes them short.",
+        "revealTrigger": {
+          "skill": "diplomacy",
+          "dc": 15
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "contempt-is-the-only-thing-they-will-not-take",
+        "text": "They have endless patience for a wrong answer and none at all for somebody treating the subject as pointless. That is the one line, and crossing it is the only way to lose them.",
+        "revealTrigger": {
+          "skill": "perception",
+          "dc": 15
+        },
+        "revealed": false,
+        "revealedNote": null
+      }
+    ]
+  }
 }

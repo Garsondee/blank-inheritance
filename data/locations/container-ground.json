@@ -304,7 +304,15 @@
     "areaM2": 2516987.6,
     "withinRegionRef": null,
     "containsRefs": [
-      "deep-storage"
+      "deep-storage",
+      "no-1-yard-bunker",
+      "no-1-yard-watch",
+      "no-2-yard-bunker",
+      "no-2-yard-watch",
+      "no-3-yard-bunker",
+      "no-3-yard-watch",
+      "no-4-yard-bunker",
+      "no-5-yard-bunker"
     ],
     "neighbourRefs": [],
     "sourceSession": "session-20260911-144323",

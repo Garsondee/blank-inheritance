@@ -16,7 +16,10 @@
  */
 
 import { hubPinPlan, pinJournalPage, sceneSetPlan, validateSceneSet } from "../core/generators/scene-set.mjs";
+import { sceneCalibration } from "../core/travel-animation.mjs";
+import { campaignMapImageWidth } from "./travel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
+import { DIAGNOSTIC_NAME_PATTERN } from "../core/diagnostic-content.mjs";
 import { fetchModuleJson } from "./io.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
 
@@ -89,7 +92,10 @@ async function ensurePinJournal(plans, locations) {
   const pages = await Promise.all(
     plans.map(async (plan) => ({
       _id: await deriveFoundryId(`scene-pin-page-${plan.sourceId}`),
-      ...pinJournalPage({ name: plan.data.name, blurb: plan.blurb }, plan.locationRef ? locations.get(plan.locationRef) : null, {
+      // cleanName, never plan.data.name -- the latter now carries the GM-facing
+      // "03. " ordering prefix (sceneSetPlan's own display-prefix work), and a
+      // player-facing pin journal page must never show it.
+      ...pinJournalPage({ name: plan.cleanName, blurb: plan.blurb }, plan.locationRef ? locations.get(plan.locationRef) : null, {
         sceneId: plan.data._id
       })
     }))
@@ -182,6 +188,12 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
   for (const scene of manifest.scenes ?? []) idFor.set(scene.id, await deriveFoundryId(`scene-${scene.id}`));
   const plans = sceneSetPlan(manifest, (sourceId) => idFor.get(sourceId));
 
+  // Which REAL Foundry scene id ended up representing each manifest entry --
+  // almost always idFor's own deterministic one, except for a scene ADOPTED
+  // below (see the main loop). The hub-pin pass after the loop must use this,
+  // not idFor directly, or an adopted hub's pins would silently go nowhere.
+  const realIdFor = new Map();
+
   const journal = await ensurePinJournal(
     plans.filter((p) => p.blurb),
     locations
@@ -194,20 +206,63 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
   for (const plan of plans) {
     try {
       const folder = folders.get(plan.group);
-      const existing = game.scenes.get(plan.data._id);
-      if (existing) {
+      const byId = game.scenes.get(plan.data._id);
+      // A scene this pipeline never built (a hub map somebody drew by hand
+      // in Foundry before this scene had a sourceId flag to find it by, the
+      // real production "Campaign Map" being the known example) still counts
+      // as "the same scene" once ADOPTED once -- matched first by a sourceId
+      // flag a PRIOR adoption already stamped, or, the very first time, by
+      // the explicit adoptSceneNamed bridge (schema's own doc comment: a
+      // deliberate, authored name match, never a general heuristic). Without
+      // this, re-running against a world with a hand-built hub silently
+      // creates a SECOND, empty, duplicate scene at the deterministic id
+      // every time.
+      const bySourceId = byId ? null : game.scenes.find((s) => s.getFlag(MODULE_ID, "sourceId") === plan.sourceId);
+      const byName = byId || bySourceId || !plan.adoptSceneNamed ? null : game.scenes.getName(plan.adoptSceneNamed);
+      const adopted = bySourceId ?? byName;
+      const existing = byId ?? adopted;
+
+      if (adopted) {
+        // HANDS OFF ITS CONTENT -- plan.data is a full single-background
+        // picture-scene payload (width/height/padding/grid/environment/...)
+        // built by buildStageSceneData for a scene THIS pipeline constructs,
+        // and forcing it onto a scene a human already built (the real
+        // "Campaign Map"'s own 12400x12400, four-Tile construction, nothing
+        // like the manifest's 6200x6200 single-image assumption) would
+        // silently corrupt real production geometry. Adoption means exactly
+        // what it says -- recognise it, claim it with our own flags, and
+        // never touch what is already there.
+        //
+        // The ONE exception is the display-ordering prefix on `name` itself
+        // (sceneSetPlan's own "01. "/"02a. " work, 2026-09-18) -- a rename
+        // touches nothing about a Scene's geometry or content, so an adopted
+        // scene gets numbered into the sidebar's play order too, same as
+        // every scene this pipeline actually builds.
+        const adoptedOriginalName = adopted.name;
+        if (adoptedOriginalName !== plan.data.name) await adopted.update({ name: plan.data.name });
+        report.updated.push(plan.data.name);
+        report.adopted = [...(report.adopted ?? []), `"${plan.data.name}" is the real, existing "${adoptedOriginalName}" (${adopted.id})`];
+      } else if (byId) {
         // Update, never replace: a GM's own tokens, walls and lights live here.
-        await existing.update({ ...plan.data, folder: folder?.id ?? null });
+        // This is a scene OUR OWN pipeline built, so its content is ours to refresh.
+        const { _id, ...updateData } = plan.data;
+        await existing.update({ ...updateData, folder: folder?.id ?? null });
         report.updated.push(plan.data.name);
       } else {
         await Scene.create({ ...plan.data, folder: folder?.id ?? null, flags: flagFor({ sourceId: plan.sourceId, briefRef: plan.briefRef, locationRef: plan.locationRef, kind: plan.kind }) }, { keepId: true });
         report.created.push(plan.data.name);
       }
-      const scene = game.scenes.get(plan.data._id);
+      const scene = existing ?? game.scenes.get(plan.data._id);
+      realIdFor.set(plan.sourceId, scene.id);
       await scene.setFlag(MODULE_ID, "sourceId", plan.sourceId);
       if (plan.briefRef) await scene.setFlag(MODULE_ID, "briefRef", plan.briefRef);
       if (plan.locationRef) await scene.setFlag(MODULE_ID, "locationRef", plan.locationRef);
       await scene.setFlag(MODULE_ID, "kind", plan.kind);
+      // Distinct from sourceId, which both branches set identically: this is
+      // the one bit retireOrphanedScenes (below) needs to never delete a hand
+      // -built scene just because its manifest entry went away. "We created
+      // this, we can always recreate it" only true on the `else` branch above.
+      await scene.setFlag(MODULE_ID, "adopted", Boolean(adopted));
 
       // A scene and its soundscape are keyed by the same scene-brief id, so
       // bind them here rather than making a GM press "Bind to scene" sixteen
@@ -226,11 +281,22 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
 
   // The map's pins, last -- they reference the scenes above by id.
   for (const hub of (manifest.scenes ?? []).filter((s) => s.kind === "hub")) {
-    const scene = game.scenes.get(idFor.get(hub.id));
+    const scene = game.scenes.get(realIdFor.get(hub.id) ?? idFor.get(hub.id));
     if (!scene) continue;
     try {
+      // The hub's REAL calibration -- derived from its actual Tiles, exactly
+      // the way travel.mjs derives it for the travel marker on this same
+      // scene. NEVER the manifest's own `mapScale`/`width`/`height`: those
+      // describe how the hub was authored, not how it was actually built,
+      // and a hand-rebuilt hub (four full-resolution Tiles replacing one
+      // half-scale background, 2026-09-22) is exactly the case where they
+      // silently stopped matching reality -- found live when every pin came
+      // out roughly (sceneX, sceneY) short of where it belonged.
+      const imageWidth = await campaignMapImageWidth();
+      const calibration = sceneCalibration(scene.tiles.contents, scene.width, imageWidth ?? scene.width);
       const pins = hubPinPlan(hub, manifest, {
         locations,
+        calibration,
         journalFor: (sourceId) => ({ entryId: journal.id, pageId: pageIdFor.get(sourceId) ?? null })
       });
 
@@ -241,7 +307,10 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
         "Note",
         pins.map((pin) => ({
           ...pin.data,
-          flags: flagFor({ kind: "map-pin", sceneRef: pin.sceneRef, targetSceneId: idFor.get(pin.sceneRef) ?? null })
+          // realIdFor first: a pin targeting a scene that was ITSELF adopted
+          // must open the adopted scene's own real id, not the deterministic
+          // one nothing was ever created at.
+          flags: flagFor({ kind: "map-pin", sceneRef: pin.sceneRef, targetSceneId: realIdFor.get(pin.sceneRef) ?? idFor.get(pin.sceneRef) ?? null })
         }))
       );
       report.pins += pins.length;
@@ -252,7 +321,7 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
 
   if (activateLanding) {
     const landing = plans.find((p) => p.isLanding);
-    const scene = landing ? game.scenes.get(landing.data._id) : null;
+    const scene = landing ? game.scenes.get(realIdFor.get(landing.sourceId) ?? landing.data._id) : null;
     if (scene && !scene.active) await scene.activate();
   }
 
@@ -260,6 +329,7 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
     ui.notifications.info(
       game.i18n.format("BLANKINHERITANCE.Scenes.Built", { created: report.created.length, updated: report.updated.length, pins: report.pins })
     );
+    for (const adoption of report.adopted ?? []) ui.notifications.info(`Adopted an existing hand-built scene: ${adoption}`);
     for (const problem of report.problems) ui.notifications.warn(problem);
   }
   return report;
@@ -269,9 +339,12 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
  * Delete the scenes that were only ever scaffolding.
  *
  * Names nothing by guesswork: a scene qualifies only by carrying one of the
- * stage demo's own sourceId flags, or by being Foundry's untouched
- * new-world scene. Anything else -- including a scene a GM made themselves --
- * is left alone and reported as skipped.
+ * stage demo's own sourceId flags, by being Foundry's untouched new-world
+ * scene, or by SELF-LABELLING as scratch in its own name (see
+ * core/diagnostic-content.mjs's DIAGNOSTIC_NAME_PATTERN -- this project's own
+ * established convention, shared with scene-runner.mjs's summon list, not a
+ * heuristic invented here). Anything else -- including a scene a GM made
+ * themselves -- is left alone and reported as skipped.
  */
 export const DEMO_SOURCE_IDS = Object.freeze(["stage-demo-bar", "stage-demo-briefing", "stage-demo-command", "stage-demo-summons"]);
 const DEFAULT_WORLD_BACKGROUND = "nue/defaultscene/fvtt-background.webp";
@@ -281,6 +354,7 @@ export function isTemporaryScene(scene) {
   if (DEMO_SOURCE_IDS.includes(sourceId)) return "stage demo";
   const bg = scene?.levels?.contents?.[0]?.background?.src ?? scene?.background?.src ?? "";
   if (bg === DEFAULT_WORLD_BACKGROUND) return "Foundry's own new-world scene";
+  if (DIAGNOSTIC_NAME_PATTERN.test(scene?.name ?? "")) return "self-labelled diagnostic/test-fixture scene";
   return null;
 }
 
@@ -308,6 +382,135 @@ export async function retireTemporaryScenes({ notify = true } = {}) {
 
   if (notify) ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Scenes.Retired", { count: removed.length }));
   return { removed, kept };
+}
+
+/**
+ * Delete a scene THIS PIPELINE built whose source entry no longer exists in
+ * the current manifest -- the other half of "add or remove scenes to match
+ * the current state of the adventure" (Ingram, 2026-09-19). Proof of
+ * ownership, never a guess, same shape as retireTemporaryScenes above: a
+ * scene qualifies only if it carries our own sourceId flag (a hand-built
+ * scene has none, so it is invisible to this function by construction) AND
+ * that sourceId is no longer named anywhere in scene-set.json AND it was
+ * never merely ADOPTED (buildSceneSet's `adopted` flag) -- an adopted scene
+ * is a human's real work we only ever recognised, not something we can
+ * safely destroy just because the manifest stopped mentioning it, and not
+ * something we could recreate if the deletion turned out to be wrong. A
+ * created-and-now-orphaned scene fails neither test: we made it, we can
+ * remake it from the manifest on the next `buildSceneSet()` if a scene
+ * comes back, so deleting it is a real, recoverable "remove," not a risk.
+ */
+export async function retireOrphanedScenes({ notify = true } = {}) {
+  if (!game.user.isGM) return { removed: [], kept: [] };
+  const { manifest } = await loadSceneSet();
+  const knownSourceIds = new Set((manifest.scenes ?? []).map((s) => s.id));
+  const removed = [];
+  const kept = [];
+
+  for (const scene of [...game.scenes]) {
+    const sourceId = scene.getFlag(MODULE_ID, "sourceId");
+    if (!sourceId || knownSourceIds.has(sourceId) || scene.getFlag(MODULE_ID, "adopted")) {
+      kept.push(scene.name);
+      continue;
+    }
+    try {
+      // An active scene cannot simply vanish from under the table; move
+      // everyone somewhere real first (same rescue as retireTemporaryScenes).
+      if (scene.active) {
+        const landing = game.scenes.find((s) => s.getFlag(MODULE_ID, "kind") === "landing" && s.id !== scene.id);
+        if (landing) await landing.activate();
+      }
+      await scene.delete();
+      removed.push(`${scene.name} (source "${sourceId}" no longer in scene-set.json)`);
+    } catch (err) {
+      kept.push(`${scene.name} — could not delete: ${err.message}`);
+    }
+  }
+
+  if (notify && removed.length) {
+    ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Scenes.OrphansRetired", { count: removed.length }));
+  }
+  return { removed, kept };
+}
+
+/**
+ * A real playable scene is never this small in EITHER dimension -- even the
+ * smallest authored sub-room is thousands of pixels across. Found live
+ * 2026-09-18: three stray scenes on the real world (two named "Contact,
+ * Unclassified", one "Shucks Mordant" -- both real Claimants, so presumably
+ * one-off scenes built to eyeball that ACTOR's own token/ring in isolation)
+ * at 1x1 to 4x4. Confident enough that these are not real content to get them
+ * off the main scene list; not confident enough about WHY each one exists to
+ * delete rather than set aside.
+ */
+const TINY_SCENE_MAX_DIMENSION = 200;
+
+/**
+ * A scene this pipeline doesn't recognise (no sourceId flag matching a real
+ * manifest entry) AND isn't already caught by isTemporaryScene's own
+ * DELETE-worthy patterns, and is EITHER too small to plausibly be a real
+ * place a scene brief ever sends the table to, OR carries the exact clean
+ * name of a scene the manifest DOES define -- a duplicate left behind by an
+ * older, now-superseded way of building it. Found live 2026-09-18: a loose,
+ * unfoldered "Directorate HQ — Lobby" sitting next to the real, properly
+ * managed "02. Directorate HQ — Lobby" -- design/foundry-module-design.md
+ * §7's OLD ad-hoc landing-scene creator (issue #160, since replaced by this
+ * whole scene-set pipeline), never cleaned up after being superseded.
+ *
+ * @param {Set<string>} knownSourceIds  every scene id data/campaign/scene-set.json actually names
+ * @param {Set<string>} knownCleanNames  every scene's own unprefixed `name` in that same manifest
+ */
+export function isSuspectedStrayScene(scene, knownSourceIds, knownCleanNames = new Set()) {
+  const sourceId = scene?.getFlag?.(MODULE_ID, "sourceId");
+  if (sourceId && knownSourceIds.has(sourceId)) return false;
+  if (isTemporaryScene(scene)) return false; // already handled, by deletion, elsewhere
+  if (knownCleanNames.has(scene?.name)) return true; // a real place's name, but not OUR copy of it
+  const w = scene?.width ?? Infinity;
+  const h = scene?.height ?? Infinity;
+  return w <= TINY_SCENE_MAX_DIMENSION && h <= TINY_SCENE_MAX_DIMENSION;
+}
+
+async function ensureQuarantineFolder() {
+  const id = await deriveFoundryId("scene-folder-diagnostics-fixtures");
+  const existing = game.folders.get(id);
+  if (existing) return existing;
+  return Folder.create(
+    { _id: id, name: "Diagnostics & Fixtures", type: "Scene", color: "#555555", flags: flagFor({ kind: "scene-folder", group: "diagnostics-fixtures" }) },
+    { keepId: true }
+  );
+}
+
+/**
+ * Set aside, never delete -- the safer half of Ingram's own "get rid of...
+ * and/or move... into a special folder" (2026-09-18). Unlike
+ * retireTemporaryScenes, which only ever acts on scenes this project can
+ * name with certainty, this is the catch-all for something that LOOKS like
+ * scratch but was never confidently identified -- moved where it stops
+ * cluttering the real session folders, kept in case whoever made it still
+ * needs it.
+ */
+export async function quarantineStrayScenes({ notify = true } = {}) {
+  if (!game.user.isGM) return { moved: [], kept: [] };
+  const { manifest } = await loadSceneSet();
+  const knownSourceIds = new Set((manifest.scenes ?? []).map((s) => s.id));
+  const knownCleanNames = new Set((manifest.scenes ?? []).map((s) => s.name).filter(Boolean));
+  const folder = await ensureQuarantineFolder();
+  const moved = [];
+  const kept = [];
+
+  for (const scene of [...game.scenes]) {
+    if (!isSuspectedStrayScene(scene, knownSourceIds, knownCleanNames)) { kept.push(scene.name); continue; }
+    if (scene.folder?.id === folder.id) { kept.push(scene.name); continue; } // already quarantined
+    try {
+      await scene.update({ folder: folder.id });
+      moved.push(scene.name);
+    } catch (err) {
+      kept.push(`${scene.name} — could not move: ${err.message}`);
+    }
+  }
+
+  if (notify) ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Scenes.Quarantined", { count: moved.length }));
+  return { moved, kept };
 }
 
 /** A macro, so building the set is a click rather than a console incantation. */

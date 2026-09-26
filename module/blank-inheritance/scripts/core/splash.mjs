@@ -40,10 +40,10 @@ import { STING_TIERS } from "./sting.mjs";
  * as a data-driven field only once this table has grown enough that hand-
  * editing it feels like the wrong home for the decision, not before.
  *
- * Deliberately does NOT pre-add a `resonance`/`claimant` entry: no faction
- * file with that id exists in data/factions/ yet, so nothing can legitimately
- * set `faction: "resonance"` on a cast member today. Add the line the day
- * that stops being true.
+ * Deliberately does NOT pre-add a `claimant` entry: no faction file with
+ * that id exists in data/factions/ yet, so nothing can legitimately set
+ * `faction: "claimant"` on a cast member today. Add the line the day that
+ * stops being true.
  */
 export const FACTION_ACCENTS = Object.freeze({
   directorate: "--bi-vermilion"

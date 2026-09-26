@@ -2,7 +2,9 @@
  * Tests for `lookahead-v1` (design doc §60, GH issue #1) — the first real search-based decision
  * policy in this project, registered through `ai-common/`'s policy registry rather than modifying
  * `decide()` itself (see the policy's own header for why). Real concerns:
- * (1) it's a real, registered, adapter-agnostic policy — works on both engines;
+ * (1) it's a real, registered policy, built adapter-agnostic (still true of the mechanism even
+ *     though the frame-scale adapter this used to also verify it against was deleted 2026-09-19 —
+ *     unapproved, stale content, per Ingram's direct instruction);
  * (2) it never returns an illegal action, and never returns null while a real legal one exists,
  *     even under a degenerate budget;
  * (3) `topK` genuinely prunes — a smaller topK means fewer candidates get a full 2-ply score;
@@ -16,7 +18,6 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { decideWithPolicy, listPolicyIds } from "../../tools/battle-simulator/ai-common/engine-adapter.mjs";
 import { PERSONNEL_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/personnel-adapter.mjs";
-import { FRAME_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/frame-adapter.mjs";
 import "../../tools/battle-simulator/ai-common/policies/greedy.mjs";
 import "../../tools/battle-simulator/ai-common/policies/lookahead.mjs";
 
@@ -70,30 +71,6 @@ test("lookahead-v1: topK genuinely prunes — a smaller topK still returns a rea
   const decision = decideWithPolicy("lookahead-v1", PERSONNEL_ADAPTER, state, "lunar17", turn, { topK: 1 });
   assert.ok(decision, "expected a real decision with topK:1");
   assert.match(decision.reason, /top 1\//, `expected the reason to report topK:1 was respected, got: "${decision.reason}"`);
-});
-
-test("lookahead-v1: works identically (adapter-agnostic) on FRAME_ADAPTER too — returns a real, legal Frame-scale decision", () => {
-  const me = {
-    id: "me", name: "Me", side: "party", size: "huge", currentHP: 100, maxHP: 100,
-    speed: 300, strikes: [{ name: "Fist", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
-    position: { col: 0, row: 0 }
-  };
-  const enemy = {
-    id: "enemy", name: "Enemy", side: "opposition", size: "huge", currentHP: 100, maxHP: 100,
-    speed: 0, strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
-    position: { col: 0, row: 1 }
-  };
-  const state = {
-    round: 1, seed: 7, gridSize: { cols: 44, rows: 44 },
-    combatants: new Map([["me", me], ["enemy", enemy]]),
-    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]]),
-    reactionAvailable: new Map([["me", true], ["enemy", true]])
-  };
-  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 300 } };
-  const decision = decideWithPolicy("lookahead-v1", FRAME_ADAPTER, state, "me", turn, {});
-  assert.ok(decision, "expected a real decision from Frame-scale too");
-  const sandbox = FRAME_ADAPTER.forkTurnSandbox({ state, turn });
-  assert.equal(sandbox.apply("me", decision).legal, true);
 });
 
 // --- THE REAL TRAP (design doc §60) — empirically found, not hand-derived, before being written

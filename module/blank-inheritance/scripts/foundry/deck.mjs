@@ -14,26 +14,82 @@
  *      a hand moving across thirty keys never costs thirty Handlebars renders.
  */
 
-import { arcPath, dialPoint, deckFit, lampRow, loreDisplayName, pageOf, selectorState, splitChecks, variantShort } from "../core/deck-layout.mjs";
+import {
+  arcPath,
+  arcPathUnder,
+  askTheTable,
+  dialPoint,
+  deckFit,
+  lampPositions,
+  lampRow,
+  loreDisplayName,
+  pageOf,
+  selectorState,
+  splitChecks,
+  variantShort
+} from "../core/deck-layout.mjs";
 import { valueToDeg, vuFace } from "../core/vu-meter.mjs";
 import { ORB_ROLL_HOLD_MS, orbMode, rollFromMessage, rollSummary } from "../core/orb-readout.mjs";
-import { ACTION_GLYPHS, DETENT_RADIUS, ORB_BEZEL, ORB_ENGRAVING, ORB_FACE, ORB_FACE_TYPE, QUARTER_GLYPHS } from "../core/orb-geometry.mjs";
+import {
+  ACTION_GLYPHS,
+  DETENT_RADIUS,
+  ORB_ANNUNCIATORS,
+  ORB_BEZEL,
+  ORB_ENGRAVING,
+  ORB_ENGRAVING_UNDER,
+  ORB_FACE,
+  ORB_FACE_TYPE,
+  QUARTER_GLYPHS
+} from "../core/orb-geometry.mjs";
 import { quarterAt, quarterIndex, ringSlices, ringState } from "../core/day-ring.mjs";
-import { sessionProgress, sessionWindow } from "../core/session-clock.mjs";
+import { actionListFor, actionRows } from "../core/deck-actions.mjs";
+import { initiativeKeyState, pageForIndex, turnCaptionName, turnKeyState } from "../core/deck-combat.mjs";
+import { buildTurnOrder } from "../core/cast.mjs";
+import { buildCheckGroups, FALLBACK_SKILL_SLUGS, SAVE_SLUGS } from "../core/skills.mjs";
 import { formatLogEntriesForDisplay } from "../core/phone.mjs";
 import { sheetOverview, sheetSkillGroups, sheetStrikes } from "./sheet-data.mjs";
-import { tableSeesResults } from "./rolls.mjs";
+import { actionRegistryFor, initiativeMod, tableSeesResults } from "./rolls.mjs";
 import { currentMoment, segmentContext } from "./campaign-state.mjs";
 import { castForScene } from "./cast.mjs";
-import { currentEntries } from "./session-log.mjs";
+import { currentEntries, localClock } from "./session-log.mjs";
+import { directorState } from "./audio-director.mjs";
+
+const MODULE_ID = "blank-inheritance";
 
 /* ---------------------------------------------------------------------- */
 /*  Module faces                                                           */
 /* ---------------------------------------------------------------------- */
 
-/** Both key banks, the defences and the lores, cut once per render. */
-export function deckChecksFor(actor) {
-  return splitChecks(actor ? sheetSkillGroups(actor) : []);
+/**
+ * Both key banks, the defences and the lores, cut once per render.
+ *
+ * `ask` is the Director's seat with nothing selected: the same keys in the
+ * same places, asking the table instead of rolling (core/deck-layout.mjs#
+ * askTheTable). A player's deck never asks — with no character it has
+ * nothing to roll and says so.
+ */
+export function deckChecksFor(actor, { ask = false } = {}) {
+  if (actor) return splitChecks(sheetSkillGroups(actor));
+  if (!ask) return splitChecks([]);
+  const groups = buildCheckGroups({
+    skills: FALLBACK_SKILL_SLUGS.map((slug) => ({ slug })),
+    saves: SAVE_SLUGS.map((slug) => ({ slug })),
+    hasPerception: true
+  });
+  return { ...splitChecks(askTheTable(groups)), lores: [] };
+}
+
+/** Focus, and the dying/wounded track — read the same way sheet-data reads everything else. */
+function vitalsFor(actor) {
+  const sys = actor?.system ?? {};
+  const dying = sys.attributes?.dying ?? null;
+  const wounded = sys.attributes?.wounded ?? null;
+  const focus = sys.resources?.focus ?? null;
+  return {
+    dying: { value: Number(dying?.value ?? 0), max: Number(dying?.max ?? 4) || 4 },
+    wounded: Number(wounded?.value ?? 0),
+    focus: focus && Number(focus.max) > 0 ? { value: Number(focus.value ?? 0), max: Number(focus.max) } : null
+  };
 }
 
 export function deckIdentFor(actor) {
@@ -41,9 +97,11 @@ export function deckIdentFor(actor) {
   const overview = sheetOverview(actor);
   const { identity, defenses, resources, conditions } = overview;
   const hero = resources.find((r) => r.id === "hero-points");
+  const vitals = vitalsFor(actor);
   const level = identity.level != null ? game.i18n.format("BLANKINHERITANCE.Deck.LevelN", { level: identity.level }) : null;
   const kind = [identity.ancestryName, identity.className].filter(Boolean).join(" ");
   const otherSpeeds = defenses.speed.otherSpeeds.map((s) => `${s.label} ${s.value}`).join(" · ");
+  const perception = actor.system?.perception;
   return {
     name: identity.name,
     img: identity.img,
@@ -52,10 +110,35 @@ export function deckIdentFor(actor) {
     acBreakdown: defenses.ac.breakdown,
     speed: defenses.speed.value,
     speedSub: otherSpeeds || game.i18n.localize("BLANKINHERITANCE.Deck.LandSpeed"),
+    perceptionDc: Number.isFinite(perception?.dc) ? perception.dc : null,
     hero: hero ? lampRow(hero.value, hero.max) : [],
     heroLabel: hero ? `${hero.value}/${hero.max}` : "—",
-    conditions: conditions.slice(0, 3),
-    moreConditions: Math.max(0, conditions.length - 3)
+    focus: vitals.focus ? lampRow(vitals.focus.value, vitals.focus.max) : [],
+    focusLabel: vitals.focus ? `${vitals.focus.value}/${vitals.focus.max}` : null,
+    wounded: vitals.wounded,
+    conditions: conditions.slice(0, 4),
+    moreConditions: Math.max(0, conditions.length - 4),
+    // Whether the Spells pill has anything to open to. Every PC carries an
+    // empty Rituals entry (project_v2_console), so a bare entry count lies.
+    hasSpells: (actor.spellcasting?.contents ?? []).some((entry) => (entry.spells?.size ?? entry.spells?.contents?.length ?? 0) > 0)
+  };
+}
+
+/**
+ * The live encounter as the flank keys and the board need it — read once.
+ * `isMyTurn` means the current combatant is one this user owns, which is
+ * exactly Foundry's own test for whether they may end the turn.
+ */
+function combatFacts(actor) {
+  const combat = game.combat ?? null;
+  const combatant = actor ? combat?.combatants?.find((c) => c.actor?.id === actor.id) ?? null : null;
+  return {
+    combat,
+    hasCombat: !!combat,
+    started: !!combat?.started,
+    isMyTurn: !!combat?.started && !!combat?.combatant?.isOwner && !game.user?.isGM,
+    rolled: Number.isFinite(combatant?.initiative),
+    inCombat: !!combatant
   };
 }
 
@@ -85,6 +168,19 @@ export function resetActionPips(actor) {
   if (actor) actionPips.delete(actionKey(actor));
 }
 
+/** The current combatant's name if THIS viewer may know it, else null (core/deck-combat.mjs#turnCaptionName). */
+function turnNameForViewer(combat) {
+  const current = combat?.started ? combat.combatant : null;
+  return turnCaptionName({
+    isGM: !!game.user?.isGM,
+    started: !!current,
+    name: current?.name ?? null,
+    hidden: !!current?.hidden,
+    playersCanSeeName: typeof current?.playersCanSeeName === "boolean" ? current.playersCanSeeName : null,
+    hasPlayerOwner: !!current?.actor?.hasPlayerOwner
+  });
+}
+
 function glyphPoint(midDeg) {
   // Bezel arcs are cut at size 98 and drawn offset by 1, so their centre is
   // the 100-unit viewBox centre; glyphs are placed about that same centre.
@@ -94,7 +190,7 @@ function glyphPoint(midDeg) {
 
 function bezelFor(actor, { mode, canAdvance }) {
   const geometry = { size: ORB_BEZEL.size, thickness: ORB_BEZEL.thickness, gapDeg: ORB_BEZEL.gapDeg };
-  const common = { offset: ORB_BEZEL.offset, glyphSize: ORB_BEZEL.glyphSize };
+  const common = { offset: ORB_BEZEL.offset, glyphSize: ORB_BEZEL.glyphSize, glyphBackingRadius: ORB_BEZEL.glyphBackingRadius };
 
   if (mode !== "theatre") {
     const spent = actionPipsFor(actor);
@@ -128,7 +224,14 @@ function bezelFor(actor, { mode, canAdvance }) {
             };
           })
         : [],
-      caption: game.i18n.format("BLANKINHERITANCE.Deck.RoundN", { round: game.combat?.round ?? 0 })
+      // Whose turn it is, engraved beside the round: the one fact every seat
+      // at the table wants at the top of the instrument in a fight. Law 11:
+      // a player's collar never names a hidden combatant, or one whose name
+      // the table has not been shown (sf2e's own playersCanSeeName).
+      caption: [
+        game.i18n.format("BLANKINHERITANCE.Deck.RoundN", { round: game.combat?.round ?? 0 }),
+        turnNameForViewer(game.combat)
+      ].filter(Boolean).join(" · ")
     };
   }
 
@@ -171,7 +274,7 @@ function bezelFor(actor, { mode, canAdvance }) {
  * ones (ux-doctrine Law 1). The idle readout is the subject; hover and roll
  * readouts are painted client-side over it (see paintOrbWindow).
  */
-export function deckOrbFor(actor, { mode, canAdvance = false, checks }) {
+export function deckOrbFor(actor, { mode, seat = "player", canAdvance = false, checks }) {
   const overview = actor ? sheetOverview(actor) : null;
   const hp = overview?.hp ?? { value: 0, max: 1, temp: 0, tier: "down" };
   const max = Math.max(1, hp.max);
@@ -182,38 +285,113 @@ export function deckOrbFor(actor, { mode, canAdvance = false, checks }) {
   const from = needleMemory.has(key) ? needleMemory.get(key) : rest;
   needleMemory.set(key, to);
 
+  // The idle sub-line says what is WRONG before it says what is ordinary:
+  // conditions first, because a GM glancing at the dial mid-fight needs
+  // "Frightened 2, Off-Guard" far more than the class name.
+  const conditionText = (overview?.conditions ?? [])
+    .slice(0, 3)
+    .map((c) => (c.value ? `${c.label} ${c.value}` : c.label))
+    .join(", ");
+  const moreConditions = Math.max(0, (overview?.conditions?.length ?? 0) - 3);
+  const asking = !overview && seat === "director";
   const idle = overview
     ? {
         title: overview.identity.name,
         value: `${hp.value}/${hp.max}${hp.temp ? ` +${hp.temp}` : ""}`,
-        sub: [
-          `${game.i18n.localize("BLANKINHERITANCE.Deck.AC")} ${overview.defenses.ac.value}`,
-          overview.identity.className,
-          overview.identity.level != null ? game.i18n.format("BLANKINHERITANCE.Deck.LevelN", { level: overview.identity.level }) : null
-        ].filter(Boolean).join(" · "),
+        sub: conditionText
+          ? `${conditionText}${moreConditions ? ` +${moreConditions}` : ""}`
+          : [overview.identity.className, overview.identity.level != null ? game.i18n.format("BLANKINHERITANCE.Deck.LevelN", { level: overview.identity.level }) : null].filter(Boolean).join(" · "),
         tone: hp.tier === "critical" || hp.tier === "down" ? "bad" : "neutral"
       }
     : {
-        title: game.i18n.localize(canAdvance ? "BLANKINHERITANCE.Deck.NoSubject" : "BLANKINHERITANCE.Deck.NoCharacter"),
+        title: game.i18n.localize(asking ? "BLANKINHERITANCE.Deck.AskTheTable" : "BLANKINHERITANCE.Deck.NoCharacter"),
         value: "—",
-        sub: "",
+        sub: asking ? game.i18n.localize("BLANKINHERITANCE.Deck.AskTheTableSub") : "",
         tone: "neutral"
       };
   readout.idle = idle;
 
+  // Annunciators printed on the face: hero points left, the dying track
+  // right. A creature that has no hero points (an NPC) keeps the printed
+  // legend with no lamps — the panel does not change shape per token.
+  const vitals = vitalsFor(actor);
+  const heroPoints = actor?.system?.resources?.heroPoints ?? null;
+  const A = ORB_ANNUNCIATORS;
+  const annunciators = {
+    labelY: A.labelY,
+    labelSize: A.labelSize,
+    lampRadius: A.lampRadius,
+    hero: {
+      x: A.heroX,
+      label: game.i18n.localize("BLANKINHERITANCE.Deck.Hero"),
+      lamps: heroPoints ? lampPositions(heroPoints.value, heroPoints.max, { centreX: A.heroX, y: A.lampY, pitch: A.lampPitch }) : []
+    },
+    dying: {
+      x: A.dyingX,
+      label: vitals.wounded
+        ? game.i18n.format("BLANKINHERITANCE.Deck.DyingWounded", { wounded: vitals.wounded })
+        : game.i18n.localize("BLANKINHERITANCE.Deck.Dying"),
+      active: vitals.dying.value > 0,
+      lamps: actor ? lampPositions(vitals.dying.value, vitals.dying.max, { centreX: A.dyingX, y: A.lampY, pitch: A.lampPitch }) : []
+    }
+  };
+
+  const facts = combatFacts(actor);
+  const initiative = initiativeKeyState({ hasSubject: !!actor, hasCombat: facts.hasCombat, rolled: facts.rolled, mod: initiativeMod(actor) });
+  const turn = turnKeyState({
+    seat,
+    hasCombat: facts.hasCombat,
+    started: facts.started,
+    isMyTurn: facts.isMyTurn,
+    hasSelection: (canvas?.tokens?.controlled?.length ?? 0) > 0
+  });
+  const initiativeLabel = game.i18n.localize("BLANKINHERITANCE.Deck.Initiative");
+  const initiativeShort = game.i18n.localize("BLANKINHERITANCE.Deck.InitShort");
+
+  const under = overview
+    ? [
+        `${game.i18n.localize("BLANKINHERITANCE.Deck.AC")} ${overview.defenses.ac.value}`,
+        `${overview.defenses.speed.value} ${game.i18n.localize("BLANKINHERITANCE.Deck.Feet")}`,
+        overview.identity.level != null ? game.i18n.format("BLANKINHERITANCE.Deck.LevelN", { level: overview.identity.level }) : null
+      ].filter(Boolean).join("  ·  ")
+    : "";
+
   return {
     subject: overview ? { id: actor.id, name: overview.identity.name } : null,
+    asking,
     hp,
     face,
     type: ORB_FACE_TYPE,
     gaugeLabel: game.i18n.localize("BLANKINHERITANCE.Deck.HP"),
     needle: { from, to },
     readout: idle,
+    annunciators,
     flanks: { left: checks.left.defences, right: checks.right.defences },
+    keys: {
+      initiative: {
+        ...initiative,
+        label: initiativeShort,
+        previewTitle: initiativeLabel,
+        previewValue: initiative.modLabel || "—",
+        previewSub: game.i18n.localize(
+          !facts.hasCombat ? "BLANKINHERITANCE.Deck.NoEncounter" : initiative.rolled ? "BLANKINHERITANCE.Deck.AlreadyRolled" : "BLANKINHERITANCE.Deck.RollIntoFight"
+        )
+      },
+      turn: {
+        ...turn,
+        label: game.i18n.localize(turn.labelKey),
+        previewTitle: game.i18n.localize(turn.labelKey),
+        previewValue: facts.started ? game.i18n.format("BLANKINHERITANCE.Deck.RoundN", { round: game.combat?.round ?? 0 }) : "—",
+        previewSub: game.i18n.localize(turn.hintKey)
+      }
+    },
     bezel: bezelFor(actor, { mode, canAdvance }),
     engraving: {
       arc: arcPath(ORB_ENGRAVING.radius, ORB_ENGRAVING.fromDeg, ORB_ENGRAVING.toDeg),
-      size: ORB_ENGRAVING.size
+      size: ORB_ENGRAVING.size,
+      underArc: arcPathUnder(ORB_ENGRAVING_UNDER.radius, ORB_ENGRAVING_UNDER.spanDeg),
+      underSize: ORB_ENGRAVING_UNDER.size,
+      under
     }
   };
 }
@@ -246,6 +424,30 @@ export async function deckSelectorsFor(actor, { mode, indices, checks }) {
     sub: selectedLore?.rankLabel ?? ""
   };
 
+  // The Action knob (2026-09-23): sf2e's own basic and skill actions, one
+  // fixed list per mode (core/deck-actions.mjs), each key carrying the real
+  // modifier sf2e's own preview computes for this creature.
+  const listed = actionListFor(mode);
+  const rows = actor ? actionRows(mode, actionRegistryFor(actor, listed.map((a) => a.slug))) : [];
+  const actionKey = mode === "theatre" ? "actionTheatre" : "actionFight";
+  const actionState = selectorState(rows, indices[actionKey] ?? 0);
+  indices[actionKey] = actionState.index;
+  const chosen = actionState.selected;
+  const action = {
+    count: actionState.count,
+    frame: actionState.frame,
+    positions: detentPoints(actionState),
+    selector: actionKey,
+    slug: chosen?.slug ?? null,
+    variant: chosen?.variant ?? null,
+    name: chosen?.short ?? game.i18n.localize("BLANKINHERITANCE.Deck.NoActions"),
+    title: chosen?.label ?? game.i18n.localize("BLANKINHERITANCE.Deck.Action"),
+    glyph: chosen?.glyph ?? "",
+    value: chosen?.modLabel ?? "",
+    sub: [chosen?.glyph, chosen?.stat].filter(Boolean).join(" "),
+    rolls: !!chosen?.rolls
+  };
+
   if (mode !== "theatre") {
     const strikeState = selectorState(actor ? sheetStrikes(actor) : [], indices.strike ?? 0);
     indices.strike = strikeState.index;
@@ -254,6 +456,7 @@ export async function deckSelectorsFor(actor, { mode, indices, checks }) {
     return {
       variant: "strikes",
       lore,
+      action,
       strike: {
         count: strikeState.count,
         frame: strikeState.frame,
@@ -262,6 +465,7 @@ export async function deckSelectorsFor(actor, { mode, indices, checks }) {
         value: variants[0]?.short ?? "",
         sub: (selected?.traits ?? []).join(", "),
         actionIndex: selected?.actionIndex ?? 0,
+        has: !!selected,
         variants
       }
     };
@@ -275,6 +479,7 @@ export async function deckSelectorsFor(actor, { mode, indices, checks }) {
   return {
     variant: "downtime",
     lore,
+    action,
     downtime: {
       count: offerState.count,
       frame: offerState.frame,
@@ -290,7 +495,8 @@ export async function deckSelectorsFor(actor, { mode, indices, checks }) {
   };
 }
 
-export const CAST_ROWS_PER_PAGE = 5;
+/** Six since the 2026-09-23 widening (the shoulder's grille became its header). */
+export const CAST_ROWS_PER_PAGE = 6;
 
 /** Full keys, not a template string, so the localisation lint can see all four. */
 const DISPOSITION_KEYS = Object.freeze({
@@ -300,12 +506,58 @@ const DISPOSITION_KEYS = Object.freeze({
   friendly: "BLANKINHERITANCE.Deck.Disposition.friendly"
 });
 
-export function deckCastFor(page = 0) {
-  const { rows, summary } = castForScene();
-  const paged = pageOf(rows, page, CAST_ROWS_PER_PAGE);
+/**
+ * The Director's left shoulder. Out of a fight, everyone in the scene
+ * (core/cast.mjs#buildCast's stable order). In one, the turn order
+ * (buildTurnOrder) — and the board FOLLOWS the turn: whenever the turn moves,
+ * the page jumps to whoever now has it, so the GM never pages to find the
+ * current combatant. A manual page holds until the turn next moves.
+ *
+ * `memory` is the bar's own `{ page, turnKey }`, written back.
+ */
+export function deckCastFor(memory = { page: 0, turnKey: null }) {
+  const combat = game.combat;
+  const fighting = !!combat?.started && (combat.scene?.id ?? canvas?.scene?.id) === canvas?.scene?.id;
+  let rows;
+  let summaryText;
+  if (fighting) {
+    const turns = combat.turns ?? [];
+    rows = buildTurnOrder(
+      turns.map((c) => ({
+        id: c.token?.id ?? c.tokenId ?? null,
+        actorId: c.actor?.id ?? null,
+        combatantId: c.id,
+        name: c.token?.name ?? c.name ?? c.actor?.name ?? null,
+        isPC: c.actor?.hasPlayerOwner ?? false,
+        hidden: c.hidden ?? false,
+        selected: !!canvas?.tokens?.get(c.token?.id ?? c.tokenId)?.controlled,
+        disposition: c.token?.disposition ?? 0,
+        hasActor: !!c.actor,
+        hp: c.actor?.system?.attributes?.hp ?? null,
+        initiative: c.initiative,
+        defeated: c.isDefeated ?? c.defeated ?? false
+      })),
+      combat.turn ?? -1
+    );
+    const turnKey = `${combat.id}:${combat.round}:${combat.turn}`;
+    if (turnKey !== memory.turnKey) {
+      memory.turnKey = turnKey;
+      const follow = pageForIndex(combat.turn ?? -1, CAST_ROWS_PER_PAGE);
+      if (follow >= 0) memory.page = follow;
+    }
+    summaryText = game.i18n.format("BLANKINHERITANCE.Deck.TurnOrder", { round: combat.round ?? 0, count: rows.length });
+  } else {
+    const cast = castForScene();
+    rows = cast.rows;
+    memory.turnKey = null;
+    summaryText = game.i18n.format("BLANKINHERITANCE.Console.Cast.Summary", { players: cast.summary.players, others: cast.summary.others });
+  }
+  const paged = pageOf(rows, memory.page ?? 0, CAST_ROWS_PER_PAGE);
+  memory.page = paged.page;
   return {
     ...paged,
-    summaryText: game.i18n.format("BLANKINHERITANCE.Console.Cast.Summary", { players: summary.players, others: summary.others }),
+    fighting,
+    summaryText,
     slots: paged.slots.map((row) => row && {
       ...row,
       dispositionLabel: game.i18n.localize(DISPOSITION_KEYS[row.disposition] ?? DISPOSITION_KEYS.neutral)
@@ -313,20 +565,36 @@ export function deckCastFor(page = 0) {
   };
 }
 
+/** How many log lines the Director's right shoulder shows — the newest first. */
+export const LOG_LINES_ON_DECK = 6;
+
+/**
+ * `audio`/`staged` are the Deck's own read of what Sound Desk and the Stage
+ * are doing right now — Ingram, 2026-09-18: the Deck should be the one true
+ * control surface, not blind to what its sibling panels are up to. Both are
+ * plain reads of state those panels already own (directorState() off
+ * audio-director.mjs, the current scene's own "stage" flag) — this never
+ * decides anything new, only surfaces it, same as every other deck zone.
+ *
+ * 2026-09-23: the session clock that used to sit in this shoulder's header
+ * moved up to the session rail across the top of the screen
+ * (foundry/session-rail.mjs), which has the whole width to draw the evening
+ * on. The room it freed went to the log itself — six lines, each with the
+ * time it was written, instead of two.
+ */
 export function deckDirectorFor() {
-  const now = new Date();
-  const progress = sessionProgress(now, sessionWindow());
-  const pct = (n) => Math.round(n * 1000) / 10;
+  const audio = directorState();
+  const all = currentEntries();
+  // Local wall-clock time, not formatLogEntriesForDisplay's own `time`: that
+  // slices the stored ISO string, which is UTC (session-log.mjs#localClock).
   return {
-    entries: formatLogEntriesForDisplay(currentEntries()).slice(0, 2),
-    session: {
-      phase: progress.phase,
-      label: progress.label,
-      clock: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      startPct: pct(progress.sessionStartFrac),
-      spanPct: pct(progress.sessionEndFrac - progress.sessionStartFrac),
-      nowPct: pct(progress.windowFrac)
-    }
+    entries: formatLogEntriesForDisplay(all).slice(0, LOG_LINES_ON_DECK).map((e) => ({ ...e, time: localClock(e.at) })),
+    total: all.length,
+    audio: {
+      nowPlaying: audio.music[0]?.name ?? audio.ambience[0]?.name ?? null,
+      inCombat: audio.inCombat
+    },
+    staged: canvas?.scene?.getFlag(MODULE_ID, "stage")?.cast?.length ?? 0
   };
 }
 
@@ -441,6 +709,33 @@ export function afterDeckRender(app, { isGM, subjectId, onStep }) {
       if (!root.matches(":hover")) readout.hover = null;
       paintOrbWindow(root);
     });
+    // Keys that visibly go down (2026-09-23, "clicky ... with hover and
+    // toggle states for when they are pressed"). :active alone lasts only
+    // as long as the button is held, which for a quick click is a frame or
+    // two — too short to see. .is-pressed holds the down state a beat past
+    // the release; .is-fired keeps a key that just rolled lit for a moment,
+    // so the hand knows which key fired. Both are pure decoration: a
+    // re-render that replaces the key simply drops them.
+    const PRESSABLE = ".bi-deck-key, .bi-deck-round, .bi-deck-map, .bi-deck-pill__cap, .bi-deck-log__more";
+    root.addEventListener("pointerdown", (event) => {
+      const key = event.target?.closest?.(PRESSABLE);
+      if (!key || key.disabled || !root.contains(key)) return;
+      key.classList.add("is-pressed");
+      const release = () => {
+        setTimeout(() => key.classList.remove("is-pressed"), 110);
+        window.removeEventListener("pointerup", release);
+        window.removeEventListener("pointercancel", release);
+      };
+      window.addEventListener("pointerup", release);
+      window.addEventListener("pointercancel", release);
+    });
+    root.addEventListener("click", (event) => {
+      const key = event.target?.closest?.(".bi-deck-key, .bi-deck-round, .bi-deck-map");
+      if (!key || key.disabled || !root.contains(key)) return;
+      for (const lit of root.querySelectorAll(".is-fired")) lit.classList.remove("is-fired");
+      key.classList.add("is-fired");
+      setTimeout(() => key.classList.remove("is-fired"), 1400);
+    });
     // A knob steps on the wheel, like a real detented encoder. passive: false
     // because stepping a knob must not also zoom the canvas underneath it.
     root.addEventListener("wheel", (event) => {
@@ -516,7 +811,10 @@ export function fitDeck() {
   const style = document.body.style;
   const root = document.getElementById("bi-command-bar");
   if (!root?.classList.contains("bi-deck")) {
-    for (const prop of ["--bi-deck-scale", "--bi-deck-left", "--bi-bar-height", "--bi-orb-center"]) style.removeProperty(prop);
+    for (const prop of [
+      "--bi-deck-scale", "--bi-deck-left", "--bi-bar-height", "--bi-orb-center",
+      "--bi-hotbar-left-w", "--bi-hotbar-right-w"
+    ]) style.removeProperty(prop);
     return null;
   }
   escapeHotbarFromUiMiddle();
@@ -543,6 +841,16 @@ export function fitDeck() {
   // centreline — foundry/deck.mjs's one other consumer of the panel's real
   // on-screen geometry (the hotbar rampart, bi-foundry-bridge.css).
   style.setProperty("--bi-orb-center", `${fit.left + fit.width / 2}px`);
+  // The rampart's own end clusters, Foundry's #hotbar-controls-left (mute,
+  // menu) and #hotbar-controls-right (page nav, lock, clear) — measured
+  // rather than assumed equal, because they are not (2 icons vs 4). The gap
+  // that splits the ten macro slots only lands on --bi-orb-center if
+  // bi-foundry-bridge.css's #hotbar transform corrects for this real
+  // difference (found live 2026-09-17, against the real server).
+  const leftControls = document.getElementById("hotbar-controls-left")?.getBoundingClientRect().width ?? 0;
+  const rightControls = document.getElementById("hotbar-controls-right")?.getBoundingClientRect().width ?? 0;
+  style.setProperty("--bi-hotbar-left-w", `${leftControls}px`);
+  style.setProperty("--bi-hotbar-right-w", `${rightControls}px`);
   return fit;
 }
 

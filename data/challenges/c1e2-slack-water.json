@@ -1,0 +1,103 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-slack-water",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Slack Water",
+  "description": "Three checks on a sea wall at low tide. The work itself, the thing under the growth, and an inspection whose outcome was mostly decided when the party chose where to start. Nothing here can hurt anybody -- the worst available outcome is a wall that will need doing again in spring, and an afternoon of being correctly told so.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "the-work",
+      "name": "Scrape, mix, paint, haul",
+      "skillOptions": [
+        "athletics",
+        "crafting",
+        "survival",
+        "acrobatics"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. Whichever skill fits the job a player picked up -- the job leads, the skill follows",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "They find a rhythm that works and the others fall into it. Treat the party as having covered noticeably more wall than six people should have managed, and give the inspection one more thing to find nothing wrong with.",
+        "success": "Hard, cold, satisfying work, properly done as far as it goes.",
+        "failure": "It costs effort and dignity and nothing else -- a tin goes over, a brush snaps, somebody ends up in the mud to the knee. They lose a little ground against the tide.",
+        "criticalFailure": "As failure, and it is funny, and it happens in front of everybody. No injury, no lasting cost. Somebody is wearing the paint."
+      },
+      "bySkill": {
+        "athletics": "Brute reach and endurance -- the high stretches and the heavy barrow work, and staying upright on weed.",
+        "crafting": "Mixing the paint correctly for a wet surface and knowing what a properly prepared course looks like before it is painted.",
+        "survival": "Reading the water. A character working Survival can call how long is actually left better than the tide table does.",
+        "acrobatics": "Working the awkward low sections on slick footing, and rigging a line so somebody else can."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "the-stencil",
+      "name": "What is under the growth",
+      "skillOptions": [
+        "perception",
+        "crafting",
+        "occultism"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15 -- offered to whoever works or examines the stretch past the old scraping, not a specialist's roll",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "The cicada, and the thing that makes it strange: it is on the wall itself, under growth that has been there for months, and the paint is not degraded the way months of immersion would degrade it.",
+        "success": "Under the weed, at head height, a stencilled cicada in deep violet. The same shade and the same hand as the one in the city.",
+        "failure": "Weed, barnacle, and old paint in three colours.",
+        "criticalFailure": "Weed, barnacle, old paint, and a cut hand from a barnacle edge. Minor, and treated on the spot by whoever has the kit."
+      },
+      "bySkill": {
+        "perception": "Spotting it at all, under growth, in bad light, on a wall nobody is looking at.",
+        "crafting": "The paint read: how it was applied, that it was stencilled rather than drawn, and -- on a critical success -- that it has not been down there as long as what is growing over it.",
+        "occultism": "The same unbroken working stroke as the city marks, drawn in one motion. Whoever does this is placing something, not signing it."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "the-inspection",
+      "name": "Stand through the inspection",
+      "skillOptions": [
+        "diplomacy",
+        "crafting",
+        "performance"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15, and largely decorative -- the inspection outcome is set by the party choice of where to start, not by this roll. This decides how well they hold the room while he does it. One step easier when they went bottom-first, because they are standing on correct work and know it",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "They answer him in his own terms -- weeps, courses, what fails by spring -- and he has to accept it from them. He recasts it as expected and leaves early.",
+        "success": "They hold their ground and answer straight. Whatever he finds or fails to find, they do not give him anything extra.",
+        "failure": "Somebody gives him an opening: an excuse, an argument he can be correct about, or a defence of the visible work over the real work. He takes it, at length.",
+        "criticalFailure": "As failure, and he adds a second inspection to the fortnight. Tedium, never danger -- that is the ceiling on everything he can do."
+      },
+      "bySkill": {
+        "diplomacy": "Straight answers and no excuses. He cannot do much with somebody who simply agrees that a thing is not finished.",
+        "society": "Knowing which standing order he is about to quote, and quoting it first.",
+        "crafting": "Talking about the wall as a job rather than as a punishment -- the one register in which he briefly forgets to be aggrieved."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "The whole section -- this challenge is deliberately not splittable"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--slack-water",
+    "c1e2-as-discussed"
+  ],
+  "notes": "NOTHING HERE CAN INJURE ANYBODY. The worst outcomes available are a cut hand, ruined clothes, a wall that needs redoing in spring, and one extra inspection. That ceiling is deliberate and matches the Section Officer's hard limit: he can cost them tedium, never danger.\n\nTHE INSPECTION IS NOT THE DECIDER. Where they chose to start is. Do not let a good roll on the-inspection rescue top-first work, and do not let a bad one spoil bottom-first work -- it changes how the conversation goes, not what he finds. Decisions made hours earlier mattering more than a roll made now is the intended lesson.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give. For any invented plan of attack on the wall, the only question that matters is whether the bottom course ends up clean before the water returns."
+}

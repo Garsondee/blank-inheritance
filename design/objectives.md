@@ -66,7 +66,7 @@ social store all already use — a player's client must never hold another playe
 anything a client holds is one devtools panel away from being read.
 
 **Personal objectives are what make the intake questionnaire pay off.** Every answer to bible §20's
-eight questions is an Anchor, a side plot seed or a vulnerability; each of those is a personal
+eight questions is a side plot seed or a vulnerability; each of those is a personal
 objective waiting to be written, and the tracker is where the player is reminded it exists.
 
 ---

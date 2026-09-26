@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--the-names-are-still-up",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "the-names-are-still-up",
+  "title": "The Names Are Still Up",
+  "summary": "Hangar Two after dark, an hour after the Deputy Director's office. The chalk board by the door still has this morning's names on it, one to a machine, and nobody has rubbed them off because nobody needs to. The episode ends here rather than in an office.",
+  "goal": "The six of them are alone together with what today was, in front of the machines it happened in, and nobody adult is present to tell them what any of it meant.",
+  "howToPlay": "Cold, quiet, and slow. Ten minutes, and it is allowed to be less.\n\n**No NPCs. Nobody walks in.** This is the only scene in two episodes with no adult in it at all, and that is the whole point -- every other room they have been in today belonged to somebody who outranked them.\n\n**Do not resolve anything.** Nothing gets explained here, least of all Shucks. The party leaves the episode holding three facts and no answers, and a GM who softens that has spent the ending.\n\nIf the table wants to sit in it, let them. If they do not, close on the read-aloud and stop -- a short quiet scene is not a failed one.",
+  "runsAbout": "10 minutes, and less is fine",
+  "mode": "social",
+  "intro": {
+    "where": "Hangar Two, after dark. The overheads are off and the work lights at the far end are on, which is how a hangar is left rather than how it is lit.",
+    "firstThing": "The cold, and the noise a building this size makes when it is empty -- metal letting go of the day's heat, somewhere above you.",
+    "readAloud": "Hangar Two at night is colder than outside and much louder than you would expect. Somewhere up in the roof the metal is letting go of the day's heat, one tick at a time.\n\nTwelve machines, mostly dark. Yours among them, exactly where it was left, with somebody's rag still over the seat.\n\nBy the door, the chalk board from this morning. Six names, one to a machine. Nobody has rubbed them off.",
+    "landmark": "the door end, which is where they came in and the one part of the hangar still lit once the far lights go off",
+    "holdInReserve": "The rag over the seat of one machine is a crew's rag, not a pilot's, and it was put there after the machine came back. Give this to anybody looking at the machines rather than at the board.",
+    "carriesIn": [
+      {
+        "when": "The Hammer was played (it was, an hour ago)",
+        "then": "They are carrying exactly three things and no explanation for any of them: the machines are confirmed to them, they are on the response roster from tomorrow, and Shucks Mordant walked into the Deputy Director's office without an appointment and was heard. Do not restate these -- let a player be the one to say one out loud."
+      },
+      {
+        "when": "Anybody's machine took real damage at the harbour",
+        "then": "It is here, and it is worse in the dark than it looked in daylight. A crew has already started on it, which means somebody worked late on their account without being asked."
+      }
+    ]
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "the-board-by-the-door",
+      "kind": "reveal",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The chalk from this morning is still up, and this morning was before any of it.",
+      "direction": "Show them the board rather than describing it, then stop talking.\n\nFill the six name cells in with the party's own names as they are written up -- the handout is left blank because the six real PCs do not exist yet.\n\nThe names were chalked at seven for a routine familiarisation. Everything since happened after that. Nobody needs to point that out and the GM least of all.",
+      "note": "HOW TO PLAY IT. Reveal it, then count to five before filling the silence.\n\nTHE SECOND LINE IS THE PLANT AND IT IS NOT EXPLAINED. \"Same six. Tomorrow.\" in a different hand, pressed harder. Nobody identifies the writing and no roll here can. See `arc-the-countersignature`.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): Rand chalked it, Shucks's detached right hand, in Shucks's old handwriting. It pressed hard because it is a hand on its own, putting its whole weight into the chalk.\n\nIf somebody rubs their own name off, or writes something on it, let them and do not interpret it.",
+      "handoutRef": "hangar-two-chalk-board"
+    },
+    {
+      "id": "three-things-and-no-answers",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Whatever gets said about today gets said here, by them, with nobody senior in the building.",
+      "direction": "Do not prompt with questions. If the table talks, follow it. If nobody starts, give them one concrete thing to react to -- the rag over the seat, the cold, the crew still working at the far end -- and wait again.\n\n**Every adult in this episode has told them what today meant.** The Section Officer told them it was an assessment, the Comms Officer told them to stay clear, the Deputy Director told them they were wrong and that he was glad they were alive. This is the first room where nobody is doing that.",
+      "note": "HOW TO PLAY IT. The three things they are carrying are: the machines are theirs, they are on the response roster from tomorrow, and nobody explained Shucks. Let a player raise one. Do not list them.\n\nWHAT IT DOES NOT MEAN: nothing here is a decision point and nothing is being asked of them. A party that says almost nothing has played this correctly.\n\nGM-ONLY: whatever Shucks said stays unresolved past the end of the episode -- see the `arc-what-shucks-said` Node before improvising anything into it."
+    },
+    {
+      "id": "go-and-look-at-it",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Anybody who wants to go and stand in front of their own machine can.",
+      "when": {
+        "condition": "if a player goes to their machine rather than staying by the door"
+      },
+      "direction": "No roll. Describe it at rest, at night, at close range, and include one thing that was not there this morning: paint off an edge, a crew's chalk mark on a panel, a replaced bolt brighter than the ones around it.\n\nIt was a converted digger this morning. It is the same machine and it is not.",
+      "note": "HOW TO PLAY IT. This is the beat that makes the machines theirs, and it is optional because a player who does not care about that should not be made to perform it.\n\nPLANT. The crew have been working on it without being asked and without being thanked. Their crew chief is not here and did not wait to be seen doing it."
+    },
+    {
+      "id": "lights-out",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The work lights at the far end go off, which is somebody's way of saying the hangar is closed.",
+      "readAloud": "Down at the far end the work lights go out, one bank at a time, and whoever did it does not call out to you.\n\nThe chalk board by the door is the last thing you can still read.",
+      "direction": "End there. Do not add a line after it and do not give the party a summary of their own day.\n\nIf anybody asks what happens tomorrow, the honest answer is that they are on the response roster and nobody knows.",
+      "note": "HOW TO PLAY IT. This is the last beat of the episode. Stop on the chalk board.\n\nWHAT IT DOES NOT MEAN: no cliffhanger is being engineered. Tomorrow is genuinely unwritten and the party simply goes to bed."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [
+    {
+      "id": "hangar-two-chalk-board",
+      "title": "Hangar Two -- the chalk board by the door",
+      "journalRef": null,
+      "pageName": null,
+      "body": "<p><strong>HANGAR TWO &mdash; DAILY ALLOCATION</strong></p>\n<p><em>(chalk, this morning's hand, neat)</em></p>\n<table><tbody>\n<tr><td>&mdash;</td><td>excavator, manipulator fit</td></tr>\n<tr><td>&mdash;</td><td>excavator, manipulator fit</td></tr>\n<tr><td>&mdash;</td><td>crane rig</td></tr>\n<tr><td>&mdash;</td><td>army truck, markings painted over</td></tr>\n<tr><td>&mdash;</td><td>army truck, markings painted over</td></tr>\n<tr><td>&mdash;</td><td>&mdash;</td></tr>\n</tbody></table>\n<p><em>(lower down, different chalk, a different hand, pressed harder)</em></p>\n<p>Same six. Tomorrow.</p>"
+    }
+  ],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The work lights go off and the chalk board is the last thing readable.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Move this if they used the room. It is the only space in two episodes with no adult in it, and what they do with an empty hangar and no supervision is theirs."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "End of Episode Two. They are on the response roster from tomorrow and nothing else has been decided.",
+      "scatterRisk": false
+    },
+    "onwards": "End of Episode Two. Whatever Shucks said is unresolved and stays unresolved.",
+    "writeDown": [
+      "Anything a player said here with nobody senior listening. It is the most honest material the episode produces.",
+      "Whether anybody rubbed a name off the board, or added to it.",
+      "Who went and stood in front of their own machine, and who stayed by the door.",
+      "That they are on the response roster from tomorrow, and that nobody has explained Shucks."
+    ]
+  },
+  "carryForward": [
+    "The party is on the response roster from tomorrow, which means the next thing of this kind is theirs by order rather than by disobedience.",
+    "Shucks Mordant has standing near the top of this building and no explanation for it.",
+    "Somebody has chalked their six names up again under tomorrow's date, in a hand none of them recognise."
+  ],
+  "temptations": [
+    {
+      "id": "the-second-line-of-chalk",
+      "text": "There is more on the board than there was this morning."
+    },
+    {
+      "id": "say-it-out-loud",
+      "text": "Nobody senior is in the building, and there is a great deal that nobody has said."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "no-adults",
+      "text": "Whether a room with no NPC in it landed as a relief after a day of rooms that all belonged to somebody else.",
+      "scaleNote": "0 = felt like an empty scene, 10 = the absence was the content."
+    },
+    {
+      "id": "the-chalk-board",
+      "text": "The names still being up from seven this morning -- whether the table clocked how long ago that was."
+    },
+    {
+      "id": "unresolved-shucks",
+      "text": "Whether ending on three facts and no answers felt deliberate rather than unfinished."
+    },
+    {
+      "id": "the-machines-at-night",
+      "text": "Whether anybody went and stood in front of their own machine, and what they did there."
+    }
+  ],
+  "notes": "WHY THIS SCENE EXISTS. Episode Two previously ended on \"That is all. Thank you.\" -- in a superior officer's room, with the party dismissed. Every scene in the episode takes place somewhere that belongs to somebody who outranks them, and the episode closed the same way. This is the one room that does not, and it is the last one.\n\nNO NPCS, DELIBERATELY. The `cast` array is empty and that is the design rather than an omission. Nobody walks in. The crew at the far end are heard and never seen, and the person who kills the lights does not speak. An audit flagging the missing cast should read this note and stop.\n\nNOTHING IS RESOLVED AND NOTHING IS A CHECK. There is no challenge file for this scene and there should not be one. The party leaves holding three facts -- the machines are theirs, they are on the response roster, nobody explained Shucks -- and no answers to any of them.\n\nTHE SECOND LINE OF CHALK IS A PLANT AND IT IS NOT EXPLAINED. Their six names again, under tomorrow's date, in an unfamiliar hand. It is the same hand as the countersignature (see `arc-the-countersignature`) and nothing at the table confirms that. Do not have anybody identify it.\n\nIT IS ALLOWED TO BE SHORT. A table that says nothing has played this correctly. Close on the read-aloud and stop."
+}

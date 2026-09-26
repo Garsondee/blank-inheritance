@@ -10,11 +10,11 @@
  * creative work with Ingram, never to be filled in to look complete —
  * these are simulator ingredients, not a proposal for who they are.
  *
- * Combat fields (strikes, inventory) are deliberately NOT derived: per
- * data/campaign/ground-roles.json, a kid "never touches combat math
- * directly," so modeling Strike bonuses/damage here would be real effort
- * spent on a mechanic this campaign has already ruled these characters
- * don't use.
+ * Combat fields (strikes, inventory) are deliberately NOT derived: these
+ * fixtures were built for the ground roles (cut 2026-09-20), where a kid
+ * "never touches combat math directly," and today they only verify the
+ * derivation engine. A combat-capable pregen is build-combat-pregen.mjs's
+ * job.
  */
 import {
   deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows,
@@ -79,7 +79,6 @@ export function buildKidFixture(ingredients, fixture) {
     armorClass,
     speed: { land: ingredients.speed },
     heroPoints: 1,
-    groundRoleHistory: [],
     framePilotedRef: fixture.framePilotedRef ?? null,
     status: "Synthetic — battle-simulator test fixture only.",
     notes: `Reflavoured from the SF2E Player Core "Adventure Pregens" compendium (gamesystems/sf2e/packs/paizo-pregens), extracted via tools/pack-extractor and re-derived from first principles via tools/character-builder/derive.mjs. Computed HP was cross-checked against the pregen's own official total as a correctness check (see test/battle-simulator/kid-fixtures.test.mjs) before this file was written.`

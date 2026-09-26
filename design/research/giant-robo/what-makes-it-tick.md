@@ -10,7 +10,7 @@
 
 **[R]** This is the inversion that makes the series work, and it is worth stating plainly because it is the opposite of the usual arrangement. Normally the hero is the exception and the world is ordinary. Here the world is the exception and the hero is ordinary, which makes his ordinariness the scarce and interesting thing in the room. He is the only person present who can be hurt by a rifle, the only one who has to be protected, and therefore the only one whose survival generates tension. It also means his moral position is the one the audience can occupy: when he refuses an order or asks whether the cost was worth it, he is not arguing from strength.
 
-**[U]** This is structurally close to what our campaign already has — level-1 kids standing next to level-12 Frames — which is the hardest problem `design/scale-and-chassis.md` exists to solve. The reading to take from Giant Robo is not mechanical. It is that **the ordinary character must be allowed to be the moral centre because they are weak, not in spite of it**, and that the powerful characters should visibly arrange themselves around protecting them. Do not let the strong characters treat the weak one as luggage; let them treat him as the reason.
+**[U]** The reading to take from Giant Robo is not mechanical. It is that **the ordinary character must be allowed to be the moral centre because they are weak, not in spite of it**, and that the powerful characters should visibly arrange themselves around protecting them. Do not let the strong characters treat the weak one as luggage; let them treat him as the reason.
 
 ## 2. The giant robot is not the protagonist and barely fights
 
@@ -104,4 +104,4 @@
 
 **Related on this shelf:** [ham-and-sincerity.md](ham-and-sincerity.md), [the-recurring-antagonist-engine.md](the-recurring-antagonist-engine.md), [the-buried-atrocity.md](the-buried-atrocity.md), [series-shape-and-unmade-arcs.md](series-shape-and-unmade-arcs.md).
 
-**Related in this project:** `design/campaign-arc.md`, `design/visual-identity.md`, `design/science-fiction-and-mecha-conventions.md`, `design/scale-and-chassis.md`, `design/pacing-and-the-responsive-campaign.md`.
+**Related in this project:** `design/campaign-arc.md`, `design/visual-identity.md`, `design/science-fiction-and-mecha-conventions.md`, `design/pacing-and-the-responsive-campaign.md`.

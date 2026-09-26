@@ -6,7 +6,7 @@
  * field breaks at round 2"). Whether and when the Interdiction Field
  * actually collapses is now a real result of this roll, not a given.
  *
- * DELIBERATELY SEPARATE from engine/ (design/scale-and-chassis.md §2: "a
+ * DELIBERATELY SEPARATE from engine/ (the retired two-scale design (deleted 2026-09-25) §2: "a
  * personnel-scale number never appears on the same side of a comparison
  * as a Frame-scale number"). This module only ever compares a kid's
  * modifier against a personnel-scale DC (15, or 16 for the hazard) — it
@@ -19,8 +19,8 @@
  * rollFormula, basicSaveDamage) — those are generic dice math, not
  * Frame-scale rules, so sharing them isn't a scale-separation violation.
  */
-import { rollD20, rollFormula } from "../engine/rng.mjs";
-import { degreeOfSuccess, basicSaveDamage } from "../engine/resolve.mjs";
+import { rollD20, rollFormula } from "../shared/rng.mjs";
+import { degreeOfSuccess, basicSaveDamage } from "../shared/resolve.mjs";
 
 const OBSTACLES = {
   spot: { id: "spot", poolRef: "field-integrity", skillOptions: ["perception", "crafting", "occultism", "arcana", "society"], dc: 15 },

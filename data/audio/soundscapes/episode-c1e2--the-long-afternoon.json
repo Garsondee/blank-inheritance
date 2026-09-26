@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-long-afternoon",
+  "type": "audio-soundscape",
+  "title": "S2 · The Long Afternoon",
+  "note": "'The party splits and each player takes a short spotlight somewhere of their own choosing.' Same reasoning as The Road In: a scene that crosses several different places in one sitting gets no shared ambience bed, because no single bed could be honest about all of them. Relaxed pool for the free-quarter energy.",
+  "music": {
+    "pool": "relaxed"
+  },
+  "ambience": [],
+  "fade": 3000
+}

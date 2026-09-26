@@ -1,0 +1,235 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-establishment-offices",
+  "type": "location",
+  "tier": "site",
+  "name": "The Establishment Offices",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "island-centre",
+    "directorate",
+    "records"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21509808,
+          34.65856306
+        ],
+        [
+          135.21565003,
+          34.6587806
+        ],
+        [
+          135.21563161,
+          34.65881157
+        ],
+        [
+          135.21571757,
+          34.65884501
+        ],
+        [
+          135.21572629,
+          34.65883238
+        ],
+        [
+          135.21584469,
+          34.65887931
+        ],
+        [
+          135.21610754,
+          34.65842972
+        ],
+        [
+          135.21621483,
+          34.65824653
+        ],
+        [
+          135.21595732,
+          34.65814498
+        ],
+        [
+          135.2158637,
+          34.65830475
+        ],
+        [
+          135.21584449,
+          34.65829737
+        ],
+        [
+          135.21574023,
+          34.65847595
+        ],
+        [
+          135.21552672,
+          34.65839166
+        ],
+        [
+          135.2155216,
+          34.65840044
+        ],
+        [
+          135.21548711,
+          34.65838586
+        ],
+        [
+          135.21550117,
+          34.65836121
+        ],
+        [
+          135.21554517,
+          34.65837847
+        ],
+        [
+          135.21573319,
+          34.65805646
+        ],
+        [
+          135.21545742,
+          34.65794707
+        ],
+        [
+          135.21509808,
+          34.65856306
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8093,
+          7586.4
+        ],
+        [
+          8124.3,
+          7539.9
+        ],
+        [
+          8121.1,
+          7537.8
+        ],
+        [
+          8126,
+          7530.6
+        ],
+        [
+          8127.4,
+          7531.4
+        ],
+        [
+          8134.1,
+          7521.4
+        ],
+        [
+          8180.2,
+          7552.1
+        ],
+        [
+          8199,
+          7564.6
+        ],
+        [
+          8184.4,
+          7586.3
+        ],
+        [
+          8168,
+          7575.4
+        ],
+        [
+          8166.9,
+          7577
+        ],
+        [
+          8148.6,
+          7564.8
+        ],
+        [
+          8136.5,
+          7582.8
+        ],
+        [
+          8135.6,
+          7582.2
+        ],
+        [
+          8133.7,
+          7585.2
+        ],
+        [
+          8136.2,
+          7586.9
+        ],
+        [
+          8138.7,
+          7583.2
+        ],
+        [
+          8171.7,
+          7605.2
+        ],
+        [
+          8156.1,
+          7628.5
+        ],
+        [
+          8093,
+          7586.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      8143.11,
+      7573.29
+    ],
+    "cells": [
+      "D4·96",
+      "D4·97"
+    ],
+    "ref": "D4·96",
+    "areaM2": 4970.4,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-557",
+    "promotedDate": "2026-09-22"
+  },
+  "authoring": {
+    "note": "Admin Block",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Five storeys and 24,852 m2 of paper, 138 m from the Administrative Block and subordinate to it in every way that matters. Establishment means the list of who exists: every candidate, every posting, every screening result, filed by somebody who has never met any of them.\n\nPromoted at `sketch` depth on 2026-09-22 with no scene attached yet. It exists because the campaign is about an institution that reads your file, and the file has to be somewhere.",
+    "playerFacing": "A building with more windows than doors. Trolleys in the corridors, and a smell of dry paper that gets into your clothes if you are in it for more than an hour.",
+    "gmOnly": "NOT YET CAST IN ANY SCENE. Do not build a beat here without raising it first -- see design/approvals-desk.md's rule that content enters review only when a scheduled scene casts it. It is here so that 'where is my file?' has an answer when somebody finally asks."
+  },
+  "scene": {
+    "hooks": [
+      "Somebody's file is in this building, and getting at it is a real problem with a real address."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "registry-clerk"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

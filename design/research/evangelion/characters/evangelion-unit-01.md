@@ -43,7 +43,7 @@
 
 **Worth taking:** the stated technical rule that is a cover story; the constraint that turns out to be a control measure; the machine that is described in two registers; a victory that frightens the people who won it.
 
-**Worth avoiding:** **the loss-of-control mechanics, imported wholesale.** Our campaign already has a comparable system, and [the-machine-and-the-pilot.md](../the-machine-and-the-pilot.md) §5 is the standing warning: `design/resonance-and-bleed.md` and the open questions in `data/campaign/open-questions.json` govern that ground, and this shelf does not touch them.
+**Worth avoiding:** **the loss-of-control mechanics, imported wholesale.** Our campaign cut its own loss-of-control systems (Bleed and berserk) on 2026-09-20 and has no berserk anywhere (LEDGER #31), so there is nothing here to import. The machine–pilot ground belongs to `data/campaign/open-questions.json` (see `#mother-in-gen2`), and this shelf does not touch it.
 
 **Where it might attach:** our Frames are PCs with their own character sheets, not NPC equipment, so the archetype does not transfer to them directly. **Where it could live is the legacy hangar** (`data/hangar/legacy-units.json`, currently empty) — a machine from the previous programme that the institution describes in language the party will eventually discover is false. Whether anything goes in that file is the user's call.
 

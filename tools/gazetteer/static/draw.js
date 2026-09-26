@@ -73,6 +73,24 @@ export function createDrawController(opts) {
   const shapes = new Map();     // localId -> { item, layer }
   let tool = "pan";
   let drafting = null;          // { points: [[x,y]], line, poly }
+  // Region and Site only -- how a click-drag on the map turns into a ring.
+  // "polygon" is the original click-to-add-a-point session (startDraft /
+  // redrawDraft / finishDraft, unchanged below); "rect" and "circle" are
+  // each a single mousedown-drag-mouseup gesture (see the mousedown
+  // handler's own branch for them) that never touches `drafting` at all.
+  // A deliberate global preference, not reset when the tool changes, so
+  // drawing "lots of buildings" in a row -- asked for directly, after
+  // hand-clicking a circle's worth of points one at a time turned out to
+  // be exactly the tedious, error-prone workflow that led to losing a
+  // whole batch of them -- never means re-picking Circle before every
+  // single one.
+  let draftShapeMode = "polygon";
+  //: How many points approximate a hand-drawn circle -- enough to look
+  //: genuinely round at any zoom this map is worked at, few enough that
+  //: editing one afterward (dragging a single vertex, per the now-fixed
+  //: hole/weld/snap machinery) is still picking one point out of a
+  //: reasonable ring, not one out of hundreds.
+  const CIRCLE_DRAFT_POINTS = 32;
   // Selection is a SET, not a single id, so a marquee or a lasso can put
   // many items in the batch panel at once. Every call site that only ever
   // wanted one item still gets that via selected() below; nothing about the
@@ -230,10 +248,57 @@ export function createDrawController(opts) {
     return welded;
   }
 
+  //: 22.5 degrees in radians -- the increment every segment AFTER the
+  //: first snaps its ANGLE to. Relative to the first segment's own angle,
+  //: not absolute compass directions: a building whose front wall runs at
+  //: whatever odd angle the road outside it does still gets clean 90/45
+  //: degree corners relative to ITS OWN first wall, which is what
+  //: "square" actually means for that building, not for the map.
+  const ANGLE_SNAP_STEP = Math.PI / 8;
+
+  // Held to place a point at its raw, un-snapped angle -- the escape
+  // hatch for the rare corner that genuinely isn't 22.5-degrees-clean.
+  // Same keydown/keyup/blur shape as snapSuspended (Alt) above on
+  // purpose: blur clears it too, so alt-tabbing away mid-draft can never
+  // leave angle-snapping stuck suspended.
+  let angleSnapSuspended = false;
+  window.addEventListener("keydown", (e) => { if (e.key === "Shift") angleSnapSuspended = true; });
+  window.addEventListener("keyup", (e) => { if (e.key === "Shift") angleSnapSuspended = false; });
+  window.addEventListener("blur", () => { angleSnapSuspended = false; });
+
+  /** Asked for directly: "the second line automatically snaps to 22.5
+   *  degree increments of the angles of the first line, making it easier
+   *  to draw buildings and do things like 90 degree corners." The FIRST
+   *  segment (drafting.points[0] -> [1]) is always placed exactly where
+   *  clicked -- there is nothing to measure an angle FROM yet -- and only
+   *  Region/Site's own polygon mode does this at all; Lasso and Bisect
+   *  draw a selection area and a cut, not a building, and keep the raw
+   *  point untouched. Only the DIRECTION from the last placed point
+   *  changes; the distance the cursor actually travelled never does. */
+  function angleSnapPoint(p) {
+    if (!drafting || drafting.points.length < 2) return p;
+    if ((tool !== "region" && tool !== "site") || draftShapeMode !== "polygon") return p;
+    if (angleSnapSuspended) return p;
+    const pts = drafting.points;
+    const baseAngle = Math.atan2(pts[1][1] - pts[0][1], pts[1][0] - pts[0][0]);
+    const last = pts[pts.length - 1];
+    const dx = p[0] - last[0], dy = p[1] - last[1];
+    const dist = Math.hypot(dx, dy);
+    if (dist < 0.5) return p; // nothing to snap the angle of yet
+    const steps = Math.round((Math.atan2(dy, dx) - baseAngle) / ANGLE_SNAP_STEP);
+    const snappedAngle = baseAngle + steps * ANGLE_SNAP_STEP;
+    return [last[0] + dist * Math.cos(snappedAngle), last[1] + dist * Math.sin(snappedAngle)];
+  }
+
   /** The snapped position for a draft click, or the raw one. Rounding happens
    *  AFTER snapping, and a snapped vertex is copied through unrounded, or
-   *  round1 would reintroduce the very sub-pixel mismatch this prevents. */
-  function placeDraftPoint(p) {
+   *  round1 would reintroduce the very sub-pixel mismatch this prevents.
+   *  Angle-snapped FIRST, then (Region only) checked against nearby
+   *  borders -- the two are complementary, not competing: angle-snap
+   *  picks the direction, the border check can still pull the exact same
+   *  point onto a neighbour's edge if it also happens to land there. */
+  function placeDraftPoint(rawP) {
+    const p = angleSnapPoint(rawP);
     if (tool !== "region" && tool !== "bisect") return [round1(p[0]), round1(p[1])];
     if (snapSuspended) return [round1(p[0]), round1(p[1])];
     const snapped = snapRegionPoint(p[0], p[1]);
@@ -242,6 +307,44 @@ export function createDrawController(opts) {
       ? "snapped to an existing corner — the border is now shared exactly"
       : "snapped onto an existing border");
     return [snapped.x, snapped.y];
+  }
+
+  /** Region/Site's OTHER two draft shapes -- a single mousedown-drag-
+   *  mouseup gesture each (see the mousedown handler), never the multi-
+   *  click `drafting` session polygon mode uses. Only "polygon" is a real
+   *  UI state machine; asking for these two by name is deliberate --
+   *  callers that pass an unrecognised mode are almost certainly a typo,
+   *  not a fourth mode nobody built yet. */
+  function setDraftShapeMode(mode) {
+    if (mode !== "polygon" && mode !== "rect" && mode !== "circle") return;
+    draftShapeMode = mode;
+  }
+
+  /** An axis-aligned rectangle from two opposite corners -- four points,
+   *  a consistent winding (image px, y down: top-left first, then
+   *  clockwise), the same shape a person would get from Adopt's own
+   *  marquee if a marquee could BECOME a building instead of only
+   *  selecting one. */
+  function rectRing(a, b) {
+    const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]);
+    const y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  }
+
+  /** `n` points evenly spaced around `center` at the radius `edge` sits at
+   *  -- a real circle, not the dozen-or-so hand-clicked points around a
+   *  rough curve this tool exists to replace. Asked for directly, after
+   *  exactly that hand-clicking turned out to be the tedious, error-prone
+   *  workflow behind losing a whole batch of drawn bunkers: "I want a new
+   *  tool for drawing regions and buildings, a circle tool." */
+  function circleRing(center, edge, n = CIRCLE_DRAFT_POINTS) {
+    const r = Math.hypot(edge[0] - center[0], edge[1] - center[1]);
+    const ring = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      ring.push([round1(center[0] + r * Math.cos(a)), round1(center[1] + r * Math.sin(a))]);
+    }
+    return ring;
   }
 
   /** `snapRegionPoint`'s winning-target search, plus a second pass
@@ -400,6 +503,19 @@ export function createDrawController(opts) {
     // alongside the throttled one, on every native mousemove event.
     if (editingVertex) return;
     snapLayer.clearLayers();
+    // Region/Site's polygon mode gets a live rubber-band to wherever the
+    // NEXT click would actually land, through the EXACT SAME
+    // placeDraftPoint a real click uses -- angle-snapped, then (Region)
+    // border-snapped -- so what is shown is provably what would be
+    // committed, never a preview that quietly lies. This replaces the
+    // plain marker below entirely while a draft is in progress; before
+    // the first point exists there is nothing yet to draw a rubber band
+    // FROM, so that marker still does its own job of hinting where the
+    // very first click would land.
+    if (drafting && (tool === "region" || tool === "site") && draftShapeMode === "polygon") {
+      redrawDraft(placeDraftPoint(p));
+      return;
+    }
     if (tool !== "region" && tool !== "bisect") return;
     if (snapSuspended) return;
     const snapped = snapRegionPoint(p[0], p[1]);
@@ -426,10 +542,17 @@ export function createDrawController(opts) {
   // one draft tool that draws something other than a polygon/lasso area.
   function isLineTool() { return tool === "bisect"; }
 
-  function redrawDraft() {
+  /** `previewPoint`, when given, is appended to the COMMITTED points for
+   *  this one render only -- drafting.points itself is never touched, so
+   *  Esc/Backspace/Enter all keep acting on exactly what has actually
+   *  been clicked. This is what turns a plain "here are the points so
+   *  far" redraw into a live rubber band: showSnapHint calls this on
+   *  every mousemove with wherever the NEXT click would land, so the
+   *  shape visibly forms before it is committed, not only after. */
+  function redrawDraft(previewPoint) {
     draftLayer.clearLayers();
     if (!drafting) return;
-    const pts = drafting.points;
+    const pts = previewPoint ? [...drafting.points, previewPoint] : drafting.points;
     const minPoints = isLineTool() ? 2 : 3;
     if (pts.length >= 2) {
       draftLayer.addLayer(isLineTool()
@@ -610,7 +733,32 @@ export function createDrawController(opts) {
     selectedIds = new Set(ids);
     restyleAll();
     drawHandles();
-    if (opts.emit !== false) onSelect([...selectedIds]);
+    // onSelect is app.js's reaction to the selection changing (inspector,
+    // batch panel) -- cosmetic next to what selectMany itself just did
+    // (the actual selection, restyled shapes, real handles on the map).
+    // A bug in that reaction must never be able to propagate back into
+    // WHOEVER called select()/selectMany() and silently cancel whatever
+    // they were about to do next. Found live, the hard way: onShapeDrawn
+    // calls select(item.localId) BEFORE markDirty() (so the freshly drawn
+    // shape starts out selected, ready to name) -- a stray
+    // ReferenceError thrown from inside onSelect during an unrelated
+    // in-progress edit meant markDirty() on the very next line never ran
+    // at all, not just late. Every hand-drawn shape finished during that
+    // window rendered correctly, sat there looking saved, and was never
+    // once scheduled to actually reach disk -- reported as "a whole bunch
+    // of circles... disappeared from the system without me asking for
+    // that to happen." The bug that threw is fixed; this is what stops
+    // the NEXT one from being able to cause the same silent, unrecoverable
+    // loss of hand-drawn (never real-world, never re-adoptable) geometry.
+    if (opts.emit === false) return;
+    try {
+      onSelect([...selectedIds]);
+    } catch (err) {
+      log("selection_reaction_error", {
+        message: String((err && err.message) || err),
+        stack: err && err.stack,
+      });
+    }
   }
 
   function select(localId) {
@@ -1109,6 +1257,63 @@ export function createDrawController(opts) {
     trackDrag(container, { onMove: move, onEnd: up });
   }
 
+  /** Region/Site's Rectangle and Circle draft modes -- one mousedown-drag-
+   *  mouseup gesture, start corner/centre to end corner/edge, exactly the
+   *  same trackDrag primitive beginMarquee already uses for the same
+   *  reason: real pointer capture, not a fragile mousemove/mouseup pair
+   *  that a fast drag can outrun. Never touches `drafting` -- that state
+   *  machine is polygon mode's own multi-click session (Enter to finish,
+   *  Backspace to undo a point), and this is a single gesture with
+   *  nothing to accumulate. */
+  function beginShapeDraft(startEvent, kind) {
+    const container = map.getContainer();
+    const startP = placeDraftPoint(px(startEvent.latlng));
+    const preview = L.layerGroup().addTo(map);
+    const prevCursor = map.getContainer().style.cursor;
+
+    function ringFor(endP) {
+      return kind === "rect" ? rectRing(startP, endP) : circleRing(startP, endP);
+    }
+
+    function move(ev) {
+      const endP = px(map.containerPointToLatLng(map.mouseEventToContainerPoint(ev)));
+      preview.clearLayers();
+      const ring = ringFor(endP);
+      preview.addLayer(L.polygon(ringToLatLngs(ring), DRAFT_STYLE));
+      // Same "cells · area" readout polygon mode's own liveReport gives,
+      // plus the one thing a single-gesture shape needs that a multi-
+      // click polygon doesn't: a reminder of how to actually finish it.
+      const refs = refsTouched(ring, grid);
+      const prefix = kind === "circle"
+        ? `radius ${Math.round(Math.hypot(endP[0] - startP[0], endP[1] - startP[1]))}m`
+        : `${refs.length} cell${refs.length === 1 ? "" : "s"}`;
+      report(`${prefix} · ${fmtArea(polygonAreaPx(ring))} — release to finish`);
+    }
+
+    function up(ev) {
+      preview.clearLayers();
+      map.removeLayer(preview);
+      map.getContainer().style.cursor = prevCursor;
+      const endP = px(map.containerPointToLatLng(map.mouseEventToContainerPoint(ev)));
+      report("");
+      const dx = Math.abs(endP[0] - startP[0]), dy = Math.abs(endP[1] - startP[1]);
+      // A click, not a drag -- a rectangle or circle needs a real second
+      // point, unlike polygon mode's first click, which only ever needs
+      // to exist. 4px, matching beginMarquee's own click-vs-drag
+      // threshold, for the same reason: real mouse jitter on a mousedown
+      // that never meant to move must not draw a 1px sliver shape.
+      if (dx < 4 && dy < 4) {
+        report(`drag to draw a ${kind === "rect" ? "rectangle" : "circle"} — a click alone has no size`);
+        return;
+      }
+      suppressNextClick = true;
+      const ring = ringFor(endP);
+      onComplete({ tier: tool === "region" ? "region" : "site", ringPx: ring, source: "drawn" });
+    }
+
+    trackDrag(container, { onMove: move, onEnd: up });
+  }
+
   function centroidPxOf(g) {
     if (g.kind === "point") return g.pointPx;
     const c = polygonCentroidPx(g.ringPx);
@@ -1242,6 +1447,9 @@ export function createDrawController(opts) {
       // own comment for the real-mouse-only bug this fixes.
       L.DomEvent.stop(e);
       beginMarquee(e, "select-items");
+    } else if ((tool === "region" || tool === "site") && draftShapeMode !== "polygon") {
+      L.DomEvent.stop(e);
+      beginShapeDraft(e, draftShapeMode);
     }
   });
 
@@ -1345,6 +1553,7 @@ export function createDrawController(opts) {
     showSnapHint: rafThrottle(showSnapHint),
     finishDraft, cancelDraft, undoPoint, setFocus,
     get drafting() { return !!drafting; },
+    setDraftShapeMode, get draftShapeMode() { return draftShapeMode; },
     shapes,
   };
 }

@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "shop-boss",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Hulda Brack",
+  "ancestry": "Nuar",
+  "role": "Head of the machine shop — every one of the party's repair crews answers to her",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Brack runs the machine shop, which means she runs all six of the party's repair crews, which means she is the single most important person on this base to be on the right side of. A nuar woman built like the gantries she works under — tall, heavy through the shoulders, bovine features and a pair of horns she has never once apologised for, arms like girders and a voice that carries the length of the floor without her appearing to raise it. Enormous energy. Loud, warm, completely without ceremony, and entirely unbothered by rank in either direction. She calls everyone by the machine they are responsible for until they have earned a name. Tough love is the whole register: she will tell a trainee exactly what they did wrong, in front of everyone, and then stay two hours past the end of her shift helping them fix it. Nothing leaves her floor that she has not signed off, and she has never signed off on something she thought would get someone killed. What she wants is simple and she says it constantly: her Frames and her vehicles come back undamaged — and the pilots too, where possible.\n\nTHE JOKE THAT IS ALSO THE CHARACTER: the ordering of that last sentence. Machines first, pilots 'where possible'. She says it that way on purpose, it is funny, and it is also not entirely a joke — she has lost people and she has decided that the way she keeps from losing more is by being uncompromising about the equipment. Play the bit straight and let the table find the second layer.\n\nHER ONE LEGIBLE WANT, per the craft library's rule: her machines come back. Not an abstract wish to help children — the specific machines she maintains, with the specific people inside them, returning in one piece. That want generates everything she does: over-preparing them, teaching unasked, chasing them about maintenance, and being visibly, loudly furious at a machine that comes back wrecked (never at the pilot, which they will notice eventually).\n\nDELIBERATELY NOT A SECRET-KEEPER. Shucks, Nobu, Manako, the Young One and the Deputy Director all know things they are not saying. Brack does not. She is exactly what she appears to be, and that is a design decision, not an oversight — the party needs one adult with no hidden agenda or the whole institution reads as a trap. DO NOT GIVE HER A TWIST.",
+  "designNotes": "Created 2026-09-20 at Ingram's direct request for an ally: 'we want to bring allies to the group so that they aren't thinking that they work in a nightmare of an organisation... make them female please. Make them non-human, but not an alien or mitflit.' Characterisation given directly on the follow-up: 'a big tough love, huge energy strong woman with arms like girders and a personality to match. She's in charge of all the players repair crews so she's an important person to be on the right side of, she's friendly, she's no-nonsense and as you said she wants her frames and vehicles undamaged along with the pilots where possible.'\n\nWHY NUAR: it is in data/campaign/ancestry-catalogue.json, so it is real in this setting rather than invented, and it is Golarion-native rather than alien — the exact line Ingram drew. Tengu was considered first for the Shōwa setting and rejected on checking; it is not in the catalogue. NOTE: the catalogue's stock flavour text for Nuar references 'home and history lost to the vacuum of the Gap'. DISREGARD THAT — the Gap is a FUTURE event in this campaign, not a past one (Ingram, 2026-09-20), and that text is inherited SF2E filler. Brack's history is her own and is open; it has nothing to do with the Gap.\n\nSTRUCTURAL JOB 1 — she is the face of the request-fulfilment loop. Ingram's 2026-09-20 design has players messaging their ground crew for what they want, with Claude reading those requests out of scraped Foundry logs and answering with balanced options (open-questions.json#levelling-and-request-fulfilment). That loop needed a named person on the other end; she is it. The six repair-chief placeholders (repair-chief-*.json) report to her, which turns that layer into something real rather than six unconnected stubs.\n\nSTRUCTURAL JOB 2 — she is the Section Officer's exact inverse. He uses the Directorate's machinery against the party; she uses the same machinery for them, and knows precisely which forms matter and which do not. Same institution, opposite direction. She cannot protect them from him and will say so plainly rather than promise otherwise.\n\nAPPEARANCES: first seen at the Assembly in Episode One (episode-c1e1--assembly) as one of the department heads on the platform — loud enough to be noticed, not yet spoken to. First real contact is Episode Two's Familiarisation, where she runs the hangar and hands out the machines. Exact age, history before the Directorate, and what she did before this floor are all open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "named and conceived — voice and history still open",
+  "socialProfile": {
+    "attitude": "friendly",
+    "facts": [
+      {
+        "id": "names-are-earned",
+        "text": "She calls people by the machine they are standing next to until they have earned a name, and she remembers precisely when each of them did.",
+        "revealTrigger": {
+          "narrative": "Being in her workshop for ten minutes and listening to how she addresses anybody."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "has-refused-officers-to-their-faces",
+        "text": "Nothing leaves her floor that she has not signed off, and she has refused officers to their faces. If she says a machine is not going out, it is not going out, and rank does not move her.",
+        "revealTrigger": {
+          "skill": "society",
+          "dc": 15
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "useless-is-the-right-answer",
+        "text": "Admitting you are useless with your hands gets more of her attention, not less. It is the people who tell her they are handy that she watches.",
+        "revealTrigger": {
+          "narrative": "Being honest with her once about not knowing how to do something."
+        },
+        "revealed": false,
+        "revealedNote": null
+      }
+    ]
+  }
+}

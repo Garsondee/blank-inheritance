@@ -80,6 +80,20 @@ export function currentEntries() {
 }
 
 /**
+ * An entry's stamp as the table reads it: LOCAL wall-clock HH:MM, 24-hour.
+ * The stored `at` is an ISO string, i.e. UTC — slicing it (as
+ * core/phone.mjs#formatLogEntriesForDisplay's `time` does) reads an hour
+ * early all British summer. Every surface that shows a log line to a person
+ * (the deck, Comms, the Console's Log tab) formats through this one
+ * function, so they can never disagree about when something happened
+ * (they did, 2026-09-23: "03:35 PM" on the deck, "14:35" in the Console).
+ */
+export function localClock(iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+}
+
+/**
  * True while a recordLogEntry call is still working. The beforeunload guard
  * below reads this to decide whether to warn; tests read it to confirm the
  * exact window the reload-race bug lived in.
@@ -143,9 +157,23 @@ export async function loadSessionLog(nowIso) {
  *
  * Returns the stamped entry, or null when the line was empty — a stray Enter
  * must not write a blank record.
+ *
+ * `review`, added 2026-09-22 for the rebuilt Close Scene dialogue, rides as
+ * a sibling key on the entry rather than inside `stampEntry`'s own `context`
+ * shape — that shape is a tested, stable contract shared by every OTHER log
+ * entry this file ever writes, most of which have nothing to do with a scene
+ * closing. Omitted entirely when absent, so an ordinary typed line looks
+ * exactly as it always has.
+ *
+ * It replaces the `reactionScores` key of 2026-09-19, whose 0-10 rating grid
+ * was cut with the dialogue rebuild (see core/scene-close.mjs's header). The
+ * structured payload is now the scene's own authored prompts as an AGENDA for
+ * a later in-depth review rather than a set of scores taken mid-session —
+ * questions to ask afterwards, not numbers tapped while flustered. Logs
+ * already written with `reactionScores` keep it; nothing reads it back.
  */
-export async function recordLogEntry({ text, nowIso, scene = null, mode = null, subject = null }) {
-  const entry = stampEntry({
+export async function recordLogEntry({ text, nowIso, scene = null, mode = null, subject = null, review = null }) {
+  const stamped = stampEntry({
     text,
     at: nowIso,
     scene,
@@ -153,12 +181,20 @@ export async function recordLogEntry({ text, nowIso, scene = null, mode = null, 
     subject,
     author: game.user?.name ?? null
   });
-  if (!entry) return null;
+  if (!stamped) return null;
+  const entry = review ? { ...stamped, review } : stamped;
 
   pendingWrites += 1;
   try {
     await loadSessionLog(nowIso);
     buffer = appendEntry(buffer, entry);
+    // Tell whoever draws the log that it grew — the deck's log shoulder and
+    // the session rail's pins (2026-09-23). Found live: an entry written by
+    // the Scene Runner or the Palette never reached the deck's log until
+    // something unrelated repainted it, because only the deck's OWN input
+    // refreshed it. Fired before the write, since the buffer is already the
+    // truth the moment the entry is appended.
+    globalThis.Hooks?.callAll("blank-inheritance.logEntry", entry);
 
     try {
       await persist(nowIso);

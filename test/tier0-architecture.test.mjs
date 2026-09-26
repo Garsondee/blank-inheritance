@@ -202,44 +202,18 @@ test("every .hbs template renders exactly one top-level element", () => {
   }
 });
 
-test("the hotbar reservation is exactly the base bar height — nothing is allowed to grow past it", () => {
-  // Verified LIVE 2026-09-07 in a running Foundry instance, not just read
-  // from source: a pod taller than .bi-bar's own explicit height does not
-  // escape upward into this reserved space the way the dome's own looming
-  // does. An auto-sized grid row with no grid-template-rows lays out from
-  // the container's top edge regardless of align-items, so excess height
-  // pushes the pod's BOTTOM past the real window's bottom, not its top past
-  // the hotbar. Two earlier fixes each reserved MORE space here on the
-  // theory that growth went upward — neither could ever have worked, and a
-  // stress-test actor with five Lores proved it: 117px of its checks pod
-  // hung off the bottom of an ordinary 900px window, unreachable, while the
-  // hotbar was never actually threatened at all.
-  //
-  // The real fix is that NOTHING gets a taller ceiling than the bar itself
-  // any more (see the checks-pod rule in bi-components.css), which is what
-  // this test actually protects: if that ever regresses and something is
-  // allowed to grow again, this reservation needs to grow with it.
-  const bridge = readFileSync(path.join(moduleRoot, "styles", "bi-foundry-bridge.css"), "utf8");
-  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
-
-  const bottomBlock = bridge.match(/body\.bi-theme #ui-bottom \{([\s\S]*?)\n\}/);
-  assert.ok(bottomBlock, "could not find the #ui-bottom rule in bi-foundry-bridge.css");
-  assert.match(
-    bottomBlock[1],
-    /padding-bottom:\s*calc\(var\(--bi-bar-height\)\s*\+/,
-    "#ui-bottom's reservation is no longer a plain function of --bi-bar-height alone"
-  );
-
-  const checksRule = components.match(/\.bi-bar \.bi-pod\[data-zone="checks"\]\s*\{([\s\S]*?)\n\}/);
-  assert.ok(checksRule, "could not find the checks pod's own rule in bi-components.css");
-  assert.equal(
-    /max-height/.test(checksRule[1]),
-    false,
-    "the checks pod has its own max-height again — if it can exceed the base .bi-bar .bi-pod ceiling, " +
-      "it can push its own content off the bottom of a real window (measured live, not theoretical), " +
-      "and #ui-bottom's plain bar-height reservation above is no longer the whole story"
-  );
-});
+// RETIRED 2026-09-17 with the pod bar they described, when the command bar
+// was rebuilt as the deck: "the hotbar reservation is exactly the base bar
+// height", "the checks pod cannot grow taller than an ordinary pod, and still
+// scrolls", and "the centre track is sized by its content". The hard-won
+// lessons behind them are carried forward rather than dropped —
+// test/tier3-deck-contract.test.mjs pins the deck's height to one published
+// token that every reservation reads (the hotbar lesson), pins its grid row so
+// no module can grow the panel (the checks-pod lesson, which resurfaced on
+// the deck's first live render), and forbids scrolling outright (the deck's
+// founding rule, which replaced the checks pod's scroll fallback). The CSS
+// those tests read still exists for design/ui/'s V1 prototype, and
+// tier3-theme-contract.test.mjs still covers it there.
 
 test("the bridge still positions the element the command bar mounts as", () => {
   const bridge = readFileSync(path.join(moduleRoot, "styles", "bi-foundry-bridge.css"), "utf8");
@@ -257,6 +231,14 @@ test("the bridge still positions the element the command bar mounts as", () => {
     components,
     /\.bi-bar__group\[hidden\]\s*\{\s*display:\s*none/,
     "a shed .bi-bar__group would stay visible: display:flex overrides [hidden]."
+  );
+  // The deck's modules are the same trap in a new shape: a shed module keeps
+  // its slot (core/console-model.mjs), and its own display rule must not
+  // override the hidden attribute.
+  assert.match(
+    components,
+    /\.bi-deck__module\[hidden\]\s*\{\s*display:\s*none/,
+    "a shed .bi-deck__module would stay visible."
   );
 });
 
@@ -390,59 +372,3 @@ test("every bi- class a template uses actually exists in the stylesheet", () => 
   assert.ok(checked > 0, "expected at least one bi- class across module/blank-inheritance/templates/");
 });
 
-test("the checks pod cannot grow taller than an ordinary pod, and still scrolls if its content needs more", () => {
-  // The direct replacement for two earlier, disproven fixes (a taller
-  // absolute ceiling, then a viewport-relative one) that both assumed a
-  // pod could safely rise above the bar. It cannot — see the hotbar-
-  // reservation test above for the live measurement that disproved it.
-  //
-  // This asserts the actual, verified-correct invariant instead: the
-  // checks pod's height comes from the SAME base rule every other pod
-  // uses (no override, no separate token), and its own overflow-y:auto
-  // is still there to catch a character with an unusual number of Lores
-  // WITHOUT pushing anything off the visible window to do it.
-  const tokens = readFileSync(path.join(moduleRoot, "styles", "bi-tokens.css"), "utf8");
-  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
-
-  assert.equal(
-    /--bi-checks-max-height/.test(tokens),
-    false,
-    "--bi-checks-max-height is back — this pod must share the base pod height ceiling, not get its own"
-  );
-  assert.match(
-    components,
-    /\.bi-checks\s*\{[^}]*overflow-y:\s*auto/s,
-    "the checks pod lost its internal scroll fallback — this is now the ONLY thing standing between a " +
-      "Lore-heavy character and clipped content, not a rare last resort"
-  );
-});
-
-test("the centre track is sized by its content, and the day ring declares its own width", () => {
-  // The hard-won result of 2026-09-07's width work: the checks pod went from
-  // four columns to ten purely by stopping the instrument berth reserving
-  // 252px for a legend nobody had built yet. Both side tracks are
-  // minmax(0,1fr) and split whatever the centre does not take, so ANY fixed
-  // width on .bi-bar__instrument is a direct tax on the number of skills a
-  // player can see at once.
-  //
-  // The discipline that keeps that true as zones land: the berth hugs its
-  // content, and each zone states how wide IT is. This asserts both halves.
-  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
-
-  const berth = components.match(/\.bi-bar__instrument \{([\s\S]*?)\n\}/);
-  assert.ok(berth, "could not find .bi-bar__instrument in bi-components.css");
-  assert.match(
-    berth[1],
-    /width:\s*auto/,
-    "the instrument berth has a fixed width again — that comes straight out of the side tracks, and the " +
-      "checks pod loses columns for it (measured live: four columns instead of ten)"
-  );
-
-  const domePod = components.match(/\.bi-bar \.bi-pod\[data-zone="dome"\]\s*\{([\s\S]*?)\}/);
-  assert.ok(
-    domePod,
-    "the dome pod no longer declares its own width — with a content-sized berth, a zone that does not " +
-      "state its width has none, and the day ring collapses"
-  );
-  assert.match(domePod[1], /width:\s*var\(--bi-ring-size\)/, "the dome pod's width is no longer the ring token");
-});

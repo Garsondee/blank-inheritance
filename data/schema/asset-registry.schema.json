@@ -23,7 +23,7 @@
         "id": { "type": "string", "description": "Matches the final filename's stem, and usually the assignedTo ref." },
         "kind": { "enum": ["image", "audio"] },
         "category": {
-          "enum": ["scenes", "character-portraits", "locations", "mechs", "music", "ambience", "sting", "sfx", "voice", "interface"],
+          "enum": ["scenes", "character-portraits", "locations", "mechs", "emblems", "music", "ambience", "sting", "sfx", "voice", "interface"],
           "description": "For an image: the final top-level folder under artwork/ -- mirrors in-tray/'s own category subfolders, minus the in-tray/ prefix. For audio: the asset's KIND in the audio library (data/audio/library.json), which is also the folder its processed file lives in."
         },
         "path": { "type": "string", "description": "Repo-relative path to the final, confirmed file. Never an in-tray/ path -- once registered, an image has been MOVED, not copied. AUDIO IS DIFFERENT: the pipeline never moves a source, so an audio entry's path is its PROCESSED file under audio/library/, and the source stays in the in-tray." },

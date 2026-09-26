@@ -31,7 +31,7 @@ Japanese names are given surname-last in the common English form (Shinji Ikari, 
 | **The organisation the PCs work for** | [the-institution-that-uses-children.md](the-institution-that-uses-children.md), then `characters/misato-katsuragi.md`, `characters/gendo-ikari.md` |
 | **A sortie, a briefing, a deployment, a logistics problem** | [operational-texture-and-the-sortie.md](operational-texture-and-the-sortie.md) |
 | **A friendship or alliance that is going to fail** | [relationships-that-degrade.md](relationships-that-degrade.md) |
-| **A pilot's relationship with their machine** | [the-machine-and-the-pilot.md](the-machine-and-the-pilot.md) — **and read its §5 warning before touching Resonance or Bleed** |
+| **A pilot's relationship with their machine** | [the-machine-and-the-pilot.md](the-machine-and-the-pilot.md) — **and note that this campaign has no berserk (LEDGER #31, D11)** |
 | **A name for a person, a unit, an operation** | [warship-names-and-the-naming-method.md](warship-names-and-the-naming-method.md) |
 | **Insignia, sigils, scripture, institutional mysticism** | [borrowed-symbolism.md](borrowed-symbolism.md) |
 | **A long mystery, a conspiracy, a withheld truth** | [withheld-information-and-the-ending-problem.md](withheld-information-and-the-ending-problem.md) |
@@ -47,7 +47,7 @@ Japanese names are given surname-last in the common English form (Shinji Ikari, 
 - **[operational-texture-and-the-sortie.md](operational-texture-and-the-sortie.md)** — the five-minute battery, the umbilical cable, the launch ritual, the fortress city that unfolds, the paperwork during a nuclear emergency, and Operation Yashima as the best planning episode in the genre.
 - **[the-institution-that-uses-children.md](the-institution-that-uses-children.md)** — NERV as an employer, a guardian and a bureaucracy, and the honest reckoning with an organisation that sends fourteen-year-olds to fight.
 - **[relationships-that-degrade.md](relationships-that-degrade.md)** — the hedgehog's dilemma, and the shelf's single most useful import: bonds that get worse, tracked.
-- **[the-machine-and-the-pilot.md](the-machine-and-the-pilot.md)** — synchronisation, the berserk state, the thing in the machine. **Includes a standing warning about our own Resonance and Bleed systems.**
+- **[the-machine-and-the-pilot.md](the-machine-and-the-pilot.md)** — synchronisation, the berserk state, the thing in the machine, as the series built them. This campaign has no berserk.
 - **[warship-names-and-the-naming-method.md](warship-names-and-the-naming-method.md)** — nearly every character is named after an Imperial Japanese Navy vessel, and the method behind it is directly usable.
 - **[borrowed-symbolism.md](borrowed-symbolism.md)** — the Kabbalistic and Christian imagery, what the staff actually said about it, and the craft question of symbolism as texture versus symbolism as meaning.
 - **[withheld-information-and-the-ending-problem.md](withheld-information-and-the-ending-problem.md)** — how the series withholds, where that works, and the famous failure at the end. The cautionary counterpart to Giant Robo's four-pass reveal.

@@ -12,7 +12,7 @@
     "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": "string" },
     "description": { "type": "string" },
-    "partyLevel": { "type": "integer", "description": "The scale this specific fight is pitched at -- 12 for a Frame Contact (the Frames' fixed tier; Claimants are leveled to the Frame's tier, never the kids'), or 1 for a personnel-scale fight like Session One's Flood Tunnel. Not assumed to be one or the other; read per encounter." },
+    "partyLevel": { "type": "integer", "description": "The party level this specific fight is pitched at. Pilots, Frames and vehicles share one level (lockstep), so the same number applies whether the fight is at personnel scale, like Episode One's Flood Tunnel, or at Frame scale." },
     "partySize": { "type": "integer", "description": "How many PCs/Frames are actually in this specific fight. Can be the full roster of six (a personnel-scale fight like Flood Tunnel) or fewer (not every Frame deployed for a given Contact) -- don't assume either." },
     "intendedThreatLevel": { "enum": ["trivial", "low", "moderate", "severe", "extreme", null], "description": "The GM's design intent, to check against the computed budget." },
     "creatures": {
@@ -33,10 +33,9 @@
     "specialRules": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Bespoke scripted overrides to normal encounter math, e.g. Episode One's Claimant being immune to damage until its interdiction field is broken by a ground-level call-out."
+      "description": "Bespoke scripted overrides to normal encounter math, e.g. a win condition that is not the enemy being destroyed."
     },
-    "roundLimit": { "type": ["integer", "null"], "description": "For a scripted fight with a fixed round count (e.g. Episode One's three-round structure)." },
-    "groundRoleTieIns": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in parallel with this encounter (e.g. the five non-piloting kids' ground-role checks during a Contact)." },
+    "roundLimit": { "type": ["integer", "null"], "description": "For a scripted fight with a fixed round count." },
     "rewards": { "type": "string" },
     "relatedRefs": { "type": "array", "items": { "type": "string" } },
     "notes": { "type": "string" }

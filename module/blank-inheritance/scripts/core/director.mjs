@@ -92,28 +92,3 @@ export function damageStepUp(state) {
 export function isDeployable(state) {
   return state === "operational" || state === "degraded";
 }
-
-/* ------------------------------------------------------------------ *
- * Bleed — data/campaign/config.json's bleed. 0-10, berserk at 10.
- * pilotVisibility is explicitly null (an open campaign question) — this
- * board is written to be GM-only until that question resolves, never
- * assumed player-visible by default.
- * ------------------------------------------------------------------ */
-
-export const BLEED_MIN = 0;
-export const BLEED_MAX = 10;
-export const BLEED_BERSERK_THRESHOLD = 10;
-
-export function adjustBleed(current, delta) {
-  return Math.max(BLEED_MIN, Math.min(BLEED_MAX, current + delta));
-}
-
-export function isBerserk(bleed) {
-  return bleed >= BLEED_BERSERK_THRESHOLD;
-}
-
-/** "1d4 rounds" of GM-controlled berserk, per config.json — a real roll,
- *  not a flat number, so the UI can show the GM an actual duration. */
-export function rollBerserkDuration(random = Math.random) {
-  return Math.floor(random() * 4) + 1;
-}

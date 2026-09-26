@@ -28,7 +28,7 @@
         data-actor-id="{{actorId}}" data-label="{{label}}"
         title="{{label}}">
         <span class="bi-frame__art">
-            {{#if img}}<img src="{{img}}" alt="">{{/if}}
+            {{#if img}}<img src="{{img}}" alt="">{{else}}<i class="fa-solid fa-user bi-frame__art-fallback" aria-hidden="true"></i>{{/if}}
         </span>
         <span class="bi-frame__lamp"></span>
         <span class="bi-frame__plate">{{label}}</span>

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "scene-transition-fades",
+  "type": "idea",
+  "title": "A 10-second fade on every scene activation, not just travel",
+  "status": "accepted",
+  "domains": ["ui", "technical-architecture"],
+  "summary": "Every scene activation should fade the old scene out and the new one in over about 10 seconds, as a standing rule for the whole console — not something built only for the fast-travel sequence that surfaced it.",
+  "description": "Surfaced 2026-09-18 inside a much larger message about the road-network-routing / fast-travel sequence (see ideas/entries/road-network-routing.json), but Ingram named it as its own general rule, verbatim: 'We fade from Scene A across 10 seconds (I'd like fades between all scene activations as a general rule)... Then we fade to black, then over ten seconds we load into Scene B.' Split into its own entry because it is a broader claim than travel — it should fire on an ordinary scene cut with nobody moving at all, not only around the travel animation.\n\nWhat this would sit on top of: the scene cueing already built and live-verified 2026-09-16 (GitHub issue #140's 'Director's panel cueing' line) — `activate()` and `pullUsers` in module/blank-inheritance/scripts/foundry/director-panel.mjs (the adapter) and scripts/core/director-panel.mjs (the pure half), both already working against real Foundry Scenes. A fade would wrap that existing call rather than replace it: fade the current view to black, let the real Scene activation happen underneath, fade the new Scene in once it's ready.\n\nNothing about this is designed yet — genuinely just captured so it isn't lost or silently assumed to already exist.",
+  "capturedDate": "2026-09-18",
+  "lastTouchedDate": "2026-09-18",
+  "sourceContext": "Ingram, mid-message, while describing the full fast-travel sequence for ideas/entries/road-network-routing.json's Layer 2 choreography.",
+  "openSubQuestions": [
+    "Is 10 seconds a fixed duration for every kind of scene cut, or does it vary — a quick in-combat scene swap presumably shouldn't cost the table 10 real seconds of black screen the same way a cinematic travel transition should? Still open: the fade built 2026-09-18 only fires around the map-travel ritual, not on an ordinary cut, so this question hasn't actually been tested against a quick swap yet.",
+    "Is the fade choreographed centrally by the GM's activate() call broadcasting a cue to every client at once, or does each player's own client fade independently on its own timing? Answered implicitly by the mechanism found (see resolvedSubQuestions) — Foundry's own transition plays per client as each one's `activate()` propagation lands, not a separately broadcast cue — but this hasn't been watched with more than one connected client yet."
+  ],
+  "resolvedSubQuestions": [
+    "Native support, resolved 2026-09-18 while building road-network-routing's Layer 2: yes — `TextureTransitionFilter` (foundryvtt's own canvas source) already implements exactly this as one of 13 named transition types, `type: \"fade\"` among them, with a real `duration` in ms. `foundry/director-panel.mjs`'s existing `cueScene(sceneId, {transitionType, transitionDuration})` already exposed this; nothing new needed reimplementing. Only ever called with `{type: \"fade\", duration: 10000}` so far, and only around the two cuts inside `foundry/travel.mjs#runTravelSequence` (the campaign-map hub and back) — NOT yet applied as the general rule this idea actually asks for (every scene activation, travel or not). That remains the real gap: this idea is still open, just no longer needing to invent the fade mechanism itself."
+  ],
+  "relatedRefs": [
+    "road-network-routing",
+    "module/blank-inheritance/scripts/foundry/director-panel.mjs",
+    "module/blank-inheritance/scripts/core/director-panel.mjs",
+    "module/blank-inheritance/scripts/foundry/travel.mjs",
+    "GitHub issue #140 (Session 0/1 readiness)"
+  ],
+  "resolution": null
+}

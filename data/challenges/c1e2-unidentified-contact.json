@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-unidentified-contact",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Unidentified Contact",
+  "description": "One optional check, for a player who looks at the contact report rather than at the smoke. Nothing here is required and nothing here changes what happens next -- it changes what the party understands about it.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "read-the-plot",
+      "name": "Look at the report rather than the smoke",
+      "skillOptions": [
+        "computers",
+        "society",
+        "piloting"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. The anomaly is plainly on the page and nobody is hiding it -- the difficulty is caring about a sheet of paper while a city is on fire behind you",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Everything below, and the shape of the thing: there is no approach vector because there was no approach. Three contacts did not travel to the harbour edge. They began there. Nothing in the party's training has a category for that and the plotting floor does not either.",
+        "success": "The first plot is time-stamped before the alert that produced it, and there is no bearing or heading recorded on any of the three. The plotting floor has written it up as an equipment fault, because that is the only box on the form that it fits.",
+        "failure": "It reads as a mess, and messes happen. Somebody mistyped a time under pressure and the bearings have not come through yet. That is a completely reasonable reading and it is wrong.",
+        "criticalFailure": "As failure, and they say so with confidence to somebody who was already unsure. The equipment-fault explanation hardens into the accepted one on the floor for the rest of the night."
+      },
+      "bySkill": {
+        "computers": "The plotting system itself -- what it records automatically, what a human types in, and therefore which of the two numbers can actually be wrong.",
+        "society": "How a report gets written when nobody has a category for what they are seeing. The form is the information.",
+        "perception": "Just reading it properly, in order, while everybody else is looking out of the window.",
+        "piloting": "Knowing what an approach looks like plotted, and therefore knowing instantly that this is not one."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any one player who goes to the report"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--unidentified-contact",
+    "c1e2-first-contact"
+  ],
+  "notes": "THIS CHECK CHANGES NOTHING ABOUT WHAT HAPPENS. The contacts are there, the tram is there, and the party's decision is unaffected on every result including critical failure. What it changes is whether anybody in the party knows that the thing they are about to meet did not come from anywhere.\n\nWHY THE SCENE NEEDED IT. Every other beat here is something that happens to the party. Three impossible contacts and two time stamps in the wrong order were planted with no way for a player to pull on them, which makes the anomaly scenery rather than a mystery. This is the way in.\n\nNOTHING NAMES THE OBSERVER. No result here identifies what is arriving, connects it to anything, or suggests a cause. The critical success reaches 'they began there' and stops. See the `arc-contacts-that-never-travelled` Node before writing anything further.\n\nTHE FAILURE IS A REAL, SENSIBLE, WRONG ANSWER, not a blank. Equipment faults happen and under pressure people mistype times. A player who lands there has been reasonable and has been had -- which is the correct shape for a first mystery and costs them nothing mechanically.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+}

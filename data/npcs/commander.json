@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "commander",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "The Commander",
   "pole": "mission-above-individuals",

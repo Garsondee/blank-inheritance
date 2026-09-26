@@ -5,7 +5,7 @@
  * `logs/index.json` lists, never which engine produced it. Kept as a genuinely separate script
  * rather than a mode flag on run-scenario.mjs itself — that file imports only
  * `engine/engine.mjs` and the Frame-scale scenarios/*.mjs; importing personnel-engine/engine.mjs
- * there too would be exactly the kind of cross-scale coupling design/scale-and-chassis.md §2
+ * there too would be exactly the kind of cross-scale coupling the retired two-scale design (deleted 2026-09-25) §2
  * already rules out for engine code, and there's no reason the LOG-WRITING CLI needs to be
  * exempt from that rule just because run-log-store.mjs's own helpers happen to be shape-agnostic.
  *
@@ -31,7 +31,7 @@ const indexPath = path.join(logsDir, "index.json");
 
 /** `1000-1019` -> [1000..1019]; `1,2,3` -> [1,2,3]; `1000` -> [1000]. Duplicated from run-scenario.mjs
  * on purpose, not imported — importing that file would also load every Frame-scale scenario module
- * it references at its own top level, exactly the cross-scale coupling design doc §2 rules out. */
+ * it references at its own top level, exactly the cross-scale coupling the retired two-scale design ruled out. */
 export function parseSeeds(spec) {
   if (spec.includes("-")) {
     const [from, to] = spec.split("-").map(Number);

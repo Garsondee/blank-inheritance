@@ -54,7 +54,7 @@
 
 **Worth avoiding:** the treatment described in §3. Also: killing her off-screen of her own choice is very nearly what the series does — she spends herself moving the base and is then murdered — and that ordering matters. **The sacrifice should be the character's decision, and the death should not be an afterthought to it.**
 
-**Where it might attach:** the campaign's own mechanics already include a self-costing resource in `design/resonance-and-bleed.md`, which has live open questions (`bleed-recovery-sinks`, `bleed-intermediate-thresholds`, and others). **This shelf resolves none of them** and mentions the parallel only because an NPC who visibly pays that price would be a strong way to teach the players what the system means before it is their turn.
+**Where it might attach:** nowhere mechanical for now. The campaign's own self-costing resource (Bleed) was cut on 2026-09-20. An NPC who visibly pays a price for their power is still a strong way to show the players what something costs before it is their turn.
 
 ---
 

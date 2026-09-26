@@ -18,7 +18,8 @@
  */
 
 import { foundrySliderToVolume, volumeToFoundrySlider, vuStep } from "../core/audio-mix.mjs";
-import { vuNeedleDegrees } from "../core/audio-desk.mjs";
+import { meterFaceGeometry, vuNeedleDegrees, VU_SCALE, VU_SWEEP_DEG } from "../core/audio-desk.mjs";
+import { vuFace } from "../core/vu-meter.mjs";
 import { readMeters } from "./audio-engine.mjs";
 
 const CHANNELS = [
@@ -35,29 +36,60 @@ function knobPosition(setting) {
 const frameFor = (position) => Math.round(Math.min(1, Math.max(0, position)) * 127);
 const percentFor = (position) => `${Math.round(position * 100)}%`;
 
+/**
+ * The meter's printed face: the SAME scale, geometry and crop the Sound
+ * Desk's channel meters use (core/vu-meter.mjs#vuFace +
+ * core/audio-desk.mjs#meterFaceGeometry), so the needle lands on the printed
+ * numbers and the window shows exactly the drawn part. Rebuilt 2026-09-23:
+ * the first Radio meter was a bare orange rectangle with a needle and no
+ * scale at all ("the Comms radio panel's meter is a mess").
+ */
+function meterMarkup() {
+  const face = vuFace({ min: VU_SCALE.min, max: VU_SCALE.max, danger: VU_SCALE.danger, labelCount: 5, minorPerGap: 2 });
+  const geo = meterFaceGeometry();
+  const ticks = face.ticks
+    .map((t) => `<line class="bi-radio__tick${t.major ? " is-major" : ""}" x1="${t.x1}" y1="${t.y1}" x2="${t.x2}" y2="${t.y2}"></line>`)
+    .join("");
+  const labels = face.labels.map((l) => `<text class="bi-radio__num" x="${l.x}" y="${l.y}">${l.text}</text>`).join("");
+  return `
+      <div class="bi-radio__meter">
+        <svg class="bi-radio__face" viewBox="${geo.viewBox}" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          ${face.dangerBand ? `<path class="bi-radio__danger" d="${face.dangerBand}"></path>` : ""}
+          <path class="bi-radio__arc" d="${face.arc}"></path>
+          ${ticks}${labels}
+          <text class="bi-radio__vu" x="${face.pivot.x}" y="${face.pivot.y - 30}">VU</text>
+        </svg>
+        <i class="bi-radio__needle" data-radio-needle style="--needle: ${-VU_SWEEP_DEG / 2}deg; bottom: ${geo.needleBottomPct}%; height: ${geo.needleHeightPct}%"></i>
+        <i class="bi-radio__pivot" style="bottom: ${geo.needleBottomPct}%" aria-hidden="true"></i>
+        <i class="bi-radio__gloss" aria-hidden="true"></i>
+      </div>`;
+}
+
 export function renderRadio(mount) {
-  const rows = CHANNELS.map((c) => {
+  // Three knobs side by side, legend above, value below — the north star's
+  // own Mix / Size / Damp row — rather than a list.
+  const knobs = CHANNELS.map((c) => {
     const position = knobPosition(c.setting);
     return `
-      <li class="bi-radio__row" data-channel="${c.id}">
+      <li class="bi-radio__channel" data-channel="${c.id}">
+        <span class="bi-radio__label">${game.i18n.localize(c.labelKey)}</span>
         <button type="button" class="bi-knob bi-radio__knob" style="--frame: ${frameFor(position)}"
           data-setting="${c.setting}" aria-label="${game.i18n.localize(c.labelKey)}"></button>
-        <span class="bi-radio__label">${game.i18n.localize(c.labelKey)}</span>
         <span class="bi-radio__value" data-value-for="${c.setting}">${percentFor(position)}</span>
       </li>`;
   }).join("");
 
   mount.innerHTML = `
     <div class="bi-radio">
-      <div class="bi-radio__meter">
-        <i class="bi-radio__needle" data-radio-needle style="--needle: -48deg"></i>
-        <span class="bi-radio__meter-label">${game.i18n.localize("BLANKINHERITANCE.Audio.Level")}</span>
+      ${meterMarkup()}
+      <ul class="bi-radio__channels">${knobs}</ul>
+      <div class="bi-radio__foot">
+        <button type="button" class="bi-comms__action bi-radio__mute" data-radio-mute aria-pressed="${game.audio.globalMute === true}">
+          <i class="bi-radio__mute-lamp" aria-hidden="true"></i>
+          <span data-radio-mute-label>${game.i18n.localize(game.audio.globalMute ? "BLANKINHERITANCE.Audio.Unmute" : "BLANKINHERITANCE.Audio.MuteAll")}</span>
+        </button>
+        <p class="bi-radio__note">${game.i18n.localize("BLANKINHERITANCE.Audio.RadioNote")}</p>
       </div>
-      <ul class="bi-radio__rows">${rows}</ul>
-      <button type="button" class="bi-key bi-radio__mute" data-radio-mute aria-pressed="${game.audio.globalMute === true}">
-        ${game.i18n.localize(game.audio.globalMute ? "BLANKINHERITANCE.Audio.Unmute" : "BLANKINHERITANCE.Audio.MuteAll")}
-      </button>
-      <p class="bi-radio__note">${game.i18n.localize("BLANKINHERITANCE.Audio.RadioNote")}</p>
     </div>`;
 
   const cleanups = [];
@@ -93,7 +125,8 @@ export function renderRadio(mount) {
   const onMute = () => {
     game.audio.globalMute = !game.audio.globalMute;
     muteButton.setAttribute("aria-pressed", String(game.audio.globalMute));
-    muteButton.textContent = game.i18n.localize(game.audio.globalMute ? "BLANKINHERITANCE.Audio.Unmute" : "BLANKINHERITANCE.Audio.MuteAll");
+    const label = muteButton.querySelector("[data-radio-mute-label]");
+    if (label) label.textContent = game.i18n.localize(game.audio.globalMute ? "BLANKINHERITANCE.Audio.Unmute" : "BLANKINHERITANCE.Audio.MuteAll");
   };
   muteButton?.addEventListener("click", onMute);
   cleanups.push(() => muteButton?.removeEventListener("click", onMute));

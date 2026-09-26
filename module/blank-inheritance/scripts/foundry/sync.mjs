@@ -1,6 +1,8 @@
 import { deriveFoundryId, contentHash } from "../core/ids.mjs";
 import { buildCreatureActorData } from "../core/generators/creature.mjs";
 import { buildNpcActorData } from "../core/generators/npc.mjs";
+import { authoredProfileFromNpc } from "../core/authored-profile.mjs";
+import { authoredProfileFor, writeAuthoredProfile } from "./social-store.mjs";
 import { buildCharacterActorData } from "../core/generators/character.mjs";
 import { buildSceneData } from "../core/generators/scene.mjs";
 import { buildJournalEntryData, episodeToJournalSource } from "../core/generators/journal.mjs";
@@ -297,6 +299,7 @@ async function runRealNpcCase(fetchPath) {
 
   const existing = game.actors.get(data._id);
   if (shouldSkip(existing, hash)) {
+    await syncAuthoredProfile(source, data._id);
     return { ...(await validateActor(existing, source, data._id, "npc")), skipped: true };
   }
 
@@ -306,7 +309,53 @@ async function runRealNpcCase(fetchPath) {
     await created.setFlag(FLAG_SCOPE, "sourceId", source.id);
     await created.setFlag(FLAG_SCOPE, "sourceHash", hash);
   }
+  await syncAuthoredProfile(source, data._id);
   return { ...(await validateActor(created, source, data._id, "npc")), skipped: false };
+}
+
+/**
+ * Carry an NPC's authored `socialProfile` into the intel vault.
+ *
+ * Runs on every npc sync, including a skipped one: the Actor may be unchanged
+ * while the authored Facts have been edited, and Facts live on the vault rather
+ * than on the Actor, so an Actor-level hash says nothing about them.
+ *
+ * Whether a Fact is REVEALED is table state and stays with the vault -- the
+ * merge protecting it is in core/authored-profile.mjs.
+ */
+/** Character Cards that could not be stored this run. Reset per sync run. */
+let cardStoreFailures = 0;
+
+/** Zero the per-run counter. Called at the top of each sync run. */
+export function resetCardStoreFailures() {
+  const previous = cardStoreFailures;
+  cardStoreFailures = 0;
+  return previous;
+}
+
+async function syncAuthoredProfile(source, actorId) {
+  if (!source?.socialProfile) return null;
+  try {
+    const profile = authoredProfileFromNpc(source, authoredProfileFor(actorId));
+    if (!profile) return null;
+    return await writeAuthoredProfile(actorId, profile);
+  } catch (error) {
+    // Never fail an Actor sync over a Character Card. A world with no intel
+    // vault is a legitimate state, and so is one where the social layer has
+    // not been initialised.
+    //
+    // Warn ONCE per run rather than per NPC: the cause is almost always a
+    // single missing vault, and nine identical lines is a wall rather than a
+    // report. The count is what a reader actually needs.
+    cardStoreFailures += 1;
+    if (cardStoreFailures === 1) {
+      console.warn(
+        `Blank Inheritance | Actors are syncing, but authored Character Cards cannot be stored (first: "${actorId}"). Further occurrences this run are counted, not logged.`,
+        error
+      );
+    }
+    return null;
+  }
 }
 
 /**
@@ -389,10 +438,10 @@ const REAL_NPC_PATHS = [
 ];
 // Narrowed 2026-09-13: the three episodes this used to list were deleted along
 // with every other drafted beat beyond Session 0/1 (see CLAUDE.md's data/episodes
-// entry). Session One is now the only episode in the repo, and the only one this
+// entry). Episode One is now the only episode in the repo, and the only one this
 // pipeline has anything real to push.
 const REAL_EPISODE_PATHS = [
-  "data/campaign/episodes/episode-c1s1-mothers-maiden-name.json"
+  "data/campaign/episodes/episode-c1e1-mothers-maiden-name.json"
 ];
 
 export async function runRealContentSync() {

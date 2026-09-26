@@ -7,6 +7,23 @@
 
 const MODULE_ID = "blank-inheritance";
 
+/**
+ * A module file as plain text. Same route and error shape as fetchModuleJson;
+ * used for packed assets that aren't JSON on the wire (the induction terminal's
+ * Service Agreement, assets/induction/agreement.dat).
+ */
+export async function fetchModuleText(relativePath) {
+  const url = foundry.utils.getRoute(`modules/${MODULE_ID}/${relativePath}`);
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Could not fetch "${relativePath}" (HTTP ${response.status}). ` +
+      `Check the file was actually deployed to Data/modules/${MODULE_ID}/${relativePath} on the server.`
+    );
+  }
+  return response.text();
+}
+
 export async function fetchModuleJson(relativePath) {
   const url = foundry.utils.getRoute(`modules/${MODULE_ID}/${relativePath}`);
   const response = await fetch(url);

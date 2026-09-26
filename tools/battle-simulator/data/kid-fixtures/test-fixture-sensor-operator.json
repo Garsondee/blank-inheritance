@@ -2,6 +2,9 @@
   "$schema": "../../../../data/schema/kid.schema.json",
   "id": "test-fixture-sensor-operator",
   "type": "kid",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": "TEST FIXTURE — Sensor Operator (Witchwarper, synthetic, not one of the six real kids)",
   "player": null,
   "age": 17,

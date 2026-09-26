@@ -2,5 +2,46 @@
   "$schema": "../schema/gazetteer-requests.schema.json",
   "id": "gazetteer-requests",
   "type": "gazetteer-requests",
-  "requests": []
+  "requests": [
+    {
+      "id": "req-1",
+      "what": "A drill hall on the combined campus -- the largest indoor space on the base, big enough for an entire intake at once.",
+      "why": "Blocks Assembly (episode-c1e1--assembly), which needs rows of chairs, a raised platform and the framed charter above it. Long Hall is the mess (2,614 m2) and is already the Canteen scene's building; a base this size would plausibly drill somewhere else, but if you would rather the mess double as the assembly space, say so and I will site it there instead.",
+      "hint": "The fortress island -- Landing End, near Long Hall and the Intake Infirmary, where the intake already lives and eats. CORRECTED 2026-09-22 after Ingram: \"It has to be on the 'Port Island' island... That's the military base... The shore and the mainland aren't for the Directorate military to define.\"",
+      "status": "resolved",
+      "raisedAt": "2026-09-22T00:00:00Z",
+      "resolvedAt": "2026-09-22T00:00:00Z",
+      "resolution": "the-drill-hall (D4.94, Island Centre, 7,246 m2 single span) -- drawn by Ingram 2026-09-22, adopted at scene depth."
+    },
+    {
+      "id": "req-2",
+      "what": "The administrative block -- offices on the lower floors, a carpeted top floor with the senior staff on it.",
+      "why": "Blocks TWO scenes. As Discussed (episode-c1e2--as-discussed) is the Section Officer's own office: small, tidy, duty roster on the wall, in-tray and out-tray. The Hammer (episode-c1e2--the-hammer) is the top floor of the same building -- 'Carpet, which none of them has stood on since they arrived', and a closed door with a bench outside it. Nothing in the gazetteer is the base's admin block; the Goods Office and Permit Office are both single-purpose civic buildings.",
+      "hint": "The fortress island -- Island Centre, the Directorate's own downtown: 'offices, canteens and billets on a rectilinear grid laid out all at once'. That is where a carpeted top floor with senior staff on it belongs, rather than out among the candidate rows. CORRECTED 2026-09-22 after Ingram: \"It has to be on the 'Port Island' island... That's the military base... The shore and the mainland aren't for the Directorate military to define.\"",
+      "status": "resolved",
+      "raisedAt": "2026-09-22T00:00:00Z",
+      "resolvedAt": "2026-09-22T00:00:00Z",
+      "resolution": "the-administrative-block (E4.06, Island Centre, 6 storeys) -- adopted at scene depth, serving both As Discussed and The Hammer. Ingram drew a second admin building alongside it, adopted as the-establishment-offices at sketch depth (no scene casts it yet)."
+    },
+    {
+      "id": "req-3",
+      "what": "The muster yard, with the duty board under its tin hood outside a Time Office hatch.",
+      "why": "Blocks TWO scenes. The Board (episode-c1e2--the-board) is mid-morning at the duty board -- wooden slot-tiles being taken down and put back. The Override (episode-c1e2--the-override) is evening muster in the same yard under the same board. The Haulage Yard is a hard yard but belongs to the works' lorries, and The Time Office is over in Island Centre, not on the base. The yard clock also matters: The Long Afternoon names it as the thing evening muster is measured against.",
+      "hint": "The fortress island -- The Garrison, 'the working half of the base: workshops, the magazine, and the gatehouse that decides who gets through'. A muster yard with a duty board and a Time Office hatch is a working-half object, not a downtown one. CORRECTED 2026-09-22 after Ingram: \"It has to be on the 'Port Island' island... That's the military base... The shore and the mainland aren't for the Directorate military to define.\"",
+      "status": "resolved",
+      "raisedAt": "2026-09-22T00:00:00Z",
+      "resolvedAt": "2026-09-22T00:00:00Z",
+      "resolution": "the-muster-yard (D3.28, The Landing End, 5,430 m2, 372 m from the Main Mech Hangar) -- adopted at scene depth, serving both The Board and The Override."
+    },
+    {
+      "id": "req-4",
+      "what": "The outer sea wall on the fortress island's seaward side, east end, below the garrison yard -- reachable on foot only around low water.",
+      "why": "Blocks Slack Water (episode-c1e2--slack-water), a 35-45 minute scene whose whole premise is the tide: 'reachable on foot for about four hours either side of low water, and not at all otherwise', with a hard horizontal weed line at head height running the length of the wall. There is no sea wall anywhere in the gazetteer.",
+      "hint": "The fortress island's OWN outer edge -- the seaward side below the garrison, facing the East Basins or the outer channel. Explicitly NOT the mainland shore: my first hint said 'eastern shore' and that was the error. CORRECTED 2026-09-22 after Ingram: \"It has to be on the 'Port Island' island... That's the military base... The shore and the mainland aren't for the Directorate military to define.\"",
+      "status": "resolved",
+      "raisedAt": "2026-09-22T00:00:00Z",
+      "resolvedAt": "2026-09-22T00:00:00Z",
+      "resolution": "the-outer-sea-wall (E3.07, The Long Sheds, point) -- adopted at scene depth. Sited on the island's own north-east seaward side, NOT the mainland shore."
+    }
+  ]
 }

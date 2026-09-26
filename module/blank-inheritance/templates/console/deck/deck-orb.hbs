@@ -12,20 +12,28 @@
       window — whatever a hand is on (the modifier that will be rolled), else
                the last roll and its margin, else who this is.
 
+    2026-09-23 additions: two annunciators printed on the face (hero points,
+    the dying track), a second engraving round the foot of the collar (AC,
+    speed, level), and a lamp behind the glass whose warm light flickers and
+    spills out across the silver (bi-components.css, "The lamp behind the
+    glass"). The flanks each gained a pill key: Initiative on the left, the
+    Turn key on the right (core/deck-combat.mjs decides what Turn does for
+    each seat).
+
     Every coordinate is computed in core (day-ring.mjs, vu-meter.mjs,
-    deck-layout.mjs); nothing here does arithmetic. The defences flank the
-    instrument on the spine, Perception and Fortitude left, Reflex and Will
-    right.
+    deck-layout.mjs, orb-geometry.mjs); nothing here does arithmetic. The
+    defences flank the instrument on the spine, Perception and Fortitude left,
+    Reflex and Will right.
 --}}
-<div class="bi-orb-deck" data-bezel="{{orb.bezel.kind}}" data-tier="{{orb.hp.tier}}"{{#unless orb.subject}} data-empty="1"{{/unless}}>
+<div class="bi-orb-deck" data-bezel="{{orb.bezel.kind}}" data-tier="{{orb.hp.tier}}"{{#unless orb.subject}} data-empty="1"{{/unless}}{{#if orb.asking}} data-asking="1"{{/if}}>
     <div class="bi-deck-flank bi-deck-flank--left">
         {{#each orb.flanks.left}}
         <div class="bi-deck-defence{{#unless this}} bi-deck-defence--blank{{/unless}}">
             {{#if this}}
-            <button type="button" class="bi-deck-round" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
+            <button type="button" class="bi-deck-round{{#if this.ask}} bi-deck-round--ask{{/if}}" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
                 aria-label="{{this.label}} {{this.modLabel}}"
-                data-preview-title="{{this.label}}" data-preview-value="{{this.modLabel}}" data-preview-sub="{{this.rankLabel}}">
-                <span class="bi-deck-round__mod">{{this.modLabel}}</span>
+                data-preview-title="{{this.label}}" data-preview-value="{{#if this.ask}}{{localize 'BLANKINHERITANCE.Deck.Ask'}}{{else}}{{this.modLabel}}{{/if}}" data-preview-sub="{{#if this.ask}}{{localize 'BLANKINHERITANCE.Deck.AskTheTableSub'}}{{else}}{{this.rankLabel}}{{/if}}">
+                <span class="bi-deck-round__mod">{{#if this.ask}}{{localize "BLANKINHERITANCE.Deck.Ask"}}{{else}}{{this.modLabel}}{{/if}}</span>
             </button>
             <span class="bi-deck-round__label">{{this.label}}</span>
             {{else}}
@@ -34,6 +42,12 @@
             {{/if}}
         </div>
         {{/each}}
+        <span class="bi-deck-pill bi-deck-flank__key">
+            <button type="button" class="bi-deck-pill__cap" data-action="{{orb.keys.initiative.action}}" {{#if orb.keys.initiative.disabled}}disabled{{/if}}
+                aria-label="{{orb.keys.initiative.label}} {{orb.keys.initiative.modLabel}}"
+                data-preview-title="{{orb.keys.initiative.previewTitle}}" data-preview-value="{{orb.keys.initiative.previewValue}}" data-preview-sub="{{orb.keys.initiative.previewSub}}"></button>
+            <span class="bi-deck-pill__label">{{orb.keys.initiative.label}}{{#if orb.keys.initiative.modLabel}} <b>{{orb.keys.initiative.modLabel}}</b>{{/if}}</span>
+        </span>
     </div>
 
     <div class="bi-orb">
@@ -45,9 +59,6 @@
                 <path class="bi-orb__arc" d="{{this.d}}" data-state="{{this.state}}"></path>
                 {{/each}}
             </g>
-            {{#each orb.bezel.slices}}
-            <text class="bi-orb__glyph" x="{{this.labelX}}" y="{{this.labelY}}" font-size="{{../orb.bezel.glyphSize}}" data-state="{{this.state}}">{{this.glyph}}</text>
-            {{/each}}
         </svg>
         {{#if orb.bezel.hits.length}}
         <div class="bi-orb__hits">
@@ -60,6 +71,7 @@
         {{/if}}
 
         <div class="bi-orb__glass">
+            <div class="bi-orb__lamp" aria-hidden="true"></div>
             <svg class="bi-orb__face" viewBox="{{orb.face.viewBox}}" aria-hidden="true" focusable="false">
                 {{#if orb.face.dangerBand}}<path class="bi-orb__danger" d="{{orb.face.dangerBand}}"></path>{{/if}}
                 <path class="bi-orb__scale" d="{{orb.face.arc}}"></path>
@@ -72,6 +84,15 @@
                 <text class="bi-orb__minus" x="{{orb.face.minus.x}}" y="{{orb.face.minus.y}}" font-size="{{orb.type.sign}}">−</text>
                 <text class="bi-orb__plus" x="{{orb.face.plus.x}}" y="{{orb.face.plus.y}}" font-size="{{orb.type.sign}}">+</text>
                 <text class="bi-orb__gauge" x="{{orb.face.pivot.x}}" y="{{orb.type.gaugeY}}" font-size="{{orb.type.gauge}}">{{orb.gaugeLabel}}</text>
+                {{!-- Annunciators: printed legends with their lamps under them. --}}
+                <text class="bi-orb__ann-label" x="{{orb.annunciators.hero.x}}" y="{{orb.annunciators.labelY}}" font-size="{{orb.annunciators.labelSize}}">{{orb.annunciators.hero.label}}</text>
+                {{#each orb.annunciators.hero.lamps}}
+                <circle class="bi-orb__ann-lamp{{#if this.lit}} is-lit{{/if}}" data-kind="hero" cx="{{this.cx}}" cy="{{this.cy}}" r="{{../orb.annunciators.lampRadius}}"></circle>
+                {{/each}}
+                <text class="bi-orb__ann-label{{#if orb.annunciators.dying.active}} is-alarm{{/if}}" x="{{orb.annunciators.dying.x}}" y="{{orb.annunciators.labelY}}" font-size="{{orb.annunciators.labelSize}}">{{orb.annunciators.dying.label}}</text>
+                {{#each orb.annunciators.dying.lamps}}
+                <circle class="bi-orb__ann-lamp{{#if this.lit}} is-lit{{/if}}" data-kind="dying" cx="{{this.cx}}" cy="{{this.cy}}" r="{{../orb.annunciators.lampRadius}}"></circle>
+                {{/each}}
             </svg>
             <div class="bi-orb__needle" style="--needle: {{orb.needle.from}}deg" data-needle-to="{{orb.needle.to}}"></div>
             <div class="bi-orb__pivot" aria-hidden="true"></div>
@@ -83,11 +104,29 @@
             <div class="bi-orb__gloss" aria-hidden="true"></div>
         </div>
 
-        {{!-- Engraved round the collar: a light copy a hair lower, then the ink, so the letters read as cut into the metal. --}}
+        {{!-- The bezel's glyphs — the day's four kanji, or 1/2/3/R in a fight —
+              on their OWN top layer, above the glass and its edge rings,
+              which used to cover their inner half ("the kanji in the main
+              round dial are cut off", 2026-09-23). Same 100-unit box and
+              centre as the bezel, so they still land on their arcs; inert to
+              the pointer, so the bezel keys underneath still take the press. --}}
+        <svg class="bi-orb__glyphs" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            {{#each orb.bezel.slices}}
+            <circle class="bi-orb__glyph-backing" cx="{{this.labelX}}" cy="{{this.labelY}}" r="{{../orb.bezel.glyphBackingRadius}}" data-state="{{this.state}}"></circle>
+            <text class="bi-orb__glyph" x="{{this.labelX}}" y="{{this.labelY}}" font-size="{{../orb.bezel.glyphSize}}" data-state="{{this.state}}">{{this.glyph}}</text>
+            {{/each}}
+        </svg>
+
+        {{!-- Engraved round the collar: a light copy a hair lower, then the ink, so the letters read as cut into the metal. The top reads the day or the round; the foot, the subject's AC, speed and level. --}}
         <svg class="bi-orb__engraving" viewBox="0 0 100 100" role="img" aria-label="{{orb.bezel.caption}}" focusable="false">
             <path id="bi-orb-caption-arc" d="{{orb.engraving.arc}}" fill="none"></path>
+            <path id="bi-orb-caption-under" d="{{orb.engraving.underArc}}" fill="none"></path>
             <text class="bi-orb__caption bi-orb__caption--light" font-size="{{orb.engraving.size}}" transform="translate(0 0.28)" aria-hidden="true"><textPath href="#bi-orb-caption-arc" startOffset="50%">{{orb.bezel.caption}}</textPath></text>
             <text class="bi-orb__caption" font-size="{{orb.engraving.size}}" aria-hidden="true"><textPath href="#bi-orb-caption-arc" startOffset="50%">{{orb.bezel.caption}}</textPath></text>
+            {{#if orb.engraving.under}}
+            <text class="bi-orb__caption bi-orb__caption--light" font-size="{{orb.engraving.underSize}}" transform="translate(0 0.28)" aria-hidden="true"><textPath href="#bi-orb-caption-under" startOffset="50%">{{orb.engraving.under}}</textPath></text>
+            <text class="bi-orb__caption" font-size="{{orb.engraving.underSize}}"><textPath href="#bi-orb-caption-under" startOffset="50%">{{orb.engraving.under}}</textPath></text>
+            {{/if}}
         </svg>
     </div>
 
@@ -95,10 +134,10 @@
         {{#each orb.flanks.right}}
         <div class="bi-deck-defence{{#unless this}} bi-deck-defence--blank{{/unless}}">
             {{#if this}}
-            <button type="button" class="bi-deck-round" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
+            <button type="button" class="bi-deck-round{{#if this.ask}} bi-deck-round--ask{{/if}}" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
                 aria-label="{{this.label}} {{this.modLabel}}"
-                data-preview-title="{{this.label}}" data-preview-value="{{this.modLabel}}" data-preview-sub="{{this.rankLabel}}">
-                <span class="bi-deck-round__mod">{{this.modLabel}}</span>
+                data-preview-title="{{this.label}}" data-preview-value="{{#if this.ask}}{{localize 'BLANKINHERITANCE.Deck.Ask'}}{{else}}{{this.modLabel}}{{/if}}" data-preview-sub="{{#if this.ask}}{{localize 'BLANKINHERITANCE.Deck.AskTheTableSub'}}{{else}}{{this.rankLabel}}{{/if}}">
+                <span class="bi-deck-round__mod">{{#if this.ask}}{{localize "BLANKINHERITANCE.Deck.Ask"}}{{else}}{{this.modLabel}}{{/if}}</span>
             </button>
             <span class="bi-deck-round__label">{{this.label}}</span>
             {{else}}
@@ -107,5 +146,11 @@
             {{/if}}
         </div>
         {{/each}}
+        <span class="bi-deck-pill bi-deck-flank__key">
+            <button type="button" class="bi-deck-pill__cap" data-action="{{orb.keys.turn.action}}" {{#if orb.keys.turn.disabled}}disabled{{/if}}
+                aria-label="{{orb.keys.turn.label}}"
+                data-preview-title="{{orb.keys.turn.previewTitle}}" data-preview-value="{{orb.keys.turn.previewValue}}" data-preview-sub="{{orb.keys.turn.previewSub}}"></button>
+            <span class="bi-deck-pill__label">{{orb.keys.turn.label}}</span>
+        </span>
     </div>
 </div>

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--assembly",
+  "type": "audio-soundscape",
+  "title": "S1 · Assembly",
+  "note": "'The whole intake is assembled in the drill hall and addressed from the platform by the Deputy Director.' Briefing pool -- the same register as The Board next episode, both being the Directorate reading out official business to a standing group. A very quiet crowd presence rather than a bed proper: several hundred trainees are IN the room but the scene is not about them, it is about the platform.",
+  "music": {
+    "pool": "briefing"
+  },
+  "ambience": [
+    {
+      "track": "esm-pscwea-cinematic-fx-ambience-crowd-mall-nearfield-group",
+      "level": -22
+    }
+  ],
+  "fade": 4000
+}

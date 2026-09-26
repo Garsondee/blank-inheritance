@@ -1,0 +1,97 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e2-the-hammer",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Hammer",
+  "description": "One check, made once per player: answering a direct question from the most senior person any of them has ever met. It does not decide what happens to them -- that was decided elsewhere and by somebody else -- and it cannot make things worse.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "answer-for-yourself",
+      "name": "Answer the question you are actually asked",
+      "skillOptions": [
+        "diplomacy",
+        "deception",
+        "intimidation",
+        "performance"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC 15. One step easier (13) for a player who answers honestly and without polish, because that is what he is actually listening for and it should be mechanically cheaper than being clever",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "He hears it properly. Whatever they said, he does not just note it -- he responds to it, briefly, as one person to another, and everybody in the room notices him do it.",
+        "success": "A straight answer, received and noted. He moves to the next person.",
+        "failure": "It comes out badly -- too defensive, too rehearsed, or too quiet. He waits, in case there is more, and the waiting is worse than anything he could say. Then he moves on.",
+        "criticalFailure": "Something actively unhelpful: blaming somebody else in the room, a joke that does not land, or a flat refusal delivered rudely rather than simply. He notes it without any reaction at all, which is the most uncomfortable thing that happens in the scene."
+      },
+      "bySkill": {
+        "diplomacy": "A straight, courteous, honest answer. The intended route and the cheapest one.",
+        "society": "Answering in the institution's own terms -- what the standing order actually required, what they judged and why. He respects this and says so.",
+        "deception": "Available, and he has the full radio log in front of him. It does not catch fire immediately; it simply does not work, and on a failure he lets the silence make that clear.",
+        "intimidation": "Defiance, delivered to a man who has been defied by better and is not remotely threatened. He is not offended by it and takes it seriously if it is honest.",
+        "performance": "Making a case rather than giving an answer. Works if the case is real and lands badly if it is theatre."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "speak-for-her",
+      "name": "Say something for the Comms Officer",
+      "skillOptions": [
+        "diplomacy",
+        "society",
+        "legal-lore"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard -- they are contradicting their own section officer's account in front of the second-most-senior person in the Directorate, from a bench, at fifteen",
+        "adjustment": "hard"
+      },
+      "insight": false,
+      "outcomes": {
+        "criticalSuccess": "It lands as fact rather than as loyalty. The Deputy Director writes, and what he writes is that the officer on the net exercised judgement under conditions her standing orders did not cover. That sentence is the difference between a career and a file, and it is in her record permanently.",
+        "success": "It lands. Her two refusals go down as a decision rather than as a failure to act. Nothing is said about it in the room.",
+        "failure": "It is heard and it is not enough. Her refusals stay on the record as refusals -- accurate, undefended, and open to whatever reading a future board wants to give them.",
+        "criticalFailure": "Somebody overstates it, or contradicts the log, and the Deputy Director checks the log. Her account and theirs no longer agree in one detail, which is worse for her than silence would have been, because now there is an inconsistency with her name attached to it."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "why-does-he-get-in",
+      "name": "Work out why a doctor has that door",
+      "skillOptions": [
+        "society",
+        "medicine",
+        "occultism"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard -- nobody is hiding it and nobody has ever written it down, so the answer has to be assembled out of how people behave rather than looked up",
+        "adjustment": "hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Not seniority and not friendship. The Deputy Director stood up before the door was fully open, and the man on the door did not reach for the log. Shucks Mordant is not on this building's access list because nobody has ever been able to think of what to put in the box.",
+        "success": "Whatever that was, it was not rank. Every person in that corridor treated a doctor arriving without an appointment as a normal event, and none of them looked at each other about it.",
+        "failure": "A senior doctor with a long career and the kind of standing that opens doors. It happens.",
+        "criticalFailure": "They settle on an explanation that is tidy, plausible and wrong -- he is the Deputy Director's own physician, or an old friend from training -- and they will carry it until something contradicts it."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Every player, individually -- one question each"
+  ],
+  "relatedRefs": [
+    "episode-c1e2-scheduled-exercise",
+    "episode-c1e2--the-hammer",
+    "episode-c1e2--unidentified-contact",
+    "c1e2-first-contact"
+  ],
+  "notes": "THIS CHECK DOES NOT DECIDE THEIR FATE. What the party leaves with is set before the scene starts and is not affected by any roll here. This measures how a given answer lands in the room, and nothing else.\n\nHONESTY IS MECHANICALLY CHEAPER THAN CLEVERNESS, ON PURPOSE. A player who answers plainly and without polish rolls at a lower DC than one who constructs something. That is the scene's whole thesis expressed as a number.\n\nEVERY PLAYER GETS THEIR OWN QUESTION. Not the same question six times -- ask each of them something that only makes sense asked of them, based on what that character actually did. This is the scene's agency and the reason it is not a cutscene.\n\nSILENCE IS A VALID ANSWER AND IS NOT PUNISHED. A player who declines to speak is accepted without comment and without a roll. He does not press.\n\nNOTHING SAID HERE CAN HARM THE COMMS OFFICER. Her judgement was correct and her position is secure. If a player fears otherwise, the Deputy Director says so plainly when asked.\n\nSPEAKING FOR HER IS A CHOICE FIRST AND A ROLL SECOND. He asks about the officer on the net because he has the log in front of him and he already knows what she did. Whether the party says anything for her is theirs and is never rolled for. The check is only made by a player who speaks up, and it measures how well that lands, not whether they were right to.\n\nTHE REFUSAL FLOOR IS THAT NOTHING HAPPENS TO THEM. Every route out of this beat -- speaking up and rolling badly, saying nothing, or agreeing with their section officer -- costs the party nothing at all today, and they are told nothing either way. The only person who can lose anything here is the officer on the net, which is exactly why it is worth asking and why a player who declines to engage is not being penalised for it.\n\nSAYING NOTHING IS AN ANSWER AND HAS THE FAILURE OUTCOME, WITHOUT THE ROLL. Her two refusals stay on the record undefended. That is not a punishment for passivity; it is what happens to a person nobody speaks for, and the party were the only witnesses.\n\nTHROWING HER OVER IS ALSO AVAILABLE AND IS NOT ROLLED. It would help them and it would be easy. If they take it, it works -- use the critical failure text for her record and give the party no penalty at all today. The cost is entirely hers and entirely deferred.\n\nHE DOES NOT REACT, WHATEVER HAPPENS. He notes it and moves on. The party should leave this room without knowing which way it went."
+}

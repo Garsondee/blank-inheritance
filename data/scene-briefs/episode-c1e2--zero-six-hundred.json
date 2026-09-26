@@ -1,0 +1,181 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e2--zero-six-hundred",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e2-scheduled-exercise",
+  "sceneRef": "zero-six-hundred",
+  "title": "Zero Six Hundred",
+  "summary": "The same canteen, an hour before the hangar, with nobody in it. Whatever last night was, it is now this morning and everybody has to look at each other over it. Taka is already there, on purpose, because somebody told him what they are doing today.",
+  "goal": "The party sits down together once before they touch a machine, whatever state each of them is in, and somebody who has done this before tells them the one small, true, unglamorous thing nobody official will.",
+  "howToPlay": "Quiet, warm, and short. Ten minutes.\n\n**This is the same room as Episode One's canteen and it must feel like the opposite of it.** That scene was loud, full, and they were the newest table in it. This one is nearly empty, the urn is the loudest thing in the building, and they are the only table. Describe the delta, not the room again.\n\n**Last night's choices arrive here, and none of them are punished.** Who went over the wire, who stayed in, who got caught, who got back clean -- all of it is just true now, over breakfast, in front of everybody. Let the players do the work. Do not have an adult adjudicate it.",
+  "runsAbout": "10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The combined-campus canteen, an hour before the hangar. One urn on, one hatch open, and a floor somebody is still mopping.",
+    "firstThing": "The urn, which is the loudest thing in the building.",
+    "readAloud": "The canteen at six is a different building. One hatch open, one urn going, and a wet floor nobody has walked on yet.\n\nYou are the only table. Four hundred seats and a room that does not know what to do with six people.\n\nThere is somebody already sitting at it.",
+    "landmark": "the one open hatch, and the light coming out of it across a wet floor",
+    "holdInReserve": "There is a second tray at the table with the cup already gone cold on it, which means he has been here a while. Give this to anybody who looks at what is in front of him rather than at him.",
+    "carriesIn": [
+      {
+        "when": "The Night Off was played (it was)",
+        "then": "Whatever each of them did with the evening is now visible over breakfast. Somebody is running on three hours, somebody is fine, somebody came back with something in a pocket. Do not narrate the comparison -- put them at one table and let them notice each other."
+      },
+      {
+        "when": "Anybody got inside a Frame in the unlocked hangar last night",
+        "then": "Taka does not know that and must not be told by the GM. If the player says it out loud at this table, he reacts as a friend who is impressed and slightly appalled, and then tells them about their hands a good deal more urgently."
+      }
+    ]
+  },
+  "cast": [
+    {
+      "id": "taka",
+      "npcRef": "taka",
+      "label": "Taka",
+      "role": "A year ahead of them, up at six on purpose, sitting at their table before they get to it.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To be there when they go and do the thing he remembers doing. He has no advice he was asked for and he is going to give it anyway, and he has been awake since five working out how to make it sound casual.",
+        "opensWith": "Talking before any of them have sat down, as though the conversation started earlier and they are late to it. If anybody asks why he is up, he says he is always up at this time, which is not true and is not a good lie.",
+        "willDiscuss": [
+          {
+            "topic": "What familiarisation is actually like",
+            "note": "Enthusiastically and accurately. He did this a year ago, he remembers all of it, and everything he says turns out to be true."
+          },
+          {
+            "topic": "What a first morning in a machine actually does to you",
+            "note": "The reason he is here at six in the morning, though he will not put it that way. Everybody over-grips the controls, everybody's hands seize up by about eleven, and the second day is worse than the first. It is not dangerous and it is not interesting. It is just the thing nobody bothers to tell a trainee, and he remembers nobody telling him."
+          },
+          {
+            "topic": "Whatever any of them did last night",
+            "note": "Delighted by all of it, including the parts that went wrong, and completely uninterested in whether it was allowed."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Anything unkind about anybody, however openly he is invited to",
+            "why": "It visibly costs him nothing to refuse, which is the most revealing thing about him. He changes the subject to something he likes instead, at volume, at six in the morning, in an empty room."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Warm, loud, entirely unsuited to the hour, and not remotely self-conscious about either.",
+          "tics": [
+            "Starts in the middle of a thought and expects them to catch up",
+            "Gives the practical warning and then immediately undercuts how serious it sounded",
+            "Eats somebody else's food mid-sentence without appearing to notice"
+          ],
+          "samples": [
+            "\"-- and the second one is worse than the first one, that's the bit nobody tells you. Morning.\"",
+            "\"You'll be fine. Everyone's fine. I said that to somebody last year and he went green in front of a Section Officer, so.\"",
+            "\"Don't fight it. That's it, that's the whole thing. Don't fight it and it passes.\"",
+            "\"You did WHAT? -- No, no, that's brilliant, don't tell me any more, I don't want to know when they ask me.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-empty-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Six of them, one open hatch, and the room they were the newest table in a fortnight ago.",
+      "direction": "Play the contrast with Episode One's canteen and do not restate the room. What is different: the noise is gone, the tables are empty, and nobody is looking at them.\n\nLet them sit down before anything happens. Thirty seconds of nothing is the point of the scene.",
+      "note": "HOW TO PLAY IT. This is the only unstructured minute the party gets between a night off and a machine, and it is deliberately empty. If the table fills it themselves, let them, and cut the rest of the scene short.\n\nWHAT IT DOES NOT MEAN: nobody is in trouble. No adult is about to walk in. The scene has no turn in it."
+    },
+    {
+      "id": "what-last-night-cost",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Whatever each of them did with the evening is sitting at the table with them.",
+      "direction": "Go round the table once and give each player a physical state rather than a verdict: three hours' sleep, a scraped hand, wet boots drying under a radiator, or perfectly fine and slightly smug about it.\n\n**Do not adjudicate.** Nobody is in trouble, nothing is logged, and no NPC comments on it. What the party makes of each other is the beat.",
+      "note": "HOW TO PLAY IT. This is where The Night Off's choices become characterisation instead of a private list in the GM's notes. It costs nothing mechanically -- the Fatigued condition, if anybody earned one, was already applied last night.\n\nA player who stayed in and is fine should feel that as a real outcome, not a missed opportunity. Somebody has to be the one who slept."
+    },
+    {
+      "id": "he-got-up-for-this",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "challengeRef": "c1e2-zero-six-hundred",
+      "checkRef": "ask-him-what-its-like",
+      "npcRef": "taka",
+      "text": "Taka has been awake since five and is pretending he happens to be here. Anybody who asks him anything gets more than they asked for.",
+      "when": {
+        "condition": "if anybody engages with him rather than eating and leaving"
+      },
+      "readAloud": "\"-- and the second day is worse than the first day, that's the bit nobody tells you. Morning.\"\n\nHe has a tray in front of him with a cup on it that went cold a while ago.\n\n\"Right. Your hands. Everybody grips like they're hanging off a cliff the first time, everybody's knuckles seize up by about eleven, and nobody tells you because it's embarrassing. It's not dangerous. It's just embarrassing, and you can't hold a spoon at dinner. So I'm telling you.\"",
+      "direction": "He is not being mysterious and there is nothing to extract. He came here to say this and he will say it whether or not anybody rolls.\n\n**It is true and it is mundane.** Everybody over-grips the controls their first morning, the ache is worse on day two than day one, and there is nothing else going on. Do not let it sound like a warning about something bigger, because it is not one.\n\nThe roll is for the rest of it -- what the hangar is actually like, what the Range Safety Officer is looking for, and what he wishes somebody had told him.",
+      "note": "HOW TO PLAY IT. The warning is free and lands whether anybody engages or not. It is a friend passing on something small and true that nobody official will bother with, and this is exactly that telling. Do not make it a reward for a good roll.\n\nPAYS OFF WITHIN THE HOUR, in Familiarisation and The Exercise. A success is real, specific, accurate advice from somebody who did this a year ago. Do not mention that it is worth anything.\n\nWHAT IT DOES NOT MEAN: he is not warning them about danger, he does not know anything about the exercise, and nothing he says foreshadows what happens at the harbour. He is a friend at breakfast who remembers being frightened of something silly."
+    },
+    {
+      "id": "out",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Hangar Two at seven, and Taka is not coming.",
+      "direction": "He says something as they go and does not make a moment of it. Then they are outside and it is a normal cold morning and the day starts.\n\nDo not give him a speech. He is going to his own timetable and will see them at dinner.",
+      "note": "HOW TO PLAY IT. Thirty seconds. Resist the urge to make the goodbye significant -- the scene's whole warmth is that this is an ordinary Wednesday for him."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "They leave for Hangar Two and he stays where he is.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Move this if the party actually talked to each other about last night rather than only to Taka. The empty room is the opportunity; taking it is theirs."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Hangar Two at seven, and it is a fifteen-minute walk in the cold.",
+      "scatterRisk": false
+    },
+    "onwards": "Into Familiarisation.",
+    "writeDown": [
+      "Who was visibly wrecked and who was fine. It is characterisation and it will come up again.",
+      "Whether anybody told Taka what they did last night, and what he said back.",
+      "Anybody who asked him what familiarisation is like. They have real advice and nobody has told them it is worth anything."
+    ],
+    "readAloud": "Outside it is properly cold and not yet light, and the walk to Hangar Two takes about fifteen minutes.\n\nHe does not come with you. He has his own timetable and he will see you at dinner."
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-cold-cup",
+      "text": "There is a second tray at the table and the cup on it went cold a long time ago."
+    },
+    {
+      "id": "tell-him-what-you-did",
+      "text": "Somebody at this table went over the wire last night and he has not been told."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-empty-canteen",
+      "text": "Whether the same room at six in the morning landed as the opposite of the room they met in.",
+      "scaleNote": "0 = read as just another canteen scene, 10 = the emptiness did the work."
+    },
+    {
+      "id": "taka-at-six",
+      "text": "Taka having got up at five to deliver one piece of advice, and pretending he had not."
+    },
+    {
+      "id": "last-night-at-breakfast",
+      "text": "Whether last night's choices landed as characterisation at the table rather than as a GM's private list."
+    },
+    {
+      "id": "the-warning-was-free",
+      "text": "Whether Taka's warning read as a friend being kind rather than as a reward for engaging."
+    }
+  ],
+  "notes": "WHY THIS SCENE EXISTS. The Night Off recorded who went over the wire, who got inside a Frame and who heard the late-watch gossip, and then the episode cut straight to 0700 and none of it landed anywhere. This is where it lands, and it lands as characterisation rather than as consequence -- nobody is in trouble and no adult adjudicates any of it.\n\nTHE ROOM IS A DELTA, NOT A DESCRIPTION. It is Episode One's canteen with everything removed: no noise, no crowd, no established tables, nobody looking at them. Describe the difference and nothing else. A GM who re-describes the canteen from scratch has wasted the one image the scene is built on.\n\nTAKA'S WARNING IS FREE AND MUST STAY FREE. It is not gated on the check and it is not a reward -- a friend telling you over breakfast that your hands are going to seize up is the whole of it. What the check buys is the rest.\n\nNOTHING IN THIS SCENE KNOWS ABOUT FRAME SICKNESS. That is a Gen 2 phenomenon, these are Gen 1 machines, and the only people aware it exists are Anabala and senior Directorate. Taka could not warn them about it and there would be nothing to warn about. The players meet it when they are offered Gen 2 Frames, around Chapter Four or Five.\n\nTAKA HAS NO NPC FILE. He is cast inline here exactly as he is in Episode One's Canteen and The Walk Down, with `npcRef: null`. He now appears in four scenes across two episodes and should probably have one -- his bible entry is `ideas/story/bible/characters/taka.md`."
+}

@@ -19,7 +19,7 @@
  *   }
  */
 
-import { isSafeSlug } from "./skills.mjs";
+import { FALLBACK_SKILL_SLUGS, isSafeSlug } from "./skills.mjs";
 
 /**
  * Whether a plain click on the CONSOLE shows sf2e's roll-modifiers dialog:
@@ -100,6 +100,9 @@ export function strikeEventShiftKeyFor(desiredSkipDialog, realShowCheckDialogs) 
   return baselineSkip !== desiredSkipDialog;
 }
 
+/** Roll options are lowercase words joined by hyphens and colons — never `|`, `]` or `,`, which the enricher parses. */
+const SAFE_ROLL_OPTION = /^[a-z0-9][a-z0-9:_-]*$/;
+
 /**
  * The fallback path: an `@Check[...]` enricher string to post as a message.
  *
@@ -113,9 +116,73 @@ export function strikeEventShiftKeyFor(desiredSkipDialog, realShowCheckDialogs) 
  * `|` and `]` as syntax. An unvalidated lore called `x|dc:1]@UUID[...]` would
  * be an injection into that parser.
  */
-export function enricherFor({ slug, dc = null } = {}) {
+export function enricherFor({ slug, dc = null, options = [] } = {}) {
   if (!isSafeSlug(slug)) throw new Error(`Refusing to build an enricher for unsafe slug ${JSON.stringify(slug)}.`);
-  if (dc === null || dc === undefined) return `@Check[${slug}]`;
-  if (!Number.isInteger(dc)) throw new Error(`A check DC must be a whole number, got ${JSON.stringify(dc)}.`);
-  return `@Check[${slug}|dc:${dc}]`;
+  const params = [slug];
+  if (dc !== null && dc !== undefined) {
+    if (!Number.isInteger(dc)) throw new Error(`A check DC must be a whole number, got ${JSON.stringify(dc)}.`);
+    params.push(`dc:${dc}`);
+  }
+  // Extra roll options ride along into the roll's own chat message
+  // (sf2e's inline check turns `options:` into extraRollOptions), which is how
+  // the Scene Runner recognises the result of a check it posted
+  // (core/runner-view.mjs#runnerRollOption). Validated for the same reason
+  // the slug is: this string is parsed as enricher syntax.
+  const extra = (options ?? []).filter((option) => option !== null && option !== undefined);
+  for (const option of extra) {
+    if (typeof option !== "string" || !SAFE_ROLL_OPTION.test(option)) {
+      throw new Error(`Refusing to build an enricher with unsafe roll option ${JSON.stringify(option)}.`);
+    }
+  }
+  if (extra.length) params.push(`options:${extra.join(",")}`);
+  return `@Check[${params.join("|")}]`;
+}
+
+/**
+ * One obstacle, every listed skill option, all actually postable.
+ *
+ * sf2e's own `@Check[...]` enricher takes exactly one statistic slug — checked
+ * directly against the shipped bundle (every real example, from class-DC
+ * saves to `@Check[flat|dc:5]`, is single-slug; there is no documented
+ * pipe-or-slash syntax for "any of these skills"). Found live 2026-09-19: a
+ * challenge's own button already shows every skill in `skillOptions`
+ * ("PERCEPTION / MEDICINE / SOCIETY 17"), which promises a real choice, but
+ * the panel was only ever posting the FIRST one — a player who'd rather roll
+ * Society had no way to. The honest fix isn't a picker; it's posting every
+ * option as its own real, clickable inline check in one message, joined by
+ * plain "or" — the player then clicks whichever one applies to their own
+ * character, at zero extra cost to the GM.
+ */
+export function enrichersFor({ skillOptions = [], dc = null, options = [] } = {}) {
+  return skillOptions.map((slug) => enricherFor({ slug, dc, options })).join(" or ");
+}
+
+/**
+ * The skills a check can actually be rolled on.
+ *
+ * Normally that is the check's own `skillOptions`. A check marked
+ * `anySkill` leaves that list empty on purpose: the player names the skill
+ * (Ingram, 2026-09-24, for The Road In's small problem -- "We then ask them
+ * what skill they used to try and overcome it"). Posting nothing would give
+ * the player nothing to click and the result nothing to record itself
+ * against, so an any-skill check offers every SF2E skill, each its own real
+ * inline check in one message, and the player clicks the one they named. The
+ * fixed eighteen are used rather than a live actor's list because the GM
+ * posts this for the table, not for one sheet; Lore skills are the price of
+ * that, and a player with a relevant Lore can roll it from their own sheet.
+ */
+export function checkSkills(check) {
+  if (!check) return [];
+  if (check.anySkill) return [...FALLBACK_SKILL_SLUGS];
+  return [...(check.skillOptions ?? [])];
+}
+
+/**
+ * The short label a check's button carries: "athletics / acrobatics 13", or
+ * `anyLabel` plus the DC for an any-skill check -- eighteen slugs joined by
+ * slashes is not a label.
+ */
+export function checkLabel(check, dc, anyLabel = "Any skill") {
+  const skills = check?.anySkill ? anyLabel : (check?.skillOptions ?? []).join(" / ");
+  return `${skills} ${dc ?? ""}`.trim();
 }

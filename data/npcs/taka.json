@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "taka",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Taka",
+  "role": "A trainee a year ahead of the party, and the first person on this island to claim them",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "The canteen's own gravitational centre. Arrives uninvited on the party's first evening and claims all six of them as his table, instantly and totally, before the plates are cleared -- delivered as settled fact rather than as an offer.\n\nWarm, loud, entirely unsuited to whatever hour it happens to be, and not remotely self-conscious about either. The warmth is the surface. Underneath it is real hands-on competence that only shows when something serious comes up, and when it does he tends to change the subject.\n\nA third register in the campaign's set of warm adults, and deliberately distinct from the other two: Shucks is warm because he has infinite time, Nobu is generous despite having none, and Taka is warm because it costs him nothing -- which is its own kind of tell. He has not yet been ground down by the institution the way the two older men have.\n\nHOW HE TALKS. Warm, loud, instantly familiar, and entirely unbothered about what hour it is or who is listening. His claim on people arrives as settled fact rather than as an offer, delivered with total conviction and no explanation. He seizes on whatever somebody actually just said or did and runs with it -- the warmth is inclusion, never labelling.\n\nPLAY THE GOOFINESS COMPLETELY STRAIGHT. No foreshadowing winks that there is more to him. When something serious does come up, what happens is a beat of silence, something technical and specific, and a change of subject. A beat of silence, not a speech.\n\nWHAT HE ACTUALLY KNOWS. He is a year further into this than they are and it shows in his hands, not his vocabulary: what a hangar is like at seven in the morning, what a Range Safety Officer is really watching for, that everybody over-grips the controls their first time. He remembers nobody telling him any of it.\n\nHE IS NOT A THIRD VARIATION ON KINDNESS-WITH-A-COST. Shucks is warm because he has infinite time; Nobu is generous despite having none. Taka is warm because it costs him nothing, which is its own kind of tell -- he has not yet been ground down by the institution the way the two older men have. If a hidden cost is ever added to him, that is a deliberate decision to make, not a default to slide into because the other two adults in his scenes have one.",
+  "designNotes": "Created 2026-09-21. He appears in three scenes across two episodes (Canteen, The Walk Down, Zero Six Hundred) and until now was cast inline with `npcRef: null` in every one of them -- no record, no portrait hook, nothing the Scene Runner or the sync pipeline could attach to. Full voice, tone and history live in `ideas/story/bible/characters/taka.md`; this file exists so the pipeline has something to point at, and does not restate it.\n\nTHE STANDING INSTRUCTION FROM THE BIBLE, TWICE IN IDENTICAL WORDS: \"Make the table love Taka tonight. Everything he is for later depends on it.\"\n\nNO INVENTED NICKNAMES. He claims the party as a group; he does not rename them individually. That was the original design and Ingram cut it 2026-09-19 -- it presumes what six PCs who do not exist yet will be like. His warmth comes from inclusion, never from labelling.\n\nSTILL OPEN: his age, his rank or role, and how much real Frame experience he actually has. Do not settle any of them in passing.\n\nEXPANDED at Ingram's request. Voice, behaviour and what he knows now live here rather than only in the bible, because he appears in three scenes across two episodes and a GM should not have to open a second file to run him. The bible entry remains the source for his history and his open questions.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "socialProfile": {
+    "attitude": "friendly",
+    "facts": [
+      {
+        "id": "warmth-costs-him-nothing",
+        "text": "His warmth is not effort and not strategy. He claims people because it has never occurred to him not to, which is why it arrives as settled fact rather than as an offer, and why it cannot be talked out of him.",
+        "revealTrigger": {
+          "narrative": "Being claimed by him, which happens to the party on their first evening whether they want it or not."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "will-not-say-anything-unkind",
+        "text": "He will not say anything unkind about anybody, however openly he is invited to, and refusing visibly costs him nothing. He changes the subject to something he likes instead, at volume.",
+        "revealTrigger": {
+          "skill": "perception",
+          "dc": 13
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "there-is-something-under-it",
+        "text": "Ask him something genuinely technical and the performance stops for a beat. He knows more than the personality suggests, he does not enjoy being asked, and he will move the conversation on rather than answer properly.",
+        "revealTrigger": {
+          "skill": "society",
+          "dc": 17
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "a-year-is-not-very-long",
+        "text": "He is exactly one year ahead of them and that is the entire distance. Everything he offers is first-hand and recent, and none of it is authority -- pressed on anything outside what he has personally done, he says so cheerfully and without embarrassment.",
+        "revealTrigger": {
+          "narrative": "Asking him something he has not personally done. He does not bluff."
+        },
+        "revealed": false
+      },
+      {
+        "id": "he-remembers-nobody-telling-him",
+        "text": "Every piece of advice he volunteers is one he wishes somebody had given him, and he gives it unprompted, early, and to people who have not asked. That is where the warmth comes from and it is also the closest he comes to talking about his own first year.",
+        "revealTrigger": {
+          "narrative": "Noticing that he keeps turning up slightly before he is needed, with something specific and useful."
+        },
+        "revealed": false
+      }
+    ]
+  },
+  "status": "named and established — voice locked in the bible; age, rank and Frame experience still open"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--familiarisation",
+  "type": "audio-soundscape",
+  "title": "S2 · Familiarisation",
+  "note": "'A catalogue that is not what anybody was promised... converted diggers, a crane rig.' Mech-bay pool -- three tracks built for exactly this: a hangar full of machines. Real machine-shop ambience underneath, quiet, since twelve machines in one hall is mostly rivets and echo rather than anything running.",
+  "music": {
+    "pool": "mech-bay"
+  },
+  "ambience": [
+    {
+      "track": "factory-body-shop-249",
+      "level": -10
+    },
+    {
+      "track": "esm-emdp1-cinematic-fx-ambience-loop-industry-factory-gear",
+      "level": -20
+    }
+  ],
+  "fade": 3500
+}

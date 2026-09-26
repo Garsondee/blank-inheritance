@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--the-tram-back",
+  "type": "audio-soundscape",
+  "title": "S1 · The Tram Back",
+  "note": "'A short, quiet connective scene... nothing has to be resolved.' Thoughtful pool, low and easy to talk over. A real onboard-transit bed rather than a station one -- they are moving, not waiting.",
+  "music": {
+    "pool": "thoughtful"
+  },
+  "ambience": [
+    {
+      "track": "ff-efx-ambience-subway-onboard",
+      "level": -10
+    }
+  ],
+  "mix": {
+    "music": -3
+  },
+  "fade": 3000
+}

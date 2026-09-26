@@ -1,0 +1,316 @@
+{
+ "_id": "sJ5t3aJ5KgaePH88",
+ "name": "Shuck's Right Hand",
+ "type": "familiar",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/shuck_s_hand.Avatar1riqTkidh7ZeRmpn.webp?1663009106391",
+ "items": [
+  {
+   "_id": "262Fmfqe0wUBdkYo",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/equipment/adventuring-gear/spyglass.webp",
+   "name": "Effect: Scouting",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": ""
+    },
+    "rules": [
+     {
+      "key": "FlatModifier",
+      "removeAfterRoll": [
+       "check:type:initiative"
+      ],
+      "selector": "initiative",
+      "type": "circumstance",
+      "value": 1
+     }
+    ],
+    "slug": "effect-scouting",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "duration": {
+     "value": -1,
+     "unit": "unlimited",
+     "expiry": "turn-start",
+     "sustained": false
+    },
+    "start": {
+     "value": -30599628,
+     "initiative": null
+    },
+    "tokenIcon": {
+     "show": true
+    },
+    "badge": null,
+    "context": null
+   },
+   "type": "effect",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.other-effects.Item.EMqGwUi3VMhCjTlF"
+    },
+    "scene-packer": {
+     "hash": "8979ada8aac1631df46ebca773686a191b5cbc82"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "5.8.2",
+    "coreVersion": "12.329",
+    "createdTime": 1699473355910,
+    "modifiedTime": 1699473355910,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.other-effects.Item.EMqGwUi3VMhCjTlF",
+    "duplicateSource": null
+   }
+  },
+  {
+   "_id": "DsGXhATXjQwH7GLy",
+   "img": "https://assets.forge-vtt.com/bazaar/systems/pf2e/assets/icons/actions/Passive.webp",
+   "name": "Manual Dexterity",
+   "system": {
+    "description": {
+     "gm": "",
+     "value": "<p>It can use up to two of its limbs as if they were hands to use manipulate actions.</p>"
+    },
+    "rules": [],
+    "slug": "manual-dexterity",
+    "_migration": {
+     "version": 0.932,
+     "lastMigration": null,
+     "previous": {
+      "schema": 0.926,
+      "foundry": "12.329",
+      "system": "6.1.1"
+     }
+    },
+    "traits": {
+     "otherTags": [],
+     "value": [],
+     "rarity": "common"
+    },
+    "publication": {
+     "title": "Pathfinder Core Rulebook",
+     "authors": "",
+     "license": "OGL",
+     "remaster": false
+    },
+    "level": {
+     "value": 1
+    },
+    "duration": {
+     "value": -1,
+     "unit": "unlimited",
+     "expiry": "turn-start",
+     "sustained": false
+    },
+    "start": {
+     "value": -31339170,
+     "initiative": null
+    },
+    "tokenIcon": {
+     "show": false
+    },
+    "badge": null,
+    "context": null,
+    "target": null,
+    "unidentified": false
+   },
+   "type": "effect",
+   "flags": {
+    "core": {
+     "sourceId": "Compendium.pf2e.familiar-abilities.Item.cT5octWchU4gjrhP"
+    }
+   },
+   "effects": [],
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0,
+    "Np5cw2vU0Pa84Rx8": 3
+   },
+   "_stats": {
+    "systemId": "pf2e",
+    "systemVersion": "4.4.0",
+    "coreVersion": "12.329",
+    "createdTime": 1669148950405,
+    "modifiedTime": 1669148950405,
+    "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+    "compendiumSource": "Compendium.pf2e.familiar-abilities.Item.cT5octWchU4gjrhP",
+    "duplicateSource": null
+   }
+  }
+ ],
+ "effects": [],
+ "folder": null,
+ "sort": 2368750,
+ "flags": {
+  "token-action-hud-core": {},
+  "sequencer": {
+   "effects": []
+  }
+ },
+ "system": {
+  "master": {
+   "id": "jQxfenDoXSROwiZG",
+   "ability": "cha"
+  },
+  "attributes": {
+   "hp": {
+    "value": 40,
+    "temp": 0
+   }
+  },
+  "details": {
+   "creature": {
+    "value": "Skeletal Hand"
+   }
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  }
+ },
+ "ownership": {
+  "default": 1,
+  "Np5cw2vU0Pa84Rx8": 3,
+  "wnMIzmuawPHLA7Cz": 3
+ },
+ "prototypeToken": {
+  "flags": {
+   "pf2e": {
+    "linkToActorSize": true
+   },
+   "sequencer": {
+    "effects": []
+   }
+  },
+  "height": 0.5,
+  "width": 0.5,
+  "actorLink": true,
+  "name": "Shuck's Hand",
+  "displayName": 20,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false,
+    "type": null
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "attenuation": 0.5,
+   "color": null,
+   "negative": false,
+   "priority": 0
+  },
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "randomImg": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/tokenizer/npc-images/shuck_s_hand.Token1riqTkidh7ZeRmpn.webp?1663009106391",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "tint": "#ffffff",
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "alphaThreshold": 0.75
+  },
+  "sight": {
+   "angle": 360,
+   "enabled": true,
+   "range": 0,
+   "brightness": 1,
+   "visionMode": "basic",
+   "color": null,
+   "attenuation": 0.1,
+   "saturation": 0,
+   "contrast": 0
+  },
+  "detectionModes": [],
+  "appendNumber": false,
+  "prependAdjective": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1689709942016,
+  "modifiedTime": 1721827611353,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

@@ -1294,8 +1294,16 @@ function onShapeDrawn(shape) {
   const item = buildItem(shape);
   state.items.push(item);
   state.draw.addShape(item);
-  state.draw.select(item.localId);
+  // markDirty BEFORE select, on purpose: the save this item needs must be
+  // scheduled the instant it exists, never conditional on whatever
+  // happens next (selecting it, which reaches all the way into the
+  // inspector's own rendering) actually succeeding. selectMany's own
+  // try/catch around that reaction is the other half of this same fix --
+  // belt and suspenders after a bug in exactly that reaction once meant
+  // markDirty on the next line never ran at all for a whole session's
+  // worth of hand-drawn shapes.
   markDirty();
+  state.draw.select(item.localId);
   renderList();
   // Region only, and specifically because a region is drawn once and then
   // moved on from -- unlike Site/Pin/Adopt, which are used again and again
@@ -2593,6 +2601,9 @@ function wireChrome() {
   document.querySelectorAll(".gz-tool").forEach((btn) => {
     btn.addEventListener("click", () => setTool(btn.dataset.tool));
   });
+  document.querySelectorAll(".gz-shape-mode").forEach((btn) => {
+    btn.addEventListener("click", () => setDraftShapeMode(btn.dataset.shape));
+  });
   $("btn-save").addEventListener("click", save);
   $("btn-cleanup").addEventListener("click", runCleanup);
   $("btn-undo").addEventListener("click", undo);
@@ -2660,8 +2671,9 @@ function wireChrome() {
     disarmTierChangeConfirm();
     item.tier = nextTier;
     state.draw.addShape(item);
-    state.draw.select(item.localId);
+    // markDirty before select -- see onShapeDrawn's own comment on why.
     markDirty();
+    state.draw.select(item.localId);
     renderList();
   });
 
@@ -2979,8 +2991,11 @@ function deleteItems(ids) {
   const dropped = new Set(toDrop);
   state.items = state.items.filter((it) => !dropped.has(it.localId));
   toDrop.forEach((id) => state.draw.removeShape(id));
-  state.draw.select(null);
+  // markDirty before select(null) -- see onShapeDrawn's own comment on
+  // why: the deletion itself must be scheduled to save regardless of
+  // whether clearing the selection afterward runs into trouble.
   markDirty();
+  state.draw.select(null);
   const parts = [toDrop.length === 1 ? "deleted" : `deleted ${toDrop.length} items`];
   if (locked.length) parts.push(`${locked.length} locked item${locked.length === 1 ? "" : "s"} kept`);
   setStatus(parts.join(" — "), locked.length ? "warn" : undefined);
@@ -3177,11 +3192,30 @@ const TOOL_LABEL = {
   point: "Pin", adopt: "Adopt", remove: "Remove",
 };
 
+// Region/Site's draft-shape palette (Polygon/Rectangle/Circle) -- see
+// index.html's own comment on #shape-modes for why this exists at all.
+// A plain call-through to state.draw.setDraftShapeMode; the only reason
+// this wrapper exists is to keep the visible .is-active button in sync,
+// the same division every other setter in this file (setTool included)
+// already keeps between "the state" and "what the toolbar shows."
+function setDraftShapeMode(mode) {
+  state.draw.setDraftShapeMode(mode);
+  document.querySelectorAll(".gz-shape-mode").forEach((b) =>
+    b.classList.toggle("is-active", b.dataset.shape === mode));
+  setStatus(defaultStatus());
+}
+
 function setTool(tool) {
   clientLog("tool_change", { tool, previousTool: state.draw.tool });
   state.draw.setTool(tool);
   document.querySelectorAll(".gz-tool").forEach((b) =>
     b.classList.toggle("is-active", b.dataset.tool === tool));
+  // The shape palette only means anything for the two tools that draw a
+  // real ring from scratch -- shown/hidden here rather than left visible-
+  // but-inert for every other tool, which read as "why doesn't clicking
+  // Circle do anything" while Select or Adopt was armed.
+  const shapeModes = $("shape-modes");
+  if (shapeModes) shapeModes.hidden = tool !== "region" && tool !== "site";
   // The armed tool, unmissable: a persistent, colour-matched chip in the
   // header rather than only the toolbar button's own highlight, which two
   // real mistakes in one session proved is too easy to stop looking at once
@@ -3200,9 +3234,14 @@ function setTool(tool) {
 }
 
 function defaultStatus() {
+  const shapeMode = state.draw && state.draw.draftShapeMode;
+  const shapeHint = shapeMode === "rect" ? " Drag from one corner to the opposite corner."
+    : shapeMode === "circle" ? " Drag from the centre out to the edge."
+    : " Click to place points (the 2nd point on snaps its angle to 22.5° " +
+      "steps off the 1st line — hold Shift for a free angle), Enter finishes, Esc cancels.";
   switch (state.draw && state.draw.tool) {
-    case "region": return "Click to place points around a district. Enter finishes, Esc cancels.";
-    case "site": return "Click to trace a building or block. Enter finishes, Esc cancels.";
+    case "region": return "Drawing a district." + shapeHint;
+    case "site": return "Drawing a building or block." + shapeHint;
     case "point": return "Click to drop a pin.";
     case "adopt": return "Click a real building to take its actual footprint.";
     case "lasso": return "Draw a polygon around drawn AND real buildings — both get selected (real ones adopted on the spot). Enter to finish.";
@@ -3435,11 +3474,16 @@ function selectReview(key) {
     ? "Draft only — rank and note save to the session. Promote it to write lore."
     : "";
 
+  // Approval authority moved to the Foundry Approvals Desk, 2026-09-18
+  // (epic #165) -- this tool drafts and shapes locations, it no longer
+  // grants the seal of quality. The button stays visible rather than
+  // vanishing outright, because "why did this disappear" is a worse
+  // experience than a disabled control that explains itself on hover.
   const approveBtn = $("r-approve");
-  approveBtn.disabled = draftOnly;
-  approveBtn.textContent = (loc && loc.status === "approved") ? "Unapprove" : "Approve";
-  approveBtn.title = draftOnly ? "Promote this first -- there is no location yet to approve"
-    : (loc && loc.status === "approved") ? "Take back approval" : "Mark this location approved";
+  approveBtn.disabled = true;
+  approveBtn.textContent = "Approve";
+  approveBtn.title = "Approval now happens in Foundry's Approvals Desk, not here "
+    + "(decided 2026-09-18, epic #165) -- this tool only drafts and shapes locations.";
 
   renderReviewOwes(row);
   if (item) { state.draw.select(item.localId); zoomTo(item); }

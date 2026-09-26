@@ -5,8 +5,8 @@
   "title": "Civilian-protection combat layer",
   "status": "new",
   "domains": ["mechanics", "encounter-design"],
-  "summary": "Combat maps get seeded with civilian concentrations, large vehicles, and infrastructure (all with statblocks) as enemy-attackable targets; ground-role students can 'medic' them with an outsized healing effect; an end-of-combat HP-vs-max report scores how well the city was protected.",
-  "description": "For the ground-level civil-defense layer specifically: seed combat maps with civilian concentrations, vehicles (trains, planes, ships, anything large), and key infrastructure/buildings — all given statblocks. Enemies get to attack these directly (buildings, infrastructure, the civilian population) as valid targets, not just the PCs/Frames. Non-piloting students acting as medics could perform heal actions against these targets with a much larger effect than normal healing math would give, specifically undoing the damage enemy attacks cause to civilians. At the end of a combat, compare the HP of all surviving friendly units (civilian/vehicle/infrastructure included) against their max HP, and generate a report on the encounter from that comparison — a scorable 'how well did you protect the city' outcome, distinct from simple win/lose.\n\nThis is a mechanization of the 'defensible assets' idea already noted in design/campaign-arc.md's evolving-mechanics-threads section (world map / satellite-scale combat with assets to defend) — this idea is the concrete combat-mechanic version of that.",
+  "summary": "Combat maps get seeded with civilian concentrations, large vehicles, and infrastructure (all with statblocks) as enemy-attackable targets; a medic can heal them with an outsized effect (originally the ground-role students, cut 2026-09-20); an end-of-combat HP-vs-max report scores how well the city was protected.",
+  "description": "Originally written for the ground-level civil-defense layer (the ground roles, cut 2026-09-20): seed combat maps with civilian concentrations, vehicles (trains, planes, ships, anything large), and key infrastructure/buildings — all given statblocks. Enemies get to attack these directly (buildings, infrastructure, the civilian population) as valid targets, not just the PCs/Frames. Medics (as captured, non-piloting students; that role went with the ground roles, and who takes it now is open) could perform heal actions against these targets with a much larger effect than normal healing math would give, specifically undoing the damage enemy attacks cause to civilians. At the end of a combat, compare the HP of all surviving friendly units (civilian/vehicle/infrastructure included) against their max HP, and generate a report on the encounter from that comparison — a scorable 'how well did you protect the city' outcome, distinct from simple win/lose.\n\nThis is a mechanization of the 'defensible assets' idea already noted in design/campaign-arc.md's evolving-mechanics-threads section (world map / satellite-scale combat with assets to defend) — this idea is the concrete combat-mechanic version of that.",
   "capturedDate": "2026-08-22",
   "lastTouchedDate": "2026-08-22",
   "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
@@ -16,8 +16,7 @@
     "What the end-of-combat report actually contains and where/how it gets generated and shown to the table."
   ],
   "relatedRefs": [
-    "design/campaign-arc.md#non-pilot-students-avoiding-a-second-line-role",
-    "design/campaign-arc.md#evolving-mechanics-threads-not-locked--recorded-so-nothing-gets-lost",
+    "design/campaign-arc.md#evolving-mechanics-threads-and-foundry-module-concept-threads",
     "data/schema/encounter.schema.json"
   ],
   "resolution": null

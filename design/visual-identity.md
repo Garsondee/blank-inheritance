@@ -95,8 +95,10 @@ The palette is deliberately honest: steel, brass, bone, signal red, phosphor gre
 an amber caution. Exactly one colour in the system does not belong to that century —
 **Resonance violet** (`--bi-resonance`).
 
-It is reserved, without exception, for Resonance, Bleed, Anchors and Claimant telemetry.
-It is the one reading on the console that the console was never built to take. Spending
+It is reserved, without exception, for Claimant telemetry, a Claimant's token ring included.
+(The name is historical: the colour also marked Resonance, Bleed and Anchors, all cut on
+2026-09-20, and code still uses the token name.) It is the one reading on the console that
+the console was never built to take. Spending
 it on ordinary UI is the single easiest way to wreck this design system, because it is
 the only strange colour the palette has and its strangeness is entirely relative to the
 honesty of everything around it.
@@ -283,16 +285,16 @@ a letterbox.
 | Region | Carries |
 |---|---|
 | Top rail | Scene name, day and clock, Contact probability meter, sea state, alarm lamps |
-| Left rail | The five Ground Roles as station keys, evacuation track, Recall Knowledge facts |
+| Left rail | Station keys (built for the five ground roles, cut 2026-09-20), evacuation track, Recall Knowledge facts |
 | Right rail | Order of battle with integral health meters, round counter, umbilical |
 | Scene | Map pins with staggered radar pings; clicking one targets it and announces it |
 | Chassis | Ident, quick checks, macro bank, **three instruments**, actions, audio desk, GM direction |
 | Marquee | A brass-capped lozenge running campaign status; hover to hold and read |
 
 **The instrument cluster** is one main HUD flanked by two half-size analog dials
-(Resonance band left, integrity right). `--bi-dome-half` is defined as half `--bi-dome-size`,
-and all three are anchored to the chassis floor, so their centres land on one line by
-construction rather than by adjustment.
+(integrity on the right; the left one showed the Resonance band, cut 2026-09-20).
+`--bi-dome-half` is defined as half `--bi-dome-size`, and all three are anchored to the
+chassis floor, so their centres land on one line by construction rather than by adjustment.
 
 **Panel skin.** `.bi-plate-skin` gives any surface hammered steel with a single break line
 scored around its perimeter, inset from the edge, concentric with whatever corner radius
@@ -538,8 +540,9 @@ describing. Rather than resolve the mismatch by hiding it, `.bi-ident` leans int
 the main dome and the flanking subdomes, with roughly a third of its height rising above
 the pod's own top edge — `margin-top: calc(var(--bi-ident-size) * -0.36)`, proportional to
 its own size rather than a fixed pixel offset, so resizing the instrument keeps the
-protrusion in proportion. It now shows a role legend, the candidate number, and a live sync
-readout — three lines where there was one. The row containing it uses
+protrusion in proportion. It now shows three lines where there was one: the candidate number, plus
+a role legend and a live sync readout built for the ground roles and Resonance, both cut
+2026-09-20. The row containing it uses
 `align-items: flex-end` so the plate/legend beside it sit level with the instrument's
 in-flow lower portion rather than being pulled up into the part that pokes out.
 
@@ -563,17 +566,16 @@ metal. The text stays the strongest signal; it is no longer the only one.
 | `.bi-key--go` | phosphor green | Movement (Stride/Step/Face), and Ready — the one proactive stance among the reactions |
 | `.bi-key--info` | cyan | Comms, view, and anything that *retrieves* information rather than changing the world: Recall, Sync, Lock, Docs, Centre/Follow/Emote, the transport keys |
 | `.bi-key--caution` | amber | Spends a resource, or is GM-only and consequential: Hero, the fortune keys, every Scene control, the costlier reactions |
-| `.bi-key--anchor` | Resonance violet | **Anchor only** |
+| `.bi-key--anchor` | Resonance violet | **Anchor only** (Anchors were cut 2026-09-20; the class survives in code) |
 
 Checks, Saves, dice, Strike/Raise, the routine GM bookkeeping keys (Cue/Turn/Log/Timer),
 routine Frame maintenance (Umbil/Vent/Purge) and the condition-toggle keys stay neutral
 deliberately — colouring everything would mean colouring nothing.
 
-`.bi-key--anchor` is the one new spend of Resonance violet outside Resonance/Bleed/Claimant
-contexts, and it is legitimate rather than a slip: Anchor genuinely is a Resonance-linked
-mechanic. A test asserts `--bi-resonance` appears in exactly one `.bi-key` rule, so a future
-pass reaching for "something feels special, make it violet" fails loudly instead of quietly
-spending the one colour that is supposed to stay rare.
+`.bi-key--anchor` is the one spend of Resonance violet on a key. It was made for the Anchor key, a
+Resonance-linked mechanic, and both were cut on 2026-09-20. A test asserts `--bi-resonance` appears
+in exactly one `.bi-key` rule, so a future pass reaching for "something feels special, make it
+violet" fails loudly instead of quietly spending the one colour that is supposed to stay rare.
 
 ---
 
@@ -602,11 +604,9 @@ this time, above the whole chassis, not just its own pod. The instrument is now 
 "structural, not tuned" invariant `--bi-dome-size` already uses for the main instrument — so
 84px of it rises into the scene above the bar's own top line, confirmed live via
 `getBoundingClientRect()` (identTop 1126 vs barTop 1210 at a 2560px console). It carries three
-readings instead of one: the candidate number, a Sync meter, and a **live Bleed meter wired to
-the same slider that already corrupts every other pane of glass on the chassis** — dragging
-Bleed now visibly degrades the pilot's own ID plate along with everything else, which it never
-did before. The Bleed reading is tinted Resonance violet deliberately, not as a new exception:
-Bleed is one of the categories the standing rule (§1) already names.
+readings instead of one: the candidate number, a Sync meter and a meter wired to the
+glass-corruption slider (`--bi-bleed`). The last two displayed Resonance and Bleed, both cut on
+2026-09-20.
 
 A plain `<span class="bi-pilot-id__spacer">` reserves the instrument's footprint in the flex row
 beside it (the plate/legend pod), so pulling the instrument out of normal flow does not collapse
@@ -659,8 +659,8 @@ quietly stale.
 
 ## 3i. Lit lamps clipped at the rail edge: a real CSS Overflow spec gotcha (pass 13)
 
-**Reported live, against the running prototype:** the Structural and Signals station lamps (and
-the Known-facts lamps) were rendering with the left half of their glow missing — a hard flat
+**Reported live, against the running prototype:** the left rail's station lamps (and the
+Known-facts lamps) were rendering with the left half of their glow missing — a hard flat
 cut, not a soft fade. Live geometry inspection (`getBoundingClientRect`) showed every lamp's own
 13px/11px/8px circle fully inside its row with room to spare — the BUG wasn't in any element's
 position. `getComputedStyle(.bi-rail__scroll).overflowX` was the real tell: `"auto"`, even though
@@ -721,6 +721,79 @@ tied to `--risk`; the other checks the stem's actual halo spread/opacity against
 rather than one specific tuned value, so a future retune can't silently thin it back out.
 
 ---
+
+## 3k. The deck, and the session rail (2026-09-17, reworked 2026-09-23)
+
+The code has long cited "The deck" as a section of this document; this is it. The always-on
+bar is **the deck**: one mounted hardware panel across the bottom of the screen, drawn at an
+authored size and scaled whole (`core/deck-layout.mjs#deckFit`), never reflowing and never
+scrolling — `cheek | outer silver | inner black | spine + orb | inner black | outer silver |
+cheek`, symmetric by construction. The pixel record lives in `bi-tokens.css` §7a and
+`bi-components.css` §10; the contracts in `test/tier3-deck-contract.test.mjs` and
+`test/tier3-deck-rework-contract.test.mjs`.
+
+**The 2026-09-23 rework** answered a two-part brief from Ingram, against a live screenshot.
+
+*Visuals.* "The dirt/grime stuff looks like single tiny dots scattered across the interface."
+Correct, and structural: the first grime was one noise field thresholded evenly, so every
+patch of panel got the same sprinkle. Real wear has **scale** (broad stain, clusters, specks
+inside the clusters), **direction** (scratches along the brushing, gouges across it) and
+**place** (it pools in corners, seams and recesses and is polished away where hands land).
+The new `--bi-wear-*` tokens (§7a-ii) supply the first two — the clustering is an
+`feComposite operator='in'` of a fine speck field through a coarse mask, and the scratches are
+drawn by hand because noise cannot make a straight line — and each module places them.
+Panel lines are real grooves now (an inset 2px shadow and catch-light on every plate's edge),
+every silver plate is held on by four slotted screws with dirty recesses, the key banks carry
+the north star's `////` vent hatch, the cheeks carry a half-worn stencil (空白相続 / BI · 07),
+and the spine's lower corners carry maker's stampings. The orb has a **lamp behind its glass**:
+a warm light that breathes and dips like a filament, and spills out across the silver round
+the collar, on two irregular opacity-only loops of coprime length (held still under
+`prefers-reduced-motion`).
+
+*UX.* The deck widened 1440 → 1600 authored px. At 16:9 it was always height-bound, so this
+costs nothing on screen with the sidebar closed; all 160px went to the shoulders, which is where
+the cropped pills and the two-line log were. What each module does now:
+
+- **Director, left:** the cast board — six rows, each with a hairline HP gauge; in a fight it
+  becomes the **turn order** (initiative, current marker, defeated struck through) and follows
+  the turn to its page by itself.
+- **Director, right:** the log — six timestamped lines (local time), a key that opens the
+  Console's whole Log tab, and five doors that fit: Script, Sound, Find (the Palette), Console,
+  Comms. The session clock moved up to the rail.
+- **Both, key banks:** unchanged — except that the Director with nothing selected no longer
+  sees dead caps: the same keys **ask the table** (post the check to chat).
+- **Both, the orb:** hero-point and dying annunciators printed on the face (where the needle
+  can never cross them), AC / speed / level engraved round the collar's foot, conditions in the
+  idle readout, whose turn it is round the top (Law 11-gated for players), and two flank keys —
+  **Init** (prints its modifier) and **Turn** (Director: Fight → Begin → Next, ctrl ends the
+  encounter; player: End Turn, live only on their own turn).
+- **Player, left:** the dossier — Perception DC, hero and focus lamps, wounded, conditions,
+  and pills straight to the Console's Spells and Gear tabs.
+- **Player, right:** three selectors — Lore, a new **Action** knob (sf2e's own basic and skill
+  actions, one list for a scene and one for a fight, each key printing sf2e's own preview
+  modifier), and Downtime or Strike (which gained Damage and Critical keys).
+
+**Second review, same day.** Grime cut to under half strength everywhere (it read too strong);
+the orb's glass darkened to an ember orange lit by ONE lamp near its centre, which is now the
+thing that flickers (the first pass's spill of light round the collar read as a glow *behind*
+the panel and showed the flicker there instead of on the face — removed); the bezel's kanji moved
+to their own top layer so the glass rings can't cut into them; the cheek stencils made legible;
+the "Do not open" stamping removed; shoulder headers and pill rows cleared of the corner screws;
+the hotbar raised 15px; skill keys rebuilt as real caps on a skirt and the round buttons as a
+domed cap sunk in a knurled bezel, both with hover, a visibly-held pressed state and a brief
+"just fired" lamp. **Comms was rethought entirely**: no longer a full-width slab over the deck
+but a compact hand-held field set centred between the rail and the deck (silver chassis, black
+phosphor screen, one hardware key per app, Escape puts it down), with the Radio's meter rebuilt
+as a real printed VU face and its levels as three knobs side by side. The Console window now
+floats in the same band instead of covering the deck, its Log tab is a readable ledger, and
+every log display shares one local 24-hour clock.
+
+**The session rail** is new: a thin GM-only strip across the top of the screen between
+Foundry's scene navigation and the sidebar — tonight's session on a clock-time track, scene
+bands, a pin per log entry, a needle at now, how long is left, and a one-press **Mark**. Its
+times are client settings (default 19:30–22:30). Scene changes it learns from the log's own
+per-entry scene stamps plus a GM-browser-local activation list, so no second line is ever
+written into the log for a cut the Palette or Scene Runner already logged.
 
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
@@ -811,8 +884,8 @@ Foundry's ownership permissions or a GM-only page.
 that are easy to produce."** `ideas/entries/phone-app-suite.json` already had a fully-confirmed
 list of nine pieces ("I love all of them") and `terminal-login-landing-page.json` already had a
 locked art direction, so this pass built the framework plus a genuinely interactive first page
-for all eight actual apps (the ninth, Bleed-driven UI corruption, is an ambient effect applied
-*to* the phone, not a page on it).
+for all eight actual apps (the ninth, UI corruption driven by the since-cut Bleed track, is an
+ambient effect applied *to* the phone, not a page on it).
 
 **Two registers meeting at one seam, per the locked art direction.** The physical shell
 (`.bi-phone`) is a warm bakelite object — deliberately NOT the console's cool steel-and-brass
@@ -830,10 +903,13 @@ at corner-accent scale rather than centrepiece scale.
 **All eight apps are real, not stubs**, backed by pure logic in
 `module/blank-inheritance/scripts/core/phone.mjs` (tested, `test/tier1-phone.test.mjs`): Alert
 actually staggers six per-candidate notifications with real, sorted, never-identical delays (the
-idea entry's own callout: "the best part"); Field Guide shows the one Claimant entry Recall
-Knowledge has actually filled in (`data/antagonists/claimants/contact-unclassified.json`) next to
-two still-locked slots; Resonance drifts and looks up the real campaign bands
-(`data/campaign/config.json`); Bulletin quietly strikes through one reassigned name; Contacts
+idea entry's own callout: "the best part"); Field Guide shows a Claimant entry Recall Knowledge has
+actually filled in next to two still-locked slots (the worked example here used to cite the real
+Claimant, `data/antagonists/claimants/contact-unclassified.json` — deleted 2026-09-19, unapproved
+and stale, at Ingram's direct instruction; the app's own code was never hardcoded to that specific
+file, so this is a stale example, not a functional break — swap in whatever Claimant is approved
+next); Resonance drifted against the campaign's sync bands (a system cut on 2026-09-20);
+Bulletin quietly strikes through one reassigned name; Contacts
 carries the six-candidate roster plus the three real Directorate NPCs
 (`data/npcs/*.json`) as "OFFICIAL"; Fortune draws from a weighted pool where exactly one entry is
 a real hint, indistinguishable in tone from the jokes around it; Pet is a tiny hand-drawn 7×7
@@ -989,25 +1065,24 @@ extra pages unlocked.** `PLAYER_APPS` and `DIRECTOR_APPS` (`design/ui/phone.js`)
 arrays behind one swappable `currentApps`; `setDirectorMode(gm)` swaps it, relabels the button
 ("Personal comm device" vs "Director's console"), and — if the terminal is already open — repaints
 its nav and jumps to the new set's first app so nothing stale is left on screen. The reasoning is
-narrative, not technical: a GM-only Bleed board has no business conceptually living on a kid
+narrative, not technical: a GM-only board has no business conceptually living on a kid
 character's own handset, so this is a full identity swap, the same move already used for the
 chassis's own GM-only pods.
 
-**Four apps, each answering a real system in `data/campaign/config.json` that had no interactive
-form yet** (`scripts/core/director.mjs`, 15 tests — Contact Pool floor/ceiling math, damage-state
-stepping including the hulked/operational caps, Bleed clamping and berserk, all pure):
+**Four apps, each answering a system in `data/campaign/config.json` that had no interactive
+form yet** (`scripts/core/director.mjs`, 15 tests — Contact Pool floor/ceiling math and damage-state
+stepping including the hulked/operational caps, all pure):
 - **Contact Pool** — the actual quiet-morning roll procedure (target 20 dropping to a floor of 13,
   forced at morning 8) rather than a GM doing this arithmetic by hand, plus a "Spring One" control
   (see below) and a shared incident log.
 - **Frame Status** — the six Frames' shared damage-state track (operational → degraded → critical
   → hulked) against one shared technician-day pool; repairing costs days and is blocked at zero,
   damage is free and immediate, and a Frame at critical/hulked is visibly `GROUNDED`.
-- **Bleed Board** — explicitly marked GM-only in its own UI (`config.json`'s `pilotVisibility` for
-  Bleed is still `null`, an open question this pass does not resolve), 0–10 per pilot, berserk at
-  10 with a real rolled 1d4-round duration held steady until the pilot steps back down.
+- *(Cut 2026-09-20: the Bleed Board, which served the Bleed track. Removed from this document
+  2026-09-25; its code is still in `director.mjs`.)*
 - **Scene Cues** — a real episode's scene list (originally Episode 1's nine; that episode was
-  deleted 2026-09-13 and the prototype's copy is now fixture data — Session One,
-  `data/episodes/episode-c1s1-mothers-maiden-name.json`, is the live equivalent), mocking the cue
+  deleted 2026-09-13 and the prototype's copy is now fixture data — Episode One,
+  `data/episodes/episode-c1e1-mothers-maiden-name.json`, is the live equivalent), mocking the cue
   action a live Foundry `Scene#activate()` will eventually perform for real
   (`design/foundry-module-design.md` §7).
 
@@ -1031,11 +1106,12 @@ generic, per that same comment: the alarm must never itself give away which kind
 
 **One real regression, found and fixed while wiring the chassis's Contact button into the same
 log:** `.bi-phone__screen` — deleted when §5c rebuilt the phone as the terminal — was still the
-selector Bleed's corruption effect used to reach "the terminal's own glass," matching nothing since
-that rebuild (`querySelectorAll` on an unknown class returns an empty list, not an error) and so
-silently no-op'ing. Replaced with `.bi-terminal__main`; verified live by dispatching a real `input`
-event at Bleed 70% and reading the resulting `.bi-corrupt` class and `--bi-bleed` value back off
-the element, not by re-reading the source a second time.
+selector the glass-corruption effect (`--bi-bleed`, built for the since-cut Bleed track) used to
+reach "the terminal's own glass," matching nothing since that rebuild (`querySelectorAll` on an
+unknown class returns an empty list, not an error) and so silently no-op'ing. Replaced with
+`.bi-terminal__main`; verified live by dispatching a real `input` event at 70% on the corruption
+slider and reading the resulting `.bi-corrupt` class and `--bi-bleed` value back off the element,
+not by re-reading the source a second time.
 
 **A testing-methodology note worth keeping, distinct from the stale-console-buffer gotcha already
 on record:** every app in this file re-renders its whole pane wholesale on a state change
@@ -1044,12 +1120,10 @@ on record:** every app in this file re-renders its whole pane wholesale on a sta
 of these re-renders is holding a detached node afterward — it still exists in JS, but real `.click
 ()` events on it no longer bubble anywhere live, so a loop of ten clicks silently only lands the
 first one. Re-querying the live DOM after every state-changing click (rather than caching across
-one) is what actually verified Frame Status's damage/repair stepping, Bleed Board's clamp at 10 and
-berserk-note persistence, and Scene Cues' cue/uncue exclusivity — all confirmed correct once
-measured this way.
+one) is what actually verified Frame Status's damage/repair stepping and Scene Cues' cue/uncue
+exclusivity — all confirmed correct once measured this way.
 
-**Still open:** whether Bleed is ever player-visible (`pilotVisibility: null` is unchanged by this
-pass); the Fight scene's `encounterRef` is present in the mock data but not wired to anything;
+**Still open:** the Fight scene's `encounterRef` is present in the mock data but not wired to anything;
 Scene Cues' "cue" action is a local highlight only, standing in for the real `Scene#activate()` a
 live Foundry world will eventually perform.
 

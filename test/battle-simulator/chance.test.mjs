@@ -13,7 +13,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { expandChanceNode, isStochasticProposal } from "../../tools/battle-simulator/personnel-engine/search/chance.mjs";
 import { forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
-import { degreeProbabilities, mitigateDamage, averageStrikeDamage, averageDamage } from "../../tools/battle-simulator/engine/resolve.mjs";
+import { degreeProbabilities, mitigateDamage, averageStrikeDamage, averageDamage } from "../../tools/battle-simulator/shared/resolve.mjs";
 
 function makeStrikeState() {
   const attacker = {

@@ -35,7 +35,7 @@
       "title": "Story Bible v4",
       "importance": 1,
       "category": "bible",
-      "description": "The story's source of truth as of 2026-09-09 -- supersedes design-bible/campaign-arc for narrative content.",
+      "description": "The older story bible, slimmed on 2026-09-25 to what exists nowhere else. The LEDGER, the dossiers, the master timeline and the twenty-chapter outline supersede it wherever they overlap.",
       "topics": [
         "story",
         "canon"
@@ -71,7 +71,7 @@
     {
       "id": "dossier-observer",
       "path": "ideas/story/dossier-observer.md",
-      "title": "Dossier: The Observer",
+      "title": "Dossier: The Watcher",
       "importance": 3,
       "category": "bible",
       "description": "",
@@ -122,7 +122,7 @@
       "title": "Campaign Arc",
       "importance": 2,
       "category": "design",
-      "description": "Everything design-level that has emerged since the original pitch: tone pivot, 8-level arc shape, theme, evolving mechanics threads. The living design doc.",
+      "description": "Everything design-level that has emerged since the original pitch: tone pivot, the twenty-Chapter arc shape, theme, evolving mechanics threads. The living design doc.",
       "topics": [
         "tone",
         "arc",
@@ -146,27 +146,16 @@
       "addedDate": "2026-09-13"
     },
     {
-      "id": "naming-placeholders",
-      "path": "data/campaign/naming-placeholders.json",
-      "title": "Naming Placeholders",
-      "importance": 2,
-      "category": "campaign-data",
-      "description": "Every name still open and explicitly Ingram's call -- the city, the school, and more. Check before inventing a proper name for anything.",
-      "topics": [
-        "naming"
-      ],
-      "addedDate": "2026-09-13"
-    },
-    {
       "id": "open-questions",
       "path": "data/campaign/open-questions.json",
       "title": "Open Questions",
       "importance": 2,
       "category": "campaign-data",
-      "description": "Creative calls (tone, structure, character agency) that are the user's own, not implementation details. Don't resolve unilaterally.",
+      "description": "Creative calls (tone, structure, character agency) that are the user's own, not implementation details. Don't resolve unilaterally. Also holds every open naming gap (merged from naming-placeholders.json, 2026-09-19): check it before inventing a proper name for anything.",
       "topics": [
         "process",
-        "canon"
+        "canon",
+        "naming"
       ],
       "addedDate": "2026-09-13"
     },

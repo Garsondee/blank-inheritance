@@ -400,6 +400,32 @@ Authored 2026-09-17, live-verified by clicking through the actual Scene Runner
 opening episode, plus five cues bound to real beats. `data/audio/soundscapes/`
 and `data/audio/cues/` — no demo files remain in either directory.
 
+**Coverage caught up 2026-09-22.** The line above was accurate the day it was
+written and then quietly went stale: Episode One grew from seven scenes to
+eleven and Episode Two (fifteen scenes) didn't exist yet, and nothing had gone
+back to give the new scenes audio. A full sweep found 19 of 26 scenes with no
+soundscape at all, and one cue whose trigger beat id had drifted and had
+therefore never fired (with the existing test for it calling `fireBeatAudio`
+using that same wrong id, so the test stayed green while the content was
+dead). Both fixed: the cue and its test corrected, all 26 scenes given a
+soundscape, First Contact given a combat override matching Flood Tunnel
+Clearance's precedent. Guarded from here on by
+`test/tier2-audio-coverage.test.mjs`.
+
+**A tone question was raised and settled the same day.** 61 of the library's
+398 tracks are Evangelion, sorted by hand into the same mood folders as the
+real Giant Robo score. That was flagged as a possible tone-guardrail issue and
+briefly rejected from every pool; Ingram overturned that call the same day —
+EVA music is fine without reservation, and EVA-shaped story beats may be
+drawn on too, with the actual caution being about not landing a scene in
+trauma, misery or apocalypse, not about the source material's mere presence
+(see `design/research/evangelion/tone-guardrail.md`'s own correction, and
+`feedback_tone_giant_robo_not_eva` in project memory). All 61 tracks are back
+in their pools; the cicada-motif reservation is back on its original track
+(`ost2-04-a-crystalline-night-sky`); Familiarisation draws on the full
+three-track `mech-bay` pool rather than the one track that happened not to be
+Evangelion.
+
 **Scene Runner integration, added the same day.** Two hooks make this content
 play itself rather than needing a GM to remember to press anything:
 
@@ -424,7 +450,7 @@ theme — Session 0/1 has no combat-capable antagonist on stage yet (see below):
 
 | Track | Reserved for | Why |
 |---|---|---|
-| "Main Title" | The campaign's own cold open | It is *called* Main Title. The Road In's soundscape plays it once, straight through, under all six arrival montages — an overture, not a mood loop. |
+| "Main Title" | The campaign's own cold open | It is *called* Main Title. The Road In's soundscape plays it once, straight through, under all six arrival montages — an overture, not a mood loop. **Moved 2026-09-24** to From Up Here, the new opening GM speech ahead of The Road In (`episode-c1e1--from-up-here.json`); The Road In now plays "Mirai e no Kibou" instead, unreserved. |
 | "JINTETSU no Toujou" | Section Nine's first fight (flood-tunnel) | The party's very first combat gets a track of its own rather than a shuffle from the 27-track battle pool. Title translates roughly to "\<name\>'s Entrance" — fits six centipedes erupting out of the sludge better than anything generic. |
 | "A Crystalline Night Sky" | The cicada-stencil motif (`ideas/entries/cicada-motif.json`) | Reserved *ahead of use* — not spent in Session 0/1 (see below), so it can never be discovered sitting in the mystery pool's shuffle before the thread that owns it is ready for its own cue. |
 

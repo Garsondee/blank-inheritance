@@ -53,6 +53,8 @@
 | **The Machine That Is Not A Machine** | [Unit-01](characters/evangelion-unit-01.md) | It acts on its own before anyone explains why | Equipment described in language that is not true |
 | **The Unexplained Harmless Thing** | [Pen Pen](characters/pen-pen.md) | **Never make it important** | A household member who is not part of the plot |
 
+**[U]** The two rows where a machine acts on its own (the Mother in the Machine, §4, and Unit-01 above) must stop short of a PC's own machine acting without its player: this campaign rules that out (`ideas/story/bible/LEDGER.md` #31, D11).
+
 ## 6. Casting balance **[U]**
 
 Derived from what the series actually used, corrected for our register:
@@ -107,4 +109,4 @@ Derived from what the series actually used, corrected for our register:
 
 **Related on this shelf:** [tone-guardrail.md](tone-guardrail.md), [the-enemy-as-puzzle.md](the-enemy-as-puzzle.md), [the-institution-that-uses-children.md](the-institution-that-uses-children.md), [relationships-that-degrade.md](relationships-that-degrade.md), [school-life-and-the-ordinary-day.md](school-life-and-the-ordinary-day.md).
 
-**Related in this project:** [design/research/giant-robo/npc-archetype-catalogue.md](../giant-robo/npc-archetype-catalogue.md), `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/character-creation-and-progression.md`, `ideas/story/bible/`, `data/campaign/naming-placeholders.json`.
+**Related in this project:** [design/research/giant-robo/npc-archetype-catalogue.md](../giant-robo/npc-archetype-catalogue.md), `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/character-creation-and-progression.md`, `ideas/story/bible/`, `data/campaign/open-questions.json` (the naming placeholders).

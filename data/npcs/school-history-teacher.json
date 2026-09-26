@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "school-history-teacher",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "History teacher, Main School Complex",
   "pole": null,
@@ -10,5 +13,29 @@
   "designNotes": "Placeholder role, not a character -- created 2026-09-13 alongside the location itself, following the standing convention (see range-safety-officer.json). Ties to the (status: new, not yet accepted) School Schedule idea's own floated hope that a History class be the natural vector for campaign backstory (ideas/entries/school-schedule-system.json) -- this NPC exists so that idea has someone to be taught by if it's picked up, without the class-period system itself being assumed built. Name, personality, and what they actually teach are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
-  "status": "placeholder — not yet named or cast"
+  "status": "placeholder — not yet named or cast",
+  "socialProfile": {
+    "attitude": "friendly",
+    "facts": [
+      {
+        "id": "says-i-dont-know",
+        "text": "He says 'I don't know' plainly, with no embarrassment, and moves on. It is the most useful thing about him and the reason a question is worth asking him at all.",
+        "revealTrigger": {
+          "narrative": "Asking him anything his notes do not cover."
+        },
+        "revealed": false,
+        "revealedNote": null
+      },
+      {
+        "id": "local-studies-is-his-own",
+        "text": "Local studies is his own subject and the history syllabus is one he was handed. He is a different teacher in each room and he does not know that he is.",
+        "revealTrigger": {
+          "skill": "perception",
+          "dc": 15
+        },
+        "revealed": false,
+        "revealedNote": null
+      }
+    ]
+  }
 }

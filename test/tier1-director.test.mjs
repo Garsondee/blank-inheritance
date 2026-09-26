@@ -1,10 +1,11 @@
 // Tier 1 — the director's-console mechanics (Contact Pool, False Contact,
-// Frame damage states, Bleed), matched against the real numbers in
+// Frame damage states), matched against the real numbers in
 // data/campaign/config.json rather than invented ones.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+import * as director from "../module/blank-inheritance/scripts/core/director.mjs";
 import {
   CONTACT_POOL,
   CONTACT_TYPES,
@@ -13,12 +14,7 @@ import {
   DAMAGE_STATES,
   damageStepDown,
   damageStepUp,
-  isDeployable,
-  BLEED_MIN,
-  BLEED_MAX,
-  adjustBleed,
-  isBerserk,
-  rollBerserkDuration
+  isDeployable
 } from "../module/blank-inheritance/scripts/core/director.mjs";
 
 test("contactTarget starts at 20 and drops by 1 per quiet morning, floored at 13", () => {
@@ -89,18 +85,8 @@ test("DAMAGE_STATES is the real four-step track, in order", () => {
   assert.deepEqual(DAMAGE_STATES, ["operational", "degraded", "critical", "hulked"]);
 });
 
-test("adjustBleed clamps to 0-10 in both directions", () => {
-  assert.equal(adjustBleed(9, 5), BLEED_MAX);
-  assert.equal(adjustBleed(1, -5), BLEED_MIN);
-  assert.equal(adjustBleed(4, 2), 6);
-});
-
-test("isBerserk is true at and only at 10 or above", () => {
-  assert.equal(isBerserk(9), false);
-  assert.equal(isBerserk(10), true);
-});
-
-test("rollBerserkDuration returns 1-4, matching the real '1d4 rounds' rule", () => {
-  assert.equal(rollBerserkDuration(() => 0), 1);
-  assert.equal(rollBerserkDuration(() => 0.99), 4);
+test("Bleed and berserk are gone: both were cut on 2026-09-20, so nothing here may compute them", () => {
+  for (const gone of ["BLEED_MIN", "BLEED_MAX", "BLEED_BERSERK_THRESHOLD", "adjustBleed", "isBerserk", "rollBerserkDuration"]) {
+    assert.equal(gone in director, false, `core/director.mjs still exports ${gone}`);
+  }
 });

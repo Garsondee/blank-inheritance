@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--the-walk-down",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-walk-down",
+  "title": "The Walk Down",
+  "summary": "Ten minutes, no NPCs required, between Canteen's cold assignment and the flood-tunnel fight. The session's one deliberately designed relax-and-connect beat, closing the gap between a deliberate cold ending and combat with nothing in between.",
+  "goal": "The six of them are alone together, for the first time all day with no adult in the room, kitting up and walking to Dock C. Nothing has to be resolved here -- the goal is just that it exists.",
+  "howToPlay": "Quiet, a little tense under the surface, but not grim. Waders, torches, the smell coming up off the water already. **This is the calm before a fight nobody's looking forward to, not a scene about dread.** Let banter happen if the table wants it.",
+  "runsAbout": "10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The equipment lockup nearest Dock C, then the walk down to the water itself.",
+    "firstThing": "Waders and torches, issued without ceremony by whoever's on the desk tonight -- a walk-on, not worth a name.",
+    "readAloud": "Nobody's said much since he read it out. Waders, torches, a chit to sign. The walk down to Dock C takes about ten minutes on a good night, longer if anyone's dragging their feet, and right now everyone is.",
+    "carriesIn": [
+      {
+        "when": "Canteen was played first (it should be)",
+        "then": "The cold, flat assignment is still sitting with them. Don't re-explain it or soften it -- let the quiet of this scene be the table's actual reaction to it, not a line of dialogue."
+      }
+    ],
+    "landmark": "Dock C's gate, visible ahead the whole walk",
+    "holdInReserve": "The waders are the wrong sizes and nobody has sorted them, so somebody is going to be walking in boots two sizes too big all night. Give this the moment anybody actually looks at what they were handed."
+  },
+  "cast": [
+    {
+      "id": "taka",
+      "npcRef": "taka",
+      "label": "Taka",
+      "role": "Optional -- sees them off",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Nothing beyond making sure they've got the one piece of advice that actually matters.",
+        "opensWith": "Whatever he's already said tonight -- this is a coda, not a new scene with him.",
+        "willDiscuss": [
+          {
+            "topic": "The boots, and nothing else",
+            "note": "\"Wear the boots. I told you.\" That's the whole conversation if he shows up at all."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether he thinks tonight is a punishment",
+            "why": "He genuinely does not think about it that way and cannot be led there. Somebody has to go down, they are the ones going down, and he would rather go with these five than anybody else. That is the whole of his answer and it does not shift."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Same as Canteen, quieter -- this is the one moment tonight he isn't performing for a room.",
+          "tics": [],
+          "samples": [
+            "\"Wear the boots. I told you.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-walk",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Let the six of them talk to each other with nobody else in the room. No prompt needed -- this is the scene.",
+      "direction": "Do not introduce a new NPC unless the table specifically wants Taka's optional beat below. This is the first time all session the six of them are alone as a group; give it room rather than filling it.\n\nTwo lines and then hand it to the table. If nobody speaks, let the walk be silent -- a quiet ten minutes is a legitimate outcome and the scene is not failing.",
+      "note": "Like The Tram Back, this scene is intentionally PC-led with nothing being asked of them. It is the session's relax beat; it should not also be doing narrative work.",
+      "readAloud": "Ten minutes downhill in waders that do not fit, with torches nobody has turned on yet because there is still enough light.\n\nNobody has told you what time to be at the bottom."
+    },
+    {
+      "id": "takas-send-off",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If it fits, Taka <trig id=\"taka-catches-them\"/> catches them on the way out -- \"Wear the boots. I told you.\" -- and nothing else.",
+      "npcRef": "taka",
+      "when": {
+        "condition": "GM's call, purely optional -- a nice touch if the table's enjoyed him, entirely skippable if not"
+      },
+      "direction": "One line, not a scene. If he appears, he does not linger, does not explain, does not soften what's coming. The warmth is in the fact that he came at all.",
+      "note": "Cannot step on Canteen's coercible drain topic, which stays there -- this is purely a warmth callback, no new information.",
+      "triggers": [
+        {
+          "id": "taka-catches-them",
+          "kind": "npc-enter",
+          "npcRef": "taka",
+          "label": "Taka catches them"
+        }
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "They reach the gate at Dock C.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Ten quiet minutes walking downhill with nothing asked of them is the only unstructured time the party gets all day. Move this if they used it on each other."
+      }
+    ],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "The gate is already open, a duty officer already waiting with a clipboard -- there's no ambiguity about where they're going next.",
+      "scatterRisk": false
+    },
+    "onwards": "Straight into the flood tunnel and whatever's actually waiting in it.",
+    "writeDown": [
+      "Whatever the six of them actually said to each other, if anything -- the session's last chance for a Bonds seed before the fight."
+    ]
+  },
+  "carryForward": [],
+  "reactionPrompts": [
+    {
+      "id": "used-the-walk",
+      "text": "Whether the six of them actually talked to each other with nobody else in the room -- the session's last chance for this before the fight."
+    },
+    {
+      "id": "takas-send-off",
+      "text": "If Taka's \"wear the boots\" send-off happened, whether it landed as a warm callback rather than a retread.",
+      "scaleNote": "0 = didn't happen or fell flat, 10 = genuinely landed."
+    },
+    {
+      "id": "the-tension-register",
+      "text": "Whether the quiet-tension-not-dread register came through -- calm before a fight nobody's looking forward to, not grim."
+    }
+  ],
+  "notes": "The smallest scene in the session by design, alongside The Tram Back.\n\nThe reason to compress it to a single line -- you walk down, kit up, nobody says much -- and move straight into the fight is that it isn't what the table needs that night. Never the clock: session runtime is not something to manage against, and a session stops wherever it stops. The point is that the option exists, not that it is mandatory table time.",
+  "temptations": [
+    {
+      "id": "ask-him-why-he-came",
+      "text": "Taka volunteered for this and nobody has asked him why."
+    },
+    {
+      "id": "the-water-ahead",
+      "text": "It is audible before it is visible, and nobody has said how deep it is."
+    }
+  ]
+}

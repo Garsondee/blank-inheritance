@@ -7,18 +7,15 @@
       "Failed": "Blank Inheritance: test sync failed before completing. See console (F12) for the error, and report it back.",
       "NotGM": "Only a GM can run the Blank Inheritance test sync."
     },
-    "SyncPrompt": {
-      "Title": "Blank Inheritance",
-      "Body": "Sync campaign content now? (episodes, and the Contact Unclassified Claimant)",
-      "Yes": "Run Sync",
-      "No": "Not Now"
-    },
     "RealSync": {
       "MacroName": "Blank Inheritance: Sync Campaign Content",
       "Running": "Blank Inheritance: syncing campaign content...",
       "Complete": "Blank Inheritance: sync complete — {passed}/{total} checks passed.",
       "Failed": "Blank Inheritance: sync failed before completing. See console (F12) for the error, and report it back.",
       "NotGM": "Only a GM can run the Blank Inheritance content sync."
+    },
+    "TokenRing": {
+      "StyleSetReloadNeeded": "Blank Inheritance: token ring style set to Bronze. Reload the world for it to take effect."
     },
     "Console": {
       "Checks": {
@@ -128,6 +125,11 @@
           "Equipment": "Equipment Locker",
           "SceneClose": "Scene Close",
           "Induction": "Induction Terminal"
+        },
+        "Log": {
+          "AllTypes": "All",
+          "AllScenes": "All scenes",
+          "Count": "{shown} of {total} entries"
         }
       }
     },
@@ -148,6 +150,10 @@
       "Sheet": "Sheet",
       "Comms": "Comms",
       "Console": "Console",
+      "Runner": "Script",
+      "Sound": "Sound",
+      "NowPlaying": "Playing",
+      "Staged": "Staged",
       "Cast": "Cast",
       "Prev": "Prev",
       "Next": "Next",
@@ -181,7 +187,63 @@
         "success": "Success",
         "failure": "Failure",
         "criticalFailure": "Critical failure"
-      }
+      },
+      "Feet": "ft",
+      "Initiative": "Initiative",
+      "InitShort": "Init",
+      "NoEncounter": "No encounter to roll into",
+      "AlreadyRolled": "Already rolled this encounter",
+      "RollIntoFight": "Roll into the encounter",
+      "Turn": {
+        "Fight": "Fight",
+        "FightHint": "Put the selected tokens into an encounter",
+        "Begin": "Begin",
+        "BeginHint": "Start the encounter: round 1",
+        "Next": "Next",
+        "NextHint": "Pass the turn on. Ctrl ends the encounter",
+        "End": "End Turn",
+        "EndHint": "Your turn: hand it on",
+        "NotYours": "Live on your own turn"
+      },
+      "TurnOrder": "Round {round} · {count} in order",
+      "Dying": "DYING",
+      "DyingWounded": "DYING · W{wounded}",
+      "Wounded": "Wounded",
+      "Ask": "Ask",
+      "AskTheTable": "Ask the table",
+      "AskTheTableSub": "Keys post the check to chat",
+      "Dossier": "Dossier",
+      "PerDC": "Per DC",
+      "PerceptionDC": "Perception DC",
+      "PerceptionDCSub": "What sneaking past you has to beat",
+      "Focus": "Focus",
+      "FocusPoints": "Focus Points",
+      "Spells": "Spells",
+      "SpellsSub": "The Console, open at Spells",
+      "Gear": "Gear",
+      "GearSub": "The Console, open at Gear",
+      "SheetSub": "The whole character, in the Console",
+      "CommsSub": "Your comm device",
+      "RunnerSub": "The running order for this scene",
+      "SoundSub": "The Sound Desk",
+      "Find": "Find",
+      "FindSub": "Search every scene, cue, cast member and command",
+      "ConsoleSub": "Sheets, party, hub and the whole log",
+      "WholeLog": "The whole log",
+      "WholeLogSub": "Opens the Console at Log; press again to close",
+      "Action": "Action",
+      "NoActions": "No actions",
+      "Use": "Use",
+      "Damage": "Damage",
+      "DamageSub": "Roll this strike’s damage",
+      "Critical": "Critical",
+      "CriticalSub": "Roll this strike’s critical damage",
+      "Dmg": "Dmg",
+      "Crit": "Crit",
+      "ModeScene": "Scene",
+      "ModeFight": "Fight",
+      "Demo": "Demo",
+      "DemoSub": "The scripted walkthrough runner"
     },
     "Equipment": {
       "Title": "Equipment Locker",
@@ -189,6 +251,8 @@
       "ActingAsLabel": "Acting as",
       "ActingAsGM": "GM (myself)",
       "Force": "Force (ignore budget)",
+      "Bonus": "Mark as free extra (Nobu's kit-issue bonus)",
+      "BonusTag": "(bonus)",
       "Left": "left",
       "Take": "Take",
       "Return": "Return",
@@ -230,14 +294,6 @@
         "Draw": "Draw"
       }
     },
-    "CityBoard": {
-      "Toggle": "City Board",
-      "Title": "City Board",
-      "DemoFlag": "Demo",
-      "Target": "Target",
-      "Risk": "Risk",
-      "Status": "Status"
-    },
     "Director": {
       "PanelTitle": "Director's Panel",
       "MacroName": "Blank Inheritance: Open Director's Panel",
@@ -247,6 +303,8 @@
       "Cue": "Cue",
       "NowActive": "Now active",
       "NoScenes": "No scenes exist yet.",
+      "DraftedSceneTitle": "Scene still drafted",
+      "DraftedSceneBody": "This scene's authoring status is \"{status}\" -- it has not been reviewed on the Approvals Desk. Cue it anyway?",
       "Transition": {
         "None": "None",
         "Fade": "Fade",
@@ -264,35 +322,70 @@
         "Dots": "Dots"
       }
     },
+    "Desk": {
+      "PanelTitle": "Approvals Desk",
+      "MacroName": "Blank Inheritance: Open Approvals Desk",
+      "Close": "Close",
+      "Loading": "Loading the queue...",
+      "Empty": "Nothing waiting for review. The queue only ever shows what a scheduled scene actually casts.",
+      "Counter": "{index} of {remaining}",
+      "Undo": "Undo",
+      "Uncertainty": "Claude was unsure about",
+      "DependsOn": "Depends on",
+      "Unblocks": "Unblocks",
+      "OpenCard": "Open Character Card",
+      "Sound": "Sound",
+      "Final": "Final",
+      "Changes": "Changes",
+      "Cut": "Cut",
+      "Prev": "Prev",
+      "Next": "Next",
+      "ChangesTitle": "What needs to change?",
+      "ChangesPlaceholder": "One line -- what should Claude fix?",
+      "OutTray": "Out-tray ({count})",
+      "BackToQueue": "Back to queue",
+      "OutTrayTitle": "Out-tray",
+      "OutTraySubtitle": "Everything waiting on Claude rather than on you.",
+      "PendingInstructions": "Pending instructions",
+      "OpenGazetteerRequests": "Open gazetteer requests",
+      "NeedsLoreItems": "Needs lore",
+      "OutTrayEmpty": "Nothing here.",
+      "WaitingOnYou": "Waiting on you, not on Claude:",
+      "OpenCreativeQuestions": "Open creative questions",
+      "UnreviewedAudio": "Unreviewed audio ({count})",
+      "UnreviewedAudioHint": "Not gradeable here yet -- see design/audio-system.md. Counted honestly against the whole library, not just what review.json has an explicit entry for."
+    },
     "LandingScene": {
       "Name": "Directorate HQ — Lobby"
     },
     "SceneClose": {
       "Title": "Close Scene",
-      "IsComplete": "This scene is complete",
+      "RecapTitle": "This scene, at a glance",
+      "HighlightsLabel": "Logged this scene",
+      "HighlightsEmpty": "Nothing tagged yet. Lines you log as decision:, reaction:, thread:, npc: or rule: show up here automatically.",
+      "SetupsLabel": "Setups still open",
+      "Optional": "optional",
       "EndingLabel": "How did it end?",
-      "CostLabel": "What did it cost?",
-      "NotesLabel": "Notes",
-      "NotesPlaceholder": "Optional -- goes into the session log.",
-      "CarriesForward": "Left open. This scene carries forward to next time.",
-      "Counters": "Casualties so far: {casualties} · Anchors violated so far: {anchors}",
-      "Confirm": "Confirm",
-      "Confirmed": "Scene closed.",
       "Ending": {
         "Resolved": "Resolved",
         "ResolvedWithComplications": "Resolved, with complications",
         "Interrupted": "Interrupted",
         "Abandoned": "Abandoned"
       },
-      "Cost": {
-        "Nothing": "Nothing",
-        "Casualties": "Casualties",
-        "FrameDamage": "Frame damage",
-        "Bleed": "Bleed",
-        "TechnicianDays": "Technician-days",
-        "Time": "Time",
-        "AnchorViolated": "Anchor violated"
-      }
+      "CarriesForward": "Not finished - carries forward",
+      "NotesLabel": "Notes for next time",
+      "NotesPlaceholder": "What mattered here, and what's still owed? This is what a future scene gets written from.",
+      "Verdict": {
+        "Panic": "Panic!",
+        "PanicSub": "Something went wrong. Stay here, flag it.",
+        "Note": "Note",
+        "NoteSub": "Go through this one properly in the review.",
+        "Positive": "Positive",
+        "PositiveSub": "Went well. Done, move on."
+      },
+      "Counters": "{count} flagged for review",
+      "Confirmed": "Scene closed.",
+      "ConfirmedFlagged": "Scene closed and flagged for review."
     },
     "Settings": {
       "ThemeEnabled": {
@@ -301,7 +394,7 @@
       },
       "RosterInBar": {
         "Name": "Move the player list into the command bar",
-        "Hint": "Hides Foundry's own player list (which sits under the scene controls on the left in v14) once the command bar carries its own roster. Off by default so nothing disappears unexpectedly."
+        "Hint": "Hides Foundry's own player list (which sits under the scene controls on the left in v14) now that the deck carries its own roster. A world setting — the GM's choice applies to the whole table at once. On by default; switch it off if you still want Foundry's connection/online status alongside the deck."
       },
       "AudioEngine": {
         "Name": "Sound Desk mixer",
@@ -329,8 +422,9 @@
     },
     "Runner": {
       "Title": "Scene Runner",
+      "AnySkill": "Any skill",
       "Toggle": "Scene Runner",
-      "NoScene": "No scene chosen. Pick one from the running order above.",
+      "NoScene": "No scene chosen yet. Pick where to start:",
       "Cast": "Who is here",
       "Beats": "What has to happen",
       "Handouts": "To hand over",
@@ -344,6 +438,9 @@
       "Tick": "Mark this as having happened",
       "Untick": "Mark this as not having happened after all",
       "Open": "Bring this in",
+      "OpenHint": "This condition has actually happened at the table — bring this beat into the running order as live, instead of greyed out and waiting.",
+      "GmToolHint": "Opens the actual tool this beat needs, instead of a macro you have to go find yourself.",
+      "ThemeToggle": "Switch light/dark",
       "Reveal": "Show the table",
       "RevealSolo": "Show one player",
       "Solo": "One player",
@@ -360,11 +457,17 @@
       "Success": "Success",
       "Failure": "Failure",
       "CritFailure": "Crit fail",
-      "Goal": "What has to be true when this ends",
-      "Intro": "Getting in",
+      "Goal": "Scene Goals",
+      "Intro": "Entering the Scene",
+      "Landmark": "Orbit:",
+      "HoldInReserve": "Held in reserve — what do I notice?",
       "Outro": "Getting out",
+      "TransitionScatterRisk": "Could split the party",
       "Artefacts": "They can keep",
       "WriteDown": "Write down",
+      "AlreadyLogged": "Already in the log this scene",
+      "EquipmentIssued": "Already picked from the catalogue this scene",
+      "EquipmentBonus": "Already given as a free extra this scene",
       "Grant": "Hand it over",
       "GrantConfirm": "Give the players \"{title}\" permanently?",
       "GrantConfirmHint": "It goes into their own journals and stays there for the rest of the campaign. This cannot be undone.",
@@ -372,18 +475,116 @@
       "Held": "Held by the party",
       "Insight": "Free to ask",
       "CutTo": "Cut the table to this",
+      "CueSceneHint": "Load this scene's script and cut the table there — SCENE -> MAP -> SCENE if the location changed.",
       "Palette": "Anything else…",
       "NotePlaceholder": "What just happened?",
       "NoteScene": "→ this scene",
       "PutOnStage": "Put them on stage",
       "OnStage": "Already on stage — click to stage again",
       "NoSceneToStage": "There is no scene open to stage anyone onto.",
-      "CloseScene": "Close this scene"
+      "CloseScene": "Close this scene",
+      "CloseSceneFooterHint": "That is the whole scene. Closing it records the beats, then travels to the next one.",
+      "ChoiceInvented": "The table can invent something else entirely here — price or adjudicate it in the spirit of the options above rather than refusing it.",
+      "Temptations": "Tempt them with…",
+      "TemptationUsed": "Said this",
+      "TemptationUsedHint": "Mark that you actually said this out loud at the table, timestamped in the log. Reusable — click again any time you use it again.",
+      "Summon": {
+        "Title": "Summon anyone",
+        "OntoScene": "Summoning onto",
+        "NoScene": "No scene is open to summon onto.",
+        "Party": "Party",
+        "Others": "Others",
+        "Pc": "PC",
+        "Npc": "NPC",
+        "Summon": "Summon",
+        "Dismiss": "Dismiss",
+        "OnStage": "On stage"
+      },
+      "Rules": {
+        "Title": "Rules",
+        "Placeholder": "Search the SRD — press enter",
+        "NoResults": "Nothing found for that."
+      },
+      "SummonHint": "Put anyone in the world on the stage the table is looking at.",
+      "Hide": "Hide the Scene Runner",
+      "PickScene": "Pick a scene",
+      "TimerHint": "How long this scene has been running, against how long the brief says it takes. It starts at the first thing you mark as done.",
+      "NotStarted": "Not started",
+      "Required": "Required",
+      "RunningOrder": "The episode's running order",
+      "Next": "Next:",
+      "Rooms": "Rooms in this scene",
+      "TableElsewhere": "The table is looking at",
+      "CutHere": "Cut to this scene",
+      "ShowAll": "Show every beat in full",
+      "ShowNow": "Show just the current beat",
+      "OnStageNow": "On stage",
+      "TakeOff": "Take them off the stage",
+      "NobodyOnStage": "Nobody yet",
+      "ResizeHint": "Drag to resize. Double-click to go back to the default width.",
+      "SceneOf": "Scene {n} of {total}",
+      "Now": "Now",
+      "Check": "Check",
+      "Fight": "Fight",
+      "Handout": "Handout",
+      "NotesHere": "Notes you have written on this beat",
+      "PostCheck": "Post to chat",
+      "RollUsed": "Recorded",
+      "UseRoll": "Use this",
+      "InThisBeat": "In this beat",
+      "IsOnStage": "On stage",
+      "Stage": "Stage",
+      "ClockUp": "One step up",
+      "ClockDown": "One step down",
+      "ClockNow": "Now:",
+      "ClockNext": "Next, at"
     },
     "Induction": {
       "MacroName": "Blank Inheritance: Begin Induction",
       "Tracker": {
-        "Label": "Induction progress"
+        "Label": "Induction progress",
+        "StepOf": "Step {n} of {total} · {label}"
+      },
+      "ReturnToReview": "Back to review",
+      "Blocker": {
+        "PickAncestry": "Pick an ancestry to continue.",
+        "PickBackground": "Pick a background to continue.",
+        "PickClass": "Pick a class to continue.",
+        "PickKeyAbility": "Choose your key ability to continue.",
+        "OneMorePick": "One more choice to make.",
+        "MorePicks": "{count} more choices to make.",
+        "OneMoreAttribute": "Pick one more attribute.",
+        "MoreAttributes": "Pick {count} more attributes.",
+        "Uploading": "Uploading your photograph…",
+        "NeedName": "Your character needs a name to continue.",
+        "ReviewIncomplete": "Something earlier isn’t finished; the numbered steps above will take you there."
+      },
+      "Resume": {
+        "Title": "You have a form in progress",
+        "Unnamed": "Unnamed",
+        "Where": "Stopped at step {n} of {total}, {label}",
+        "When": "saved {time}",
+        "Continue": "Continue This Form",
+        "StartAgain": "Start Again",
+        "DiscardWarning": "Starting again throws this form away. It can't be brought back.",
+        "Keep": "Keep It",
+        "Discard": "Throw It Away"
+      },
+      "OrgNameJP": "特別対策本部",
+      "Agreement": {
+        "Title": "Articles of Enrolment",
+        "FormNumber": "FORM 1-B — ARTICLES OF ENROLMENT AND GENERAL CONSENTS",
+        "Intro": "Before anything else, the Directorate requires your agreement to the terms below. Recruits are advised to read them in full.",
+        "ReadingTime": "Estimated reading time: {time}. Recruits are advised to allow sufficient time.",
+        "ViewportLabel": "The Articles of Enrolment. Scroll to read; use the + and − buttons, or Ctrl and the mouse wheel, to change the size of the text.",
+        "ZoomIn": "Larger text",
+        "ZoomOut": "Smaller text",
+        "ReadAck": "I have read and understood this Agreement in full.",
+        "Agree": "I Agree",
+        "Back": "Back",
+        "LoadError": "The Agreement could not be retrieved from Records. Tell your GM; you can't continue until it loads.",
+        "SettingName": "Induction: show the Service Agreement (FORM 1-B)",
+        "SettingHint": "Adds the long, deliberately unreadable Articles of Enrolment as the induction terminal's second page, signed once with I Agree. Leave off until the text has been approved."
       },
       "Page1": {
         "Title": "Induction",
@@ -397,8 +598,9 @@
         "Begin": "Begin"
       },
       "Page2": {
+        "PickPrompt": "Pick an ancestry from the list to see what it gives you. You can switch as often as you like.",
         "Title": "Ancestry",
-        "FormNumber": "FORM 1-B — ANCESTRY DECLARATION",
+        "FormNumber": "FORM 1-C — ANCESTRY DECLARATION",
         "Intro": "Your character's real ancestry — not the one they'll wear at the table. Every option here is real and mechanical; how it's disguised in play is entirely yours to decide later.",
         "FilterPlaceholder": "Filter by name…",
         "GroupTerrestrial": "Terrestrial-Presenting",
@@ -423,8 +625,9 @@
         "Continue": "Continue"
       },
       "Page3": {
+        "PickPrompt": "Pick a background from the list to see what it gives you. You can switch as often as you like.",
         "Title": "Background",
-        "FormNumber": "FORM 1-C — PRIOR OCCUPATION",
+        "FormNumber": "FORM 1-D — PRIOR OCCUPATION",
         "Intro": "Who your character was before the letter arrived. Every background is real and mechanical, same as ancestry — search or browse the full list below.",
         "FilterPlaceholder": "Filter by name…",
         "GroupCommon": "Common",
@@ -447,8 +650,10 @@
         "Continue": "Continue"
       },
       "Page4": {
+        "PickPrompt": "Pick a class to see its training, defences and key ability.",
+        "CardMeta": "Key: {key} · {hp} HP a level",
         "Title": "Class",
-        "FormNumber": "FORM 1-D — DUTY SPECIALISATION",
+        "FormNumber": "FORM 1-E — DUTY SPECIALISATION",
         "Intro": "The training your character actually received. Only six real specialisations exist — pick one below.",
         "Change": "Change class",
         "StatHP": "Hit Points per Level",
@@ -477,22 +682,34 @@
       },
       "Page5": {
         "Title": "Attribute Boosts",
-        "FormNumber": "FORM 1-E — APTITUDE ALLOCATION",
-        "Intro": "Four more boosts, entirely your choice — on top of whatever your ancestry, background and class already set on their own pages. Each of the four below must go to a different ability.",
+        "FormNumber": "FORM 1-F — APTITUDE ALLOCATION",
+        "Intro": "Pick four different attributes to raise, on top of what your ancestry, background and class already gave you. The number beside each shows where it will end up.",
+        "Count": "{picked} of 4 chosen",
+        "TallyLabel": "Your six attributes and where each one ends up",
+        "From": {
+          "Ancestry": "ancestry +1",
+          "Flaw": "ancestry flaw −1",
+          "Background": "background +1",
+          "Class": "class +1",
+          "Free": "chosen here +1"
+        },
         "HelpSummary": "What does this actually change?",
-        "HelpBody": "This permanently raises one of the six numbers that drive almost every roll you make — the single most consequential page in this form. A free boost can land on an ability your ancestry, background or class already raised; it simply adds another +1 there. The four boosts below must each go to a different ability from each other, but not necessarily different from what's already been set elsewhere.",
+        "HelpBody": "This permanently raises one of the six numbers that drive almost every roll you make — the single most consequential page in this form. A free boost can land on an ability your ancestry, background or class already raised; it simply adds another +1 there. The four you pick here must all be different from each other, but can repeat what's already been set elsewhere.",
         "Back": "Back",
         "Continue": "Continue"
       },
       "Page6": {
         "Title": "Portrait",
-        "FormNumber": "FORM 1-F — PHOTOGRAPHIC IDENTIFICATION",
+        "FormNumber": "FORM 1-G — PHOTOGRAPHIC IDENTIFICATION",
         "Intro": "A photograph for your file — optional, but every character in this campaign uses the same frame, and it's a nice thing to have waiting for you at the table. Upload one below and adjust it to fit; Section Nine keeps standard imagery on hand for anyone who'd rather skip this.",
         "NoPhotoLabel": "No photograph on file",
         "ChoosePhoto": "Choose Photo",
         "ChangePhoto": "Change Photo",
         "RemovePhoto": "Remove",
         "ZoomLabel": "Zoom",
+        "ViewportLabel": "Photo crop. Drag, or use the arrow keys, to move the photo; + and − zoom.",
+        "CropHint": "Drag the photo to move it. The zoom slider, the mouse wheel, or + and − zoom in and out.",
+        "DropHint": "or drop a photo here",
         "UseThisCrop": "Use This Crop",
         "Uploading": "Uploading…",
         "InvalidFileType": "That doesn't look like an image file — choose a photo (JPEG, PNG, WebP, etc.) instead.",
@@ -504,40 +721,53 @@
       },
       "Page7": {
         "Title": "Finishing Details",
-        "FormNumber": "FORM 1-G — PERSONAL PARTICULARS",
-        "Intro": "The mechanical parts are done. This is the rest of who they are — a name, how they're addressed, and a few small things about them. Every box here has a row of suggestions you can click to fill it in fast, and every box is also just a box — write whatever you like instead, or as well.",
+        "FormNumber": "FORM 1-H — PERSONAL PARTICULARS",
+        "Intro": "The mechanical parts are done. This page is short answers only — one line each, nothing that needs thinking about for long. Every box has a row of suggestions you can click to fill it in fast, and every box is also just a box: write whatever you like instead, or as well. All of it lands on your real character sheet.",
         "NameLabel": "Name",
         "NamePlaceholder": "Your character's name…",
         "PronounsLabel": "Pronouns",
         "GenderIdentityLabel": "Gender identity",
         "AppearanceLabel": "Appearance notes",
+        "PersonalFileTitle": "Personal particulars",
+        "AppearanceTitle": "Appearance",
+        "PersonalityTitle": "Personality",
+        "HelpSummary": "What's this actually for?",
         "LanguagesTitle": "Languages",
         "AddLanguagePlaceholder": "Add a language…",
         "AddLanguage": "Add",
         "NoLanguagesYet": "No languages added yet.",
         "RemoveLanguage": "Remove",
-        "BanalOptionalNote": "None of this is required except your name — write as much or as little as you like.",
+        "OptionalNote": "None of this is required except your name — write as much or as little as you like.",
         "Back": "Back",
         "Continue": "Continue"
       },
       "Page8": {
         "Title": "Personal Declaration",
-        "FormNumber": "FORM 1-H — PERSONAL DECLARATION",
-        "Intro": "Eight real questions. Every answer becomes something the campaign actually uses — a connection, a side plot, a vulnerability, a running joke.",
+        "FormNumber": "FORM 1-I — PERSONAL DECLARATION",
+        "Intro": "Five questions, and a box for everything they didn't ask. Every answer becomes something the campaign actually uses — a person who can come back, a side plot, a vulnerability, a reason to be here. Write as much as you want; there is no length these boxes are expecting.",
         "OptionalNote": "Nothing on this page is required. Leave any or all of it blank and continue — you can always come back to this later.",
         "HelpSummary": "What's this actually for?",
+        "OutOfCharacterTag": "Out of character",
+        "FreeformTitle": "Anything else",
         "Back": "Back",
         "Continue": "Continue"
       },
       "Page9": {
         "Title": "Review & Confirm",
-        "FormNumber": "FORM 1-I — FINAL DECLARATION",
+        "FormNumber": "FORM 1-J — FINAL DECLARATION",
         "Intro": "Everything below is what actually gets written down. Nothing is created until you confirm.",
         "ErrorTitle": "That didn't go through.",
         "SectionIdentity": "Identity",
         "SectionMechanical": "Mechanical",
-        "SectionTexture": "Texture",
+        "SectionTexture": "Personal Particulars",
+        "SectionPersonality": "Personality",
         "SectionQuestions": "Personal Declaration",
+        "SectionFreeform": "Anything Else",
+        "Photo": "Photograph",
+        "StatsLabel": "Attribute modifiers",
+        "Change": "Change",
+        "ChangeWhat": "Change {what}",
+        "LeftBlank": "Left blank.",
         "StatName": "Name",
         "StatPronouns": "Pronouns",
         "StatGender": "Gender Identity",
@@ -551,7 +781,8 @@
         "Confirming": "Creating your character…",
         "SuccessTitle": "Done. You're in the system now.",
         "SuccessBody": "{actorName} exists, and your token is already waiting on the landing scene. Finish the rest — feats, spells, the last few skills — on your own character sheet.",
-        "Back": "Back"
+        "Back": "Back",
+        "Finish": "Finish"
       }
     },
     "Audio": {
@@ -589,7 +820,7 @@
       "Level": "LEVEL",
       "MuteAll": "Mute all sound",
       "Unmute": "Unmute",
-      "RadioNote": "Your own levels. The GM's mix rides on top of these; nobody else hears your knobs.",
+      "RadioNote": "Your own levels. The GM's mix rides on top of these; nobody else hears your mix.",
       "Radio": "Radio",
       "Bus": {
         "Music": "Music",
@@ -613,15 +844,64 @@
       "MacroName": "Build the scene set",
       "Built": "Scenes: {created} built, {updated} updated, {pins} pins on the map.",
       "Retired": "Retired {count} temporary scene(s).",
+      "OrphansRetired": "Removed {count} scene(s) no longer in the adventure.",
+      "Quarantined": "Moved {count} stray scene(s) into \"Diagnostics & Fixtures\".",
       "PinJournal": "The City — Places"
+    },
+    "Travel": {
+      "TokenName": "The Party"
+    },
+    "Demo": {
+      "MacroName": "Blank Inheritance: Demos",
+      "Toggle": "Demos",
+      "Title": "Demo Walkthroughs",
+      "Intro": "Every step here is a real action against this real world — nothing is mocked. If a step breaks, that's the point: something drifted, and it's better to find out here than at the table.",
+      "None": "No demos are registered yet.",
+      "Back": "Back",
+      "Next": "Next",
+      "Running": "Running…",
+      "Done": "Done",
+      "Reset": "Reset",
+      "Exit": "Exit demo",
+      "SessionIntegration": {
+        "Title": "Session 0/1: Scene Runner, the map, and the stage",
+        "Step1": "Open Episode One and land on its first scene, The Road In.",
+        "Step2": "Cue the next beat, Kit Issue — one click, since it now both loads the script and cuts the table there. Kit Issue is a different location, so watch the party's marker cross the map before the scene changes underneath it.",
+        "Step3": "Bring Kit Issue's quartermaster, Nobu, onto the stage. His brief calls for an Announced entrance, so the banner should sound on its own — nobody has to remember to click it.",
+        "Step4": "Same idea again, a second time: cue Canteen, proving the map crossing isn't a one-off tied to a single pair of locations.",
+        "Step5": "Bring Canteen's Taka onto the stage. Her brief calls for the loudest tier there is — Splash — and it should fire automatically too.",
+        "Step6": "Open the Sound Desk directly from the Deck's own Sound pill — the Deck should no longer be blind to what's playing."
+      },
+      "RoadInTravel": {
+        "Title": "The Road In → Intake Medicals: six candidates, one map crossing",
+        "Step1": "Scatter six temporary candidate tokens across the mainland — six different starting lives, nowhere near the fortress island yet.",
+        "Step2": "Open Episode One and land on its first scene, The Road In.",
+        "Step3": "Watch all six candidates actually travel — each its own real, separately-routed journey at its own real pace — converging on Candidate Gate.",
+        "Step4": "Cue the very next beat, Intake Medicals — watch the party's own marker cross the real map, calibrated against the hub's own real Tiles, before the scene changes underneath it."
+      }
     },
     "Palette": {
       "Title": "Director's Palette",
-      "Placeholder": "What do you need? (scene, cast, audio, a check, or just say what happened)",
+      "Placeholder": "Search, or type what to do",
       "Nothing": "Nothing matches that.",
       "Close": "Close",
       "Failed": "Could not run “{title}”. The console has the detail.",
-      "Keybinding": "Open the Director's Palette"
+      "Keybinding": "Open the Director's Palette",
+      "SyntaxLead": "Type it:",
+      "SubjectHint": "Selected on the canvas — the Selected commands act on this"
+    },
+    "SessionRail": {
+      "Label": "Session",
+      "Mark": "Mark",
+      "MarkHint": "Drop a mark on the rail and in the log",
+      "Settings": {
+        "StartName": "Session start",
+        "StartHint": "When the table sits down (24-hour HH:MM). The session rail across the top of the GM’s screen measures the evening from here.",
+        "EndName": "Session end",
+        "EndHint": "When the evening is meant to finish (24-hour HH:MM).",
+        "ShowName": "Show the session rail",
+        "ShowHint": "The thin strip across the top of the GM’s screen showing how far through tonight’s session you are."
+      }
     }
   }
 }

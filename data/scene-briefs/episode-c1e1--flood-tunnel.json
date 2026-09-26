@@ -1,0 +1,242 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--flood-tunnel",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "flood-tunnel",
+  "title": "Flood Tunnel Clearance",
+  "summary": "The campaign's first fight: six Giant Centipedes in a flooded compactor chamber, three genuinely different ways to end it, and a closing beat that turns this morning's flagged screens into a question none of them says out loud until they're back and dry.",
+  "goal": "Section Nine does the job they were sent to do, gets ambushed by what was actually waiting in the drains, and comes out the other side exhausted, grimy, and blooded for the first time -- with nobody seriously hurt. By the time they're dry, they've worked out on their own that they weren't just flagged this morning, they were put together on purpose.",
+  "howToPlay": "**This is the session's real climax, not an afterthought.** Give it the room it needs. Start grounded and physical (the checks, the setting, the smell of the place) before anything turns dangerous. Once the fight starts, keep it moving fast; SF2E's three-action structure and degree-of-success math will carry the table, since these players already know PF2E cold. Spend your own attention on the room itself -- the sludge, the grate, the walkways -- since that's the one genuinely new thing tonight, not the rules underneath it. Let the party actually choose how this ends -- kill, drive off, or out-think the room -- rather than steering everyone toward a straight fight; all three are written to be equally real, and none of them is secretly the correct answer.",
+  "runsAbout": "35-50 minutes with the optional hazard and the full resolution branches, 20-30 for a straightforward kill-them-all run without the hazard",
+  "mode": "combat",
+  "intro": {
+    "where": "Dock C, then down. A disused drainage/compactor chamber under the old town, accessed via a maintenance hatch at the dock -- Cze & Peku's 'Trash Compactor' map. A control platform to the north, a large sunken floor around a glowing central grate, conveyor walkways flanking both sides.",
+    "firstThing": "The smell, before anybody's torch finds anything.",
+    "readAloud": "The smell reaches you before the light does -- standing water that has not moved in a long time, and under it something sweeter that you would rather not identify.\n\nThe hatch drops you onto a raised platform to the north that still has power: a bank of panels, half their lights dead. Below it a wide floor slopes down toward a grate the size of a cart wheel, glowing faint amber under the water.\n\nConveyor tracks run the length of both walls, still carrying whatever was last dumped on them toward the middle. Nothing is moving yet.",
+    "carriesIn": [
+      {
+        "when": "Canteen was played first (it should be)",
+        "then": "The party already knows this is their assignment and knows how much -- or how little -- they were told about it. If anyone investigated at Canteen, let that knowledge inform how they approach the room, without giving it a mechanical bonus by default (see the encounter's specialRules)."
+      },
+      {
+        "when": "The Walk Down was played first (it should be)",
+        "then": "This is not their first moment together anymore. Whatever got said, or didn't, on the ten quiet minutes from Canteen to Dock C is still sitting with them, and a duty officer already waved them straight through the gate -- there was never a moment of choice about coming down here. Don't restage the walk itself and don't play this as a cold, fresh arrival."
+      },
+      {
+        "when": "A player passed what-lives-down-there in School: Second Period",
+        "then": "They have already made the Recall Knowledge check on what is down here. Give them the result the moment the first centipede is visible, without a roll and without spending one of their actions. On a critical success in that lesson they also have the weakest save."
+      },
+      {
+        "when": "A player passed workshop-induction in School: First Period",
+        "then": "+2 circumstance bonus on `override-the-cycle` at the north control panels. Hulda Brack spent a morning showing them this exact class of panel. Apply it without comment."
+      }
+    ],
+    "landmark": "The glowing grate at the centre of the sunken floor -- the one fixed thing in the room everyone can measure their position against.",
+    "holdInReserve": "The sludge near the grate is already moving, faintly, before anyone touches a panel -- the nest stirring on its own schedule, not because of anything the party's done yet. Hold this back for whoever actually looks, rather than narrating it to the whole table unasked -- see sizing-up-the-nest, below."
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "arrival",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Establish the room before anyone touches anything -- let it feel physical and a little ominous, not yet dangerous.",
+      "direction": "This is the one new environment tonight that isn't an office or a counter. Give it real sensory texture -- sound, smell, the specific quality of the light -- since everything before this scene has been administrative interiors.",
+      "note": "REFUSAL FLOOR: this is an assigned duty, already established as non-negotiable back at Canteen and reinforced by The Walk Down's duty officer at the gate -- nobody is exempted by objecting, and none should be offered. A player who wants their character to actually balk can have them hang back at the hatch rather than climb down; that costs nothing mechanically (the standing 'penalties cost risk, never choice' principle) and they can descend and rejoin at any point. The job, and the fight, doesn't wait for them.\n\nNO READ-ALOUD HERE, DELIBERATELY. The scene's intro read-aloud is the arrival -- the smell before the light, the platform, the grate, the conveyor tracks. This beat is the GM letting the party look around it, not a second description."
+    },
+    {
+      "id": "sizing-up-the-nest",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants to actually study the room before anyone touches the panels -- the water, the grate, anything moving -- let them.",
+      "after": "arrival",
+      "direction": "GM-adjudicated, no challenge file needed. A Nature check (these are animals) or Recall Knowledge against the level 1 standard DC of 15 -- matching every other check tonight -- tells them what a giant centipede actually is: a venomous bite, not especially aggressive unless its nest is disturbed further, more a hazard than a hunter. Costs nothing on any result.\n\nA critical success adds one thing: the nest isn't fully roused yet. That is the table's first hint that stopping now, before power-the-line and clear-the-jam, is still on the table.",
+      "note": "WHY A PLAYER TAKES THIS: it is the one piece of information in the scene that changes how a careful table approaches the fight, and it is what makes drive-them-off and find-another-way read as legible options rather than things a player has to invent cold.",
+      "when": {
+        "condition": "if a player wants to study the room before anybody touches the panels"
+      }
+    },
+    {
+      "id": "power-the-line",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Get power back to the drainage line -- the actual job. Assign however the table wants to split up.",
+      "challengeRef": "c1e1-flood-tunnel",
+      "checkRef": "power-the-line",
+      "direction": "Runs alongside clear-the-jam (same challenge file), not before or after it. Unlike almost every other check tonight, this has a small real cost on failure -- flag that shift in stakes if it helps the table read the moment.\n\nThese two run ALONGSIDE each other, not in sequence. Cut between whoever is on each and let the party split however they want.\n\nUnlike almost every check tonight, a failure here costs something real. Say that the stakes have shifted if it helps the table read the moment.",
+      "note": "REFUSAL FLOOR: this is the literal job Section Nine was sent to do, so \"nobody wants to\" is likelier at the table than any character having a real in-fiction reason to object. If the table stalls, don't force a check -- apply gentle narrative pressure instead (a radio crackle from topside asking for a status update, the tide that is already due) until somebody moves.\n\nThis is the one place tonight where sitting on your hands already carries a cost, built into the challenge file's failure text. Refusing to try is not actually safer than trying and failing.",
+      "readAloud": "The panels on the north platform still have power in them somewhere. Half the lights are dead and the rest come up amber when you put a hand near them.\n\nWhoever wired this did it a long time ago and did not expect anybody to be reading it by torchlight."
+    },
+    {
+      "id": "clear-the-jam",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Clear the physical jam in the compactor feed.",
+      "challengeRef": "c1e1-flood-tunnel",
+      "checkRef": "clear-the-jam",
+      "direction": "Runs alongside power-the-line, not before or after it. Same real-cost-on-failure note applies -- a bad outcome here is what seeds the compactor-cycle hazard's starting Encroachment if it's running.\n\nThese two run ALONGSIDE each other, not in sequence. Cut between whoever is on each and let the party split however they want.\n\nUnlike almost every check tonight, a failure here costs something real. Say that the stakes have shifted if it helps the table read the moment.",
+      "note": "REFUSAL FLOOR: same as power-the-line -- the job doesn't disappear if nobody volunteers for it, it just waits, and the tide isn't waiting with it.",
+      "readAloud": "The compactor feed is packed solid with whatever the old town has been putting down its drains, compressed into something with a grain to it.\n\nIt comes apart if you work it in the right place. It does not come apart if you just pull."
+    },
+    {
+      "id": "the-fight",
+      "kind": "combat",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The noise and disturbance wakes the nest <trig id=\"nest-wakes\"/>. Six Giant Centipedes come up out of the sludge around the central grate.",
+      "encounterRef": "c1e1-flood-tunnel",
+      "subsystemRef": "c1e1-compactor-cycle",
+      "triggers": [
+        {
+          "id": "nest-wakes",
+          "kind": "note",
+          "label": "The fight actually starts"
+        }
+      ],
+      "direction": "Run subsystemRef only if you are using the optional closing-in version; c1e1-compactor-cycle.json says how to drop it cleanly if not. Difficult terrain and poor light apply across the sunken floor regardless. The conveyor walkways are the real tactical high ground -- dry, clear, and, if the hazard is running, the one lane that stays safe throughout.\n\nTHREE REAL ENDINGS, not one plus two throwaway mentions. Kill them: the default, standard combat to defeat, no special handling. Drive them off: see drive-them-off below. Find another way: see find-another-way below. All three earn full standard encounter XP. None of them is secretly the correct answer.",
+      "choicePoint": {
+        "label": "How do they end this?",
+        "options": [
+          {
+            "id": "kill",
+            "label": "Kill the nest",
+            "consequence": "Standard combat to defeat. No special handling -- ordinary SF2E resolution, fight until the centipedes are dead."
+          },
+          {
+            "id": "drive-off",
+            "label": "Drive them off",
+            "consequence": "See the drive-them-off beat -- Demoralize and mounting losses can rout the survivors down the grate and side pipes. Full encounter XP either way."
+          },
+          {
+            "id": "find-another-way",
+            "label": "Use the room itself",
+            "consequence": "See the find-another-way beat -- the compactor, the grate, or the tide can end this without a straight fight. Full encounter XP either way."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "note": "REFUSAL FLOOR: no PC is ever forced to swing at anything. The walkways are a genuinely safe place to stand, working the panel (see working-the-panel) is real, valuable work, and a player who wants their character to hang back entirely can -- the scene doesn't fail if one of the six never rolls an attack. The other five can carry it at reduced numbers using ordinary SF2E action economy; that's not a failure state, and in practice it's often exactly how a table ends up choosing drive-them-off or find-another-way over a straight fight.\n\nAN INVENTED APPROACH SHOULD BE BACKED, AND THIS ROOM IS BUILT FOR ONE. Plausible ones: starting the drainage early and fighting in a draining room, driving them onto the conveyor tracks, flooding the sunken floor deliberately, using the amber grate as the only light and taking the rest away, or getting onto the north platform and refusing to come down. Price on the standard ladder and let it work. The compactor cycle closing in from the centre is pressure on position, not a kill clock -- a party that uses the room against the room is playing this correctly."
+    },
+    {
+      "id": "working-the-panel",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "subsystemRef": "c1e1-compactor-cycle",
+      "text": "If the compactor-cycle hazard is running and a player wants to spend their turns at the north panels instead of fighting, that's override-the-cycle -- a real job, not a consolation prize.",
+      "after": "the-fight",
+      "when": {
+        "beatRef": "the-fight",
+        "condition": "if the compactor-cycle hazard is in play and any player would rather work the machinery than fight"
+      },
+      "direction": "This is the session's one real test of mechanical ensemble teamwork -- see c1e1-compactor-cycle.json's notes: leaving the fight for a turn to work the panel is a real trade, not busywork, and it protects everyone else's ground while they're down on the sunken floor. Say so plainly if a player is weighing this against drawing a weapon -- they should know it's a genuine, load-bearing choice, not the boring option.",
+      "note": "WHY A PLAYER TAKES THIS: it is the one beat tonight where not attacking is the mechanically correct and actively valuable thing to do, and it is open to anyone who can reach the platform -- crafting-minded or not. A support-minded, non-combat or simply out-of-position player has real work here."
+    },
+    {
+      "id": "drive-them-off",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If the party leans on demoralizing or overwhelming the nest rather than killing every last centipede, let that actually work.",
+      "after": "the-fight",
+      "when": {
+        "beatRef": "the-fight",
+        "condition": "if the party tries to scare, demoralize, or rout the nest rather than kill it to the last one"
+      },
+      "direction": "Nothing bespoke to adjudicate. Demoralize works exactly as normal. Once several centipedes are down or the survivors are clearly losing, it is a legitimate GM call to have the rest break for the grate and the side pipes rather than fight to the last, and if the party doesn't chase, the survivors are simply gone.\n\nPlay the retreat as loud and physical as the fight itself -- the last one vanishing down a side pipe, not a quiet fade -- so it reads as a real, earned outcome rather than the GM taking it easy on them.\n\nRules basis: GM Core's surrender guidance and Fleeing Enemies procedure; Alien Core on whether a creature will surrender or flee when losing.",
+      "note": "Full standard encounter XP either way. GM Core's Bypassed Encounters guidance is explicit that a fight ended through smart tactical play earns the normal award, not a discount. Don't let a table quietly learn that killing everything is the only way to get paid."
+    },
+    {
+      "id": "find-another-way",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If the party tries to end this through the room itself rather than through the centipedes directly, back them.",
+      "after": "the-fight",
+      "when": {
+        "beatRef": "the-fight",
+        "condition": "if the party looks for a way to end the fight using the machinery or the water rather than combat"
+      },
+      "direction": "This option is named explicitly in ch1-v2.md and should be real, not a throwaway. Two concrete lanes, GM-adjudicated at the level 1 standard DC of 15, with whatever skill fits the approach -- Athletics or Crafting cover most of it.\n\n1. USE THE COMPACTOR ITSELF. Rather than overriding the cycle, the party can leave it running -- or push it harder -- and get everyone up onto the walkways. The Encroachment thresholds in c1e1-compactor-cycle.json already deal real damage and Grab/Restrain to anything caught on the sunken floor, and that applies to the centipedes exactly as it applies to a PC who lingers. Nobody has to swing a weapon at all if the party is willing to wait the machine out from a safe lane.\n\n2. SEAL THEM OUT, OR WORK WITH THE TIDE. The grate and the sluice machinery both answer to the same north panels. A party that would rather flood the sunken floor early, or force the grate shut on the nest, can: one-off DC 15 Athletics or Crafting per attempt, GM's call on how many attempts it realistically takes.",
+      "note": "Full standard encounter XP either way, same as drive-them-off -- see that beat's note and the encounter's rewards line. This is also the cleanest way to honour 'someone has to work the compactor' if a table doesn't want the hazard running as a straight combat clock: turn it into the actual weapon instead."
+    },
+    {
+      "id": "sorted-on-purpose",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Back at shared student accommodation, wet kit drying, the six of them get to the inference nobody reached out loud this morning: they weren't just all flagged, they were sorted into the same section on purpose.",
+      "after": "the-fight",
+      "direction": "They already have the fact -- the all-six realisation happened this morning at Intake Medicals, hours before this. Don't repeat it (see this file's notes). What's new here is the INFERENCE, and it should land as something the players work out, not something you tell them -- narrative-theory-foundations.md's rule applies directly: give a fact, never a conclusion, and let retrospective coherence do the work.\n\nRanked ways to get there, same shape as intake-medicals' all-six beat: (1) ideally, a player connects it unprompted, mid-conversation, once they're warm, dry, and talking the day over -- let them have it, don't finish the thought for them. (2) If nobody bites, have someone recall Canteen's pecking order (Section Nine, bottom of the list, the worst job read out last) and ask aloud why specifically the six of them ended up together for it. (3) Last resort only, and even then better from a player's mouth than yours if you can steer it there: 'We were all flagged. And then we were all put in the same section.'\n\n**Give the three facts and then stop talking.** They were all flagged, no other section went out tonight, and they were told they were streamed by aptitude.\n\nThe inference is theirs. Do not join it up, do not have an NPC join it up, and do not react when somebody at the table does.",
+      "note": "REFUSAL FLOOR: nothing forces a player to feel any particular way about this, and a table that just wants to go to sleep after a long night is a legitimate outcome. The beat's job is to put the fact where the table can see it, via the ranked fallbacks above if needed, not to manufacture a reaction. If it doesn't land tonight it is still true, and it can resurface later.\n\nNEEDS INGRAM'S SIGN-OFF BEFORE IT IS TREATED AS SETTLED. This closing line comes from design/episode-one-redesign.md, an unratified proposal; that document's §5 lists this exact beat as one of seven items still awaiting a call. Written here as confident drafted content, per the standing policy that drafting doesn't wait on advance approval -- but flag it when this scene comes up for review.\n\nAdvances Mystery Ledger plant #1 one step. Not yet converted to a Node, so referenced in prose rather than via nodeRefs; a reasonable candidate for conversion next time design/node-registry.md is touched.",
+      "readAloud": "Back upstairs, wet kit over a radiator, and the particular tiredness of having done something that turned out to be real.\n\nSomebody from Section Four puts their head round the door, sees the state of you, and asks what on earth you have been doing. Nobody sent them anywhere tonight. Nobody sent any of the other sections anywhere tonight.\n\nThey were streamed by aptitude on Monday. That is what the letter said. That is what everybody was told."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "clockRef": "c1e1-compactor-cycle",
+  "outro": {
+    "endsWhen": "The centipedes are dealt with -- killed, driven off, or shut out some other way -- and the six of them have had their moment back at accommodation.",
+    "readAloud": "Whatever's left of the nest goes quiet. The grate keeps glowing, the water keeps standing, and six exhausted, soaked, filthy teenagers climb back out the way they came in.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "delta": null,
+        "why": "Their first fight, survived together, capped by a realisation none of them reached alone -- the same mechanism intake-medicals' bonding beat already earns Bonds for. Size the delta to how much the table actually leaned on each other, not a flat award."
+      }
+    ],
+    "onwards": "Back to shared student accommodation for a Long-Term Rest (see this file's notes), and sorted-on-purpose closes the session there. Episode One ends on that line, unanswered.",
+    "writeDown": [
+      "Which resolution they reached -- kill, drive off, or find another way -- and how. Colour for later, not a mechanical flag, but worth being specific about for this party's own established character.",
+      "Whether they'd learned at Canteen that this wasn't just routine, and how that changed (or didn't) how they went in.",
+      "Who worked the panel, if the hazard was running, and whether it was a player who'd already opted out of the fight itself.",
+      "Whether sorted-on-purpose landed on its own or needed a nudge, and who said it first -- worth a callback later.",
+      "Any real injuries carried forward -- see the rest note below."
+    ]
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "study-the-room-first",
+      "text": "If nobody's said they're studying the room before touching anything, that's worth a free nudge -- what's actually down here, before the noise starts?"
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-room",
+      "text": "The room itself -- the smell, the glow, the sludge -- reading as a real change of register from a day of offices and counters."
+    },
+    {
+      "id": "the-fight",
+      "text": "The centipede fight as an action set-piece -- pace, tension, whether the conveyor walkways got used as real tactical high ground."
+    },
+    {
+      "id": "how-they-handled-it",
+      "text": "How the party chose to deal with the centipedes once they had the upper hand -- kill, drive off, or something else.",
+      "scaleNote": "0 = didn't come up as a real choice, 10 = told you something real about this group."
+    },
+    {
+      "id": "went-hard",
+      "text": "If it went hard -- a real injury, someone dropped, a genuinely scary round.",
+      "scaleNote": "0 = nobody was ever in real danger, 10 = it got properly tense."
+    },
+    {
+      "id": "the-wind-down",
+      "text": "The exhausted, soaked wind-down at the end, six of them starting to feel like a group rather than six strangers."
+    },
+    {
+      "id": "sorted-on-purpose",
+      "text": "Whether 'we were flagged, and then put in the same section' landed as a real realisation for the table, or came and went without much weight.",
+      "scaleNote": "0 = didn't land / didn't come up, 10 = the table sat with it."
+    }
+  ],
+  "notes": "THE DISCOVERY ALREADY HAPPENED, AT INTAKE MEDICALS. Do not close this scene on six teenagers comparing notes over the water and working out they were all flagged: that is Intake Medicals' mandatory all-six beat, hours earlier the same morning, and by the time the party is down here they have known for most of a day. Do not re-run it. If the table wants a beat for it, play it as the conversation moving on from \"we're flagged\" to what that might actually mean -- a different, later conversation, not the same one twice.\n\nREST: back at accommodation, a normal SF2E Long-Term Rest applies, with doubled HP recovery (design/downtime-activities.md). This is the session's actual close, so don't rush it. Episode One ends on six kids who don't fully know each other yet, soaked and tired, starting to realise they have more in common than they thought.\n\nMAP: Cze & Peku's Trash Compactor, supplied by Ingram. The optional compactor-cycle hazard (c1e1-compactor-cycle.json) is his addition to the base fight -- \"if you want a really fun version\" -- and is purely additive. The scene and encounter both work cleanly without it.\n\nWHAT THIS SCENE CARRIES: a refusal floor on every mandatory beat, and a stated reason for at least one player type to take every optional one. The three-way resolution is authored as real branching beats with when-conditions, plus a choicePoint on the-fight so the Scene Runner surfaces it as the live decision it is. The compactor override gets its own spotlighted beat so it reads as an ensemble job rather than backstory.\n\nRULES GROUNDING FOR `drive-them-off`. Surrender and Fleeing Enemies are GM Core's own procedures (`reference/srd/gm-core/610-running-encounters.json`), and whether a creature surrenders or flees when losing is Alien Core's (`reference/srd/alien-core/1266-roleplaying-creatures.json`). Both are cited here rather than in the beat, because a GM reading that beat is mid-fight and needs the ruling rather than a filename."
+}

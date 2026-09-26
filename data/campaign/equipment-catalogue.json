@@ -2,7 +2,7 @@
   "$schema": "../schema/equipment-catalogue.schema.json",
   "id": "equipment-catalogue",
   "type": "equipment-catalogue",
-  "description": "Kit Issue's curated menu -- decided 2026-09-09: same real SF2E rules and the same 150cr budget, no further restriction on what a player picks within it. Every item is a real SF2E \"Commercial\"-tier item (the game's own everyday civilian-grade equipment band, verified live against the Foundry equipment compendium), reflavoured as boring, standard, Directorate-issue. As players later acquire non-catalogue gear through the quartermaster (from Session Two onward), that's the point where equipment starts saying something about a character beyond their assigned first role.",
+  "description": "Kit Issue's curated menu -- decided 2026-09-09: same real SF2E rules and the same 150cr budget, no further restriction on what a player picks within it. Every item is a real SF2E \"Commercial\"-tier item (the game's own everyday civilian-grade equipment band, verified live against the Foundry equipment compendium), reflavoured as boring, standard, Directorate-issue. As players later acquire non-catalogue gear through the quartermaster (from Episode Two onward), that's the point where equipment starts saying something about a character beyond their assigned first role.",
   "budget": { "credits": 150, "source": "Player Core pg. 23, Step 8: Buy Equipment" },
   "items": [
     {

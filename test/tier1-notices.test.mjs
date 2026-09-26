@@ -30,6 +30,11 @@ test("an unknown kind throws rather than quietly showing as info", () => {
   assert.throws(() => q.push({ kind: "urgent", text: "x" }), /unknown notice kind/);
 });
 
+test("there is no `resonance` kind: Resonance was cut on 2026-09-20, so no banner may be captioned with it", () => {
+  assert.deepEqual([...NOTICE_KINDS].sort(), ["alert", "caution", "info"]);
+  assert.throws(() => new NoticeQueue().push({ kind: "resonance", text: "x" }), /unknown notice kind/);
+});
+
 test("the first notice shows; a second queues; dismiss promotes it", () => {
   const q = new NoticeQueue();
   assert.equal(q.push({ kind: "info", text: "A" }).action, "show");

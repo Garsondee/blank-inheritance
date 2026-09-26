@@ -790,6 +790,15 @@ class Handler(BaseHTTPRequestHandler):
                                 "episodeRefs", "openQuestionRefs", "assetRefs",
                                 "playlistRefs", "bibleRef", "depth")
 
+    #: The Approvals Desk's exclusive grades (design/approvals-desk.md §2,
+    #: §7's superseded "approved" folded in below the ladder was revised to
+    #: sound/final -- 2026-09-19, issue #167). Only the Desk's own guarded
+    #: promote() path (module/blank-inheritance/scripts/core/promote.mjs) may
+    #: ever write one of these; every gazetteer write path refuses them
+    #: loudly, the same rule this file already enforced for "approved" alone
+    #: before the vocabulary changed underneath it.
+    PROMOTABLE_STATUSES = ("sound", "final", "approved")
+
     def _api_update_location(self):
         """Rewrite the written parts of an existing data/locations entry.
 
@@ -816,9 +825,11 @@ class Handler(BaseHTTPRequestHandler):
                     doc[field] = body[field]
                     changed.append(field)
             if "status" in body and body["status"]:
-                if body["status"] == "approved":
-                    return self._error(400, "status 'approved' cannot be set through a "
-                                            "normal edit -- use POST /api/location/<id>/approve")
+                if body["status"] in self.PROMOTABLE_STATUSES:
+                    return self._error(400, "status '%s' cannot be set from the gazetteer "
+                                            "at all -- approval authority belongs solely to "
+                                            "the Foundry Approvals Desk's own promote() path "
+                                            "(2026-09-18, epic #165)" % body["status"])
                 doc.setdefault("authoring", {})["status"] = body["status"]
                 changed.append("status")
             _save_location(doc)
@@ -827,30 +838,37 @@ class Handler(BaseHTTPRequestHandler):
                          "location": doc})
 
     def _api_approve_location(self, location_id):
-        """The one path that can ever write status 'approved' -- or take it
-        back. Ingram, 2026-09-13: this is the seal of quality, and it is his
-        alone to give; every other write path (promotion, the review-mode
-        editor, a mass-edit-by-instruction) explicitly refuses the value
-        instead of accepting it as a side effect. A dedicated, unmistakably-
-        named endpoint is the actual enforcement -- a rule that only lives in
-        a comment is a rule that survives until the next tired edit forgets
-        it, which is exactly how it got INTO the review-mode editor unguarded
-        in the first place.
+        """RETIRED, 2026-09-18. This used to be the one path that could ever
+        write status 'approved' -- Ingram's seal of quality, his alone to
+        give, enforced by being the only endpoint allowed to touch the value
+        (see design/approvals-desk.md, and the git history on this docstring
+        for the original 2026-09-13 reasoning, which still holds: a rule that
+        only lives in a comment is a rule that survives until the next tired
+        edit forgets it).
+
+        Ingram, 2026-09-18: "We make the Approvals Desk in Foundry VTT the
+        final word in what is considered approved. The gazetteer is a tool
+        for drawing shapes and drafting things, this interface needs to be
+        the place for reading, editing and approving content." That is a
+        second, later instance of the exact failure mode this endpoint was
+        built to prevent -- two live authorities for the same seal -- so the
+        fix is the same one: retire this path loudly rather than let it keep
+        working quietly next to its replacement. See design/approvals-desk.md
+        issue #172, and epic #165 for the Foundry-side Desk this authority
+        moved to (not yet built -- see that epic's staging order).
+
+        Refuses unconditionally, on purpose, rather than 404ing: a 404 reads
+        as "no route," which invites someone to go looking for why; a 410
+        says outright that the route existed and is gone, and where the
+        replacement lives.
         """
         location_id = (location_id or "").strip()
-        dest = os.path.join(LOCATIONS_DIR, location_id + ".json")
-        if not os.path.exists(dest):
-            return self._error(404, "no data/locations/%s.json" % location_id)
-        body = self._body()
-        approved = body.get("approved", True)
-
-        with STATE.lock:
-            with open(dest, encoding="utf-8") as fh:
-                doc = json.load(fh)
-            doc.setdefault("authoring", {})["status"] = "approved" if approved else "drafted"
-            _save_location(doc)
-
-        self._send(200, {"saved": _repo_relative(dest), "location": doc})
+        return self._error(410,
+            "approval authority moved to the Foundry Approvals Desk "
+            "(decided 2026-09-18, tracked as epic #165) -- this tool only "
+            "drafts and shapes locations now. '%s' stays at its current "
+            "authoring.status (needs-lore/drafted) until the Desk ships and "
+            "reviews it there." % location_id)
 
     def _api_promote(self):
         """Turn one draft item into a permanent data/locations/*.json entity.
@@ -874,14 +892,17 @@ class Handler(BaseHTTPRequestHandler):
         if problems and not body.get("force"):
             return self._send(409, {"error": "not ready to promote", "problems": problems})
 
-        # "approved" is Ingram's own seal, never a side effect of a normal
-        # promotion -- see /api/location/<id>/approve, the one place it can
-        # actually be set. Refused loudly rather than silently downgraded:
-        # a caller that typed this deserves to know it did nothing, not to
-        # have it quietly vanish and wonder later why approval never stuck.
-        if body.get("status") == "approved":
-            return self._error(400, "status 'approved' cannot be set through promotion -- "
-                                    "use POST /api/location/<id>/approve instead")
+        # A promotable grade (sound/final, and the retired "approved") is
+        # the Desk's own seal. Since 2026-09-18 the gazetteer cannot grant
+        # any of them -- the Foundry Approvals Desk (epic #165) is the sole
+        # authority. Refused loudly rather than silently downgraded: a
+        # caller that typed this deserves to know it did nothing, not to
+        # have it quietly vanish and wonder later why the grade never stuck.
+        if body.get("status") in self.PROMOTABLE_STATUSES:
+            return self._error(400, "status '%s' cannot be set from the gazetteer -- "
+                                    "approval authority belongs solely to the Foundry "
+                                    "Approvals Desk's own promote() path "
+                                    "(2026-09-18, epic #165)" % body.get("status"))
 
         dest = os.path.join(LOCATIONS_DIR, location_id + ".json")
         if os.path.exists(dest) and not body.get("overwrite"):

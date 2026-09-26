@@ -1,0 +1,183 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-drill-hall",
+  "type": "location",
+  "tier": "site",
+  "name": "The Drill Hall",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "island-centre",
+    "assembly",
+    "parade"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21758647,
+          34.66247347
+        ],
+        [
+          135.21766198,
+          34.66250468
+        ],
+        [
+          135.21863902,
+          34.6629022
+        ],
+        [
+          135.21869521,
+          34.66280884
+        ],
+        [
+          135.21876756,
+          34.6628374
+        ],
+        [
+          135.21901377,
+          34.66242838
+        ],
+        [
+          135.21892614,
+          34.66239261
+        ],
+        [
+          135.21895272,
+          34.66234824
+        ],
+        [
+          135.21865643,
+          34.66222792
+        ],
+        [
+          135.2186293,
+          34.66227151
+        ],
+        [
+          135.21789075,
+          34.66197017
+        ],
+        [
+          135.21758647,
+          34.66247347
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8068.9,
+          7096.9
+        ],
+        [
+          8073.1,
+          7090.4
+        ],
+        [
+          8127.8,
+          7006.9
+        ],
+        [
+          8137.5,
+          7013.2
+        ],
+        [
+          8141.6,
+          7007.1
+        ],
+        [
+          8184.1,
+          7034.7
+        ],
+        [
+          8179.2,
+          7042.2
+        ],
+        [
+          8183.8,
+          7045.2
+        ],
+        [
+          8167.2,
+          7070.5
+        ],
+        [
+          8162.6,
+          7067.6
+        ],
+        [
+          8121.3,
+          7130.8
+        ],
+        [
+          8068.9,
+          7096.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      8127.48,
+      7066.27
+    ],
+    "cells": [
+      "D4·94"
+    ],
+    "ref": "D4·94",
+    "areaM2": 7246.2,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-556",
+    "promotedDate": "2026-09-22"
+  },
+  "authoring": {
+    "note": "[real-world: 兵庫県立こども病院]\n",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The largest indoor space on the island: 7,246 m2 under a single span, one storey, no internal walls worth the name. Built so that an entire intake fits in one room at one time, which is the only thing it is for and the reason nothing in it is permanent. Chairs come out for an address and go away again; between times it is a floor.\n\nIt sits 209 m from the Main School Complex and 1.3 km from the Intake Infirmary, which matters: an intake does not wander here from the medical hall, it is marched.",
+    "playerFacing": "Rows of chairs that do not quite fill the room, a raised platform at one end, and a line of senior staff along the wall behind it. The roof is one span with nothing holding it up in the middle, so the sound of four hundred people sitting down arrives twice -- once from the chairs and once, a beat later, off the far wall.\n\nAbove the platform, in a frame, the Directorate's founding charter. Big enough to read from the back row if you are the sort of person who reads things from the back row.",
+    "gmOnly": "A PLAIN RECTANGLE WITH NOTHING TO LEAN ON. 93% rectangular, no plan features, no alcoves, no gallery. Whatever makes a scene here distinctive has to be deliberately put there -- the room will not supply it. Use the acoustics, the staff line, and who is standing where.\n\nTHE CHARTER ABOVE THE PLATFORM. A framed copy of the same founding charter the intake queue passes in the Infirmary lobby. **Read `mystery-ledger-5` before letting anyone study it closely** -- the blacked-out paragraph is a live plant and which chapter pays it off is the Node's business, not this file's.\n\nTHE STAFF LINE IS THE REAL CONTENT. Assembly is the only scene where every significant adult in the campaign is visible at once, standing still, doing nothing. That is a cast list the players get to look at before they have met anybody."
+  },
+  "scene": {
+    "hooks": [
+      "An address to the whole intake: the second most senior officer on the island speaking, with the entire staff visible behind him.",
+      "The only place on the island where the whole intake is in one room, so it is where anything announced to everyone gets announced.",
+      "Empty, out of hours, it is 7,000 square metres of unlit floor with one door unlocked."
+    ],
+    "activities": [
+      "Sit through it, and watch the line of staff instead of the speaker -- a Perception check to notice who is bored, who is not listening, and who is watching the intake rather than the front.",
+      "Read the charter from the back row. Society or a relevant Lore check; see `mystery-ledger-5` before giving anything away.",
+      "Get out fast afterwards, or get caught by somebody who wanted a word."
+    ],
+    "history": "",
+    "consequences": "Nothing is decided in this room, which is the point of it: it is where the institution tells several hundred people something at once and does not take questions."
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "deputy-director",
+    "section-officer"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e1--assembly"
+  ],
+  "playlistRefs": [
+    "episode-c1e1--assembly"
+  ]
+}

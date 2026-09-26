@@ -1,0 +1,235 @@
+{
+ "name": "Abadar",
+ "type": "npc",
+ "img": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/Abadar.webp",
+ "_id": "rZlrNhF8xAM1VxJh",
+ "system": {
+  "attributes": {
+   "hp": {
+    "value": 930,
+    "temp": 0,
+    "max": 900,
+    "details": ""
+   },
+   "speed": {
+    "value": 25,
+    "otherSpeeds": [],
+    "details": ""
+   },
+   "ac": {
+    "value": 99,
+    "details": ""
+   },
+   "allSaves": {
+    "value": ""
+   },
+   "adjustment": "elite"
+  },
+  "initiative": {
+   "statistic": "perception"
+  },
+  "details": {
+   "languages": {
+    "value": [],
+    "details": ""
+   },
+   "level": {
+    "value": 25
+   },
+   "blurb": "",
+   "publicNotes": "",
+   "privateNotes": "",
+   "publication": {
+    "title": "",
+    "authors": "",
+    "license": "OGL",
+    "remaster": false
+   },
+   "creatureType": ""
+  },
+  "resources": {},
+  "_migration": {
+   "version": 0.932,
+   "previous": {
+    "schema": 0.926,
+    "foundry": "12.329",
+    "system": "6.1.1"
+   }
+  },
+  "abilities": {
+   "str": {
+    "mod": 0
+   },
+   "dex": {
+    "mod": 0
+   },
+   "con": {
+    "mod": 0
+   },
+   "int": {
+    "mod": 0
+   },
+   "wis": {
+    "mod": 0
+   },
+   "cha": {
+    "mod": 0
+   }
+  },
+  "perception": {
+   "details": "",
+   "mod": 0,
+   "senses": [],
+   "vision": true
+  },
+  "saves": {
+   "fortitude": {
+    "value": 46,
+    "saveDetail": ""
+   },
+   "reflex": {
+    "value": 46,
+    "saveDetail": ""
+   },
+   "will": {
+    "value": 46,
+    "saveDetail": ""
+   }
+  },
+  "skills": {
+   "acrobatics": {
+    "base": 45
+   },
+   "religion": {
+    "base": 45
+   }
+  },
+  "traits": {
+   "value": [
+    "good",
+    "lawful"
+   ],
+   "rarity": "unique",
+   "size": {
+    "value": "grg"
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "Abadar",
+  "displayName": 20,
+  "actorLink": false,
+  "appendNumber": false,
+  "prependAdjective": false,
+  "texture": {
+   "src": "https://assets.forge-vtt.com/628a173ac0288d150a0bab25/dragupload/uploaded/tokens/Abadar.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "offsetX": 0,
+   "offsetY": 0,
+   "rotation": 0,
+   "anchorX": 0.5,
+   "anchorY": 0.5,
+   "fit": "contain",
+   "tint": "#ffffff",
+   "alphaThreshold": 0.75
+  },
+  "width": 1,
+  "height": 1,
+  "lockRotation": false,
+  "rotation": 0,
+  "alpha": 1,
+  "disposition": -1,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "bar2": {
+   "attribute": null
+  },
+  "light": {
+   "alpha": 0.5,
+   "angle": 360,
+   "bright": 0,
+   "coloration": 1,
+   "dim": 0,
+   "attenuation": 0.5,
+   "luminosity": 0.5,
+   "saturation": 0,
+   "contrast": 0,
+   "shadows": 0,
+   "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+   },
+   "darkness": {
+    "min": 0,
+    "max": 1
+   },
+   "negative": false,
+   "priority": 0,
+   "color": null
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "angle": 360,
+   "visionMode": "basic",
+   "attenuation": 0.1,
+   "brightness": 0,
+   "saturation": 0,
+   "contrast": 0,
+   "color": null
+  },
+  "detectionModes": [],
+  "flags": {
+   "environment-interaction-multisystem": {
+    "environmentToken": false,
+    "environmentTokenRef": ""
+   },
+   "healthEstimate": {
+    "dontMarkDead": false,
+    "hideHealthEstimate": false,
+    "hideName": true
+   }
+  },
+  "randomImg": false,
+  "hexagonalShape": 0,
+  "occludable": {
+   "radius": 0
+  },
+  "ring": {
+   "enabled": false,
+   "colors": {
+    "ring": null,
+    "background": null
+   },
+   "effects": 1,
+   "subject": {
+    "scale": 1,
+    "texture": null
+   }
+  }
+ },
+ "items": [],
+ "effects": [],
+ "folder": "6peH5lYn8H7BgjwJ",
+ "sort": 100000,
+ "ownership": {
+  "default": 0,
+  "Np5cw2vU0Pa84Rx8": 3
+ },
+ "flags": {},
+ "_stats": {
+  "systemId": "pf2e",
+  "systemVersion": "6.1.1",
+  "coreVersion": "12.329",
+  "createdTime": 1689627864597,
+  "modifiedTime": 1721827611353,
+  "lastModifiedBy": "Np5cw2vU0Pa84Rx8",
+  "compendiumSource": null,
+  "duplicateSource": null
+ }
+}

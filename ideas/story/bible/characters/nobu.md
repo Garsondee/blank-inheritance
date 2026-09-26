@@ -2,8 +2,9 @@
 
 **Category:** character
 **Status:** partial — voice locked 2026-09-09. His *reason* for bending rules is now also locked, and
-it is a closely-held Chapter Six reveal. **Read the warning below before writing him in any Session
-One–Five context.**
+it is a closely-held later reveal: the column, Chapter 9 in the twenty-chapter draft (Chapter Six in
+the old eight-chapter plan). **Read the warning below before writing him in any scene before that
+reveal.**
 **Sources:** `ideas/story/blank-inheritance-ch1-v2.md` (two lines), `ideas/story/dossier-cicada.md` §8,
 `ideas/story/blank-inheritance-master-timeline.md`, direct conversation, 2026-09-09.
 
@@ -14,13 +15,14 @@ accident that started everything, saw the tentacle, and said nothing when it mat
 a man's life come apart and kept his job. He now **secretly funds Cicada's entire industrial Sap
 production**, laundered through organised crime, as private amends for that silence. He believes he
 is making amends; he is in fact the operation's own supply line. This is `dossier-cicada.md`'s own
-Chapter Six reveal ("The column... Nobu under suspicion") — **do not write any line of dialogue for
+column reveal ("The column... Nobu under suspicion", §11, Chapter 9 in the twenty-chapter draft) — **do not write any line of dialogue for
 him, in any session before that reveal, that a re-reading player could point to as a tell.** His
 established voice (harried, impulsively generous, looks away while doing the kind thing) already
 happens to fit this secret disturbingly well — that's good writing, not a hint to be leaned on. Play
 him exactly as warm and overworked as already written, and no more knowing than that.
 
-Quartermaster at Kit Issue (Session One) and chair of the Sizing Board (Session Two). Everything
+Quartermaster at Kit Issue (Episode One). The old Episode Two draft, deleted in the 2026-09-13 reset,
+also had him chair the Sizing Board; the Episode Two now drafted has no Sizing Board and no Nobu. Everything
 about him was two lines of prose until 2026-09-09: "signs the slips personally and is oddly generous
 with the allowance," and "a first read on a man who is being strangely accommodating." Explicitly
 told not to write him as a variant of Shucks — same underlying move (institutional kindness that's
@@ -29,13 +31,14 @@ because he has infinite time, Nobu is generous *despite* having none.
 
 ## What's established
 
-- Appears at Kit Issue (Session One, Noon) and chairs the Sizing Board (Session Two, Evening) —
+- Appears at Kit Issue (Episode One, Noon) and chairs the Sizing Board (Episode Two, Evening) —
   the same character across both, a real recurring NPC, not two separate quartermaster figures.
-  *(`ch1-v2.md`)*
-- "Signs the slips personally and is oddly generous with the allowance." *(`ch1-v2.md`, Session One)*
-- At the Sizing Board, players get "a first read on a man who is being strangely accommodating" —
-  confirms the generosity is a genuine, noticeable pattern by Session Two, not a one-off.
-  *(`ch1-v2.md`, Session Two)*
+  *(`ch1-v2.md`)* *(The Sizing Board was in the old Episode Two draft, deleted in the 2026-09-13
+  reset, and it is not in the Episode Two now drafted. Kit Issue is his only built scene.)*
+- "Signs the slips personally and is oddly generous with the allowance." *(`ch1-v2.md`, Episode One)*
+- *(Old Episode Two draft, deleted.)* At the Sizing Board, players get "a first read on a man who is being strangely accommodating" —
+  confirms the generosity is a genuine, noticeable pattern by Episode Two, not a one-off.
+  *(`ch1-v2.md`, Episode Two)*
 - **Voice, locked 2026-09-09:** harried, fast, overworked, visibly doing three things at once.
   Talks in run-ons and half-finished sentences, interrupts himself, starts the next thought before
   finishing the last. Rhythm is the opposite of Shucks' unhurried single-word instructions
@@ -48,7 +51,7 @@ because he has infinite time, Nobu is generous *despite* having none.
 - **A physical tic, proposed and not yet confirmed:** food or drink constantly present at his desk —
   humanises him against Shucks' clinical sterility, and gives him something to do with his hands
   besides the paperwork. Flag this to Ingram before treating it as locked.
-- **⚠ Why he's generous, and why he runs Directorate procurement at all — the Chapter Six secret.**
+- **⚠ Why he's generous, and why he runs Directorate procurement at all — the secret held for the column reveal.**
   He was Manako's lab assistant at the original accident, saw the tentacle, and stayed silent. Rising
   through procurement since, he now controls the technician-day pool and **secretly funds Cicada's
   industrial Sap column**, laundered through organised crime, believing it's amends. Manako suspects
@@ -75,8 +78,7 @@ means it plainly. Nobu's version should feel almost accidental, something he'd p
 if asked directly.
 
 **Don't have him assign anything to a player.** Directly relevant to how he's used at Kit Issue:
-Ingram was explicit that equipment, vehicles, and (by the same logic) ground roles are all shown to
-players openly and picked freely — "we don't want to accidentally force people into roles they
+Ingram was explicit that equipment and vehicles are shown to players openly and picked freely — "we don't want to accidentally force people into roles they
 don't want for the sake of making this a fun adventure." An earlier draft had Nobu assigning first
 roles himself with uncanny accuracy; that idea is dropped, not because it was a bad character beat,
 but because it worked against player agency. He can *notice* things about a kid, comment on them,
@@ -94,25 +96,26 @@ confirmation of something the table already half-suspected from his manner.
 
 **Resolved 2026-09-09:** the Kit Issue "extra thing" is one additional free item from
 `data/campaign/equipment-catalogue.json`, given to all six without exception, presented as
-completely mundane — see `data/scene-briefs/episode-c1s1--kit-issue.json`'s `the-extra-thing` beat.
+completely mundane — see `data/scene-briefs/episode-c1e1--kit-issue.json`'s `the-extra-thing` beat.
 
 ## Appearances so far
 
-1. `ideas/story/blank-inheritance-ch1-v2.md` — Session One (Kit Issue) and Session Two (the Sizing
-   Board), two lines of prose, no scene yet built for either.
+1. `ideas/story/blank-inheritance-ch1-v2.md` — Episode One (Kit Issue) and Episode Two (the Sizing
+   Board), two lines of prose, no scene yet built for either. *(The Episode Two line went with the
+   old Episode Two draft in the 2026-09-13 reset.)*
 2. Direct conversation, 2026-09-09 — full voice and generosity-mechanism locked, explicitly
    corrected away from echoing Shucks.
 3. `ideas/story/dossier-cicada.md` §6, §8 and `blank-inheritance-master-timeline.md` — the real
    reason for the generosity, the revenge-list placement, and his role in the column's funding.
    Absorbed into this file 2026-09-09, same day the dossiers were first shared.
-4. `data/scene-briefs/episode-c1s1--kit-issue.json` — first real scene built, 2026-09-09. Full
+4. `data/scene-briefs/episode-c1e1--kit-issue.json` — first real scene built, 2026-09-09. Full
    cast/voice entry, the mandatory `the-extra-thing` plant beat, and an explicit spoiler note on
    that beat pointing back here.
 
 ## Related
 
 - [Bible README](../README.md)
-- Shucks' own voice, for contrast: [data/scene-briefs/episode-c1s1--intake-medicals.json](../../../../data/scene-briefs/episode-c1s1--intake-medicals.json)'s `cast` entry.
-- [data/campaign/equipment-catalogue.json](../../../../data/campaign/equipment-catalogue.json), [data/campaign/chassis-catalogue.json](../../../../data/campaign/chassis-catalogue.json)
+- Shucks' own voice, for contrast: [data/scene-briefs/episode-c1e1--intake-medicals.json](../../../../data/scene-briefs/episode-c1e1--intake-medicals.json)'s `cast` entry.
+- [data/campaign/equipment-catalogue.json](../../../../data/campaign/equipment-catalogue.json)
 - [ideas/story/dossier-cicada.md](../../dossier-cicada.md) §8 (NOBU), §6 (the revenge list)
 - [ideas/story/blank-inheritance-master-timeline.md](../../blank-inheritance-master-timeline.md)

@@ -20,12 +20,12 @@
  * that was ALREADY written and tested in core/phone.mjs (`petMood`,
  * `feedPet`/`playWithPet`/`decayForElapsed`, `drawFortune`) with nowhere to
  * render, and Pet's own CSS (`.bi-pet*`, bi-components.css) already built and
- * likewise unused. Genuinely still not built: the other five
- * (correspondence, the field guide, the bulletin board, the Resonance
- * ticker, Bleed-as-corruption) — each needs either a system that does not
- * exist yet (correspondence, Recall Knowledge automation) or a mechanic this
- * project has flagged NEEDS REWORK (Resonance, Bleed), and building UI for
- * either would misrepresent something as settled that is not.
+ * likewise unused. Genuinely still not built: correspondence, the field
+ * guide and the bulletin board — each needs a system that does not exist
+ * yet (correspondence, Recall Knowledge automation), and building UI for it
+ * would misrepresent something as settled that is not. The idea entry's
+ * other two apps, a Resonance ticker and Bleed-as-corruption, were dropped
+ * when both systems were cut on 2026-09-20.
  *
  * Pet's state is a CLIENT setting, deliberately — "purely textural, zero
  * mechanical weight" per the idea entry, so it is genuinely each player's own
@@ -45,7 +45,7 @@
  * for no player-visible benefit.
  */
 
-import { currentEntries } from "./session-log.mjs";
+import { currentEntries, localClock } from "./session-log.mjs";
 import { renderRadio } from "./radio-app.mjs";
 import {
   createSnake, decayForElapsed, drawFortune, feedPet, formatLogEntriesForDisplay,
@@ -213,25 +213,29 @@ function renderFortune(mount) {
 /*  Session Log app — real data, GM only                              */
 /* ------------------------------------------------------------------ */
 
+/** Text the GM typed goes into innerHTML here, so it is escaped first. */
+const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
 function renderSessionLog(mount) {
   const rows = formatLogEntriesForDisplay(currentEntries());
   mount.innerHTML = `
-    <ul class="bi-log__recent bi-phone__log-list">
+    <ol class="bi-comms__log">
       ${
         rows.length
           ? rows
               .map(
                 (row) => `
-        <li class="bi-log__entry">
-          <span class="bi-phone__log-time">${row.time}</span>
-          ${row.tag ? `<span class="bi-log__tag">${row.tag}</span>` : ""}
-          <span class="bi-log__text">${row.text}</span>
+        <li class="bi-comms__log-row" data-tag="${escapeHtml(row.tag ?? "")}">
+          <time>${localClock(row.at)}</time>
+          ${row.tag ? `<b>${escapeHtml(row.tag)}</b>` : ""}
+          <span>${escapeHtml(row.text)}</span>
+          ${row.context?.scene ? `<em>${escapeHtml(row.context.scene)}</em>` : ""}
         </li>`
               )
               .join("")
-          : `<li class="bi-log__entry bi-log__entry--empty">${game.i18n.localize("BLANKINHERITANCE.Phone.SessionLog.Empty")}</li>`
+          : `<li class="bi-comms__log-row is-empty">${game.i18n.localize("BLANKINHERITANCE.Phone.SessionLog.Empty")}</li>`
       }
-    </ul>`;
+    </ol>`;
   return null; // nothing to tear down -- a static list, no timers/listeners
 }
 
@@ -429,6 +433,23 @@ export class Phone extends HandlebarsApplicationMixin(ApplicationV2) {
     Phone.#onToggle.call(this);
   }
 
+  /** Whether the device is up. */
+  get isOpen() {
+    return this.#open;
+  }
+
+  /**
+   * Re-mount the app on screen if it is `appId` — the Session Log, when a
+   * new entry lands while the handset is up. Anything else on screen (a
+   * running Snake game) is left alone.
+   */
+  refreshApp(appId) {
+    if (!this.#open || this.#currentAppId !== appId) return;
+    const mount = this.element?.querySelector("[data-app-mount]");
+    if (mount) mount.dataset.mountedApp = "";
+    this.render();
+  }
+
   static #onToggle() {
     this.#open = !this.#open;
     // A closed phone running Snake's interval in the background is a silent
@@ -455,7 +476,34 @@ let active = null;
 export function mountPhone() {
   if (!active) active = new Phone();
   active.render({ force: true });
+  installEscapeToClose();
   return active;
+}
+
+let escapeInstalled = false;
+
+/**
+ * Escape puts the handset down — one press out, from anywhere
+ * (feedback_midsession_ui_one_press). Capture phase, so it is handled before
+ * Foundry's own Escape (which would otherwise deselect tokens or open the
+ * main menu), and only while the device is actually up; a closed device
+ * leaves Escape entirely to Foundry. Snake reads the arrow keys, never
+ * Escape, so a running game is not affected.
+ */
+function installEscapeToClose() {
+  if (escapeInstalled) return;
+  escapeInstalled = true;
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !active?.isOpen) return;
+    event.preventDefault();
+    event.stopPropagation();
+    active.toggle();
+  }, { capture: true });
+}
+
+/** A new log entry: repaint the handset's Session Log if that is what is on screen. */
+export function refreshPhoneLog() {
+  active?.refreshApp(SESSION_LOG_APP.id);
 }
 
 /** Open or close the mounted phone; mounts it first if nothing has yet. */

@@ -1,0 +1,77 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-drain-head",
+  "type": "location",
+  "tier": "point",
+  "name": "The Drain Head",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [
+    "underground",
+    "military"
+  ],
+  "classification": null,
+  "rank": 3,
+  "depth": "scene",
+  "geometry": {
+    "rings": [],
+    "point": [
+      135.21290147,
+      34.67408759
+    ]
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": null,
+    "centroidPx": [
+      7044.2,
+      6205.7
+    ],
+    "cells": [
+      "D4·40"
+    ],
+    "ref": "D4·40",
+    "areaM2": null,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-555",
+    "promotedDate": "2026-09-18"
+  },
+  "authoring": {
+    "note": "A sealed storm-drain access set into the Landing End's own ground -- part of the fortress island's own drainage, not the mainland's; whatever is down there is a separate problem from anything under the old town. The cover carries a maintenance code with no scheduled visit against it in some time, and at high tide something moves down there loud enough to hear from the street.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A sealed storm-drain access set into the Landing End's own ground -- part of the fortress island's own drainage, not the mainland's; whatever is down there is a separate problem from anything under the old town. The cover carries a maintenance code with no scheduled visit against it in some time, and at high tide something moves down there loud enough to hear from the street.",
+    "playerFacing": "A cast-iron cover, flush with the road, stamped with a maintenance code and not much else. It sits a little proud of true, like it's been lifted and reseated more than once by somebody in a hurry. On a still day, at high tide, you can hear something move underneath it -- not loud, not close, but enough.",
+    "gmOnly": "Not connected to episode-c1e1--flood-tunnel (the old-town, mainland drainage chamber -- data/locations/old-landing.json). Kept deliberately separate; do not conflate the two when planning a session. No encounter is written for this site yet. If one ever is, c1e1-flood-tunnel's own Giant Centipede stat reference (data/encounters/c1e1-flood-tunnel.json) and its non-sentient-animal framing (ideas/story/bible/species/mitflits.md) are the right starting point rather than inventing a new creature from scratch -- keep whatever's down here equally non-sentient, for the same reason that fight isn't mitflits.\n\nLanding End's own constraints apply: no civilians know this is here, and nothing about it should read as anything but a maintenance problem to anyone who isn't Directorate."
+  },
+  "scene": {
+    "hooks": [
+      "A candidate on a punishment detail draws the short straw and has to check the cover after a heavy tide -- and finds it's been moved from the inside.",
+      "At high tide, on a still night, the sound from underneath is loud enough that somebody eventually has to explain it to a newly posted officer who wasn't warned."
+    ],
+    "activities": [
+      "Investigate the cover and whatever's moving beneath it -- if command ever actually authorises going down there.",
+      "Stand watch over it at high tide, when the noise is worst, on whatever detail draws the short straw.",
+      "Report the maintenance code up the chain and get told, again, that a visit is scheduled -- eventually."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "landing-end-duty-nco"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

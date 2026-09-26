@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e1--from-up-here",
+  "type": "audio-soundscape",
+  "title": "S1 · From Up Here",
+  "note": "The campaign's own overture, and the first thing the table hears. Moved here 2026-09-24 from The Road In, when Ingram asked for a \"Scene 0\" ahead of it: a long GM speech over one high-altitude picture of the city, one continuous camera descent from the edge of the sky down to the streets. The overture belongs to whatever the campaign actually opens on, and that is now this. Looped, as it was on The Road In, so a speech that runs longer than the track never drops into silence halfway down. No ambience: nothing at this height has a sound of its own, and the track is meant to read as score, not room tone.",
+  "music": { "track": "01-masamichi-amano-main-title", "loop": true },
+  "ambience": [],
+  "fade": 5000
+}

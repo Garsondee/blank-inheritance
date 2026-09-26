@@ -45,5 +45,19 @@
       "publicNotes": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline's statblock-less NPC path only. Not a real NPC, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync."
     }
   },
-  "items": []
+  "items": [],
+  "prototypeToken": {
+    "ring": {
+      "enabled": true,
+      "colors": {
+        "ring": "#f0a830",
+        "background": "#121615"
+      },
+      "effects": 3,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    }
+  }
 }

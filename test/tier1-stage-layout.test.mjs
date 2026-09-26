@@ -20,6 +20,7 @@ import {
   LAYOUT_LIST,
   SIDES,
   STAGE_LAYOUTS,
+  castMemberFromDescriptor,
   frameScale,
   leaksConcealed,
   publishedCast,
@@ -257,4 +258,53 @@ test("an empty cast is a real state, not a crash", () => {
   assert.equal(state.empty, true);
   assert.equal(state.count, 0);
   assert.equal(state.groups.length, 3);
+});
+
+/* ---------------------------------------------------------------- */
+/*  castMemberFromDescriptor — "summon anyone to any scene"          */
+/* ---------------------------------------------------------------- */
+
+test("castMemberFromDescriptor builds a real cast member, revealed, with a stable portraitId", () => {
+  const member = castMemberFromDescriptor({ id: "shucks-mordant", name: "Shucks Mordant", isPc: false });
+  assert.equal(member.portraitId, "summon-shucks-mordant");
+  assert.equal(member.label, "Shucks Mordant");
+  assert.equal(member.kind, "npc");
+  assert.equal(member.revealed, true);
+  assert.equal(member.sting, "quiet");
+  assert.equal(typeof member.stingSeq, "number");
+  assert.equal("img" in member, false, "no img field at all when none was given, not a blank one");
+  assert.equal("actorId" in member, false);
+});
+
+test("castMemberFromDescriptor carries img/actorId only when given, and marks a PC correctly", () => {
+  const member = castMemberFromDescriptor({ id: "abc123", name: "Chk Chk", img: "a.webp", actorId: "abc123", isPc: true });
+  assert.equal(member.kind, "pc");
+  assert.equal(member.img, "a.webp");
+  assert.equal(member.actorId, "abc123");
+});
+
+test("castMemberFromDescriptor refuses a descriptor with no id", () => {
+  assert.throws(() => castMemberFromDescriptor({ name: "Nobody" }), /needs an id/);
+});
+
+test("castMemberFromDescriptor honours an authored sting tier, so a beat can splash itself in automatically", () => {
+  const member = castMemberFromDescriptor({ id: "the-observer", name: "The Observer", isPc: false, sting: "splash" });
+  assert.equal(member.sting, "splash");
+});
+
+test("castMemberFromDescriptor falls back to quiet for a falsy sting — undefined, null, or empty", () => {
+  for (const sting of [undefined, null, ""]) {
+    const member = castMemberFromDescriptor({ id: "x", name: "X", sting });
+    assert.equal(member.sting, "quiet", `sting=${JSON.stringify(sting)} did not default to quiet`);
+  }
+});
+
+test("every field castMemberFromDescriptor produces survives publishedCast — nothing it writes is silently dropped", () => {
+  const member = castMemberFromDescriptor({ id: "x", name: "X", img: "x.webp", actorId: "x", isPc: false });
+  const published = publishedCast([member]);
+  // `revealed` itself is deliberately not in PUBLISHABLE (it is what decides
+  // whether a member survives at all, not a field a client needs to read) —
+  // everything else the descriptor produced must come through untouched.
+  const { revealed, ...rest } = member;
+  assert.deepEqual(published[0], rest);
 });

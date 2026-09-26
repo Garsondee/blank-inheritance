@@ -8,14 +8,13 @@
       "status": "resolved",
       "resolution": "Resolved 2026-09-06, with a better answer than either option originally posed: Bleed is neither passively visible nor permanently hidden - it is TESTED. A pilot spends a discretionary slice on a Harmonics Evaluation to learn the current value, and that same evaluation can also improve it. Information becomes a purchase in personal time, matching the pattern contactPool.analysisDutyInteraction already set. See config.json bleed.visibilityMechanism and timeEconomy.options#harmonics-evaluation.",
       "relatedRefs": [
-        "campaign/config.json#bleed",
-        "design/resonance-and-bleed.md"
+        "campaign/config.json#bleed"
       ],
-      "notes": "2026-09-06 analysis (design/resonance-and-bleed.md §3) argues this one is not neutral: Pushing trades Resonance now for Bleed later, and a trade with one side hidden is a gamble rather than a decision. Recommended middle path — show the pilot a BAND (Stable/Strained/Critical) rather than a number: enough to price a push honestly, not enough to count down precisely to berserk, and it matches the three-light-gauge idiom the console already uses. Still open; a recommendation is not a decision."
+      "notes": "2026-09-06 analysis (the retired Resonance and Bleed analysis (deleted 2026-09-25) §3) argues this one is not neutral: Pushing trades Resonance now for Bleed later, and a trade with one side hidden is a gamble rather than a decision. Recommended middle path — show the pilot a BAND (Stable/Strained/Critical) rather than a number: enough to price a push honestly, not enough to count down precisely to berserk, and it matches the three-light-gauge idiom the console already uses. Still open; a recommendation is not a decision."
     },
     {
       "id": "day1-pilot-day6-choice",
-      "question": "Does the Day 1 pilot get a genuine, viable option to sit out the second Contact? If yes, what does refusal actually cost — and is it survivable as a choice, or does the story punish it into a non-choice?",
+      "question": "Can a player genuinely decline a deployment? If so, what does refusing actually cost, and is it survivable as a choice, or does the story punish it into a non-choice? (Reworded 2026-09-25: first asked of a Day 6 'second Contact' beat that was deleted on 2026-09-13; the question survives the deletion.)",
       "status": "open",
       "resolution": null,
       "relatedRefs": [],
@@ -35,14 +34,13 @@
     {
       "id": "ratio-publication",
       "question": "Are all six Resonance percentages read aloud and ranked at weekly harmonics testing (public, competitive, cruel), or kept private to each pilot?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-25 (the cull of stale material). Resonance was cut on 2026-09-20 (resonance-playability), so there are no Resonance percentages to publish. Nothing left to decide.",
       "relatedRefs": [
         "campaign/config.json#resonance",
-        "design/resonance-and-bleed.md",
         "campaign/gm-notes.json#read-numbers-flatly"
       ],
-      "notes": "2026-09-06 analysis (design/resonance-and-bleed.md §2) leans hard toward public: published ranking turns Resonance from a character stat into a public score of how emotionally available a child is, assigned by an institution — the cruellest and strongest use of the mechanic. gm-notes.json read-numbers-flatly already points the same way. Still the user call."
+      "notes": "2026-09-06 analysis (the retired Resonance and Bleed analysis (deleted 2026-09-25) §2) leans hard toward public: published ranking turns Resonance from a character stat into a public score of how emotionally available a child is, assigned by an institution — the cruellest and strongest use of the mechanic. gm-notes.json read-numbers-flatly already points the same way. Still the user call."
     },
     {
       "id": "third-npc-pole",
@@ -56,17 +54,19 @@
     {
       "id": "permanent-hulk-commitment",
       "question": "Is at least one Frame's permanent loss a planned campaign beat, or left to emerge from play?",
-      "status": "open",
-      "resolution": null,
-      "relatedRefs": []
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-19, plainly, no elaboration requested: \"Left to emerge from play.\" No authored guarantee that any specific Frame goes down for good at a scripted moment. If a permanent loss happens, it happens because of what actually occurs at the table.",
+      "relatedRefs": [
+        "design/campaign-arc.md#the-8-level-arc"
+      ]
     },
     {
       "id": "ground-five-day1-knowledge",
       "question": "Do the other five know the pilot in scene 7 (Episode One) is one of their own, or do they just see a machine? Ignorance is more frightening; knowledge is more binding.",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-25 (the cull of stale material). Its structure is gone: the beat it was written about was deleted on 2026-09-13, and under lockstep (frame-scale-starting-level) every player is in a machine, so there is no lone pilot watched by five others on the ground. Nothing left to decide.",
       "relatedRefs": [],
-      "notes": "STALE FRAMING, 2026-09-13: 'scene 7 (Episode One)' was a beat in episodes/episode-01-contact-unclassified.json, deleted along with every drafted beat beyond Session 0/1. The question itself - do the kids on the ground know the pilot is one of their own - survives the deletion and should be asked again of whatever the first Frame-scale encounter turns out to be (open-questions.json#session-two-shape). It is also entangled with ground-roles-viability, since 'the other five' presumes ground roles exist."
+      "notes": "STALE FRAMING, 2026-09-13: 'scene 7 (Episode One)' was a beat in episodes/episode-01-contact-unclassified.json, deleted along with every drafted beat beyond Session 0/1. The question itself - do the kids on the ground know the pilot is one of their own - survives the deletion and should be asked again of whatever the first Frame-scale encounter turns out to be (open-questions.json#episode-two-shape). It is also entangled with ground-roles-viability, since 'the other five' presumes ground roles exist."
     },
     {
       "id": "ancestry-reveal-justification",
@@ -92,10 +92,9 @@
     {
       "id": "ground-force-command-mechanism",
       "question": "What local ground forces exist for non-piloting students to command during a Contact, what can they be ordered to do, and how does that command interact with the mech-scale fight? Needs enough depth that leaning into ground command is as satisfying a whole-campaign arc as piloting.",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-25 (the cull of stale material). The ground roles were cut on 2026-09-20 (ground-roles-viability): in large-scale combat every player is in a Frame or a vehicle, so there are no non-piloting students to command ground forces. Nothing left to decide.",
       "relatedRefs": [
-        "campaign/ground-roles.json",
         "design/campaign-arc.md#non-pilot-students-avoiding-a-second-line-role"
       ]
     },
@@ -128,23 +127,20 @@
     {
       "id": "bleed-intermediate-thresholds",
       "question": "Bleed is 0-10 with a single threshold at 10 (berserk), so points 1-9 currently have no mechanical expression at all — a tracked resource that stays invisible in play until it detonates. Should Bleed gain intermediate thresholds, and should they eat what Resonance grants (e.g. 4+ costs your reaction, 7+ drops your effective band one step for ability access) so the two tracks actually interact before the endpoint?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-25 (the cull of stale material). Bleed was cut on 2026-09-20 (bleed-playability), so it has no thresholds to add. Nothing left to decide.",
       "relatedRefs": [
-        "campaign/config.json#bleed",
-        "design/resonance-and-bleed.md"
+        "campaign/config.json#bleed"
       ],
       "notes": "Flagged 2026-09-06 as the highest-value, lowest-cost change available on either track. Also makes Pushing a genuinely tense trade: a band now for a band later."
     },
     {
       "id": "bleed-recovery-sinks",
       "question": "Bleed has four defined sources (pushing, Frame damage, plug distress, Suppression) and exactly one undefined reduction (Signals Liaison reduces Bleed, no magnitude or rate given). With no decay, no per-session reset and no downtime route, berserk arrives on a schedule regardless of player choices — a countdown rather than a managed risk. Is that the intent? If not, what are Bleed sinks and at what rates?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-25 (the cull of stale material). Bleed was cut on 2026-09-20 (bleed-playability), so it needs no recovery sinks. Nothing left to decide.",
       "relatedRefs": [
         "campaign/config.json#bleed",
-        "campaign/ground-roles.json#signals-liaison",
-        "design/resonance-and-bleed.md",
         "design/downtime-activities.md"
       ],
       "notes": "A one-way doom clock is a legitimate structure (Blades in the Dark, Ten Candles) but it changes the interesting decision from avoiding berserk to choosing when it lands, which only works if Bleed is visible (see bleed-visibility). Episode 1 scripts berserk into the very first fight, which suggests the countdown reading may already be the de facto intent. design/downtime-activities.md proposes one sink (Night Out, -1)."
@@ -155,9 +151,7 @@
       "status": "resolved",
       "resolution": "Resolved 2026-09-06: 3 actions is the norm from Nominal upward; 2 actions is a penalty state with exactly two causes, Dead Weight sync and Frame damage (Degraded caps at 2, Critical at 1). User's framing: 'we need to build around the normal being 3 actions and 2 actions being the penalty for early campaign usage and for usage when the mech is seriously damaged.' config.json updated; reasoning preserved in resonance.actionEconomyRevisionNote.",
       "relatedRefs": [
-        "campaign/config.json#resonance.bands",
-        "design/resonance-and-bleed.md",
-        "design/scale-and-chassis.md"
+        "campaign/config.json#resonance.bands"
       ],
       "notes": "Raised 2026-09-06. The counter-argument is real and artistic: constraint IS the fiction, and Harmonised should feel like a breakthrough. The concern is that a reduced action economy delivers both feels-constrained and has-fewer-decisions, and only the first is wanted."
     },
@@ -167,39 +161,38 @@
       "status": "resolved",
       "resolution": "Addressed 2026-09-06 by the action-economy change rather than by capping who deploys together. With 3 actions from Nominal, the normal operating range (Nominal to Absolute) compresses from 3.3x to 2.2x. Dead Weight to Absolute remains 5.7x, which is now correct rather than alarming: Dead Weight is explicitly the failure state, and a pilot below 40% sync being a fraction of a working Frame is the intended fiction. The original concern was pilots at 55% being in that position, which no longer happens.",
       "relatedRefs": [
-        "campaign/config.json#resonance.bands",
-        "design/resonance-and-bleed.md"
+        "campaign/config.json#resonance.bands"
       ],
       "notes": "Arithmetic run 2026-09-06; it had not been computed before. Closely tied to two-action-default — making 3 actions standard from Nominal compresses the action-count spread to roughly 2.2x and shifts the difference onto ability tiers, which is arguably where it belongs anyway."
     },
     {
       "id": "suppression-intent-vs-pattern",
       "question": "Suppression currently triggers when a player declines an Anchor-relevant conflict specifically to protect their deployability — which requires the GM to judge a player motive and then penalise them for it. Should it instead trigger on pattern (a kid Anchors going untouched for N scenes raises Bleed regardless of why), keeping the same anti-exploit pressure without anyone at the table having to assess intent?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-25 (the cull of stale material). Suppression was cut on 2026-09-20 with Anchors (anchors-without-resonance). Nothing left to decide.",
       "relatedRefs": [
-        "campaign/config.json#suppression",
-        "design/resonance-and-bleed.md"
+        "campaign/config.json#suppression"
       ],
       "notes": "Raised 2026-09-06. The current version also risks penalising a legitimate characterisation — some kids genuinely are conflict-avoidant."
     },
     {
       "id": "hero-points-vs-berserk",
       "question": "SF2E Hero Points can be spent to avert death. Berserk (Bleed 10) currently has no escape valve at all. Should spending all Hero Points be able to avert or interrupt berserk the way it averts death, giving loss-of-self the same mechanical dignity as death and handing players one expensive out?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Moot, 2026-09-24. Ingram's D11 (LEDGER #31) removed berserk from the campaign: \"I don't think taking control away from the players makes sense in this adventure. Mitflit technology has no reason to go berserk.\" With no berserk there is nothing for hero points to interact with. Bleed, which fed it, was already cut on 2026-09-20.",
       "relatedRefs": [
         "campaign/config.json#bleed.berserk",
-        "design/resonance-and-bleed.md",
-        "reference/srd/player-core/381-hero-points.json"
+        "reference/srd/player-core/381-hero-points.json",
+        "ideas/story/bible/LEDGER.md#31",
+        "berserk-protocol-fate"
       ],
-      "notes": "Raised 2026-09-06. Also worth being deliberate about the broader overlap: Hero Points and Anchors both reward selfless or daring play and will often fire on the same moments, at different timescales."
+      "notes": "Raised 2026-09-06. Also worth being deliberate about the broader overlap: Hero Points and Anchors both reward selfless or daring play and will often fire on the same moments, at different timescales.\n\n2026-09-24 (LEDGER #31 item 14; Ingram, Casebook D11): no berserk. 'Mitflit technology has no reason to go berserk', and nothing in this campaign takes control of a character away from their player. With Bleed already cut (2026-09-20, bleed-playability), this question has no premise left. It stays open only because closing it is Ingram's call; the recommendation is to close it as moot. The protocol texture that shared its subject is tracked separately as berserk-protocol-fate."
     },
     {
       "id": "frame-upgrade-economy",
       "question": "Frames DO level up (confirmed 2026-09-06; campaign-arc.md had already corrected the design bible on this). The new model: players earn upgrade points from downtime activities AND from winning both personnel- and Frame-scale combat, spend them on Frame upgrades, and enough points levels the Frame — a normal SF2E level-up with bespoke Frame feats and options. Combat awards guarantee a floor so no Frame is ever stranded at 12. Open parameters: what are the points called, what is the points-to-level conversion, are they per-pilot or drawn from a shared pool like technician-days, and what are the concrete DOWNSIDES of over-investing in Frame upgrades at the expense of personal activities?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "RESOLVED 2026-09-20 -- it survives, as a reskinned SF2E equipment economy rather than an abstract points pool. Ingram: \"it is essentially a version of SF2E but with a lot of reskinning.\" Players get a BUDGET. Each Frame gets an initial loadout mirroring the machine's real job and how that tool behaves in combat. Frames carry their own feats, weapons, armour and equipment exactly like a PC: some consumable and renewable, some permanent with once-per-round/hour/day abilities. Worked examples: a Crane Frame plays like a spear with reach, at city scale; a recon vehicle assists Recall Knowledge. Levelling is milestone and lockstep (see levelling-and-request-fulfilment), so upgrade spending buys CAPABILITY, never levels -- which is exactly what dissolves the old contradiction between a points economy and lockstep.",
       "relatedRefs": [
         "campaign/config.json#frameEconomy",
         "design/campaign-arc.md",
@@ -231,7 +224,7 @@
         "campaign/config.json#timeEconomy",
         "data/npcs/repair-chief-*.json"
       ],
-      "notes": "PARTIALLY ANSWERED 2026-09-09. (a) NAMED NPCS: one per pilot, six total, confirmed and scaffolded as placeholders (data/npcs/repair-chief-*.json, linked via npc.schema.json's new crewChiefForRef) — currently 'lesser NPCs who may grow into bigger more interesting roles later,' not characterised yet. (b) WHAT IT SCALES: a guaranteed baseline HP repair happens every technician-day cycle regardless of PC involvement (the floor — 'repair crews are always working around the clock'); direct PC involvement, working alongside the crew rather than just spending the resource, restores substantially more. STILL OPEN, numeric: the exact floor amount and the exact PC-involvement multiplier/bonus are not set. (c) VEHICLES: confirmed the same crew also maintains the pilot's assigned chassis (campaign/chassis-catalogue.json, added 2026-09-09) from the same technician-day allocation, so splitting a limited pool between a Frame and a vehicle is a real player choice — this wasn't a live question when the entry was first written, since vehicles as a concrete catalogue didn't exist yet. The two resources are still cleanly non-redundant: the technician-day pool is the Directorate's SHARED allocation — how much repair time you are granted, competed for between pilots — while crew standing/involvement is PERSONAL and scales how much you get OUT of that time. This also gives the Night Out rest activity (design/downtime-activities.md §2) a second payoff beyond Bleed reduction, and gives every pilot a recurring named NPC relationship that is professional rather than personal, sitting alongside Anchors rather than duplicating them. TERMINOLOGY WARNING unchanged: these are NPC repair technicians, verbally distinct from the PC-played Ground Roles in campaign/ground-roles.json (Sensor Operator, Umbilical Control, etc.), which are something else entirely."
+      "notes": "PARTIALLY ANSWERED 2026-09-09. (a) NAMED NPCS: one per pilot, six total, confirmed and scaffolded as placeholders (data/npcs/repair-chief-*.json, linked via npc.schema.json's new crewChiefForRef) — currently 'lesser NPCs who may grow into bigger more interesting roles later,' not characterised yet. (b) WHAT IT SCALES: a guaranteed baseline HP repair happens every technician-day cycle regardless of PC involvement (the floor — 'repair crews are always working around the clock'); direct PC involvement, working alongside the crew rather than just spending the resource, restores substantially more. STILL OPEN, numeric: the exact floor amount and the exact PC-involvement multiplier/bonus are not set. (c) VEHICLES: confirmed the same crew also maintains the pilot's assigned chassis (campaign/chassis-catalogue.json, added 2026-09-09) from the same technician-day allocation, so splitting a limited pool between a Frame and a vehicle is a real player choice — this wasn't a live question when the entry was first written, since vehicles as a concrete catalogue didn't exist yet. The two resources are still cleanly non-redundant: the technician-day pool is the Directorate's SHARED allocation — how much repair time you are granted, competed for between pilots — while crew standing/involvement is PERSONAL and scales how much you get OUT of that time. This also gives the Night Out rest activity (design/downtime-activities.md §2) a second payoff beyond Bleed reduction, and gives every pilot a recurring named NPC relationship that is professional rather than personal, sitting alongside Anchors rather than duplicating them. TERMINOLOGY WARNING unchanged: these are NPC repair technicians, verbally distinct from the PC-played Ground Roles in the cut ground-roles file (deleted 2026-09-25) (Sensor Operator, Umbilical Control, etc.), which are something else entirely."
     },
     {
       "id": "npc-fact-reveal-scope",
@@ -293,63 +286,58 @@
     },
     {
       "id": "manako-records-visibility",
-      "question": "Does a Directorate records search on day one find Manako, and under what name? dossier-cicada.json section 5 says he appears in every document as a terrorist, which - if true and searchable by trainees - lets a curious party shortcut the entire campaign in Session One, the same afternoon they meet him.",
+      "question": "Does a Directorate records search on day one find Manako, and under what name? dossier-cicada.json section 5 says he appears in every document as a terrorist, which - if true and searchable by trainees - lets a curious party shortcut the entire campaign in Episode One, the same afternoon they meet him.",
       "status": "resolved",
-      "resolution": "Resolved 2026-09-13 (LEDGER #17), option (a) and then strengthened. THE DIRECTORATE HAS NEVER IDENTIFIED CICADA'S FOUNDER. They have a cult, demonstrations, arrests and a cabinet of detained believers, and no name at the top. A day-one search on the old man returns a chemist disgraced decades ago and nothing else, because that is genuinely all the institution has - not because the file is restricted. His name is therefore SAFE to give the table freely, and should be, since the later recognition depends on it having been in their notes all along. Ingram then went further and made it a standing rule: 'the rule should be that it is the player characters who must first identify that The Original Cultist is a key figure in the organisation and they must be the ones to find out it's the kindly man they met during the first session.' Both halves of that discovery belong to the players. No NPC hands them either one.",
+      "resolution": "Resolved 2026-09-13 (LEDGER #17), option (a) and then strengthened. THE DIRECTORATE HAS NEVER IDENTIFIED CICADA'S FOUNDER. They have a cult, demonstrations, arrests and a cabinet of detained believers, and no name at the top. A day-one search on the old man returns a chemist disgraced decades ago and nothing else, because that is genuinely all the institution has - not because the file is restricted. His name is therefore SAFE to give the table freely, and should be, since the later recognition depends on it having been in their notes all along. Ingram then went further and made it a standing rule: 'the rule should be that it is the player characters who must first identify that The Original Cultist is a key figure in the organisation and they must be the ones to find out it's the kindly man they met during the first session.' Both halves of that discovery belong to the players. No NPC hands them either one. REFINED 2026-09-24 (LEDGER #34): the cult is largely peaceful and largely a non-issue for the Directorate until the adventure properly starts. It has a bit of information about it, not enough to dismantle it, understand its aims, or know the Watcher is active alongside it; the 'cabinet of detained believers' above overstates it. It may know Manako as the scientist it employed and disgraced, and may even suspect he runs the tea house, which salves its conscience; it has no link between him and the cult. The rule stands: both halves of the discovery belong to the players.",
       "relatedRefs": [
         "ideas/story/dossier-cicada.md",
         "ideas/story/dossier-the-directorate.md",
-        "data/scene-briefs/episode-c1s1--the-errand.json"
+        "data/scene-briefs/episode-c1e1--the-errand.json",
+        "ideas/story/bible/LEDGER.md#34"
       ],
-      "notes": "Raised 2026-09-13 while writing The Errand, the Session One scene where the party meets him. The four-pass reveal is designed so his name turns up later in a discredited paper and is ALREADY FAMILIAR, which is the gut-punch - that only works if a day-one search returns nothing useful. Three ways out, not chosen here: (a) the Directorate has never identified Cicada's founder at all, and 'appears as a terrorist' describes the movement rather than the man; (b) he is on file under the name he was disgraced under, which is not the name the tea house knows him by; (c) the file exists and trainees have no access to it on day one, which is true of almost everything else they will want. Option (a) is the cleanest and has knock-on effects for what the Directorate knows in later chapters, so it is Ingram's call rather than a detail to settle in a scene brief."
+      "notes": "Raised 2026-09-13 while writing The Errand, the Episode One scene where the party meets him. The four-pass reveal is designed so his name turns up later in a discredited paper and is ALREADY FAMILIAR, which is the gut-punch - that only works if a day-one search returns nothing useful. Three ways out, not chosen here: (a) the Directorate has never identified Cicada's founder at all, and 'appears as a terrorist' describes the movement rather than the man; (b) he is on file under the name he was disgraced under, which is not the name the tea house knows him by; (c) the file exists and trainees have no access to it on day one, which is true of almost everything else they will want. Option (a) is the cleanest and has knock-on effects for what the Directorate knows in later chapters, so it is Ingram's call rather than a detail to settle in a scene brief."
     },
     {
       "id": "ground-roles-viability",
       "question": "Do the five ground roles survive at all, and if so in what form? Raised by Ingram 2026-09-13: 'Umbilical Control as an idea sounds like a player not getting involved and having fun, ground-roles may need completely removing or at least realigning with a SF2E campaign's need to give each player agency over their role and actions.'",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "CUT 2026-09-20. Ingram: \"Remove this concept. Every player is either in a Frame or a Vehicle for those large scale combats. We might have a student caught with neither but that would only happen under very unusual story circumstances.\" The five ground roles are gone. Lockstep removed the asymmetry that created them -- six pilots each in their own machine means no non-piloting kid is standing on a Frame-scale battlefield needing a job. Personnel-scale combat still exists in its own right (Episode One is entirely personnel scale); what is cut is a student having a ROLE on the Frame-scale battlefield without a machine. the cut ground-roles file (deleted 2026-09-25) is marked CUT rather than deleted, and roughly 74 files still mention ground roles -- a cleanup sweep is outstanding.",
       "relatedRefs": [
-        "campaign/ground-roles.json",
-        "data/schema/ground-roles.schema.json",
-        "design/scale-and-chassis.md",
         "ideas/story/blank-inheritance-ch1-v2.md#8",
         "data/subsystems/day-1-ground-layer.json"
       ],
-      "notes": "Three separate problems, worth keeping distinct. (1) AGENCY: Umbilical Control converts a kid's successful check into a resource for somebody else's Frame, and Signals Liaison spends a turn adjusting another player's track - both are a player taking an action whose entire payoff lands on a different player's sheet. That is the specific complaint. (2) DEPENDENCY: two of the five (Umbilical Control, Signals Liaison) only exist when a Frame is on the field, so a player who picks one has a job that cannot come up in a personnel-scale session at all. (3) REACH: 'ground role' appears across 84 files as of 2026-09-13, including the kid schema, the equipment catalogue, the six draft kids, the induction prompts, the battle simulator's whole ground-layer and its six kid fixtures, and data/subsystems/day-1-ground-layer.json. Removing them is not a delete, it is a project. Nothing has been removed; the concept is flagged only. THE STANDING REQUIREMENT, from the same message: this is a heavily modified SF2E campaign first, so every player must have real agency over their own role and actions, and no design should stray from what makes a good SF2E table experience."
+      "notes": "Three separate problems, worth keeping distinct. (1) AGENCY: Umbilical Control converts a kid's successful check into a resource for somebody else's Frame, and Signals Liaison spends a turn adjusting another player's track - both are a player taking an action whose entire payoff lands on a different player's sheet. That is the specific complaint. (2) DEPENDENCY: two of the five (Umbilical Control, Signals Liaison) only exist when a Frame is on the field, so a player who picks one has a job that cannot come up in a personnel-scale session at all. (3) REACH: 'ground role' appears across 84 files as of 2026-09-13, including the kid schema, the equipment catalogue, the six draft kids, the induction prompts, the battle simulator's whole ground-layer and its six kid fixtures, and data/subsystems/day-1-ground-layer.json. Removing them is not a delete, it is a project. Nothing has been removed; the concept is flagged only. THE STANDING REQUIREMENT, from the same message: this is a heavily modified SF2E campaign first, so every player must have real agency over their own role and actions, and no design should stray from what makes a good SF2E table experience.\n\nGOVERNING PRINCIPLE ADDED 2026-09-19, from a real played example rather than an abstract preference: \"Something that DID NOT work well for me in SF1E was the spaceship combat, multiple players controlling or working through a single thing/token/machine actually sucks in real life because players get less ability to express themselves.\" This sharpens problem (1) above into a hard rule for whatever ground roles become: no design may route several players' turns into one shared token/machine's payoff. Tied to frame-scale-starting-level and resonance-playability/bleed-playability under issue #194 -- if that question resolves toward lockstep+reflavour (six pilots, each in their own same-level Frame, rather than one pilot plus five ground-support kids), the shared-token problem may dissolve on its own rather than needing a ground-role redesign to solve it directly."
     },
     {
       "id": "resonance-playability",
       "question": "Resonance needs substantial work before it is functional, interesting or playable. What does it actually become? Flagged by Ingram 2026-09-13 alongside Bleed.",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "CUT 2026-09-20. Ingram, asked whether to rework or cut: \"Cut these concepts for now.\" Resonance is removed from the design; it is not being reworked and nothing should be built on it. the retired Resonance and Bleed analysis (deleted 2026-09-25) is kept because it remains the DIAGNOSIS of why it did not work, not because the system is live. FOLLOW-ON, NOT YET DECIDED: Anchors (config.json#anchors) existed primarily as the GM lever on Resonance, and Suppression (config.json#suppression) existed solely to close a Resonance exploit. Neither has been ruled on -- see anchors-without-resonance.",
       "relatedRefs": [
-        "design/resonance-and-bleed.md",
         "campaign/config.json#resonance",
         "design/research/evangelion/the-machine-and-the-pilot.md#5"
       ],
-      "notes": "Supersedes the previous framing in which Resonance was treated as locked and authoritative (CLAUDE.md carried that claim until 2026-09-13, when it was corrected). The existing investigation already found the hard numbers: a 5.7x spread in total combat contribution from the lowest band to the highest before ability tiers count, and 'most of the campaign is played at 2 actions' inside a system architecturally built for three. Those findings stand and are the starting point, not the conclusion. Do NOT import Evangelion's answers here - see the standing warning in design/research/evangelion/the-machine-and-the-pilot.md section 5. The existing open questions two-action-default and resonance-band-spread are recorded as resolved; re-read them before assuming any part of this is settled, since a rebuild may reopen them."
+      "notes": "Supersedes the previous framing in which Resonance was treated as locked and authoritative (CLAUDE.md carried that claim until 2026-09-13, when it was corrected). The existing investigation already found the hard numbers: a 5.7x spread in total combat contribution from the lowest band to the highest before ability tiers count, and 'most of the campaign is played at 2 actions' inside a system architecturally built for three. Those findings stand and are the starting point, not the conclusion. Do NOT import Evangelion's answers here - see the standing warning in design/research/evangelion/the-machine-and-the-pilot.md section 5. The existing open questions two-action-default and resonance-band-spread are recorded as resolved; re-read them before assuming any part of this is settled, since a rebuild may reopen them.\n\nSHARPER TEST ADDED 2026-09-19: \"Is it fun? Does it add interesting decisions to be made? If it doesn't add fun or add impactful or interesting decisions then we ditch both concepts. If we can make it work then it's fun but it might be a hat on a hat if you know what I mean?\" Read plainly: Resonance is now genuinely on probation, not just flagged for fixing -- the standing risk named directly is that it may be decorating something SF2E's own action economy already does well ('a hat on a hat') rather than adding real decisions of its own. Any rework proposal should be checked against this test before anything else. Tied to ground-roles-viability and frame-scale-starting-level under issue #194 -- also a Session 0/1 blocker."
     },
     {
       "id": "bleed-playability",
       "question": "Bleed needs substantial work before it is functional, interesting or playable. What does it actually become? Flagged by Ingram 2026-09-13 alongside Resonance.",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "CUT 2026-09-20, same decision as Resonance. Ingram: \"Cut these concepts for now.\" Bleed is removed from the design and nothing should be built on it. the retired Resonance and Bleed analysis (deleted 2026-09-25) is kept as the record of why.",
       "relatedRefs": [
-        "design/resonance-and-bleed.md",
         "campaign/config.json#bleed",
         "design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice",
         "ideas/entries/location-discovery-and-recovery-risk.json"
       ],
-      "notes": "The existing investigation's finding stands as the starting point: four inflows, one undefined outflow, and a single threshold across ten points, so points 1-9 currently do nothing and the berserk state arrives on a schedule rather than as a managed risk. Four older Bleed questions are still open underneath this one (bleed-intermediate-thresholds, bleed-recovery-sinks, suppression-intent-vs-pattern, hero-points-vs-berserk) and should be answered as part of the same rebuild rather than separately. Check any proposal against 'penalties cost risk, never choice'. A 2026-09-14 wishlist idea (ideas/entries/location-discovery-and-recovery-risk.json) wants some recovery activities to carry real risk rather than pure upside — deliberately written currency-agnostic rather than assuming Bleed survives this rework; worth checking once this question resolves."
+      "notes": "The existing investigation's finding stands as the starting point: four inflows, one undefined outflow, and a single threshold across ten points, so points 1-9 currently do nothing and the berserk state arrives on a schedule rather than as a managed risk. Four older Bleed questions are still open underneath this one (bleed-intermediate-thresholds, bleed-recovery-sinks, suppression-intent-vs-pattern, hero-points-vs-berserk) and should be answered as part of the same rebuild rather than separately. Check any proposal against 'penalties cost risk, never choice'. A 2026-09-14 wishlist idea (ideas/entries/location-discovery-and-recovery-risk.json) wants some recovery activities to carry real risk rather than pure upside — deliberately written currency-agnostic rather than assuming Bleed survives this rework; worth checking once this question resolves.\n\nSHARPER TEST ADDED 2026-09-19, same wording as resonance-playability's own update: \"Is it fun? Does it add interesting decisions to be made? If it doesn't add fun or add impactful or interesting decisions then we ditch both concepts. If we can make it work then it's fun but it might be a hat on a hat if you know what I mean?\" Bleed is now genuinely on probation alongside Resonance, not just flagged for fixing — full removal is a live outcome, not a worst case to avoid mentioning. Tied to ground-roles-viability and frame-scale-starting-level under issue #194 — also a Session 0/1 blocker."
     },
     {
-      "id": "session-two-shape",
-      "question": "Session Two is agreed in shape and unwritten: a Frame/vehicle-scale training exercise interrupted by a real call-out, the team sent to something live part-way through a safe scheduled drill, before they are ready. What is the actual encounter, and what is the enemy?",
+      "id": "episode-two-shape",
+      "question": "Episode Two is agreed in shape and unwritten: a Frame/vehicle-scale training exercise interrupted by a real call-out, the team sent to something live part-way through a safe scheduled drill, before they are ready. What is the actual encounter, and what is the enemy?",
       "status": "open",
       "resolution": null,
       "relatedRefs": [
         "ideas/story/blank-inheritance-ch1-v2.md#8",
-        "design/scale-and-chassis.md",
         "design/research/evangelion/the-enemy-as-puzzle.md"
       ],
       "notes": "Direction given by Ingram 2026-09-13 ('a classic trope'). Blocked on ground-roles-viability: a Frame-scale encounter is exactly where ground roles either earn their place or get cut, so writing the encounter first would bake in a system that may not survive. Ingram also stated a preference, 2026-09-13, for enemies built as puzzles - work out what it is doing, what it is strong at, what not to do against it, then beat it by out-thinking it and through teamwork rather than brute force. The worked catalogue for that shape is design/research/evangelion/the-enemy-as-puzzle.md."
@@ -372,6 +360,691 @@
       "notes": "Built as NO titles, on doctrine grounds: a handset that announces \"The Observer's Theme\" tells the table something the scene has not (Law 11), and the meter already answers \"is anything playing\". But there is a real argument the other way - naming the track is part of the fun of a soundtrack, and this campaign's music is largely licensed OST material a player might want to look up. A middle answer exists: show the track's own musical title but never its campaign purpose, which is already how PlaylistSound documents are named. Not decided; the current build is the conservative option.",
       "relatedRefs": [
         "design/audio-system.md#72-the-radio-every-player"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "directorate-name",
+      "question": "What is the Directorate's actual name?",
+      "status": "resolved",
+      "label": "The Directorate",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19 (design/node-registry.md §12) -- same id, unchanged. Original description: \"The organisation's actual name.\"",
+      "relatedRefs": [
+        "data/factions/directorate.json"
+      ],
+      "resolution": "RESOLVED 2026-09-23: 特別対策本部 (Tokubetsu Taisaku Honbu, \"Special Countermeasures Headquarters\") -- a real Japanese administrative naming pattern (taisaku honbu is the term for a task-force HQ convened in response to a specific crisis, e.g. 災害対策本部, and one that routinely outlives the crisis that created it), chosen for how precisely it matches the institution already written: sincere, calcified, and wrong about its own history. \"The Directorate\" and \"Honbu\" both remain standing English-language shorthand for it in prose and at the table -- this resolves the name, not the nickname."
+    },
+    {
+      "id": "city-name",
+      "question": "What is the campaign's home city actually called?",
+      "status": "resolved",
+      "label": "Kurose (黒瀬)",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The campaign's home city.\"",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md"
+      ],
+      "resolution": "Resolved 2026-09-24 by Ingram, choosing from a shortlist while writing Scene 0: the city is Kurose (黒瀬, roughly 'black shallows' or 'dark current'). It was already the working name of the map project (data/map/kurose.gpkg, tools/city-map), so nothing there needs renaming. Scene-set and gazetteer labels that still read 'The City' can adopt it as they are next touched."
+    },
+    {
+      "id": "the-gap-name",
+      "question": "What is \"the Gap\" actually called?",
+      "status": "open",
+      "label": "The Gap",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The missing span of history predating the setting -- a Second Impact analogue.\"\n\n2026-09-24: this description is stale twice over. The Gap is a FUTURE event, not a missing span of history (the-gap-is-future, 2026-09-20). And 'Second Impact' is now the in-world name for the coming rupture in Kurose (LEDGER #31 item 7), so it can no longer serve as an outside comparison here. Whether the Gap and Second Impact are the same thing has not been asked; don't assume it.\n\n2026-09-24 (LEDGER #33; Ingram, Casebook N24): \"Let's leave The Gap as being an event that happens after the adventure, perhaps a result of it, perhaps to undo the Second Impact the only way to do it is to create The Gap. Maybe. We'll resolve this later.\" So the Gap is NOT Second Impact. It is an event after the adventure: perhaps a result of it; perhaps the only way to undo Second Impact is to create it. Open, to resolve later. What it is called is still open too (Ingram herself calls it \"The Gap\"). CLAUDE'S NOTE for whoever resolves it, not a decision: in Starfinder's published setting the Gap is \"amnesiac\", a stretch of history that every mind and record lost at once, after which Golarion was gone (\"Lost Golarion\", reference/srd/gm-core/1219-timeshifted-adventures.json), and GM Core offers it as \"a plot device that supernaturally alters or censors sensitive information\" (reference/srd/gm-core/1234-archaic-adventures.json). A Gap made to undo Second Impact would have that exact shape: the price of undoing the rupture is that nobody remembers it.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#33",
+        "the-gap-is-future"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "kids-and-frames",
+      "question": "What are the six kids and their six Frames actually called, collectively?",
+      "status": "open",
+      "label": "The six kids and their six Frames",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"All twelve PCs.\" Distinct from any individual PC's own name -- this is a placeholder for a collective term, if one is wanted at all.",
+      "relatedRefs": [],
+      "resolution": null
+    },
+    {
+      "id": "the-watcher-name",
+      "question": "Does the Watcher have a real name beyond its antagonist working title, and if so what is it?",
+      "status": "open",
+      "label": "The Watcher",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Antagonist working name.\"\n\n2026-09-24 (LEDGER #31): the Watcher is the generation ship's navigation and sensor system. 'The Observer' is what the mitflits call it, the crew's own word for part of their ship (ideas/story/dossier-observer.md), and the gap between the two names is itself a clue. Whether it has a real name beyond those two -- for instance, whatever its makers called the system -- is still open, and it does not give one.",
+      "relatedRefs": [
+        "data/antagonists/the-watcher.json"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "excavation-site-name",
+      "question": "What is the dig site actually called?",
+      "status": "open",
+      "label": "The dig site",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The excavation that produced the Frames and, at the campaign's midpoint, the spaceship. Distinct from 'the Gap' (the missing span of history) -- this is the physical site.\"\n\n2026-09-24: 'distinct from the Gap (the missing span of history)' is stale, since the Gap is now a future event (the-gap-is-future). The excavation that produced the Frames is also now two sites: the Kortos crater, where Gen 1's specimen was found, and the dig under Kurose, which is the search ship's (LEDGER #31 item 1) and is where Gen 2 comes from.\n\n2026-09-24 (LEDGER #32 item 6): the note above is stale on one point. There is no specimen: the Kortos site is the generation ship's ruin, opened by First Impact, which the Directorate was first born to guard, and Gen 1 Frames are Golarion technology informed by looking at it, not copies of anything found there. The dig under Kurose is the search ship's, and Gen 2 is Anabala's, built from its actual technology (item 7).",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "excavated-spaceship-name",
+      "question": "What is the excavated spaceship called?",
+      "status": "open",
+      "label": "The excavated spaceship",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The midpoint-arc ship, unearthed from the same dig site as the Frames, running on the same sync/Resonance technology. Becomes the party's shared asset. See design/campaign-arc.md.\"\n\n2026-09-24 (LEDGER #31): there are now two ships -- the generation ship (fallen tens of thousands of years ago in a hidden jungle valley on Kortos; the black obelisk) and the search ship (fallen a thousand years later; its hull under Kurose). 'The excavated spaceship' presumably means the one being dug up under Kurose, i.e. the search ship, and each ship may now want its own name. Two parts of the original description are stale: Resonance was cut 2026-09-20, and 'the midpoint-arc ship that becomes the party's shared asset' predates the starship final act (LEDGER #26), in which the party takes a spaceship to the mitflit home world. Whether that is this ship is not stated.",
+      "relatedRefs": [
+        "design/campaign-arc.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "school-name",
+      "question": "What is the school actually called?",
+      "status": "open",
+      "label": "The school",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see #school-facility-same-location, resolved) -- this and 'the huge facility' from the design bible are one location, so may end up sharing a single name rather than needing two. REFINED 2026-09-12 (LEDGER #13): one campus, one island, but NOT co-sited. The island's north-west end -- causeway, Roadgate, Frame hangar, workshops, vehicle control point, candidate camp -- is 'pure military and checkpoints' in Ingram's words; the school is further south-east on the same island. Entry 12's deliberate military/school mix is achieved by walking between the two ends, not by blending them in one place. A single name may therefore still be wrong; check before assuming.\"",
+      "relatedRefs": [
+        "#school-facility-same-location",
+        "ideas/story/bible/LEDGER.md#13"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "the-original-cultist",
+      "question": "What is Cicada's unidentified founder actually called, in a way people would say out loud in a briefing?",
+      "status": "open",
+      "label": "The Original Cultist",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Working name, 2026-09-13, explicitly not final. The designation for Cicada's unidentified founder. IN-FICTION this is a label for a person nobody has a name for -- the Directorate has never identified him (LEDGER #17), so any term the party or the institution uses is one they invented for a gap in the file. That makes the label itself a piece of characterisation: an institution that gives a case number to someone it cannot name. Whatever this becomes, it must read as something people would actually say out loud in a briefing.\"",
+      "relatedRefs": [
+        "ideas/story/dossier-cicada.md#13.5",
+        "ideas/story/bible/LEDGER.md#17"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "frame-scale-starting-level",
+      "question": "What is the actual shape of the personnel/Frame scale split -- does it stay a hard-separated two-scale model (kid level vs. Frame level, whatever the numbers), or move to a single lockstep level with Frame content reflavoured rather than statted as a wholly separate, much-higher-level character?",
+      "status": "resolved",
+      "notes": "EXPANDED 2026-09-19, same day it was first raised. The original question (level 4 instead of level 12) was Ingram's own opening move; her fuller answer, asked again the same day, supersedes it: \"The whole idea of mechs being level 4 and players starting at level 1 needs rethinking. Maybe what we need is simpler and better, mechs and pilots stay in lock step, we reflavour everything for mechs so that players can feel like their abilities are unique or unusual and this way we keep the ability for characters to still have an effect on the big battlefield.\" This is a candidate to replace the retired two-scale design (deleted 2026-09-25)'s entire premise (two hard-separated scales, three legal interfaces, a level-1 kid and a level-12 Frame as separate character sheets) with one character, one level, reflavoured for Frame scale rather than built twice. Tracked as a Session 0/1 blocker on epic #140 and its own issue #194, which also ties this to ground-roles-viability and resonance-playability/bleed-playability -- #194 stays open for those two; only this specific sub-question is resolved.",
+      "relatedRefs": [
+        "ideas/story/dossier-second-generation-frames.md#8",
+        "#194",
+        "#140"
+      ],
+      "resolution": "RESOLVED 2026-09-20. Lockstep, not hard-separated: pilot and Frame share one level, full stop. Frame combat begins within the party's first two levels -- utility Frames adapted into combat use through play, never handed a combat-purpose mech outright -- and the party is 'solidly combat mech pilots' by level 3. Gen 2 access stays a long way off past that (see gen2-tradeoff-mechanism, resolved the same day). The Watcher and Cicada both keep probing/escalating the city in the meantime, which is what supplies an encounter-appropriate threat at every step rather than ever putting a level-1 party in front of a level-12 Claimant -- and it dissolves this question's original motivating problem for free: dossier-observer.md §8 already established Claimant mass 'ranges from insect to behemoth,' so a small, weak, early Claimant for a small, weak, early party was always legal, it just hadn't been said aloud. the retired two-scale design (deleted 2026-09-25)'s own banner is updated to match. Players are not told why any of this is happening -- see the DNA-reveal timing note on gen2-tradeoff-mechanism."
+    },
+    {
+      "id": "gen2-tradeoff-mechanism",
+      "question": "What actually makes an early second-generation Frame 'worse in some ways' than a heavily-upgraded first-generation one, mechanically?",
+      "status": "resolved",
+      "notes": "Raised 2026-09-19 (LEDGER #21), Ingram's own words: \"those mechs will initially be worse in some ways than people who instead opt to continue upgrading their lower tech mechs instead... just in case people become really attached to their mechs in their original forms.\" dossier-second-generation-frames.md §7 guessed the simplest mechanism -- switching largely restarts the Frame's own upgrade-point investment -- but flagged it as a guess, not a decision. That guess is superseded by the actual answer below.",
+      "relatedRefs": [
+        "ideas/story/dossier-second-generation-frames.md#3",
+        "ideas/story/dossier-second-generation-frames.md#7",
+        "campaign/config.json#frameEconomy",
+        "gen2-sync-duration-mechanism"
+      ],
+      "resolution": "RESOLVED 2026-09-20. An inherent compatibility/instability mechanic, not an upgrade-investment opportunity cost: switching into an unsynced Gen 2 Frame costs Slowed 1 until synced. Grounded in a real precedent -- even Anabala, the one founder who could fly a Gen 2 prototype at all, suffered this same sync problem (dossier-second-generation-frames.md §3, updated same day). That's exactly why swapping Gen 2 Frames on a whim is a real bad idea rather than a strictly-better upgrade, and it's an inherent property of the pilot/machine bond rather than anything the upgrade-point economy needs to change. Players don't learn any of this -- or their own DNA marker -- until roughly level 4, at first Gen 2 contact; Episode One and Two plant nothing early. The exact sync-clearing mechanism (how long, what activity, whether it fades with use) is not decided -- see gen2-sync-duration-mechanism."
+    },
+    {
+      "id": "gen2-sync-duration-mechanism",
+      "question": "Once a pilot takes Slowed 1 for switching into an unsynced Gen 2 Frame, what actually clears it -- a fixed downtime cost (a real named activity, like the existing rest/sync-training roster), something that fades naturally with continued use in play, a one-time tax that never recurs once bonded, or something else?",
+      "status": "resolved",
+      "notes": "Spun off 2026-09-20 from gen2-tradeoff-mechanism the moment Ingram confirmed the mechanism itself (Slowed 1 on an unsynced Gen 2 Frame, grounded in Anabala's own precedent) -- resolved the same conversation, minutes later.",
+      "relatedRefs": [
+        "gen2-tradeoff-mechanism",
+        "ideas/story/dossier-second-generation-frames.md#3",
+        "data/campaign/config.json#timeEconomy"
+      ],
+      "resolution": "RESOLVED 2026-09-20. Named 'Frame Sickness' -- a well-known, in-fiction phenomenon pilots are warned about in advance, not a hidden gotcha. Slowed 1 for the ENTIRE first fight in a given Gen 2 Frame; gone from the second fight in that same Frame onward. Ingram's own words: \"being slowed one for a whole fight is already a very brutal penalty to operate under.\" Read as per-Frame, not a one-time character tax: climbing into a DIFFERENT Gen 2 unit re-triggers it, which is exactly why swapping between Gen 2 Frames on a whim stays a bad idea even after a pilot has fully synced with one of them -- flag for confirmation when this is actually built, since it was inferred from phrasing rather than stated in those exact terms. CONFIRMED AND EXTENDED 2026-09-20: per-machine is correct, and the reasoning is explicit -- 'we don't want players swapping mechs every single session or hoping from a broken mech into a working one without fixing the broken one.' Ingram's own comparison is PF2E magic item investment, though more substantive. It is a ONE-TIME penalty per machine, players are told exactly what to expect in advance, and an early Gen 2 TRAINING EXERCISE is to be built specifically so the party can burn through Frame Sickness safely rather than eating it in a real fight. HIDDEN FROM PLAYERS, GM-ONLY: sticking with the same Gen 2 Frame pays off quietly -- a small bonus around the 5th session with it, another small boost around the 9th combat. Players are never told these exist; loyalty is rewarded, not advertised."
+    },
+    {
+      "id": "vehicle-and-frame-rules-model",
+      "question": "Do Frames and vehicles use SF2E's own vehicle rules, or something else?",
+      "status": "resolved",
+      "notes": "Ingram ran her own deep-dive on SF2E's vehicle rules 2026-09-20 and came back with a decision the same day.",
+      "relatedRefs": [
+        "frame-scale-starting-level",
+        "#194"
+      ],
+      "resolution": "RESOLVED 2026-09-20. NOT the SF2E vehicle system -- Ingram: 'it's not really suitable and adds far too many complications to the way that vehicles move to be helpful.' Instead both Frames and vehicles get their own PC-grade character sheets (real statblocks), and Foundry gets a way to associate pilot and machine so they move together, with buttons to reach both sheets or swap between them at a press. At level 1 Frames and vehicles are deliberately basic: they contribute HARDNESS and HIGH AC (the things that make Frame-scale combat survivable) and they amplify the pilot's own sheet rather than replacing it -- a spellcaster's magic reaching across huge distances is the worked example. The effect is a reskin of the PC's own character sheet from personnel scale to Frame scale, changing as little about how SF2E works as possible. Frames: very slow, very tough, high AC, high saves, real hardness. Vehicles: some extremely fast, but fragile -- destroyed means the pilot ejects, takes damage, and is in a much worse position. Even the smallest vehicle carries up to three passengers, which makes vehicles the party's way to move students and evacuate downed pilots. THREE equally important tracks, not a hierarchy: student pilots (near-raw personnel-scale SF2E), Frames, and vehicles. Every player gets the choice of a Frame; a player may spend the whole campaign never using one, or never using a vehicle, and both are fine. When Gen 2 tech arrives, Gen 1 vehicles need equivalent upgrades so that track stays live."
+    },
+    {
+      "id": "proto-claimant-encounter-shape",
+      "question": "What does the party's first Frame-scale enemy encounter actually consist of, now that no Claimant stat block exists in the project at all?",
+      "status": "resolved",
+      "notes": "Raised 2026-09-20 once Episode Two's climax needed a real encounter and the only previously-statted Claimant had been deleted in the frame-scale purge.",
+      "relatedRefs": [
+        "ideas/story/dossier-observer.md#8",
+        "data/antagonists/claimants/claimant-guidelines.json",
+        "reference/tables/encounter-and-rewards-math.json"
+      ],
+      "resolution": "RESOLVED 2026-09-20. THREE enemies, not one. Ingram: 'Single target fights in PF2E often become very swingy and only having a single target means the group and the GM have less flexibility.' All three are PROTO-Claimants -- at this point the Watcher does not have a clear idea of what it is doing or how to do it effectively, which is what licenses them being strange and inefficient rather than optimised. Build it as a deliberately hard encounter by real XP budget, select three interesting creatures from the existing SF2E library, and reskin them in Foundry so descriptions and information fit the brief -- do not stat three new creatures from scratch. NAMING CONVENTION, new and reusable: enemies at world-map scale get a military contact designation, the way a radar or sonar operator designates an unknown contact -- letters and numbers carrying some basic information while explicitly admitting the target is unidentified. Those designations come off the plotting floor (data/locations/the-plot-room.json) and are read to the party over the radio by comms-officer.json."
+    },
+    {
+      "id": "night-excursion-consequences",
+      "question": "What actually happens mechanically when players sneak off base after hours -- do they get caught, and what does it cost?",
+      "status": "resolved",
+      "notes": "Superseded an earlier same-day reading that had them always caught en route and always losing a morning slot in the brig; Ingram corrected that the following message.",
+      "relatedRefs": [
+        "design/downtime-activities.md",
+        "feedback_bad_then_pushback_pattern"
+      ],
+      "resolution": "RESOLVED 2026-09-20, correcting an earlier misreading in the same conversation. They are NOT always caught. Getting back into the base undetected after hours is a real SKILL ROLL, and the party should be offered lots of fun and varied ways to go about it. Being caught the first time carries a very minor result, and the punishment never gets harsh even later. The GM tracks privately who chooses to be a rebel and who does not, and folds that into how those characters are treated going forward -- the record is the real consequence, not the penalty. Activities themselves split into ON-BASE (available, safer, less fun) and OFF-BASE (requires sneaking out, more fun), and per the standing rule every single activity on either list must pay out something real: a buff, a bonus, information, or a chance to do something."
+    },
+    {
+      "id": "levelling-and-request-fulfilment",
+      "question": "How do pilots, Frames and vehicles level, and how do players acquire specific upgrades they want?",
+      "status": "resolved",
+      "notes": "Answered 2026-09-20 in the same pass that resolved frame-upgrade-economy.",
+      "relatedRefs": [
+        "frame-upgrade-economy",
+        "vehicle-and-frame-rules-model",
+        "#91",
+        "#196"
+      ],
+      "resolution": "RESOLVED 2026-09-20. MILESTONE XP: everyone's pilots and Frames/vehicles level at the same time, full stop -- no XP budgeting, no drift, no per-machine tracking. Levelling grants CREDITS to spend. Acquisition then runs on a REQUEST-FULFILMENT LOOP that Ingram wants to be how the whole campaign operates: players ask the world for what they want, in fiction, by message -- a player messages the quartermaster asking for a weapon that does electric damage, or messages their ground crew about their Frame. Claude reads those requests out of scraped Foundry VTT logs, and we respond either with a set of choices or with the single perfect thing for their need, balanced by us before it reaches them. This makes the shopping list diegetic and gives the GM a natural balance checkpoint. It is the concrete mechanism behind the correspondence/phone system already sketched at GitHub #91."
+    },
+    {
+      "id": "anchors-without-resonance",
+      "question": "Resonance and Bleed were cut 2026-09-20. Anchors existed primarily as the GM's lever on Resonance, and Suppression existed solely to close a Resonance exploit -- do either survive, and in what form?",
+      "status": "resolved",
+      "notes": "Raised 2026-09-20 as a direct consequence of cutting Resonance, not as an independent question. Anchors are not purely mechanical -- they are also a chargen element (each kid writes 2-3, and the six draft kid files already carry them), so cutting them silently would reach further than cutting a combat track. Suppression, by contrast, has nothing left to attach to: its entire stated purpose was closing an exploit in a system that no longer exists. Flagged rather than decided.",
+      "relatedRefs": [
+        "resonance-playability",
+        "bleed-playability",
+        "data/campaign/config.json",
+        "data/schema/kid.schema.json"
+      ],
+      "resolution": "CUT 2026-09-20, following Resonance and Bleed. Ingram: \"Consider them cut for now, we will add these back in as concepts if they earn their place. Let's slim things down and only add things back in if they seem sensible and useful.\" Anchors and Suppression are both removed. Anchors were Resonance's primary GM lever and Suppression existed solely to close a Resonance exploit, so neither had anything left to attach to once Resonance went. NOTE FOR WHOEVER TOUCHES CHARGEN: Anchors were also a chargen element -- each kid wrote 2-3, and the six draft kid files still carry them. Those fields are now dead text and kid.schema.json still declares them. Nothing should ask a player to write an Anchor. See open-questions.json#anchors-without-resonance."
+    },
+    {
+      "id": "nobu-extra-mechanism",
+      "question": "Nobu's 'one small unexplained extra' at Kit Issue -- is it automatic for every player, and what is it actually for?",
+      "status": "resolved",
+      "notes": "Was previously flagged as a held plant with an undecided payoff; Ingram reframed the question entirely rather than answering it as posed.",
+      "relatedRefs": [
+        "data/scene-briefs/episode-c1e1--kit-issue.json",
+        "data/challenges/c1e1-kit-issue.json"
+      ],
+      "resolution": "RESOLVED 2026-09-20. It is NOT automatic any more. Ingram: \"I'd suggest we drop it being automatic and just make it the result of using social skills on Nobu, if the players use their skills they can get something extra.\" It becomes a real social check against Nobu: on a SUCCESS or CRITICAL SUCCESS the acting player may choose a small boost to their own personal character budget; on a CRITICAL SUCCESS everyone gets a boost. This turns a passive gift into a rewarded player action and gives the scene a reason for a social-leaning character to step forward. Episode One's Kit Issue scene brief and challenge both need updating to match."
+    },
+    {
+      "id": "manifestation-site-identity",
+      "question": "Where do the Proto-Claimants manifest, and what evidence is there for the party to find?",
+      "status": "resolved",
+      "notes": "Confirmed 2026-09-20 from a proposal Ingram had floated as a maybe the previous message.",
+      "relatedRefs": [
+        "ideas/story/dossier-observer.md#8",
+        "ideas/story/dossier-cicada.md",
+        "proto-claimant-encounter-shape"
+      ],
+      "resolution": "RESOLVED 2026-09-20. The manifestation site IS the place where the cult clashed with police several weeks earlier, and it carries real, discoverable cult evidence -- the party has to find it rather than being shown it. The cult builds places that gather the Watcher's eyes, and those are where it deploys its first watchers. THE THEMATIC LOGIC, in Ingram's own words: \"The Watcher was 'attacked' in this place and learned about violence, so it sits and thinks and then spits out three things which are going to commit violence as a response.\" This is a local, recent echo of the same mechanism dossier-observer.md #6 already establishes at campaign scale (the Envoy shooting, and the purpose-inference 'manifest, and they attack') -- it is not a second origin, it is the same learning behaviour repeating small. It also rhymes deliberately with the campaign-level Mirror: an entity that watches what the party does and slowly adapts into a harder opponent. PACING CAUTION, stated directly: be careful how quickly this connection is revealed."
+    },
+    {
+      "id": "shop-boss-name",
+      "question": "What is the machine shop boss's name?",
+      "status": "resolved",
+      "label": "the Shop Boss",
+      "notes": "Created 2026-09-20 with data/npcs/shop-boss.json -- the nuar woman who runs the machine shop, heads the six repair crews, and is the party's first genuinely uncomplicated ally in the Directorate. Name should sound like someone who has worked the same floor for decades and is known by it.",
+      "relatedRefs": [
+        "data/npcs/shop-boss.json"
+      ],
+      "resolution": "RESOLVED 2026-09-20, same day it was raised: HULDA BRACK, called Brack on the floor. Named directly rather than left as a placeholder, on Ingram's standing instruction: \"Don't be shy about naming or fleshing out NPCs, if I dislike something I'll mention it.\" Chosen for table distinctiveness against the existing roster (Taka, Nobu, Shucks Mordant, Manako, Shinobu, Nozomi, Anabala, Rupiah, Hyuck) and for being shoutable across a workshop floor."
+    },
+    {
+      "id": "the-gap-is-future",
+      "question": "Is 'the Gap' a past event (as stock SF2E lore has it) or something else in this campaign?",
+      "status": "resolved",
+      "notes": "Raised 2026-09-20 when stock ancestry flavour text leaked into an NPC's rationale. Checked before recording: the Gap appears only three times in this campaign's own lore (ch1-v2.md's do-not-explain list, a LEDGER question of Claude's own, and a speculative line in shucks-mordant.md) and had never actually been defined either way here -- so this is a clean definition, not a contradiction to unpick.",
+      "relatedRefs": [
+        "data/campaign/ancestry-catalogue.json",
+        "ideas/story/blank-inheritance-ch1-v2.md",
+        "ideas/story/bible/characters/shucks-mordant.md",
+        "ideas/story/bible/LEDGER.md#33"
+      ],
+      "resolution": "RESOLVED 2026-09-20. THE GAP IS A FUTURE EVENT, NOT A PAST ONE. Ingram, directly: \"'The Gap' needs to be a future event, not a past one. I know a lot of SF2E race/ancestry stuff probably mentions the Gap but you don't need to worry about this.\" CONSEQUENCE FOR WRITING: every reference to the Gap as a lost or erased span of history is inherited SF2E filler and must be disregarded, not honoured. Two entries in data/campaign/ancestry-catalogue.json carry that stock text -- GNOME ('pre-Gap ancestry') and NUAR ('home and history lost to the vacuum of the Gap') -- and both now read wrong. Do not build any character's backstory on having lost something to the Gap. What the Gap actually IS, when it happens, and whether anyone in-world knows it is coming are all still undefined and deliberately so; it remains on Chapter One's do-not-explain list. NARROWED 2026-09-24 (LEDGER #33; Ingram, Casebook N24): the Gap is an event AFTER THE ADVENTURE, perhaps a result of it, perhaps the only way to undo Second Impact. \"Maybe. We'll resolve this later.\" The details are tracked under the-gap-name."
+    },
+    {
+      "id": "comms-officer-name",
+      "question": "What is the Comms Officer's name?",
+      "status": "open",
+      "label": "the Comms Officer",
+      "notes": "Created 2026-09-20 with data/npcs/comms-officer.json. She is deliberately a blank slate beyond being a woman, working the radio off the plotting floor, and warning the party away from danger because she genuinely fears for them. Name should sound like a real Directorate radio callsign-adjacent person, not a mysterious figure.",
+      "relatedRefs": [
+        "data/npcs/comms-officer.json",
+        "data/locations/the-plot-room.json"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "deputy-director-name",
+      "question": "What is the Deputy Director's name?",
+      "status": "open",
+      "label": "the Deputy Director",
+      "notes": "Created 2026-09-20 with data/npcs/deputy-director.json -- the senior authority one rung below the top of the Directorate, intimidating on first meeting and actually a good and wise leader. A Kozo Fuyutsuki type, in Ingram's own reference. Name should carry rank and weight without sounding villainous.",
+      "relatedRefs": [
+        "data/npcs/deputy-director.json",
+        "data/npcs/commander.json"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "watcher-probing-cause",
+      "question": "Why does the Observer start probing the city's defences when it does -- tied to Manako's own arc, or a separate, more independent escalation?",
+      "status": "open",
+      "notes": "Raised 2026-09-19 (LEDGER #21). This is the trigger that forces the Directorate to deploy whatever Frames are ready (including the party's utility ones), pulling them into real Frame combat for the first time -- the concrete cause behind the already-agreed Episode Two shape (ch1-v2.md §8). Left deliberately open whether it's caused by / tied to dossier-cicada.md §13.1's five movements or is its own thread.\n\n2026-09-24 (LEDGER #31) -- a note, not a resolution; still open. #31 recasts the Watcher: it is the generation ship's navigation and sensor system and the campaign's adversary, with the objective to multiply, to expand and to keep observing, and it learns how to defeat the party if they get in its way (item 4). Two things now bear on this. (1) Its children are given purposes of their own, and the runaway begins when those children start producing their own Sap (item 8; Ingram, D4: 'The Watcher learns'). Read one way, the probing is the start of that same escalation (a reading, not a decision). (2) A mass-gated PROPOSAL, Claude's, in the Casebook and in ideas/story/dossier-observer.md's section on its children, would answer this: at first it can condense only where Sap has been released, so every early attack carries a cult fingerprint; later it is dense enough to condense wherever attention pools, with no Sap at all. Not decided. One wording clash to settle if it is adopted: the proposal calls its Chapters 5-10 stage 'the probing', while LEDGER #21 and ideas/story/dossier-second-generation-frames.md §5a use 'probing' for what first pulls the party into Frame combat within the first two levels. Under the proposal, those early call-outs are condensations at Sap-release sites.",
+      "relatedRefs": [
+        "ideas/story/dossier-second-generation-frames.md#5a",
+        "ideas/story/dossier-cicada.md#13.1",
+        "ideas/story/blank-inheritance-ch1-v2.md#8",
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/dossier-observer.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "utility-mech-range-and-choice",
+      "question": "Is choosing from 'a wide range of different utility mechs' a real, formalized choice moment (a mini-chargen beat) when Frame service begins, or does it stay loose and GM-adjudicated?",
+      "status": "open",
+      "notes": "Raised 2026-09-19 (LEDGER #21), from Ingram's own phrasing: \"they will get to choose from a wide range of different utility mechs.\" This campaign generally prefers real, disclosed choices (see design/node-registry.md's choicePoint work) so a formal version is plausible, but not assumed here.",
+      "relatedRefs": [
+        "ideas/story/dossier-second-generation-frames.md#1"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "the-young-one-name",
+      "question": "What is the Young One actually called?",
+      "status": "open",
+      "label": "The Young One",
+      "notes": "Confirmed 2026-09-19: promoted from a disposable Canteen walk-on to a real, tracked character, at Ingram's direct instruction ('Promote and they are cicada involved, we'll build on it later') -- not a new naming gap, she already carried '(placeholder name)' in ideas/story/dossier-cicada.md's own Cadre table. Rich canon already established there and in the dossier's own dedicated section on him: a Directorate Frame pilot the party knows casually from the canteen, turned by the same kind of show Nozomi walked out of, Cicada's intelligence source, and later the Cadre's one member who will kill. First casual, unremarkable appearance wired into data/scene-briefs/episode-c1e1--canteen.json the same day. Do not invent his name unprompted -- 'we'll build on it later' is a deliberate hold, not an oversight.",
+      "relatedRefs": [
+        "ideas/story/dossier-cicada.md#9",
+        "data/npcs/the-young-one.json",
+        "data/scene-briefs/episode-c1e1--canteen.json"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "second-generation-frame-name",
+      "question": "What do people actually call the second-generation Frames (built from the generation ship's technology, and flyable only by a pilot with 'the right DNA or the right something'), as distinct from the old cargo-cult fleet?",
+      "status": "open",
+      "label": "The second-generation Frames",
+      "notes": "New 2026-09-19, alongside LEDGER #20 and dossier-second-generation-frames.md. Needs a name that works both as in-universe Directorate paperwork language and as something a pilot would actually say out loud -- \"second-generation\" is this dossier's own working label, explicitly not final.\n\nCORRECTED 2026-09-24: the question used to describe these as 'true-hull-tech' and as 'the party's own six'. LEDGER #21 had already overturned the second -- the party starts on Gen 1 and is offered Gen 2 at the end of Chapter 4 (LEDGER #31 item 13) -- and LEDGER #31 item 1 replaces the first: Gen 2 is built from a second ship, the search ship, not from the rest of the Kortos ship.\n\n2026-09-24 (LEDGER #34): the question used to say the Gen 2 Frames were built from the search ship under Kurose. That was Claude's inference. Ingram's own words put Gen 2's technology at the First Impact crash site (LEDGER #20) and in \"the original ship\" (LEDGER #34), which is the generation ship at Kortos.",
+      "relatedRefs": [
+        "ideas/story/dossier-second-generation-frames.md",
+        "ideas/story/bible/LEDGER.md#34"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "section-officer-name",
+      "question": "What is the Section Officer's actual name?",
+      "status": "resolved",
+      "label": "The Section Officer",
+      "notes": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The party's immediate superior and the campaign's in-house petty tyrant (data/npcs/section-officer.json). Needs a name that sounds like a middling rank on a duty roster rather than a villain -- the joke is that he is completely ordinary. Whatever it is, the party will say it a great deal, usually while complaining.\"",
+      "relatedRefs": [
+        "data/npcs/section-officer.json",
+        "ideas/story/bible/characters/the-section-officer.md"
+      ],
+      "resolution": "RESOLVED by Ingram, 2026-09-21: \"Give the Section Officer a name - That really should have been done a long time ago.\" Named VETCH, surname only.\n\nWHY IT FITS THE BRIEF. The question asked for a name that sounds like a middling rank on a duty roster rather than a villain, because the joke is that he is completely ordinary. Vetch is a fodder crop -- a real, dull, slightly unpleasant English surname with nothing grand about it. It is also built to be said a great deal while complaining: one syllable, hard final consonant, and it snaps.\n\nWHY SURNAME ONLY. The bible's own naming doctrine, quoted in prose-craft-and-naming.md section 11: given names for the young and the outsiders, surnames for the institution. He is the institution. It also rhymes with his single most characteristic habit -- he calls the party Section Nine and never by name, and nobody uses his given name either, including him.\n\nPHONETIC CLEARANCE. Checked against every named NPC (Hulda Brack, Shucks Mordant, Nobu, Taka, Manako) under the first-stressed-syllable rule rather than the first-letter rule. No V name exists anywhere in the cast, so the lane is completely clear, and the nearest institutional surname in register -- Brack -- shares neither onset, vowel nor coda."
+    },
+    {
+      "id": "flood-tunnel-xp-award-value",
+      "question": "Does the Flood Tunnel Clearance encounter award 80 XP or 120 XP?",
+      "status": "open",
+      "label": "Flood Tunnel Clearance XP award",
+      "notes": "Found 2026-09-19 during the overnight fragmentation sweep (a background agent auditing data/encounters/ for drift against ch1-v2.md). data/encounters/c1e1-flood-tunnel.json currently awards a flat 120 XP, citing ch1-v2.md's \"Moderate, 120\" label as its source. But that label in ch1-v2.md §6 is explicitly the encounter's BUILD size (how many Centipedes are on the map), not its award -- ch1-v2.md §1's own ledger table separately lists this encounter's AWARD as 80, under a stated rule: \"Build bigger, award the same\" (the encounter is built at six-PC scale for a real fight, but XP awards stay pinned to the four-player baseline value so leveling pace doesn't silently double). Both readings are internally consistent within their own section; they simply disagree with each other, and nobody has reconciled them. This is the first real XP award of the campaign and sets the leveling-pace precedent for everything after it, so the number matters more than its size suggests.",
+      "relatedRefs": [
+        "data/encounters/c1e1-flood-tunnel.json",
+        "ideas/story/blank-inheritance-ch1-v2.md",
+        "reference/tables/encounter-and-rewards-math.json"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "prophecy-timing",
+      "question": "The gods told Rupiah the next rift would open in Kurose \"many hundreds of years in the future\" — but the present day is about two hundred years after Kortos. Is the rift due now, still centuries off, or genuinely unknowable?",
+      "status": "resolved",
+      "label": "When the foretold rift is due",
+      "notes": "Raised 2026-09-24 while recording the founding prophecy (ideas/story/bible/LEDGER.md #25, dossier-first-impact.md §10a). Ingram also said the threat \"cannot be precisely predicted in time\", so one answer is that nobody — not even the founders — knows.",
+      "relatedRefs": [
+        "ideas/story/dossier-first-impact.md",
+        "ideas/story/blank-inheritance-master-timeline.md",
+        "ideas/story/bible/LEDGER.md"
+      ],
+      "resolution": "Resolved 2026-09-24 (Ingram): nobody knows, because the conditions are not yet right — which is why augury and fortune-telling magic return no answer. The players and the antagonists will bring the right mix of things together, about three-quarters of the way through the campaign, and the second rift is then unstoppable from here: the party must take a spaceship to the mitflit home world to bring back the means to stop the exotic-matter runaway, and the last quarter is a starship campaign with the players as command staff on an enterprise-sized intergalactic ship. The cause is deliberately open (a cultist detonating stolen mitflit ship fuel on purpose, an accident, or a tragic misunderstanding). GM-ONLY: 'don't tell the players too much'. See design/campaign-arc.md and ideas/story/bible/LEDGER.md #26."
+    },
+    {
+      "id": "hull-under-kurose",
+      "question": "The older account had the Directorate follow a trail from the crater to the rest of the ship's hull under Kurose. The prophecy now replaces that as the reason they came. Is the hull still under Kurose — and is it what the gods foresaw?",
+      "status": "resolved",
+      "label": "Is the hull under Kurose?",
+      "notes": "Raised 2026-09-24. The hull under the city carries later plot weight in the v4 bible (§5: the hull is under the city; Chapter Eight is a voyage). dossier-first-impact.md §7 is marked superseded in part until this is answered.\n\n2026-09-24 (LEDGER #31 item 1): the hull under Kurose belongs to a SECOND ship, the search ship that came a thousand years after the generation ship to find out what had happened to it -- not the rest of the ship that fell at Kortos. The resolution below still holds: the hull is under Kurose, and it is why the gods named Kurose.",
+      "relatedRefs": [
+        "ideas/story/dossier-first-impact.md",
+        "ideas/story/blank-inheritance-v4.md",
+        "ideas/story/bible/LEDGER.md"
+      ],
+      "resolution": "Resolved 2026-09-24 (Ingram): yes — the hull is under Kurose, and it is WHY the gods foresaw the rift there. The Directorate came for the prophecy and later found what it was sitting on, so the older trail-to-the-hull account and the new prophecy both hold. LEDGER #26."
+    },
+    {
+      "id": "founders-public-vs-erasure",
+      "question": "The public now sees the Directorate's founders as future saviours, intruders and warmongers — but Episodes One and Two plant an 'erasure' where the four are nameless in approved history and nothing at the table may connect them. Are the founders' names and faces public, or only their mission?",
+      "status": "resolved",
+      "label": "Public founders vs. the erasure",
+      "notes": "Raised 2026-09-24. See design/campaign-arc.md 'The four founders, and the erasure' (the Hyuck plaque, the passive-voice history book, the memorial plate) and dossier-the-directorate.md §1a. One reading keeps both: the mission and the institution are public; the four people behind it have been tidied out of the record.",
+      "relatedRefs": [
+        "design/campaign-arc.md",
+        "ideas/story/dossier-the-directorate.md",
+        "ideas/story/bible/locations/the-gnoll-statue.md",
+        "ideas/story/bible/LEDGER.md"
+      ],
+      "resolution": "Resolved 2026-09-24 (Ingram): the founders are FAMOUS. Reconciled the same day by Claude under Ingram's standing permission to fill blanks (LEDGER #27, open to veto) as 'famous names, sanitised faces': the city knows the four by name, but every approved picture shows four tall humans and the approved history never says how the rift opened. The Episode One/Two plants were rewritten to match (teacher certain the gnoll statue is not Hyuck; page forty names the four and omits the cause; the older printing's plate shows them as they were). Also recorded: a possible, unscheduled option for unannounced flashbacks in which the players play the four founders under PF2E rules. LEDGER #26, #27."
+    },
+    {
+      "id": "directorate-extraterritorial-vs-national-service",
+      "question": "The Directorate now operates outside the kingdom's national lines and grates on its army and navy — but the Directorate dossier says civil defence is national service that everyone's parents did. Who runs civil defence service, and who can conscript at seventeen?",
+      "status": "resolved",
+      "label": "Extra-territorial vs. national service",
+      "notes": "Raised 2026-09-24. Affects Scene 0's pitch and every recruitment line in Episode One.",
+      "relatedRefs": [
+        "ideas/story/dossier-the-directorate.md",
+        "ideas/story/bible/LEDGER.md"
+      ],
+      "resolution": "Resolved 2026-09-24 (Ingram): two services. The kingdom's own national service (army and navy) is the one everyone's parents did; the Directorate recruits separately — candidates apply or are streamed to it — and sits outside the kingdom's lines, which is where the rivalry comes from. Recorded in ideas/story/dossier-the-directorate.md §1 and §1a."
+    },
+    {
+      "id": "bisected-specimen-origin",
+      "question": "What is the machine found buried impossibly deep in the Kortos crater -- the bisected specimen every Gen 1 Frame is copied from? Ingram's working assumption is a teleportation accident: the machine ended up inside the rock itself and could never be extracted. To decide: whose machine it is (part of the generation ship, something from the search ship, or neither), how and when it came to be inside the rock, and how that sits with the existing account that the rift bisected it on the way down.",
+      "status": "resolved",
+      "notes": "Raised 2026-09-24 from Ingram's correction A3.2, filed as LEDGER #31 item 23 and flagged there as needing clarification: \"I assume that the machine that was buried deep was the result of a teleportation accident, ending up within the rock itself and impossible to extract. This is an area we should flag as being in need of clarification.\" The existing account (ideas/story/dossier-first-impact.md): a specimen buried 'far deeper than should have been possible -- deeper than dwarven caverns', bisected by the aperture, whose cross-section let the era's magic-users reverse-engineer the Frames. It matters more now that there are two ships (LEDGER #31 item 1): Gen 1 is copied from this specimen, Gen 2 is built from the search ship under Kurose (ideas/story/dossier-second-generation-frames.md), and what the living core inside every Frame is has been re-asked separately as Casebook D13. Nothing here is decided; don't build on any reading.\n\n2026-09-24 (LEDGER #32 item 6): withdrawn; see resolution. Not to be confused with the generation ship's shuttle, which #32 also puts 'buried deep under the rock of Kortos'. The shuttle is a real object, tracked as kortos-shuttle.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/dossier-first-impact.md",
+        "ideas/story/dossier-second-generation-frames.md",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/story/bible/LEDGER.md#32",
+        "kortos-shuttle"
+      ],
+      "resolution": "Withdrawn 2026-09-24 (Ingram, Casebook N4; LEDGER #32 item 6): there is no bisected specimen. \"We could make this simpler and I think it works just as well. It's not a bisected mech that get's revealed, it's the inner layers of the spaceship (the generation ship) which get's opened up by the rupture.\" Scientists and magic-users descended on the opened ship, adventurers came for valuables, and the organisations around Kortos banded together to guard it, which is how the Directorate was born. Gen 1 Frames are Golarion technology only, informed by looking at the ship's technology (item 7), so nothing is copied from a single machine, and the teleportation-accident assumption (A3.2, LEDGER #31 item 23) has nothing left to explain. Carried into ideas/story/dossier-second-generation-frames.md (§2, §5b, §8) and ideas/story/bible/species/mitflits.md; ideas/story/dossier-first-impact.md was rewritten to match the same day."
+    },
+    {
+      "id": "mother-and-the-watcher",
+      "question": "Was Mother -- the old campaign's level-15 incorporeal construct, met in the mitflit village and on the generation ship's cargo deck -- the generation ship's reasoning core, the mind the Watcher's reports went to? Claude has proposed yes. Either way: where is she now, in what state, and does she matter to the Watcher or to solving it?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 (LEDGER #31). CANON underneath it: the Watcher is the generation ship's navigation and sensor system (item 3). THE PROPOSAL (Claude's fill-in, veto freely): Mother was the ship's reasoning core -- the old ship map has an 'AI Reasoning Core' chamber on its bridge deck -- and First Impact tore the navigation and sensor system away from her, which is the organising layer the swarm lost. LEDGER #31 lists 'Mother's fate' as still open. Source material, not canon: ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md (Arc 5: Mother built 8 Nov 2023 at level 15, a construct, incorporeal and highly intelligent) and ideas/story/source-material/BRIEFING-for-an-LLM.md §8, which first asked whether Mother is the ship's AI. ideas/story/dossier-observer.md carries the proposal and points here. Its museum piece, a coherent fragment of the navigation and sensor system that 'possibly' remembers what it answered to, is the nearest existing hook.\n\n2026-09-24 (LEDGER #32 item 3; Ingram, Casebook N1) -- a working answer, not a resolution; still open. \"She could still be alive, perhaps in the fragment in the museum? Weakened, unable to control The Watcher directly, but still a valuable witness and source of information for the players.\" So, as Ingram's own 'perhaps': alive, in the museum fragment; weakened; unable to control the Watcher directly; and a witness and source of information the players can reach. Her answer takes the proposal above (Mother as the ship's mind) as its starting point without objecting to it. LEDGER #32 keeps open 'Mother's fate, if the museum isn't it'. Reconciled the same day: ideas/story/dossier-observer.md first described the museum piece as a fragment of the navigation and sensor system (the Watcher's own layer), and now calls it a fragment of the generation ship, with Mother perhaps alive in it.\n\n2026-09-24 (LEDGER #34, Casebook D13): Ingram's \"maybe\" that a small part of Mother is in every Gen 2 Frame, as the cerebral glue that makes the technology work. Tracked separately at mother-in-gen2.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/dossier-observer.md",
+        "ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md",
+        "ideas/story/source-material/BRIEFING-for-an-LLM.md",
+        "ideas/story/bible/LEDGER.md#32",
+        "mother-in-gen2"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "jungle-mitflit-fuel-purpose",
+      "question": "Why did the mitflits living by the generation ship, in the hidden jungle valley on Kortos, want its exotic fuel -- the errand during which the four founders caused First Impact? What were they going to do with it, and did they know how dangerous it was?",
+      "status": "resolved",
+      "notes": "Raised 2026-09-24. LEDGER #31 item 22 settles the errand -- First Impact happened while the four were trying to get exotic fuel for the mitflits who lived there (Ingram, A3.1: 'they cause The First Impact when trying to get the exotic fuel for the Mitflits who live there') -- and lists why they wanted it as still open. Related canon: the exotic matter is fuel, and a breached container causes a subspace rupture (item 7); the mitflits are gathering in Kurose so that they can all leave to go home together (ideas/story/bible/species/mitflits.md); the campaign's last quarter needs the home world (LEDGER #26). The obvious reading, fuel to fly home, has not been said by anyone, so don't build on it. Source material: the old campaign's jungle and cargo-deck arcs, including the ship's two reactors and the mitflit village beside it (ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md, Arcs 5 and 6).\n\n2026-09-24 (LEDGER #32 item 5): answered; see resolution. The caution above still applies one step on: 'fuel for the shuttle' has been said, but what the shuttle was for (flying home, going for help, anything else) has not.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/story/dossier-first-impact.md",
+        "ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md",
+        "ideas/story/bible/LEDGER.md#32",
+        "kortos-shuttle"
+      ],
+      "resolution": "Resolved 2026-09-24 (Ingram, Casebook N3; LEDGER #32 item 5), as her own working assumption: the fuel was for the shuttle. \"I cannot remember the original reasoning, so let's assume that it was fuel for the Shuttle. The players never got to the shuttle which was buried deep under the rock of Kortos away from the original destroyed spaceship. We can leave this as something that we need to tie up eventually.\" The shuttle itself, and the rest of what this question asked (what the jungle mitflits meant to do with it, and whether they knew how dangerous the fuel was), is tracked as kortos-shuttle."
+    },
+    {
+      "id": "why-ships-fall",
+      "question": "Why do spaceships fall on Golarion? Ingram's working hypothesis, marked 'perhaps': something about Golarion is both attractive to the mitflits and critically dangerous to exploring ships -- perhaps the gods, jealous of their domain, who foresaw that mitflits landing and spreading freely would change the world in ways they did not want. Is it the gods? If so, which gods, how do they bring ships down, and does anyone in the campaign ever learn it?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Casebook D1, verbatim in LEDGER #31 and summarised there as item 2. Ingram: 'Mitflits aren't evil, they are not a conquering empire, but perhaps Mitflits had identified the world as a potential place to live without understanding the concept of gods and perhaps without even understanding the concept of a territorial domain.' Both ships fell: the generation ship, and the search ship sent after it a thousand years later (item 1). A working hypothesis, not a lock. Things to check it against when it is decided, none of them decided: the gods named Kurose as the place of the next rift (LEDGER #25 and #26), and the search ship's hull lies under Kurose; the old campaign's never-played 'ancient alien god' map (ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md §7); and the late-campaign 'something worse beyond' reserve in ideas/entries/antagonist-structure-cicada-org-moral-complexity.json, which this could fill.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/entries/antagonist-structure-cicada-org-moral-complexity.json",
+        "ideas/story/dossier-first-impact.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "abraxas-pronoun",
+      "question": "Is the knowledge demon Abraxas, which Anabala has carried through the ages, written as he, she or it? LEDGER #7 (Ingram, 2026-09-10) called Anabala's demon 'a powerful female demon'; Paizo usually writes Abraxas as male; LEDGER #31 names the demon without giving a pronoun.",
+      "status": "resolved",
+      "notes": "Raised 2026-09-24 (LEDGER #31, 'Still open'). LEDGER #31's own summary uses 'it', which is the neutral default until this is answered. This setting departs from Paizo freely (LEDGER #4), so either reading is legitimate. Source material, for context only: Anabala's old PF2e sheet wears the Silent Heart tattoo, a Paizo item of Abraxas's faith whose text uses 'his' (ideas/story/source-material/the-trouble-with-mitflits/raw/anabala-macthata.json), and journals/abraxa.md in the same folder sketches a homebrew pact-binder class for her. The demon is GM-only and not mentioned openly for a long time (item 20), so this matters for GM prose and for the moment it emerges, not for anything said at the table early.\n\n2026-09-24 (LEDGER #32 item 10): answered; see resolution. LEDGER #7's 'a powerful female demon' was right.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#7",
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/bible/characters/anabala.md",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/story/bible/LEDGER.md#32"
+      ],
+      "resolution": "Resolved 2026-09-24 (Ingram, Casebook N7; LEDGER #32 item 10): female. \"In our version, she, Anabala is played by a woman who wants to RP as a woman (Anabala) who has a pact with a demon (Abaraxas) and they are all female in this version.\" Write Abraxas as she/her. Paizo's usual 'he' does not apply (this setting departs from Paizo freely, LEDGER #4). Carried into ideas/story/bible/characters/anabala.md and ideas/story/bible/species/mitflits.md."
+    },
+    {
+      "id": "kortos-cataclysm-placement",
+      "question": "Where does the old campaign's 'Kortos Cataclysm' fit in Blank Inheritance, if anywhere? In the original campaign's lore it was an Inicrium explosion about a thousand years before 4721 AR (the founders' era, so roughly twelve hundred years before the present day) that left part of Kortos uninhabitable. It is a different event from both the Baldwin Manor battery and First Impact. Keep it as its own old disaster, connect it to something already in the lore, or drop it?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 (LEDGER #29 left it unplaced; LEDGER #31 lists it as still open). Source: ideas/story/source-material/the-trouble-with-mitflits/journals/inicrium.md, the GM's in-world treatise. Inicrium is 'solid magic potential', a magical battery material that collapses into an unstable grey ball above about 50 g and explodes at around 100 g. Beware a coincidence of numbers: the search ship came 'a thousand years' after the generation ship, but that was tens of thousands of years ago, while the Cataclysm is a thousand years before the founders' era. They are not the same span. The same LEDGER line also leaves two other old-campaign items unplaced, not yet tracked as questions of their own: the never-played 'ancient alien god' map and 'Te'Alay' (campaign-timeline.md in the same folder).",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#29",
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/source-material/the-trouble-with-mitflits/journals/inicrium.md",
+        "ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "gauntlight-siege-outcome",
+      "question": "What became of the mitflits the old campaign left besieged at Gauntlight Keep? The battle was prepared and never played: 49 mitflits and their royal guard against William Charles Baldwin's army of hunters, infantry, archers and mobs, while the four founders were flung across the planes to Nirvana. Did the mitflits hold, and does the answer reach the present day -- how mitflits remember the four, Anabala, the Baldwin line?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 (LEDGER #31, 'Still open'). Source: ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md §7. The 'Gauntlight Revived' map was set with 49 mitflits, six Royal Guards, Miriq, Esther Williams and Arun against Baldwin's forces, and the mitflits' plea from the cargo deck asked the four to come back through a counterpart portal 'before anyone else gets killed'. Only the GM ever looked at that map. Blank Inheritance exists partly to give that campaign closure (LEDGER #30), and the lord is canon as William Charles Baldwin (LEDGER #31 item 21), so this is one of the loose ends the closure has to answer or deliberately leave. Related: baldwin-line-in-kurose.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#30",
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md",
+        "ideas/story/bible/species/mitflits.md",
+        "baldwin-line-in-kurose"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "baldwin-line-in-kurose",
+      "question": "Baldwin's line in the present day is decided as a beat the players will eventually come across (LEDGER #31 item 24), and LEDGER #32 makes it William Charles Baldwin himself: alive, secret until the right moment, and a criminal lord. What shape does his presence in Kurose take (his organisation, his gangs, his mitflit workshops, any front), and do any descendants exist too?",
+      "status": "open",
+      "notes": "Decided as a beat 2026-09-24; its shape is open. Ingram, on Claude's proposal: 'I love the idea of bringing in Baldwin's ancestors and making that a beat the players will eventually come across. That's great.' LEDGER #31 reads 'ancestors' there as his present-day line. CLAUDE'S PROPOSAL, not decided: Baldwin House as the arms concern, or the crime lords, that Manako works with, carrying a two-hundred-year grudge against the four. Background: WCB led the old campaign's mitflit hunters, and when members of his own family died by accident in the shadow siege at Baldwin Manor he blamed the four anyway (item 22). In the source material the Baldwins also ran one of Kortos's largest magical-weapons manufactories (ideas/story/source-material/the-trouble-with-mitflits/journals/history-of-baldwin-manor.md); LEDGER #29 left open whether that carries over.\n\nQUESTION REWORDED 2026-09-24 (LEDGER #32 item 1; Ingram's Baldwin paragraph, and Casebook N9, 'See above'). It used to ask only about his descendants two hundred years on. Now canon, GM-only and secret until the right moment: William Charles Baldwin is alive (\"He was insanely rich, that might give him access to ways to stay alive\"), a criminal lord who arms criminal gangs with incredible weapons, and those weapons are still made by essentially enslaved mitflits. The four founders are his natural enemies, and meeting him is personal for the players, four of whom played the four. Descendants may exist too; the man matters more (LEDGER #32). CLAUDE'S PROPOSALS (LEDGER #32, veto freely): he is the crime lord Manako works for, at arm's length, so Nobu's laundering, the Fixer's 'crime partners' and the heist crews all run through his organisation; the mitflits gathering in Kurose to go home are easy prey for his workshops; his front might trade under the old castle's name, Croglang. These take over from the earlier proposal above (Baldwin House as the arms concern, or the crime lords Manako works with). Split out the same day: how he stays alive (baldwin-longevity) and when and how he is revealed (baldwin-reveal). His file: ideas/story/bible/characters/william-charles-baldwin.md.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#29",
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/dossier-cicada.md",
+        "ideas/story/source-material/the-trouble-with-mitflits/npcs/the-baldwin-family-and-allies.md",
+        "gauntlight-siege-outcome",
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/bible/characters/william-charles-baldwin.md",
+        "baldwin-longevity",
+        "baldwin-reveal"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "berserk-protocol-fate",
+      "question": "The 'berserk protocol' recited at assembly (Mystery Ledger #8, 'the protocol's line about brothers') no longer has a berserk to be about: nothing in this campaign goes berserk (LEDGER #31 item 14). Rework it or cut it? Claude's proposal: it becomes Hyuck's emergency protocol for machines that fail under their pilots, written by a test pilot who has crashed everything, and it still opens with the line about brothers.",
+      "status": "open",
+      "notes": "Raised 2026-09-24 (LEDGER #31, Claude's fill-in, veto freely). Where it still appears as 'the berserk protocol': ideas/story/blank-inheritance-ch1-v2.md §4 (Show, Never Tell) and §5 (Mystery Ledger #8), and design/induction.md (the assembly step). ideas/story/blank-inheritance-v4.md already calls it 'the emergency protocol' and marks that as this proposal, with 'if the proposal is vetoed, cut the protocol'. The line about brothers is literal, not metaphor, and belongs to Hyuck ('second son, killed his brother', v4). Hyuck being alive and the Directorate's test pilot of its worst Frame concepts is canon (LEDGER #28), and Steve plays him in flashbacks (LEDGER #31 item 12). Related: hero-points-vs-berserk, whose premise went with Bleed (cut 2026-09-20) and with item 14.\n\n2026-09-24 (LEDGER #32 item 11; Ingram, Casebook N8) -- still open, to be pinned down much later. \"Hyuck absolutely would build something like that, but maybe we develop this idea to only happen with Gen 2. Leave it as an open question to be pinned down much later.\" Read: Hyuck's emergency protocol would exist, but only with Gen 2 (Gen 1 Frames are Golarion technology with no living core, LEDGER #32 item 7). Her answer keeps the protocol and gives it an owner and a machine; its shape is not decided. One thing to check when it is: the protocol is recited at assembly in Chapter 1 (Mystery Ledger #8), while Gen 2 reaches the field only at the end of Chapter 4. The Gen 2 prototypes are decades old and were mothballed (LEDGER #20), so a protocol written for them could already exist; nobody has said so.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#31",
+        "ideas/story/blank-inheritance-ch1-v2.md",
+        "design/induction.md",
+        "ideas/story/blank-inheritance-v4.md",
+        "ideas/entries/hyuck-origin-and-directorate-fate.json",
+        "hero-points-vs-berserk",
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/dossier-second-generation-frames.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "kortos-shuttle",
+      "question": "The generation ship's shuttle is buried deep under the rock of Kortos, away from the ship's ruin. The exotic fuel the four founders were fetching when they caused First Impact was for it, and they never reached it (LEDGER #32 item 5). What is the shuttle, what did the jungle mitflits mean to do with it (and did they know how dangerous the fuel was), is it still there, and how does Blank Inheritance tie the thread up?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Ingram's answer to Casebook N3 (LEDGER #32): \"I cannot remember the original reasoning, so let's assume that it was fuel for the Shuttle. The players never got to the shuttle which was buried deep under the rock of Kortos away from the original destroyed spaceship. We can leave this as something that we need to tie up eventually.\" Canon: it exists, it is buried deep under the rock of Kortos away from the generation ship, the fuel was for it, and the four never got to it. Everything else is open. Don't assume the obvious reading (a shuttle to fly home, or to go for help); nobody has said it. Things to check it against when it is decided, none of them decided: the old campaign's Kortos map already marked a 'Shuttle Location' (ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md; source, not canon); Blank Inheritance exists partly to close the old campaign's loose ends (LEDGER #30); the Directorate was born to guard the Kortos site (LEDGER #32 item 6); and the campaign's last quarter already needs a way to the mitflit home world (LEDGER #26). Not to be confused with the withdrawn 'deep-buried machine' (bisected-specimen-origin), which was the bisected specimen and does not exist. Replaces jungle-mitflit-fuel-purpose, resolved the same day.\n\n2026-09-24 (LEDGER #34, Casebook N25): Anabala's own ultimate objective is a way home for her people, using mitflit technology. CLAUDE'S NOTE, not a decision: the shuttle is one candidate for that way home, and the search ship under Kurose, which lifts at Chapter 15 in the draft, is another.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/dossier-first-impact.md",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md",
+        "jungle-mitflit-fuel-purpose",
+        "ideas/story/bible/LEDGER.md#34"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "baldwin-longevity",
+      "question": "How has William Charles Baldwin stayed alive for two hundred years? Ingram: \"He was insanely rich, that might give him access to ways to stay alive\" (LEDGER #32). Looted ship technology, bought magic, a bargain with something, or something else?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 (LEDGER #32, 'Still open'). GM-only: that he is alive at all is a secret kept until the right moment (baldwin-reveal). Canon underneath it: he is alive, and his wealth bought it somehow. CLAUDE'S PROPOSAL (LEDGER #32, veto freely): he was on Kortos when First Impact opened the generation ship, with hunters, money and a weapons works on the island, so he was among the first to loot the site; ship technology (medical, repair nanites) keeps him alive, and his mitflit slaves, fascinated by that technology, keep it running. Alternatives named in the same entry: bought magic, or a bargain. Things to check it against, none decided: Sap is canon as the generation ship's stock for its repair nanites (LEDGER #32 item 9), so a body kept going by repair nanites sits close to the Watcher's own feedstock; and his file notes that if he runs on ship technology, the Watcher may already be able to see through him. The founders' own longevity is a separate thread (LEDGER #8; Hyuck's is still open).\n\n2026-09-24 (LEDGER #33): asked again as Casebook N16 and parked. Ingram: \"We'll work this out later.\"",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/bible/characters/william-charles-baldwin.md",
+        "ideas/story/dossier-first-impact.md",
+        "baldwin-line-in-kurose",
+        "baldwin-reveal",
+        "ideas/story/bible/LEDGER.md#33"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "baldwin-reveal",
+      "question": "When and how is William Charles Baldwin revealed to the players, and to whom first? Ingram: \"This would have to be a reveal we keep secret till the right moment\" (LEDGER #32).",
+      "status": "open",
+      "notes": "Raised 2026-09-24 (LEDGER #32, 'Still open'). GM-only. Canon: he is alive; the reveal is kept secret until the right moment; the original Tuesday group would be his natural enemies if he revealed himself (Ingram: \"The original Tuesday group of Rupiah, Shucks, Anabala and Hyuck would be natural enemies of Baldwin if he revealed himself\"); and the moment is personal for the players, four of whom played those four. Until then his name, his face and his survival are held back; his organisation can be felt long before he is (ideas/story/bible/characters/william-charles-baldwin.md). CLAUDE'S PROPOSAL, from his file (veto freely): signs build long before, each deniable on its own (impossible weapons in gang hands, missing mitflits from the gathering, a front company called Croglang, a crime lord nobody has ever seen), so that when he steps out the founders, and their players, know him on sight.\n\n2026-09-24 (LEDGER #33): asked again as Casebook N17 and parked. Ingram: \"We'll work this out later.\"",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/bible/characters/william-charles-baldwin.md",
+        "baldwin-line-in-kurose",
+        "baldwin-longevity",
+        "ideas/story/bible/LEDGER.md#33"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "the-stray",
+      "question": "What is the stray, and what does it become? Plainly: a small, broken-off piece of the Watcher (v4 §6) that follows one PC home, waiting to be fed. Ingram calls it \"a less developed concept\" and leaves it open to be solved later (LEDGER #32 item 13).",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Ingram's answer to Casebook N11 (when the stray's second nature, the microphone, is revealed): \"You are being mysterious again. The stray, by which you mean 'The Watcher' right? Or some broken off aspect of The Watcher? This is a less developed concept, so let's leave that an open question to be solved later.\" Stated plainly, as she asked: the stray is a small, broken-off piece of the Watcher (v4 §6). What exists already, all of it drafted rather than decided: it comes through a lab spill and follows one PC home, patiently, the way the first fragment followed Manako; the player names it; it is a pet and a microphone at once (ideas/story/dossier-observer.md, 'Where it appears'); and in the v4 bible it can become the demonstration that breaks Manako's faith, a piece of the same swarm raised by somebody else. Open: when (or whether) its second nature is revealed, what it becomes if raised kindly, and whether it can ever speak. In GM-facing prose, name it plainly as a piece of the Watcher: 'You are being mysterious again' was her objection to the Casebook calling it only 'the stray'.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/dossier-observer.md",
+        "ideas/story/blank-inheritance-v4.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "anabala-as-student",
+      "question": "Pippa may choose to keep playing Anabala in the new campaign, as one of the students (LEDGER #32 item 14). Does she, and if so, how does Anabala come to be one of the six?",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Ingram's answer to Casebook N12: \"Anabala must be there for it to happen. Anabala may even be one of the 'students' because Pippa may choose to continue playing as Anabala in the new adventure. We can solve this later in the adventure and leave it open for now, but Anabala could be there at the right time and place easily enough.\" Canon: Anabala must be present for Abraxas to emerge (item 14). Open: whether Pippa plays her as a student. Pippa already plays her in flashbacks (LEDGER #31 item 12). Things this would touch, none of them decided: (1) Abraxas's emergence would happen to a player character, and nothing in this campaign takes a character away from their player (LEDGER #31 item 14), so that version needs working out with Pippa first; (2) the six carry 'the right stuff' by coincidence (LEDGER #31 item 10), but a mitflit carries it natively, and Anabala built Gen 2 (LEDGER #32 item 7); (3) she knows things the rest of the table must not learn early: Frame Sickness (LEDGER #23), the mitflits' whole origin (LEDGER #15), and Abraxas, GM-only and unmentioned for a long time (LEDGER #31 item 20); (4) the six kids are the players' own creative work, and the draft roster in data/characters/kids/ is unconfirmed, so nothing here decides who the six are.\n\n2026-09-24 (LEDGER #33; Ingram, Casebook N23): \"Abraxes could emerge from Anabala, but Anabala is still a character that Pippa can play. Not an issue to worry too much about.\" So item (1) above is settled: the emergence does not take the character from her player. Abraxas comes out; Anabala stays Pippa's. Still open: whether Pippa chooses to play her as a student, how Anabala comes to be one of the six, and items (2) to (4). CLAUDE'S PROPOSAL for what the emergence costs (veto freely): she lived through the ages because of Abraxas, so without the demon she may begin to age, or weaken; a price that is Anabala's and Pippa's to pay or refuse.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/bible/characters/anabala.md",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/entries/mitflits-and-anabala.json",
+        "ideas/story/bible/LEDGER.md#33"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "bobbin-sit-in-machine",
+      "question": "Whose machine does Bobbin sit in? The sit-in (a pacifist mitflit Elder entering a Frame so it cannot be used, and cannot be extracted without killing him) must not take a player's machine away from them (LEDGER #31 item 14), and LEDGER #32 leaves the answer open (item 17).",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Casebook N15, which Ingram left open: \"Let's leave that as an open question to resolve later.\" The problem as the Casebook put it: the sit-in now sits awkwardly with 'nothing takes control away from a player'; if he sits in a PC's own Frame, a player loses their machine to an NPC. CLAUDE'S PROPOSAL from the Casebook, NOT adopted: he occupies something the city needs instead (a combat-corps Frame, or the search ship's own seat, so it can never be flown as a weapon), which keeps the discomfort without taking anything from a player. LEDGER #32 adds a second constraint: Gen 1 Frames are Golarion technology with no living core (item 7), so if he sits in a Gen 1, 'the Directorate cannot extract them without killing them' (ideas/story/blank-inheritance-v4.md §9) needs a reason other than a core; if he sits in a Gen 2, the answer bears on arc-mitflit-frame-core-link (ideas/story/bible/species/mitflits.md). The bible's own instruction stands either way: do not resolve the discomfort quickly.\n\n2026-09-24 (LEDGER #34, Casebook D13): the Gen 2 core is biomechanical mitflit technology, not a living mitflit, and wild mitflits are uncomfortable around Gen 2 Frames. CLAUDE'S PROPOSAL: if Bobbin sits in a Gen 2, the discomfort is part of his price for the strike, which fits the bible's instruction not to resolve it quickly. Whose machine is still open.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/blank-inheritance-v4.md",
+        "ideas/story/bible/species/mitflits.md",
+        "ideas/story/dossier-second-generation-frames.md",
+        "arc-mitflit-frame-core-link",
+        "ideas/story/bible/LEDGER.md#34"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "gen2-seat-and-disguise",
+      "question": "A Gen 2 Frame's living core makes a seat shaped to its pilot's true form (LEDGER #5, Gen 2 only since LEDGER #32). In this campaign a disguised PC's reveal belongs to the player, always (design/induction.md §2). How do the two meet when a disguised PC climbs into a Gen 2 Frame: who can see the seat's shape, and can it give away something the player hasn't chosen to reveal?",
+      "status": "resolved",
+      "notes": "Raised 2026-09-24 by Claude while filing LEDGER #32; an open question, not a decision. The two facts: (1) the core forms a seat for whoever can link with it, shaped to the pilot's true form, and when a pilot dies the Frame holds that shape in the hangar until it re-forms (LEDGER #5; ideas/story/blank-inheritance-v4.md, 'The cavity conforms'); since #32 this is Gen 2 only, because Gen 1 Frames have no core. (2) Every character presents as human, elf, halfling or similar at the start, and anything else is disguised; and 'The reveal belongs to the player, always. Not to the GM, not to the induction system, not to a skill check somebody else rolls. The system may know; the table finds out when the player decides' (design/induction.md §2). design/induction.md §2 already names the meeting as a scene: 'A character in a borrowed shape climbing into a hollow moulded to their real one is a scene that writes itself, and it is available the first time they sit in a Frame.' Since #32 that is the first time they sit in a Gen 2, at the end of Chapter 4 at the earliest (LEDGER #31 item 13), and that line wants updating to say so. Until this is decided, don't write a Gen 2 cockpit scene with a disguised pilot in it.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#32",
+        "ideas/story/bible/LEDGER.md#5",
+        "design/induction.md",
+        "ideas/story/dossier-second-generation-frames.md",
+        "ideas/story/blank-inheritance-v4.md",
+        "ideas/story/bible/LEDGER.md#33"
+      ],
+      "resolution": "RESOLVED 2026-09-24 (LEDGER #33; Ingram, Casebook N19): \"When they enter the machine they find it uncomfortable to do so except in their true form.\" So a disguised pilot can climb into a Gen 2 and fly it; it is uncomfortable unless they are in their true form. Nothing forces a reveal, and the reveal stays the player's (design/induction.md §2). The natural reading: the seat is shaped to the true body, so a borrowed shape does not fit it. CLAUDE'S FILL-INS (LEDGER #33, veto freely): (1) the v4 bible has a Gen 2 cavity keep its current pilot's shape even when the cockpit is empty ('The cavity conforms'), so a hangar crew could see a hollow shaped to a disguised pilot's true body; the induction rule already covers it ('The system may know; the table finds out when the player decides'): the crew may know, and the GM never describes the hollow's shape to the table until the player reveals. (2) The discomfort is not Frame Sickness (LEDGER #23), which is the sync problem any pilot has in a Gen 2 new to them, disguised or not; keep the two apart. Open, not decided: whether the discomfort ever has a mechanical cost. If it does, it must raise risk in a specific moment and never shrink the pilot's options (design/campaign-arc.md, 'penalties cost risk, never choice')."
+    },
+    {
+      "id": "manako-arrested-after-the-envoy",
+      "question": "Was Manako arrested, though not imprisoned, as part of the court proceeding over Hori's shooting of the Envoy? Ingram: \"Manako may have even been arrested but not imprisoned as part of this, but maybe not\" (LEDGER #33).",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Ingram's answer to Casebook N22 (LEDGER #33). Canon around it: Hori learned Aoi's name at a complex court proceeding to decide whether the killing was lawful; on the day he was dealing with a local disturbance, alone, with no backup, and it escalated; the circle scattered from the street, Manako with it (LEDGER #32 item 15). CHECKED, NOT A CONTRADICTION: if he was arrested, it was by the police, as a man at a public disturbance, before Cicada existed, and he was released without charge. That does not identify him as Cicada's founder, and the Directorate has never connected the two, so LEDGER #17 stands. KNOCK-ONS IF IT HAPPENED: (1) Hori may have seen him, or heard his name, at the proceeding (ideas/story/bible/characters/hori.md, open question 4); (2) a fifteen-year-old police record with his name in it exists, which the players can find for themselves; no NPC may point them at it (ideas/story/dossier-cicada.md §13.5).\n\n2026-09-24 (LEDGER #34): Ingram, on this: \"Manako could be known to the Directorate and that wouldn't be the worst thing in the world because they can't locate them and they don't know them or understand them.\" So whether he was arrested no longer matters to LEDGER #17 either way. It stays open as a detail to decide when it is useful.\n\n2026-09-24 (LEDGER #35): the police and the Directorate distrust each other, and what happens with the police doesn't reach the Directorate. So an arrest, if there was one, sits in police records only; the Directorate's whole knowledge of the Envoy incident is its official line, that a cultist was killed during a confrontation in which someone magically summoned a monster.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#33",
+        "ideas/story/bible/LEDGER.md#17",
+        "ideas/story/bible/characters/hori.md",
+        "ideas/story/bible/characters/manako.md",
+        "ideas/story/dossier-cicada.md",
+        "ideas/story/bible/LEDGER.md#34",
+        "ideas/story/bible/LEDGER.md#35"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "mother-in-gen2",
+      "question": "Is a small part of Mother in every Gen 2 Frame, the 'cerebral glue' that makes the technology work? Ingram: \"Maybe a small part of 'Mother' ends up in every Gen 2 mech, maybe that's the cerebral glue needed to get the tech to work, but the end result is that these mechs aren't usable by just anyone\" (LEDGER #34).",
+      "status": "open",
+      "notes": "Raised 2026-09-24 from Ingram's answer to Casebook D13 (LEDGER #34). CANON around it: the Gen 2 core is biomechanical mitflit technology, robotic parts that are living flesh melded with technology, not a living mitflit; wild mitflits are uncomfortable around Gen 2 Frames, and mitflits don't instantly understand where Gen 2 comes from; the result is that these mechs aren't usable by just anyone. Gen 2 is built from the original ship's technology, the generation ship at Kortos (LEDGER #20, #34), and Mother was that ship's mind, perhaps still alive in the museum fragment (LEDGER #32 item 3). CLAUDE'S PROPOSALS if it is adopted (veto freely): Anabala took the pieces from the generation ship's reasoning core under the restricted access she bargained for (LEDGER #34, N25), and the museum fragment is one more piece nobody else understands; it would explain why the Watcher's children are drawn hard to Gen 2 (ideas/story/dossier-observer.md, the G3 generation), since each one carries a piece of the mind the Watcher used to report to; and it bears on Mother's voice (Casebook N21) and on mother-and-the-watcher. Don't write it as settled anywhere. Tone guardrail (2026-09-25): this echoes the mother-in-the-machine of the Evangelion research shelf. Take structure from it if useful, never its register (design/research/evangelion/tone-guardrail.md).",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#34",
+        "ideas/story/bible/LEDGER.md#32",
+        "mother-and-the-watcher",
+        "ideas/story/dossier-second-generation-frames.md",
+        "ideas/story/dossier-observer.md",
+        "ideas/story/bible/species/mitflits.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "founding-charter-rethink",
+      "question": "The founding charter's painted-over paragraph: is it interesting, is it logical, and what should change? Ingram: \"I think we need to rethink this whole concept. The founding charter, is it interesting? Is it logical? What should we change about it?\" (LEDGER #36).",
+      "status": "open",
+      "notes": "Raised 2026-09-25 (LEDGER #36). Ingram on the repo's current answer (mystery-ledger-5; dossier-the-directorate.md section 2.2): \"it belongs to much older generated ideas and notes that don't really feel sane any more.\" WHERE IT IS PLANTED: Intake Medicals (the lobby, with a check), Assembly (framed above the platform) and School Period Two (the civics class, where the Advocate has asked to see it and been refused), plus mystery-ledger-5, dossier-the-directorate §2.2 and §8, and the Casebook's Chapter 13 (the deepest vault). WHY THE CURRENT ANSWER FAILS (Claude's analysis): it was written about 195 years ago, before any Frame existed and before the prophecy named Kurose, so it can't foresee child pilots; its authors are alive and on the base, so 'nobody alive has read it' can't hold; the party are volunteers of any age, not conscripted children; and a painted-over paragraph framed in a lobby advertises a secret rather than keeping one. OPTIONS: cut the mystery (the charter becomes plain scenery); or replace what's under the bar with something on today's spine. The strongest candidate is the founders' own account of First Impact, painted out once to keep the heroes clean. It ties the old campaign, the sanitised portraits and the Watcher's origin together, and since the founders are alive, the party can simply ask them.",
+      "relatedRefs": [
+        "ideas/story/bible/LEDGER.md#36",
+        "ideas/story/blank-inheritance-ch1-v2.md",
+        "ideas/story/dossier-the-directorate.md",
+        "data/scene-briefs/episode-c1e1--intake-medicals.json",
+        "data/scene-briefs/episode-c1e1--assembly.json",
+        "data/scene-briefs/episode-c1e2--school-period-two.json"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "frame-damage-action-caps",
+      "question": "Do damaged machines still lose actions under lockstep? The retired two-scale design capped a Degraded Frame or vehicle at 2 actions, a Critical one at 1, and a Hulked one at 0. design/ux-doctrine.md §3 still builds on that, and config.json now records it, but nobody has re-confirmed it since Frames became PC-grade sheets that amplify the pilot.",
+      "status": "open",
+      "notes": "Raised 2026-09-25 in the stale-material cull, when the only document that defined the caps (design/scale-and-chassis.md §8) was deleted. The rule fits 'penalties cost risk, never choice' (campaign-arc.md): the cap is a dynamic, recoverable state, not a permanent tax. Kept in config.json#frameEconomy.damageStateEffects until Ingram decides.",
+      "relatedRefs": [
+        "data/campaign/config.json",
+        "design/ux-doctrine.md"
       ],
       "resolution": null
     }

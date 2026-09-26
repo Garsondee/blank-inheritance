@@ -50,7 +50,7 @@
 
 **Worth avoiding:** running him without the blind spot. A mind-reading NPC in a campaign built on hidden facts (`design/npc-social-intel.md` Facts, `ideas/entries/redacted-document-chain.json`) would strip the investigation layer if he worked as advertised.
 
-**Where it might attach:** this campaign has its own telepathic and resonance-adjacent material (`design/resonance-and-bleed.md`), and that is a live design area with open questions. **This shelf makes no proposal there** — it only notes that if a mind-reading NPC is ever written, the blind spot is what makes them playable.
+**Where it might attach:** nowhere mechanical; the campaign's resonance material was cut on 2026-09-20. **This shelf makes no proposal** — it only notes that if a mind-reading NPC is ever written, the blind spot is what makes them playable.
 
 ---
 

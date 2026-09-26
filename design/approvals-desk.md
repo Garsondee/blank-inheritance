@@ -95,7 +95,7 @@ exactly as an inbox has no entry for an email nobody sent yet.
 
 The practical ordering, in order:
 
-1. **What the very next session needs.** If Session Two's opening scene is drafted, everything it
+1. **What the very next session needs.** If Episode Two's opening scene is drafted, everything it
    casts (its location, its NPCs, its encounter) is the top of the queue, full stop.
 2. **What a session after that already commits to**, once it exists in draft — further out, lower
    urgency, but real once an episode file names it.
@@ -104,8 +104,8 @@ The practical ordering, in order:
 
 Most of those 210 locations are back-alleys and sheds no session has scheduled a visit to. Reviewing
 them is not work that was skipped; under this rule it may never become work at all, for locations
-that never end up on-camera. The six places Session One actually walks through are a different
-matter, and they are a twenty-minute job. A Desk that opens on "Session One needs these 6, in the
+that never end up on-camera. The six places Episode One actually walks through are a different
+matter, and they are a twenty-minute job. A Desk that opens on "Episode One needs these 6, in the
 order the party will reach them" gets cleared. A Desk that opens on "210 unread," or even a smarter
 "210 sorted by how many things reference them," reproduces the gazetteer's dead review mode with
 better math.
@@ -230,15 +230,15 @@ exactly the faults `final` is meant to catch. Each item is presented as it will 
 **Each item carries three things above the content**, and they are the reason this is not an email
 client:
 
-1. **Which scheduled beat it belongs to, and when the table reaches it.** "Session Two, opening
+1. **Which scheduled beat it belongs to, and when the table reaches it.** "Episode Two, opening
    scene." Sort order is play sequence — the order the group will actually encounter it — never a
    generic dependency count. This is also the inclusion test, not just the sort: nothing without an
    answer to this question is on the Desk at all.
 2. **What it depends on**, with any still-drafted dependency flagged — a safety check ("this stands
    on something unread"), not a second ordering axis. Dependency never promotes an item into the
    queue by itself; only a scheduled beat does that.
-3. **What I was unsure about.** A drafted item may carry my own note — *I invented a surname here*,
-   *this assumes the ground roles survive* — pointing attention at the part most likely to be wrong.
+3. **What I was unsure about.** A drafted item may carry my own note — *I invented a surname here* —
+   pointing attention at the part most likely to be wrong.
    This is cheap for me to write and is the single highest-value thing on the card.
 
 ---
@@ -248,7 +248,7 @@ client:
 The brief's actual ask was efficiency, so these are commitments, not nice-to-haves.
 
 - **Keyboard only, one hand.** `J`/`K` move, `S` sound, `F` final, `C` changes (opens a one-line
-  note — the same interaction as the log bar, which Ingram already has in his fingers), `X` cut,
+  note — the same interaction as the log bar, which Ingram already has in her fingers), `X` cut,
   `U` undo. No confirmation dialogs anywhere: **undo is what makes no-confirmation safe**, and a
   confirm step on a 200-item pass is 200 wasted keystrokes.
 - **One item on screen, fully rendered.** Not a list with a preview pane to scroll. The Scene
@@ -258,11 +258,11 @@ The brief's actual ask was efficiency, so these are commitments, not nice-to-hav
   or ten to twenty items. Finishing a shift is a completion. There is no infinite pile in view.
 - **Machine-proposed batches, never blind select-all.** The Desk may offer *"these 14 unranked
   alleys are all under 60 words and all pass their depth check — sound, as a batch?"* Ingram
-  approving fourteen things he glanced at is legitimate; the UI should not pretend otherwise, so a
+  approving fourteen things she glanced at is legitimate; the UI should not pretend otherwise, so a
   batch approval is **recorded as a batch**, and a problem traced back later can see it was a sweep
   rather than a read.
 - **The counter is honest and small.** The top line is always *what this unblocks*, never *how much
-  is left*. "6 items — clearing these unblocks Session Two drafting" is a task. "210 unread" is a wall.
+  is left*. "6 items — clearing these unblocks Episode Two drafting" is a task. "210 unread" is a wall.
 
 ---
 
@@ -397,10 +397,14 @@ than in a live decision.
 
 ## 10. Status of this document
 
-**A proposal, not a decision** for everything except the two points Ingram settled directly in his
+**A proposal, not a decision** for everything except the two points Ingram settled directly in her
 2026-09-18 follow-up, which this revision folds in as decided: the play-sequence ordering/inclusion
 rule (§1, §4) and the Foundry Desk's sole authority over approval, with the gazetteer's matching
-piece already shipped (§7). Still open and still his call: the exact status vocabulary
+piece already shipped (§7). Still open and still her call: the exact status vocabulary
 (`sound`/`final`), the consolidation of the six queues into two trays, and everything in §8 not yet
 built. Tracked in GitHub as an epic; see §8 for the staging the sub-issues follow, and the new issue
 tracking §9's general mechanism separately, since it is bigger than this one feature.
+
+*(Since built: epic #165 and its sub-issues #166–#172 were all closed by 2026-09-20, with the Desk in
+`module/blank-inheritance/scripts/foundry/approvals-desk.mjs`. A scene's own final gate is now the
+Sign-Off, `design/scene-signoff.md`.)*

@@ -2,7 +2,7 @@
  * Effective stats for the PERSONNEL-SCALE engine (design doc §19) — ported from
  * ../engine/combatant.mjs with the whole damage-state degradation track (Operational/Degraded/
  * Critical/Hulked, the AC/speed/hardness/action-cap penalty curve) removed entirely. That curve
- * is a Frame/vehicle-specific mechanic — design/scale-and-chassis.md §8's own opening line frames
+ * is a Frame/vehicle-specific mechanic — the retired two-scale design (deleted 2026-09-25) §8's own opening line frames
  * it as "what makes Frames/vehicles feel mechanically distinct from characters", which by that
  * same logic means it must NOT apply to an ordinary SF2E PC or NPC. A real level-1 Mystic or a
  * Security Goon just has flat AC/Speed and the standard 3 actions per turn until it drops to 0 HP,

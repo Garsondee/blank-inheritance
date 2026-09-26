@@ -2,6 +2,9 @@
   "$schema": "../schema/npc.schema.json",
   "id": "generating-hall-engineer",
   "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
   "name": null,
   "role": "Duty Engineer, The Generating Hall",
   "pole": null,

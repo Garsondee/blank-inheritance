@@ -39,7 +39,17 @@ const OUTCOME_KEYS = Object.freeze({
  * no such prefix ("Perception Check") is shown whole.
  */
 export function readoutTitle(title) {
-  const text = String(title ?? "").trim();
+  let text = String(title ?? "").trim();
+  // An ACTION's check carries its title as markup, not text — sf2e renders
+  // `<h4 class="action"><strong>Seek</strong> <span class="action-glyph">1</span>
+  // <span class="subtitle">(Perception Check)</span></h4>` into the context
+  // (found live 2026-09-23, the first time the deck's Action selector rolled
+  // one: the orb printed the raw tags). The action's name is its <strong>;
+  // failing that, the markup is stripped to its words.
+  if (text.includes("<")) {
+    const strong = /<strong[^>]*>([\s\S]*?)<\/strong>/i.exec(text);
+    text = (strong ? strong[1] : text).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  }
   const cut = text.indexOf(": ");
   const subject = cut >= 0 ? text.slice(cut + 2).trim() : "";
   return subject || text;

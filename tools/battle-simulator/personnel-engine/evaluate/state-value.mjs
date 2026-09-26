@@ -10,7 +10,7 @@
  *    has no such breakpoints — a real PC/NPC has exactly ONE threshold, alive (3 actions) vs. dead
  *    (0), already fully priced by enemyDamage/allyDamage and the win condition itself. Nothing left
  *    for this term to reward.
- *  - spotted: the Spot mechanic (design/scale-and-chassis.md §14d) doesn't exist for ordinary SF2E
+ *  - spotted: the Spot mechanic (tools/battle-simulator/DESIGN-LOG.md §14d) doesn't exist for ordinary SF2E
  *    creatures — Frame-scale's whole "vehicle spots for the Frame" relationship has no personnel-
  *    scale equivalent.
  *  - civilians and evaluateWithObjectives: Evacuate-specific (state.civiliansEvacuated), which
@@ -50,7 +50,7 @@
  * terms of their own — see the comment there for why.
  */
 import { resolveEffectiveStats } from "../combatant.mjs";
-import { expectedStrikeDamage, expectedSaveDamage, degreeProbabilities } from "../../engine/resolve.mjs";
+import { expectedStrikeDamage, expectedSaveDamage, degreeProbabilities } from "../../shared/resolve.mjs";
 import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../grid.mjs";
 import { lineOfEffect, hasCover, STANDARD_COVER_AC_BONUS } from "../terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";

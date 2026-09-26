@@ -69,6 +69,7 @@ test("kid-fixtures: every file validates against kid.schema.json", async (t) => 
 
   const ajv = new Ajv2020({ strict: false, allErrors: true });
   ajv.addSchema(JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "sf2e-common.schema.json"), "utf8")));
+  ajv.addSchema(JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "authoring.schema.json"), "utf8")));
   const validate = ajv.compile(JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "kid.schema.json"), "utf8")));
 
   for (const file of readdirSync(fixturesDir).filter((f) => f.endsWith(".json"))) {

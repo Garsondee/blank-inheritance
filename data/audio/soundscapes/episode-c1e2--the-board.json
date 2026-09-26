@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1e2--the-board",
+  "type": "audio-soundscape",
+  "title": "S2 · The Board",
+  "note": "'The fortnight goes up in the yard... an empty box with their name on it.' Same register as Assembly -- official business read out to a standing group -- so the same pool. No bed: an open yard has no honest single texture and the scene is short.",
+  "music": {
+    "pool": "briefing"
+  },
+  "ambience": [],
+  "fade": 3000
+}
