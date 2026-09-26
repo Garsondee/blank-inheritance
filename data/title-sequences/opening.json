@@ -3822,7 +3822,7 @@
     {
       "id": "r19-stencil",
       "shot": "R19",
-      "startF": 1212,
+      "startF": 1198,
       "endF": 1222,
       "z": 5,
       "note": "Painted in cream on the darkened armour: the Directorate's name (特別対策本部, canon), and the unit. Sprayed through a stencil: a soft overspray halo round the letters.",
@@ -3880,7 +3880,7 @@
       "id": "r20-black",
       "shot": "R20",
       "startF": 1222,
-      "endF": 1233,
+      "endF": 1238,
       "z": 0,
       "layer": {
         "type": "solid",
@@ -3895,7 +3895,7 @@
       "id": "r20-hazard",
       "shot": "R20",
       "startF": 1222,
-      "endF": 1233,
+      "endF": 1238,
       "z": 1,
       "note": "Yellow-and-black hazard bands framing the counter panel, as on the source's.",
       "layer": {
@@ -4382,7 +4382,7 @@
       "id": "r20-counter",
       "shot": "R20",
       "startF": 1222,
-      "endF": 1233,
+      "endF": 1238,
       "z": 2,
       "note": "The counters glowing amber: 外部 EXTERNAL showing all eights, then 内部 INTERNAL counting down (the source's R20).",
       "layer": {
@@ -4632,6 +4632,156 @@
               "spacing": 18
             }
           ]
+        },
+        {
+          "f": 1233,
+          "items": [
+            {
+              "text": "内部",
+              "font": "mincho-black",
+              "size": 150,
+              "x": 360,
+              "y": 380,
+              "stretch": 0.95
+            },
+            {
+              "text": "INTERNAL",
+              "font": "grotesk-cn",
+              "size": 110,
+              "x": 575,
+              "y": 390,
+              "anchor": "lm",
+              "spacing": 10
+            },
+            {
+              "text": "04:59:63",
+              "font": "grotesk-cn",
+              "size": 290,
+              "x": 720,
+              "y": 690,
+              "spacing": 18
+            }
+          ]
+        },
+        {
+          "f": 1234,
+          "items": [
+            {
+              "text": "内部",
+              "font": "mincho-black",
+              "size": 150,
+              "x": 360,
+              "y": 380,
+              "stretch": 0.95
+            },
+            {
+              "text": "INTERNAL",
+              "font": "grotesk-cn",
+              "size": 110,
+              "x": 575,
+              "y": 390,
+              "anchor": "lm",
+              "spacing": 10
+            },
+            {
+              "text": "04:59:59",
+              "font": "grotesk-cn",
+              "size": 290,
+              "x": 720,
+              "y": 690,
+              "spacing": 18
+            }
+          ]
+        },
+        {
+          "f": 1235,
+          "items": [
+            {
+              "text": "内部",
+              "font": "mincho-black",
+              "size": 150,
+              "x": 360,
+              "y": 380,
+              "stretch": 0.95
+            },
+            {
+              "text": "INTERNAL",
+              "font": "grotesk-cn",
+              "size": 110,
+              "x": 575,
+              "y": 390,
+              "anchor": "lm",
+              "spacing": 10
+            },
+            {
+              "text": "04:59:55",
+              "font": "grotesk-cn",
+              "size": 290,
+              "x": 720,
+              "y": 690,
+              "spacing": 18
+            }
+          ]
+        },
+        {
+          "f": 1236,
+          "items": [
+            {
+              "text": "内部",
+              "font": "mincho-black",
+              "size": 150,
+              "x": 360,
+              "y": 380,
+              "stretch": 0.95
+            },
+            {
+              "text": "INTERNAL",
+              "font": "grotesk-cn",
+              "size": 110,
+              "x": 575,
+              "y": 390,
+              "anchor": "lm",
+              "spacing": 10
+            },
+            {
+              "text": "04:59:51",
+              "font": "grotesk-cn",
+              "size": 290,
+              "x": 720,
+              "y": 690,
+              "spacing": 18
+            }
+          ]
+        },
+        {
+          "f": 1237,
+          "items": [
+            {
+              "text": "内部",
+              "font": "mincho-black",
+              "size": 150,
+              "x": 360,
+              "y": 380,
+              "stretch": 0.95
+            },
+            {
+              "text": "INTERNAL",
+              "font": "grotesk-cn",
+              "size": 110,
+              "x": 575,
+              "y": 390,
+              "anchor": "lm",
+              "spacing": 10
+            },
+            {
+              "text": "04:59:47",
+              "font": "grotesk-cn",
+              "size": 290,
+              "x": 720,
+              "y": 690,
+              "spacing": 18
+            }
+          ]
         }
       ],
       "on": 2
@@ -4640,7 +4790,7 @@
       "id": "r20-glow",
       "shot": "R20",
       "startF": 1222,
-      "endF": 1233,
+      "endF": 1238,
       "z": 3,
       "layer": {
         "type": "bloom",
@@ -4676,36 +4826,6 @@
         "strength": 1.0,
         "threshold": 0.15
       }
-    },
-    {
-      "id": "r23-frame",
-      "shot": "R23",
-      "startF": 1245,
-      "endF": 1288,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "The Gen 1 Frame in its gantry (Ingram's tall hero plate), a slow tilt up from its pistons to its head, as the source's R23 tilts up its machine.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R23-frame.png",
-        "cx": 0.5,
-        "tint": [
-          255,
-          232,
-          214
-        ]
-      },
-      "keys": [
-        {
-          "f": 1245,
-          "cy": 0.64
-        },
-        {
-          "f": 1287,
-          "cy": 0.36
-        }
-      ]
     },
     {
       "id": "r24-face",
@@ -20663,28 +20783,9 @@
       }
     },
     {
-      "id": "r16-field",
-      "shot": "R16",
-      "startF": 1144,
-      "endF": 1178,
-      "z": 1,
-      "note": "A flat evening-blue field behind Taka. It was the verse's sky again; Ingram: no repeat shots.",
-      "layer": {
-        "type": "field",
-        "color": [
-          92,
-          130,
-          200
-        ],
-        "seed": 16,
-        "gradient": 0.34,
-        "vignette": 0.16
-      }
-    },
-    {
       "id": "r19-plate",
       "shot": "R19",
-      "startF": 1212,
+      "startF": 1198,
       "endF": 1222,
       "z": 1,
       "note": "The stencil now sits on a flat armour-grey card: the plate was a crop of the R23 Frame image, and the same image twice becomes a text card (Ingram).",
@@ -20698,175 +20799,6 @@
         "seed": 19,
         "vignette": 0.34,
         "mottle": 0.06
-      }
-    },
-    {
-      "id": "r32-column",
-      "shot": "R32",
-      "startF": 1423,
-      "endF": 1473,
-      "z": 0,
-      "note": "The column of light: an orange field of rising streaks and sparks (the source's own background here), re-drawn on twos.",
-      "layer": {
-        "type": "light_column",
-        "cx": 700,
-        "width": 380,
-        "seed": 32
-      }
-    },
-    {
-      "id": "r32-shape",
-      "shot": "R32",
-      "startF": 1423,
-      "endF": 1473,
-      "z": 1,
-      "interp": "linear",
-      "note": "The big vermilion graphic shape behind the charge, sliding with it.",
-      "layer": {
-        "type": "polygon",
-        "color": [
-          214,
-          44,
-          20
-        ],
-        "opacity": 0.9,
-        "blend": "over",
-        "points": [
-          [
-            [
-              160,
-              -120
-            ],
-            [
-              860,
-              -120
-            ],
-            [
-              560,
-              1200
-            ],
-            [
-              -140,
-              1200
-            ]
-          ]
-        ]
-      },
-      "keys": [
-        {
-          "f": 1423,
-          "points": [
-            [
-              [
-                160,
-                -120
-              ],
-              [
-                860,
-                -120
-              ],
-              [
-                560,
-                1200
-              ],
-              [
-                -140,
-                1200
-              ]
-            ]
-          ]
-        },
-        {
-          "f": 1472,
-          "points": [
-            [
-              [
-                520,
-                -120
-              ],
-              [
-                1220,
-                -120
-              ],
-              [
-                920,
-                1200
-              ],
-              [
-                220,
-                1200
-              ]
-            ]
-          ]
-        }
-      ]
-    },
-    {
-      "id": "r32-slate",
-      "shot": "R32",
-      "startF": 1423,
-      "endF": 1473,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R32",
-        "text": "A Gen 1 Frame charges across the frame like a bulldozer",
-        "prompt": "prompt R32-charge",
-        "bg": false
-      }
-    },
-    {
-      "id": "r33-column",
-      "shot": "R33",
-      "startF": 1473,
-      "endF": 1493,
-      "z": 0,
-      "layer": {
-        "type": "light_column",
-        "cx": 820,
-        "width": 300,
-        "seed": 33
-      }
-    },
-    {
-      "id": "r33-slate",
-      "shot": "R33",
-      "startF": 1473,
-      "endF": 1493,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R33",
-        "text": "Three or four quick angles on the charging Frame, six frames each",
-        "prompt": "prompt R33-angles",
-        "bg": false
-      }
-    },
-    {
-      "id": "r34-column",
-      "shot": "R34",
-      "startF": 1493,
-      "endF": 1511,
-      "z": 0,
-      "layer": {
-        "type": "light_column",
-        "cx": 720,
-        "width": 260,
-        "seed": 34
-      }
-    },
-    {
-      "id": "r34-slate",
-      "shot": "R34",
-      "startF": 1493,
-      "endF": 1511,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R34",
-        "text": "The Frame front-on, then full figure, standing in the column of light and sparks",
-        "prompt": "prompt R34-column",
-        "bg": false
       }
     },
     {
@@ -20966,58 +20898,6 @@
       ]
     },
     {
-      "id": "r35-slate",
-      "shot": "R35",
-      "startF": 1511,
-      "endF": 1581,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R35",
-        "text": "The Frame spreads its arms; its boilers vent great golden plumes of steam behind it like wings",
-        "prompt": "prompt R35-wings",
-        "bg": false
-      }
-    },
-    {
-      "id": "r36-slate",
-      "shot": "R36",
-      "startF": 1581,
-      "endF": 1591,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R36",
-        "text": "The excavator bucket snaps open like a jaw, steam bursting, fragments flying",
-        "prompt": "prompt R36-bucket",
-        "bg": true,
-        "color": [
-          74,
-          126,
-          196
-        ]
-      }
-    },
-    {
-      "id": "r37-slate",
-      "shot": "R37",
-      "startF": 1591,
-      "endF": 1597,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R37",
-        "text": "Whip-pan along a hydraulic arm through the sky",
-        "prompt": "prompt R37-arm",
-        "bg": true,
-        "color": [
-          96,
-          148,
-          210
-        ]
-      }
-    },
-    {
       "id": "r38-black",
       "shot": "R38",
       "startF": 1597,
@@ -21105,25 +20985,6 @@
       }
     },
     {
-      "id": "r39-slate",
-      "shot": "R39",
-      "startF": 1603,
-      "endF": 1613,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R39",
-        "text": "The grapple hand in a cloud of steam, a red harbour crane behind",
-        "prompt": "prompt R39-grapple",
-        "bg": true,
-        "color": [
-          168,
-          186,
-          196
-        ]
-      }
-    },
-    {
       "id": "r40-black",
       "shot": "R40",
       "startF": 1613,
@@ -21178,28 +21039,9 @@
       }
     },
     {
-      "id": "r41-slate",
-      "shot": "R41",
-      "startF": 1616,
-      "endF": 1625,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R41",
-        "text": "The Frame's head from behind, framed by tram wires, red dusk",
-        "prompt": "prompt R41-head",
-        "bg": true,
-        "color": [
-          150,
-          36,
-          24
-        ]
-      }
-    },
-    {
       "id": "r42-black",
       "shot": "R42",
-      "startF": 1625,
+      "startF": 1616,
       "endF": 1628,
       "z": 0,
       "layer": {
@@ -21214,7 +21056,7 @@
     {
       "id": "r42-card",
       "shot": "R42",
-      "startF": 1625,
+      "startF": 1616,
       "endF": 1628,
       "z": 5,
       "layer": {
@@ -21248,25 +21090,6 @@
         "weave": 1,
         "flicker": 0.03,
         "seed": 42
-      }
-    },
-    {
-      "id": "r43-slate",
-      "shot": "R43",
-      "startF": 1628,
-      "endF": 1634,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R43",
-        "text": "The grapple claw against the sky, low angle",
-        "prompt": "prompt R43-claw",
-        "bg": true,
-        "color": [
-          84,
-          140,
-          204
-        ]
       }
     },
     {
@@ -21406,25 +21229,6 @@
         "weave": 1,
         "flicker": 0.03,
         "seed": 48
-      }
-    },
-    {
-      "id": "r50-slate",
-      "shot": "R50",
-      "startF": 1671,
-      "endF": 1689,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R50",
-        "text": "Rupiah before an enormous moon, singing to the stars; slow tilt up",
-        "prompt": "prompt R50-rupiah",
-        "bg": true,
-        "color": [
-          150,
-          188,
-          204
-        ]
       }
     },
     {
@@ -21602,68 +21406,6 @@
       ]
     },
     {
-      "id": "r56-slate",
-      "shot": "R56",
-      "startF": 1716,
-      "endF": 1722,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R56",
-        "text": "Portrait: the Deputy Director",
-        "prompt": "prompt R56-deputy",
-        "bg": true,
-        "color": [
-          34,
-          72,
-          78
-        ]
-      }
-    },
-    {
-      "id": "r57-art",
-      "shot": "R57",
-      "startF": 1722,
-      "endF": 1725,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "The other empty hall, clock and windows (Ingram's xx-02), in place of the vetoed map.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R57-hall.png"
-      },
-      "keys": [
-        {
-          "f": 1722,
-          "zoom": 1.05
-        },
-        {
-          "f": 1724,
-          "zoom": 1.08
-        }
-      ]
-    },
-    {
-      "id": "r62-slate",
-      "shot": "R62",
-      "startF": 1748,
-      "endF": 1756,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R62",
-        "text": "Portrait: Hulda Brack, horns and a grin",
-        "prompt": "prompt R62-hulda",
-        "bg": true,
-        "color": [
-          196,
-          160,
-          40
-        ]
-      }
-    },
-    {
       "id": "r64-art",
       "shot": "R64",
       "startF": 1760,
@@ -21748,153 +21490,10 @@
       ]
     },
     {
-      "id": "r67-art",
-      "shot": "R67",
-      "startF": 1771,
-      "endF": 1773,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "The conspiracy wall (Ingram's xx-08), stamped 極秘 like the source's top-secret file.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R67-wall.png"
-      },
-      "keys": [
-        {
-          "f": 1771,
-          "zoom": 1.1
-        },
-        {
-          "f": 1772,
-          "zoom": 1.12
-        }
-      ]
-    },
-    {
-      "id": "r67-stamp-box",
-      "shot": "R67",
-      "startF": 1771,
-      "endF": 1773,
-      "z": 3,
-      "layer": {
-        "type": "polygon",
-        "color": [
-          196,
-          30,
-          28
-        ],
-        "opacity": 1.0,
-        "blend": "over",
-        "points": [
-          [
-            [
-              1030,
-              720
-            ],
-            [
-              1330,
-              720
-            ],
-            [
-              1330,
-              729
-            ],
-            [
-              1030,
-              729
-            ]
-          ],
-          [
-            [
-              1030,
-              881
-            ],
-            [
-              1330,
-              881
-            ],
-            [
-              1330,
-              890
-            ],
-            [
-              1030,
-              890
-            ]
-          ],
-          [
-            [
-              1030,
-              729
-            ],
-            [
-              1039,
-              729
-            ],
-            [
-              1039,
-              881
-            ],
-            [
-              1030,
-              881
-            ]
-          ],
-          [
-            [
-              1321,
-              729
-            ],
-            [
-              1330,
-              729
-            ],
-            [
-              1330,
-              881
-            ],
-            [
-              1321,
-              881
-            ]
-          ]
-        ]
-      }
-    },
-    {
-      "id": "r67-stamp",
-      "shot": "R67",
-      "startF": 1771,
-      "endF": 1773,
-      "z": 4,
-      "layer": {
-        "type": "text",
-        "items": [
-          {
-            "text": "極秘",
-            "font": "mincho-black",
-            "size": 124,
-            "x": 1180.0,
-            "y": 809.0,
-            "stretch": 0.92
-          }
-        ],
-        "color": [
-          196,
-          30,
-          28
-        ],
-        "shadow": 0.0,
-        "opacity": 1.0,
-        "kind": "diegetic"
-      }
-    },
-    {
       "id": "r69-paper",
       "shot": "R69",
       "startF": 1775,
-      "endF": 1778,
+      "endF": 1783,
       "z": 0,
       "layer": {
         "type": "field",
@@ -21913,7 +21512,7 @@
       "id": "r69-letterhead",
       "shot": "R69",
       "startF": 1775,
-      "endF": 1778,
+      "endF": 1783,
       "z": 2,
       "note": "The acceptance letter's bilingual letterhead (canon: the-road-in brief), with typed lines under it drawn as bars, so no wording is invented.",
       "layer": {
@@ -21953,7 +21552,7 @@
       "id": "r69-typing",
       "shot": "R69",
       "startF": 1775,
-      "endF": 1778,
+      "endF": 1783,
       "z": 2,
       "layer": {
         "type": "polygon",
@@ -22131,25 +21730,6 @@
       }
     },
     {
-      "id": "r70-slate",
-      "shot": "R70",
-      "startF": 1778,
-      "endF": 1783,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R70",
-        "text": "Hyuck's horse-leather jacket, a close detail",
-        "prompt": "prompt R70-jacket",
-        "bg": true,
-        "color": [
-          110,
-          72,
-          44
-        ]
-      }
-    },
-    {
       "id": "r72-black",
       "shot": "R72",
       "startF": 1790,
@@ -22220,7 +21800,7 @@
       "id": "r74-black",
       "shot": "R74",
       "startF": 1802,
-      "endF": 1806,
+      "endF": 1814,
       "z": 0,
       "layer": {
         "type": "solid",
@@ -22235,7 +21815,7 @@
       "id": "r74-card",
       "shot": "R74",
       "startF": 1802,
-      "endF": 1806,
+      "endF": 1814,
       "z": 5,
       "layer": {
         "type": "text",
@@ -22297,25 +21877,6 @@
       }
     },
     {
-      "id": "r75-slate",
-      "shot": "R75",
-      "startF": 1806,
-      "endF": 1814,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R75",
-        "text": "Hyuck strapped into a test cockpit, grinning",
-        "prompt": "prompt R75-hyuck",
-        "bg": true,
-        "color": [
-          96,
-          96,
-          100
-        ]
-      }
-    },
-    {
       "id": "r78-art",
       "shot": "R78",
       "startF": 1832,
@@ -22344,29 +21905,10 @@
       ]
     },
     {
-      "id": "r79-slate",
-      "shot": "R79",
-      "startF": 1837,
-      "endF": 1843,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R79",
-        "text": "Portrait: the history teacher, adjusting his glasses",
-        "prompt": "prompt R79-history",
-        "bg": true,
-        "color": [
-          214,
-          160,
-          196
-        ]
-      }
-    },
-    {
       "id": "r80-art",
       "shot": "R80",
       "startF": 1843,
-      "endF": 1848,
+      "endF": 1853,
       "z": 1,
       "interp": "linear",
       "ease": "out",
@@ -22381,7 +21923,7 @@
           "zoom": 1.04
         },
         {
-          "f": 1847,
+          "f": 1852,
           "zoom": 1.2
         }
       ]
@@ -22431,73 +21973,10 @@
       }
     },
     {
-      "id": "r81-slate",
-      "shot": "R81",
-      "startF": 1848,
-      "endF": 1853,
-      "z": 2,
-      "interp": "hold",
-      "note": "Strobing on every frame, light and dark, as the source's does.",
-      "layer": {
-        "type": "slate",
-        "code": "R81",
-        "text": "The Frame on the harbour road, strobing against the blast",
-        "prompt": "prompt R81-road",
-        "bg": true,
-        "color": [
-          255,
-          226,
-          120
-        ]
-      },
-      "keys": [
-        {
-          "f": 1848,
-          "color": [
-            255,
-            226,
-            120
-          ]
-        },
-        {
-          "f": 1849,
-          "color": [
-            44,
-            30,
-            22
-          ]
-        },
-        {
-          "f": 1850,
-          "color": [
-            255,
-            226,
-            120
-          ]
-        },
-        {
-          "f": 1851,
-          "color": [
-            44,
-            30,
-            22
-          ]
-        },
-        {
-          "f": 1852,
-          "color": [
-            255,
-            226,
-            120
-          ]
-        }
-      ]
-    },
-    {
       "id": "r82-black",
       "shot": "R82",
       "startF": 1853,
-      "endF": 1864,
+      "endF": 1870,
       "z": 0,
       "layer": {
         "type": "solid",
@@ -22512,7 +21991,7 @@
       "id": "r82-halo",
       "shot": "R82",
       "startF": 1853,
-      "endF": 1864,
+      "endF": 1870,
       "z": 1,
       "layer": {
         "type": "glow_dot",
@@ -22532,7 +22011,7 @@
       "id": "r82-ring",
       "shot": "R82",
       "startF": 1853,
-      "endF": 1864,
+      "endF": 1870,
       "z": 2,
       "interp": "linear",
       "layer": {
@@ -22562,8 +22041,8 @@
           "r": 250
         },
         {
-          "f": 1863,
-          "r": 330
+          "f": 1869,
+          "r": 350
         }
       ]
     },
@@ -22571,7 +22050,7 @@
       "id": "r82-core",
       "shot": "R82",
       "startF": 1853,
-      "endF": 1864,
+      "endF": 1870,
       "z": 3,
       "interp": "linear",
       "note": "The rift: a violet aperture with a black core, tearing wider. The land it tears across (Kortos) is still to come as art.",
@@ -22595,29 +22074,10 @@
           "r_out": 220
         },
         {
-          "f": 1863,
-          "r_out": 292
+          "f": 1869,
+          "r_out": 310
         }
       ]
-    },
-    {
-      "id": "r83-slate",
-      "shot": "R83",
-      "startF": 1864,
-      "endF": 1870,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R83",
-        "text": "The Frame walks out through flame",
-        "prompt": "prompt R83-flame",
-        "bg": true,
-        "color": [
-          226,
-          110,
-          30
-        ]
-      }
     },
     {
       "id": "r84-black",
@@ -22692,83 +22152,6 @@
       }
     },
     {
-      "id": "r85-slate",
-      "shot": "R85",
-      "startF": 1872,
-      "endF": 1880,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R85",
-        "text": "The four founders, backlit, before the rift in the temple: the public legend",
-        "prompt": "prompt R85-legend",
-        "bg": true,
-        "color": [
-          236,
-          232,
-          222
-        ]
-      }
-    },
-    {
-      "id": "r86-slate",
-      "shot": "R86",
-      "startF": 1880,
-      "endF": 1883,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R86",
-        "text": "The first adventure: the four at a tavern table, young and loud",
-        "prompt": "prompt R86-tavern",
-        "bg": true,
-        "color": [
-          150,
-          92,
-          50
-        ]
-      }
-    },
-    {
-      "id": "r87-slate",
-      "shot": "R87",
-      "startF": 1883,
-      "endF": 1890,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R87",
-        "text": "The first adventure: a Spinosaurus bursting from the jungle",
-        "prompt": "prompt R87-spinosaurus",
-        "bg": true,
-        "color": [
-          60,
-          110,
-          60
-        ]
-      }
-    },
-    {
-      "id": "r88-slate",
-      "shot": "R88",
-      "startF": 1890,
-      "endF": 1892,
-      "z": 2,
-      "note": "Planned as a crop of Hyuck's founder image: a repeat, so a text card (Ingram).",
-      "layer": {
-        "type": "slate",
-        "code": "R88",
-        "text": "Close-up: five tiny white skulls on a cord",
-        "prompt": "prompt R88-skulls",
-        "bg": true,
-        "color": [
-          70,
-          24,
-          20
-        ]
-      }
-    },
-    {
       "id": "r89-black",
       "shot": "R89",
       "startF": 1892,
@@ -22833,44 +22216,6 @@
         "weave": 1,
         "flicker": 0.03,
         "seed": 89
-      }
-    },
-    {
-      "id": "r90-slate",
-      "shot": "R90",
-      "startF": 1894,
-      "endF": 1902,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R90",
-        "text": "The first adventure: a giant figure of white light speaks to the four",
-        "prompt": "prompt R90-light",
-        "bg": true,
-        "color": [
-          236,
-          224,
-          180
-        ]
-      }
-    },
-    {
-      "id": "r92-slate",
-      "shot": "R92",
-      "startF": 1907,
-      "endF": 1912,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R92",
-        "text": "A small odd creature alone in a spotlight",
-        "prompt": "prompt R92-creature",
-        "bg": true,
-        "color": [
-          30,
-          30,
-          36
-        ]
       }
     },
     {
@@ -22940,30 +22285,6 @@
         "sigma": 6,
         "strength": 0.5
       }
-    },
-    {
-      "id": "r98-art",
-      "shot": "R98",
-      "startF": 1938,
-      "endF": 1957,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "The Comms Officer: tilting up from her hands at the console to her face under the headset (the source's girl raising her head). Her image's own shot, now that R21 doesn't borrow it.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R14-comms-officer.png"
-      },
-      "keys": [
-        {
-          "f": 1938,
-          "cy": 0.66
-        },
-        {
-          "f": 1956,
-          "cy": 0.34
-        }
-      ]
     },
     {
       "id": "r100-black",
@@ -23400,126 +22721,6 @@
       ]
     },
     {
-      "id": "r102-column",
-      "shot": "R102",
-      "startF": 1998,
-      "endF": 2010,
-      "z": 0,
-      "layer": {
-        "type": "light_column",
-        "cx": 720,
-        "width": 300,
-        "seed": 102
-      }
-    },
-    {
-      "id": "r102-slate",
-      "shot": "R102",
-      "startF": 1998,
-      "endF": 2010,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R102",
-        "text": "The Frame crouched in the column of light, arms crossed",
-        "prompt": "prompt R102-crouch",
-        "bg": false
-      }
-    },
-    {
-      "id": "r103-column",
-      "shot": "R103",
-      "startF": 2010,
-      "endF": 2026,
-      "z": 0,
-      "layer": {
-        "type": "light_column",
-        "cx": 720,
-        "width": 380,
-        "seed": 103,
-        "speed": 320.0
-      }
-    },
-    {
-      "id": "r103-slate",
-      "shot": "R103",
-      "startF": 2010,
-      "endF": 2026,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R103",
-        "text": "It spreads its arms and rises; the camera pulls back",
-        "prompt": "prompt R103-rise",
-        "bg": false
-      }
-    },
-    {
-      "id": "r104-column",
-      "shot": "R104",
-      "startF": 2026,
-      "endF": 2044,
-      "z": 0,
-      "layer": {
-        "type": "light_column",
-        "cx": 720,
-        "width": 340,
-        "seed": 104
-      }
-    },
-    {
-      "id": "r104-slate",
-      "shot": "R104",
-      "startF": 2026,
-      "endF": 2044,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R104",
-        "text": "Lead beat 4: the Frame dissolves into the fourth of the six, same pose, eyes closed",
-        "prompt": "prompt R104-lead4",
-        "bg": false
-      }
-    },
-    {
-      "id": "r106-slate",
-      "shot": "R106",
-      "startF": 2050,
-      "endF": 2074,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R106",
-        "text": "Lead beat 5: the fifth of the six against blue sky, low angle, turning to look up",
-        "prompt": "prompt R106-lead5",
-        "bg": true,
-        "color": [
-          70,
-          130,
-          210
-        ]
-      }
-    },
-    {
-      "id": "r107-slate",
-      "shot": "R107",
-      "startF": 2074,
-      "endF": 2084,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R107",
-        "text": "The same face, close profile, straining",
-        "prompt": "prompt R107-strain",
-        "bg": true,
-        "color": [
-          40,
-          92,
-          112
-        ]
-      }
-    },
-    {
       "id": "r108-black",
       "shot": "R108",
       "startF": 2084,
@@ -23576,42 +22777,9 @@
       ]
     },
     {
-      "id": "r109-slate",
-      "shot": "R109",
-      "startF": 2085,
-      "endF": 2090,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R109",
-        "text": "Lead beat 6: the sixth, silhouetted against the searchlight, arm raised",
-        "prompt": "prompt R109-lead6",
-        "bg": false
-      }
-    },
-    {
-      "id": "r110-slate",
-      "shot": "R110",
-      "startF": 2090,
-      "endF": 2096,
-      "z": 2,
-      "layer": {
-        "type": "slate",
-        "code": "R110",
-        "text": "The sixth's face, smiling, eyes closed",
-        "prompt": "prompt R110-smile",
-        "bg": true,
-        "color": [
-          96,
-          150,
-          116
-        ]
-      }
-    },
-    {
       "id": "r111-wall",
       "shot": "R111",
-      "startF": 2096,
+      "startF": 2090,
       "endF": 2163,
       "z": 0,
       "layer": {
@@ -23704,126 +22872,6 @@
         {
           "f": 2159,
           "amount": 1.0
-        }
-      ]
-    },
-    {
-      "id": "r32-streaks",
-      "shot": "R32",
-      "startF": 1423,
-      "endF": 1473,
-      "z": 0.5,
-      "note": "Orange speed streaks racing across behind the charge (the source's R32), on twos.",
-      "layer": {
-        "type": "streaks",
-        "angle": 0,
-        "n": 34,
-        "speed": 2600,
-        "length": [
-          220,
-          640
-        ],
-        "width": [
-          4,
-          14
-        ],
-        "color": [
-          255,
-          196,
-          96
-        ],
-        "band": [
-          60,
-          1020
-        ],
-        "seed": 32,
-        "strength": 0.85
-      }
-    },
-    {
-      "id": "r32-shape-edge",
-      "shot": "R32",
-      "startF": 1423,
-      "endF": 1473,
-      "z": 0.9,
-      "interp": "linear",
-      "note": "The vermilion shape's darker trailing edge, sliding with it.",
-      "layer": {
-        "type": "polygon",
-        "color": [
-          120,
-          16,
-          8
-        ],
-        "opacity": 0.9,
-        "blend": "over",
-        "points": [
-          [
-            [
-              120,
-              -120
-            ],
-            [
-              180,
-              -120
-            ],
-            [
-              -120,
-              1200
-            ],
-            [
-              -180,
-              1200
-            ]
-          ]
-        ]
-      },
-      "keys": [
-        {
-          "f": 1423,
-          "points": [
-            [
-              [
-                120,
-                -120
-              ],
-              [
-                180,
-                -120
-              ],
-              [
-                -120,
-                1200
-              ],
-              [
-                -180,
-                1200
-              ]
-            ]
-          ]
-        },
-        {
-          "f": 1472,
-          "points": [
-            [
-              [
-                480,
-                -120
-              ],
-              [
-                540,
-                -120
-              ],
-              [
-                240,
-                1200
-              ],
-              [
-                180,
-                1200
-              ]
-            ]
-          ]
         }
       ]
     },
@@ -24286,7 +23334,7 @@
       "id": "r82-arcs",
       "shot": "R82",
       "startF": 1853,
-      "endF": 1864,
+      "endF": 1870,
       "z": 4,
       "note": "Violet lightning crackling off the aperture, re-drawn on twos.",
       "layer": {
@@ -24309,7 +23357,7 @@
       "id": "r82-debris",
       "shot": "R82",
       "startF": 1853,
-      "endF": 1864,
+      "endF": 1870,
       "z": 4.5,
       "layer": {
         "type": "dust",
@@ -24725,61 +23773,9 @@
       }
     },
     {
-      "id": "r18-art",
-      "shot": "R18",
-      "startF": 1198,
-      "endF": 1212,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "The mech bay, panned left to right (Ingram's mech_bay_pan): the sortie begins in the Frame's hangar.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R18-mech-bay.png"
-      },
-      "keys": [
-        {
-          "f": 1198,
-          "cx": 0.42
-        },
-        {
-          "f": 1211,
-          "cx": 0.58
-        }
-      ]
-    },
-    {
-      "id": "r21-art",
-      "shot": "R21",
-      "startF": 1233,
-      "endF": 1238,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "A gloved hand holding up a glowing power cell (Ingram's battery clip): the source's hand on the lever.",
-      "layer": {
-        "type": "video",
-        "src": "artwork/title-sequences/opening/art/R21-power-cell.mp4",
-        "speed": 1.0,
-        "hold": 2,
-        "mode": "once",
-        "offset": 0
-      },
-      "keys": [
-        {
-          "f": 1233,
-          "zoom": 1.02
-        },
-        {
-          "f": 1237,
-          "zoom": 1.05
-        }
-      ]
-    },
-    {
       "id": "r44-art",
       "shot": "R44",
-      "startF": 1634,
+      "startF": 1628,
       "endF": 1648,
       "z": 1,
       "interp": "linear",
@@ -24791,7 +23787,7 @@
       },
       "keys": [
         {
-          "f": 1634,
+          "f": 1628,
           "cx": 0.38
         },
         {
@@ -24852,7 +23848,7 @@
       "id": "r49-art",
       "shot": "R49",
       "startF": 1669,
-      "endF": 1671,
+      "endF": 1689,
       "z": 1,
       "interp": "linear",
       "ease": "inout",
@@ -24867,8 +23863,8 @@
           "zoom": 1.03
         },
         {
-          "f": 1670,
-          "zoom": 1.05
+          "f": 1688,
+          "zoom": 1.1
         }
       ]
     },
@@ -24899,24 +23895,24 @@
     {
       "id": "r58-art",
       "shot": "R58",
-      "startF": 1725,
+      "startF": 1716,
       "endF": 1731,
       "z": 1,
       "interp": "linear",
       "ease": "inout",
-      "note": "The agents in caps and dark glasses (Ingram's xx-05), moved from R66, in her own colours: the purple is hers and correct (2026-09-26), so the old purple-to-blue grade is gone.",
+      "note": "The agents in caps and dark glasses (Ingram's xx-05), in her own colours, over R56 to R58.",
       "layer": {
         "type": "image",
         "src": "artwork/title-sequences/opening/art/R58-agents.png"
       },
       "keys": [
         {
-          "f": 1725,
+          "f": 1716,
           "zoom": 1.02
         },
         {
           "f": 1730,
-          "zoom": 1.06
+          "zoom": 1.08
         }
       ]
     },
@@ -24948,7 +23944,7 @@
       "id": "r60-art",
       "shot": "R60",
       "startF": 1738,
-      "endF": 1744,
+      "endF": 1748,
       "z": 1,
       "interp": "linear",
       "ease": "inout",
@@ -24963,39 +23959,15 @@
           "zoom": 1.0
         },
         {
-          "f": 1743,
-          "zoom": 1.06
-        }
-      ]
-    },
-    {
-      "id": "r61-art",
-      "shot": "R61",
-      "startF": 1744,
-      "endF": 1748,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "A battleship's guns under summer clouds, a quick pan (Ingram's battleships_pan): the source's fleet.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R61-battleship.png"
-      },
-      "keys": [
-        {
-          "f": 1744,
-          "cx": 0.5
-        },
-        {
           "f": 1747,
-          "cx": 0.56
+          "zoom": 1.07
         }
       ]
     },
     {
       "id": "r63-art",
       "shot": "R63",
-      "startF": 1756,
+      "startF": 1748,
       "endF": 1760,
       "z": 1,
       "interp": "linear",
@@ -25007,12 +23979,12 @@
       },
       "keys": [
         {
-          "f": 1756,
+          "f": 1748,
           "zoom": 1.02
         },
         {
           "f": 1759,
-          "zoom": 1.06
+          "zoom": 1.07
         }
       ]
     },
@@ -25043,7 +24015,7 @@
     {
       "id": "r68-art",
       "shot": "R68",
-      "startF": 1773,
+      "startF": 1771,
       "endF": 1775,
       "z": 1,
       "interp": "linear",
@@ -25055,7 +24027,7 @@
       },
       "keys": [
         {
-          "f": 1773,
+          "f": 1771,
           "zoom": 1.03
         },
         {
@@ -25121,57 +24093,9 @@
       ]
     },
     {
-      "id": "r76-art",
-      "shot": "R76",
-      "startF": 1814,
-      "endF": 1828,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "The school in summer sun (Ingram's school), a slow push.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R76-school.png"
-      },
-      "keys": [
-        {
-          "f": 1814,
-          "zoom": 1.0
-        },
-        {
-          "f": 1827,
-          "zoom": 1.08
-        }
-      ]
-    },
-    {
-      "id": "r77-art",
-      "shot": "R77",
-      "startF": 1828,
-      "endF": 1832,
-      "z": 1,
-      "interp": "linear",
-      "ease": "inout",
-      "note": "Trainees in ranks against a tower block (Ingram's xx-06), moved from R61: the civil-defence drill.",
-      "layer": {
-        "type": "image",
-        "src": "artwork/title-sequences/opening/art/R77-ranks.png"
-      },
-      "keys": [
-        {
-          "f": 1828,
-          "zoom": 1.06
-        },
-        {
-          "f": 1831,
-          "zoom": 1.12
-        }
-      ]
-    },
-    {
       "id": "r91-art",
       "shot": "R91",
-      "startF": 1902,
+      "startF": 1894,
       "endF": 1907,
       "z": 1,
       "interp": "linear",
@@ -25183,19 +24107,19 @@
       },
       "keys": [
         {
-          "f": 1902,
+          "f": 1894,
           "zoom": 1.02
         },
         {
           "f": 1906,
-          "zoom": 1.07
+          "zoom": 1.08
         }
       ]
     },
     {
       "id": "r93-art",
       "shot": "R93",
-      "startF": 1912,
+      "startF": 1907,
       "endF": 1917,
       "z": 1,
       "interp": "linear",
@@ -25207,12 +24131,12 @@
       },
       "keys": [
         {
-          "f": 1912,
+          "f": 1907,
           "zoom": 1.0
         },
         {
           "f": 1916,
-          "zoom": 1.06
+          "zoom": 1.07
         }
       ]
     },
@@ -25232,7 +24156,9 @@
       "keys": [
         {
           "f": 1917,
-          "zoom": 1.0
+          "zoom": 1.0,
+          "cx": 0.5,
+          "cy": 0.5
         },
         {
           "f": 1921,
@@ -25269,24 +24195,24 @@
     {
       "id": "r99-art",
       "shot": "R99",
-      "startF": 1957,
+      "startF": 1938,
       "endF": 1962,
       "z": 1,
       "interp": "linear",
       "ease": "inout",
-      "note": "A pilot climbing onto a white machine, tilting down (Ingram's gen_02_05).",
+      "note": "A pilot climbing onto a white machine, tilting down (Ingram's gen_02_05), over R98 and R99: a second in all, a glimpse. The comms officer's portrait is gone for good.",
       "layer": {
         "type": "image",
         "src": "artwork/title-sequences/opening/art/R99-gen2-pilot.png"
       },
       "keys": [
         {
-          "f": 1957,
-          "cy": 0.4
+          "f": 1938,
+          "cy": 0.36
         },
         {
           "f": 1961,
-          "cy": 0.52
+          "cy": 0.64
         }
       ]
     },
@@ -25294,11 +24220,11 @@
       "id": "r101-art",
       "shot": "R101",
       "startF": 1988,
-      "endF": 1998,
+      "endF": 2050,
       "z": 1,
       "interp": "linear",
       "ease": "inout",
-      "note": "The bunker's great vault door, pushing in, as the vermilion stripe wipes across and the director credit holds over it, as the source's does (Ingram's secret_bunker).",
+      "note": "The bunker's great vault door (Ingram's secret_bunker): the vermilion stripe wipes across to reveal it, and the camera keeps pushing in through R105, where the Frame's column and lead beat 4 had no art. The director credit holds over the reveal.",
       "layer": {
         "type": "image",
         "src": "artwork/title-sequences/opening/art/R101-vault.png"
@@ -25309,36 +24235,364 @@
           "zoom": 1.0
         },
         {
-          "f": 1997,
-          "zoom": 1.1
+          "f": 2049,
+          "zoom": 1.24
         }
       ]
     },
     {
-      "id": "r105-art",
-      "shot": "R105",
-      "startF": 2044,
-      "endF": 2050,
+      "id": "r16-school",
+      "shot": "R16",
+      "startF": 1144,
+      "endF": 1178,
       "z": 1,
       "interp": "linear",
       "ease": "inout",
-      "note": "An animated red-eyed machine head (Ingram's gen_02_01 clip), before lead beat 5.",
+      "note": "The school in summer sun behind Taka (Ingram's school; she asked for Taka on a real background).",
       "layer": {
-        "type": "video",
-        "src": "artwork/title-sequences/opening/art/R105-gen2-head.mp4",
-        "speed": 1.0,
-        "hold": 2,
-        "mode": "once",
-        "offset": 72
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R76-school.png",
+        "brightness": 0.97
       },
       "keys": [
         {
-          "f": 2044,
+          "f": 1144,
+          "zoom": 1.04,
+          "cx": 0.5
+        },
+        {
+          "f": 1177,
+          "zoom": 1.08,
+          "cx": 0.53
+        }
+      ]
+    },
+    {
+      "id": "r23-art",
+      "shot": "R23",
+      "startF": 1245,
+      "endF": 1288,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "The mech bay, panning slowly across (Ingram's mech_bay_pan), before the third newcomer's turn.",
+      "layer": {
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R18-mech-bay.png"
+      },
+      "keys": [
+        {
+          "f": 1245,
+          "cx": 0.38
+        },
+        {
+          "f": 1287,
+          "cx": 0.62
+        }
+      ]
+    },
+    {
+      "id": "r32-frame",
+      "shot": "R32",
+      "startF": 1423,
+      "endF": 1511,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "Chorus one opens on the Gen 1 Frame (Ingram's hero plate): one long tilt from its molten base up to its green eye, over the source's charge, angles and front-on shots.",
+      "layer": {
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R23-frame.png",
+        "cx": 0.5,
+        "tint": [
+          255,
+          232,
+          214
+        ]
+      },
+      "keys": [
+        {
+          "f": 1423,
+          "cy": 0.76,
+          "zoom": 1.0
+        },
+        {
+          "f": 1510,
+          "cy": 0.26,
+          "zoom": 1.04
+        }
+      ]
+    },
+    {
+      "id": "r39-art",
+      "shot": "R39",
+      "startF": 1603,
+      "endF": 1613,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "A gloved hand holding up a glowing power cell (Ingram's battery animation), on twos; moved from R21, where it had five frames.",
+      "layer": {
+        "type": "video",
+        "src": "artwork/title-sequences/opening/art/R21-power-cell.mp4",
+        "speed": 1.0,
+        "hold": 2,
+        "mode": "once",
+        "offset": 20
+      },
+      "keys": [
+        {
+          "f": 1603,
           "zoom": 1.02
         },
         {
-          "f": 2049,
+          "f": 1612,
           "zoom": 1.06
+        }
+      ]
+    },
+    {
+      "id": "r85-wall",
+      "shot": "R85",
+      "startF": 1872,
+      "endF": 1892,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "The conspiracy wall (Ingram's xx-08), pushing in; the 極秘 stamp lands on it, and FIRST IMPACT follows: the secret file on the first impact. Moved from R67.",
+      "layer": {
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R67-wall.png"
+      },
+      "keys": [
+        {
+          "f": 1872,
+          "zoom": 1.06
+        },
+        {
+          "f": 1891,
+          "zoom": 1.14
+        }
+      ]
+    },
+    {
+      "id": "r85-stamp-box",
+      "shot": "R85",
+      "startF": 1878,
+      "endF": 1892,
+      "z": 3,
+      "layer": {
+        "type": "polygon",
+        "color": [
+          196,
+          30,
+          28
+        ],
+        "opacity": 1.0,
+        "blend": "over",
+        "points": [
+          [
+            [
+              1030,
+              720
+            ],
+            [
+              1330,
+              720
+            ],
+            [
+              1330,
+              729
+            ],
+            [
+              1030,
+              729
+            ]
+          ],
+          [
+            [
+              1030,
+              881
+            ],
+            [
+              1330,
+              881
+            ],
+            [
+              1330,
+              890
+            ],
+            [
+              1030,
+              890
+            ]
+          ],
+          [
+            [
+              1030,
+              729
+            ],
+            [
+              1039,
+              729
+            ],
+            [
+              1039,
+              881
+            ],
+            [
+              1030,
+              881
+            ]
+          ],
+          [
+            [
+              1321,
+              729
+            ],
+            [
+              1330,
+              729
+            ],
+            [
+              1330,
+              881
+            ],
+            [
+              1321,
+              881
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "r85-stamp",
+      "shot": "R85",
+      "startF": 1878,
+      "endF": 1892,
+      "z": 4,
+      "layer": {
+        "type": "text",
+        "items": [
+          {
+            "text": "極秘",
+            "font": "mincho-black",
+            "size": 124,
+            "x": 1180.0,
+            "y": 809.0,
+            "stretch": 0.92
+          }
+        ],
+        "color": [
+          196,
+          30,
+          28
+        ],
+        "shadow": 0.0,
+        "opacity": 1.0,
+        "kind": "diegetic"
+      }
+    },
+    {
+      "id": "r76-art",
+      "shot": "R76",
+      "startF": 1814,
+      "endF": 1832,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "A battleship's guns under summer clouds, panning (Ingram's battleships_pan): the source's fleet, moved from R61 to where it has room.",
+      "layer": {
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R61-battleship.png"
+      },
+      "keys": [
+        {
+          "f": 1814,
+          "cx": 0.4
+        },
+        {
+          "f": 1831,
+          "cx": 0.58
+        }
+      ]
+    },
+    {
+      "id": "r79-art",
+      "shot": "R79",
+      "startF": 1837,
+      "endF": 1843,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "The other empty hall, a clock and tall windows (Ingram's xx-02), moved from R57: it stands between Manako and the blast, so nothing follows him straight into it.",
+      "layer": {
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R57-hall.png"
+      },
+      "keys": [
+        {
+          "f": 1837,
+          "zoom": 1.04
+        },
+        {
+          "f": 1842,
+          "zoom": 1.08
+        }
+      ]
+    },
+    {
+      "id": "r106-art",
+      "shot": "R106",
+      "startF": 2050,
+      "endF": 2084,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "Trainees in ranks against a tower block and summer clouds (Ingram's xx-06), pushing in: the recruits, holding lead beat 5's place until the group's character art comes. Moved from R77.",
+      "layer": {
+        "type": "image",
+        "src": "artwork/title-sequences/opening/art/R77-ranks.png"
+      },
+      "keys": [
+        {
+          "f": 2050,
+          "zoom": 1.04,
+          "cx": 0.5
+        },
+        {
+          "f": 2083,
+          "zoom": 1.14,
+          "cx": 0.56
+        }
+      ]
+    },
+    {
+      "id": "r36-art",
+      "shot": "R36",
+      "startF": 1581,
+      "endF": 1597,
+      "z": 1,
+      "interp": "linear",
+      "ease": "inout",
+      "note": "A red-eyed machine head swinging round to face us (Ingram's gen_02_01 animation), on twos at double speed, like the source's snap, just before the eyes flare (R38). A Gen 2 glimpse, under a second. It had six frames at R105; it replaces the red Frame hand Ingram didn't care for.",
+      "layer": {
+        "type": "video",
+        "src": "artwork/title-sequences/opening/art/R105-gen2-head.mp4",
+        "speed": 2.0,
+        "hold": 2,
+        "mode": "once",
+        "offset": 50
+      },
+      "keys": [
+        {
+          "f": 1581,
+          "zoom": 1.02
+        },
+        {
+          "f": 1596,
+          "zoom": 1.08
         }
       ]
     }

@@ -205,7 +205,9 @@ The tests cover:
   - every strobe crop covering the frame
   - every animation playing forward, never jumping back or freezing on its last frame while on screen
   - lead beat 3 as Ingram's animated newcomer, never the extreme close-up she cut
-  - no full-frame picture ever showing its own edge
+  - no full-frame picture ever showing its own edge, and no keyed move jumping (every value glides from its first key)
+  - the opening finished from the art in hand: no slates, the comms officer's portrait never used, Taka in front of
+    a real place
   - only the credits the opening needs
   - the heat haze under the rooftop's credit, and its pan
   - the pre-roll: the channel flick, the tracking issue, the captions above the tape, clean black before frame 0

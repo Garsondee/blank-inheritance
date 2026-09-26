@@ -321,8 +321,10 @@ animations are lead beats 2 and 3 (R14, R24–R26), and the too-zoomed close-up 
 **Filled, so skip these prompts below unless you want to replace what's there:** R18, R21, R44, R45, R46, R49, R52,
 R58, R59, R60, R63, R68, R71, R73, R76, R77, R91, R93, R94, R96, R99, R101 and R105.
 
-**Still slates (30):** R32–R37, R39, R41, R43, R50, R56, R62, R70, R75, R79, R81, R83, R85–R88, R90, R92, R102–R104,
-R106, R107, R109 and R110.
+**Finished from the art in hand (2026-09-26):** no slates are left. Ingram: "if we keep going like this I'll burn all
+my midjourney credit and I'll tinker forever." Every gap was filled with art already made or folded into the shot
+beside it (the plan's twelfth round says where). **Nothing below is waiting to be generated.** The prompts stay as a
+record, and for the group's own character art, which will take over lead beats 4–6 when it comes.
 
 ## Everything still to come (2026-09-25, third pass)
 

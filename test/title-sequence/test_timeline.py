@@ -347,6 +347,43 @@ class TestTheShippedTimeline(unittest.TestCase):
         repeats = {src: sorted(s) for src, s in shots_of.items() if len(s) > 1}
         self.assertEqual(repeats, {})
 
+    def test_the_opening_is_finished_from_the_art_in_hand(self):
+        # Ingram (2026-09-26): "you can lower the overall number of shots, but you must use the assets you've got to
+        # replace the gaps... Finish the video as best you can using the resources you have." No text-only slates.
+        self.assertEqual([c["id"] for c in self.doc["clips"] if c["layer"]["type"] == "slate"], [])
+
+    def test_art_ingram_turned_down_never_comes_back(self):
+        # Ingram, 2026-09-26: "Get rid of the comms woman... I don't like that portrait so stop using it please";
+        # "I didn't much care for the mech arm on it's own"; and of the too-close newcomer at 00:57, "Get rid of it
+        # entirely". Retired art lives in art/retired/ and is never used.
+        srcs = [c["layer"].get("src", "") for c in self.doc["clips"]]
+        for name in ("R14-comms-officer.png", "R13-hand.png", "R24-newcomer.png"):
+            self.assertFalse(any(s.endswith(name) for s in srcs), name)
+        self.assertFalse(any("/retired/" in s for s in srcs))
+
+    def test_taka_waves_in_front_of_a_real_place(self):
+        # Ingram (2026-09-26): "Could you put Taka on a real background please?" (not the flat field he had)
+        taka = self.clip("r16-taka")
+        behind = [c for c in self.doc["clips"] if c["shot"] == "R16" and c.get("z", 0) < taka.get("z", 0)]
+        self.assertTrue(behind)
+        self.assertTrue(all(c["layer"]["type"] == "image" for c in behind))
+        for n in range(1144, 1178):                                  # the whole of his shot
+            self.assertTrue(any(timeline.params_at(c, frame_t(n)) for c in behind), n)
+
+    def test_a_keyed_move_never_jumps(self):
+        # found 2026-09-26: R94's push keyed its centre only on its last frame, so the picture sat at the default
+        # centre and jumped on that frame. Whatever a gliding clip keys is set in its first key (or starts from the
+        # layer's own value), so every move glides from its first frame.
+        for c in self.doc["clips"]:
+            keys = c.get("keys") or []
+            if c.get("interp", "hold") != "linear" or len(keys) < 2:
+                continue
+            for i, k in enumerate(keys[1:], 1):
+                for p, v in k.items():
+                    if p in ("t", "f") or any(p in kk for kk in keys[:i]):
+                        continue
+                    self.assertEqual(c["layer"].get(p), v, f"{c['id']}: {p} is first keyed at key {i}, so it jumps")
+
     def test_lead_beat_three_is_the_animated_newcomer_not_the_extreme_close_up(self):
         # Ingram (2026-09-26): "00:57 - not a fan of this moment, it's far too zoomed in. Get rid of it entirely and
         # select something else." The still pushed from 1.8 to 2.8 times; her animated newcomer only drifts in.
@@ -497,7 +534,7 @@ class TestTheShippedTimeline(unittest.TestCase):
                 zooms = [k["zoom"] for k in c.get("keys", []) if "zoom" in k] or [c["layer"].get("zoom", 1.0)]
                 if min(zooms) < 2.0:
                     whole.add(c["shot"])
-        self.assertEqual(whole, {"R23"})
+        self.assertEqual(whole, {"R32"})              # opening chorus one since 2026-09-26 (it was R23)
 
     def test_the_speed_lines_fire_from_the_star_then_the_city(self):
         # Ingram: "have the radiating things emerge from the middle of the star, at the moment the origin is

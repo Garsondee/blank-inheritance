@@ -1,6 +1,6 @@
 # Opening Titles — the campaign's anime opening
 
-**Status: drafted, 2026-09-25; all 112 shots built end to end, with slates where art is still to come (30 left after Ingram's third batch, 2026-09-26).** A production plan, built one step at a time. Step 1 (R00–R05, the sung opening), Step 2 (R06–R10, the title), Step 3 (R11–R13, the verse and the sunset), Step 4 (R14–R17, the pre-chorus) and Step 5 (R18–R31, the sortie build and the founders) are rendered. Steps 6–8 (R32–R111, chorus one, the flashes, the last chorus and the end card) play to the end of the song, part art and effects, part slates. Claude directs and produces; Ingram
+**Status: drafted, 2026-09-25; finished from the art in hand on 2026-09-26: all 112 source shots covered, no slates left, fewer cuts. Lead beats 4–6 wait on the group's own character art.** A production plan, built one step at a time. Step 1 (R00–R05, the sung opening), Step 2 (R06–R10, the title), Step 3 (R11–R13, the verse and the sunset), Step 4 (R14–R17, the pre-chorus) and Step 5 (R18–R31, the sortie build and the founders) are rendered. Steps 6–8 (R32–R111, chorus one, the flashes, the last chorus and the end card) play to the end of the song, part art and effects, part slates. Claude directs and produces; Ingram
 makes the Midjourney art. The decisions in §2 are Ingram's (LEDGER #37). Everything marked *proposal* is Claude's
 and can be vetoed.
 
@@ -289,6 +289,39 @@ with... Just assign things where you think they make the most sense"):
     limit is 3; it was 2 general last time). The one general flash is the four founders' portraits dimming between
     cuts about a second apart. The ripple adds none.
 
+**Twelfth round, finished from the art in hand** (Ingram, 2026-09-26: "if we keep going like this I'll burn all my
+midjourney credit and I'll tinker forever... you can lower the overall number of shots, but you must use the assets
+you've got to replace the gaps. Get rid of the comms woman... Finish the video as best you can using the resources
+you have"; and "Could you put Taka on a real background please?"):
+
+- **No slates left.** Every text-only card is gone. Each gap was either filled with her art or folded into the shot
+  beside it, so the cut has fewer shots, still cut on the source's own cut points and the music.
+- **Moved to where they have room** (each image is still in one shot only):
+  - the Frame's hero plate opens chorus one (R32–R34), one long tilt up to its green eye;
+  - the mech bay fills R23;
+  - the machine head animation (R36–R37) and the power cell (R39) join chorus one;
+  - the battleship pans across R76–R77;
+  - the second hall stands between Manako and the blast (R79);
+  - the conspiracy wall and its stamp come just before FIRST IMPACT (R85–R88);
+  - the vault door's push runs from R101 to R105;
+  - the trainees in ranks hold R106–R107.
+- **Folded into a neighbour** (they had no art): R18, R21, R41, R43, R50, R56–R57, R61–R62, R67, R70, R75, R81, R83,
+  R90, R92, R98, R102–R105, R107, R110.
+- **The comms officer is out** of the opening for good. So is the red Frame arm, which was tried at R36–R37 first (Ingram: "I didn't much care for the mech arm on it's own. Surely we have something better?"); the machine head animation took its place.
+- **Taka waves in front of the school** instead of a flat field.
+- **Surprises stay short** (LEDGER #37): the longest villain is Cicada's figure, 20 frames; the longest Gen 2 shot
+  is the pilot's tilt, one second.
+- **A pop fixed:** R94's push keyed its centre only on its last frame, so the picture jumped there. A test now makes
+  every keyed move glide from its first frame.
+- **Lead beats 4–6** wait on the group's character art; until then they're covered as §5 says ("How the six are
+  spread").
+- **The reduced version** follows: the stencil card, the counters, the mech bay, the Frame's tilt, the conspiracy
+  wall, the house, the Gen 2 pilot, the vault door and the trainees (42 segments). Manako is left out of it, so
+  nothing cuts from him straight into the blast there either.
+- **The flash check** (`opening-so-far-14.mp4`, `opening-reduced-so-far-03.mp4`): the full opening still fails, as it
+  should (7 flashes in its worst second, the R06 smoke strobe). The reduced version passes: 1 general and 1 red flash
+  in its worst second (the founders' dimming cuts, and the red FIRST IMPACT card), where the limit is 3.
+
 ---
 
 ## 3. How it gets made
@@ -559,14 +592,14 @@ now, the real character later).
 | R13 | 36.86 | 14.1.5 | 87 | The sunset city framed wide, tilting a little on threes; the Frame's green line blueprint drifts down over it the whole time, faint (built). **What reaches down is open:** the Frame hand is out, and the three ideas are in the prompts doc (two hands nearly touching across the sun, my pick; a crane hook; a pilot's fist). | L |  |
 | R14 | 40.48 | 16.1.3 | 70 | LEAD BEAT 2: the second newcomer looking down in hot gold, hair in the wind: Ingram's animation, on twos, in her own colours; the music credit (built). | P+V+T |  |
 | R15 | 43.39 | 17.3.5 | 90 | The small mitflit on its rooftop ledge, looking up at the evening sky, on its own, in a soft heat haze with a slight pan; the song credit (built). | S+T |  |
-| R16 | 47.15 | 19.3.5 | 34 | Taka waving against a flat evening-blue field, sliding in a little; a hard cut to R17, so nothing ties him to the eye (built; the verse's sky behind him was a repeat). | L |  |
+| R16 | 47.15 | 19.3.5 | 34 | Taka waving in front of the school in summer sun, sliding in a little; a hard cut to R17, so nothing ties him to the eye (built: Ingram asked for a real background, so the school moved here from R76). | S |  |
 | R17 | 48.55 | 20.2.5 | 21 | Built from Ingram's image: a hard cut onto the Watcher's great slit-pupilled eye with smaller eyes crowding round it, pushing in, under a second. It never blinks (it has no eyelids, `dossier-observer.md` §6). | S | glimpse (the Watcher) |
-| R18 | 49.42 | 20.4.4 | 13 | The mech bay, panning left to right (built, Ingram's mech_bay_pan). | S |  |
-| R19 | 49.97 | 21.1.6 | 10 | Stencilling on a flat armour-grey card: 特別対策本部, FRAME 01, UTILITY TYPE (built; the plate behind it was a crop of R23's image, a repeat). | S+T |  |
-| R20 | 50.38 | 21.2.5 | 11 | Two nixie-tube counters glowing orange, labelled 内部 INTERNAL and 外部 EXTERNAL: all eights, then counting. | T |  |
-| R21 | 50.83 | 21.3.4 | 5 | A gloved hand holding up a glowing power cell (built, Ingram's battery animation). | V |  |
+| R18 | 49.42 | 20.4.4 | 13 | Folded into R19: the stencil card holds from here (the mech bay moved to R23, where it has room to pan). | T |  |
+| R19 | 49.97 | 21.1.6 | 10 | Stencilling on a flat armour-grey card: 特別対策本部, FRAME 01, UTILITY TYPE, over R18 and R19 (built). | S+T |  |
+| R20 | 50.38 | 21.2.5 | 11 | Two nixie-tube counters glowing orange, labelled 内部 INTERNAL and 外部 EXTERNAL: all eights, then counting, through R21 (built). | T |  |
+| R21 | 50.83 | 21.3.4 | 5 | Folded into R20: the counters keep counting (the power cell moved to R39). | T |  |
 | R22 | 51.05 | 21.3.9 | 7 | A launch tunnel of signal lamps flashing red, red, green, green. | S+F |  |
-| R23 | 51.34 | 21.4.5 | 43 | Symmetrical front view of a Gen 1 Frame in its Hangar Two gantry against an orange backdrop; slow tilt. Credit block. | S+T |  |
+| R23 | 51.34 | 21.4.5 | 43 | The mech bay, a slow pan across (built, Ingram's mech_bay_pan). The Frame's hero plate moved up to open chorus one. | S |  |
 | R24 | 53.14 | 22.4.4 | 15 | LEAD BEAT 3. The third newcomer, in a cap, turns to face us in golden light, with only a gentle push, in one shot through R26 (built, Ingram's animation). Replaces the extreme close-up Ingram found far too zoomed in. | P+V |  |
 | R25 | 53.77 | 23.1.7 | 27 | The same turn, continuing (built as part of R24). | P+V |  |
 | R26 | 54.91 | 23.4.2 | 6 | The picture flushes orange as it dissolves toward the machine (built). | F |  |
@@ -575,85 +608,85 @@ now, the real character later).
 | R29 | 57.41 | 25.1.5 | 11 | FLASH: Rupiah, the elf Star Singer. Darkens. | S | glimpse (founder) |
 | R30 | 57.86 | 25.2.5 | 10 | FLASH: Anabala, the tiny blue mitflit in her wide hat and tinted glasses. Darkens. | S | glimpse (founder) |
 | R31 | 58.28 | 25.3.4 | 12 | FLASH: Shucks, the skeleton in his white coat, shown fully (settled 2026-09-25). Darkens. | S | glimpse (founder) |
-| R32 | 58.78 | 25.4.4 | 50 | A Gen 1 Frame charges across frame like a bulldozer, a big vermilion graphic shape behind, orange streaks. Two credit blocks, the second held across the next cuts. | L+T |  |
-| R33 | 60.87 | 26.4.9 | 20 | Three or four quick angles on the charging Frame. | S |  |
-| R34 | 61.70 | 27.2.7 | 18 | The Frame front-on, then full figure, standing in a column of orange light and sparks. | V |  |
-| R35 | 62.45 | 27.4.3 | 69 | The Frame spreads its arms and its boilers vent: great golden plumes of steam and sparks unfurl behind it like wings. Credit block. | V+T |  |
-| R36 | 65.34 | 29.2.5 | 11 | The excavator bucket snaps open like a jaw, steam bursting, fragments flying. | V |  |
-| R37 | 65.79 | 29.3.5 | 6 | Whip-pan along a hydraulic arm through the sky. | S+F |  |
+| R32 | 58.78 | 25.4.4 | 50 | Chorus one opens on the Gen 1 Frame: one long tilt from its molten base up to its green eye, over R32–R34 (built, Ingram's hero plate). | S |  |
+| R33 | 60.87 | 26.4.9 | 20 | The same tilt, continuing (built as part of R32). | S |  |
+| R34 | 61.70 | 27.2.7 | 18 | The same tilt, ending on the green eye (built as part of R32). | S |  |
+| R35 | 62.45 | 27.4.3 | 69 | Golden rays unfurling like wings in a column of light (built, effects only). | F |  |
+| R36 | 65.34 | 29.2.5 | 11 | A red-eyed machine head swinging round to face us, over R36–R37, just before the eyes flare (built, Ingram's gen_02_01 animation, moved from R105). | V | glimpse (Gen 2) |
+| R37 | 65.79 | 29.3.5 | 6 | The same head, finishing its turn (built as part of R36). | V | glimpse (Gen 2) |
 | R38 | 66.04 | 29.4.0 | 5 | Its searchlights flare on. | S+F |  |
-| R39 | 66.26 | 29.4.5 | 10 | The grapple hand in a cloud of steam, a red harbour crane behind. | S |  |
+| R39 | 66.26 | 29.4.5 | 10 | A gloved hand holding up a glowing power cell (built, Ingram's battery animation, moved from R21). | V |  |
 | R40 | 66.67 | 30.1.3 | 3 | Title card: UTILITY TYPE. | T |  |
-| R41 | 66.79 | 30.1.6 | 9 | The Frame's head from behind, framed by tram wires, red dusk. | S |  |
-| R42 | 67.18 | 30.2.4 | 3 | Title card: FRAME-01 (good enough for now, settled 2026-09-25). | T |  |
-| R43 | 67.29 | 30.2.7 | 6 | The grapple claw against the sky, low angle. | S |  |
-| R44 | 67.54 | 30.3.2 | 14 | A fast pan across the machinery's red-lit panels (built, Ingram's tech-pan-01). | S |  |
+| R41 | 66.79 | 30.1.6 | 9 | Folded into R42: the FRAME-01 card holds from here. | T |  |
+| R42 | 67.18 | 30.2.4 | 3 | Title card: FRAME-01, over R41 and R42 (good enough for now, settled 2026-09-25). | T |  |
+| R43 | 67.29 | 30.2.7 | 6 | The machinery pan begins here (built as part of R44). | S |  |
+| R44 | 67.54 | 30.3.2 | 14 | A fast pan across the machinery's red-lit panels, over R43–R44 (built, Ingram's tech-pan-01). | S |  |
 | R45 | 68.13 | 30.4.5 | 5 | FLASH: a violet enemy machine, red-eyed, against a red wall (built, Ingram's bad_mech). | S | glimpse (enemy) |
 | R46 | 68.34 | 30.4.9 | 5 | FLASH: Gen 2 being built: a welder at a dark red-eyed head below a red-lit tower, tilting up (built, Ingram's gen_02_04). | S | glimpse (Gen 2) |
 | R47 | 68.55 | 31.1.3 | 5 | FLASH: a Claimant's core, a knot of violet light. | S | glimpse (enemy) |
 | R48 | 68.76 | 31.1.8 | 6 | Title card, stacked with enlarged initials: UNIDENTIFIED / CONTACT. | T |  |
-| R49 | 69.01 | 31.2.3 | 2 | FLASH: Cicada's masked figure, beaked, in its violet hood (built, Ingram's cultist). | S | glimpse (villain) |
-| R50 | 69.10 | 31.2.5 | 18 | Rupiah before an enormous moon, singing to the stars; slow tilt up. | V | glimpse (founder) |
+| R49 | 69.01 | 31.2.3 | 2 | FLASH: Cicada's masked figure, beaked, in its violet hood, held over R49–R50 until its name card (built, Ingram's cultist). | S |  |
+| R50 | 69.10 | 31.2.5 | 18 | The same figure (built as part of R49). Rupiah before the moon had no art. | S |  |
 | R51 | 69.85 | 31.4.1 | 3 | Title card: CICADA. | T |  |
 | R52 | 69.98 | 31.4.4 | 9 | A coastal gun bunker at sunset, panning along its barrels (built, Ingram's bunker_pan). | S |  |
 | R53 | 70.35 | 32.1.2 | 3 | Title card: KUROSE. | T |  |
 | R54 | 70.48 | 32.1.5 | 9 | An empty hall at dusk, the city in its windows; tilt (built, Ingram's xx-03). The sea-fort and the Central Fortification wait for their own image. | S |  |
 | R55 | 70.85 | 32.2.3 | 3 | The Directorate's approved seal, vermilion on black (built). | T |  |
-| R56 | 70.98 | 32.2.6 | 6 | Portrait flash: the Deputy Director. | S |  |
-| R57 | 71.23 | 32.3.1 | 3 | The other empty hall, a clock and tall windows (built, Ingram's xx-02), in place of the vetoed map. | S |  |
-| R58 | 71.35 | 32.3.4 | 6 | The agents in caps and dark glasses, in Ingram's own colours (built, xx-05, moved from R66). | S |  |
+| R56 | 70.98 | 32.2.6 | 6 | The agents begin here (built as part of R58). The Deputy Director had no art. | S |  |
+| R57 | 71.23 | 32.3.1 | 3 | The agents (built as part of R58). The second hall moved to R79. | S |  |
+| R58 | 71.35 | 32.3.4 | 6 | The agents in caps and dark glasses, over R56–R58, in Ingram's own colours (built, xx-05). | S |  |
 | R59 | 71.60 | 32.3.9 | 8 | A marksman and his spotter on a rooftop over the city (built, Ingram's sniper). | S |  |
-| R60 | 71.92 | 32.4.6 | 6 | A figure in a hospital bed in blue light (built, Ingram's hospital): the source's face with its eyes opening. | S |  |
-| R61 | 72.15 | 33.1.1 | 4 | A battleship's guns under summer clouds, a quick pan (built, Ingram's battleships_pan): the source's fleet. | S |  |
-| R62 | 72.30 | 33.1.4 | 8 | Portrait flash: Hulda Brack, horns and a grin. | S |  |
-| R63 | 72.63 | 33.2.1 | 4 | Portrait flash: a woman in dark red with a sidelong look (built, Ingram's bad_guy_woman). | S | glimpse (villain) |
+| R60 | 71.92 | 32.4.6 | 6 | A figure in a hospital bed in blue light, over R60–R61 (built, Ingram's hospital): the source's face with its eyes opening. | S |  |
+| R61 | 72.15 | 33.1.1 | 4 | The hospital bed (built as part of R60). The battleship moved to R76. | S |  |
+| R62 | 72.30 | 33.1.4 | 8 | The woman in dark red begins here (built as part of R63). Hulda Brack had no art. | S | glimpse (villain) |
+| R63 | 72.63 | 33.2.1 | 4 | Portrait flash: a woman in dark red with a sidelong look, over R62–R63 (built, Ingram's bad_guy_woman). | S | glimpse (villain) |
 | R64 | 72.82 | 33.2.5 | 3 | FLASH: a tentacled shape over the red city, the tape tearing (built, Ingram's xx-07). | S | glimpse (the Watcher) |
 | R65 | 72.94 | 33.2.7 | 5 | Portrait flash: Section Officer Vetch (built, Ingram's B0-01B). | S |  |
 | R66 | 73.15 | 33.3.2 | 3 | A bald man in split light at a desk (built, Ingram's bad_guy): the source's sinister council member. | S | glimpse (villain) |
-| R67 | 73.28 | 33.3.5 | 2 | The conspiracy wall, stamped 極秘 (built, Ingram's xx-08). | S+T |  |
-| R68 | 73.37 | 33.3.7 | 2 | A pale-suited man and his shadow (built, Ingram's bad_guy_02): the mysterious-looking character. | S | glimpse (villain) |
-| R69 | 73.44 | 33.3.8 | 3 | The acceptance letter: bilingual letterhead, the broken lower-case e. | S+T |  |
-| R70 | 73.57 | 33.4.1 | 4 | Hyuck's horse-leather jacket, a close detail (a first-adventure joke for the veterans). | S |  |
+| R67 | 73.28 | 33.3.5 | 2 | The pale-suited man begins here (built as part of R68). The conspiracy wall moved to R85. | S | glimpse (villain) |
+| R68 | 73.37 | 33.3.7 | 2 | A pale-suited man and his shadow, over R67–R68 (built, Ingram's bad_guy_02): the mysterious-looking character. | S | glimpse (villain) |
+| R69 | 73.44 | 33.3.8 | 3 | The acceptance letter: bilingual letterhead, the broken lower-case e, over R69–R70 (built). | S+T |  |
+| R70 | 73.57 | 33.4.1 | 4 | The letter (built as part of R69). Hyuck's jacket had no art. | S+T |  |
 | R71 | 73.75 | 33.4.5 | 8 | The crane rig's single red eye in white machinery, pushing in (built, Ingram's tech_01). | S |  |
 | R72 | 74.07 | 34.1.2 | 3 | Title card, two lines: CRANE RIG / FRAME-00. | T |  |
 | R73 | 74.19 | 34.1.4 | 9 | A welder at work, sparks under red gloves (built, Ingram's repair animation), before SALVAGE AND FIRE. | V |  |
-| R74 | 74.57 | 34.2.2 | 4 | Title card, three lines: SALVAGE AND FIRE / FRAME-02. | T |  |
-| R75 | 74.74 | 34.2.6 | 8 | Hyuck strapped into a test cockpit, grinning. | S | glimpse (founder) |
-| R76 | 75.07 | 34.3.3 | 14 | The school in summer sun, a slow push (built, Ingram's school). | S |  |
-| R77 | 75.64 | 34.4.5 | 4 | Trainees in ranks against a tower block (built, Ingram's xx-06, moved from R61): the civil-defence drill. | S |  |
+| R74 | 74.57 | 34.2.2 | 4 | Title card, three lines: SALVAGE AND FIRE / FRAME-02, over R74–R75 (built). | T |  |
+| R75 | 74.74 | 34.2.6 | 8 | The card (built as part of R74). Hyuck in the test cockpit had no art. | T |  |
+| R76 | 75.07 | 34.3.3 | 14 | A battleship's guns under summer clouds, panning, over R76–R77 (built, Ingram's battleships_pan, moved from R61): the source's fleet. | S |  |
+| R77 | 75.64 | 34.4.5 | 4 | The battleship (built as part of R76). The ranks moved to R106. | S |  |
 | R78 | 75.82 | 34.4.9 | 5 | Portrait flash: Manako at his tea (built), among the town's ordinary faces. Moved from R79 so that nothing follows him straight into the blast. | S |  |
-| R79 | 76.04 | 35.1.4 | 6 | Portrait flash: the history teacher, adjusting his glasses. | S |  |
-| R80 | 76.29 | 35.1.9 | 5 | An explosion blossoms on the shore (built, Ingram's xx-04). | V |  |
-| R81 | 76.49 | 35.2.4 | 5 | The Frame on the harbour road, strobing against the blast. | S+F |  |
-| R82 | 76.71 | 35.2.8 | 11 | The rift: a violet aperture with a black core tearing a jagged road across Kortos. | S |  |
-| R83 | 77.16 | 35.3.8 | 6 | The Frame walks out through flame. | V |  |
+| R79 | 76.04 | 35.1.4 | 6 | The other empty hall, a clock and tall windows (built, Ingram's xx-02, moved from R57): it stands between Manako and the blast. | S |  |
+| R80 | 76.29 | 35.1.9 | 5 | The explosion over the shore, over R80–R81 (built, Ingram's xx-04). | S |  |
+| R81 | 76.49 | 35.2.4 | 5 | The explosion (built as part of R80). The Frame on the harbour road had no art. | S |  |
+| R82 | 76.71 | 35.2.8 | 11 | The rift: a violet aperture with a black core, lightning crackling off it, over R82–R83 (built, effects only). | F |  |
+| R83 | 77.16 | 35.3.8 | 6 | The rift (built as part of R82). The Frame walking out of the fire had no art. | F |  |
 | R84 | 77.41 | 35.4.3 | 2 | A searchlight burns out to white. | S+F |  |
-| R85 | 77.49 | 35.4.5 | 8 | The four, backlit, standing before the rift in Pharasma's temple (the public legend). | S | glimpse (founders) |
-| R86 | 77.81 | 36.1.2 | 3 | The first adventure: the four at a tavern table, young and loud. | S | glimpse (founders) |
-| R87 | 77.94 | 36.1.5 | 7 | The first adventure: a Spinosaurus bursting from the jungle. | S |  |
-| R88 | 78.24 | 36.2.1 | 2 | Close-up: five tiny white skulls on a cord. | S |  |
+| R85 | 77.49 | 35.4.5 | 8 | The conspiracy wall, pushing in; the 極秘 stamp lands on it, over R85–R88, before FIRST IMPACT (built, Ingram's xx-08, moved from R67). | S+T |  |
+| R86 | 77.81 | 36.1.2 | 3 | The wall (built as part of R85). The first adventure's tavern had no art. | S+T |  |
+| R87 | 77.94 | 36.1.5 | 7 | The wall (built as part of R85). The Spinosaurus had no art. | S+T |  |
+| R88 | 78.24 | 36.2.1 | 2 | The wall (built as part of R85). Hyuck's skulls had no art. | S+T |  |
 | R89 | 78.31 | 36.2.2 | 2 | Title card, red on black: FIRST IMPACT. | T |  |
-| R90 | 78.41 | 36.2.5 | 8 | The first adventure: Sarenrae, a giant figure of white light, addressing them in Nirvana. | S |  |
-| R91 | 78.74 | 36.3.2 | 5 | A stately house among old trees (built, Ingram's posh-house). | S |  |
-| R92 | 78.94 | 36.3.6 | 4 | (Replaces the excluded shot.) A small odd creature alone in a spotlight (the stray; its look is still open). | S | glimpse (the stray) |
-| R93 | 79.13 | 36.4.0 | 6 | Baldwin, in a wide hat and tinted glasses (built, Ingram's Baldwin). | S | glimpse (villain) |
+| R90 | 78.41 | 36.2.5 | 8 | The stately house begins here (built as part of R91). The figure of light had no art. | S |  |
+| R91 | 78.74 | 36.3.2 | 5 | A stately house among old trees, over R90–R91 (built, Ingram's posh-house). | S |  |
+| R92 | 78.94 | 36.3.6 | 4 | Baldwin begins here (built as part of R93). The small creature waits for its own art. | S | glimpse (villain) |
+| R93 | 79.13 | 36.4.0 | 6 | Baldwin, in a wide hat and tinted glasses, over R92–R93 (built, Ingram's Baldwin). | S | glimpse (villain) |
 | R94 | 79.36 | 36.4.5 | 5 | A Gen 2 head, one red eye, pushing in (built, Ingram's gen_02_01 still). | S | glimpse (Gen 2) |
 | R95 | 79.56 | 36.4.9 | 4 | Title card, black on white: HERE. | T |  |
 | R96 | 79.75 | 37.1.3 | 6 | A Gen 2 walker by a radar dish on a hill, panning (built, Ingram's gen_02_03), into the radar scope. | S | glimpse (Gen 2) |
 | R97 | 80.00 | 37.1.9 | 6 | A plotting-table radar scope with three contacts. | S+F |  |
-| R98 | 80.25 | 37.2.4 | 18 | The Comms Officer, tilting up from her hands on the console to her face under the headset (built). | V |  |
-| R99 | 81.01 | 37.4.0 | 6 | A pilot climbing onto a white machine, tilting down (built, Ingram's gen_02_05). | S | glimpse (Gen 2) |
+| R98 | 80.25 | 37.2.4 | 18 | The Gen 2 pilot's tilt begins here (built as part of R99). The comms officer's portrait is retired. | S | glimpse (Gen 2) |
+| R99 | 81.01 | 37.4.0 | 6 | A pilot climbing onto a white machine, tilting down, over R98–R99: a second in all (built, Ingram's gen_02_05). | S | glimpse (Gen 2) |
 | R100 | 81.25 | 37.4.5 | 26 | Director card: 監督 イングラム, L layout, white on black; it holds over R101, as the source's does. | T |  |
-| R101 | 82.32 | 38.2.8 | 10 | A vermilion chevron stripe wipes across, revealing the bunker's great vault door, pushing in (built, Ingram's secret_bunker). | F+S |  |
-| R102 | 82.75 | 38.3.8 | 12 | The Frame crouched in the column of light, arms crossed. | V |  |
-| R103 | 83.25 | 38.4.8 | 15 | It spreads its arms and rises; camera pulls back. | V |  |
-| R104 | 83.89 | 39.2.2 | 18 | LEAD BEAT 4. The Frame dissolves into a fourth of the six in the same pose, eyes closed. | P+L |  |
-| R105 | 84.65 | 39.3.8 | 6 | An animated red-eyed machine head (built, Ingram's gen_02_01 animation), before lead beat 5. | V | glimpse (Gen 2) |
-| R106 | 84.90 | 39.4.4 | 24 | LEAD BEAT 5. A fifth of the six against blue sky, low angle, turning to look up. | P+V |  |
-| R107 | 85.90 | 40.2.5 | 10 | Same face, close profile, straining. | P+S |  |
+| R101 | 82.32 | 38.2.8 | 10 | A vermilion chevron stripe wipes across, revealing the bunker's great vault door; the camera keeps pushing in through R105 (built, Ingram's secret_bunker). | F+S |  |
+| R102 | 82.75 | 38.3.8 | 12 | The vault door, pushing in (built as part of R101). | S |  |
+| R103 | 83.25 | 38.4.8 | 15 | The vault door, pushing in (built as part of R101). | S |  |
+| R104 | 83.89 | 39.2.2 | 18 | The vault door (built as part of R101). LEAD BEAT 4 waits for the group's character art. | S |  |
+| R105 | 84.65 | 39.3.8 | 6 | The vault door (built as part of R101). The machine head moved up to R36. | S |  |
+| R106 | 84.90 | 39.4.4 | 24 | Trainees in ranks against a tower block and summer clouds, pushing in, over R106–R107 (built, Ingram's xx-06): holding LEAD BEAT 5's place until the group's character art comes. | S |  |
+| R107 | 85.90 | 40.2.5 | 10 | The trainees (built as part of R106). | S |  |
 | R108 | 86.31 | 40.3.4 | 1 | Black, two frames. | F |  |
-| R109 | 86.34 | 40.3.4 | 5 | LEAD BEAT 6. The sixth, silhouetted against a blinding searchlight, arm raised; strobing. | P+S+F |  |
-| R110 | 86.56 | 40.3.9 | 6 | The sixth's face, smiling, eyes closed. | P+V |  |
+| R109 | 86.34 | 40.3.4 | 5 | A blinding searchlight glare with rays, strobing (built, effects only). LEAD BEAT 6 waits for the group's character art. | F |  |
+| R110 | 86.56 | 40.3.9 | 6 | The end card's wall begins here (built as part of R111). | S |  |
 | R111 | 86.82 | 40.4.5 | 64 | End card: a stained Hangar Two wall with large faint mitflit glyphs; 製作 空白相続製作委員会 fades in; fade to black. | S+T |  |
 
 **Where Ingram's second batch went** (placed in the eighth round). Each image is in exactly one shot, doing the job
@@ -663,12 +696,12 @@ the source's shot does there:
 |---|---|---|
 | The windowless monolith at dusk (`xx-01`) | R27 | The Frame's hangar. |
 | The empty hall, the city in its windows (`xx-03`) | R54 | The Directorate after hours, just before its seal. The sea-fort plate waits for its own image. |
-| The other hall, a clock and tall windows (`xx-02`) | R57 | In place of the vetoed map. |
-| The ranks against the tower (`xx-06`) | R77 | The civil-defence drill. (It was R61, the source's fleet, until the battleship came.) |
+| The other hall, a clock and tall windows (`xx-02`) | R79 | Between Manako and the blast, so nothing follows him straight into it. (It was R57, in place of the vetoed map.) |
+| The ranks against the tower (`xx-06`) | R106–R107 | The recruits, holding lead beat 5's place until the group's character art comes. (It was R61, then R77.) |
 | The tentacled shape over the red city (`xx-07`) | R64 | The second Watcher glimpse, three frames, the tape tearing. |
 | Section Officer Vetch (`B0-01B`) | R65 | His portrait flash. The full-length `B0-01A` stays in the in-tray: the same man twice would be a repeat. |
-| The agents in caps and dark glasses (`xx-05`) | R58 | A portrait flash among the town's faces, in Ingram's own colours (her purple is deliberate: the old purple-to-blue grade is gone). They aren't Section Nine: that's the party. (It was R66 until the council image came.) |
-| The conspiracy wall (`xx-08`) | R67 | The source's top-secret file, stamped 極秘. |
+| The agents in caps and dark glasses (`xx-05`) | R56–R58 | A portrait flash among the town's faces, in Ingram's own colours (her purple is deliberate: the old purple-to-blue grade is gone). They aren't Section Nine: that's the party. (It was R66 until the council image came.) |
+| The conspiracy wall (`xx-08`) | R85–R88 | The top-secret file, stamped 極秘, just before FIRST IMPACT. (It was R67.) |
 | Manako at his tea (`manako`) | R78 | Among the town's ordinary faces, not the Directorate's. His tea-house portrait is the one the party may see in Episodes One and Two, so it gives nothing away. Moved from R79 so that nothing follows him straight into the blast (section 8). |
 | The explosion on the shore (`xx-04`) | R80 | The explosion over the rooftops. |
 
@@ -679,41 +712,45 @@ is, and every camera move over them runs on ones:
 | Piece | Shot | Why there |
 |---|---|---|
 | The second newcomer, animated (`newcomer_02_replacement video`) | R14 | Lead beat 2, in place of the still. |
-| The mech bay (`mech_bay_pan`) | R18 | The sortie begins in the Frame's hangar: a pan. |
-| The power cell in a gloved hand (`battery`, animated) | R21 | The source's hand on the lever. |
+| The mech bay (`mech_bay_pan`) | R23 | The launch bay, a long pan before the third newcomer's turn. (It was R18.) |
+| The power cell in a gloved hand (`battery`, animated) | R39 | A hand among the chorus's machines. (It was R21.) |
 | The third newcomer, animated (`newcomer_03`) | R24–R26 | Lead beat 3, in place of the extreme close-up: the turn toward us. |
 | The machinery panels (`tech-pan-01`) | R44 | The source's rapid close-ups: one fast pan. |
 | The violet enemy machine (`bad_mech`) | R45 | The source's enemy face. |
 | Gen 2 being built (`gen_02_04`) | R46 | Red haze, and a tilt up. |
-| The masked cultist (`cultist`) | R49 | Cicada's masked figure, before the CICADA card. |
+| The masked cultist (`cultist`) | R49–R50 | Cicada's masked figure, held until the CICADA card. |
 | The gun bunker at sunset (`bunker_pan`) | R52 | Kurose's coast, before the KUROSE card. |
 | The marksman and spotter (`sniper`) | R59 | A portrait flash. |
 | The hospital bed (`hospital`) | R60 | The source's face with its eyes opening. |
-| The battleship (`battleships_pan`) | R61 | The source's fleet. |
+| The battleship (`battleships_pan`) | R76–R77 | The source's fleet, where it has room to pan. (It was R61.) |
 | The woman in dark red (`bad_guy_woman`) | R63 | The source's side glance. |
 | The bald man at the desk (`bad_guy`) | R66 | The source's sinister council member. |
 | The pale-suited man (`bad_guy_02`) | R68 | The mysterious-looking character. |
 | The machine's red eye (`tech_01`) | R71 | The crane rig's searchlight eye, before CRANE RIG. |
 | The welder (`repair`, animated) | R73 | Before SALVAGE AND FIRE. |
-| The school (`school`) | R76 | The town's own life, in the roll call. |
+| The school (`school`) | R16 | Behind Taka, who had only a flat field (Ingram asked for a real background). (It was R76.) |
 | The stately house (`posh-house`) | R91 | A place, in the run of the first adventure. |
 | Baldwin (`Baldwin`) | R93 | His sketch slot. |
 | The Gen 2 head (`gen_02_01` still) | R94 | The Gen 2 head slot. |
 | The Gen 2 walker (`gen_02_03`) | R96 | Into the radar scope. |
 | The pilot climbing aboard (`gen_02_05`) | R99 | A tilt down, just before the director card. |
 | The vault door (`secret_bunker`) | R101 | The reveal behind the stripe; the director credit holds over it. |
-| The machine head, animated (`gen_02_01` clip) | R105 | A short flash before lead beat 5. |
+| The machine head, animated (`gen_02_01` clip) | R36–R37 | Swinging round to face us just before the eyes flare. (It was R105, six frames.) |
 
-`R24-newcomer.png` and `R15-newcomer.png` are retired to `art/retired/`. `B0-01A` stays in the in-tray: the same
+**Also moved when the opening was finished (2026-09-26):** the Frame's hero plate (`R23-frame`) opens chorus one (R32–R34).
+
+`R24-newcomer.png`, `R15-newcomer.png`, `R14-comms-officer.png` and `R13-hand.png` are retired to `art/retired/`, and a test keeps them out (Ingram: "I don't like that portrait so stop using it please"; of the red Frame arm, tried at R36–R37: "I didn't much care for the mech arm on it's own"). `B0-01A` stays in the in-tray: the same
 man twice would be a repeat.
 
 Hyuck's skulls (R88) were planned as a crop of his founder image. That would be a repeat, so R88 is a slate with its
 own prompt.
 
-**How the six are spread:** lead beat 1 is the verse (R11); 2 is the pre-chorus face (R14); 3 is the eyes
-opening before the launch (R24–R25); 4 is the machine dissolving into its pilot (R104); 5 is the low angle against
-the sky (R106–R107); 6 is the silhouette and the smile (R109–R110). Which player gets which beat is yours to set, and
-can change with each cut.
+**How the six are spread:** lead beat 1 is the verse (R11); 2 is the pre-chorus face (R14); 3 is the turn before
+the launch (R24–R26); 4 is the machine dissolving into its pilot (R104); 5 is the low angle against the sky
+(R106–R107); 6 is the silhouette and the smile (R109–R110). Which player gets which beat is yours to set, and can
+change with each cut. **Until the group's character art comes,** beats 1–3 are temporary newcomers, and 4–6 are
+covered: the vault door's push runs through R105, the trainees in ranks hold R106–R107, and the searchlight glare
+and the end card's wall hold R109–R110.
 
 ---
 
