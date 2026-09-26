@@ -1,0 +1,33 @@
+{{!--
+    The opening-titles choice (foundry/opening-titles.mjs#OpeningChoice),
+    shown on every screen when the GM starts the titles, unless that player
+    has a remembered choice.
+
+    Two big buttons, each saying exactly what it contains, in the order
+    core/opening-titles.mjs#openingChoiceModel gives them: REDUCED MOTION
+    FIRST. It carries `autofocus` (Foundry focuses it on first render, so
+    Enter picks it) and is drawn as the prominent silver plate; the full cut
+    is the plain black plate beside the caution mark, never pre-selected.
+    Closing the window plays nothing.
+
+    The modifier classes are literal words inside {{#if}} blocks rather than
+    a built `--{{version}}`, so tier0-architecture's class lint can see them.
+    Must render exactly ONE top-level element.
+--}}
+<div class="bi-opening-choice">
+    <p class="bi-opening-choice__intro">{{intro}}</p>
+    <div class="bi-opening-choice__options">
+        {{#each options}}
+        <button type="button" class="bi-opening-choice__option{{#if this.isReduced}} bi-opening-choice__option--reduced{{/if}}{{#if this.isFull}} bi-opening-choice__option--full{{/if}}"
+            data-action="choose" data-version="{{this.version}}"{{#if this.isDefault}} autofocus{{/if}}>
+            <span class="bi-opening-choice__label">{{#if this.isFull}}<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{/if}}{{this.label}}</span>
+            <span class="bi-opening-choice__detail">{{this.detail}}</span>
+        </button>
+        {{/each}}
+    </div>
+    <label class="bi-opening-choice__remember">
+        <input type="checkbox" name="{{remember.name}}"{{#if remember.checked}} checked{{/if}}>
+        <span>{{remember.label}}</span>
+    </label>
+    <p class="bi-opening-choice__hint">{{closeHint}}</p>
+</div>

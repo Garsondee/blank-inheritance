@@ -10251,7 +10251,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.bi-srail__mark {
+/* Mark, and the opening-titles key beside it (foundry/opening-titles.mjs,
+   2026-09-26): one face, so the rail's two keys read as one bank. */
+.bi-srail__mark,
+.bi-srail__opening {
   appearance: none;
   flex: none;
   box-sizing: border-box;
@@ -10273,9 +10276,12 @@
   cursor: pointer;
   transition: none;
 }
-.bi-srail__mark:hover { background: linear-gradient(180deg, #f7f9f9 0%, #dde2e4 55%, #c3c9cc 100%); color: #7a3a00; }
-.bi-srail__mark:active { box-shadow: inset 0 1px 3px rgb(0 0 0 / 45%); }
-.bi-srail__mark:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+.bi-srail__mark:hover,
+.bi-srail__opening:hover { background: linear-gradient(180deg, #f7f9f9 0%, #dde2e4 55%, #c3c9cc 100%); color: #7a3a00; }
+.bi-srail__mark:active,
+.bi-srail__opening:active { box-shadow: inset 0 1px 3px rgb(0 0 0 / 45%); }
+.bi-srail__mark:focus-visible,
+.bi-srail__opening:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   .bi-srail__body[data-phase="after"] .bi-srail__lamp { animation: none; }
@@ -11135,5 +11141,247 @@
   color: var(--bi-ns-ink-soft, #7a7266);
   font-size: 13px;
   text-align: center;
+}
+
+/* =====================================================================
+   13. THE OPENING TITLES  (foundry/opening-titles.mjs, 2026-09-26)
+   Two pieces: the choice window every screen gets when the GM starts the
+   titles (an ordinary module window, themed by the bridge like the rest),
+   and the full-screen player itself.
+
+   The choice follows the north star's two honest metals. The reduced-
+   motion cut is the brushed-silver plate, the prominent default that
+   already has focus; the full cut is the true-black plate, and the one warm
+   colour is spent on its caution mark. Nothing in either piece animates
+   beyond a plain fade: one of the two cuts promises no flashing at all, and
+   the frame around it must not break that promise on its behalf.
+   ===================================================================== */
+
+.bi-opening-choice {
+  display: grid;
+  gap: 12px;
+  padding: 4px 2px 2px;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-body);
+}
+.bi-opening-choice__intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.bi-opening-choice__options {
+  display: grid;
+  gap: 10px;
+}
+.bi-opening-choice__option {
+  appearance: none;
+  box-sizing: border-box;
+  display: grid;
+  /* One full-width column, pinned left. Foundry's own button rule centres
+     its content (justify-content: center), which on a grid centres the
+     column instead: a short line of text then sat indented while a wrapped
+     one did not (seen in the harness, 2026-09-26). */
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  justify-items: start;
+  gap: 5px;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 13px 16px 14px;
+  border: none;
+  border-radius: 10px;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.35;
+  font-family: var(--bi-font-body);
+  cursor: pointer;
+  transition: none;
+}
+.bi-opening-choice__option:active { box-shadow: inset 0 1px 4px rgb(0 0 0 / 55%); }
+.bi-opening-choice__option:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+.bi-opening-choice__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--bi-font-condensed);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.bi-opening-choice__detail {
+  font-size: 13.5px;
+}
+/* The safe cut: the same machined silver face as the session rail's keys. */
+.bi-opening-choice__option--reduced {
+  background: linear-gradient(180deg, #eef1f2 0%, #cdd3d6 55%, #b4bbbf 100%);
+  color: var(--bi-ns-ink);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 48%), inset 0 2px 0 rgb(255 255 255 / 85%), 0 2px 6px rgb(0 0 0 / 45%);
+}
+.bi-opening-choice__option--reduced:hover {
+  background: linear-gradient(180deg, #f7f9f9 0%, #dde2e4 55%, #c3c9cc 100%);
+  color: var(--bi-ns-ink);
+}
+.bi-opening-choice__option--reduced .bi-opening-choice__detail { color: var(--bi-ns-ink-soft); }
+/* The full cut: the black plate, legend-white type, an amber caution mark.
+   Its warning sentence stays at full legend brightness: it is the one line
+   on this window that someone may need to read carefully. */
+.bi-opening-choice__option--full {
+  background: linear-gradient(180deg, var(--bi-ns-black-hi) 0%, var(--bi-ns-black) 60%, var(--bi-ns-black-lo) 100%);
+  color: var(--bi-ns-legend);
+  box-shadow: inset 0 0 0 1px var(--bi-ns-outline), 0 2px 6px rgb(0 0 0 / 45%);
+}
+.bi-opening-choice__option--full:hover {
+  background: linear-gradient(180deg, #37393d 0%, var(--bi-ns-black-hi) 60%, var(--bi-ns-black) 100%);
+  color: var(--bi-ns-cap);
+}
+.bi-opening-choice__option--full .bi-opening-choice__label i { color: var(--bi-amber); }
+.bi-opening-choice__remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bi-opening-choice__remember input { flex: none; margin: 0; }
+.bi-opening-choice__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--bi-bone-dim);
+}
+/* The GM's confirm window: a file the check found missing, named. */
+.bi-opening-confirm__missing {
+  margin: 8px 0 0;
+  padding: 6px 9px;
+  border-left: 3px solid var(--bi-amber);
+  background: var(--bi-amber-bed);
+  color: var(--bi-bone);
+}
+
+/* --- The player --------------------------------------------------------- */
+
+.bi-opening {
+  position: fixed;
+  inset: 0;
+  /* Above every window. --z-index-window is only where windows START:
+     ApplicationV2#bringToFront raises the focused one by one each time,
+     without limit, so a fixed small offset above it loses after a long
+     evening. This sits just under Foundry's tooltip and notification stack
+     (9999 and 99999), so a GM notice about a missing file still shows. */
+  z-index: calc(var(--z-index-tooltip, 9999) - 1);
+  display: grid;
+  place-items: center;
+  background: #000;
+  color: var(--bi-ns-legend);
+  font-family: var(--bi-font-plate);
+  opacity: 0;
+  transition: opacity var(--bi-dur-servo) linear;
+  outline: none;
+}
+.bi-opening.is-shown { opacity: 1; }
+.bi-opening__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+.bi-opening__status {
+  position: absolute;
+  left: 24px;
+  bottom: 22px;
+  margin: 0;
+  display: none;
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--bi-ns-legend);
+  text-shadow: 0 1px 3px #000;
+}
+.bi-opening[data-state="loading"] .bi-opening__status { display: block; }
+/* The click-to-play screen sits over whatever the paused first frame is
+   (bright static, in the draft), so it carries its own black backing and the
+   frame behind it is dimmed: grey type straight over a picture was unreadable
+   (seen in the harness, 2026-09-26). */
+.bi-opening__gate {
+  position: relative;
+  z-index: 1;
+  display: none;
+  justify-items: center;
+  gap: 12px;
+  max-width: min(520px, 90vw);
+  padding: 20px 26px 18px;
+  border-radius: 16px;
+  background: rgb(0 0 0 / 80%);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 8%), 0 10px 30px rgb(0 0 0 / 60%);
+  text-align: center;
+}
+.bi-opening[data-state="blocked"] .bi-opening__gate { display: grid; }
+.bi-opening[data-state="blocked"] .bi-opening__video { opacity: 0.4; }
+.bi-opening__gate-hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--bi-ns-legend);
+}
+/* Both keys are the rail's silver pill, drawn larger: they are read from a
+   sofa, not from behind a GM screen. */
+.bi-opening__play,
+.bi-opening__skip {
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #eef1f2 0%, #cdd3d6 55%, #b4bbbf 100%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 48%), inset 0 2px 0 rgb(255 255 255 / 85%), 0 2px 8px rgb(0 0 0 / 60%);
+  color: var(--bi-ns-ink);
+  font-family: var(--bi-font-plate);
+  line-height: 1;
+  cursor: pointer;
+  transition: none;
+}
+.bi-opening__play:hover,
+.bi-opening__skip:hover {
+  background: linear-gradient(180deg, #f7f9f9 0%, #dde2e4 55%, #c3c9cc 100%);
+  color: #7a3a00;
+}
+.bi-opening__play:active,
+.bi-opening__skip:active { box-shadow: inset 0 1px 3px rgb(0 0 0 / 45%); }
+.bi-opening__play:focus-visible,
+.bi-opening__skip:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 3px; }
+.bi-opening__play {
+  height: 46px;
+  padding: 0 24px;
+  font-size: 17px;
+}
+.bi-opening__skip {
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
+  z-index: 1;
+  height: 32px;
+  padding: 0 8px 0 14px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+.bi-opening__skip:hover,
+.bi-opening__skip:focus-visible { opacity: 1; }
+.bi-opening__key {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 10%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 28%);
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  line-height: 1;
 }
 

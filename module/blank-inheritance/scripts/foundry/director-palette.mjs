@@ -44,6 +44,7 @@ import { openApprovalsDesk } from "./approvals-desk.mjs";
 import { openEquipmentPanel } from "./equipment-panel.mjs";
 import { openInductionTerminal } from "./induction-terminal.mjs";
 import { advanceSegment } from "./campaign-state.mjs";
+import { playOpeningForTable } from "./opening-titles.mjs";
 import { currentMode } from "./command-bar.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
 import { applySoundscape, playMusicPool, runCue, stopAllAudio } from "./audio-director.mjs";
@@ -542,7 +543,9 @@ function panelCommands() {
     // Foundry's own endCombat, which asks for confirmation itself. This used
     // to call combat.delete() directly — one mis-press ended a fight.
     { id: "table.endcombat", group: "table", order: 7, title: "End the encounter", hint: "asks first", icon: "fa-solid fa-flag", danger: true, keywords: ["combat", "end", "stop", "over"], hidden: !game.combat, run: () => game.combat?.endCombat() },
-    { id: "table.rest", group: "table", order: 8, title: "Rest for the night", hint: "every party member, the system's own rest (asks first)", icon: "fa-solid fa-bed", keywords: ["rest", "sleep", "night", "recover", "daily"], run: () => runSystemAction("restForTheNight", partyActors()) }
+    { id: "table.rest", group: "table", order: 8, title: "Rest for the night", hint: "every party member, the system's own rest (asks first)", icon: "fa-solid fa-bed", keywords: ["rest", "sleep", "night", "recover", "daily"], run: () => runSystemAction("restForTheNight", partyActors()) },
+    // The same verb as the session rail's Opening key (foundry/opening-titles.mjs).
+    { id: "table.opening", group: "table", order: 9, title: "Play the opening titles", hint: "every screen; each player picks full or reduced motion (asks first)", icon: "fa-solid fa-film", keywords: ["opening", "titles", "intro", "video", "reduced motion", "start"], run: () => playOpeningForTable() }
   ];
 }
 

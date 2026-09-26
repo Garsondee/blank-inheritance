@@ -902,6 +902,49 @@
         "ShowName": "Show the session rail",
         "ShowHint": "The thin strip across the top of the GM’s screen showing how far through tonight’s session you are."
       }
+    },
+    "OpeningTitles": {
+      "Title": "Opening titles",
+      "Intro": "The opening titles are starting. Choose which version plays on your screen.",
+      "Reduced": {
+        "Label": "Reduced motion",
+        "Detail": "The same song and pictures, with fewer cuts, gentle movement and no flashing."
+      },
+      "Full": {
+        "Label": "Full opening",
+        "Detail": "Fast cuts, strobing and flashing lights, and rapid movement. Not suitable if you have photosensitive epilepsy or are sensitive to flashing or motion."
+      },
+      "Remember": "Remember my choice (you can change it any time in Game Settings).",
+      "CloseHint": "Close this window to skip the opening. Once it starts, Skip or Esc stops it.",
+      "Loading": "Loading…",
+      "PlayGate": "Play the opening",
+      "PlayGateHint": "Your browser needs one click before it will play video with sound.",
+      "Skip": "Skip",
+      "SkipHint": "Skip the opening titles (Esc)",
+      "RailKey": "Opening",
+      "RailHint": "Play the opening titles on every screen. It asks first; then each player picks the full or the reduced-motion version.",
+      "BadFolder": "Opening titles: the video folder “{folder}” can’t be used, so {fallback} is used instead. Fix it in Game Settings.",
+      "Confirm": {
+        "Title": "Play the opening titles?",
+        "Body": "This plays the opening titles on every screen now, yours included.",
+        "BodyHint": "Each player first picks the full or the reduced-motion version, unless they saved a choice. Anyone can stop it with Skip or Esc.",
+        "Yes": "Play for everyone",
+        "No": "Not now",
+        "Missing": "Missing from the server: {path}. Anyone who picks that version will see nothing."
+      },
+      "Failed": {
+        "Own": "Opening titles: {path} could not be played. Check that the file is in Foundry’s data folder.",
+        "Player": "Opening titles: {path} could not be played on {name}’s screen, so it closed there. Check that the file is in Foundry’s data folder."
+      },
+      "Settings": {
+        "VersionName": "Opening titles",
+        "VersionHint": "Which version of the opening titles plays on this computer when the GM starts them. Full: fast cuts, strobing and flashing lights, rapid movement. Reduced motion: the same song and pictures, with fewer cuts, gentle movement and no flashing.",
+        "Ask": "Ask me each time",
+        "Reduced": "Reduced motion (no flashing)",
+        "Full": "Full opening (fast cuts and flashing lights)",
+        "FolderName": "Opening titles: video folder",
+        "FolderHint": "The folder in Foundry’s data directory that holds opening-full.mp4 and opening-reduced.mp4. The default is blank-inheritance-video."
+      }
     }
   }
 }

@@ -4,8 +4,10 @@
  *
  * A thin strip across the top of the GM's screen: tonight's real session on
  * a clock-time track, the scenes it has passed through as bands, every log
- * entry as a pin, a needle at now, and how long is left. One key on it: Mark,
- * which drops a pin (and a line in the log) in one press.
+ * entry as a pin, a needle at now, and how long is left. Two keys on it:
+ * Mark, which drops a pin (and a line in the log) in one press, and Opening,
+ * which starts the opening titles on every screen (foundry/opening-titles.mjs;
+ * a real-evening ritual, so it lives on the real evening's strip).
  *
  * GM-only, and not by hiding: a player's client never constructs this class,
  * the same way it never constructs the Director's deck (Law 11 as structure).
@@ -19,6 +21,7 @@
 import { minutesOfDay, railModel, railWindow, MARK_TEXT } from "../core/session-rail.mjs";
 import { currentEntries, recordLogEntry } from "./session-log.mjs";
 import { currentMode } from "./command-bar.mjs";
+import { playOpeningForTable } from "./opening-titles.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -152,7 +155,8 @@ export class SessionRail extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["bi-srail"],
     window: { frame: false, positioned: false },
     actions: {
-      mark: SessionRail.#onMark
+      mark: SessionRail.#onMark,
+      playOpening: SessionRail.#onPlayOpening
     }
   };
 
@@ -208,6 +212,14 @@ export class SessionRail extends HandlebarsApplicationMixin(ApplicationV2) {
       mode: currentMode(),
       subject: null
     });
+  }
+
+  /**
+   * The opening titles on every screen. Asks first (Law 17: the whole table
+   * is about to see it), and logs its own pin on this rail when it goes.
+   */
+  static async #onPlayOpening() {
+    await playOpeningForTable();
   }
 }
 

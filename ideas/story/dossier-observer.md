@@ -439,7 +439,8 @@ everything, next to a swarm that sees everything, is the worst combination this 
 ## 20. Running notes
 
 - **Unseen at campaign start** (standing hard rule). It isn't in any location's lore, and no scene may name it
-  early. The mystery is also diegetic: it hides on purpose (§7.5).
+  early. The mystery is also diegetic: it hides on purpose (§7.5). **One exception, outside the fiction:** the
+  opening title sequence may show it in a short glimpse (LEDGER #37), unexplained and never named on screen.
 - **Never cartoon evil, never cruel for effect.** It is an objective, not a villain. Its horror is how reasonable
   each step is.
 - **Fair, always.** It only knows what it has observed. The party can learn this, exploit it, and lie to it.

@@ -9,6 +9,9 @@
                  entry as a pin (hover one for what was written), and a needle
                  at now.
       readout  — how long is left, or how far over.
+      Opening  — the opening titles on every screen (foundry/opening-titles.mjs).
+                 It asks first, then each player picks the full or the
+                 reduced-motion cut on their own screen.
       Mark     — one press: a pin here and a line in the log.
 
     Every position is a percentage computed in core/session-rail.mjs; nothing
@@ -39,6 +42,8 @@
     <span class="bi-srail__readout">
         <b>{{rail.remaining}}</b>{{#if rail.currentScene}}<em>{{rail.currentScene}}</em>{{/if}}
     </span>
+    <button type="button" class="bi-srail__opening" data-action="playOpening" data-tooltip="{{localize 'BLANKINHERITANCE.OpeningTitles.RailHint'}}"
+        aria-label="{{localize 'BLANKINHERITANCE.OpeningTitles.RailHint'}}">▶ {{localize "BLANKINHERITANCE.OpeningTitles.RailKey"}}</button>
     <button type="button" class="bi-srail__mark" data-action="mark" data-tooltip="{{localize 'BLANKINHERITANCE.SessionRail.MarkHint'}}"
         aria-label="{{localize 'BLANKINHERITANCE.SessionRail.MarkHint'}}">◆ {{localize "BLANKINHERITANCE.SessionRail.Mark"}}</button>
     <span class="bi-srail__cap bi-srail__cap--right" aria-hidden="true"></span>

@@ -44,3 +44,29 @@ shape as `tools/font-pipeline/`'s upstream-TTF-to-shipped-woff2 split.
   - `fader-vertical.png` ← Kit 02's `fader_vertical.png` (72×387/frame, 150 frames: frame 0 is the cap at the bottom, 149 at the top — verified by cropping both ends) — the three channel faders on the Sound Desk (`.bi-fader` in `bi-components.css`), added 2026-09-17.
   - **✅ LICENSING FLAG RESOLVED 2026-09-17.** Ingram checked the terms directly and confirmed: *"Kit 1 and Kit 2 are both free to use for non-commercial, I checked, no problems there."* This module is a private, non-commercial campaign aid, so the use is covered. The credit requirement for open-source projects is satisfied by this ledger in a public repo. The paragraphs above are kept as the record of the concern and how it was settled, not as an open question.
   - **The VST-plugin-scope licensing flag above was raised, and is now answered (see the line immediately above).** This is a private, non-commercial, six-player home campaign module, never sold or redistributed as a standalone resource — but committing these three files to a public GitHub repo is the point at which "ask first" stops being purely hypothetical. Emailing Julian Behrens (contact@julianbehrens.studio) is still the right next step and has not been done yet.
+
+---
+
+## The opening titles (`design/opening-titles.md`)
+
+### Fonts
+
+Downloaded 2026-09-25 into `/third-party/fonts/` (gitignored). They are used only to render the opening's typography into video frames; no font file ships in the module.
+
+- **Noto Serif CJK JP** (Black, Bold, Medium): Adobe and Google, [notofonts/noto-cjk](https://github.com/notofonts/noto-cjk). SIL Open Font License 1.1.
+- **Shippori Mincho B1** (ExtraBold), **Zen Old Mincho** (Black), **Reggae One**, **Dela Gothic One**, **Yuji Boku**: via [google/fonts](https://github.com/google/fonts). SIL Open Font License 1.1 each.
+- **TeX Gyre Heros** (all eight cuts): GUST e-foundry, [gust.org.pl](https://www.gust.org.pl/projects/e-foundry/tex-gyre/heros). GUST Font License, a free license modelled on the LPPL.
+
+All of these permit embedding in rendered output, so rendering them into a video is covered.
+
+### Source material: private table use only
+
+- **The song:** "Zankoku na Tenshi no Tēze" ("A Cruel Angel's Thesis"), the TV-length mix, from the *Neon Genesis Evangelion* soundtrack. It is copyrighted and not licensed to us. It is used as the opening's soundtrack **for private play at the table only**. It lives in `audio/in-tray/music/intro/` (gitignored) and is never committed, uploaded to a public place or distributed. The same goes for the "Fly Me to the Moon" versions in `audio/in-tray/music/outro/`, kept for the deferred outro.
+- **The reference video:** the series' original opening titles, in `artwork/in-tray/video/` (gitignored). It is used only to study timing and composition. Its frames, stems and analysis stay in the gitignored `artwork/title-sequences/reference/`. **No frame of it appears in our video**, except as a Midjourney style reference, which Ingram attaches privately.
+- **What this means for shipping:** the finished opening combines that song with our own art. It can be played to the table, and served from the private Foundry server to the six players. It must never be posted publicly or committed to this public repo.
+- **Credited on screen** (Ingram, 2026-09-25: "it would be the right thing to do to give them credit, the real composers"). The opening names the people whose music the table hears, in the slots where the source credits its own:
+  - R14: Shiro Sagisu (the *Evangelion* score), Masamichi Amano (the *Giant Robo* score, performed by the Warsaw Philharmonic Orchestra) and Maurice Jarre (the Directorate's theme, his waltz from *Is Paris Burning?*, 1966).
+  - R15: the song's lyricist Neko Oikawa, composer Hidetoshi Sato, arranger Toshiyuki Omori and singer Yoko Takahashi.
+  - The ending song is credited in the outro, which plays it.
+
+  A credit is honesty, not a licence: it changes nothing above about private use.

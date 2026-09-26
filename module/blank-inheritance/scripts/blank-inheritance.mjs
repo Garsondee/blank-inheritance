@@ -79,6 +79,7 @@ import { healStuckTiles } from "./foundry/tile-resilience.mjs";
 import { registerTravelCameraHook } from "./foundry/travel-camera.mjs";
 import { registerTravelTrailHook } from "./foundry/travel-trail.mjs";
 import { mountSessionRail, noteSceneActivated, refreshSessionRail, registerSessionRailSettings } from "./foundry/session-rail.mjs";
+import { playOpeningForTable, registerOpeningSocket, registerOpeningTitleSettings } from "./foundry/opening-titles.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -166,6 +167,10 @@ Hooks.once("init", () => {
       // own machinery, half is Foundry's own; the group that sorts first is
       // the one for when the table went somewhere nobody wrote down.
       toggleDirectorPalette,
+      // The opening titles on every screen (foundry/opening-titles.mjs). The
+      // session rail's Opening key and the Palette call this; GM-only, and it
+      // asks first unless called with { confirm: false }.
+      playOpeningForTable,
       // The demo/walkthrough runner's own macro calls this directly
       // (ideas/entries/ui-demo-walkthrough-system.json) -- the console-
       // friendly way in, same reason every other panel is on this API too.
@@ -247,6 +252,11 @@ Hooks.once("init", () => {
   // The session rail's evening (start, end, and whether to show it at all).
   // Client-scoped: the GM's own clock on the GM's own machine.
   registerSessionRailSettings(() => refreshSessionRail());
+
+  // The opening titles: each player's remembered cut (client scope, in Game
+  // Settings, so they can change or clear it) and the folder the two videos
+  // are served from (world scope, which Foundry shows only to a GM).
+  registerOpeningTitleSettings();
 });
 
 Hooks.once("ready", async () => {
@@ -335,6 +345,15 @@ Hooks.once("ready", async () => {
     registerInductionSocket();
   } catch (err) {
     console.error("Blank Inheritance | Could not open the induction terminal socket:", err);
+  }
+
+  // The opening titles: every client hears the GM start them (and chooses
+  // its own cut), and a GM's client hears a player's screen report a file
+  // that would not play. Same every-client registration as the three above.
+  try {
+    registerOpeningSocket();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the opening-titles socket:", err);
   }
 
   // The console. Every client, both seats -- the class is picked here once and

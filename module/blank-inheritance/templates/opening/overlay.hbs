@@ -1,0 +1,25 @@
+{{!--
+    The opening-titles player (foundry/opening-titles.mjs#playOpening): the
+    chosen video, full screen, above everything.
+
+      video   the chosen cut; its source is set by the adapter after every
+              listener is attached, so no error can slip past unheard.
+      status  "Loading…", shown only while data-state="loading".
+      gate    shown only while data-state="blocked": the browser would not
+              start video with sound without a click, so here is the click.
+      skip    always on screen. Skip or Escape ends it in one press.
+
+    data-state is written by the adapter from core/opening-titles.mjs's
+    overlayStep; nothing on this screen blinks or pulses, since one of the
+    two cuts promises no flashing at all. Must render exactly ONE top-level
+    element.
+--}}
+<div class="bi-opening" data-state="loading" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{label}}">
+    <video class="bi-opening__video" playsinline preload="auto"></video>
+    <p class="bi-opening__status" aria-live="polite">{{loading}}</p>
+    <div class="bi-opening__gate">
+        <button type="button" class="bi-opening__play"><i class="fa-solid fa-play" aria-hidden="true"></i> {{play}}</button>
+        <p class="bi-opening__gate-hint">{{playHint}}</p>
+    </div>
+    <button type="button" class="bi-opening__skip" aria-label="{{skipHint}}">{{skip}} <kbd class="bi-opening__key">Esc</kbd></button>
+</div>

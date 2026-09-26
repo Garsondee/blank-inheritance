@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "title-sequence-reduced.schema.json",
+  "title": "Reduced-motion title sequence",
+  "description": "The reduced-motion version of a title sequence (design/opening-titles.md, the tenth round): a shorter cut list over the same song, built at render time from the full timeline named by `base` (tools/title-sequence/titleseq/reduced.py). Every segment plays the middle of one of the full opening's shots at `motion` of its pace or slower, cuts dissolve, flashing layers are dropped. Never synced to the Foundry server.",
+  "type": "object",
+  "required": ["$schema", "id", "base", "segments"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "base": { "type": "string", "description": "The full timeline's id (data/title-sequences/<base>.json)." },
+    "about": { "type": "string" },
+    "motion": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "The share of each shot's own pace its segment plays at, at most: 0.5 is half the movement at half the speed." },
+    "dissolve": { "type": "integer", "minimum": 0, "description": "Frames of cross-dissolve at every cut." },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["until"],
+        "properties": {
+          "shot": { "type": "string", "pattern": "^R[0-9]{2,3}$" },
+          "shots": { "type": "array", "items": { "type": "string", "pattern": "^R[0-9]{2,3}$" }, "minItems": 2, "maxItems": 2, "description": "A run of shots taken as one: [first, last]." },
+          "until": { "oneOf": [{ "type": "number" }, { "const": "end" }], "description": "The reduced video's track time (seconds) this segment runs to." },
+          "motion": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+          "note": { "type": "string" }
+        },
+        "oneOf": [{ "required": ["shot"] }, { "required": ["shots"] }]
+      }
+    },
+    "drop_types": { "type": "array", "items": { "type": "string" }, "description": "Layer types left out (they flash)." },
+    "drop": { "type": "array", "items": { "type": "string" }, "description": "Clip ids left out (they flash)." },
+    "layer_overrides": { "type": "object", "description": "Clip id -> layer parameters held at these values." },
+    "text": { "type": "object", "description": "Settings forced on every text layer (no flicker, no weave)." },
+    "finish": { "type": "object", "description": "Overrides to the full timeline's finish (`vhs`: no dropouts, less jitter)." }
+  }
+}
