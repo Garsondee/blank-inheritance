@@ -62,6 +62,33 @@ def mix(base, color, amount):
     return base
 
 
+def halftone(rgb, cell=9.0, angle=45.0, ink=(16, 14, 14), paper=(236, 232, 220), softness=0.8):
+    """Manga screentone: a picture's darkness as round ink dots on paper, on a grid `cell` pixels apart turned
+    `angle` degrees, laid out on the frame so the dots stay one size however the picture is cropped.
+
+    A dot's area follows the darkness around its centre (the picture blurred over about a cell), so a mid-grey is
+    half ink, blacks close up solid and whites stay paper. Dots grow area-true to a half-cell radius, then on to
+    the cell's corners; their edges are anti-aliased over `softness` pixels."""
+    import math
+
+    import cv2
+    h, w = rgb.shape[:2]
+    lum = np.clip(rgb[..., 0] * 0.299 + rgb[..., 1] * 0.587 + rgb[..., 2] * 0.114, 0.0, 1.0).astype(np.float32)
+    mean = cv2.GaussianBlur(lum, (0, 0), cell * 0.4)
+    yy, xx = grid(w, h)
+    th = math.radians(angle)
+    c, s = math.cos(th), math.sin(th)
+    u, v = c * xx + s * yy, -s * xx + c * yy
+    cu, cv_ = (np.floor(u / cell) + 0.5) * cell, (np.floor(v / cell) + 0.5) * cell
+    sx, sy = (c * cu - s * cv_).astype(np.float32), (s * cu + c * cv_).astype(np.float32)   # each cell's centre
+    dark = np.clip(1.0 - cv2.remap(mean, sx, sy, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE), 0.0, 1.0)
+    quarter = math.pi / 4                                   # the ink a half-cell dot covers
+    r = np.where(dark < quarter, cell * np.sqrt(dark / math.pi),
+                 cell * (0.5 + (dark - quarter) / (1.0 - quarter) * (math.sqrt(0.5) - 0.5)))
+    a = np.clip((r - np.hypot(u - cu, v - cv_)) / softness + 0.5, 0.0, 1.0)[..., None]
+    return rgb01(paper) * (1.0 - a) + rgb01(ink) * a
+
+
 def to_uint8(img):
     return (np.clip(img, 0.0, 1.0) * 255.0 + 0.5).astype(np.uint8)
 

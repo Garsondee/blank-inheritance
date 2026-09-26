@@ -599,6 +599,18 @@ title has nothing to collapse into. Candidates: fade straight through into the e
 (Resolve becomes "the scene arrives"), or resolve to nothing and let the next scene transition (§6)
 carry the handoff. This is a creative call, not an implementation one — flagged, not decided here.
 
+> **Decided 2026-09-26 (Ingram):** *"So when we start a session we watch the intro video, then we
+> cut to the episode title, then we fade into the first scene automatically."* Resolve is "the scene
+> arrives": the title card fades straight into the episode's first scene. As built
+> (`scripts/foundry/opening-titles.mjs`, pure half `scripts/core/opening-titles.mjs` and
+> `scripts/core/episode-start.mjs`): one press of the session rail's **Opening** key plays the
+> opening (each player's own cut), then the episode's title card, which is now a short rendered video
+> per episode (`<video folder>/episode-titles/<episode id>.mp4`, one version for everyone) rather than
+> this section's live Splash typography, then the full-screen player fades out over 1.5 seconds onto
+> the episode's first scene. The GM picks the episode in the same confirm window, defaulting to the
+> one the Scene Runner has open. A black curtain covers every screen from the moment the titles start,
+> so the scene is made active underneath it and nobody sees it load.
+
 **The named tension: Splash was built deliberately non-blocking, and this ritual wants the opposite.**
 §5 is explicit — *"Never blocking. It must not eat a roll in progress or swallow input aimed at the
 console. It is a scrim and a picture, not a modal."* Ingram's intro sequence asks for the reverse: for
@@ -632,6 +644,8 @@ something to pre-invent a full table for here.
 transition or the scene transition IS effectively suppressed for that one cut (they would otherwise
 both fire within the same moment, which §6 already says not to do for stings vs. scene transitions —
 the same "don't fire together" rule plausibly applies to a title card vs. the episode's first scene).
+**Settled by the same decision, 2026-09-26:** suppressed. The scene changes with no transition of its
+own, hidden under the player, and the player's 1.5-second fade is the only transition the table sees.
 
 ---
 

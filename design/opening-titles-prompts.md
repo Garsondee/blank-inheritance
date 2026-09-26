@@ -323,7 +323,7 @@ R58, R59, R60, R63, R68, R71, R73, R76, R77, R91, R93, R94, R96, R99, R101 and R
 
 **Finished from the art in hand (2026-09-26):** no slates are left. Ingram: "if we keep going like this I'll burn all
 my midjourney credit and I'll tinker forever." Every gap was filled with art already made or folded into the shot
-beside it (the plan's twelfth round says where). **Nothing below is waiting to be generated.** The prompts stay as a
+beside it (the plan's twelfth round says where). **Nothing below is waiting to be generated.** Her fourth batch (the same day) and her two replacements (the star children for R02's mural, the red star for R03) are in too; the plan's §5 lists where each went and which are still spare in the in-tray. The prompts stay as a
 record, and for the group's own character art, which will take over lead beats 4–6 when it comes.
 
 ## Everything still to come (2026-09-25, third pass)

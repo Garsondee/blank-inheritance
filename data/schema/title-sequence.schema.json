@@ -4,94 +4,342 @@
   "title": "Title sequence timeline",
   "description": "A title sequence (the campaign's opening, design/opening-titles.md) as a cut list plus layered clips, rendered by tools/title-sequence/render.py. All times are track seconds: seconds on the sequence's music file, 0 = its first sample; the video starts leadIn seconds earlier. Clips and keys may be addressed in 24 fps frames instead (startF, endF, f), the way an animator's exposure sheet is. Never synced to the Foundry server (it is not in tools/module-sync's SYNCED_CAMPAIGN_DIRS), because its credits name who plays the Watcher (LEDGER #37).",
   "type": "object",
-  "required": ["$schema", "id", "fps", "leadIn", "track", "shots", "built", "clips"],
+  "required": [
+    "$schema",
+    "id",
+    "fps",
+    "leadIn",
+    "track",
+    "shots",
+    "built",
+    "clips"
+  ],
   "properties": {
-    "$schema": { "type": "string" },
-    "id": { "type": "string" },
-    "about": { "type": "string" },
-    "fps": { "const": 24 },
-    "leadIn": { "type": "number", "minimum": 0 },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "about": {
+      "type": "string"
+    },
+    "fps": {
+      "const": 24
+    },
+    "leadIn": {
+      "type": "number",
+      "minimum": 0
+    },
     "preroll": {
       "type": "object",
       "description": "Blank tape before frame 0, its frames numbered back from -1: the channel flick, the VCR's screen and the tape locking. A draft without --from opens on it; --no-preroll leaves it off.",
       "properties": {
-        "seconds": { "type": "number", "minimum": 0 },
-        "note": { "type": "string" },
+        "seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "note": {
+          "type": "string"
+        },
         "sound": {
           "type": "array",
           "description": "Noise laid under the pre-roll (tools/title-sequence/titleseq/encode.py): from and to are seconds from its first frame; fade fades an item out over that many seconds.",
           "items": {
             "type": "object",
-            "required": ["amplitude", "from", "to"],
+            "required": [
+              "amplitude",
+              "from",
+              "to"
+            ],
             "properties": {
-              "color": { "enum": ["white", "pink", "brown", "blue", "violet", "velvet"] },
-              "amplitude": { "type": "number", "minimum": 0, "maximum": 1 },
-              "from": { "type": "number", "minimum": 0 },
-              "to": { "type": "number", "minimum": 0 },
-              "fade": { "type": "number", "minimum": 0 },
-              "note": { "type": "string" }
+              "color": {
+                "enum": [
+                  "white",
+                  "pink",
+                  "brown",
+                  "blue",
+                  "violet",
+                  "velvet"
+                ]
+              },
+              "amplitude": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "from": {
+                "type": "number",
+                "minimum": 0
+              },
+              "to": {
+                "type": "number",
+                "minimum": 0
+              },
+              "fade": {
+                "type": "number",
+                "minimum": 0
+              },
+              "note": {
+                "type": "string"
+              }
             }
           }
         }
       }
     },
-    "track": { "type": "string", "description": "Repo-relative path to the music (gitignored; see CREDITS.md)." },
+    "track": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Repo-relative path to the music (gitignored; see CREDITS.md). null for a timeline with no music, such as an episode title card: it runs for its own `length` over silence and its `sound`."
+    },
+    "length": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds of programme from time 0, for a timeline with no track (the track sets it otherwise)."
+    },
+    "tail": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds held after the music ends, so the end card can fade out slowly (Ingram, 2026-09-26: \"we need a longer tail\")."
+    },
+    "tailSound": {
+      "type": "array",
+      "description": "Noise under the tail: each item starts `from` seconds after the music ends and runs to the end, fading out over `fade` seconds.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "enum": [
+              "white",
+              "pink",
+              "brown"
+            ]
+          },
+          "amplitude": {
+            "type": "number"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          },
+          "fade": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "sound": {
+      "type": "array",
+      "description": "For a timeline with no track: noise laid over its silence, in seconds of the file (a title card's tape hiss).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "enum": [
+              "white",
+              "pink",
+              "brown"
+            ]
+          },
+          "amplitude": {
+            "type": "number"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          },
+          "fade": {
+            "type": "number"
+          }
+        }
+      }
+    },
     "shots": {
       "type": "array",
       "description": "Our cut list: each shot runs from its in-point to the next shot's. Ids follow the source continuity (R00-R111) so notes can use one vocabulary.",
       "items": {
         "type": "object",
-        "required": ["id"],
+        "required": [
+          "id"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^R[0-9]{2,3}$" },
-          "in": { "type": "number" },
-          "inF": { "type": "integer" },
-          "note": { "type": "string" }
+          "id": {
+            "type": "string",
+            "pattern": "^(R[0-9]{2,3}|C[0-9]{2})$",
+            "description": "R00-R111: the source opening's shots. C00...: an episode title card's own shots (episode-card.json)."
+          },
+          "in": {
+            "type": "number"
+          },
+          "inF": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string"
+          }
         },
-        "oneOf": [{ "required": ["in"] }, { "required": ["inF"] }]
+        "oneOf": [
+          {
+            "required": [
+              "in"
+            ]
+          },
+          {
+            "required": [
+              "inF"
+            ]
+          }
+        ]
       }
     },
     "finish": {
       "type": "object",
       "description": "The finishing pass over every one of our frames. `vhs`: the arguments to tools/title-sequence/titleseq/fx.py's vhs() (strength, bleed, noise, jitter, head, lift, saturation, dropouts, halation). Without it, a light film grain.",
-      "properties": { "vhs": { "type": "object" } }
+      "properties": {
+        "vhs": {
+          "type": "object"
+        }
+      }
     },
     "built": {
       "type": "array",
       "description": "Shots rendered from our own clips. Every other shot shows the source, greyed and tagged REF, in drafts.",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "clips": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "shot", "layer"],
+        "required": [
+          "id",
+          "shot",
+          "layer"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "shot": { "type": "string" },
-          "start": { "type": "number" },
-          "end": { "type": "number" },
-          "startF": { "type": "integer" },
-          "endF": { "type": "integer" },
-          "z": { "type": "number", "description": "Stacking order; lowest draws first." },
-          "note": { "type": "string" },
-          "interp": { "enum": ["hold", "linear"], "description": "hold (the default) keeps each key's values until the next key, as a held cel drawing does." },
-          "on": { "type": "integer", "minimum": 1, "description": "The exposure: each drawing held for this many frames (2 = on twos, 3 = on threes), as cel animation holds them. Moves and the layer's own clock step; opacity and visibility stay per frame." },
-          "ease": { "enum": ["in", "out", "inout"], "description": "With linear keys: curve every move. A move keyed only at its two ends is then one smooth curve with no change of speed." },
+          "id": {
+            "type": "string"
+          },
+          "shot": {
+            "type": "string"
+          },
+          "start": {
+            "type": "number"
+          },
+          "end": {
+            "type": "number"
+          },
+          "startF": {
+            "type": "integer"
+          },
+          "endF": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "number",
+            "description": "Stacking order; lowest draws first."
+          },
+          "note": {
+            "type": "string"
+          },
+          "interp": {
+            "enum": [
+              "hold",
+              "linear"
+            ],
+            "description": "hold (the default) keeps each key's values until the next key, as a held cel drawing does."
+          },
+          "on": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The exposure: each drawing held for this many frames (2 = on twos, 3 = on threes), as cel animation holds them. Moves and the layer's own clock step; opacity and visibility stay per frame."
+          },
+          "ease": {
+            "enum": [
+              "in",
+              "out",
+              "inout"
+            ],
+            "description": "With linear keys: curve every move. A move keyed only at its two ends is then one smooth curve with no change of speed."
+          },
           "layer": {
             "type": "object",
-            "required": ["type"],
+            "required": [
+              "type"
+            ],
             "properties": {
-              "kind": { "enum": ["credit", "diegetic", "title"], "description": "Text layers only: a credit (counted against the opening's needed roles), text in the world (a stencil, a counter, a letterhead), or a title card (the opening's own words, from the approved list in design/opening-titles.md section 7)." },
-              "type": { "enum": ["solid", "glow_dot", "glint", "cel_band", "droplets", "airbrush_ring", "wash", "bloom", "image", "video", "text", "dust", "logo", "logo_light", "beam", "polygon", "ref_still", "vhs_damage", "heat_haze", "tape_blank", "osd", "slate", "light_column", "field", "orb", "ray_fan", "arcs", "radar", "data_bars", "streaks"], "description": "image and video layers take a camera (fit, zoom, cx, cy, px, py, rot, flip_x), may crop their art and cut it out of its backdrop with a matte ({mode: flat|dark, ...}, see tools/title-sequence/titleseq/matte.py), and are graded by fill, levels, gamma, tint, brightness and lift before blending (normal, screen or add). A video layer also takes speed, hold (3 = on threes), mode (once, loop, pingpong) and offset. heat_haze shimmers everything drawn beneath it (amp, scale, speed, y_hot, y_cool). tape_blank is blank tape before the programme (strength: how far off its tracking is; snow: an empty channel's static instead). osd is the VCR's own caption in chunky blocks (text, icon: play, bar: the tracking meter 0..1, x, y, anchor, block, font_px, color). slate is a text-only card holding a shot's place until its art comes (code, text, prompt, color, bg: false to draw only the words over what is beneath). light_column is the column of orange light the Frame stands in (cx, width, edge, core, streak, spark, n, sparks, speed, boil, strength). An image with keyed: true uses the file's own alpha (art cut out by hand, such as the Directorate's seal) and takes no matte. field is a flat colour painted like a cel background (color, gradient, vignette, mottle). orb is a cel-shaded glowing sphere (cx, cy, r, color, light, rim, glow, mottle). ray_fan is tapered rays of light fanning across angle sectors (cx, cy, sectors, n, length, width, color, unfurl, boil). arcs is jagged lightning crackling off a ring (cx, cy, r_in, r_out, n, color, jag, boil). radar is a phosphor scope with a sweep, its afterglow and contacts (cx, cy, r, rings, sweep_speed, contacts, color, blip). data_bars is a readout panel of glowing segmented bars (x, y, w, h, cols, segs, colors). streaks is parallel speed lines (angle, n, speed, length, width, color, band). A text item may have a box [width, height] it is fitted to exactly, and a weight in pixels that thickens it; a text layer may take soften, mottle, spray, glow, glow_sigma, weave and flicker, for type that looks shot on film." },
-              "above_finish": { "type": "boolean", "description": "Draw after the tape finish instead of under it: the VCR's captions, which the deck lays over the playing tape, so no tape noise touches them." }
+              "kind": {
+                "enum": [
+                  "credit",
+                  "diegetic",
+                  "title"
+                ],
+                "description": "Text layers only: a credit (counted against the opening's needed roles), text in the world (a stencil, a counter, a letterhead), or a title card (the opening's own words, from the approved list in design/opening-titles.md section 7)."
+              },
+              "type": {
+                "enum": [
+                  "solid",
+                  "glow_dot",
+                  "glint",
+                  "cel_band",
+                  "droplets",
+                  "airbrush_ring",
+                  "wash",
+                  "bloom",
+                  "image",
+                  "video",
+                  "text",
+                  "dust",
+                  "logo",
+                  "logo_light",
+                  "beam",
+                  "polygon",
+                  "ref_still",
+                  "vhs_damage",
+                  "heat_haze",
+                  "tape_blank",
+                  "osd",
+                  "slate",
+                  "light_column",
+                  "field",
+                  "orb",
+                  "ray_fan",
+                  "arcs",
+                  "radar",
+                  "data_bars",
+                  "streaks"
+                ],
+                "description": "image and video layers take a camera (fit, zoom, cx, cy, px, py, rot, flip_x), may crop their art and cut it out of its backdrop with a matte ({mode: flat|dark, ...}, see tools/title-sequence/titleseq/matte.py), and are graded by fill, levels, gamma, tint, brightness and lift before blending (normal, screen or add); halftone ({cell, angle, ink, paper, softness}, or true) then prints them as manga screentone on the frame's own grid. A video layer also takes speed, hold (3 = on threes), mode (once, loop, pingpong) and offset. heat_haze shimmers everything drawn beneath it (amp, scale, speed, y_hot, y_cool). tape_blank is blank tape before the programme (strength: how far off its tracking is; snow: an empty channel's static instead). osd is the VCR's own caption in chunky blocks (text, icon: play, bar: the tracking meter 0..1, x, y, anchor, block, font_px, color). slate is a text-only card holding a shot's place until its art comes (code, text, prompt, color, bg: false to draw only the words over what is beneath). light_column is the column of orange light the Frame stands in (cx, width, edge, core, streak, spark, n, sparks, speed, boil, strength). An image with keyed: true uses the file's own alpha (art cut out by hand, such as the Directorate's seal) and takes no matte. field is a flat colour painted like a cel background (color, gradient, vignette, mottle). orb is a cel-shaded glowing sphere (cx, cy, r, color, light, rim, glow, mottle). ray_fan is tapered rays of light fanning across angle sectors (cx, cy, sectors, n, length, width, color, unfurl, boil). arcs is jagged lightning crackling off a ring (cx, cy, r_in, r_out, n, color, jag, boil). radar is a phosphor scope with a sweep, its afterglow and contacts (cx, cy, r, rings, sweep_speed, contacts, color, blip). data_bars is a readout panel of glowing segmented bars (x, y, w, h, cols, segs, colors). streaks is parallel speed lines (angle, n, speed, length, width, color, band). A text item may have a box [width, height] it is fitted to exactly, and a weight in pixels that thickens it; a text layer may take soften, mottle, spray, glow, glow_sigma, weave and flicker, for type that looks shot on film."
+              },
+              "above_finish": {
+                "type": "boolean",
+                "description": "Draw after the tape finish instead of under it: the VCR's captions, which the deck lays over the playing tape, so no tape noise touches them."
+              }
             }
           },
           "keys": {
             "type": "array",
             "items": {
               "type": "object",
-              "properties": { "t": { "type": "number" }, "f": { "type": "integer" }, "visible": { "type": "boolean" } }
+              "properties": {
+                "t": {
+                  "type": "number"
+                },
+                "f": {
+                  "type": "integer"
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
             }
           }
         }

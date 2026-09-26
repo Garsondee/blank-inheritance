@@ -103,7 +103,8 @@ test("the Palette offers the same verb in its table group", () => {
 test("pressing it is GM-only, asks first (Law 17), then broadcasts AND runs locally", () => {
   const body = fn(adapter, "playOpeningForTable");
   assert.match(body, /if \(!game\.user\?\.isGM\) return false;/);
-  const asked = body.indexOf("confirmOpening()");
+  // confirmOpening takes what the window offers (the episodes) since 2026-09-26.
+  const asked = body.indexOf("confirmOpening(");
   const sent = body.indexOf("game.socket.emit(SOCKET, request)");
   const local = body.indexOf("receiveOpening(request, game.user.id)");
   assert.ok(asked > 0 && sent > asked, "the confirm comes before anything is sent");
@@ -124,7 +125,13 @@ test("a remembered choice is written only from the window's own answer", () => {
   const body = fn(adapter, "receiveOpening");
   assert.match(body, /const outcome = resolveChoice\(await askForVersion\(\)\);/);
   assert.match(body, /if \(outcome\.remember\) \{[\s\S]*?game\.settings\.set\(MODULE_ID, SETTING_VERSION, outcome\.remember\)/);
-  assert.match(body, /if \(!version\) return;/, "a closed window plays nothing");
+  // A closed window plays no opening. Since 2026-09-26 it no longer ends the
+  // press, because the episode's title card still follows: the null version
+  // goes to the reel, and core/opening-titles.mjs#reelFor adds an opening
+  // only for a real version (tier1-opening-titles, "the one rule holds with
+  // an episode attached").
+  assert.match(body, /version = outcome\.play;\s*\}\s*await runReel\(overlay, version\);/, "the window's answer, and only it, becomes the version played");
+  assert.match(fn(adapter, "runReel"), /reelFor\(\{ folder: currentFolder\(\), version, episodeId: overlay\.chain\.episodeId \}\)/);
   assert.equal((adapter.match(/game\.settings\.set\(/g) ?? []).length, 1, "nothing else in the adapter writes a setting");
 });
 
@@ -161,11 +168,18 @@ test("the player always shows a Skip key, and Escape ends it in one press ahead 
 
 test("the video's source is set only after every listener is attached, and nothing autoplays from the markup", () => {
   assert.doesNotMatch(overlayTemplate, /<video[^>]*\s(?:src|autoplay)\b/);
-  const body = fn(adapter, "playOpening");
-  const listened = body.indexOf('video.addEventListener("error"');
-  const sourced = body.indexOf("video.src = path;");
-  assert.ok(listened > 0 && sourced > listened, "an error that fired before its listener existed would leave a black screen forever");
-  assert.match(body, /video\.addEventListener\("ended", \(\) => step\("ended"\)\);/, "it closes itself at the end");
+  // Since 2026-09-26 one video element plays every part of the press (the
+  // opening, then the episode's title card). raiseCurtain attaches every
+  // listener and sets no source; playPart sets each part's source, and can
+  // only ever be handed an overlay raiseCurtain built.
+  const curtain = fn(adapter, "raiseCurtain");
+  assert.match(curtain, /video\.addEventListener\("error", \(\) => step\("error", mediaFailureReason\(video\.error\?\.code\)\)\);/);
+  assert.match(curtain, /video\.addEventListener\("ended", \(\) => step\("ended"\)\);/, "a part moves on by itself at its end");
+  assert.doesNotMatch(curtain, /\.src =/, "the curtain goes up with no source at all");
+  assert.match(fn(adapter, "playPart"), /video\.src = part\.path;/);
+  assert.equal((adapter.match(/\.src = /g) ?? []).length, 1, "playPart is the only place a source is ever set");
+  const received = fn(adapter, "receiveOpening");
+  assert.ok(received.indexOf("await raiseCurtain(") < received.indexOf("await runReel("), "no part plays before its listeners exist");
 });
 
 test("a player's failure closes quietly there and goes to the GM; the GM's own is a notice naming the path", () => {

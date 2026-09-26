@@ -5,6 +5,7 @@
     python tools/title-sequence/render.py compare  --from S --to S [--slow N] [--out FILE]
     python tools/title-sequence/render.py stills   --at=S[,S...] | --frames N[,N...] [--compare] [--reduced] [--out DIR]
     python tools/title-sequence/render.py flashcheck --file VIDEO
+    python tools/title-sequence/render.py card EPISODE_ID [--out FILE]
 
 Times are track seconds (0 = the first note; the programme starts 0.5 s before it, at frame 0).
 draft:   the whole opening, or a range, with the music. Shots listed as built are ours; the rest show the source,
@@ -16,6 +17,8 @@ compare: the source (left) and ours (right) side by side, optionally slowed down
 stills:  single frames as PNG (ours, or side by side with --compare).
 --reduced: the reduced-motion opening instead (data/title-sequences/opening-reduced.json): far fewer cuts, half the
          movement at half the speed, no flashing. Built from the full timeline at render time.
+card:    an episode's title card (data/title-sequences/episode-card.json filled in for that episode), clean, into
+         artwork/title-sequences/episode-titles/<episode id>.mp4; Foundry plays it after the opening.
 flashcheck: check a rendered video for photosensitivity risk (WCAG 2.3.1: no more than three general or red flashes
          in any second over a large enough area) and report the worst second.
 """
@@ -28,13 +31,14 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from titleseq import clock, fx, raster, timeline  # noqa: E402
-from titleseq.encode import Encoder, find_ffmpeg, track_with_lead_in  # noqa: E402
+from titleseq.encode import Encoder, find_ffmpeg, silent_track, track_with_lead_in  # noqa: E402
 from titleseq.source import Reference  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TIMELINE = os.path.join(ROOT, "data", "title-sequences", "opening.json")
 REDUCED = os.path.join(ROOT, "data", "title-sequences", "opening-reduced.json")
 RENDERS = os.path.join(ROOT, "artwork", "title-sequences", "opening", "renders")
+CARDS = os.path.join(ROOT, "artwork", "title-sequences", "episode-titles")
 FONT = os.path.join(ROOT, "third-party", "fonts", "texgyreheroscn-bold.otf")
 
 
@@ -85,19 +89,30 @@ def frame_range(args, doc=None):
     """The frames to render. With no --from, a draft starts at the top of the pre-roll; a --from before the
     programme's first frame (-0.5 s) starts partway into it."""
     first = -preroll(doc, args)
+    end = timeline.end_frame(doc) if doc is not None else clock.total_frames()   # the song, plus any tail
     n0 = clock.time_to_frame(args.t_from) if args.t_from is not None else first
-    n1 = clock.time_to_frame(args.t_to) + 1 if args.t_to is not None else clock.total_frames()
-    return max(first, n0), min(clock.total_frames(), n1)
+    n1 = clock.time_to_frame(args.t_to) + 1 if args.t_to is not None else end
+    return max(first, n0), min(end, n1)
 
 
 def soundtrack(doc, args, ffmpeg):
     """The WAV to mux and where frame 0 of it sits: with a pre-roll, the lead-in grows to cover it and carries the
-    pre-roll's sound (the channels' static, the tape's hiss)."""
+    pre-roll's sound (the channels' static, the tape's hiss). A tail carries its own sound after the music
+    (`tailSound`, each item starting `from` seconds after the music ends and running to the end, faded out). A
+    timeline with no track (an episode title card) gets its `sound` over silence instead."""
     pre = preroll(doc, args)
-    if pre == 0:
-        return track_with_lead_in(ffmpeg), 0
-    return track_with_lead_in(ffmpeg, lead=clock.LEAD_IN + pre / clock.FPS,
-                              noise=doc["preroll"].get("sound", [])), pre
+    lead = clock.LEAD_IN + pre / clock.FPS
+    if doc is not None and "track" in doc and doc["track"] is None:
+        return silent_track(ffmpeg, lead + timeline.length(doc), noise=doc.get("sound", [])), pre
+    noise = list(doc["preroll"].get("sound", [])) if pre else []
+    tail = float(doc.get("tail", 0.0)) if doc is not None else 0.0
+    if tail:
+        end = lead + clock.TRACK_LENGTH
+        for nz in doc.get("tailSound", []):
+            noise.append(dict(nz, **{"from": end + float(nz.get("from", 0.0)), "to": end + tail}))
+    if not noise:
+        return track_with_lead_in(ffmpeg, lead=lead), pre
+    return track_with_lead_in(ffmpeg, lead=lead, noise=noise), pre
 
 
 def load_doc(path):
@@ -121,12 +136,26 @@ def reduced_or_none(args, doc):
 
 def cmd_draft(args):
     doc = load_doc(args.timeline)
-    red = reduced_or_none(args, doc)
-    ref = open_ref()
+    out = args.out or os.path.join(RENDERS, time.strftime("draft-%Y%m%d-%H%M%S.mp4"))
+    draft(doc, args, out, reduced_or_none(args, doc))
+
+
+def cmd_card(args):
+    """An episode's title card (titleseq/card.py): clean, with no pre-roll, into episode-titles/<episode id>.mp4."""
+    from titleseq import card
+    doc = card.build(args.episode)
+    problems = timeline.validate(doc)
+    if problems:
+        sys.exit("card problems:\n  " + "\n  ".join(problems))
+    out = args.out or os.path.join(CARDS, os.path.basename(card.video_name(args.episode)))
+    draft(doc, argparse.Namespace(t_from=None, t_to=None, clean=True, no_preroll=True), out)
+
+
+def draft(doc, args, out, red=None):
+    ref = open_ref() if doc.get("track", "") is not None else None     # a title card has no source to show
     built = set(doc.get("built", []))
     n0, n1 = frame_range(args, doc)
     ffmpeg = find_ffmpeg()
-    out = args.out or os.path.join(RENDERS, time.strftime("draft-%Y%m%d-%H%M%S.mp4"))
     audio, offset = soundtrack(doc, args, ffmpeg)
     enc = Encoder(out, raster.OUT_W, raster.OUT_H, audio=audio,
                   audio_start=(n0 + offset) / clock.FPS, audio_duration=(n1 - n0) / clock.FPS, ffmpeg=ffmpeg)
@@ -212,6 +241,9 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd", required=True)
     fc = sub.add_parser("flashcheck")
     fc.add_argument("--file", required=True)
+    cd = sub.add_parser("card")
+    cd.add_argument("episode", help="an episode id, as in data/episodes/")
+    cd.add_argument("--out")
     for name in ("draft", "compare", "stills"):
         p = sub.add_parser(name)
         p.add_argument("--timeline", default=TIMELINE)
@@ -234,7 +266,8 @@ def main(argv=None):
     args = ap.parse_args(argv)
     if args.cmd == "stills" and not args.out:
         args.out = os.path.join(RENDERS, "stills")
-    {"draft": cmd_draft, "compare": cmd_compare, "stills": cmd_stills, "flashcheck": cmd_flashcheck}[args.cmd](args)
+    {"draft": cmd_draft, "compare": cmd_compare, "stills": cmd_stills, "flashcheck": cmd_flashcheck,
+     "card": cmd_card}[args.cmd](args)
 
 
 if __name__ == "__main__":

@@ -10,16 +10,23 @@
 // PLAYS UNLESS THE PLAYER PICKED IT. It is tested from every side it could
 // leak in by: a malformed stored preference, a socket message that names a
 // version, a message a player (not the GM) sent, a window that was closed.
+//
+// Since 2026-09-26 the press is a reel ("we watch the intro video, then we
+// cut to the episode title, then we fade into the first scene
+// automatically"): the second half of this file covers what follows the
+// opening on each screen. The GM's own choice of episode and scene is
+// test/tier1-episode-start.test.mjs.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { SILENCE_DB } from "../module/blank-inheritance/scripts/core/audio-mix.mjs";
 import {
   DEFAULT_VIDEO_FOLDER,
+  EPISODE_TITLE_FOLDER,
   FAILURE_REASONS,
   OPENING_DUCK,
   OPENING_FILES,
@@ -29,19 +36,34 @@ import {
   OPENING_VERSIONS,
   OVERLAY_STATES,
   PREFERENCE_ASK,
+  REEL_PARTS,
+  REVEAL_FADE_MS,
+  SCENE_CUE_DELAY_MS,
+  SCENE_HOLD,
+  chainFromRequest,
   choiceContext,
   classifyPlayRejection,
   decideOpening,
+  episodeTitlePath,
   failureNoticeKey,
   failureReport,
+  hiddenCutTransition,
+  holdOrReveal,
+  isEpisodeId,
+  isMissingStatus,
   isOpeningVersion,
+  isSceneId,
   mediaFailureReason,
   normalisePreference,
   openingChoiceModel,
+  openingLogText,
   openingVideoPath,
   overlayStep,
+  partLabels,
   playRequest,
   preflightFindings,
+  reelEnding,
+  reelFor,
   resolveChoice,
   resolveVideoFolder,
   validateFailureReport,
@@ -380,4 +402,189 @@ test("the GM's pre-flight check only calls a file missing when the server says s
   }
   assert.deepEqual(preflightFindings([{ version: "FULL", path: "p", status: 404 }, null]), []);
   assert.deepEqual(preflightFindings(undefined), []);
+});
+
+test("both pre-flight checks share one rule: only a 404 or a 410 means missing", () => {
+  assert.deepEqual([404, 410].map(isMissingStatus), [true, true]);
+  for (const status of [200, 206, 304, 403, 500, 503, 0, null, undefined, "404"]) {
+    assert.equal(isMissingStatus(status), false, `status ${JSON.stringify(status)}`);
+  }
+});
+
+/* ================================================================ */
+/*  What follows the opening: the episode title card, then the scene */
+/* ================================================================ */
+
+const EPISODE = "episode-c1e1-mothers-maiden-name";
+const SCENE = "a1b2c3d4e5f60718"; // sixteen hex characters: what core/ids.mjs#deriveFoundryId makes
+const withChain = playRequest("abc123DEF456ghi7", { episodeId: EPISODE, sceneId: SCENE });
+
+// Every real episode file, read the way the module stages them (data/episodes/ -> data/campaign/episodes/).
+const episodesDir = path.join(here, "..", "data", "episodes");
+const realEpisodes = readdirSync(episodesDir)
+  .filter((name) => name.endsWith(".json"))
+  .map((name) => ({ file: name, doc: JSON.parse(readFileSync(path.join(episodesDir, name), "utf8")) }));
+
+test("a play request can name the episode and the scene that follow, and the validator keeps exactly those", () => {
+  assert.deepEqual(withChain, { type: "opening.play", id: "abc123DEF456ghi7", episode: EPISODE, scene: SCENE });
+  assert.deepEqual(validatePlayRequest(withChain), { ok: true, request: withChain });
+  assert.deepEqual(chainFromRequest(withChain), { episodeId: EPISODE, sceneId: SCENE });
+  assert.deepEqual(chainFromRequest(request), { episodeId: null, sceneId: null }, "the opening alone names neither");
+  assert.deepEqual(playRequest("x1", { episodeId: EPISODE }), { type: "opening.play", id: "x1", episode: EPISODE }, "an episode whose first scene is not built yet");
+
+  const smuggled = { ...withChain, version: "full", title: "<script>", sceneName: "x" };
+  assert.deepEqual(validatePlayRequest(smuggled), { ok: true, request: withChain }, "rebuilt field by field: nothing extra rides through");
+});
+
+test("an episode or scene that is present but malformed refuses the whole message, and the GM's side cannot build one", () => {
+  const cases = [
+    [{ episode: "../secret" }, "bad-episode"],
+    [{ episode: "episode/../x" }, "bad-episode"],
+    [{ episode: "Episode-C1E1" }, "bad-episode"],
+    [{ episode: "episode.mp4" }, "bad-episode"],
+    [{ episode: "a?b" }, "bad-episode"],
+    [{ episode: "" }, "bad-episode"],
+    [{ episode: 42 }, "bad-episode"],
+    [{ scene: "short" }, "bad-scene"],
+    [{ scene: "a1b2c3d4e5f60718x" }, "bad-scene"],
+    [{ scene: "a1b2c3d4-5f60718" }, "bad-scene"],
+    [{ scene: 1234567890123456 }, "bad-scene"]
+  ];
+  for (const [extra, reason] of cases) {
+    const payload = { type: OPENING_MESSAGES.PLAY, id: "abc", ...extra };
+    assert.deepEqual(validatePlayRequest(payload), { ok: false, reason }, JSON.stringify(extra));
+    assert.deepEqual(decideOpening({ payload, ...FROM_GM, preference: "reduced" }), { action: "ignore", reason }, JSON.stringify(extra));
+    assert.deepEqual(chainFromRequest(payload), { episodeId: null, sceneId: null });
+  }
+  assert.equal(validatePlayRequest({ type: OPENING_MESSAGES.PLAY, id: "abc", episode: null, scene: undefined }).ok, true, "null and absent both mean none");
+  assert.throws(() => playRequest("abc", { episodeId: "../x" }), /episode id/);
+  assert.throws(() => playRequest("abc", { sceneId: "nope" }), /scene id/);
+});
+
+test("the one rule holds with an episode attached: the message names no version, and a closed window adds no opening", () => {
+  assert.equal("version" in withChain, false, "the GM's message still carries no version");
+  assert.deepEqual(decideOpening({ payload: withChain, ...FROM_GM, preference: "ask" }), { action: "ask", id: withChain.id });
+  assert.deepEqual(decideOpening({ payload: { ...withChain, version: "full" }, ...FROM_GM, preference: "reduced" }), { action: "play", id: withChain.id, version: "reduced" });
+  assert.deepEqual(decideOpening({ payload: withChain, senderIsGM: false, preference: "full" }), { action: "ignore", reason: "not-from-gm", id: withChain.id });
+
+  // A closed choice window resolves to null (resolveChoice): no opening part, the title card still follows.
+  for (const closed of [null, undefined, "FULL", "ask", "", {}]) {
+    const parts = reelFor({ folder: DEFAULT_VIDEO_FOLDER, version: closed, episodeId: EPISODE });
+    assert.deepEqual(parts.map((p) => p.part), ["title"], `version ${JSON.stringify(closed)}`);
+  }
+  assert.ok(!reelFor({ version: "FULL" }).some((p) => p.part === REEL_PARTS.OPENING), "only a real version is ever played");
+});
+
+test("the title card's path is the video folder, then episode-titles, then the episode's id", () => {
+  assert.equal(EPISODE_TITLE_FOLDER, "episode-titles");
+  assert.equal(episodeTitlePath(DEFAULT_VIDEO_FOLDER, EPISODE), "blank-inheritance-video/episode-titles/episode-c1e1-mothers-maiden-name.mp4",
+    "exactly the convention the brief names");
+  assert.equal(episodeTitlePath(undefined, EPISODE), "blank-inheritance-video/episode-titles/episode-c1e1-mothers-maiden-name.mp4", "an unset folder is the default");
+  assert.equal(episodeTitlePath("/videos/titles/", EPISODE), "videos/titles/episode-titles/episode-c1e1-mothers-maiden-name.mp4");
+  assert.equal(episodeTitlePath("https://cdn.example.com/bi/", EPISODE), "https://cdn.example.com/bi/episode-titles/episode-c1e1-mothers-maiden-name.mp4");
+  assert.equal(episodeTitlePath("../secret", EPISODE), "blank-inheritance-video/episode-titles/episode-c1e1-mothers-maiden-name.mp4", "a folder that cannot be used falls back, as the opening's does");
+  for (const bad of ["../x", "", "Episode-One", "a/b", "a.mp4", "a?b", "a#b", null, undefined, 7, "-lead", "trail-", "two--dashes"]) {
+    assert.throws(() => episodeTitlePath(DEFAULT_VIDEO_FOLDER, bad), /not an episode id/, JSON.stringify(bad));
+    assert.equal(isEpisodeId(bad), false, JSON.stringify(bad));
+  }
+});
+
+test("every real episode's id is one the title card path accepts, and names its own file", () => {
+  assert.ok(realEpisodes.length >= 2, "expected the episodes in data/episodes/");
+  for (const { file, doc } of realEpisodes) {
+    assert.equal(isEpisodeId(doc.id), true, `${file}: id "${doc.id}"`);
+    assert.equal(`${doc.id}.json`, file, `${file}: the id is the file name (CLAUDE.md's convention), so the card is findable from either`);
+    assert.equal(episodeTitlePath(DEFAULT_VIDEO_FOLDER, doc.id), `blank-inheritance-video/episode-titles/${doc.id}.mp4`);
+  }
+});
+
+test("a scene id is Foundry's own shape: sixteen letters and digits", () => {
+  for (const good of [SCENE, "ABCDEFGHIJKLMNOP", "0123456789abcdef", "aB3dE5gH7jK9mN1p"]) assert.equal(isSceneId(good), true, good);
+  for (const bad of ["", "short", `${SCENE}0`, "a1b2c3d4e5f6071-", "a1b2c3d4e5f6071_", null, undefined, 1234567890123456]) {
+    assert.equal(isSceneId(bad), false, JSON.stringify(bad));
+  }
+});
+
+test("the reel is the opening, then the title card, each only when it applies", () => {
+  assert.deepEqual(reelFor({ folder: DEFAULT_VIDEO_FOLDER, version: "reduced", episodeId: EPISODE }), [
+    { part: "opening", version: "reduced", path: "blank-inheritance-video/opening-reduced.mp4" },
+    { part: "title", episodeId: EPISODE, path: "blank-inheritance-video/episode-titles/episode-c1e1-mothers-maiden-name.mp4" }
+  ]);
+  assert.deepEqual(reelFor({ version: "full" }), [{ part: "opening", version: "full", path: "blank-inheritance-video/opening-full.mp4" }],
+    "the opening alone, exactly as before");
+  assert.deepEqual(reelFor({ version: null, episodeId: null }), [], "a closed window and no episode: nothing plays");
+  assert.deepEqual(reelFor(), []);
+  assert.deepEqual(reelFor({ version: "reduced", episodeId: "../x" }).map((p) => p.part), ["opening"], "a bad episode adds no card");
+});
+
+test("each part names itself with real words: a screen reader label, the Skip hint, the click-to-play label", () => {
+  const opening = partLabels(REEL_PARTS.OPENING);
+  const title = partLabels(REEL_PARTS.TITLE);
+  assert.notDeepEqual(opening, title);
+  assert.deepEqual(partLabels("anything-else"), opening, "anything unknown reads as the opening");
+  for (const labels of [opening, title]) {
+    for (const key of Object.values(labels)) assert.equal(typeof resolveKey(key), "string", `${key} is not a string in lang/en.json`);
+  }
+  assert.equal(resolveKey(title.labelKey), "Episode title");
+  assert.match(resolveKey(title.skipHintKey), /Esc/, "the Skip hint names its key");
+});
+
+test("a press that named an episode fades into its scene over 1.5 seconds; the opening alone just closes", () => {
+  assert.equal(REVEAL_FADE_MS, 1500, "\"fades out over about 1.5 seconds\"");
+  assert.deepEqual(reelEnding({ episodeId: EPISODE, sceneId: SCENE }), { kind: "reveal", fadeMs: 1500 });
+  assert.deepEqual(reelEnding({ episodeId: EPISODE, sceneId: null }), { kind: "reveal", fadeMs: 1500 }, "no built scene: still fades, back onto where everyone is");
+  assert.deepEqual(reelEnding({ episodeId: null, sceneId: null }), { kind: "close" });
+  assert.deepEqual(reelEnding(), { kind: "close" });
+});
+
+test("the scene changes under the curtain with no transition of its own, and after every curtain is up", () => {
+  const cut = hiddenCutTransition();
+  assert.deepEqual(cut, { type: null }, "Foundry plays no transition for a null type (pinned in tier3)");
+  assert.notEqual(hiddenCutTransition(), cut, "a fresh object each time: Foundry keeps the view options it is handed");
+  assert.ok(SCENE_CUE_DELAY_MS > 260, "after the curtain's own 260 ms fade-in has finished");
+  assert.ok(SCENE_CUE_DELAY_MS <= 5000, "long before the opening (a minute and a half) ends");
+});
+
+test("a screen whose videos are over holds on black until it is drawing the scene, and never forever", () => {
+  const base = { sceneId: SCENE, viewedSceneId: SCENE, ready: true, loading: false, drawsScenes: true, waitedMs: 0 };
+  assert.deepEqual(holdOrReveal(base), { action: "reveal", reason: "scene-shown" });
+  assert.deepEqual(holdOrReveal({ ...base, viewedSceneId: "zzzzzzzzzzzzzzzz" }), { action: "hold" }, "still on the old scene");
+  assert.deepEqual(holdOrReveal({ ...base, ready: false }), { action: "hold" }, "still drawing");
+  assert.deepEqual(holdOrReveal({ ...base, loading: true }), { action: "hold" }, "drawn but still loading");
+  assert.deepEqual(holdOrReveal({ ...base, viewedSceneId: null, waitedMs: SCENE_HOLD.timeoutMs }), { action: "reveal", reason: "timed-out" });
+  assert.deepEqual(holdOrReveal({ ...base, viewedSceneId: null, waitedMs: SCENE_HOLD.timeoutMs - 1 }), { action: "hold" });
+  assert.deepEqual(holdOrReveal({ ...base, sceneId: null, viewedSceneId: null }), { action: "reveal", reason: "no-scene" }, "no scene named: nothing to wait for");
+  assert.deepEqual(holdOrReveal({ ...base, viewedSceneId: null, drawsScenes: false }), { action: "reveal", reason: "no-board" }, "a screen that draws no board");
+  assert.deepEqual(holdOrReveal({ sceneId: SCENE, waitedMs: Number.NaN }), { action: "reveal", reason: "timed-out" }, "a broken clock cannot strand anyone");
+  assert.ok(SCENE_HOLD.pollMs > 0 && SCENE_HOLD.pollMs < SCENE_HOLD.timeoutMs);
+});
+
+test("a title card that will not play is reported by episode and path, and checked like the opening's", () => {
+  const report = failureReport({ requestId: "r1", part: "title", episodeId: EPISODE, path: "v/episode-titles/x.mp4", reason: "unavailable" });
+  assert.deepEqual(report, { type: "opening.failed", requestId: "r1", part: "title", episode: EPISODE, path: "v/episode-titles/x.mp4", reason: "unavailable" });
+  assert.equal("version" in report, false, "a title card has no version");
+  assert.deepEqual(validateFailureReport({ ...report, version: "full", extra: "<script>" }), { ok: true, report }, "rebuilt field by field");
+  for (const [bad, reason] of [
+    [{ ...report, episode: "../x" }, "bad-episode"],
+    [{ ...report, episode: undefined }, "bad-episode"],
+    [{ ...report, path: "" }, "bad-path"],
+    [{ ...report, path: "x".repeat(513) }, "bad-path"],
+    [{ ...report, requestId: "a b" }, "bad-id"],
+    [{ ...report, part: "credits" }, "bad-part"]
+  ]) {
+    assert.deepEqual(validateFailureReport(bad), { ok: false, reason }, JSON.stringify(bad).slice(0, 80));
+  }
+  // The opening's own report is unchanged: no part, and "opening" named outright is the same thing.
+  const opening = failureReport({ requestId: "r1", part: "opening", version: "reduced", path: "v/opening-reduced.mp4", reason: "network" });
+  assert.deepEqual(opening, { type: "opening.failed", requestId: "r1", version: "reduced", path: "v/opening-reduced.mp4", reason: "network" });
+  assert.equal(validateFailureReport({ ...opening, part: "opening" }).ok, true);
+  assert.notEqual(failureNoticeKey(report), failureNoticeKey(opening), "one GM notice per file: the card and the opening are two files");
+});
+
+test("the log line names the episode when the press started one", () => {
+  assert.equal(openingLogText(), OPENING_LOG_TEXT);
+  assert.equal(openingLogText({ episodeTitle: "  " }), OPENING_LOG_TEXT);
+  assert.equal(openingLogText({ episodeTitle: "Mother's Maiden Name (Again)" }), "Played the opening titles and the episode title: Mother's Maiden Name (Again).");
+  assert.equal(openingLogText({ episodeTitle: "What Now?" }), "Played the opening titles and the episode title: What Now?", "no doubled full stop");
+  assert.doesNotMatch(openingLogText({ episodeTitle: "x" }), /^[a-z]+:/i, "never read as a tagged log line (core/log-entry.mjs#parseLogLine)");
 });

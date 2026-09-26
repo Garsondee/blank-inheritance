@@ -37,6 +37,18 @@ def load(path):
         return normalize(json.load(f))
 
 
+def length(doc):
+    """Seconds of programme on the timeline's clock, from time 0: the track's own length (or the timeline's
+    `length`, for one with no track, such as an episode title card), plus its `tail`, the seconds held after the
+    music ends so the picture can fade out slowly (Ingram, 2026-09-26: "we need a longer tail")."""
+    return float(doc.get("length", clock.TRACK_LENGTH)) + float(doc.get("tail", 0.0))
+
+
+def end_frame(doc):
+    """The frame after the timeline's last one."""
+    return clock.total_frames(length=length(doc))
+
+
 _EPS = 1e-6
 
 

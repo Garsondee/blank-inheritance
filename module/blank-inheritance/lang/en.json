@@ -922,19 +922,38 @@
       "Skip": "Skip",
       "SkipHint": "Skip the opening titles (Esc)",
       "RailKey": "Opening",
-      "RailHint": "Play the opening titles on every screen. It asks first; then each player picks the full or the reduced-motion version.",
+      "RailHint": "Play the opening titles on every screen, then an episode’s title card, then fade into its first scene. It asks first; each player picks the full or the reduced-motion opening.",
       "BadFolder": "Opening titles: the video folder “{folder}” can’t be used, so {fallback} is used instead. Fix it in Game Settings.",
+      "Episode": {
+        "Label": "Episode title",
+        "SkipHint": "Skip the episode title (Esc)",
+        "PlayGate": "Play the episode title"
+      },
       "Confirm": {
         "Title": "Play the opening titles?",
         "Body": "This plays the opening titles on every screen now, yours included.",
         "BodyHint": "Each player first picks the full or the reduced-motion version, unless they saved a choice. Anyone can stop it with Skip or Esc.",
         "Yes": "Play for everyone",
         "No": "Not now",
-        "Missing": "Missing from the server: {path}. Anyone who picks that version will see nothing."
+        "Missing": "Missing from the server: {path}. Anyone who picks that version skips the opening.",
+        "Then": "Then",
+        "ThenEpisode": "{title}: its title card, then {scene}",
+        "ThenEpisodeOnly": "{title}: its title card",
+        "ThenNothing": "Nothing more: stay on this scene",
+        "DetailEpisode": "After the opening, every screen shows the title card for {title}, then fades into {scene}. The Scene Runner switches to this episode.",
+        "DetailEpisodeHere": "After the opening, every screen shows the title card for {title}, then fades back into {scene}, where everyone already is. The Scene Runner switches to this episode.",
+        "DetailEpisodeNoScene": "After the opening, every screen shows the title card for {title}, then fades back to the scene it is on now. The Scene Runner switches to this episode.",
+        "DetailNothing": "After the opening, every screen goes straight back to the scene it is on now. No title card, and nobody is moved.",
+        "TitleMissing": "Missing from the server: {path}. Without it, the opening goes straight to the fade.",
+        "SceneNotBuilt": "Its first scene, {scene}, has no Foundry scene built yet.",
+        "NoScenes": "This episode has no scenes yet.",
+        "SceneStatus": "{scene} is still marked “{status}”: it has not been signed off for the table yet."
       },
       "Failed": {
         "Own": "Opening titles: {path} could not be played. Check that the file is in Foundry’s data folder.",
-        "Player": "Opening titles: {path} could not be played on {name}’s screen, so it closed there. Check that the file is in Foundry’s data folder."
+        "Player": "Opening titles: {path} could not be played on {name}’s screen, so it was skipped there. Check that the file is in Foundry’s data folder.",
+        "TitleOwn": "Episode title: {path} could not be played, so the titles went straight on to the scene. Check that the file is in Foundry’s data folder.",
+        "TitlePlayer": "Episode title: {path} could not be played on {name}’s screen, so it went straight on to the scene there. Check that the file is in Foundry’s data folder."
       },
       "Settings": {
         "VersionName": "Opening titles",
@@ -943,7 +962,7 @@
         "Reduced": "Reduced motion (no flashing)",
         "Full": "Full opening (fast cuts and flashing lights)",
         "FolderName": "Opening titles: video folder",
-        "FolderHint": "The folder in Foundry’s data directory that holds opening-full.mp4 and opening-reduced.mp4. The default is blank-inheritance-video."
+        "FolderHint": "The folder in Foundry’s data directory that holds opening-full.mp4 and opening-reduced.mp4, and an episode-titles folder with one title card per episode, each named by its episode’s id plus .mp4. The default is blank-inheritance-video."
       }
     }
   }

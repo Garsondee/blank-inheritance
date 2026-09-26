@@ -1,0 +1,12 @@
+{
+  "$schema": "../schema/episode-titles.schema.json",
+  "about": "What each episode's title card says, besides the English title, which comes from the episode's own file (data/episodes/<id>.json, `title`). `number` is the episode's number in the session order; `numberJa` is that number in the old formal numerals (第壱話, 第弐話, 第参話...); `titleJa` is the title in Japanese. Rendered with `python tools/title-sequence/render.py card <episode id>`; Foundry plays it from blank-inheritance-video/episode-titles/<episode id>.mp4 after the opening. The Japanese titles are Claude's translations: drafted, for Ingram to check.",
+  "episodes": {
+    "episode-c1e1-mothers-maiden-name": {
+      "number": 1,
+      "numberJa": "第壱話",
+      "titleJa": "母の旧姓、再び",
+      "note": "\"Mother's maiden name, once again\": 母の旧姓 (haha no kyūsei), mother's maiden name; 再び (futatabi), again."
+    }
+  }
+}

@@ -2443,14 +2443,42 @@ export async function openSceneRunner(episodeId = null, briefId = null) {
   if (!game.user?.isGM) return null;
   resetSceneRunnerCache();
   if (typeof episodeId === "string" && episodeId) {
-    const switching = episodeId !== currentEpisodeId();
-    await game.settings.set(MODULE_ID, SETTING_EPISODE, episodeId);
-    if (typeof briefId === "string") await game.settings.set(MODULE_ID, SETTING_BRIEF, briefId);
-    else if (switching) await game.settings.set(MODULE_ID, SETTING_BRIEF, "");
+    await setRunnerEpisode(episodeId, briefId);
   }
   if (typeof briefId === "string" && briefId) applySceneAudio(briefId);
   await adoptActiveSceneBrief();
   const runner = mountSceneRunner();
   if (runner && !runner.open) runner.toggle();
   return runner;
+}
+
+/**
+ * The episode the runner has open (its world setting), or "" when none ever
+ * was. The opening titles' confirm window offers this episode first: it is
+ * the module's one notion of "the episode we are on".
+ */
+export function runnerEpisodeId() {
+  try {
+    return currentEpisodeId();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Point the runner at an episode (and, if named, one of its scenes) WITHOUT
+ * opening the drawer or touching the sound: openSceneRunner above is this
+ * plus the drawer. The opening titles call it when the GM starts an episode
+ * with them (foundry/opening-titles.mjs#followEpisode), so the runner's
+ * running order, and the scene advanceAfterClose moves on to, is the episode
+ * the table is now watching. Changing episode without naming a scene clears
+ * the old one's, which belongs to the old episode.
+ */
+export async function setRunnerEpisode(episodeId, briefId = null) {
+  if (!game.user?.isGM || typeof episodeId !== "string" || !episodeId) return false;
+  const switching = episodeId !== currentEpisodeId();
+  await game.settings.set(MODULE_ID, SETTING_EPISODE, episodeId);
+  if (typeof briefId === "string") await game.settings.set(MODULE_ID, SETTING_BRIEF, briefId);
+  else if (switching) await game.settings.set(MODULE_ID, SETTING_BRIEF, "");
+  return true;
 }

@@ -1,0 +1,84 @@
+{
+  "$schema": "../schema/title-sequence.schema.json",
+  "id": "episode-card",
+  "about": "The episode title card that follows the opening at the start of a session (Ingram, 2026-09-26: \"we watch the intro video, then we cut to the episode title, then we fade into the first scene automatically\"). One design for every episode: {number_ja}, {title_ja}, {number} and {title_en} are filled in from data/title-sequences/episode-titles.json and the episode's own file (tools/title-sequence/titleseq/card.py). Black, a hard cut to the card at 0 s, a hold, a fade to black, and black at the end, so Foundry can fade from it into the episode's first scene. The same film type and tape finish as the opening.",
+  "fps": 24,
+  "leadIn": 0.5,
+  "track": null,
+  "length": 7.0,
+  "sound": [
+    { "color": "pink", "amplitude": 0.015, "from": 0.35, "to": 7.5, "fade": 1.4 }
+  ],
+  "shots": [
+    { "id": "C00", "in": -0.5 }
+  ],
+  "built": ["C00"],
+  "clips": [
+    {
+      "id": "card-ground",
+      "shot": "C00",
+      "startF": 0,
+      "endF": 180,
+      "z": 0,
+      "note": "Near-black, painted like a cel background, so the tape's grain has something to live in.",
+      "layer": { "type": "field", "color": [8, 8, 11], "seed": 7, "gradient": 0.08, "vignette": 0.3, "mottle": 0.03 }
+    },
+    {
+      "id": "card-number-ja",
+      "shot": "C00",
+      "startF": 12,
+      "endF": 180,
+      "z": 5,
+      "note": "The episode's number in the old formal numerals, small, above the title.",
+      "layer": {
+        "type": "text",
+        "items": [{ "text": "{number_ja}", "font": "mincho-black", "size": 120, "x": 305, "y": 238, "box": [310, 112], "weight": 2 }],
+        "color": [232, 233, 229], "shadow": 0.0, "kind": "title",
+        "soften": 1.6, "mottle": 0.018, "glow": 0.1, "glow_sigma": 9.0, "weave": 1, "flicker": 0.03, "seed": 901
+      }
+    },
+    {
+      "id": "card-title-ja",
+      "shot": "C00",
+      "startF": 12,
+      "endF": 180,
+      "z": 5,
+      "note": "The title in Japanese, huge, heavy Mincho squeezed tall and narrow like the source's title cards.",
+      "layer": {
+        "type": "text",
+        "items": [{ "text": "{title_ja}", "font": "mincho-black", "size": 250, "x": 720, "y": 478, "box": [1140, 262], "weight": 3 }],
+        "color": [232, 233, 229], "shadow": 0.0, "kind": "title",
+        "soften": 1.6, "mottle": 0.018, "glow": 0.1, "glow_sigma": 9.0, "weave": 1, "flicker": 0.03, "seed": 902
+      }
+    },
+    {
+      "id": "card-title-en",
+      "shot": "C00",
+      "startF": 12,
+      "endF": 180,
+      "z": 5,
+      "note": "EPISODE:n and the English title, in a heavy serif, under the Japanese.",
+      "layer": {
+        "type": "text",
+        "items": [
+          { "text": "EPISODE:{number}", "font": "ShipporiMinchoB1-ExtraBold.ttf", "size": 90, "x": 402, "y": 734, "box": [504, 78], "weight": 1 },
+          { "text": "{title_en}", "font": "ShipporiMinchoB1-ExtraBold.ttf", "size": 90, "x": 720, "y": 836, "box": [1140, 66], "weight": 1, "spacing": 4 }
+        ],
+        "color": [232, 233, 229], "shadow": 0.0, "kind": "title",
+        "soften": 1.6, "mottle": 0.018, "glow": 0.1, "glow_sigma": 9.0, "weave": 1, "flicker": 0.03, "seed": 903
+      }
+    },
+    {
+      "id": "card-fade",
+      "shot": "C00",
+      "startF": 144,
+      "endF": 180,
+      "z": 80,
+      "interp": "linear",
+      "note": "Out to black over a second, then black, ready for the fade into the first scene.",
+      "layer": { "type": "wash", "color": [0, 0, 0], "mode": "mix" },
+      "keys": [{ "f": 144, "amount": 0.0 }, { "f": 168, "amount": 1.0 }]
+    }
+  ],
+  "finish": { "vhs": { "strength": 1.0, "bleed": 3.5, "noise": 0.013, "jitter": 0.6, "head": 1.0, "lift": 0.025, "saturation": 0.92, "dropouts": 0.25, "halation": 0.45 } }
+}

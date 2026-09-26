@@ -29,7 +29,7 @@ class TestTheReducedCut(unittest.TestCase):
     def test_it_tiles_the_whole_song_in_order(self):
         segs = self.red.segments
         self.assertAlmostEqual(segs[0]["a"], f(0))
-        self.assertAlmostEqual(segs[-1]["b"], clock.TRACK_LENGTH)
+        self.assertAlmostEqual(segs[-1]["b"], timeline.length(self.base))
         for a, b in zip(segs, segs[1:]):
             self.assertAlmostEqual(a["b"], b["a"])
             self.assertLess(a["a"], a["b"])
@@ -110,6 +110,18 @@ class TestTheReducedCut(unittest.TestCase):
     def test_the_full_opening_is_left_untouched(self):
         self.assertIn("r80-flash", {c["id"] for c in self.base["clips"]})
         self.assertTrue(any(c["layer"]["type"] == "vhs_damage" for c in self.base["clips"]))
+
+    def test_a_run_of_shots_is_one_picture_with_no_hidden_cut(self):
+        # found 2026-09-26: once the full opening cut a merged run of shots apart again (R32-R34, R76-R77...), a
+        # reduced segment spanning them would have played that cut slowed, as a hard cut with no dissolve
+        pictures = [c for c in self.red.pictures["clips"] if c["layer"]["type"] in ("image", "video")]
+        for s in self.red.segments:
+            if s["last"] == s["shot"] or s["motion"] >= 1.0:
+                continue
+            a, b = s["s0"] + 1e-3, s["s1"] - 1e-3
+            first = {c["id"] for c in pictures if timeline.params_at(c, a)}
+            last = {c["id"] for c in pictures if timeline.params_at(c, b)}
+            self.assertEqual(first, last, f"{s['shot']}-{s['last']}")
 
     def test_every_segment_names_a_real_shot(self):
         with open(REDUCED, encoding="utf-8") as fh:

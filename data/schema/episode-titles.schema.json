@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "episode-titles.schema.json",
+  "title": "Episode title cards",
+  "description": "What each episode's title card says besides its English title (which is the episode file's own `title`). Keyed by episode id. Read by tools/title-sequence/titleseq/card.py, which fills data/title-sequences/episode-card.json with it.",
+  "type": "object",
+  "required": ["episodes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "about": { "type": "string" },
+    "episodes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["number", "numberJa", "titleJa"],
+        "properties": {
+          "number": { "type": "integer", "minimum": 1, "description": "The episode's number in the session order." },
+          "numberJa": { "type": "string", "description": "The number in the old formal numerals: 第壱話, 第弐話, 第参話..." },
+          "titleJa": { "type": "string", "description": "The title in Japanese." },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

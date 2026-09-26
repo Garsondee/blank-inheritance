@@ -246,6 +246,10 @@ def _place(img, p, src, alpha, s_l, opacity):
         warped *= float(p["brightness"])
     if "lift" in p:
         warped = warped * (1.0 - float(p["lift"])) + float(p["lift"])
+    if p.get("halftone"):                          # manga screentone, on the frame's own grid (see raster.halftone)
+        from .raster import halftone
+        spec = p["halftone"] if isinstance(p["halftone"], dict) else {}
+        warped = halftone(np.clip(warped, 0.0, 1.0), **spec)
     blend = p.get("blend", "normal")
     if blend == "screen":
         screen(img, np.clip(warped, 0, 1) * (a * opacity)[..., None])

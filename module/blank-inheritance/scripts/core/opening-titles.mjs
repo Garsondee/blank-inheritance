@@ -27,6 +27,17 @@
  * to fetch, what the choice window offers, and how the full-screen player
  * moves between loading, playing, waiting for a click and closed.
  *
+ * WHAT FOLLOWS THE OPENING (2026-09-26). Ingram: "So when we start a session
+ * we watch the intro video, then we cut to the episode title, then we fade
+ * into the first scene automatically." So one press is a reel: the opening
+ * (each viewer's own cut, or none), then the episode's title card (one short
+ * video, the same for everyone, no flashing), then the player fades out onto
+ * the episode's first scene, which the GM's client has already made active
+ * underneath it. The second half of this file is that reel: the title card's
+ * path, the parts in order, when a screen may fade in, and how a missing
+ * title card is reported. Which episode and which scene is the GM's choice,
+ * made in core/episode-start.mjs.
+ *
  * No Foundry, no DOM, no timers.
  */
 
@@ -79,28 +90,84 @@ export const OPENING_MESSAGES = Object.freeze({
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 /**
- * The GM's broadcast: "the titles are starting". It carries an id (so a copy
- * that arrives twice is recognised) and nothing else. In particular it does
- * NOT carry a version. Which cut plays is each player's own decision, made on
- * their own screen, so there is nothing in this message for anyone to set.
+ * An episode's id, the way data/episodes/ writes it: lower-case kebab-case
+ * ("episode-c1e1-mothers-maiden-name"). Nothing else is believed, because the
+ * id becomes part of a file path: no dots, no slashes, no "?" or "#".
  */
-export function playRequest(id) {
+const EPISODE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+export function isEpisodeId(value) {
+  return typeof value === "string" && value.length <= 128 && EPISODE_ID_PATTERN.test(value);
+}
+
+/**
+ * A Foundry document id: sixteen letters and digits, exactly the test
+ * Foundry's own isValidId makes (common/data/validators.mjs; pinned by
+ * test/tier3-episode-start-contract.test.mjs). Derived ids (core/ids.mjs,
+ * sixteen hex characters) pass it too.
+ */
+const DOCUMENT_ID_PATTERN = /^[A-Za-z0-9]{16}$/;
+
+export function isSceneId(value) {
+  return typeof value === "string" && DOCUMENT_ID_PATTERN.test(value);
+}
+
+/**
+ * The GM's broadcast: "the titles are starting". It carries an id (so a copy
+ * that arrives twice is recognised) and, when the GM chose an episode, what
+ * follows the opening: the episode (whose title card every screen plays
+ * next) and the Foundry scene to fade into. It does NOT carry a version.
+ * Which cut plays is each player's own decision, made on their own screen, so
+ * there is nothing in this message for anyone to set.
+ */
+export function playRequest(id, { episodeId = null, sceneId = null } = {}) {
   const text = String(id ?? "");
   if (!ID_PATTERN.test(text)) throw new Error(`playRequest: not a usable request id, "${id}"`);
-  return { type: OPENING_MESSAGES.PLAY, id: text };
+  const request = { type: OPENING_MESSAGES.PLAY, id: text };
+  if (episodeId != null) {
+    if (!isEpisodeId(episodeId)) throw new Error(`playRequest: not an episode id, "${episodeId}"`);
+    request.episode = episodeId;
+  }
+  if (sceneId != null) {
+    if (!isSceneId(sceneId)) throw new Error(`playRequest: not a scene id, "${sceneId}"`);
+    request.scene = sceneId;
+  }
+  return request;
 }
 
 /**
  * Whether a socket message is a real play request. The accepted request is
  * rebuilt field by field rather than passed through, so anything extra that
  * rode along (a `version: "full"`, say) is dropped here and can never reach
- * the decision below.
+ * the decision below. An episode or a scene that is present but malformed
+ * refuses the whole message: the GM's own client can never send one, so it
+ * means a tampered or mismatched sender, not a press to half-honour.
  */
 export function validatePlayRequest(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return { ok: false, reason: "not-an-object" };
   if (payload.type !== OPENING_MESSAGES.PLAY) return { ok: false, reason: "wrong-type" };
   if (typeof payload.id !== "string" || !ID_PATTERN.test(payload.id)) return { ok: false, reason: "bad-id" };
-  return { ok: true, request: { type: OPENING_MESSAGES.PLAY, id: payload.id } };
+  const request = { type: OPENING_MESSAGES.PLAY, id: payload.id };
+  if (payload.episode != null) {
+    if (!isEpisodeId(payload.episode)) return { ok: false, reason: "bad-episode" };
+    request.episode = payload.episode;
+  }
+  if (payload.scene != null) {
+    if (!isSceneId(payload.scene)) return { ok: false, reason: "bad-scene" };
+    request.scene = payload.scene;
+  }
+  return { ok: true, request };
+}
+
+/**
+ * What follows the opening for one press, read from the same checked
+ * message: the episode whose title card plays next and the scene to fade
+ * into, each null when the GM chose none (or the message is not believed).
+ */
+export function chainFromRequest(payload) {
+  const check = validatePlayRequest(payload);
+  if (!check.ok) return { episodeId: null, sceneId: null };
+  return { episodeId: check.request.episode ?? null, sceneId: check.request.scene ?? null };
 }
 
 /* ---------------------------------------------------------------------- */
@@ -203,6 +270,21 @@ export function resolveVideoFolder(raw) {
 export function openingVideoPath(folder, version) {
   if (!isOpeningVersion(version)) throw new Error(`openingVideoPath: unknown version "${version}"`);
   return `${resolveVideoFolder(folder).folder}/${OPENING_FILES[version]}`;
+}
+
+/** The subfolder of the video folder that holds one title card per episode. */
+export const EPISODE_TITLE_FOLDER = "episode-titles";
+
+/**
+ * An episode's title card: "blank-inheritance-video/episode-titles/
+ * episode-c1e1-mothers-maiden-name.mp4", named by the `id` of the episode's
+ * own file in data/episodes/. One file per episode and one version for
+ * everyone: the card has no flashing, so there is nothing to choose. An id
+ * that is not an episode id is a programming error, never a path.
+ */
+export function episodeTitlePath(folder, episodeId) {
+  if (!isEpisodeId(episodeId)) throw new Error(`episodeTitlePath: not an episode id, "${episodeId}"`);
+  return `${resolveVideoFolder(folder).folder}/${EPISODE_TITLE_FOLDER}/${episodeId}.mp4`;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -362,6 +444,16 @@ export const OPENING_DUCK = Object.freeze({ depthDb: SILENCE_DB, holdMs: 1600, r
 /** The session-log line the GM's press writes (a pin on the session rail). */
 export const OPENING_LOG_TEXT = "Played the opening titles.";
 
+/**
+ * The same line when the press went on to an episode: one pin, naming both,
+ * rather than two pins stacked on the same second of the rail.
+ */
+export function openingLogText({ episodeTitle = null } = {}) {
+  const title = typeof episodeTitle === "string" ? episodeTitle.trim() : "";
+  if (!title) return OPENING_LOG_TEXT;
+  return `Played the opening titles and the episode title: ${title}${/[.!?]$/.test(title) ? "" : "."}`;
+}
+
 /* ---------------------------------------------------------------------- */
 /*  Telling the GM when a file will not play                               */
 /* ---------------------------------------------------------------------- */
@@ -372,23 +464,41 @@ export const FAILURE_REASONS = Object.freeze(["aborted", "network", "decode", "u
  * A player's screen could not play its cut. It closes quietly there (the
  * player is not shown an error), and this report goes to the GM, whose
  * screen names the path so the file can be fixed.
+ *
+ * The episode's title card reports the same way, marked `part: "title"` and
+ * carrying the episode instead of a version (a title card has no version);
+ * that screen goes straight on to the fade. An opening report keeps the
+ * shape it always had, with no `part` at all.
  */
-export function failureReport({ requestId, version, path, reason }) {
-  return {
+export function failureReport({ requestId, part = null, version, episodeId, path, reason }) {
+  const common = {
     type: OPENING_MESSAGES.FAILED,
     requestId: String(requestId ?? ""),
-    version,
     path: String(path ?? ""),
     reason: FAILURE_REASONS.includes(reason) ? reason : "unknown"
   };
+  if (part === REEL_PARTS.TITLE) return { ...common, part: REEL_PARTS.TITLE, episode: episodeId };
+  return { ...common, version };
 }
+
+const usablePath = (value) => typeof value === "string" && Boolean(value) && value.length <= 512;
 
 export function validateFailureReport(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return { ok: false, reason: "not-an-object" };
   if (payload.type !== OPENING_MESSAGES.FAILED) return { ok: false, reason: "wrong-type" };
   if (typeof payload.requestId !== "string" || !ID_PATTERN.test(payload.requestId)) return { ok: false, reason: "bad-id" };
+  const reason = FAILURE_REASONS.includes(payload.reason) ? payload.reason : "unknown";
+  if (payload.part === REEL_PARTS.TITLE) {
+    if (!isEpisodeId(payload.episode)) return { ok: false, reason: "bad-episode" };
+    if (!usablePath(payload.path)) return { ok: false, reason: "bad-path" };
+    return {
+      ok: true,
+      report: { type: OPENING_MESSAGES.FAILED, requestId: payload.requestId, part: REEL_PARTS.TITLE, episode: payload.episode, path: payload.path, reason }
+    };
+  }
+  if (payload.part != null && payload.part !== REEL_PARTS.OPENING) return { ok: false, reason: "bad-part" };
   if (!isOpeningVersion(payload.version)) return { ok: false, reason: "bad-version" };
-  if (typeof payload.path !== "string" || !payload.path || payload.path.length > 512) return { ok: false, reason: "bad-path" };
+  if (!usablePath(payload.path)) return { ok: false, reason: "bad-path" };
   return {
     ok: true,
     report: {
@@ -396,7 +506,7 @@ export function validateFailureReport(payload) {
       requestId: payload.requestId,
       version: payload.version,
       path: payload.path,
-      reason: FAILURE_REASONS.includes(payload.reason) ? payload.reason : "unknown"
+      reason
     }
   };
 }
@@ -420,6 +530,125 @@ export function failureNoticeKey(report) {
  */
 export function preflightFindings(checks = []) {
   return (Array.isArray(checks) ? checks : [])
-    .filter((c) => c && isOpeningVersion(c.version) && (c.status === 404 || c.status === 410))
+    .filter((c) => c && isOpeningVersion(c.version) && isMissingStatus(c.status))
     .map((c) => ({ version: c.version, path: c.path }));
+}
+
+/** The one rule both pre-flight checks share: only the server saying "not here" counts. */
+export function isMissingStatus(status) {
+  return status === 404 || status === 410;
+}
+
+/* ---------------------------------------------------------------------- */
+/*  The reel: the opening, the episode title card, then the scene          */
+/* ---------------------------------------------------------------------- */
+
+export const REEL_PARTS = Object.freeze({ OPENING: "opening", TITLE: "title" });
+
+/**
+ * What one screen plays for one press, in order.
+ *
+ *   version    the opening cut this viewer picked or remembered, or null.
+ *              Only a real version adds the opening, so a closed choice
+ *              window (null) skips the opening and nothing else: the title
+ *              card still follows. THE ONE RULE above is untouched here,
+ *              because this function never chooses a version, it only
+ *              plays the one the viewer's own choice produced.
+ *   episodeId  the episode the GM started, or null: no title card.
+ */
+export function reelFor({ folder, version = null, episodeId = null } = {}) {
+  const parts = [];
+  if (isOpeningVersion(version)) parts.push({ part: REEL_PARTS.OPENING, version, path: openingVideoPath(folder, version) });
+  if (isEpisodeId(episodeId)) parts.push({ part: REEL_PARTS.TITLE, episodeId, path: episodeTitlePath(folder, episodeId) });
+  return parts;
+}
+
+/**
+ * The words the player shows for each part, as localisation keys: its name
+ * for a screen reader, the Skip key's hint, and the click-to-play label.
+ */
+export function partLabels(part) {
+  if (part === REEL_PARTS.TITLE) {
+    return {
+      labelKey: "BLANKINHERITANCE.OpeningTitles.Episode.Label",
+      skipHintKey: "BLANKINHERITANCE.OpeningTitles.Episode.SkipHint",
+      playGateKey: "BLANKINHERITANCE.OpeningTitles.Episode.PlayGate"
+    };
+  }
+  return {
+    labelKey: "BLANKINHERITANCE.OpeningTitles.Title",
+    skipHintKey: "BLANKINHERITANCE.OpeningTitles.SkipHint",
+    playGateKey: "BLANKINHERITANCE.OpeningTitles.PlayGate"
+  };
+}
+
+/**
+ * "At its end the overlay fades out over about 1.5 seconds, revealing the
+ * episode's first scene." The stylesheet's `.bi-opening.is-revealing` rule
+ * carries the same number (pinned by test/tier3-episode-start-contract).
+ */
+export const REVEAL_FADE_MS = 1500;
+
+/**
+ * How a reel ends. A press that named an episode (or a scene) fades out onto
+ * the scene, over REVEAL_FADE_MS, even when its title card was missing or
+ * skipped. The opening on its own just closes, exactly as it always did.
+ */
+export function reelEnding({ episodeId = null, sceneId = null } = {}) {
+  return episodeId || sceneId ? { kind: "reveal", fadeMs: REVEAL_FADE_MS } : { kind: "close" };
+}
+
+/**
+ * How long the GM's client waits, after starting the titles, before it makes
+ * the episode's first scene active. Every screen puts its black curtain up
+ * the moment the message arrives (well under a second), so by then nobody
+ * can see the scene change underneath; and the opening runs for a minute and
+ * a half, so every screen has finished drawing it long before it is shown.
+ */
+export const SCENE_CUE_DELAY_MS = 1500;
+
+/**
+ * The scene change itself has no transition of its own: Foundry plays none
+ * when the view options name a transition whose type is null (client/canvas/
+ * board.mjs, #animateTransition). The curtain's own fade is the transition
+ * the table sees. A fresh object on every call, because Foundry keeps the view
+ * options it is handed.
+ */
+export function hiddenCutTransition() {
+  return { type: null };
+}
+
+/** How often a screen that has finished its videos checks for the scene, and when it stops waiting. */
+export const SCENE_HOLD = Object.freeze({ pollMs: 250, timeoutMs: 20000 });
+
+/**
+ * Whether a screen whose videos are over may fade in yet. It holds on black
+ * (showing "Loading…") until its own board is showing the scene the GM named,
+ * fully drawn, so a viewer who skipped everything never watches it load.
+ *
+ *   sceneId        the scene the press named, or null
+ *   viewedSceneId  the scene this screen is drawing
+ *   ready          the board has finished drawing it
+ *   loading        the board is still busy (textures, a transition)
+ *   drawsScenes    false when this screen draws no board at all (Foundry's
+ *                  own "no canvas" mode): there is nothing to wait for
+ *   waitedMs       how long it has held so far
+ *
+ * It never holds forever: after `timeoutMs` it fades in on whatever is
+ * there, and Skip or Escape ends the hold at once.
+ */
+export function holdOrReveal({
+  sceneId = null,
+  viewedSceneId = null,
+  ready = false,
+  loading = false,
+  drawsScenes = true,
+  waitedMs = 0,
+  timeoutMs = SCENE_HOLD.timeoutMs
+} = {}) {
+  if (!sceneId) return { action: "reveal", reason: "no-scene" };
+  if (drawsScenes === false) return { action: "reveal", reason: "no-board" };
+  if (viewedSceneId === sceneId && ready === true && loading !== true) return { action: "reveal", reason: "scene-shown" };
+  if (!(waitedMs < timeoutMs)) return { action: "reveal", reason: "timed-out" };
+  return { action: "hold" };
 }

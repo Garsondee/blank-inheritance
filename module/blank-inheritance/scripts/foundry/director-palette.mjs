@@ -544,8 +544,9 @@ function panelCommands() {
     // to call combat.delete() directly — one mis-press ended a fight.
     { id: "table.endcombat", group: "table", order: 7, title: "End the encounter", hint: "asks first", icon: "fa-solid fa-flag", danger: true, keywords: ["combat", "end", "stop", "over"], hidden: !game.combat, run: () => game.combat?.endCombat() },
     { id: "table.rest", group: "table", order: 8, title: "Rest for the night", hint: "every party member, the system's own rest (asks first)", icon: "fa-solid fa-bed", keywords: ["rest", "sleep", "night", "recover", "daily"], run: () => runSystemAction("restForTheNight", partyActors()) },
-    // The same verb as the session rail's Opening key (foundry/opening-titles.mjs).
-    { id: "table.opening", group: "table", order: 9, title: "Play the opening titles", hint: "every screen; each player picks full or reduced motion (asks first)", icon: "fa-solid fa-film", keywords: ["opening", "titles", "intro", "video", "reduced motion", "start"], run: () => playOpeningForTable() }
+    // The same verb as the session rail's Opening key (foundry/opening-titles.mjs):
+    // the opening, then the chosen episode's title card, then its first scene.
+    { id: "table.opening", group: "table", order: 9, title: "Play the opening titles", hint: "every screen, then an episode's title card and first scene (asks first)", icon: "fa-solid fa-film", keywords: ["opening", "titles", "intro", "video", "reduced motion", "start", "episode", "title card", "session"], run: () => playOpeningForTable() }
   ];
 }
 

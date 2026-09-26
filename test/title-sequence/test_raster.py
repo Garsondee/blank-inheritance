@@ -20,6 +20,39 @@ class TestPillarbox(unittest.TestCase):
         self.assertTrue((out[:, 240:1680] == 200).all())
 
 
+class TestHalftone(unittest.TestCase):
+    """Manga screentone for the black-and-white smoke and cranes (Ingram, 2026-09-26: "could you produce a Halftone
+    dots manga aesthetic? That would lift both the smoke and the cranes")."""
+
+    def ink(self, grey, w=240, h=180, **kw):
+        out = raster.halftone(np.full((h, w, 3), grey, np.float32), **kw)
+        ink, paper = raster.rgb01((16, 14, 14)), raster.rgb01((236, 232, 220))
+        a = (paper[0] - out[..., 0]) / (paper[0] - ink[0])           # 1 where ink, 0 where paper
+        return a
+
+    def test_a_mid_grey_is_about_half_ink_in_dots(self):
+        a = self.ink(0.5)
+        self.assertAlmostEqual(float(a.mean()), 0.5, delta=0.06)
+        self.assertGreater(float(((a < 0.05) | (a > 0.95)).mean()), 0.75)   # two-tone: ink or paper, bar the dot edges
+
+    def test_black_closes_up_solid_and_white_stays_paper(self):
+        self.assertGreater(float(self.ink(0.0).mean()), 0.97)
+        self.assertLess(float(self.ink(1.0).mean()), 0.02)
+
+    def test_darker_means_bigger_dots(self):
+        means = [float(self.ink(g).mean()) for g in (0.8, 0.6, 0.4, 0.2)]
+        self.assertEqual(means, sorted(means))
+
+    def test_the_dots_keep_their_size_whatever_the_picture(self):
+        # the grid belongs to the frame: the same grey gives the same dots at the same places
+        a, b = self.ink(0.5), self.ink(0.5)
+        np.testing.assert_allclose(a, b)
+        coarse = self.ink(0.5, cell=16)
+        fine = self.ink(0.5, cell=6)
+        edges = lambda x: float(np.abs(np.diff(x, axis=1)).mean())
+        self.assertGreater(edges(fine), edges(coarse))                # more, smaller dots
+
+
 class TestBlending(unittest.TestCase):
     def test_over_respects_coverage(self):
         img = raster.canvas((0, 0, 0), w=3, h=1)

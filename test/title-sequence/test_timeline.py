@@ -370,6 +370,68 @@ class TestTheShippedTimeline(unittest.TestCase):
         for n in range(1144, 1178):                                  # the whole of his shot
             self.assertTrue(any(timeline.params_at(c, frame_t(n)) for c in behind), n)
 
+    def test_the_heads_eyes_flare_instead_of_cutting_away(self):
+        # Ingram (2026-09-26): "instead of cutting to the eyes shining in the dark let's put the eye lights in the
+        # middle of each eye so that when the robot head turns it's eyes flare light instead of cutting."
+        head = self.clip("r36-art")
+        self.assertEqual(head["layer"]["type"], "video")
+        on = [n for n in range(1575, 1610) if timeline.params_at(head, frame_t(n))]
+        self.assertEqual((on[0], on[-1]), (1581, 1602))                    # R36 to R38 in one shot
+        pictures = [c for c in self.doc["clips"] if c["shot"] == "R38"]
+        self.assertEqual(pictures, [])                                     # no separate eyes in the dark
+        for side in ("l", "r"):
+            halo = self.clip(f"r36-halo-{side}")
+            pos = [(timeline.params_at(halo, frame_t(n))["cx"], timeline.params_at(halo, frame_t(n))["cy"])
+                   for n in range(1593, 1603)]
+            self.assertGreater(len(set(pos)), 3)                           # it follows the eye as the head turns
+            self.assertTrue(all(0 < x < 1440 and 0 < y < 1080 for x, y in pos))
+        peak = max(range(1593, 1603), key=lambda n: timeline.params_at(self.clip("r36-halo-l"), frame_t(n))["strength"])
+        self.assertGreaterEqual(peak, 1597)                                # the flare peaks where the cut used to be
+
+    def test_the_smoke_and_cranes_are_manga_halftone(self):
+        # Ingram (2026-09-26): "could you produce a Halftone dots manga aesthetic? That would lift both the smoke
+        # and the cranes."
+        for cid in ("r06-smoke", "r06-crane"):
+            self.assertTrue(self.clip(cid)["layer"].get("halftone"), cid)
+
+    def test_the_opening_fades_out_over_a_five_second_tail(self):
+        # Ingram (2026-09-26): "Add five seconds of fading out time at the end, we need to a longer tail."
+        self.assertEqual(timeline.end_frame(self.doc) - clock.total_frames(), 120)
+        fade = self.clip("r111-fade")
+        amounts = [(n, timeline.params_at(fade, frame_t(n))) for n in range(2100, timeline.end_frame(self.doc))]
+        black = [n for n, p in amounts if p and p["amount"] >= 0.999]
+        started = [n for n, p in amounts if p and p["amount"] > 0.001]
+        self.assertTrue(black)
+        self.assertGreaterEqual((black[0] - started[0]) / clock.FPS, 4.5)     # a slow fade, not a cut
+        self.assertEqual(black[-1], timeline.end_frame(self.doc) - 1)         # black to the very end
+        self.assertEqual(self.clip("r111-wall")["end"], frame_t(timeline.end_frame(self.doc)) - 1e-6)
+
+    def test_the_star_chart_is_ingrams_new_star_panning_slowly(self):
+        # Ingram (2026-09-26): "I never liked how the round star chart looked... you have some latitude for a pan
+        # too but it should be slow."
+        chart = self.clip("r03-chart")
+        self.assertTrue(chart["layer"]["src"].endswith("R03-star.png"))
+        cxs = [timeline.params_at(chart, frame_t(n)).get("cx", 0.5) for n in range(160, 233)]
+        per_frame = max(abs(b - a) for a, b in zip(cxs, cxs[1:])) * 3104 * (1080 / 1568)
+        self.assertLess(per_frame, 6.0)                                    # a few pixels a frame at most
+        self.assertGreater(abs(cxs[-1] - cxs[0]), 0.03)                    # but it does pan
+
+    def test_r35_is_ingrams_art_not_effects_on_their_own(self):
+        # Ingram (2026-09-26): "R35 needs replacing, we don't have any graphics for it and it makes no sense on it's
+        # own."
+        r35 = [c for c in self.doc["clips"] if c["shot"] == "R35"]
+        self.assertTrue(r35)
+        self.assertTrue(all(c["layer"]["type"] in ("image", "video") for c in r35))
+        on = [n for n in range(1511, 1581) if any(timeline.params_at(c, frame_t(n)) for c in r35)]
+        self.assertEqual(len(on), 70)
+
+    def test_the_welder_is_on_long_enough_to_read(self):
+        # Ingram (2026-09-26): "74.50s bar 2.1 - this animation is so shortened that it's not obvious what is
+        # happening."
+        welder = self.clip("r73-art")
+        on = [n for n in range(1780, 1820) if timeline.params_at(welder, frame_t(n))]
+        self.assertGreaterEqual(len(on), 12)
+
     def test_a_keyed_move_never_jumps(self):
         # found 2026-09-26: R94's push keyed its centre only on its last frame, so the picture sat at the default
         # centre and jumped on that frame. Whatever a gliding clip keys is set in its first key (or starts from the
@@ -538,12 +600,14 @@ class TestTheShippedTimeline(unittest.TestCase):
 
     def test_the_speed_lines_fire_from_the_star_then_the_city(self):
         # Ingram: "have the radiating things emerge from the middle of the star, at the moment the origin is
-        # slightly offset". Measured centres: the star in R03-chart.png, the brightest lights in R04-city.png.
+        # slightly offset"; and for her new star (2026-09-26), "Make sure the wiggly lines radiate from where the
+        # brightest middle bit of the sun is". Measured: the sun's white-hot heart in R03-star.png, the brightest
+        # lights in R04-city.png.
         from titleseq import layers
         dust = self.clip("r03-dust")
         first = next(n for n in range(140, 200) if timeline.params_at(dust, frame_t(n)))
         drawn = lambda lo, hi: [n for n in range(lo, hi) if (n - first) % dust.get("on", 1) == 0]   # its drawings
-        for clip_id, point, size, frames in (("r03-chart", (0.5012, 0.5028), (2464, 1856), drawn(170, 224)),
+        for clip_id, point, size, frames in (("r03-chart", (0.5661, 0.5151), (3104, 1568), drawn(170, 224)),
                                              ("r04-city", (0.445, 0.737), (2544, 1904), drawn(236, 312))):
             art = self.clip(clip_id)
             for n in frames:

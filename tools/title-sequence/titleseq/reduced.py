@@ -45,14 +45,14 @@ class Reduced:
         order = [s["id"] for s in shots]
         first_frame = lambda t: clock.frame_to_time(math.ceil((t + clock.LEAD_IN) * clock.FPS - 1e-3))
         ins = {s["id"]: first_frame(s["in"]) for s in shots}         # a shot's span runs from its first frame
-        end_of = {s["id"]: (ins[order[i + 1]] if i + 1 < len(order) else clock.frame_to_time(clock.total_frames()))
+        end_of = {s["id"]: (ins[order[i + 1]] if i + 1 < len(order) else clock.frame_to_time(timeline.end_frame(base)))
                   for i, s in enumerate(shots)}
         self.segments = []
         start = clock.frame_to_time(0)
         for seg in spec["segments"]:
             first, last = seg.get("shots", [seg.get("shot"), seg.get("shot")])
             s0, s1 = ins[first], end_of[last]
-            until = clock.TRACK_LENGTH if seg["until"] == "end" else float(seg["until"])
+            until = timeline.length(base) if seg["until"] == "end" else float(seg["until"])
             motion = float(seg.get("motion", self.motion))
             self.segments.append({"shot": first, "last": last, "a": start, "b": until, "s0": s0, "s1": s1,
                                   "motion": motion})

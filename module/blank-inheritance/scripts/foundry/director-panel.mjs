@@ -42,12 +42,23 @@ const MACRO_SOURCE_ID = "blank-inheritance-director-panel-macro";
  * "cue this specific scene" GM choice check the gate THEMSELVES first, via
  * checkCueGate below, and only call this once allowed or overridden -- see
  * #onCue in this file and #onCutTo/#onCueScene in scene-runner.mjs.
+ *
+ * Two options for the opening titles (foundry/opening-titles.mjs#cueFirstScene),
+ * which change scene under a black curtain: `transition` is a whole
+ * viewOptions.transition that wins over the type/duration shorthand (theirs
+ * is core/opening-titles.mjs#hiddenCutTransition, no transition at all), and
+ * `pullUsers` also brings anyone looking at another scene when this one is
+ * already the active one (Scene#activate's own option). Every other caller
+ * passes neither, and cues exactly as before.
  */
-export async function cueScene(sceneId, { transitionType, transitionDuration } = {}) {
+export async function cueScene(sceneId, { transitionType, transitionDuration, transition, pullUsers = false } = {}) {
   if (!game.user.isGM) return null;
   const scene = game.scenes.get(sceneId);
   if (!scene) return null;
-  return scene.activate({ viewOptions: { transition: transitionOptions(transitionType, transitionDuration) } });
+  return scene.activate({
+    viewOptions: { transition: transition ?? transitionOptions(transitionType, transitionDuration) },
+    pullUsers
+  });
 }
 
 // The only two episode files that currently exist (CLAUDE.md's data/episodes/

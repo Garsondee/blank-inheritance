@@ -11155,7 +11155,20 @@
    colour is spent on its caution mark. Nothing in either piece animates
    beyond a plain fade: one of the two cuts promises no flashing at all, and
    the frame around it must not break that promise on its behalf.
+
+   Since 2026-09-26 the player is also a curtain: it goes up black the
+   moment the GM starts the titles, the choice window opens ABOVE it, then
+   the chosen cut and the episode's title card play in it, and it fades out
+   over a second and a half onto the episode's first scene.
    ===================================================================== */
+
+/* The choice window sits above the curtain. ApplicationV2#bringToFront writes
+   each window's z-index inline, one above the last, so only !important
+   lifts this one past the player (which is pinned one under the tooltip
+   layer, below); notifications stay above both. */
+.bi-opening-choice-window {
+  z-index: var(--z-index-tooltip, 9999) !important;
+}
 
 .bi-opening-choice {
   display: grid;
@@ -11260,6 +11273,20 @@
   background: var(--bi-amber-bed);
   color: var(--bi-bone);
 }
+/* What follows the opening: one choice, and the sentence saying what the
+   table will see after it (the adapter swaps it as the choice changes). */
+.bi-opening-confirm__then {
+  margin: 10px 0 0;
+}
+.bi-opening-confirm__then select {
+  width: 100%;
+}
+.bi-opening-confirm__detail {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--bi-bone-dim);
+}
 
 /* --- The player --------------------------------------------------------- */
 
@@ -11282,6 +11309,17 @@
   outline: none;
 }
 .bi-opening.is-shown { opacity: 1; }
+/* The reveal: the same plain fade, slowed to core/opening-titles.mjs's
+   REVEAL_FADE_MS, onto the episode's first scene. Clicks go through to the
+   scene from its first frame, since the keys have already been handed back.
+   It keeps its length under prefers-reduced-motion (bi-tokens.css zeroes
+   --bi-dur-servo there) on purpose: an opacity fade moves nothing, the
+   reduced-motion opening dissolves its own cuts, and a black screen cut
+   straight to a bright scene is the harsher change of the two. */
+.bi-opening.is-revealing {
+  transition-duration: 1500ms;
+  pointer-events: none;
+}
 .bi-opening__video {
   position: absolute;
   inset: 0;
@@ -11362,6 +11400,10 @@
   height: 46px;
   padding: 0 24px;
   font-size: 17px;
+}
+/* The part the click would play ("Play the opening", "Play the episode title"). */
+.bi-opening__play-label {
+  white-space: nowrap;
 }
 .bi-opening__skip {
   position: absolute;

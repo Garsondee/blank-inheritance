@@ -90,6 +90,31 @@ class TestFrameRange(unittest.TestCase):
         self.assertEqual(self.first(-2.0), -36)                # partway into it
         self.assertEqual(self.first(-9.0), -72)                # never before it
 
+    def test_a_tail_runs_on_after_the_music(self):
+        # Ingram, 2026-09-26: "Add five seconds of fading out time at the end, we need a longer tail."
+        args = argparse.Namespace(t_from=None, t_to=None, no_preroll=True)
+        song = render.frame_range(args, {})[1]
+        self.assertEqual(render.frame_range(args, {"tail": 5.0})[1] - song, 120)
+
+    def test_a_timeline_with_no_track_runs_for_its_own_length(self):
+        args = argparse.Namespace(t_from=None, t_to=None, no_preroll=True)
+        self.assertEqual(render.frame_range(args, {"track": None, "length": 7.0}), (0, round(7.5 * 24)))
+
+
+@unittest.skipUnless(FFMPEG, "needs ffmpeg")
+class TestSoundWithoutMusic(unittest.TestCase):
+    def test_a_title_card_gets_its_hiss_over_silence_for_its_whole_length(self):
+        import numpy as np
+        doc = {"track": None, "length": 3.0, "sound": [{"color": "pink", "amplitude": 0.02, "from": 0.2, "to": 3.5}]}
+        wav, offset = render.soundtrack(doc, argparse.Namespace(no_preroll=True), FFMPEG)
+        self.assertEqual(offset, 0)
+        pcm = subprocess.run([FFMPEG, "-v", "error", "-i", wav, "-f", "s16le", "-ac", "1", "-ar", "8000", "-"],
+                             capture_output=True, check=True).stdout
+        sound = np.frombuffer(pcm, np.int16).astype(np.float64) / 32768
+        self.assertAlmostEqual(len(sound) / 8000, 3.5, delta=0.05)       # the half-second lead-in, then 3 s
+        self.assertLess(np.abs(sound[:800]).max(), 1e-3)                   # silent before the hiss comes in
+        self.assertGreater(np.sqrt(np.mean(sound[4000:] ** 2)), 0.002)     # then the tape's hiss
+
 
 if __name__ == "__main__":
     unittest.main()

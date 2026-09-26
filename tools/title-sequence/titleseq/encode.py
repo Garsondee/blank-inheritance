@@ -45,20 +45,41 @@ def track_with_lead_in(ffmpeg, work=WORK, track=TRACK, lead=clock.LEAD_IN, noise
             subprocess.run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-i", track,
                             "-af", f"adelay={ms}:all=1", "-c:a", "pcm_s16le", out], check=True)
         else:
-            fmt = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
-            parts = [f"[0:a]adelay={ms}:all=1,{fmt}[m]"]
-            for i, nz in enumerate(noise):
-                dur = float(nz["to"]) - float(nz["from"])
-                fade = max(0.02, float(nz.get("fade", 0.02)))
-                parts.append(f"anoisesrc=color={nz.get('color', 'pink')}:amplitude={float(nz['amplitude'])}:"
-                             f"duration={dur}:sample_rate=44100:seed={i + 1},"
-                             f"afade=t=in:d=0.02,afade=t=out:st={max(0.0, dur - fade)}:d={fade},"
-                             f"adelay={int(round(float(nz['from']) * 1000))}:all=1,{fmt}[n{i}]")
-            labels = "[m]" + "".join(f"[n{i}]" for i in range(len(noise)))
-            parts.append(f"{labels}amix=inputs={len(noise) + 1}:duration=longest:normalize=0[a]")
+            parts = [f"[0:a]adelay={ms}:all=1,{_FMT}[m]"] + _noise_parts(noise)
             subprocess.run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-i", track,
                             "-filter_complex", ";".join(parts), "-map", "[a]", "-c:a", "pcm_s16le", out], check=True)
     return levelled(ffmpeg, out)
+
+
+_FMT = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
+
+
+def _noise_parts(noise):
+    """Filter chains laying each noise item into the mix after [m] (see track_with_lead_in), ending in [a]."""
+    parts = []
+    for i, nz in enumerate(noise):
+        dur = float(nz["to"]) - float(nz["from"])
+        fade = max(0.02, float(nz.get("fade", 0.02)))
+        parts.append(f"anoisesrc=color={nz.get('color', 'pink')}:amplitude={float(nz['amplitude'])}:"
+                     f"duration={dur}:sample_rate=44100:seed={i + 1},"
+                     f"afade=t=in:d=0.02,afade=t=out:st={max(0.0, dur - fade)}:d={fade},"
+                     f"adelay={int(round(float(nz['from']) * 1000))}:all=1,{_FMT}[n{i}]")
+    labels = "[m]" + "".join(f"[n{i}]" for i in range(len(noise)))
+    parts.append(f"{labels}amix=inputs={len(noise) + 1}:duration=longest:normalize=0[a]")
+    return parts
+
+
+def silent_track(ffmpeg, seconds, work=WORK, noise=()):
+    """Silence `seconds` long with `noise` laid in (items as for track_with_lead_in), for a timeline with no music,
+    such as an episode title card's tape hiss. It isn't levelled: the hiss is set by its own amplitude."""
+    os.makedirs(work, exist_ok=True)
+    tag = hashlib.sha1(json.dumps([round(seconds, 3), list(noise)], sort_keys=True).encode()).hexdigest()[:10]
+    out = os.path.join(work, f"_silence_{tag}.wav")
+    if not os.path.exists(out):
+        parts = [f"anullsrc=r=44100:cl=stereo:d={seconds:.3f},{_FMT}[m]"] + _noise_parts(noise)
+        subprocess.run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-filter_complex", ";".join(parts),
+                        "-map", "[a]", "-t", f"{seconds:.3f}", "-c:a", "pcm_s16le", out], check=True)
+    return out
 
 
 def loudness(ffmpeg, path):
@@ -103,6 +124,8 @@ class Encoder:
             # no -shortest: it trims the video to the audio's rounded end and drops the last frame. The audio is
             # already cut to the range's exact length with -t, so the picture defines the file's length.
             cmd += ["-i", audio, "-map", "0:v", "-map", "1:a", "-c:a", "aac", "-b:a", "192k"]
+            if audio_duration:                     # silence to the end of the picture, when the sound runs out first
+                cmd += ["-af", f"apad=whole_dur={audio_duration:.4f}"]
         # faststart puts the index at the front, so a browser (Foundry's players) can start playing while it downloads
         cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", str(crf), "-pix_fmt", "yuv420p",
                 "-movflags", "+faststart", path]

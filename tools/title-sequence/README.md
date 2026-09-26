@@ -11,6 +11,8 @@ python tools/title-sequence/render.py draft                          # the whole
 python tools/title-sequence/render.py draft --no-preroll             # ...without the tape before frame 0
 python tools/title-sequence/render.py draft --reduced                # the reduced-motion, no-flashing version
 python tools/title-sequence/render.py flashcheck --file VIDEO.mp4    # photosensitivity check (WCAG 2.3.1)
+python tools/title-sequence/render.py card episode-c1e1-mothers-maiden-name   # an episode's title card
+python tools/title-sequence/render.py draft --clean --out .../opening-full.mp4  # a final: nothing in the side bars
 python tools/title-sequence/render.py draft --from 12 --to 14        # a range (track seconds)
 python tools/title-sequence/render.py compare --from=-0.5 --to=1 --slow 3   # source | ours, slowed down
 python tools/title-sequence/render.py stills --compare --frames 8,9,10      # single frames as PNG
@@ -138,6 +140,9 @@ python tools/title-sequence/render.py stills --compare --frames 8,9,10      # si
     - `erode` and `feather` tighten and soften the edge
   - `"keyed": true` uses the file's own alpha (art cut out by hand, such as the Directorate's approved seal in
     `artwork/emblems/`), with no matte.
+  - `halftone` (`{"cell": 9}`, with `angle`, `ink`, `paper`, `softness`) prints the graded art as manga
+    screentone (`raster.halftone`): round ink dots whose area follows the darkness, on a grid laid on the frame, so
+    the dots stay one size however deep a crop zooms. The R06 smoke and cranes wear it.
   - `fill` repaints the art one flat colour (a silhouette). `levels`, `gamma`, `tint`, `brightness` and `lift`
     grade it.
   - `blend` is `normal`, `screen` or `add`, at `opacity`.
@@ -178,6 +183,22 @@ general flashes (opposing changes of at least 0.1 in relative luminance, with th
 than three saturated-red flashes in any second, in windows a quarter of a 10-degree field. `render.py flashcheck
 --file VIDEO` reports the worst second.
 
+## Length, the tail, and title cards
+
+- **Length.** A timeline runs for its track's length (`clock.TRACK_LENGTH`), or, with `"track": null`, for its
+  own `length`, plus any `tail`: seconds held after the music so the end can fade out slowly (the opening has five,
+  under `tailSound`, a tape hiss that fades). `timeline.length(doc)` and `timeline.end_frame(doc)` give it; the
+  draft, the reduced cut and the encoder (which pads the audio to the picture) all follow it.
+- **Episode title cards** (`titleseq/card.py`). Ingram: "we watch the intro video, then we cut to the episode
+  title, then we fade into the first scene automatically." One design, `data/title-sequences/episode-card.json`
+  (a 7.5-second timeline with no track: black, a hard cut to the card, a hold, a fade to black), is filled in per
+  episode: its English title from the episode's own file, its number and Japanese lines from
+  `data/title-sequences/episode-titles.json`. `render.py card <episode id>` renders it, clean, into
+  `artwork/title-sequences/episode-titles/<episode id>.mp4`; Foundry plays it from
+  `blank-inheritance-video/episode-titles/<episode id>.mp4`. A new episode needs one entry in the titles file.
+- **Finals are clean.** Drafts label the side bars (shot, time, bar and beat) for review; the files that go to
+  Foundry are rendered with `--clean` (Ingram: "that's not meant to go into the final video").
+
 ## The source reference (drafts and comparisons only)
 
 `titleseq/source.py` reads the source opening from the gitignored `artwork/in-tray/video/`, through the measured,
@@ -206,8 +227,10 @@ The tests cover:
   - every animation playing forward, never jumping back or freezing on its last frame while on screen
   - lead beat 3 as Ingram's animated newcomer, never the extreme close-up she cut
   - no full-frame picture ever showing its own edge, and no keyed move jumping (every value glides from its first key)
-  - the opening finished from the art in hand: no slates, the comms officer's portrait never used, Taka in front of
-    a real place
+  - the opening finished from the art in hand: no slates, turned-down art never used, Taka in front of a real place
+  - the head's eyes flaring as it turns (no cut to eyes in the dark), the new star panning slowly with its speed
+    lines from its sun, R35 as art, the welder long enough to read, the smoke and cranes in halftone, and the
+    five-second tail fading to black
   - only the credits the opening needs
   - the heat haze under the rooftop's credit, and its pan
   - the pre-roll: the channel flick, the tracking issue, the captions above the tape, clean black before frame 0
@@ -219,6 +242,9 @@ The tests cover:
 - the reduced-motion version: it tiles the song, uses far fewer and longer shots, halves and slows every move
   around its middle, keeps every lead beat and credit, plays the ripple as it is, drops everything that flashes,
   and dissolves its cuts
+- the episode title card: what it says, its length, black at both ends, its file name, and every titled episode
+  existing
+- the halftone (a grey half ink in dots, blacks solid, whites paper) and a trackless timeline's hiss
 - the flash check: a strobe and a red flicker fail, while a slow alternation, a single cut and a small flashing spot
   pass
 - the schema knowing every layer type
