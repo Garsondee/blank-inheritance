@@ -2,7 +2,7 @@
   "$schema": "../schema/ancestry-catalogue.schema.json",
   "id": "ancestry-catalogue",
   "type": "ancestry-catalogue",
-  "description": "The real, complete SF2E ancestry catalogue (51 entries), extracted live from gamesystems/sf2e/packs/ancestries for the induction terminal's Page 2 (design/induction-terminal.md). Descriptions are SF2E's own text, except seven trimmed for this campaign's era (GitHub #203, Ingram 2026-09-25): the words assuming the Gap has happened, the Pact Worlds exist, Golarion is lost or the Drift exists were deleted -- nothing was added -- and each of those seven keeps SF2E's original as sourceDescription. Planets of Golarion's own solar system (Akiton, Castrovel, Eox, Bretheda and so on) stay: the campaign is set on Golarion (#34). Boosts/flaws are Player Core's own choice slots -- a single-ability array is a fixed boost/flaw, a multi-ability array is a free choice the player resolves; core/induction/ancestry.mjs resolves a player's picks against these into the flat ability lists tools/character-builder/derive.mjs consumes. `terrestrial` is this project's own tag (not an SF2E field, see project_induction_and_newcomers memory / design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise, i.e. does picking it as a REAL ancestry skip the induction terminal's alien-lockdown sub-flow (Page 6a). Currently true only for the five classic ancestries (Human, Elf, Dwarf, Gnome, Halfling); Orc and Goblin are the nearest borderline case (Earth-folklore-adjacent, but SF2E writes them as their own starfaring species with no stated tie to Golarion-fantasy monsterfolk) and were left non-terrestrial -- this is a plain boolean in a data file, trivial to correct if that boundary is wrong. Heritage and ancestry-feat selection are deliberately NOT part of this catalogue or Page 2 -- deferred to the real post-induction character sheet, same reasoning as class feats/spells (design doc §5): both are real menu picks that grant their own rule text, not numbers derive.mjs needs. Singleton file: data/campaign/ancestry-catalogue.json.",
+  "description": "The real, complete SF2E ancestry catalogue (51 entries), extracted live from gamesystems/sf2e/packs/ancestries for the induction terminal's Page 2 (design/induction-terminal.md). Descriptions are SF2E's own text, except seven trimmed for this campaign's era (GitHub #203, Ingram 2026-09-25): the words assuming the Gap has happened, the Pact Worlds exist, Golarion is lost or the Drift exists were deleted -- nothing was added -- and each of those seven keeps SF2E's original as sourceDescription. Planets of Golarion's own solar system (Akiton, Castrovel, Eox, Bretheda and so on) stay: the campaign is set on Golarion (#34). Boosts/flaws are Player Core's own choice slots -- a single-ability array is a fixed boost/flaw, a multi-ability array is a free choice the player resolves; core/induction/ancestry.mjs resolves a player's picks against these into the flat ability lists tools/character-builder/derive.mjs consumes. `terrestrial` is this project's own tag (not an SF2E field, see project_induction_and_newcomers memory / design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise, i.e. does picking it as a REAL ancestry skip the induction terminal's alien-lockdown sub-flow (Page 6a). True exactly when the ancestry is also a Pathfinder 2e ancestry, i.e. one of Golarion's own peoples, so a character of it needs no disguise (Ingram, 2026-09-26: 'If it wasn't a PF2E ancestry then it's an alien one'). Checked against Archives of Nethys' PF2e ancestry list: Human, Elf, Dwarf, Gnome, Halfling, Goblin, Orc, Leshy, Android and Ysoki (PF2e's ratfolk, under their own name). Two near misses stay alien: Dragonkin (PF2e's dragonet is a different people) and Nuar (a distant cousin of PF2e's minotaur, not the same people). test/tier1-induction-ancestry.test.mjs carries the PF2e list and fails if a flag disagrees with it. Heritage and ancestry-feat selection are deliberately NOT part of this catalogue or Page 2 -- deferred to the real post-induction character sheet, same reasoning as class feats/spells (design doc §5): both are real menu picks that grant their own rule text, not numbers derive.mjs needs. Singleton file: data/campaign/ancestry-catalogue.json.",
   "ancestries": [
     {
       "id": "android",
@@ -43,7 +43,7 @@
       "vision": "low-light-vision",
       "description": "Androids first emerged as synthetic beings crafted by many technologically advanced civilizations throughout the galaxy. The first androids were created by humanoid peoples in their own images, but after the technology that animated the living constructs spread, androids began displaying a fantastic diversity of forms. Some androids have formed their own independent communities. Unlike many other technological constructs, androids are more than intricate synthetic organs and complex programming, and each possesses their own soul.",
       "sourceDescription": "Androids first emerged as synthetic beings crafted by many technologically advanced civilizations throughout the galaxy. The first androids were created by humanoid peoples in their own images, but after the technology that animated the living constructs spread, androids began displaying a fantastic diversity of forms. Androids in the Pact Worlds were originally designed as servants, but today androids and other robotic beings stand as equals to organic ancestries under the Pact. Some androids have formed their own independent communities, while most integrate seamlessly into Pact Worlds societies. Unlike many other technological constructs, androids are more than intricate synthetic organs and complex programming, and each possesses their own soul.",
-      "terrestrial": false
+      "terrestrial": true
     },
     {
       "id": "astrazoan",
@@ -743,7 +743,7 @@
       "rarity": "common",
       "vision": "darkvision",
       "description": "How goblins have managed to prosper long enough to spread across the galaxy is a testament to their ability to survive despite themselves. These eccentric and voracious tricksters are both drawn to and fascinated by dangerous machines, roaring fire, and unstable mayhem. They can live anywhere, eat anything, and thrive despite whatever obstacles get in their way.",
-      "terrestrial": false
+      "terrestrial": true
     },
     {
       "id": "halfling",
@@ -1156,7 +1156,7 @@
       "rarity": "common",
       "vision": "low-light-vision",
       "description": "Leshies are immortal spirits of nature dwelling within plant vessels whose shapes resemble those of humanoids or animals. When a leshy incarnates into a new body, they leave behind most of their memories and experiences, allowing themselves to perceive the Universe anew without the burden of mortal preconceptions.",
-      "terrestrial": false
+      "terrestrial": true
     },
     {
       "id": "madrosarai",
@@ -1399,7 +1399,7 @@
       "rarity": "common",
       "vision": "darkvision",
       "description": "Orcs are a proud people known for their loyalty and ferocity. They tend to value principled and trustworthy allies, seek out great challenges, and choose their life paths without regret or hesitation.",
-      "terrestrial": false
+      "terrestrial": true
     },
     {
       "id": "orocoran",
@@ -2106,7 +2106,7 @@
       "rarity": "common",
       "vision": "low-light-vision",
       "description": "Once known as ratfolk, ysoki are clever and flexible. With roots on countless worlds, ysoki work alongside larger species, helping to establish communities and accomplish tough tasks. From the largest of crowds to the tightest of tunnels, a ysoki always knows how to find their way.",
-      "terrestrial": false
+      "terrestrial": true
     }
   ]
 }

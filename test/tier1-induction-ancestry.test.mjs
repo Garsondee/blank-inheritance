@@ -195,11 +195,32 @@ test("every real ancestry's boosts/flaws resolve cleanly once every free slot is
   }
 });
 
-test("exactly the five classic ancestries are tagged terrestrial", () => {
+// Ingram, 2026-09-26: "If it wasn't a PF2E ancestry then it's an alien one." The campaign is set on Golarion
+// (#34), so an ancestry that is also one of PF2e's is one of Golarion's own peoples. The list is Archives of
+// Nethys' PF2e ancestries (2e.aonprd.com/Ancestries.aspx, read 2026-09-26). Ysoki are PF2e's ratfolk under
+// their own name ("Ysoki are beings that most surface-dwelling humanoids refer to as 'ratfolk'", Player
+// Core 2 pg. 29).
+const PF2E_ANCESTRIES = [
+  "Dwarf", "Elf", "Gnome", "Goblin", "Halfling", "Human", "Leshy", "Orc", "Athamaru", "Azarketi", "Catfolk",
+  "Centaur", "Fetchling", "Hobgoblin", "Kholo", "Kitsune", "Kobold", "Lizardfolk", "Merfolk", "Minotaur", "Nagaji",
+  "Ratfolk", "Samsaran", "Tanuki", "Tengu", "Tripkee", "Vanara", "Wayang", "Anadi", "Android", "Automaton",
+  "Awakened Animal", "Conrasu", "Dragonet", "Fleshwarp", "Ghoran", "Goloma", "Jotunborn", "Kashrishi", "Poppet",
+  "Sarangay", "Shisk", "Shoony", "Skeleton", "Sprite", "Strix", "Surki", "Vishkanya", "Yaksha", "Yaoguai"
+];
+const PF2E_OWN_NAMES = { Ysoki: "Ratfolk" };
+
+test("an ancestry is terrestrial exactly when it is also a PF2e ancestry -- one of Golarion's own peoples", () => {
+  for (const a of CATALOGUE.ancestries) {
+    const pf2e = PF2E_ANCESTRIES.includes(PF2E_OWN_NAMES[a.name] ?? a.name);
+    assert.equal(a.terrestrial, pf2e, a.name + (pf2e ? " is a PF2e ancestry, so it's terrestrial" : " isn't a PF2e ancestry, so it's alien"));
+  }
+});
+
+test("the terrestrial group is the ten Golarion peoples SF2E shares with PF2e", () => {
   const { terrestrial } = groupAncestries(CATALOGUE.ancestries);
   assert.deepEqual(
     terrestrial.map((a) => a.id).sort(),
-    ["dwarf", "elf", "gnome", "halfling", "human"]
+    ["android", "dwarf", "elf", "gnome", "goblin", "halfling", "human", "leshy", "orc", "ysoki"]
   );
 });
 

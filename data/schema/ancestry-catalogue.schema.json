@@ -52,7 +52,7 @@
         "sourceDescription": { "type": "string", "description": "SF2E's own description, verbatim, present only where description was trimmed for this campaign's era (GitHub #203, 2026-09-25): the words assuming the Gap has happened, the Pact Worlds exist, Golarion is lost or the Drift exists. Never shown to players; kept so the trim can be checked or undone." },
         "terrestrial": {
           "type": "boolean",
-          "description": "This project's own tag, not an SF2E field (project_induction_and_newcomers memory, design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise? True only for Human, Elf, Dwarf, Gnome, Halfling. Picking a non-terrestrial ancestry on Page 2 queues the alien-lockdown sub-flow (Page 6a) -- picking a terrestrial one does not. A plain boolean, trivially correctable if the boundary is wrong."
+          "description": "This project's own tag, not an SF2E field (design/induction.md §2): is this one of Golarion's own peoples, so a character of it needs no disguise? True exactly when the ancestry is also a Pathfinder 2e ancestry (Ingram, 2026-09-26: 'If it wasn't a PF2E ancestry then it's an alien one'); the catalogue's own description lists them. Picking a non-terrestrial ancestry on Page 2 queues the alien-lockdown sub-flow (Page 6a) -- picking a terrestrial one does not."
         }
       }
     }

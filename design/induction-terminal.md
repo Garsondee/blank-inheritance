@@ -277,12 +277,13 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    class lists are a separate question each, not automatically the same answer either way.
 6. **The lockdown follow-up questions' actual content** — the tone rules are now clear (§4a), the
    actual copy for the 2-3 questions isn't written yet.
-7. **The exact terrestrial/alien-coded boundary, in `data/campaign/ancestry-catalogue.json`'s
-   `terrestrial` flag.** Currently just the five classic ancestries (Human, Elf, Dwarf, Gnome,
-   Halfling); every other real SF2E ancestry, Orc and Goblin included, is tagged alien-coded. Orc and
-   Goblin are the nearest real edge case — Earth-folklore-adjacent, but SF2E writes them as their own
-   starfaring species with no stated Golarion-monsterfolk framing, so they were left on the
-   alien-coded side rather than assumed in. A plain boolean per ancestry, trivial to correct.
+7. ~~The exact terrestrial/alien-coded boundary.~~ **Resolved 2026-09-26 by Ingram:** "If it wasn't a PF2E
+   ancestry then it's an alien one." The campaign is set on Golarion (#34), so an ancestry that is also one
+   of PF2e's is one of Golarion's own peoples and needs no disguise. Checked against Archives of Nethys' PF2e
+   list, ten of the 51 are terrestrial: Human, Elf, Dwarf, Gnome, Halfling, Goblin, Orc, Leshy, Android and
+   Ysoki (PF2e's ratfolk under their own name). Dragonkin (PF2e's dragonet is a different people) and Nuar
+   (a cousin of PF2e's minotaur) stay alien. The old answer — only the five classics, with Orc and Goblin
+   left out — is gone; `test/tier1-induction-ancestry.test.mjs` carries the PF2e list and checks all 51.
 8. **A whole unbuilt branch, found 2026-09-10: "new recruit" vs. "the Day 1 pilot."**
    `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
    stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
