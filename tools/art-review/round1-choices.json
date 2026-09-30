@@ -1,0 +1,15 @@
+{
+  "note": "Ingram's export of the review page, 2026-09-30T13:32:57Z (52 of 52 answered). Kept verbatim. Items marked redo-art or fix-text were dealt with in round 2 (tools/art-review/round2.mjs and round2-notes.json).",
+  "choices": {
+    "rest--early-night/haru": { "v": ["portrait-ok","text-ok","both-ok"], "note": "If he talks about home I need some details about home for him to talk about, where is his home, what was it like etc etc." },
+    "rest--early-night/grenna": { "v": ["portrait-ok","text-ok","both-ok"], "note": "A++ A fun simple character" },
+    "rest--bathhouse/sigrun": { "v": ["portrait-ok","text-ok","both-ok"], "note": "A very hard fortitude test would be a great compliment to this haunt scene. Allowing players to brave the hot hot tub." },
+    "rest--card-game/michiru": { "v": ["redo-art","text-ok"], "note": "The chalk is in front of the ear... making it looks like she stores chalk IN her ears...." },
+    "rest--card-game/lucan": { "v": ["portrait-ok","fix-text"], "note": "\"New blood! Sit by me. I'll explain the rules, and then someone else will explain the real rules.\"" },
+    "rest--rumour-mill/hana": { "v": ["redo-art","text-ok"], "note": "Pencil in mouth looks awkward, I'll probably need to edit this one myself." },
+    "rest--rumour-mill/mrs-ueda": { "v": ["portrait-ok","text-ok","both-ok"], "note": "\"she knocks twice on everything\" - second time you've used this wording? Is it meant to be the same character?" },
+    "rest--met-office/nadi": { "v": ["redo-art","text-ok"], "note": "We can probably get rid of the pair of pencils. Midjourney sucks at doing things like this realistically." },
+    "rest--night-shift/joji": { "v": ["redo-art","text-ok"], "note": "the arm isn't green. I can fix this one manually but we might want to regenerate." }
+  },
+  "allOtherItemsApproved": "Every other item in the export (all places, and every other character) was 'both-ok' / 'place-ok' with no note."
+}

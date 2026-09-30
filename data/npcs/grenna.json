@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "grenna",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Grenna Hollowmark",
+  "role": "Dwarf candidate in the next room, who snores",
+  "pole": null,
+  "ancestry": "Dwarf",
+  "affiliation": null,
+  "description": "A short, broad, ruddy first-term candidate with two thick braids and a square jaw, who lives in the next room and snores through the plywood wall like a sawmill, and whom everyone forgives. She raps her knuckles on any piece of wood before she trusts it, and handles anything broken like a patient: gently, and talking to it quietly. Cheerful, practical, and louder than she means to be.\n\nShe wants to be liked, to be useful, and for nobody to mention the snoring.",
+  "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--early-night.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Dwarf ('Short, squat, and hardy, dwarves take great pride in their traditions and are known as the best and fairest crafters in the galaxy.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: See the asset registry note for grenna: third attempt: the first two batches came out as small children rather than an adult dwarf, so the prompt was rebuilt around a stocky adult build and a strong jaw; image 1. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nVOICE NOTES: forced catchphrases in this regular's tics and sample lines were rewritten as habits and manner (tools/art-review/ledger.json has each before and after).\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 1, a sturdy young candidate, non-combat but strong. Made with Ingram once the NPC generator exists.); not carried here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "socialProfile": {
+    "attitude": "friendly"
+  }
+}

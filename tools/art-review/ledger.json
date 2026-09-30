@@ -1,0 +1,827 @@
+{
+  "changes": [
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "kazue",
+      "path": "cast.0.brief.byAttitude.unfriendly",
+      "find": "Calls them 'passengers', which is not a compliment, and makes them wait while the dockworkers go in first.",
+      "replace": "Lets the dockworkers go in ahead of them and leaves them standing on the step, which says everything she means to say.",
+      "why": "A nickname used as an insult, replaced by an action that carries the same meaning."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "kazue",
+      "path": "cast.0.brief.byAttitude.friendly",
+      "find": "Calls them 'sailor', saves them the stools nearest the hot tap, and tells them who on the island is worth knowing.",
+      "replace": "Saves them the stools nearest the hot tap, and tells them who on the island is worth knowing.",
+      "why": "The forced pet name 'sailor' is dropped; the warmth is already in what she does for them."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "kazue",
+      "path": "cast.0.brief.voice.tics.0",
+      "find": "Blows the brass whistle before she says anything important.",
+      "replace": "The brass whistle hangs at her collar, and the room goes quiet a beat before she lifts it.",
+      "why": "Same habit, shown as an effect on the room rather than a rule."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "kazue",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Calls the pools 'forward' and 'aft', the lockers 'the locker deck', and everyone 'sailor' once she likes them.",
+      "replace": "The bathhouse runs on bells and a logbook: lockers numbered like cabins, and the water's temperature chalked up every hour like a ship's heading.",
+      "why": "The ship-running-a-bathhouse idea is now told through her routines, not a vocabulary she recites."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "kazue",
+      "path": "cast.0.brief.voice.samples.0",
+      "find": "\"Soap on the stool, sailor, not on the tiles. I've seen a stevedore go down like a felled tree.\"",
+      "replace": "\"Soap on the stool, not on the tiles. I once watched a stevedore go down like a felled tree.\"",
+      "why": "Removes 'sailor'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "kazue",
+      "path": "cast.0.brief.opensWith",
+      "find": "Wash before you get in, and the towel never touches the water. Welcome aboard.",
+      "replace": "Wash before you get in, and the towel never touches the water.",
+      "why": "'Welcome aboard' was the ship gag shouted in her first line; the rules already do the work."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "hachi",
+      "path": "cast.1.brief.byAttitude.helpful",
+      "find": "and calls them 'my young ones' to anyone who'll listen.",
+      "replace": "and talks about them to anyone who'll listen as if he had trained them himself.",
+      "why": "Same warmth, no stock phrase."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "hachi",
+      "path": "cast.1.brief.voice.tics.1",
+      "find": "Calls every Frame 'she' and every pilot 'that boy' or 'that girl', however old they were.",
+      "replace": "Talks about Frames the way people talk about old horses, and about pilots the way people talk about somebody else's children.",
+      "why": "Gives the same information as a way of speaking, not a naming rule."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "path": "cast.2.brief.voice.tics.0",
+      "find": "Calls everything that isn't boiling 'lukewarm'.",
+      "replace": "Sinks into the hottest pool without a flinch and looks mildly let down by the temperature.",
+      "why": "'Lukewarm' as a catchphrase became a visible behaviour."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "path": "cast.2.brief.voice.samples.0",
+      "find": "\"This? Lukewarm. At home we would put the babies in this.\"",
+      "replace": "\"This one? At home we bathe the babies in this.\"",
+      "why": "Keeps the joke, drops the word."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--card-game",
+      "npc": "michiru",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Says 'the board says' when she means 'I say'.",
+      "replace": "Lets the board do her talking: a rule is a rule because it is up there, in her handwriting.",
+      "why": "The habit is the same but no longer a formula."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--card-game",
+      "npc": "michiru",
+      "path": "cast.0.brief.voice.samples.0",
+      "find": "\"The board says the sinks, so it's the sinks.\"",
+      "replace": "\"It's the sinks. I've already written it down.\"",
+      "why": "Removes 'the board says'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--card-game",
+      "npc": "lucan",
+      "path": "cast.1.brief.voice.tics.1",
+      "find": "Calls everyone 'friend' from the moment he meets them.",
+      "replace": "Gets more generous the closer he is to cheating: the drinks are on him, the good seat is yours.",
+      "why": "'Friend' as a tic replaced by a tell the table can learn to spot."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--card-game",
+      "npc": "lucan",
+      "path": "cast.1.brief.opensWith",
+      "find": "New blood! Sit by me, friend. I'll explain the rules",
+      "replace": "New blood! Sit by me. I'll explain the rules",
+      "why": "Removes 'friend'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--card-game",
+      "npc": "lucan",
+      "path": "cast.1.brief.voice.samples.0",
+      "find": "\"Friend, I'd never cheat you. I'd cheat Michiru, but never you.\"",
+      "replace": "\"I'd never cheat you. Michiru, now, that's a matter of principle.\"",
+      "why": "Removes 'friend'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--early-night",
+      "npc": "morishita",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Says \"Lights, please\" instead of \"lights out\", as if she were asking.",
+      "replace": "Asks for lights out rather than ordering it, and thanks the room when it complies.",
+      "why": "The politeness stays; the stock phrase goes."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "path": "cast.1.brief.voice.tics.0",
+      "find": "Says \"at home\" at the start of half his sentences.",
+      "replace": "Brings up home the way people press a bruise, mostly by accident, and then looks embarrassed.",
+      "why": "Homesickness shown instead of a repeated phrase."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "path": "cast.1.brief.voice.samples.0",
+      "find": "\"At home we'd have been asleep for three hours by now.\"",
+      "replace": "\"By now I'd have been asleep three hours, with the river going.\"",
+      "why": "Keeps the image, drops 'At home'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--early-night",
+      "npc": "grenna",
+      "path": "cast.2.brief.voice.tics.1",
+      "find": "Calls every broken thing \"a patient\".",
+      "replace": "Handles broken things like patients: gently, and talking to them quietly.",
+      "why": "The catchphrase 'a patient' is now a way of behaving."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--early-night",
+      "npc": "grenna",
+      "path": "cast.2.brief.voice.samples.0",
+      "find": "\"Hand me that. No, the other patient.\"",
+      "replace": "\"Hand me that. No, the one with the limp.\"",
+      "why": "Same joke without the word."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--met-office",
+      "npc": "genzo",
+      "path": "cast.0.brief.voice.tics.0",
+      "find": "Calls the hour like a ship's bell: \"Two o'clock, and all's damp.\"",
+      "replace": "Knocks the hour out on the brass rail with one knuckle, one knock for each hour, and only afterwards says the number.",
+      "why": "A shouted formula turned into a habit of action."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--night-shift",
+      "npc": "kaede",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Calls everyone by their job: \"Pit\", \"Bench\", \"Crane\".",
+      "replace": "Directs the shop by station rather than by name, so everyone hears their own job called back at them.",
+      "why": "Same trait described rather than quoted."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--night-shift",
+      "npc": "nkiru",
+      "path": "cast.2.brief.voice.tics.1",
+      "find": "Gives everyone on the floor a nickname from the top of their head: \"Red Hat\", \"Tall One\".",
+      "replace": "Names people from twenty metres up by whatever she can see of them: a hat, a height, a limp.",
+      "why": "Nicknames described as how she sees people from the cab."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--rumour-mill",
+      "npc": "hana",
+      "path": "cast.0.brief.voice.tics.0",
+      "find": "Says who told her everything, with a rating out of five.",
+      "replace": "Never repeats a rumour without saying who she got it from and how far she trusts them.",
+      "why": "The 'out of five' gag removed; her care over sources remains."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--rumour-mill",
+      "npc": "hana",
+      "path": "cast.0.brief.voice.samples.0",
+      "find": "\"That's from a laundry girl, so four out of five.\"",
+      "replace": "\"That's from a laundry girl, and laundry girls are never wrong about a hem.\"",
+      "why": "Removes the rating formula."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--rumour-mill",
+      "npc": "obi",
+      "path": "cast.1.brief.voice.tics.1",
+      "find": "Says 'in fact' before things that are not facts.",
+      "replace": "Is at his most certain a moment before he turns out to be wrong.",
+      "why": "The joke 'in fact' becomes a pattern the table can enjoy spotting."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--rumour-mill",
+      "npc": "obi",
+      "path": "cast.1.brief.voice.samples.0",
+      "find": "\"In fact, the cellar is just potatoes. I checked twice.\"",
+      "replace": "\"The cellar is just potatoes. I checked twice, and I was very thorough.\"",
+      "why": "Removes 'In fact'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--rumour-mill",
+      "npc": "mrs-ueda",
+      "path": "cast.2.brief.voice.tics.0",
+      "find": "Calls everyone 'dear'.",
+      "replace": "Is so gentle with everyone that it takes a while to notice she is counting them.",
+      "why": "'Dear' was also Tsubaki's word and Imai's; hers is now a manner."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--rumour-mill",
+      "npc": "mrs-ueda",
+      "path": "cast.2.brief.voice.samples.0",
+      "find": "\"Lamp out, dear. I'm counting to ten, very slowly.\"",
+      "replace": "\"Lamp out. I'm counting to ten, very slowly.\"",
+      "why": "Removes 'dear'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--shrine-gate",
+      "npc": "mira",
+      "path": "cast.1.brief.voice.tics.1",
+      "find": "Says 'connecting you' when she introduces people to each other.",
+      "replace": "Introduces people by patching them together: a hand on each elbow, a small pause, and then they are talking.",
+      "why": "The exchange operator's phrase turned into the gesture behind it."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--shrine-gate",
+      "npc": "mira",
+      "path": "cast.1.brief.voice.samples.1",
+      "find": "\"Tokuji, these are candidates. Candidates, Tokuji. Connecting you.\"",
+      "replace": "\"Tokuji, these are candidates. Candidates, Tokuji. There.\"",
+      "why": "Removes 'Connecting you'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--the-roof",
+      "npc": "sayo",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Calls every star 'she'.",
+      "replace": "Talks about stars the way other people talk about relatives: strong opinions, no doubt at all.",
+      "why": "Same personification, less of a rule."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--the-roof",
+      "npc": "sayo",
+      "path": "cast.0.brief.voice.samples.0",
+      "find": "\"No, left of that. Left. Your other left. There she is.\"",
+      "replace": "\"No, left of that. Left. Further. There.\"",
+      "why": "'Your other left' also appeared in Mrs Handa's lines; it now belongs only to her."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--the-roof",
+      "npc": "isamu",
+      "path": "cast.2.brief.voice.tics.1",
+      "find": "Calls every candidate 'young sir' or 'young miss', whatever they are.",
+      "replace": "Addresses every candidate as if they were a visiting officer, however young.",
+      "why": "Stock forms of address replaced by his manner."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "tomoe",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Calls everyone by their crew, or 'candidate' if they have none.",
+      "replace": "Knows everyone by crew before she knows their name; anyone without one is simply a candidate until proven otherwise.",
+      "why": "Reads as her character instead of a label."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "petr",
+      "path": "cast.1.brief.voice.tics.0",
+      "find": "Starts every story 'So.'",
+      "replace": "Takes a breath like a man about to dive before every story, and the room leans in.",
+      "why": "The opening word 'So.' becomes a physical habit."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "petr",
+      "path": "cast.1.brief.voice.samples.0",
+      "find": "\"So. There I am, halfway up a leg, and the leg starts walking.\"",
+      "replace": "\"There I am, halfway up a leg, and the leg starts walking.\"",
+      "why": "Removes 'So.'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "petr",
+      "path": "cast.1.brief.byAttitude.helpful",
+      "find": "Calls them 'my candidates' and fights anyone who says a word against them.",
+      "replace": "Introduces them to strangers as his own candidates and fights anyone who says a word against them.",
+      "why": "Same loyalty, told as an action."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "ren",
+      "path": "cast.2.brief.voice.tics.1",
+      "find": "Says 'properly' a lot.",
+      "replace": "Picks his words carefully, as if he might be marked on them.",
+      "why": "'Properly' as a tic becomes his anxiety to sound older."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "ren",
+      "path": "cast.2.brief.voice.samples.0",
+      "find": "\"Did you see one move? Properly move?\"",
+      "replace": "\"Did you see one move? Actually move?\"",
+      "why": "Removes 'properly'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--crew-mess",
+      "npc": "ren",
+      "path": "cast.2.brief.voice.samples.1",
+      "find": "\"I'm on Crew Three. I'm properly on it now.\"",
+      "replace": "\"I'm on Crew Three. It's official. I've seen the sheet.\"",
+      "why": "Removes 'properly'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--general-hospital",
+      "npc": "aucourt",
+      "path": "cast.2.brief.voice.tics.0",
+      "find": "Calls the ward 'the ship', the nurse 'the captain', and the patients 'passengers'.",
+      "replace": "Describes the ward as if it were a ship in a bad harbour, and treats the night sister as its captain.",
+      "why": "The renamed-everything gag becomes a way of seeing."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--general-hospital",
+      "npc": "aucourt",
+      "path": "cast.2.brief.opensWith",
+      "find": "Ah, new passengers. Welcome aboard. The captain is at the far end, and she runs a very tight ship.",
+      "replace": "Ah, new arrivals. The night sister is at the far end, and she runs a very tight ship.",
+      "why": "Keeps one nautical wink; drops the stack of ship words."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--general-hospital",
+      "npc": "aucourt",
+      "path": "cast.2.brief.byAttitude.helpful",
+      "find": "and calls them 'my crew'.",
+      "replace": "and starts treating them as his crew.",
+      "why": "Same warmth, told as behaviour."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--general-hospital",
+      "npc": "imai",
+      "path": "cast.1.brief.voice.tics.0",
+      "find": "Says 'Putting you through' when she changes the subject.",
+      "replace": "Changes the subject the way an operator changes a line: no warning, a small click, and you are somewhere else.",
+      "why": "The catchphrase you asked me to drop from her file was still in the scene; the habit stays, the phrase goes."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--general-hospital",
+      "npc": "imai",
+      "path": "cast.1.brief.voice.samples.0",
+      "find": "\"Hold the line, dear, I'm getting to it.\"",
+      "replace": "\"Hold on, dear, I'm getting to it.\"",
+      "why": "Drops the switchboard stock phrase."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--the-paper-lantern",
+      "npc": "kiku",
+      "path": "cast.0.brief.voice.samples.0",
+      "find": "\"You two are drinking slower than you're talking. Fix one of those.\"",
+      "replace": "\"You're drinking slower than you're talking. Fix one of those.\"",
+      "why": "Removes 'you two'."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "discovery--the-magic-show",
+      "npc": "tamsin",
+      "path": "cast.0.brief.voice.tics.0",
+      "find": "Calls every audience 'my dears', and every town by its name, as if it were a person.",
+      "replace": "Greets a town by name like an old friend she is slightly worried about.",
+      "why": "'My dears' dropped; the town-as-a-person idea kept."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "discovery--the-magic-show",
+      "npc": "tamsin",
+      "path": "cast.0.brief.byAttitude.hostile",
+      "find": "and when she has to, calls them 'the ones who know better'.",
+      "replace": "and when she has to speak of them, refers to them as the people who know better.",
+      "why": "Reads as a description rather than a quoted label."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "discovery--the-magic-show",
+      "npc": "daisuke",
+      "path": "cast.1.brief.voice.tics.0",
+      "find": "Says 'right' before he does anything.",
+      "replace": "Puts a hand on something solid before he starts any job, as if the floor might argue.",
+      "why": "The verbal tic became a physical habit."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "discovery--the-magic-show",
+      "npc": "daisuke",
+      "path": "cast.1.brief.voice.samples.0",
+      "find": "\"Right. Mind the cable.\"",
+      "replace": "\"Mind the cable.\"",
+      "why": "Removes 'Right.'"
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "discovery--the-magic-show",
+      "npc": "mrs-handa",
+      "path": "cast.2.brief.voice.tics.0",
+      "find": "Says 'now then' before she tells anyone off.",
+      "replace": "Draws herself up an inch before she tells anyone off, so you always get a moment to reconsider.",
+      "why": "The catchphrase became a warning sign."
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "discovery--the-magic-show",
+      "npc": "mrs-handa",
+      "path": "cast.2.brief.voice.samples.0",
+      "find": "\"Now then. Feet off the bench.\"",
+      "replace": "\"Feet off the bench.\"",
+      "why": "Removes 'Now then.'"
+    },
+    {
+      "kind": "catchphrase",
+      "scene": "rest--the-paper-lantern",
+      "npc": "kiku",
+      "path": "cast.0.brief.voice.tics.1",
+      "find": "Calls a whole table 'you two', whatever the actual number.",
+      "replace": "Counts a table by heads before she pours, and has never once got a tab wrong.",
+      "why": "A verbal quirk replaced by a competence you can see."
+    },
+    {
+      "kind": "new-npc",
+      "npc": "kazue",
+      "scene": "rest--bathhouse"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "hachi",
+      "scene": "rest--bathhouse"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "sigrun",
+      "scene": "rest--bathhouse"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "michiru",
+      "scene": "rest--card-game"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "lucan",
+      "scene": "rest--card-game"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "chiyo",
+      "scene": "rest--card-game"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "morishita",
+      "scene": "rest--early-night"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "haru",
+      "scene": "rest--early-night"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "grenna",
+      "scene": "rest--early-night"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "genzo",
+      "scene": "rest--met-office"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "nadi",
+      "scene": "rest--met-office"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "kaede",
+      "scene": "rest--night-shift"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "joji",
+      "scene": "rest--night-shift"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "nkiru",
+      "scene": "rest--night-shift"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "hana",
+      "scene": "rest--rumour-mill"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "obi",
+      "scene": "rest--rumour-mill"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "mrs-ueda",
+      "scene": "rest--rumour-mill"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "tokuji",
+      "scene": "rest--shrine-gate"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "mira",
+      "scene": "rest--shrine-gate"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "sayo",
+      "scene": "rest--the-roof"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "faruq",
+      "scene": "rest--the-roof"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "isamu",
+      "scene": "rest--the-roof"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "tomoe",
+      "scene": "rest--crew-mess"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "petr",
+      "scene": "rest--crew-mess"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "ren",
+      "scene": "rest--crew-mess"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "tamsin",
+      "scene": "discovery--the-magic-show"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "daisuke",
+      "scene": "discovery--the-magic-show"
+    },
+    {
+      "kind": "new-npc",
+      "npc": "mrs-handa",
+      "scene": "discovery--the-magic-show"
+    },
+    {
+      "kind": "npc-description",
+      "npc": "tsubaki",
+      "find": "HER WANT:",
+      "replace": "She wants",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "tsubaki",
+      "find": "WHAT SHE IS NOT SAYING:",
+      "replace": "She keeps one thing back:",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "imai",
+      "find": "HER WANT:",
+      "replace": "She wants",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "aucourt",
+      "find": "HIS WANT:",
+      "replace": "He wants",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "kiku",
+      "find": "HER WANT:",
+      "replace": "She wants",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "kiku",
+      "find": "WHAT SHE IS NOT SAYING:",
+      "replace": "She keeps one thing back:",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "kiku",
+      "find": "and calls a whole table 'you two' whatever the actual number sitting there is.",
+      "replace": "and counts a table by heads before she pours, and has never once got a tab wrong.",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "sanzo",
+      "find": "HIS WANT:",
+      "replace": "He wants",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "sanzo",
+      "find": "WHAT HE IS NOT SAYING:",
+      "replace": "He keeps one thing back:",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "tama",
+      "find": "HER WANT:",
+      "replace": "She wants",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "npc-description",
+      "npc": "tama",
+      "find": "WHAT SHE IS NOT SAYING:",
+      "replace": "She keeps one thing back:",
+      "why": "Shouted all-caps label turned into plain prose."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "find": "Sigrun sits in it up to her chin and challenges a character to get in and stay in longer than she does.",
+      "replace": "Sigrun sits in it up to her chin and challenges a character to get in and stay in longer than she does. Nobody else has lasted in it all year.",
+      "why": "Ingram: a very hard Fortitude test for the hottest pool, so the players can brave it. Level DC +5 is SF2E's 'very hard'."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "find": "A Fortitude save at the level-based DC (15 at level 1).",
+      "replace": "A very hard Fortitude save: the level-based DC +5 (20 at level 1). This one is meant to be hard, and there is no shame in getting out early.",
+      "why": "Ingram: a very hard Fortitude test for the hottest pool, so the players can brave it. Level DC +5 is SF2E's 'very hard'."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "find": "They get out together, both the colour of boiled crabs, and Sigrun shakes their hand. \"Not bad. Not bad at all.\"",
+      "replace": "They get out together, both the colour of boiled crabs, and Sigrun shakes their hand. \"Not bad. Not bad at all.\" The heat stays in them: a +1 status bonus to saves against heat and fire until their next rest.",
+      "why": "Ingram: a very hard Fortitude test for the hottest pool, so the players can brave it. Level DC +5 is SF2E's 'very hard'."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "find": "They're out first, and Sigrun doesn't gloat much. \"Lukewarm, and still you run. Next time.\"",
+      "replace": "They're out first, and Sigrun doesn't gloat much. \"Out already? That's the hard part done. Next time.\" They are pink and pleased with themselves.",
+      "why": "Ingram: a very hard Fortitude test for the hottest pool, so the players can brave it. Level DC +5 is SF2E's 'very hard'."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--bathhouse",
+      "npc": "sigrun",
+      "find": "The room goes white at the edges and they come to on the tiles, with Sigrun fanning them with a washbowl. Kazue bans them from the hot pool for a week, and goes down a step.",
+      "replace": "The room goes white at the edges and they come to on the tiles, with Sigrun fanning them with a washbowl. They are Sickened 1 until they have eaten breakfast. Kazue bans them from the hot pool for a week, and goes down a step.",
+      "why": "Ingram: a very hard Fortitude test for the hottest pool, so the players can brave it. Level DC +5 is SF2E's 'very hard'."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "find": "\"Up in the hills. You won't have heard of it. There's a river, and a lot of silkworms, and my grandmother.\"",
+      "replace": "\"Up in the hills, a place called Kinuoka. You won't have heard of it. There's a river, and a lot of silkworms, and my grandmother.\"",
+      "why": "Names his village."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "find": "",
+      "replace": "Terraced mulberry hills above a slow brown river, a day and a half by train and cart. In early summer the whole village stays up feeding the worms leaf by leaf, and the sound of them eating is like light rain on a roof. The reeling shed steams every dawn, the bridge has a bell nobody rings any more, and in winter the terraces go white and quiet for months.",
+      "why": "New topic he will discuss: Kinuoka, his village. Ingram: if he talks about home he needs details about it."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "find": "",
+      "replace": "Everybody in Kinuoka has always known he is an android and nobody has ever made anything of it: he was just Haru, who could thread a loom in the dark. Here he is the first thing people notice. He would like to be the second.",
+      "why": "New topic he will discuss: Being what he is at home. Ingram: if he talks about home he needs details about it."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "find": "",
+      "replace": "\"Loud in the summer, if you can believe it. Two hundred thousand worms, all eating. You can't hear yourself think, and it's the best sound there is.\"",
+      "why": "New likely question: What's it like where you're from?"
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "find": "",
+      "replace": "\"Mostly leaves. Somebody has to carry leaves all night for a month. Then one morning they all stop, and it goes so quiet you think something has died. That's when they're spinning.\"",
+      "why": "New likely question: What is a silkworm farm actually like?"
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "haru",
+      "find": "",
+      "replace": "\"A bit.\" He looks at his hands. \"At home nobody did. That's all.\"",
+      "why": "New likely question: Do people stare at you here?"
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--card-game",
+      "npc": "michiru",
+      "find": "a neat bob, a stub of chalk behind one ear and the slate-grey tunic",
+      "replace": "a neat bob, a stub of chalk between two fingers and the slate-grey tunic",
+      "why": "The chalk is in her fingers, not behind her ear (Ingram: it read as chalk stored in her ear)."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--met-office",
+      "npc": "nadi",
+      "find": "with a pencil behind one ear and another stuck in her hair, chalk dust on her fingers,",
+      "replace": "with a pencil always in her hand, chalk dust on her fingers,",
+      "why": "One pencil, in her hand, to match the redone portrait."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--rumour-mill",
+      "npc": "mrs-ueda",
+      "find": "and she knocks twice on everything, tables included.",
+      "replace": "and she knocks twice on the door before she comes in, and never on anything else.",
+      "why": "Two knocks is hers alone."
+    },
+    {
+      "kind": "round2",
+      "scene": "rest--early-night",
+      "npc": "grenna",
+      "find": "She knocks twice on any piece of wood before she trusts it,",
+      "replace": "She raps her knuckles on any piece of wood before she trusts it,",
+      "why": "So Mrs Ueda is the only one who knocks twice."
+    }
+  ]
+}

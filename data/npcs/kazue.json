@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "kazue",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Kazue Tsurumi",
+  "role": "Attendant, the Bathhouse",
+  "pole": null,
+  "ancestry": "Vesk",
+  "affiliation": null,
+  "description": "A tall, broad-shouldered Vesk woman with dark green scales and a jaw like a ship's prow, who sits on a high wooden seat at the door in a white sailor's cap and a navy smock with the sleeves rolled. A brass whistle hangs at her collar, and when she lifts it the whole bathhouse goes quiet. She runs the place the way she once ran a ship's deck: lockers numbered like cabins, the water's heat chalked up every hour, and a rule for everything that she will explain exactly once.\n\nUnder the crispness she is warm, and her kindness arrives as a towel warmed on the boiler pipe before anyone has asked for it. She wants a tidy bath, a quiet night, and one more year of keeping it going while she decides what to do about the offer to buy it out. She has not decided, and she does not discuss it.",
+  "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--bathhouse.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Vesk ('Vesk are a warmongering, reptilian people who conquered the eight worlds in their solar system shortly after they developed spaceflight, forming the Veskarium empire.' -- ancestry-catalogue.json): an alien ancestry: aliens are rare in Kurose and draw stares, and many refuse to wear glamour (canon/world/glamour.md, D024), which makes this one of the room's sore thumbs.\n\nPORTRAIT: A crocodilian Vesk woman in a white sailor's cap and navy smock, brass whistle at her collar, arms folded: stern and faintly amused, and the room's biggest sore thumb.\n\nVOICE NOTES: forced catchphrases in this regular's tics and sample lines were rewritten as habits and manner (tools/art-review/ledger.json has each before and after).\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 2, a working adult and former ship's boatswain, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "the-offer",
+        "text": "she turns the letter over. The housing office will pay well, give her a new flat with its own hot water, and pull the bathhouse down for a block of rooms.",
+        "revealTrigger": {
+          "narrative": "Friendly or better, and a Diplomacy check at her Will DC"
+        },
+        "revealed": false
+      }
+    ]
+  }
+}

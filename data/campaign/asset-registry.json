@@ -239,17 +239,17 @@
       "note": "An interior corridor/lobby -- double doors, bookshelves, a noticeboard, a wall clock. Same caveat -- general facility interior, not scene-specific."
     },
     {
-      "id": "01-masamichi-amano-main-title",
+      "id": "05-masamichi-amano-ashita-e-no-kibou",
       "kind": "audio",
       "category": "music",
-      "path": "audio/library/music/01-masamichi-amano-main-title.ogg",
+      "path": "audio/library/music/05-masamichi-amano-ashita-e-no-kibou.ogg",
       "assignedTo": {
         "kind": "moment",
         "ref": "campaign-open"
       },
-      "assignedDate": "2026-09-17",
-      "sourceFilename": "01 - Main Title.mp3",
-      "note": "The campaign's own overture. Reserved out of the (otherwise empty) moment-of-cool pool so it can never turn up at random -- it plays exactly once, cold-opening the campaign, and nowhere else. MOVED 2026-09-24 from The Road In to From Up Here, the new opening GM speech Ingram asked for ahead of it: the overture belongs to whatever scene the campaign actually opens on, and that is now From Up Here. See data/audio/soundscapes/episode-c1e1--from-up-here.json; The Road In has its own music now (see its soundscape's note)."
+      "assignedDate": "2026-09-27",
+      "sourceFilename": "05 Masamichi Amano - Ashita e no Kibou.mp3",
+      "note": "The campaign's own overture. Reserved out of the playful pool so it can never turn up at random -- it plays exactly once, cold-opening the campaign, and nowhere else. Ingram's own pick, 2026-09-27, REPLACING the earlier placeholder, Main Title (01-masamichi-amano-main-title, unreserved back to the moment-of-cool pool the same day -- its only other member). See data/audio/soundscapes/episode-c1e1--from-up-here.json. Moved to From Up Here 2026-09-24 from The Road In, the opening GM speech Ingram asked for ahead of it: the overture belongs to whatever scene the campaign actually opens on."
     },
     {
       "id": "26-masamichi-amano-jintetsu-no-toujou",
@@ -275,7 +275,7 @@
       },
       "assignedDate": "2026-09-17",
       "sourceFilename": "tea-house-exterior.png",
-      "note": "A wooden shopfront under a huge tree, flowers in pots down the steps, deep summer light. The hero image for The Errand -- the quarter around The General Store, and the Tea House a few doors down that takes messages for the old man."
+      "note": "A wooden shopfront under a huge tree, flowers in pots down the steps, deep summer light. The hero image for The Errand -- the quarter around The General Store, and the Tea House a few doors down. (The Errand's first stop is now an instrument makers' workshop, and both it and the tea house await siting: LEDGER #45, #46.)"
     },
     {
       "id": "episode-c1e1--the-errand--tea-house",
@@ -535,7 +535,7 @@
       },
       "assignedDate": "2026-09-21",
       "sourceFilename": "garsondee_school_teacher_portrait_hand-painted_gouache_and_wa_00f2dd15-72b3-45d3-a161-38ece0b24baa_0.png",
-      "note": "Round glasses, dark wavy hair, a checked jacket over a white collared shirt, papers held at the bottom of frame, looking up and away with real conviction.\n\nWhy it is right: this is the person who brings the document to the meeting and reads out the paragraph nobody wanted read. Right in principle and destructive in practice is not played by somebody imposing; it is played by somebody earnest with paperwork. They teach civics from the founding charter that hangs on the wall with a paragraph painted out of it, and this is a face that has noticed the paint.\n\nThe portrait deliberately does not settle a gender read. `data/npcs/transparency-advocate.json` is written in they/them throughout."
+      "note": "Round glasses, dark wavy hair, a checked jacket over a white collared shirt, papers held at the bottom of frame, looking up and away with real conviction.\n\nWhy it is right: this is the person who brings the document to the meeting and reads out the paragraph nobody wanted read. Right in principle and destructive in practice is not played by somebody imposing; it is played by somebody earnest with paperwork. They teach civics from the founding charter on the wall, and this is a face that has asked, three times, what the Directorate keeps in its vaults.\n\nThe portrait deliberately does not settle a gender read. `data/npcs/transparency-advocate.json` is written in they/them throughout."
     },
     {
       "id": "hangar-crew-chief",
@@ -991,6 +991,721 @@
       "assignedDate": "2026-09-23",
       "sourceFilename": "seal_final_v2.png (hand-typeset, not Midjourney output)",
       "note": "APPROVED 2026-09-23, companion to directorate-seal-lettered.png -- same fonts, sizes, arc radii and #be3219 colour, composited onto directorate-seal-paper.png's cream-paper stamp impression instead of the transparent cutout. Use this one wherever a paper/document presentation is wanted (e.g. a prop letterhead); use directorate-seal-lettered.png wherever the mark needs to sit on something other than paper."
+    },
+    {
+      "id": "noodle-stand-owner",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/noodle-stand-owner.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "noodle-stand-owner"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_weathered_older_japanese_woman_running_a_late-nig_758a3185-b0f5-4a38-9c53-c5a00957d183_0.png",
+      "note": "Generated 2026-09-29 as the first test of Claude driving Midjourney directly through the Chrome extension (Ingram logged in, Claude typed the prompt and set aspect ratio/stylize). An older woman with grey-streaked hair tied back, apron over a work shirt, working chopsticks over a steaming wok at a night stall strung with paper lanterns, downcast concentration on her face. Matches her own template -- hand-painted gouache and watercolor texture, dusty ochre and soft teal tones, --ar 2:3 --stylize 200 -- rather than the '1950s military portrait' phrasing used for most other Directorate-staff NPCs, since she is the one civilian in the cast.\n\nApproved by Ingram on sight, no upscale needed (\"doesn't even need to be upscaled to be good as it's currently perfectly acceptable\"). First correctly confirms the fit for `data/npcs/noodle-stand-owner.json` -- \"brisk while working, and she is always working\" is exactly what mid-motion at the wok gives her, and it fills what was the only Episode Two NPC with no art at all."
+    },
+    {
+      "id": "registry-clerk",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/registry-clerk.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "registry-clerk"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_records_office_clerk_portrait_tire_20a20dc5-2246-4483-8f2d-b2498f9ce19b_0.png",
+      "note": "Generated 2026-09-29, second test of Claude driving Midjourney directly through the Chrome extension. A tired, precise middle-aged man in wire-rimmed glasses and a rolled-sleeve shirt, mid-task and not looking up, buried in a desk stacked with folders and ledgers under a single desk lamp. Same template as the other Directorate-staff placeholder portraits -- hand-painted gouache and watercolor texture, dusty ochre and soft teal tones, --ar 2:3 --stylize 200.\n\nCast to `data/npcs/registry-clerk.json` (walk-on, cast inline in `episode-c1e2--the-long-afternoon`, established as \"he\" throughout that scene brief -- \"He will produce them,\" \"he is right,\" \"he does not report the asking\"). Approved by Ingram on sight, no upscale. Fills the other Episode Two NPC with no art."
+    },
+    {
+      "id": "the-storekeeper",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/the-storekeeper.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "the-storekeeper"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_instrument_makers_shopkeeper_portr_60285540-7237-48fc-b4cc-938a31edc58c_0.png",
+      "note": "Generated 2026-09-29, third test of Claude driving Midjourney directly through the Chrome extension. A weathered woman standing at a workbench stacked with cases and gauges under north light, hands folded, flat and unhurried expression. First attempt at this prompt came out too photographic -- Raw mode had silently carried over from an earlier session and was pushing every generation toward photoreal rendering; turning Raw off (Standard) and resubmitting the identical prompt fixed it, landing back in the painterly gouache/watercolor register the rest of the cast uses.\n\nCast to `data/npcs/the-storekeeper.json` (walk-on, cast inline in `episode-c1e1--the-errand` as the instrument maker who reads the party's hazing docket and explains it -- kind about it, not mocking, having seen the same joke played on new intakes for twenty years). Approved by Ingram on sight, no upscale. Fills the last un-arted Episode One walk-on with a real check attached to her."
+    },
+    {
+      "id": "intake-medicals-clerk",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/intake-medicals-clerk.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "intake-medicals-clerk"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_records_clerk_portrait_dwarf_woman_02ebc30d-7961-4b41-85f1-ee2231366a5b_1.png",
+      "note": "Generated 2026-09-29, fourth test of Claude driving Midjourney directly through the Chrome extension. A short, solidly built dwarf woman stamping a form at a records counter, calm and unhurried, a wall of pigeonhole files and stacked paper behind her. Same painterly template as the rest of the cast -- hand-painted gouache and watercolor texture, dusty ochre and soft teal tones, --ar 2:3 --stylize 200, Raw off.\n\nCast to `data/npcs/intake-medicals-clerk.json`, the first non-human, non-alien ancestry deliberately added to the human cast (Ingram, 2026-09-29: \"add a little bit of ancestry variation so that we don't end up with a fantasy campaign of nothing but Japanese humans... inclusive of both real races and also the wider Golarion races,\" asked for something \"not too wild\"). Dwarf, checked against `data/campaign/ancestry-catalogue.json` (`terrestrial: true` -- one of Golarion's own peoples, no disguise needed), picked for real variety against Rupiah (elf) and Brack (nuar, alien) and as the most visually understated terrestrial option available. Approved by Ingram on sight, no upscale."
+    },
+    {
+      "id": "tsubaki",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tsubaki.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "tsubaki"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_night_ward_nurse_portrait_senior_n_c47eb6f8-1962-4105-9407-6b1d851f345a_1.png",
+      "note": "Generated 2026-09-29, first portrait for a haunt regular -- General Hospital, the first of the ten night rests (design/haunts.md, D050/D051/D052) to get any NPC pulled out of its scene brief and into a real data/npcs/ file. A senior night nurse at a hospital desk under a green lamp, wire-rimmed glasses pushed down her nose, a watch pinned to her apron, a folded crossword in front of her -- every detail drawn straight from her existing `cast` entry in canon/scenes/rest--general-hospital.json (the glasses from the intro readAloud's \"looks up at you over her glasses,\" the watch from her voice.tics, the crossword from willDiscuss). Same painterly template as the rest of the cast, --ar 2:3 --stylize 200, Raw off.\n\nCast to `data/npcs/tsubaki.json`. Approved by Ingram as written, no twist, no ancestry change, no upscale. First of what's now a known, larger gap: the audit that found this (2026-09-29) counted 42 haunt-only NPCs (31 full cast-entry regulars plus 11 named only in event-deck/rumour prose) across all ten rests and the Magic Show discovery, none split out into their own npc file before now."
+    },
+    {
+      "id": "imai",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/imai.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "imai"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_hospital_ward_patient_portrait_eld_93d25065-f64b-4cb7-9ae9-56ae27b2a787_1.png",
+      "note": "Generated 2026-09-29, second haunt-regular portrait, General Hospital -- and the first attempt at a non-terrestrial-passing ancestry twist (Ysoki/ratfolk, Ingram's own 'fun twist' request for this character, since a switchboard operator who reads a voice before it gives its name maps perfectly onto keen ratfolk hearing). Took two batches to land: the first attempt (prompt leaning on 'ratfolk woman, rodent ears, whiskers, tail' with no explicit humanoid anchor) rendered as a literal anthropomorphic mouse/rat picture-book animal, wrong register entirely for this campaign (compare Brack the nuar, who reads as a woman with bovine features, never as a literal cow) -- Ingram called it immediately from the prompt alone, before generation. Second attempt added 'elderly humanoid woman of the ysoki ancestry, human proportions and hands' ahead of the ancestry markers; still animal-leaning on two of four, but landed a genuinely humanoid read on the other two. Propped up in bed knitting, human hands and posture, a rodent-featured face with big ears and whiskers, a striped robe, a clock on the ward wall behind her -- same painterly template, --ar 2:3 --stylize 200.\n\nCast to `data/npcs/imai.json`. Ingram picked and downloaded this one herself directly from Midjourney. Her call stands on how far into 'animal-featured person' vs 'person with animal features' this particular character should read -- not re-litigated here."
+    },
+    {
+      "id": "aucourt",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/aucourt.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "aucourt"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_hospital_ward_patient_portrait_eld_52afb958-7418-4bfd-bd0c-a80a3ccd8440_2.png",
+      "note": "Generated 2026-09-29, third haunt-regular portrait, General Hospital -- Kalo (Ingram's own 'bring the average around' request: an alien ancestry rather than another Golarion-native one, and it lands directly on what's already written about him -- thirty years reading tides and currents by feel, still homesick for a country he never went back to). First attempt (subtle scale texture only) landed clearly humanoid but read too close to an ordinary elderly man; Ingram asked for the skin colour changed to something darker and more metallic. Second attempt added 'dark metallic-sheened skin with a faint iridescent scale texture' and landed decisively -- dark, gleaming, teal-black iridescent skin, unmistakably non-human while staying fully humanoid throughout, leg in the traction rig, a radio on the nightstand, white hospital robe. Same painterly template, --ar 2:3 --stylize 200.\n\nA second, unplanned batch of four also exists on this job from an accidental 'Vary Strong' click while reviewing zoomed details -- flagged to Ingram honestly rather than presented as intended. She picked and downloaded this one herself directly from that variation batch, job 52afb958, index 2.\n\nCast to `data/npcs/aucourt.json`."
+    },
+    {
+      "id": "gennai",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/gennai.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "gennai"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_hospital_night_porter_portrait_eld_db16600e-d315-4bcb-a330-f257a1773f40_3.png",
+      "note": "Generated 2026-09-29, fourth General Hospital NPC and the first non-regular (a thin walk-on stub by design, not a full cast entry -- see data/npcs/gennai.json's own designNotes). Kept as written, no ancestry twist. An old night porter with a squeaking tea trolley, teapot and stacked cups, faded uniform coat, worn but warm expression, a hospital corridor at night. Same painterly template, --ar 2:3 --stylize 200. First test of Ingram's 'same consistent approach for all NPCs, regardless of how small their role' standing guideline (2026-09-29) -- full pipeline (npc file, a brand-new cast entry since he had none at all, registered portrait, staged art) given to a three-line porter exactly as it was to the ward's night sister.\n\nCast to `data/npcs/gennai.json`. Ingram picked and downloaded this one herself directly from Midjourney."
+    },
+    {
+      "id": "kuroki",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/kuroki.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "kuroki"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_japanese_1950s_hospital_ward_patient_portrait_you_e21b928e-1057-441d-8dfa-8c2f58bfe863_3.png",
+      "note": "Generated 2026-09-29, fifth General Hospital NPC -- the soldier in bed eight, the haunt's one plot-tier event. Orc (Ingram's pick, fitting cleanly: proud, loyal to whoever's earned it, took a beating over something he believes was right). Landed clean on the first batch, no ratfolk-style animal problem -- orc is a common enough fantasy humanoid that Midjourney handled 'young orc soldier' correctly without needing an explicit humanoid anchor. Guarded, arms folded, wrist freshly bandaged, army tunic hung on the wardrobe, a bag of untouched oranges on the locker beside him. Same painterly template, --ar 2:3 --stylize 200.\n\nCast to `data/npcs/kuroki.json` (also required creating a brand-new cast entry in canon/scenes/rest--general-hospital.json -- he had none before, same as Gennai). The scene's real secret behind his wrist (GM-only, held for later per the scene's own note) is not in the player-facing description, per Ingram's standing 'we don't need to dive into the deep story unless I ask' -- kept only in the npc file's designNotes for continuity."
+    },
+    {
+      "id": "mori",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mori.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "mori"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_young_Japanese_woman_hospital_cleaner_late_night_sl_f6fbc6fe-a75c-483d-94f5-a465ffe046de_3.png",
+      "note": "Generated 2026-09-29, sixth and final General Hospital NPC -- the cleaner with the hidden cut hand, the haunt's dilemma event. No ancestry twist requested. Landed clean on the first batch: guarded, hand held close against her body, looking back over her shoulder -- reads as someone hiding an injury rather than someone in visible distress, matching the event's rewritten 'notice-and-hide' framing (see designNotes in data/npcs/mori.json for the mechanical rewrite this session made to the dilemma itself, at Ingram's direct instruction). Same painterly template, --ar 2:3 --stylize 200.\n\nCast to `data/npcs/mori.json` (also required creating a brand-new cast entry in canon/scenes/rest--general-hospital.json -- she had none before, same as Gennai and Kuroki, only event prose). This closes out all six General Hospital haunt NPCs (Tsubaki, Imai, Aucourt, Gennai, Kuroki, Mori) with the full pipeline: real npc file, real cast npcRef, registered portrait."
+    },
+    {
+      "id": "the-paper-lantern",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/the-paper-lantern.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-paper-lantern"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_warm_izakaya_tavern_interior_anime_background_art_m_3627ab87-7e64-42e7-86dd-68e8151123a1.png",
+      "note": "Establishing shot for a new haunt, The Paper Lantern -- a civilian izakaya-style tavern in Kurose's entertainment quarter, off Directorate ground, built as a 'proper good time' counterpart to the on-base, repair-crew-only Crew Mess. No data/locations/the-paper-lantern.json exists yet and this haunt is not yet sited on the real gazetteer map (Ingram's own instruction, 2026-09-29: 'don't stress about the final location right now') -- same precedent as an NPC portrait existing before its data file, applied here to a location.\n\nGenerated using this project's established SCENE/location art convention, not the character-portrait one: no people, static wide composition, matte painting / gouache-and-watercolor texture, '1990s Japanese animation background art style', --ar 2:1 --stylize 200. My first attempt at this scene used the wrong style entirely (a painterly character-illustration look at --ar 3:2, copying the NPC portrait template) -- Ingram caught it, generated her own reference batch live to show the actual established convention (a matte-painting tea-shop exterior/interior, no characters, no perspective distortion, heavy negative space), and I rebuilt the prompt to match before resubmitting. Picked from the second, corrected batch (image 4): lantern-lit interior, long counter, hanging paper lanterns, steam off a charcoal grill. Then subtle-upscaled once at Ingram's request to resolve mushiness in the counter/shelving detail -- this registered file is that upscaled version, not the original batch image."
+    },
+    {
+      "id": "kiku",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/kiku.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "kiku"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_middle-aged_dwarf_woman_tavern_keeper_stout_hardy_b_9081dc91-be08-493b-bebb-c9428b01715f_0.png",
+      "note": "Generated 2026-09-29, first regular of the new Paper Lantern haunt (the keeper, its Tomoe/Tsubaki-equivalent role). Ancestry twist requested and chosen by me, not specified: Dwarf, checked against data/campaign/ancestry-catalogue.json ('short, squat, and hardy... take great pride in their traditions', terrestrial: true) -- fits a woman who built the place herself and runs it exactly her own way. Landed clean on the first batch, no anchoring problems -- like Orc, Dwarf is common enough fantasy stock that Midjourney handled it correctly unprompted. Stout build, apron over a work dress, warm confident half-smile, a shamisen visible on the wall behind her, lantern-lit izakaya背景. Same painterly character-portrait template as every other NPC portrait this session, --ar 2:3 --stylize 200 -- correctly NOT the new scene/location template used for the-paper-lantern.png above.\n\nHer npc file (data/npcs/kiku.json) and cast entry are not yet written -- the new haunt's full canon scene file (canon/scenes/rest--the-paper-lantern.json) doesn't exist yet either. Per Ingram's own sequencing (2026-09-29: scene graphics, then NPC graphics, then the supporting data files), art for all three of the haunt's regulars is being gathered first; the npc files, cast entries and full scene write-up follow once all three are picked."
+    },
+    {
+      "id": "sanzo",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/sanzo.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "sanzo"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_elderly_humanoid_goblin_man_small_wiry_build_human-_eb29f301-fa18-46d7-a00e-c3878b05212b_3.png",
+      "note": "Generated 2026-09-29, second regular of the new Paper Lantern haunt (the room's friend, its Petr-equivalent role -- a wandering musician-storyteller who always circles back to this bar). Ancestry twist Ingram's own pick: Goblin, checked against data/campaign/ancestry-catalogue.json ('eccentric... tricksters... can live anywhere, eat anything, thrive despite whatever obstacles' -- terrestrial: true), a strong fit for an itinerant who's outlived several other lives. Explicitly anchored humanoid in the prompt ('elderly humanoid goblin man, small wiry build, human-like proportions and hands') to avoid the ratfolk-style monster-not-person problem seen earlier this session -- worked cleanly, all four landed as a person rather than a creature. Ingram picked and downloaded image 4 herself directly rather than through my usual flow: wiry, wide-brimmed traveller's hat, a shamisen, mischievous. Same painterly character-portrait template, --ar 2:3 --stylize 200.\n\nHis npc file and cast entry, like Kiku's, are not yet written -- held until the third regular is picked and the full canon scene file is written."
+    },
+    {
+      "id": "tama",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tama.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "tama"
+      },
+      "assignedDate": "2026-09-29",
+      "sourceFilename": "garsondee_a_leshy_small_plant-formed_nature_spirit_compact_mo_02a5b8c6-a196-4d91-806e-9c1092ed52df_0.png",
+      "note": "Generated 2026-09-29, third and final regular of the new Paper Lantern haunt (the young one, its Ren-equivalent role -- a waitress who's never left the island and wants out). Ancestry twist Ingram's own pick: Leshy, checked against data/campaign/ancestry-catalogue.json ('immortal spirits of nature dwelling within plant vessels... perceive the Universe anew without the burden of mortal preconceptions', terrestrial: true) -- a genuinely good thematic fit given her want, though not one I noticed myself until after the first attempt.\n\nFirst attempt anchored her as human-proportioned with plant texture (matching the ratfolk-correction pattern from earlier this session) and Ingram redirected: leshies aren't tagged 'humanoid' in the SF2e traits list at all (traits: leshy, plant), and it's fine, even better, for some ancestries to read as genuinely non-human rather than a person in a costume -- the ratfolk fix was about making Imai legible as a PERSON, not a rule that every ancestry must be pulled toward a human silhouette. Second attempt leaned fully into the actual leshy shape: small, sprouting-seedling body, twiggy limbs, bark torso, oversized round eyes, standing on a stool to reach the counter. Landed clean and full of personality. Same painterly character-portrait template, --ar 2:3 --stylize 200.\n\nThis completes art for all three Paper Lantern regulars (Kiku, Sanzo, Tama) plus the scene establishing shot -- next step is writing the npc files, cast entries and the full canon/scenes/rest--the-paper-lantern.json haunt scene."
+    },
+    {
+      "id": "general-hospital--ward",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/general-hospital--ward.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "general-hospital"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_hospital_night_ward_in_a_converted_department_store_7e788e35-e098-4ab8-af0d-627914895ab0.png",
+      "note": "Ward Four at night for the General Hospital haunt: two rows of iron beds under small blue night lamps, an old brass sign over the door, and one warm amber lamp at the night desk at the far end. The whole room is cold institutional teal; the only life in it is that one lamp, which is the night sister. Picked from the third frame of the first batch (the centred lamp and the sign over the door read best), then subtle-upscaled."
+    },
+    {
+      "id": "the-crew-mess--bar",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/the-crew-mess--bar.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-crew-mess"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_long_low_bar_room_behind_a_dry_dock_anime_backgroun_3388dee0-635a-4179-97b8-f3d4370fb174.png",
+      "note": "The Crew Mess: the bar made from a sheet of Frame armour plate across two oil drums, the huge chalk slate of crews and tabs behind it, wet coats hung on hooks, three orange lamps in teal machine-shop shadow. Teal is the dock's steel; orange is the crews' warmth. Second frame of the batch, subtle-upscaled."
+    },
+    {
+      "id": "the-bathhouse-447--pool",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/the-bathhouse-447--pool.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-bathhouse-447"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_old_public_bathhouse_interior_anime_background_art_9c0227a2-2aba-4dfa-91d6-04b5c2517453.png",
+      "note": "The Bathhouse: the big tiled pool under a painted harbour mural, slanting pale-gold afternoon light through tall windows, steam, wooden lockers and the attendant's high seat. The first attempt used 'warm orange light streaming through high windows into steam' and the windows read as a building on fire, so it was redone gentler (pale gold, calm and peaceful). Fourth frame of the second batch, subtle-upscaled."
+    },
+    {
+      "id": "row-c-block-3--corridor",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/row-c-block-3--corridor.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "row-c-block-3"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_long_wooden_dormitory_corridor_with_a_tin_roof_anim_33d2fcef-3767-4b1d-8c60-961ac3a55474.png",
+      "note": "Row C, Block 3, the overflow block for An Early Night: a long plywood corridor under a tin roof, packing crates for nightstands, one iron radiator, and at the far end a single doorway glowing orange where the warden's lamp is on. Teal is the building; the orange doorway is the one person awake looking after them. The other frame with a figure in the doorway was rejected (scene art has no people). Subtle-upscaled."
+    },
+    {
+      "id": "the-shrine-gate-444--gate",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/the-shrine-gate-444--gate.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-shrine-gate-444"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_small_roadside_shinto_shrine_at_dusk_anime_backgrou_a2db6219-395c-4a18-8ea5-460b6a54ca06.png",
+      "note": "The Shrine Gate at dusk: a faded red torii, the fat straw rope hung with paper fortunes, the stone basin, the offering box with a cat on top, one paper lantern glowing orange against a teal-grey street. The one warm thing on the block. Second frame of the batch, subtle-upscaled."
+    },
+    {
+      "id": "row-e-block-9--roof",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/row-e-block-9--roof.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "row-e-block-9"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_flat_tarred_rooftop_at_night_looking_over_a_harbour_2d1a7555-ebac-4849-8154-30da4abd0ba9.png",
+      "note": "The Roof of Row E, Block 9: a flat tarred roof with a low wall, the water tank on iron legs, the ladder top and a blanket, and across the black harbour the whole of Kurose lit gold and orange up its hills under a deep teal sky. The clearest single picture of the contrast this campaign wants: a cold sky, a warm city. Top-left frame, subtle-upscaled."
+    },
+    {
+      "id": "row-b-block-8--common-room",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/row-b-block-8--common-room.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "row-b-block-8"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_dormitory_common_room_after_lights_out_anime_backgr_3712e89d-a76e-472a-b012-28750c46b5bf.png",
+      "note": "The Rumour Mill: Row B, Block 8's common room after lights out, a blanket pinned over the window, one lamp on the floor throwing orange up the wall, the kettle on its hot plate, the armchair with the fat notebook left on it, dressing gowns on the hooks. Second frame, subtle-upscaled."
+    },
+    {
+      "id": "the-met-office--roof",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/the-met-office--roof.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-met-office"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_the_flat_roof_of_a_small_square_weather_station_at_ni_f2d5d632-1a31-4273-b915-b33985bc0f4d.png",
+      "note": "The Night Observer: the Met Office roof, the white slatted instrument box, the copper rain bucket, the mast with its spinning cups, the barometer and the chalkboard by the door, one orange lamp above the stair head, and the black harbour with a far shore of small lights. Fourth frame, subtle-upscaled."
+    },
+    {
+      "id": "no-1-machine-shop--night-hall",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/no-1-machine-shop--night-hall.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "no-1-machine-shop"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_vast_machine_shop_hall_as_tall_as_a_church_at_night_c108c351-58fc-43eb-99ca-89ff51eba85b.png",
+      "note": "The Night Shift: No. 1 Machine Shop, tall as a church, two gantry cranes under the roof, pools of hard white lamplight with darkness between, and the huge lower leg of a Frame standing in its pit, with a few warm orange sparks at the right. Third frame, subtle-upscaled."
+    },
+    {
+      "id": "the-market-hall-456--after-hours",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/the-market-hall-456--after-hours.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "the-market-hall-456"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_old_covered_market_hall_after_hours_anime_backgrou_2f825f2f-d72b-4693-b621-5ee9865d0326.png",
+      "note": "The Market Hall after hours, for the Magic Show: shuttered stalls against the walls, rows of borrowed benches, blankets pinned over the high windows, and at the back a scaffold holding the Oddwater Company's lantern with its orange light. A cold hall with one warm thing waiting to happen. Second frame, subtle-upscaled."
+    },
+    {
+      "id": "row-f-block-5--common-room",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/row-f-block-5--common-room.png",
+      "assignedTo": {
+        "kind": "location",
+        "ref": "row-f-block-5"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_cosy_dormitory_common_room_anime_background_art_mat_63331141-459c-468b-b7fc-4e71b67fa27f.png",
+      "note": "The Card Game: Row F, Block 5's common room, the round table under its one good hanging lamp with mismatched chairs, the ginger cat on the radiator, the door-sized chalk debt board on the wall, damp coats on hooks, and one pool of orange light on the boards under the table. Second frame, subtle-upscaled."
+    },
+    {
+      "id": "kazue",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/kazue.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "kazue"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_tall_reptilian_vesk_woman_humanoid_with_green-gre_fc00faef-b080-4124-97c7-2167b1e72798_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the bathhouse haunt. Ancestry Vesk (alien: a visible sore thumb in a teal-grey world). A crocodilian Vesk woman in a white sailor's cap and navy smock, brass whistle at her collar, arms folded: stern and faintly amused, and the room's biggest sore thumb. Picked: image 3 of the search batch; the cap and whistle read clearest. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "hachi",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hachi.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "hachi"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_old_dwarf_man_humanoid_stout_and_bald_with_a_big_b09bf131-b929-4af9-a61a-5bb85c5fc41f_0.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the bathhouse haunt. Ancestry Dwarf. An old bald dwarf with a great white moustache, a folded towel on his head and his bucket under one arm, eyes screwed shut in a happy grin. Picked: image 1: the happiest, eyes shut, bucket under the arm. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "sigrun",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/sigrun.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "sigrun"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_small_stocky_ikeshti_woman_humanoid_lizard_with_h_fea8e2f9-84bf-4082-8929-1fc50d434c45_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the bathhouse haunt. Ancestry Ikeshti (alien: a visible sore thumb in a teal-grey world). A small stocky red-scaled Ikeshti with orange eyes and a towel round her neck, grinning: a bright red sore thumb in a teal room. Picked: image 3: the widest grin and most upright pose. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "lucan",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/lucan.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "lucan"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_halfling_man_humanoid_small_and_quick_with__37831bdf-a574-4215-821f-eed53a924ca1_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the card-game haunt. Ancestry Halfling. A cocky small young man in the slate tunic worn open over a mustard-yellow waistcoat, a coin in his raised fist: the sore thumb of the card table. Picked: image 3: the waistcoat and the walking coin. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "chiyo",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/chiyo.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "chiyo"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_human_woman_from_a_fishing_village_round_ch_c5ac767b-3e7a-4f0e-b9ce-34ab45ab0441_0.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the card-game haunt. Ancestry Human. A round-cheeked young woman with a scrap of blue cloth in her hair, cards clutched to her chest, hiding a hopeful smile. Picked: image 1: cards clutched to her chest and a smile she is hiding. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "morishita",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/morishita.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "morishita"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_middle-aged_human_woman_dormitory_warden_grey_hai_5e1bdbe1-d3d7-43a4-a72a-58fd19fa4b8f_0.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the early-night haunt. Ancestry Human. A grey-haired warden in round spectacles and a lumpy hand-knitted cardigan, her torch aimed politely at the ceiling and a clipboard under her arm. Picked: image 1: spectacles, cardigan and the torch aimed politely at the ceiling. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "haru",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/haru.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "haru"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_android_man_humanoid_smooth_pale_porcelain-_512d750e-44fe-41f6-ae95-eb5ef78d0371_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the early-night haunt. Ancestry Android. A slight, pale young android with faint seam lines at the temple and cheek, reading a folded letter in a tunic a size too big. Picked: image 3: faint seam lines at the temple and cheek, a folded letter. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "grenna",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/grenna.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "grenna"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_stocky_adult_dwarf_woman_in_her_twenties_humanoid_53286796-5d49-45ba-944e-932787196659_0.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the early-night haunt. Ancestry Dwarf. PLACEHOLDER Picked: third attempt: the first two batches came out as small children rather than an adult dwarf, so the prompt was rebuilt around a stocky adult build and a strong jaw; image 1. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "genzo",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/genzo.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "genzo"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_elderly_humanoid_man_of_the_ysoki_ancestry_with__8a8cd66d-3135-4314-b715-b96f9e232d58_1.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the met-office haunt. Ancestry Ysoki. PLACEHOLDER Picked: second attempt: the first (without a humanoid anchor) gave a literal mouse face; anchoring it as a humanoid man of the ysoki ancestry with human proportions fixed it; image 2. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "kaede",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/kaede.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "kaede"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_tall_elf_woman_machine_shop_night_foreman_humanoi_8c2a5614-562b-43d8-ab8f-54a65edb2afb_1.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the night-shift haunt. Ancestry Elf. PLACEHOLDER Picked: image 2: pencil poised over the clipboard, orange crew number on the sleeve. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "nkiru",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/nkiru.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "nkiru"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_cheerful_skittermander_crane_driver_humanoid_with_c5efe296-3545-4ddd-9e82-6c74778a884f_3.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the night-shift haunt. Ancestry Skittermander (alien: a visible sore thumb in a teal-grey world). PLACEHOLDER Picked: image 4: the widest grin, one hand waving and two on the levers (six arms). Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "obi",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/obi.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "obi"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_tall_thin_young_elf_man_humanoid_with_pointed_ear_86933b81-255a-42b0-b5ff-d563398abb03_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the rumour-mill haunt. Ancestry Elf. PLACEHOLDER Picked: image 3: round spectacles and one finger raised mid-argument. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "mrs-ueda",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mrs-ueda.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "mrs-ueda"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_elderly_halfling_woman_night_warden_humanoid_tin_0abf042e-8cd2-48d8-969e-53000425812e_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the rumour-mill haunt. Ancestry Halfling. PLACEHOLDER Picked: image 3: headscarf over curlers, torch held like a candle, knuckles raised to knock. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "tokuji",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tokuji.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "tokuji"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_close_portrait_of_an_old_human_man_deeply_lined_fac_49f23834-c361-41b5-8133-d49f07a9f01c_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the shrine-gate haunt. Ancestry Human. PLACEHOLDER Picked: second attempt: the first came out as tiny full-length figures with no usable face, so it was re-prompted as a close portrait with the cat on his shoulder; image 3. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "mira",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mira.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "mira"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_humanoid_otter-woman_person-shaped_with_an_expres_b00170eb-6634-4387-8aa9-a1f4e846f12f_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the shrine-gate haunt. Ancestry Brenneri (alien: a visible sore thumb in a teal-grey world). PLACEHOLDER Picked: second attempt: both batches came out as straight otters (real animal faces) rather than a person-shaped Brenneri; kept as it is, since less-humanoid ancestries are fine and she is a striking sore thumb in the teal room; image 3. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "sayo",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/sayo.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "sayo"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_human_woman_second-year_candidate_stargazer_929555c3-a153-47a3-a1ad-110135b067a3_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-roof haunt. Ancestry Human. PLACEHOLDER Picked: image 3: chart and pencil in one hand, a finger raised to a star. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "faruq",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/faruq.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "faruq"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_quiet_young_pahtra_man_humanoid_feline_alien_pers_33f9c125-54de-4c6d-a1b6-d201c54bac76_0.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-roof haunt. Ancestry Pahtra (alien: a visible sore thumb in a teal-grey world). PLACEHOLDER Picked: second attempt: an Abyssinian-cat Pahtra with a maroon scarf blazing against the teal; image 1 (harmonica in hand). Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "isamu",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/isamu.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "isamu"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_big_grey-stubbled_old_orc_man_humanoid_with_small_0e43fff9-f4f8-4a4c-8bda-9b3bf9dbe9bf_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-roof haunt. Ancestry Orc. PLACEHOLDER Picked: image 3: peaked cap, pea coat, the ledger under his arm, glaring at the ceiling. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "tomoe",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tomoe.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "tomoe"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_human_woman_in_her_forties_refit_crew_chief_cropp_944bb21f-91cb-4a04-b550-a72056e1c908_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the crew-mess haunt. Ancestry Human. PLACEHOLDER Picked: image 3: chalk stub, chalk tally marks on her sleeve, a dry unimpressed look. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "petr",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/petr.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "petr"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_huge_warm_orc_man_welder_humanoid_with_a_broad_fr_09c1cef6-7062-46c4-9b95-157431fc732a_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the crew-mess haunt. Ancestry Orc. PLACEHOLDER Picked: image 3: head back mid-song, welder cap and scorch-marked apron. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "ren",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/ren.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "ren"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_nineteen_year_old_halfling_apprentice_fitter_huma_10fef7ae-fbff-4ad3-bab5-1b955cc5e767_1.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the crew-mess haunt. Ancestry Halfling. PLACEHOLDER Picked: image 2: orange-striped cap, patched overalls, spanner in his pocket. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "tamsin",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tamsin.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "tamsin"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_illusionist_gnome_woman_humanoid_small_and_warm-_a2c9803b-c038-4eb5-a194-b5bd889cf834_3.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-magic-show haunt. Ancestry Gnome. PLACEHOLDER Picked: image 4: violet top hat, star-lined coat, a coin glowing over her raised glove. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "daisuke",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/daisuke.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "daisuke"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_broad_young_human_man_theatre_stagehand_and_doorm_68c42dd5-7e2c-472f-8b9c-f0cd70de1fd0_0.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-magic-show haunt. Ancestry Human. PLACEHOLDER Picked: image 1: lantern in hand, canvas apron, a straight face with a laugh behind it. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "mrs-handa",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mrs-handa.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "mrs-handa"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_elderly_human_woman_who_keeps_a_pickle_stall_sma_a7ad30e3-11ce-44ec-ae1b-de20c6a3cac6_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-magic-show haunt. Ancestry Human. PLACEHOLDER Picked: image 3: round spectacles, tight bun, floral apron, pickle jar, warning finger. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "the-young-one",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/the-young-one.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "the-young-one"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_confident_young_elf_man_humanoid_with_pointed_ear_460ac6a0-ff1c-457a-bc77-2a110bea29d7_1.png",
+      "note": "Generated 2026-09-30, the pilot-track student at the Canteen. Elf, buttoned to the throat in the slate tunic exactly as issued, a level half-smile. Deliberately shows only what the table sees; his GM-only secrets are not in the picture. The uniform worn perfectly is the visual of hiding behind conformity (D054). Picked: image 2. Character-portrait template, --ar 2:3."
+    },
+    {
+      "id": "technical-track-student",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/technical-track-student.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "technical-track-student"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_talphi_humanoid_mole-like_alien_small_and_s_e48b6694-4b8f-4571-aa45-d9ad44acf0ac_3.png",
+      "note": "Generated 2026-09-30, the walk-on technical-track student at the Canteen. Talphi, an alien mole-like ancestry (a sore thumb by design), thick round spectacles, sleeves rolled, the tunic hung over the chair behind, arms folded and unhurried: the friendlier contrast to the pilot-track student. Picked: image 4. Character-portrait template, --ar 2:3."
+    },
+    {
+      "id": "michiru",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/michiru.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "michiru"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_human_woman_third-year_candidate_sharp_neat_061a7f1e-04c2-47ce-b8f5-853aae0ee7ad_3.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the card-game haunt. Ancestry Human. A neat-bobbed young woman in the slate tunic with its orange collar tab, chalk behind her ear, a fan of cards in one hand: the uniform worn exactly as issued. Picked: image 2: cards held up, calm and precise. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review: the first version had the chalk behind her ear and it read as chalk stored in her ear. New prompt keeps the chalk stub between two fingers and nothing in her hair; picked image 4 (cards fanned in one hand, chalk held clearly in the other). The first version is kept in artwork/review/replaced/."
+    },
+    {
+      "id": "nadi",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/nadi.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "nadi"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_eighteen_year_old_human_woman_with_dark_brown_sk_22f6de92-03fe-42ea-a40e-c2f4daf77f97_1.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the met-office haunt. Ancestry Human. PLACEHOLDER Picked: image 3: two pencils and a raised eyebrow. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review (the pair of pencils, which Midjourney draws badly): the new prompt has one pencil held in her hand and nothing in her hair; picked image 2. The NPC description and her habit now say one pencil in her hand. The first version is kept in artwork/review/replaced/."
+    },
+    {
+      "id": "joji",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/joji.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "joji"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_an_old_goblin_man_pit_hand_humanoid_with_clearly_gr_7565624c-fe6d-4445-bb05-106090f99765_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the night-shift haunt. Ancestry Goblin. PLACEHOLDER Picked: image 4: cap, oil-stained overalls, a hand on a huge steel knee joint, a crooked half-smile. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review (his arm was not green): the new prompt insists on green-grey skin on face, ears, neck, forearms and hands with sleeves rolled to the elbow; picked image 3. The first version is kept in artwork/review/replaced/."
+    },
+    {
+      "id": "hana",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hana.png",
+      "assignedTo": {
+        "kind": "npc",
+        "ref": "hana"
+      },
+      "assignedDate": "2026-09-30",
+      "sourceFilename": "garsondee_a_young_gnome_woman_humanoid_small_with_big_bright__e6f7d731-bcd1-4842-82fb-9617b66c7acc_2.png",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the rumour-mill haunt. Ancestry Gnome. PLACEHOLDER Picked: image 3: pencil in her teeth, notebook clutched to her chest. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review (pencil in mouth looked awkward): the new prompt has the pencil raised in her hand and her mouth closed in a smile; picked image 3. The first version is kept in artwork/review/replaced/. Ingram may still edit this one by hand."
     }
   ]
 }

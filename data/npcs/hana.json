@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "hana",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Hana Kurogane",
+  "role": "Second-term candidate, keeper of the notebook",
+  "pole": null,
+  "ancestry": "Gnome",
+  "affiliation": null,
+  "description": "A small second-year candidate with big bright eyes, her hair wrapped in a scarf and a dressing gown over her tunic, who keeps a fat notebook of everything she has been told and taps her pencil against her teeth while she decides how much of it to believe. She never repeats a rumour without saying who told her and how far she trusts them. Fast, delighted, and precise about her sources.\n\nShe wants to be the first to know anything, and to be right, just once, in writing.",
+  "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--rumour-mill.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Gnome ('Gnomes are a small and hardy species that can trace their origins back to wanderers from the First World.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: See the asset registry note for hana: image 3: pencil in her teeth, notebook clutched to her chest. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nVOICE NOTES: forced catchphrases in this regular's tics and sample lines were rewritten as habits and manner (tools/art-review/ledger.json has each before and after).\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "socialProfile": {
+    "attitude": "friendly",
+    "facts": [
+      {
+        "id": "the-notebook-s-came-true-column",
+        "text": "Friendly or better and a Diplomacy check at her Will DC; or trade her something she hasn't heard.",
+        "revealTrigger": {
+          "narrative": "Friendly or better and a Diplomacy check at her Will DC; or trade her something she hasn't heard."
+        },
+        "revealed": false
+      }
+    ]
+  }
+}

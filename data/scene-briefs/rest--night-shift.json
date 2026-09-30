@@ -1,0 +1,659 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--night-shift",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "night-shift",
+  "title": "The Night Shift",
+  "summary": "A night's work in No. 1 Machine Shop, fitting a knee into a Frame's leg with the night crew. A quarter of maximum HP, one night's pay earned with Crafting, and a crew who know exactly what state the machines are in.",
+  "goal": "Each player who came here has worked a night beside the machine-shop crew, in character, and leaves at dawn with a quarter of their HP back, a night's pay (or a Fatigued morning), and a standing with the night crew that the next visit will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the shop, give each player a turn to say what their character does with their hands tonight, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, buffs and chances to talk in character. At dawn, each character who worked rolls to Earn Income. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name. There is work for three: a fourth character is sent to bed with thanks.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "No. 1 Machine Shop is the heaviest work on the island: a hall as tall as a church, two gantry cranes running the length of the roof, and a pit in the floor deep enough to stand a Frame's lower leg in. On the door hangs this week's allocation of technician-days, where one technician-day is one technician's full day of work, and the office shares them out between the jobs every Monday. The sheet goes up on Monday and the shop argues about it until Sunday.",
+    "changes": "As the city changes, so does the sheet on the door. Jobs the city will see, such as a Frame polished for an opening or a parade, start to win technician-days from jobs nobody sees, and the night crew get whatever is left.",
+    "upgrades": [
+      {
+        "id": "a-bench-of-their-own",
+        "title": "A bench of their own",
+        "text": "Kaede gives the group a bench with a drawer and a vice, and work for four instead of three on any night they come.",
+        "how": "Win Kaede to helpful.",
+        "rest": {
+          "hp": "quarter",
+          "buff": "At dawn each character who worked rolls Crafting (or a Lore that fits the work) to Earn Income at task level 1, DC 15, and is paid for their degree of success; on a critical failure they are paid nothing and are Fatigued until their next rest."
+        }
+      },
+      {
+        "id": "the-shortcut-written-down",
+        "title": "The shortcut written down",
+        "text": "Nkiru's way of floating the leg goes into the shop's method, with Kaede's name on the docket. The knee jobs finish hours early, and the night crew sleeps for two hours before the day shift comes in.",
+        "how": "Take Nkiru's shortcut on a critical success, then get it past the office: Society at the level-based DC, with Kaede friendly or better.",
+        "rest": {
+          "hp": "half",
+          "buff": "At dawn, each character who worked rolls Crafting to Earn Income on the Earn Income table as usual, at the task level Kaede sets."
+        }
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "short-on-the-sheet",
+        "title": "Short on the sheet",
+        "text": "The tram depot polish takes every technician-day on the door for a week. The night crew has no parts to fit, and anyone who works the night gets breakfast and no pay.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "quarter",
+          "buff": "No income: the night is a hand's work for breakfast."
+        }
+      },
+      {
+        "id": "no-night-shift",
+        "title": "No night shift",
+        "text": "The office rules that the shop can manage without a night shift after all. Kaede goes to days, Joji retires early, Nkiru drives the day crane, and the shop is dark after ten. There is no night's work here any more.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "At dawn, each character who worked rolls Crafting to Earn Income, on SF2E's Earn Income table. You set the task level (Kaede has work at level 0 or 1 for candidates tonight), the DC is the level-based DC for that task (14 at level 0, 15 at level 1), and the character is paid one day's income from the table for their degree of success. On a critical failure they are paid nothing and are Fatigued until their next rest. Earn Income needs training in the skill: a character not trained in Crafting can Earn Income with a Lore that fits the work, such as Engineering Lore or Labor Lore, or works the night as a hand for breakfast and no pay."
+  },
+  "intro": {
+    "where": "No. 1 Machine Shop, on the base, from about midnight until dawn.",
+    "firstThing": "The noise: a chain running through a gantry block high overhead, and somebody singing to it.",
+    "readAloud": "No. 1 Machine Shop is as tall as a church and lit like a stage, with a pool of hard white light under every lamp and darkness between them. Two gantry cranes run along rails under the roof, and one of them is moving, its chain rattling down towards the floor while the driver up in the little cab sings to it.\n\nIn the middle of the floor there is a pit, and standing in the pit, up to its knee, is the lower leg of a Frame, the kind of walking machine that is taller than the warehouses. Its knee is gone. A woman in overalls with a clipboard looks at the mud still on your boots from the tunnel, and says, \"Good.\n\nYou're used to being dirty. Overalls are on the hook.\"",
+    "carriesIn": [
+      {
+        "when": "A character comes here straight from the flood tunnel",
+        "then": "Kaede sees the mud and the tiredness, and gives them the bench job first, sitting down, rather than the pit."
+      }
+    ],
+    "holdInReserve": "Chalked on the pit wall is a tally of nights since anything fell into the pit. It has been rubbed out and started again twice this year. Joji won't say who, and Nkiru, asked from the crane, laughs so hard she has to stop the lift.",
+    "landmark": "The pit, with the Frame's leg standing in it to the knee, under the gantry.",
+    "position": {
+      "locationRef": "no-1-machine-shop",
+      "state": "together",
+      "note": "Up to three characters work the night here together. They leave at dawn, when the day shift comes in."
+    }
+  },
+  "cast": [
+    {
+      "id": "kaede",
+      "npcRef": "kaede",
+      "label": "Kaede Ishimori",
+      "role": "night foreman of No. 1 Machine Shop",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Gives them a broom and the far end of the shop, and speaks to them only to tell them the time.",
+          "unfriendly": "Gives them the dullest job there is, and checks every piece of their work twice where they can see her do it.",
+          "indifferent": "Gives them honest work and honest instructions, and watches their hands to see what they can do.",
+          "friendly": "Gives them the interesting job, explains why it matters, and shows them her notebook.",
+          "helpful": "Tells them there is always a place on her shift, and puts in a word with the office that the office actually reads."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The interesting job: she gives them work worth doing, and their Earn Income task at dawn is level 1 rather than 0."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A place on her shift: they may work any night, even as a fourth pair of hands, and once she writes the office a note it actually reads, which gives a +2 circumstance bonus to one request a character makes of the office."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The dull job: sanding and sorting, their Earn Income task is level 0, and a failure at it pays nothing."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The shop floor: a broom and the far end of the shop, no income at all, and breakfast if they stay till dawn."
+          }
+        ],
+        "wants": "The new knee in and the leg standing by dawn, and a fair share of the sheet on the door for her shift.",
+        "opensWith": "\"Three pairs of hands, and I'll take all three. Who here has held a file before?\"",
+        "willDiscuss": [
+          {
+            "topic": "Tonight's job",
+            "note": "A knee joint for a Frame, going into the leg in the pit. It has to be in and turning by the time the day shift comes in."
+          },
+          {
+            "topic": "The sheet on the door",
+            "note": "Technician-days are how the office pays for work. Her shift gets whatever the day shift hasn't used, and it is never enough."
+          },
+          {
+            "topic": "Her notebook",
+            "note": "Friendly or better: a drawing of every joint she has ever rebuilt, with notes. \"One day somebody will want to know how these were done.\""
+          },
+          {
+            "topic": "Her crew",
+            "note": "Joji knows the pit better than the manual does, and Nkiru can put a load down on an egg without cracking it."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why she works nights",
+            "why": "Her daughter goes to school in the city, and working nights means she is home when the girl gets back. It is nobody's business at work. \"Somebody has to.\""
+          },
+          {
+            "topic": "The office's decisions",
+            "why": "It is her name on every docket her shift signs, and she has learned to keep her opinions for the sheet on the door. \"Ask the office. They wrote it.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What the office thinks of her shift",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: the office has asked her twice this year how the shop would manage without a night shift at all, and she has told them, twice, that it wouldn't."
+          }
+        ],
+        "voice": {
+          "register": "Calm, exact, a little dry. Speaks in instructions, and means them kindly.",
+          "tics": [
+            "Taps her pencil on the clipboard twice before she says anything important.",
+            "Directs the shop by station rather than by name, so everyone hears their own job called back at them."
+          ],
+          "samples": [
+            "\"Bench, that's lovely. Do it again, slower.\"",
+            "\"If it's not on the docket, it didn't happen. If it happened and it's not on the docket, it's my problem.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What are we doing tonight?",
+            "a": "\"Putting a knee back into a leg. The leg's in the pit, the knee's on the bench, and by morning they want to be one thing.\""
+          },
+          {
+            "q": "What's a technician-day?",
+            "a": "\"One technician, one whole day. The office hands them out on Monday like sweets, and we fight over the wrappers until Sunday.\""
+          },
+          {
+            "q": "Do we get paid?",
+            "a": "\"You get paid for what you do well. Do it badly and you get paid in tea.\""
+          },
+          {
+            "q": "Is it dangerous?",
+            "a": "\"Everything in here weighs more than you. Keep your hands where I told you and your feet out of the pit unless Joji says so.\""
+          },
+          {
+            "q": "What's in the notebook?",
+            "a": "She considers them for a moment. \"Every joint I ever rebuilt. Drawn. Somebody ought to remember how.\""
+          },
+          {
+            "q": "Why do you work nights?",
+            "a": "\"Somebody has to.\" She taps the clipboard twice. \"Bench. Your file.\""
+          }
+        ],
+        "statblock": "Proposed: level 3, a skilled working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "joji",
+      "npcRef": "joji",
+      "label": "Joji Mabuchi",
+      "role": "pit hand, the oldest on the night crew",
+      "arrival": null,
+      "brief": {
+        "attitude": "unfriendly",
+        "byAttitude": {
+          "hostile": "Won't let them near the pit, and tells the crew loudly what the last candidate broke.",
+          "unfriendly": "Calls them all \"candidate\" in the same tired voice, and hands them tools without looking at them.",
+          "indifferent": "Lets them down into the pit and tells them where to stand, and nothing else.",
+          "friendly": "Shows them the tricks that aren't in the manual, and tells them the story behind every dent in the leg.",
+          "helpful": "Gives them a jar-bolt, a broken bolt from his own collection with its date written on it, and says it is for luck."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Tricks not in the manual: a +1 circumstance bonus to Crafting checks in the shop tonight, the dawn Earn Income roll included."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A jar-bolt for luck: once, the character may reroll a failed Crafting check on a Frame and keep the second result."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "His patience: when they fumble, he takes the job off them without showing where it went wrong, and every Crafting check they make at the bench takes a -1 circumstance penalty."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The pit: he won't let them down into it, so Down in the Pit and Nkiru's shortcut are never theirs."
+          }
+        ],
+        "wants": "The job done properly, which to him means done his way, and to be home by the time the trams start.",
+        "opensWith": "\"Another lot. The last candidate we had dropped a spanner in the pit and it's still down there somewhere. Mind your feet.\"",
+        "willDiscuss": [
+          {
+            "topic": "What they're taking apart",
+            "note": "The knee going in tonight came out of Seven, a Frame in the back bay that hasn't walked in years. Seven is where the parts come from."
+          },
+          {
+            "topic": "His bolt jar",
+            "note": "Every bolt he has ever broken, with the date on a paper label. He has four jars at home."
+          },
+          {
+            "topic": "The manual",
+            "note": "\"Written by people who've never been in a pit.\" Half of what keeps the Frames walking is in nobody's book."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Retiring",
+            "why": "He is due to retire at the end of the year and he doesn't want to go, because the men who replace him will do everything by the manual. He changes the subject: \"Pass me that bar.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Slow, gravelly and grumbling, with a joke hidden in every second complaint.",
+          "tics": [
+            "Sucks his teeth before he disagrees with anything.",
+            "Talks to the Frame's leg as if it could hear him."
+          ],
+          "samples": [
+            "\"Come on, old girl. You've done this before and so have I.\"",
+            "\"The manual says four hours. The manual has never met this knee.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "How long have you worked here?",
+            "a": "\"Since before you were born, and before you were a rumour.\""
+          },
+          {
+            "q": "Where did this knee come from?",
+            "a": "\"Seven. Back bay, under the canvas. Seven gives, and the others keep walking.\""
+          },
+          {
+            "q": "Is that allowed?",
+            "a": "He sucks his teeth. \"The office book says Seven's in for a refit. Seven's been in for a refit since before I had grey hair.\""
+          },
+          {
+            "q": "What's in the jar?",
+            "a": "\"Every bolt I ever broke. You break one tonight, you can write your own label.\""
+          },
+          {
+            "q": "Are the Frames safe?",
+            "a": "\"Safe as we make them, and we make them as safe as the sheet on the door lets us.\""
+          },
+          {
+            "q": "When do you retire?",
+            "a": "\"Pass me that bar.\""
+          }
+        ],
+        "statblock": "Proposed: level 2, a strong, experienced working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "nkiru",
+      "npcRef": "nkiru",
+      "label": "Nkiru Oduya",
+      "role": "gantry-crane driver, who sings the lifts",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Stops singing when they are under the crane, and the whole shop hears the silence.",
+          "unfriendly": "Drives the crane perfectly and says nothing to them at all.",
+          "indifferent": "Waves from the cab, and sings the lift the way she always does.",
+          "friendly": "Shouts down questions about where they come from, and puts their names into the song.",
+          "helpful": "Takes one of them up into the cab and lets them drive the crane along the empty rail, with her hands next to theirs."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Their names in the song: the load comes down exactly where they need it, a +1 circumstance bonus to Athletics checks in the pit tonight."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The cab: she lets a character drive the crane along the empty rail with her hands beside theirs, and after that they can work a gantry crane in a pinch."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The call: she drives in silence and nobody sings the lift, so the Athletics check in Down in the Pit takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "Somebody to talk to up there in the dark between lifts, and for the people of Kurose to see a Frame shine for once.",
+        "opensWith": "From the cab, over the rattle of the chain: \"New ones! Where are you from? Shout it, I can't come down!\"",
+        "willDiscuss": [
+          {
+            "topic": "Where she's from",
+            "note": "The Mwangi, a long way south and west across a great deal of sea. She drove cranes on a river port there before the Directorate's work brought her here."
+          },
+          {
+            "topic": "The gantry song",
+            "note": "The song that times a lift, a line from her and an answer from the floor. She learned half of it here and brought the other half with her."
+          },
+          {
+            "topic": "The tram depot opening",
+            "note": "A Frame is going to walk there next week in front of half the city, and she wants it painted. \"All anyone ever sees us do is lift cabbages.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Going home",
+            "why": "She hasn't decided whether she ever will, and saying so out loud would make it a decision. \"Ask me in the spring.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Big, bright and easy, shouted down from twenty metres up.",
+          "tics": [
+            "Hums the next lift before she starts it.",
+            "Names people from twenty metres up by whatever she can see of them: a hat, a height, a limp."
+          ],
+          "samples": [
+            "\"Coming down! Hands off the chain, Tall One, it bites!\"",
+            "\"Joji, you are standing exactly where the knee is going to be. Again.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"The Mwangi! South and west, and then a lot of sea. Now I'm from up here.\""
+          },
+          {
+            "q": "Why do you sing?",
+            "a": "\"So the floor knows when the load is moving. And because it's lonely up here.\""
+          },
+          {
+            "q": "Can I come up?",
+            "a": "\"When Kaede says so, and when you're not holding anything I need.\""
+          },
+          {
+            "q": "What's the best thing you've lifted?",
+            "a": "\"A whole Frame's head, once. It looked at me all the way across the shop.\""
+          },
+          {
+            "q": "What do you think of the new tram depot?",
+            "a": "\"I think the whole city should see a Frame do something besides carry cabbages. Paint it, polish it, let it wave.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-shop",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the shop, then let Kaede hand out overalls and Nkiru shout down from the crane.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-hands",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"Kaede has three jobs: the bench, the pit and the crane. Which one does your character take, and how do they go about it?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "dawn",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The day shift comes in at dawn, and the knee is in or it isn't. Each character who worked rolls Crafting to Earn Income. Apply the rest and the pay.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "the-bearing",
+      "kind": "roll",
+      "title": "Scrape the bearing",
+      "text": "The knee's new bearing shell is bronze, and it has to be scraped to fit by hand. Kaede smears blue dye on the pin, turns it in the shell, and every shiny patch where the blue comes off is a high spot to shave away with a scraper, a stroke at a time, until the blue touches everywhere evenly. It is slow, fiddly and satisfying, and she hands the scraper to one of the group.",
+      "prompt": "Kaede puts the scraper in your hand and steps back. How does your character go about it: slow and patient, or quick and confident?",
+      "check": "Crafting at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The blue comes up perfectly even. Kaede holds the shell to the lamp, says nothing for a long moment, then draws it in her notebook with the character's name beside it. Kaede goes up a step.",
+        "success": "A good fit, first time. Kaede checks it and moves on to the next job.",
+        "failure": "Close, but not close enough. Joji takes it off them and finishes it, grumbling, and it costs the shift an hour.",
+        "criticalFailure": "They take off too much, and the shell is scrap. A new one comes from the stores in the morning with the character's name on the docket, and Kaede goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "kaede",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "kaede",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "in-the-pit",
+      "kind": "roll",
+      "title": "Down in the pit",
+      "text": "Nkiru brings the knee down on the chain, slowly, and somebody in the pit has to catch it, steady it and guide it onto the leg's pins while Joji calls the distances. It weighs more than a tram car, and it swings.",
+      "prompt": "The knee is coming down towards you, turning very slowly on the chain, and Joji says, \"Yours.\" What do you do?",
+      "check": "Athletics at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "It slides onto the pins first time with a clean, heavy clunk. Nkiru sings the character's name from the cab, and Joji goes up a step.",
+        "success": "On the pins after a few careful nudges and a lot of shouting.",
+        "failure": "It swings wide, rings off the side of the pit like a bell, and takes three more tries and an hour. Nobody is hurt.",
+        "criticalFailure": "It swings, the character lets go too late, and they are knocked against the pit wall: 1d6 bludgeoning damage. Joji chalks a fresh tally on the pit wall, starting from nought."
+      },
+      "shifts": [
+        {
+          "regular": "joji",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "The damage comes off before the rest is applied at dawn."
+    },
+    {
+      "id": "the-hairline",
+      "kind": "roll",
+      "title": "Look for the crack",
+      "text": "Before anything goes back into a Frame, it is checked for cracks the old way: soak it in paraffin, wipe it dry, paint it with chalk-white, and wait. Paraffin hiding in a crack seeps out and draws a thin grey line through the white. Joji paints a linkage, hands one of the group a lamp, and says, \"Tell me what you see.\"",
+      "prompt": "The white paint is drying under your lamp. Joji is watching you, not the part. Where do you look?",
+      "check": "Perception at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They find a hairline crack nobody had seen, in a part the day shift had already signed off. The part comes out, and Joji tells the whole crew who found it. Joji goes up a step.",
+        "success": "They find the crack Joji already knew was there. He nods, which from Joji is a speech.",
+        "failure": "They see nothing. Joji shows them the line, and shows them how to hold the lamp low so the light rakes across the paint.",
+        "criticalFailure": "They call a crack with total confidence, and the crew spend an hour on it before Joji works out it is a pencil mark. He mentions it every night for the rest of the week."
+      },
+      "shifts": [
+        {
+          "regular": "joji",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "the-sad-goose",
+      "kind": "roll",
+      "title": "The sad goose",
+      "text": "Kaede reads out a pilot's complaint from the snag book, the ledger where pilots write down what is wrong with their machines: \"Left elbow makes a noise like a goose being sad, but only when the arm goes up.\" Somebody has to work out what is making the noise before the crew take the whole arm apart to find it.",
+      "prompt": "Kaede reads it out twice, completely straight-faced, and looks at you. What makes a noise like a sad goose, and only when the arm goes up?",
+      "check": "Crafting (Recall Knowledge), or Engineering Lore, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "A dry pulley on the lifting cable, squealing as the cable runs over it. They are right, it takes ten minutes, and Kaede writes their answer in the snag book under the pilot's words, so the pilot will read it. Kaede goes up a step.",
+        "success": "Something in the cable run. Near enough to save the crew an hour of looking.",
+        "failure": "Wrong, and the crew find it the long way, taking the elbow apart bolt by bolt.",
+        "criticalFailure": "Their confident answer sends the crew into the wrong joint for an hour. For the rest of the night, every squeak in the shop is greeted with \"Is that a goose?\""
+      },
+      "shifts": [
+        {
+          "regular": "kaede",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "seven",
+      "kind": "informant",
+      "title": "Where the knee came from",
+      "text": "Joji, wiping down the knee before it goes in, explains to anyone who asks what they are working on. The knee came out of Seven, a Frame standing under a canvas sheet in the back bay, which hasn't walked in years. Seven is where the parts come from. He points along the line of Frames standing in the shop's far bays: one has a shoulder painted a slightly different grey from the rest of it, and another has a hand stencilled with the wrong number. \"That's Seven. And that's Seven. And the office book says Seven's in for a refit.\"",
+      "prompt": "Joji is pointing at a shoulder that doesn't quite match. What do you ask him?",
+      "note": "Something the table can use later: the crews know the machines' real state, and some of the Frames the city sees walking are kept walking with parts from one that can't. Joji will say which Frames carry Seven's parts if asked. He doesn't know why the office never writes Seven off, and says so."
+    },
+    {
+      "id": "two-in-the-morning",
+      "kind": "roleplay",
+      "title": "Two in the morning",
+      "text": "At two o'clock Kaede calls the break. The crew sit on upturned crates at the edge of the pit with rice balls wrapped in newspaper and a big dented kettle of tea, and Nkiru comes down the ladder from the cab to join them. Kaede asks one of the group about their day, and she wants to hear it through their hands.",
+      "prompt": "It's two in the morning and everyone is eating. Tell us about your character's day through their hands: what did they pick up, carry, fix or break today, and how did they do it? Take a moment first.",
+      "shifts": [
+        {
+          "regular": "kaede",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Kaede's button if the story lands. There is nothing to roll."
+    },
+    {
+      "id": "the-float",
+      "kind": "dilemma",
+      "title": "Nkiru's shortcut",
+      "text": "The manual says that to reach the knee's last pin you strip the whole ankle housing, which is four hours of work. Nkiru shouts down that there is a better way: she takes the weight of the whole leg on the crane, just enough to float it, and somebody in the pit drifts the pin out with a long bar and a sledgehammer. It takes twenty minutes and it isn't in the manual. Joji is already fetching the bar. Kaede is at the far end of the shop with her back turned, and has very carefully not heard any of it.",
+      "prompt": "Nkiru has the chain ready, Joji is holding out the bar, and the manual is open on the bench. Do you do it their way?",
+      "check": "If they take the shortcut: Athletics or Crafting at the level-based DC (15 at level 1) to drift the pin out cleanly.",
+      "outcomes": {
+        "criticalSuccess": "The pin slides out as sweet as a drawer. The job is three hours ahead, and Kaede walks back past, looks at the housing still on the leg, and says only, \"Hm.\"",
+        "success": "Out with some sweat and one bent bar. The shift is three hours ahead.",
+        "failure": "The pin swells at the end under the hammer and won't come out, so the housing has to come off anyway, the manual's way, plus the hour already spent.",
+        "criticalFailure": "The bar slips and gouges the housing. The job is done the manual's way with a scarred part, and the docket has to say why. Kaede goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "joji",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "nkiru",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "kaede",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Taking the shortcut: press Joji's and Nkiru's buttons. Doing it by the manual: leave those two and press by hand instead, Joji down a step and Kaede up a step, because Kaede signs every docket and nobody has made her choose. The shortcut is sound and the crews have used it for years; what it costs is that nobody wrote it down. As the city changes, more of the work comes to depend on things only the old hands know."
+    },
+    {
+      "id": "the-sheet-on-the-door",
+      "kind": "dilemma",
+      "title": "The sheet on the door",
+      "text": "Joji takes one of the group to the door and shows them the allocation. The knee has eight technician-days, and needs twelve. Next to it, on the day shift's side, a job reads \"Frame, paint and polish, for the tram depot opening\" with fourteen. A pencil hangs on a string beside the sheet. Joji says that one stroke turns the fourteen into ten and the eight into twelve, and nobody checks the sums until Friday. Nkiru, from the crane, shouts that the whole city will see that Frame, and that it has only ever seen them lift cabbages. Kaede has gone to the other end of the shop again.",
+      "prompt": "Joji holds out the pencil. Nkiru is shouting from the roof. Do you change the sheet?",
+      "check": "If they change it: Society at the level-based DC (15 at level 1) to make it look like the office's correction.",
+      "outcomes": {
+        "criticalSuccess": "It looks exactly like the office's handwriting. The knee gets its days, and the Frame goes to the opening with one shoulder shining and the other not.",
+        "success": "It holds until Friday, when the office sighs, initials it, and moves on.",
+        "failure": "The day foreman spots it on Tuesday and changes it back, and writes \"NIGHTS?\" on the door in big letters. Nothing is lost but face.",
+        "criticalFailure": "It is spotted at once, and it lands on the night shift's foreman, because the pencil was on her door. Kaede goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "joji",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "nkiru",
+          "change": -1,
+          "when": "any"
+        },
+        {
+          "regular": "kaede",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Changing it: press Joji up and Nkiru down. Leaving it: press the reverse by hand (Joji down, Nkiru up), and the knee waits another week. Both are fair answers: the city seeing a Frame shine matters, and so does the knee. This one comes back every Monday, and the sums change as the city does."
+    },
+    {
+      "id": "the-gantry-song",
+      "kind": "roleplay",
+      "title": "The gantry song",
+      "text": "Nkiru times every lift with a song: she calls a line from the cab, the floor answers, and the load moves on the answer. Half the song is from the river port where she learned the trade and half is from this shop, and every crew that has worked under her has added a line. Tonight, on the big lift, she stops at the top of the call and points down at one of the group. The next line is theirs.",
+      "prompt": "The chain is taut, the whole shop is waiting, and Nkiru is pointing at you. What's your line, and who in this shop is it about? Take a moment.",
+      "shifts": [
+        {
+          "regular": "nkiru",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "The floor answers whatever they sing, and the load goes up on it. Press Nkiru's button if the line lands; a line about Joji lands twice."
+    },
+    {
+      "id": "a-good-tool",
+      "kind": "buff",
+      "title": "A good tool",
+      "text": "At the end of the night Kaede opens a drawer under the bench and takes out a tool: a scraper, or a small spanner, with a handle turned from dark wood and worn smooth by somebody who retired before Joji started. She gives it to whichever of the group worked best tonight, or whoever she has warmed to. \"It's been waiting for hands. Keep it.\"",
+      "prompt": "Kaede puts the tool in your hand, and it fits. What do you scratch into the handle so everyone knows it's yours?",
+      "note": "The character keeps the tool. Once, on any one Crafting check they choose, it gives a +1 circumstance bonus; after that it is simply a good tool they own. The bonus keeps until they use it."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The day shift comes in at dawn and reads the sheet on the door, or the group leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Outside, the sky over the harbour is going grey, and the first train of the morning is running across the causeway.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "What each character earned, and who is Fatigued.",
+      "Whether the knee went in by dawn.",
+      "Whether anyone took Nkiru's shortcut, and whether anyone changed the sheet on the door.",
+      "Who was given the tool, and what they scratched into it."
+    ],
+    "position": {
+      "locationRef": "no-1-machine-shop",
+      "state": "together",
+      "note": "They leave together at dawn as the day shift comes in, and walk back to their bunks for what is left of the night."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They come as four or more: Kaede takes the first three and sends the rest to bed with thanks; they sleep in their own bunks. They walk out before dawn: no pay, and Kaede goes down a step; they still rest in their bunks. They pocket a tool: Thievery against Kaede's Perception DC; caught, Kaede asks for it back in front of the crew and goes to unfriendly, and the office hears of it. They lie about their skill to get the better job: Deception against Kaede's Perception DC; she finds out within one roll either way. They go under the canvas in the back bay: Seven is a Frame with most of its parts gone, cold, dusty and silent, and Joji will tell them anything they ask about it. They start a fight: Kaede stops the shift and sends them out, and Joji and Nkiru both go down a step. They split up: the bench, the pit and the crane are each their own small scene; draw for each in turn."
+}

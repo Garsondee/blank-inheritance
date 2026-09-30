@@ -1,0 +1,686 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--general-hospital",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "general-hospital",
+  "title": "The General Hospital",
+  "summary": "A night in a ward bed at the island's hospital, a department store once. All of each character's Hit Points back and nothing else. A night nurse who runs the ward, two long-stay patients who never sleep when they should, and a soldier in the next bed who won't say how he broke his wrist.",
+  "goal": "Each player who came here has spent a night on the ward, in character, and wakes with all their Hit Points back and nothing more, knowing the night nurse and the long-stay patients a little, with a standing among them that the next visit will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the ward, put each character to bed with a turn to say what brought them in, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls and chances to talk in character; none of them changes the rest. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "Ward Four of the General Hospital, on what was the menswear floor when the building was a department store, with the old brass sign for Gentlemen's Outfitting still over the door. Two rows of iron beds stand under blue night-lamps, the night nurse sits at a desk under a green lamp at the far end, and the same few long-stay patients seem to have been here forever. Whoever comes in at night is put to bed, and whoever stays the night wakes up mended.",
+    "changes": "As the island grows, so does the hospital. New wards open in old departments, new staff arrive who don't know the ward's habits, the cleaning goes out to a firm from the city with rules of its own, and more patients come over the causeway who would rather not say how they were hurt. The long-stay patients watch every change from their beds and have an opinion about each one.",
+    "upgrades": [
+      {
+        "id": "beds-by-the-desk",
+        "title": "Beds by the night desk",
+        "text": "Nurse Tsubaki keeps beds six and seven made up for the group, even on a night the ward is full, and nurses anyone who comes in carrying a disease or a poison through the night.",
+        "how": "Win Nurse Tsubaki to helpful, or have two characters written in the ward book as night volunteers (a critical success on the night rounds).",
+        "rest": {
+          "hp": "full",
+          "buff": "Each character wakes with all their Hit Points back. Anyone carrying a disease or a poison also attempts one extra saving throw against it at the two o'clock rounds, with a +2 circumstance bonus from Nurse Tsubaki's care."
+        }
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "twenty-extra-beds",
+        "title": "Twenty extra beds",
+        "text": "The beds Gennai was told to make up are needed: Ward Four fills with the injured from whatever has happened on the island. Only a character below their maximum HP gets a bed, unless Nurse Tsubaki is keeping beds by the night desk for the group; anyone else is sent back to their bunk for an early night.",
+        "lasting": "temporary"
+      },
+      {
+        "id": "tsubaki-retires",
+        "title": "Nurse Tsubaki retires",
+        "text": "Nurse Tsubaki finishes her crossword at last, signs it, and retires. The new night nurse keeps every rule exactly and has no habits: no kettle at three, no second blanket, no postcards, and nothing Tsubaki did for the group carries over. Whoever sleeps on the ward still wakes mended.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "full",
+    "buff": "None. This is the sober choice: each character who spends the night here wakes with all their Hit Points back, and nothing else. Nothing that happens on the ward adds to that or takes it away."
+  },
+  "intro": {
+    "where": "Ward Four of the General Hospital, on the island, late at night.",
+    "firstThing": "The quiet, and the smell of carbolic soap and floor polish.",
+    "readAloud": "The General Hospital was a department store once, and at night you can still tell. The great front windows are painted over from the inside, the lifts have brass gates, and the ward the porter walks you to still has a sign over its door that says Gentlemen's Outfitting. Inside, two long rows of iron beds stand under little blue night-lamps.\n\nSomebody is snoring. Somebody else has a radio playing very quietly under his blanket.\n\nAt the far end, a nurse sits at a desk under a green lamp with the evening paper folded to the crossword, and she looks up at you over her glasses as if she has been expecting you all day. The sheets on your bed are cold, clean, and tight enough to bounce a coin on.",
+    "carriesIn": [
+      {
+        "when": "A character came in hurt from the duty that night",
+        "then": "Nurse Tsubaki looks at the hurt before she looks at the face, and has it cleaned and dressed before they've finished saying it's nothing."
+      }
+    ],
+    "holdInReserve": "Nurse Tsubaki's bottom drawer is full of postcards from patients who went home, and she keeps every one. If a character is kind to her, or asks what she's smiling at, she shows them one.",
+    "landmark": "The old shop sign over the ward door, and the night desk at the far end.",
+    "position": {
+      "locationRef": "general-hospital",
+      "state": "together",
+      "note": "Everyone who chose the hospital is on Ward Four together, in beds along the same row. They leave together after breakfast."
+    }
+  },
+  "cast": [
+    {
+      "id": "tsubaki",
+      "npcRef": "tsubaki",
+      "label": "Nurse Haruko Tsubaki",
+      "role": "night sister of Ward Four, and the ward's real boss after dark",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Writes them up in the night book, moves them to the bed by the draughty window, and speaks to them only to say that the lights are out.",
+          "unfriendly": "Treats them as trouble waiting to happen: checks on them twice as often as anyone else and hears every creak of their bed.",
+          "indifferent": "Treats them like any other patient: a clean bed, a firm hand, and lights out at ten.",
+          "friendly": "Brings them a second blanket without being asked, and tells them which patients like company and which ones bite.",
+          "helpful": "Puts the kettle on for them at her desk at three in the morning, lets them help on her rounds, and asks for them by name the next time they come in."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The kettle at three: over a cup at her desk, she tells them what the hospital has been told to make ready for this week, a day or two before the island hears it."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A bed on any night: she takes the group in without a reason, even when the ward is full, and nothing they do goes in the night book."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The benefit of the doubt: everything they do after lights-out goes in the night book, and the night book reaches their section officer before breakfast."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "A bed without a reason: a character who isn't hurt is sent back to their bunk for an early night instead, and one who is hurt gets the bed by the draughty window and is discharged at six, before breakfast."
+          }
+        ],
+        "wants": "A quiet ward, every patient asleep by midnight, and one crossword finished before she retires.",
+        "opensWith": "\"Bruises and scrapes? Good. Bed six and bed seven. Boots under the bed, clothes on the chair, and the lights go out at ten.\"",
+        "willDiscuss": [
+          {
+            "topic": "The ward and how it runs",
+            "note": "Lights out at ten, rounds at two, tea at half past, the day staff at six. Nobody dies on her ward if she can help it, and she usually can."
+          },
+          {
+            "topic": "The building",
+            "note": "\"This floor was Gentlemen's Outfitting. The children's ward was Toys, and there's still a rocking horse on the landing that nobody has the heart to move.\""
+          },
+          {
+            "topic": "How to sleep in a hospital",
+            "note": "\"Lie on your good side, count the lamps, and pretend you can't hear Mr Aucourt.\""
+          },
+          {
+            "topic": "The crossword",
+            "note": "She has done the evening paper's crossword every night for twenty years and has never finished one. She will read the clues aloud to anybody still awake."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What is wrong with the other patients",
+            "why": "They are her patients, and their business is their own. \"Ask him yourself, dear, if he wants to tell you.\""
+          },
+          {
+            "topic": "The soldier in bed eight",
+            "why": "She didn't write his card, and what's on it isn't what she would have written. She keeps her own counsel. \"Bed eight had a fall. That's what his card says.\""
+          },
+          {
+            "topic": "The postcards in her drawer",
+            "why": "Not with strangers. Some of the people who sent them never sent another, and she would rather not talk about it."
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The soldier's card",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC. She says only this: \"I write every card on this ward, dear. I didn't write his.\" Then she goes back to her crossword."
+          }
+        ],
+        "voice": {
+          "register": "Brisk and low, a night voice that carries further than a shout. Kind underneath, and never in a hurry to show it.",
+          "tics": [
+            "Calls every patient by their bed number until she likes them, and 'dear' once she does.",
+            "Taps the watch pinned to her apron when she wants someone to stop talking."
+          ],
+          "samples": [
+            "\"Bed six, that is not how a blanket works.\"",
+            "\"If you're going to be awake, you might as well be useful. Seven letters, a fish.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What is this place?",
+            "a": "\"Ward Four. Men's surgical in the daytime, anybody's at night. It was Gentlemen's Outfitting before that, and I still find collar studs under the beds.\""
+          },
+          {
+            "q": "Can I have another blanket?",
+            "a": "\"You can have what's on the bed, and if you're still cold at midnight, you can ask me again.\""
+          },
+          {
+            "q": "Who's in the next bed?",
+            "a": "\"A soldier with a broken wrist who would like to sleep. So would I, if anyone on this ward ever let me.\""
+          },
+          {
+            "q": "How long have you worked here?",
+            "a": "\"Twenty-two years on nights. I've hardly seen the place in daylight, and I'm told I'm not missing much.\""
+          },
+          {
+            "q": "Why do you work nights?",
+            "a": "\"Because the doctors go home.\""
+          },
+          {
+            "q": "Is the crossword hard?",
+            "a": "\"It's written by a man who hates me personally. Nine letters, a feeling of dread on a Monday. Go on, then.\""
+          }
+        ],
+        "statblock": "Proposed: level 2, a senior nurse, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "imai",
+      "npcRef": "imai",
+      "label": "Mrs Setsuko Imai",
+      "role": "long-stay patient with a mending hip; ran the island's telephone exchange for thirty-one years",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Pulls her curtain round her bed when they come in, and tells the whole ward in the morning exactly what they did.",
+          "unfriendly": "Talks about them to the next bed, loudly, as if they couldn't hear.",
+          "indifferent": "Watches them over her knitting and waits to see if they're worth talking to.",
+          "friendly": "Wants to know everything about them, and tells them everything about everyone else on the ward.",
+          "helpful": "Adopts them: saves them the good biscuit off the tea trolley, and tells every nurse and porter on the floor to look after her candidates."
+        },
+        "faction": "island-exchange",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The ward's news: she tells them who on the island is friends with whom and who no longer speaks, never whose calls she put through, which gives a +1 circumstance bonus to one Society check about a named islander before their next rest."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Her candidates: every nurse and porter on the floor is told to look after them, and a character who comes in hurt is seen first, before anyone who came in earlier."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Her good word: she tells the whole floor her version of them, and the first Diplomacy check they make with any of the hospital staff on their next visit takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "Company, news from outside, and to be home before the plum blossom.",
+        "opensWith": "\"New ones! Come here where I can see you. What have they done to you, and who's your mother?\"",
+        "willDiscuss": [
+          {
+            "topic": "The island exchange",
+            "note": "Every call on the island went through her board for thirty-one years. She knew every voice before it gave its name, and she still does, in her sleep."
+          },
+          {
+            "topic": "The other patients",
+            "note": "Mr Aucourt is a dear and a terrible snorer. The soldier came in this afternoon and hasn't eaten. The nurse is an angel who pretends otherwise."
+          },
+          {
+            "topic": "The island as it was",
+            "note": "When she started, there were half the buildings and all the same arguments."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Her grandson",
+            "why": "He hasn't come to see her once in three months, and she tells everyone he's very busy. \"He's with the trams, you know.\" Then she asks about their family instead."
+          },
+          {
+            "topic": "Any call she ever put through",
+            "why": "An operator never tells. \"I could tell you who rang whom, dear, but I'm a lady.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Bright, fast and nosy, with an operator's crisp manners when she remembers them.",
+          "tics": [
+            "Changes the subject the way an operator changes a line: no warning, a small click, and you are somewhere else.",
+            "Knits without looking, and points with the needle."
+          ],
+          "samples": [
+            "\"Hold on, dear, I'm getting to it.\"",
+            "\"I knew your voice would be like that. I can always tell.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "How long have you been here?",
+            "a": "\"Since the first frost. The doctor says the hip is knitting. The doctor says a great many things.\""
+          },
+          {
+            "q": "What did you do before?",
+            "a": "\"I ran the island exchange for thirty-one years. Every call on this island went through my two hands.\""
+          },
+          {
+            "q": "Does anyone visit you?",
+            "a": "\"My grandson, when he can. He's with the trams, you know. Very busy.\""
+          },
+          {
+            "q": "Why are you still awake?",
+            "a": "\"Old women don't sleep, dear. We wait with our eyes shut.\""
+          },
+          {
+            "q": "What's the nurse like?",
+            "a": "\"Tsubaki? She'll frighten you until you're properly ill, and then she's an angel. So be properly ill.\""
+          }
+        ],
+        "statblock": "Proposed: level -1, an elderly civilian, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "aucourt",
+      "npcRef": "aucourt",
+      "label": "Mr Basile Aucourt",
+      "role": "long-stay patient with a leg in traction; a harbour pilot from Taldor, on the far side of the world",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Turns his radio up, sighs at them loudly every time they move, and complains about them to the nurse by name.",
+          "unfriendly": "Grandly polite, and nothing more. He talks to the ceiling rather than to them.",
+          "indifferent": "Nods from his contraption of pulleys and goes back to listening to the shipping news.",
+          "friendly": "Calls them over, lends them the radio, and tells them the story of the worst ship he ever brought in.",
+          "helpful": "Tells them the thing he tells nobody, about his knee and his licence, and starts treating them as his crew."
+        },
+        "faction": "harbour-hands",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The tides by heart: ask him and he gives the time of any high or low water this week, which gives a +1 circumstance bonus to one check tomorrow that the tide affects."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A word at the harbour office: once, he writes a note that puts a character aboard the pilot boat for a night run, or through a harbour gate that would otherwise want a pass."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The captain's ear: he complains about them to Nurse Tsubaki by name, and no event can move her up a step for them that night."
+          }
+        ],
+        "wants": "Company at three in the morning, and to be back on the water.",
+        "opensWith": "\"Ah, new arrivals. The night sister is at the far end, and she runs a very tight ship.\"",
+        "willDiscuss": [
+          {
+            "topic": "Being a harbour pilot",
+            "note": "\"A captain knows the sea. I know this harbour: every rock, every sandbank, every current. They let me climb aboard at the mouth, and I bring them in.\""
+          },
+          {
+            "topic": "Taldor",
+            "note": "He came over on a ship thirty years ago, meaning to stay a season, and never went home. He still dreams in Taldane."
+          },
+          {
+            "topic": "The tides",
+            "note": "He can tell them the time of every high water this week without looking, and wakes for the four o'clock one out of habit."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether he'll go back to work",
+            "why": "The harbour office wants a doctor's letter to say he can climb a ship's ladder again, and he is more frightened than he lets anyone see that he can't. He deflects with a joke about the hospital's rice."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Courtly, theatrical and a little too grand, in a Minkai he learned over ships' radios.",
+          "tics": [
+            "Describes the ward as if it were a ship in a bad harbour, and treats the night sister as its captain.",
+            "Tells the time by the tide rather than the clock."
+          ],
+          "samples": [
+            "\"Low water in an hour. Everything is quieter at low water, even Mrs Imai.\"",
+            "\"I have brought in ships the size of this building, and now I cannot reach my own slippers.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"Taldor, on the other side of the world. I came in on a ship thirty years ago and stayed to bring the others in.\""
+          },
+          {
+            "q": "What's a harbour pilot?",
+            "a": "\"The man who knows where the rocks are. You'd be surprised how many captains would rather not.\""
+          },
+          {
+            "q": "What happened to your leg?",
+            "a": "\"I stepped from the pilot boat to a ship's ladder, and the sea moved the ship and not the boat. Six weeks in this contraption.\""
+          },
+          {
+            "q": "Will you go back to work?",
+            "a": "He is quiet for a moment. \"If the knee lets me climb. The rice here, by the way, is a crime.\""
+          },
+          {
+            "q": "Why can't you sleep?",
+            "a": "\"Thirty years of night tides, my friend. My body still gets up for the four o'clock high water, even if the rest of me can't.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a harbour pilot, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "gennai",
+      "npcRef": "gennai",
+      "label": null,
+      "role": "the night porter",
+      "walkOn": true,
+      "arrival": null,
+      "brief": {
+        "wants": "To finish his round without being asked what the twenty extra beds are for -- he doesn't know either, and he doesn't like not knowing.",
+        "willDiscuss": [
+          {
+            "topic": "The extra beds",
+            "note": "The office told the hospital to have twenty ready by the end of the week, and nobody told him why. \"Last time they asked for extra beds was the spring drill. Three broken legs and a lad who walked into a crane. The hospital always knows before you lot do.\""
+          }
+        ]
+      }
+    },
+    {
+      "id": "kuroki",
+      "npcRef": "kuroki",
+      "label": null,
+      "role": "the soldier in bed eight",
+      "walkOn": true,
+      "arrival": null,
+      "brief": {
+        "wants": "To be left alone, and for the cover story to hold.",
+        "opensWith": "Not speaking, until he sees the party's Directorate kit on their chairs -- then, flatly: \"You're theirs, then.\"",
+        "willNotDiscuss": [
+          {
+            "topic": "What actually happened to his wrist",
+            "why": "His card says he fell, and that's what everyone has agreed to. He is angry about it, not ashamed."
+          }
+        ]
+      }
+    },
+    {
+      "id": "mori",
+      "npcRef": "mori",
+      "label": null,
+      "role": "a cleaner in the sluice room, contracted through a firm from the city",
+      "walkOn": true,
+      "arrival": null,
+      "brief": {
+        "wants": "For nobody to notice the hand, and to finish the shift.",
+        "opensWith": "\"It's not bad,\" said before anyone's asked her anything else.",
+        "willNotDiscuss": [
+          {
+            "topic": "Why she's hiding the cut",
+            "why": "The firm sends home anyone hurt on shift and doesn't have them back, and she has a little brother to feed. She never offers this as a reason -- it just comes out if someone asks the right way."
+          }
+        ]
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-ward",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the ward, then let Nurse Tsubaki put each character to bed.",
+      "facts": [
+        "directorate.base"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "the-admission-card",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"Nurse Tsubaki has her pen over your admission card. What happened to you today, and where does it hurt?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [
+        "minkai.own-forces",
+        "directorate.gate"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "morning",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "At six the day nurse comes on, the blinds go up, and breakfast arrives on a tray: rice, pickles and weak tea. Apply the rest: every character here has all their Hit Points back.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "the-crossword",
+      "kind": "roll",
+      "title": "The crossword, aloud",
+      "text": "Nurse Tsubaki, at her desk, reads a crossword clue aloud to the dark ward, the way she does every night, in case anyone is awake. Tonight someone is. \"Four letters: comes in twice a day and never knocks.\"",
+      "prompt": "Nurse Tsubaki is looking straight down the ward at you with her pencil ready. What's your answer?",
+      "check": "Society (Recall Knowledge), or another skill the player can argue for, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They get that one and the one after it, and the last corner falls. Nurse Tsubaki looks at the finished grid for a long time, signs and dates it, and puts it in her bottom drawer. It is the first one she has ever finished. She goes up a step.",
+        "success": "They get it, and two more, and she pencils them in and says, \"Well,\" which from her is a medal.",
+        "failure": "Nothing she didn't already have. She reads the next clue anyway, a little louder.",
+        "criticalFailure": "A confident answer that fits, and is wrong, and ruins the whole corner. Mrs Imai wakes up to argue about it, Mr Aucourt joins in, and the ward is awake until one."
+      },
+      "shifts": [
+        {
+          "regular": "tsubaki",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "The answer to the first clue is 'tide'. Count any good answer."
+    },
+    {
+      "id": "putting-you-through",
+      "kind": "roleplay",
+      "title": "Mrs Imai talks in her sleep",
+      "text": "Past midnight, Mrs Imai starts talking in her sleep, clear as a bell. She is back at the island exchange, putting calls through: \"Island exchange, which number, please? Hangar Two, hold the line.\" Then she stops, frowning, and says, \"Caller? Caller, are you there?\" She is waiting, and she won't settle until somebody answers.",
+      "prompt": "She's waiting for the caller to speak, and the caller is you. Who are you ringing tonight, and what do you say to them?",
+      "shifts": [
+        {
+          "regular": "imai",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Whatever the character says, Mrs Imai says \"Putting you through,\" smiles, and sleeps soundly till morning. In the morning she remembers none of it, but somehow knows the character's voice."
+    },
+    {
+      "id": "night-rounds",
+      "kind": "roll",
+      "title": "The night rounds",
+      "text": "At two o'clock Nurse Tsubaki does her rounds with a torch and a tray: temperatures, a dressing to change, and Mr Aucourt to be turned without upsetting his pulleys. She sees one character awake and holds out the torch. \"Steady hands? Good. Hold this, and do exactly what I tell you.\"",
+      "prompt": "Nurse Tsubaki hands you the torch and nods at the first bed. How do you help her?",
+      "check": "Medicine at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "She lets them change a dressing themselves, watches, and says they have good hands. She writes their name in the ward book as a night volunteer, and goes up a step.",
+        "success": "Useful all the way round the ward. She says thank you, once, and means it.",
+        "failure": "The thermometer goes under the bed and the torch goes in the patient's eyes. She sends them back to bed, kindly.",
+        "criticalFailure": "They knock the tray off the trolley. Every bottle on it rolls under a different bed, the whole ward wakes to help look for them, and Nurse Tsubaki goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tsubaki",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "tsubaki",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-tea-trolley",
+      "kind": "informant",
+      "title": "The tea trolley",
+      "text": "At half past two, old Gennai the night porter comes squeaking down the ward with the tea trolley, as he has every night for longer than anyone remembers. He pours for whoever is awake, and he talks while he pours. Tonight he's grumbling: the office has told the hospital to have twenty extra beds made up by the end of the week, and nobody has told him why. \"Last time they asked for extra beds was the spring drill. Three broken legs and a lad who walked into a crane. The hospital always knows before you lot do.\"",
+      "prompt": "Gennai hands you a cup, and he's in no hurry to move on. What do you ask him?",
+      "note": "Something the table can use later: the hospital is told to make ready before anything big happens on the island, so its porters and nurses hear of it first. Gennai knows how many beds and when, and nothing about what for."
+    },
+    {
+      "id": "three-in-the-morning",
+      "kind": "roleplay",
+      "title": "Mr Aucourt can't sleep",
+      "text": "At three in the morning, Mr Aucourt is wide awake in his pulleys, waiting for a tide he can't go out on. He sees one character awake too, and whispers them over. He wants company, and he wants to hear something that isn't about his knee.",
+      "prompt": "Mr Aucourt asks you one thing: when it was hardest today, what kept you going? Take a moment before you answer him.",
+      "shifts": [
+        {
+          "regular": "aucourt",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "If the answer lands, he tells them about his knee and the harbour office's letter in return. There is nothing to roll."
+    },
+    {
+      "id": "when-youre-my-age",
+      "kind": "roleplay",
+      "title": "Mrs Imai's question",
+      "text": "Mrs Imai can't sleep either, and she has decided one of the new ones is going to keep her company. She puts her knitting down, which she never does.",
+      "prompt": "Mrs Imai wants to know: what did you see today that you'll still remember when you're my age? Take a moment first.",
+      "shifts": [
+        {
+          "regular": "imai",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press her button if the story lands. She will repeat it, slightly wrong, to every nurse on the ward for a week."
+    },
+    {
+      "id": "the-cut-hand",
+      "kind": "dilemma",
+      "title": "The cut hand",
+      "text": "A young cleaner, Aiko Mori, is working the sluice room with one hand held stiffly, favouring it without ever quite stopping. She's not saying anything about it, and she'd rather nobody noticed. The cleaning went out this year to a firm from the city, and the firm sends home anyone hurt on shift and doesn't have them back. She has a little brother to feed, which is not something she offers -- it's just why she's still working.",
+      "prompt": "Something about the way she's holding herself is wrong. What do you do?",
+      "check": "Perception or Medicine (Recall Knowledge) at the level-based DC (15 at level 1) to notice she's hurt and hiding it. If noticed and asked, she says \"It's not bad,\" which isn't true -- a Diplomacy check at the same DC gets her to actually show the hand, a cut from a broken bottle that wants proper attention. Once she shows it, a Medicine check treats it, and how well it goes is entirely the result of that roll -- there is no separate choice to make and nothing riding on it beyond the treatment itself.",
+      "outcomes": {
+        "criticalSuccess": "A neat, tight dressing that will hold until Aiko can see a doctor in the city on her day off. Aiko presses a sweet into the character's hand, quietly delighted someone noticed at all.",
+        "success": "A solid dressing. The hand will heal cleanly, and Aiko finishes her shift able to use it.",
+        "failure": "A workable dressing -- not neat, but it holds. The hand heals the ordinary way, a little slower than it might have.",
+        "criticalFailure": "The dressing is wrong for the cut, and it worsens before it's caught -- the only outcome here where things actually get worse."
+      },
+      "shifts": [],
+      "note": "REVISED 2026-09-29 (Ingram): the original version made the party choose between Aiko getting proper care and Aiko keeping her job -- a dilemma built on forcing a choice between helping someone and their own safety, which is exactly the shape of dilemma this campaign doesn't want. This version is a straightforward notice -> persuade -> treat sequence: the only real stakes are in the Medicine roll's own degree of success, and only a critical failure carries any downside. Her situation with the city firm is kept as motivation and worldbuilding texture (why she's hiding it at all, and 'this comes back as the city keeps changing' stays a live thread for later), never as pressure on the party's choice in the moment."
+    },
+    {
+      "id": "the-new-father",
+      "kind": "roll",
+      "title": "After visiting hours",
+      "text": "Long after visiting hours, a young man in a dockworker's jacket comes up the back stairs from the loading bay with a bunch of wilted chrysanthemums. His wife had their first baby this afternoon on the maternity ward, the toy department in the shop's day, and he missed visiting hours by a whole shift. He catches a character's eye across the landing and puts his finger to his lips.",
+      "prompt": "He's whispering, \"Five minutes, please, that's all.\" What do you do for him?",
+      "check": "Diplomacy (Request) against Nurse Tsubaki's Will DC to ask her for five minutes, or Stealth or Deception against her Perception DC to get him past her desk.",
+      "outcomes": {
+        "criticalSuccess": "Nurse Tsubaki gives him ten minutes, finds a vase for the flowers, and tells him to come at the proper time tomorrow. On his way out he tells the character the baby's name, and says it's the best one he's ever heard.",
+        "success": "Five minutes. He comes back down the stairs with his face wet and shakes the character's hand for rather too long.",
+        "failure": "Nurse Tsubaki turns him round at the door, but she takes the flowers up herself and brings back a message.",
+        "criticalFailure": "He's caught halfway up the stairs with the character carrying his flowers, and it is the character Nurse Tsubaki marches back to bed. The flowers go in the bin, and she goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tsubaki",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "lost-in-the-store",
+      "kind": "roll",
+      "title": "Lost in the store",
+      "text": "A character goes looking for the washroom in the dark, and the hospital becomes a department store again. The new signs say one thing, the old brass ones say another, and every corridor ends in something like Ladies' Hats, Third Floor.",
+      "prompt": "It's dark, it's quiet, and you've just passed the same rocking horse twice. How do you find your way back?",
+      "check": "Perception, or Survival if the player would rather navigate, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They follow the old store's brass floor numbers back to the ward, and on the way they pass the landing window where the whole harbour lies lit up below them, ships and all.",
+        "success": "Back to bed by the right corridor, with only one wrong turn into Household Goods.",
+        "failure": "Lost until Gennai the porter finds them among the linen and walks them back, delighted.",
+        "criticalFailure": "They walk into the maternity ward in the dark, set six babies crying, and are led back to Ward Four by a very tired midwife. Nurse Tsubaki goes down a step, and Mrs Imai knows all about it by breakfast."
+      },
+      "shifts": [
+        {
+          "regular": "tsubaki",
+          "change": -1,
+          "when": "criticalFailure"
+        },
+        {
+          "regular": "imai",
+          "change": 1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "bed-eight",
+      "kind": "plot",
+      "title": "The soldier in bed eight",
+      "text": "In the next bed is a young soldier of Minkai's army, Private Shuhei Kuroki of the city garrison, with his wrist in fresh plaster and his army tunic folded on the chair. There's a bag of oranges on his locker that he hasn't touched. The porter says he was brought over from the causeway gate this afternoon. His card says he had a fall. When he sees the characters' Directorate kit on their chairs, he says, \"You're theirs, then,\" and turns his back. He won't say how he broke his wrist.",
+      "prompt": "The soldier in the next bed is lying awake, staring at the ceiling. What do you say to him?",
+      "check": "Perception (Sense Motive) against his Deception DC, to tell whether he's lying about the fall; or Medicine (Recall Knowledge) at the level-based DC (15 at level 1), to read the injury; or Diplomacy at the same DC, to get him talking.",
+      "outcomes": {
+        "criticalSuccess": "It wasn't a fall. His knuckles are skinned and bruised the way a hand looks after it has hit something hard, and he is angry about it, not ashamed. He looks at the character for a long moment and says, \"If anyone asks, I fell. Everyone's agreed I fell.\" Then he turns over and won't say another word.",
+        "success": "It wasn't a fall, and his knuckles say so. He's angry, and not with himself.",
+        "failure": "A fall, as the card says, and he would like to sleep now.",
+        "criticalFailure": "He takes it for the Directorate checking up on him, and says loudly enough to wake the ward, \"Tell your officers I've said nothing and I'll say nothing.\" Nurse Tsubaki goes down a step for the noise."
+      },
+      "shifts": [
+        {
+          "regular": "tsubaki",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "The truth, held for later: he punched a Directorate gate guard who searched his sister's bag at the causeway, and his army and the Directorate agreed to call it a fall and say nothing. This plants a question and answers nothing: who he hit, and why, is not said tonight. He needs a stat block: proposed level 1, a Minkai army private, non-combat tonight, made with Ingram."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The day nurse comes on at six and breakfast arrives, or the group discharge themselves.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Breakfast is rice, pickles and weak tea on a tray, and Nurse Tsubaki's last act before she goes home is to watch every patient eat it.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "What each character told Nurse Tsubaki had happened to them.",
+      "What they learned about the soldier in bed eight, and who asked.",
+      "Whether anyone noticed Aiko's cut hand and got it treated."
+    ],
+    "position": {
+      "locationRef": "general-hospital",
+      "state": "together",
+      "note": "They leave the hospital together after breakfast."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They start a fight on the ward: the bell rings, Gennai and two orderlies arrive, the character is put out on the front steps without the rest, and Nurse Tsubaki goes to hostile. They lie to the nurse about what happened to them: Deception against her Perception DC; she treats what she can see either way, and on a failure she writes 'says it was nothing' on the card and watches them. They go through the medicine cabinet: it is locked, and the key is on her belt; Thievery against her Perception DC, and if caught they're reported to their section officer and she goes to hostile. They sneak out in the night: Stealth against her Perception DC; she finds the empty bed on her rounds either way, and they get whatever rest they find elsewhere instead of this one. They split up: each bed is its own small event. They walk out: they sign a form saying they left against advice, and the rest is lost."
+}

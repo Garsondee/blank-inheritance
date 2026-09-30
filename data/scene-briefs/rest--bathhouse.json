@@ -1,0 +1,683 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--bathhouse",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "bathhouse",
+  "title": "The Bathhouse",
+  "summary": "The big public bath in the middle of the island, where dockworkers, fitters and anyone else with an aching back end up sooner or later. Half of maximum HP, temporary HP equal to the character's level, an attendant who runs the place like a ship, and a bathhouse that someone wants to buy.",
+  "goal": "Each player who came here has spent an evening in the bath among the island's working people, in character, and leaves clean, with half their HP back, temporary HP until their next rest, and a standing with the regulars that the next visit will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the room, give each player a turn to say how their character takes a bath, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, buffs and chances to talk in character. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "A big old public bath in the middle of the island, with a tall chimney and a blue cloth curtain over the door. Inside there are two sides, one for men and one for women, and the wall between them stops short of the ceiling, so the talk carries over it. The attendant sits on a high seat at the entrance that looks into both sides at once, and runs the whole place like the deck of a ship. Above the big pool, across both sides, is a painted mural of the harbour.",
+    "changes": "The Directorate needs room for the people it keeps bringing to the island, and the bathhouse stands on good level ground with a water main under it. The offer to buy it gets better, the regulars argue about it louder, and one day the curtain over the door may come down.",
+    "upgrades": [
+      {
+        "id": "the-new-boiler",
+        "title": "The new boiler",
+        "text": "Mori gets a new boiler in the cellar. The hot pool is hot all night, the big pool never cools, and nobody has to shout down the pipe.",
+        "how": "Pay for it (the GM sets the credits, and the regulars chip in if Kazue is helpful), or talk the housing office into fitting one as the price of leaving the bathhouse alone: Diplomacy or Society at the level-based DC + 2, after a critical success on the offer.",
+        "rest": {
+          "hp": "three-quarters",
+          "buff": "Each character who bathed gains temporary Hit Points equal to their level until their next rest, as before."
+        }
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "the-boiler-cracks",
+        "title": "The boiler cracks",
+        "text": "Mori's old boiler cracks, and the pools run tepid for a week. Sigrun says she hadn't noticed; everyone else goes home cold.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "half",
+          "buff": "None: the water is barely warm."
+        }
+      },
+      {
+        "id": "the-curtain-comes-down",
+        "title": "The curtain comes down",
+        "text": "Kazue sells. The bathhouse is pulled down for a block of rooms, the mural goes with the wall, and the regulars scatter: Hachi to the harbour wall, Sigrun to the crane drivers' barracks, Kazue to her daughter in the city. There is no bath here any more.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "half",
+    "buff": "Automatically, each character who bathed gains temporary Hit Points equal to their level, which last until their next rest."
+  },
+  "intro": {
+    "where": "The Bathhouse, in the middle of the island, late at night.",
+    "firstThing": "The heat and the steam as the curtain drops behind them, and a brass whistle blowing because somebody has walked in with their boots on.",
+    "readAloud": "The bathhouse is a big old building with a tall brick chimney, and a blue cloth curtain hangs over its door. Through the curtain it is warm and damp and smells of soap, cedar and coal smoke.\n\nA woman in a sailor's cap sits on a high wooden seat at the entrance, where she can see into both the men's side and the women's side at once, and she blows a brass whistle at anyone who steps onto her floor in their boots. Past the wooden lockers and the rows of wicker baskets, the steam rises off a big tiled pool.\n\nAbove it, a painted harbour covers the whole wall, full of boats and cranes and chimneys. Somewhere in the steam, an old man is telling a story, and a woman on the other side of the wall is laughing at it.",
+    "carriesIn": [
+      {
+        "when": "A character came here straight from the flood tunnel, still carrying its mud",
+        "then": "Kazue takes one look and points at the washing stools. \"Twice, sailor. Once for you and once for the tunnel.\""
+      }
+    ],
+    "holdInReserve": "Behind Kazue's high seat, a letter on Directorate paper is pinned face down under a brass weight. She never turns it over while anyone is looking. It is the housing office's offer for the bathhouse.",
+    "landmark": "The mural of the harbour above the big pool, and Kazue's high seat.",
+    "position": {
+      "locationRef": "the-bathhouse-447",
+      "state": "together",
+      "note": "Everyone who chose the Bathhouse is here together. They walk back to their bunks when Kazue rings closing."
+    }
+  },
+  "cast": [
+    {
+      "id": "kazue",
+      "npcRef": "kazue",
+      "label": "Kazue Tsurumi",
+      "role": "the attendant, who runs the bathhouse like a ship",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Takes their money at the door without a word, and blows her whistle at every small thing they do all night.",
+          "unfriendly": "Lets the dockworkers go in ahead of them and leaves them standing on the step, which says everything she means to say.",
+          "indifferent": "Treats them like any new hands aboard: the rules once, clearly, then the whistle if they forget.",
+          "friendly": "Saves them the stools nearest the hot tap, and tells them who on the island is worth knowing.",
+          "helpful": "Gives each of them their own numbered bucket on the shelf, presses their uniforms overnight without being asked, and asks their opinion on the letter behind her seat."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Who's worth knowing: once a visit she names one person on the island worth knowing, with what they do and where to find them."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Pressed for the morning, free: every visit, each character's uniform is pressed overnight without a word, with the +1 circumstance bonus to Make an Impression that comes with it."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The hot water: they wait on the bench while every dockworker goes in first, the water is tepid by their turn, and the bath gives them no temporary Hit Points tonight."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The curtain: they are barred at the door until someone apologises to her in front of the regulars, and there is no rest here for them at all."
+          }
+        ],
+        "wants": "A tidy ship, a quiet night, and to keep the bath running for one more year while she decides what to do about the offer.",
+        "opensWith": "\"Boots off at the step. Wash before you get in, and the towel never touches the water.\"",
+        "willDiscuss": [
+          {
+            "topic": "The rules of the bath",
+            "note": "Wash sitting down, rinse off every bit of soap, and then get in. The towel stays on your head or on the side. No running, no swimming, no splashing, and no shouting except down the pipe to the boiler room."
+          },
+          {
+            "topic": "Her years at sea",
+            "note": "Twenty years as boatswain on a coastal steamer, the one in charge of the deck and the crew who work it. She came ashore when her knees went, took over the bath from her father, and ran it the same way."
+          },
+          {
+            "topic": "The regulars",
+            "note": "She knows every one of them by bucket number, bath time and bad habit, and she will tell the group who is who."
+          },
+          {
+            "topic": "The speaking pipe",
+            "note": "A brass tube by the big pool runs down to the boiler room. You shout 'hotter' or 'cooler' down it, and Mori the stoker does something about it, eventually."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The letter behind her seat",
+            "why": "The housing office has offered to buy the bathhouse, and she is tempted: her knees hurt, and her daughter in the city wants her to come and live with her. She hasn't told the regulars how tempted she is. \"Paperwork, sailor. Wash your feet.\""
+          },
+          {
+            "topic": "Who owns the ground",
+            "why": "She doesn't fully understand the lease herself, and it frightens her a little. \"Ask the office. They know everything, or they say they do.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The offer",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: she turns the letter over. The housing office will pay well, give her a new flat with its own hot water, and pull the bathhouse down for a block of rooms."
+          }
+        ],
+        "voice": {
+          "register": "Crisp, loud and warm underneath. Talks about the bathhouse as if it were a ship.",
+          "tics": [
+            "The brass whistle hangs at her collar, and the room goes quiet a beat before she lifts it.",
+            "The bathhouse runs on bells and a logbook: lockers numbered like cabins, and the water's temperature chalked up every hour like a ship's heading."
+          ],
+          "samples": [
+            "\"Soap on the stool, not on the tiles. I once watched a stevedore go down like a felled tree.\"",
+            "\"We ring closing at the eleventh bell. If you're still in the water at the twelfth, you're crew, and crew scrubs the floor.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What do we do first?",
+            "a": "\"Sit on a stool. Wash everything. Rinse everything. Then, and only then, the water.\""
+          },
+          {
+            "q": "Why the whistle?",
+            "a": "\"Twenty years on a steamer, sailor. A whistle is quicker than shouting, and nobody argues with it.\""
+          },
+          {
+            "q": "Who's the old man telling stories?",
+            "a": "\"Hachi. Bucket number four. Forty years fitting the Frames, and he has told every one of those years to me twice.\""
+          },
+          {
+            "q": "Who painted the harbour?",
+            "a": "\"A sign painter who couldn't pay for his baths. He paid with that instead. It took him a whole winter.\""
+          },
+          {
+            "q": "What's the letter behind you?",
+            "a": "She moves the brass weight half an inch, so it sits squarely on it. \"Paperwork. Wash your feet.\""
+          },
+          {
+            "q": "How long have you run this place?",
+            "a": "\"Since before you were born, sailor, and I haven't lost a passenger yet.\""
+          }
+        ],
+        "statblock": "Proposed: level 2, a working adult and former ship's boatswain, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "hachi",
+      "npcRef": "hachi",
+      "label": "Hachirō Mase",
+      "role": "a retired Frame fitter, bucket number four, full of stories",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Stops his story halfway when they get in, and moves to the far end of the pool.",
+          "unfriendly": "Tells his stories to the wall, loud enough for them to hear that they aren't meant for them.",
+          "indifferent": "Nods to them, and goes on with the story he was already telling.",
+          "friendly": "Waves them into the water beside him and starts a story just for them.",
+          "helpful": "Tells them the things he learned in forty years that nobody writes down, and talks about them to anyone who'll listen as if he had trained them himself."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "A word with the fitters: he tells the crews the candidates are all right, and the first Diplomacy check they make with any repair crew before their next visit gets a +1 circumstance bonus."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "What nobody writes down: once a visit he answers one question about how a Frame's body breaks and how to spare it, as if the character had critically succeeded at Recall Knowledge."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "His company: he tells his stories to the wall, the bench follows his lead, and neither Scrub My Back nor A Game on the Bench is drawn for them."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The crews' good opinion: he tells the fitters at the dock what these candidates are like, and the next check they make with any repair crew takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "Somebody new to tell his stories to, and somebody to scrub the middle of his back, which he can't reach any more.",
+        "opensWith": "\"Candidates! In you come, in you come. Did I ever tell you about the Frame that stepped on a cabbage crate?\"",
+        "willDiscuss": [
+          {
+            "topic": "Forty years of fitting",
+            "note": "He fitted the Frames' feet: the soles, the ankles and the toes. \"The feet take all the weight and get none of the thanks.\""
+          },
+          {
+            "topic": "The cabbage crate",
+            "note": "A Frame was lifting a crate of cabbages onto a barge, and stepped on the next one. The quay smelled of cabbage for a month, and the pilot was called Cabbage for the rest of his career."
+          },
+          {
+            "topic": "The bathhouse and the offer",
+            "note": "He has bathed here every night since he was a young fitter, fifty years ago, and he says the bath is the only place on the island where an officer and a stevedore sit in the same water."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why he retired",
+            "why": "His hands shake now, and a fitter who shakes can't be trusted with a rivet gun. He says it's the heat. \"It's the water, it's too hot. Mori! Cooler!\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What pilots do that breaks a Frame's feet",
+            "how": "Friendly or better, and a Diplomacy check at his Will DC: new pilots turn on the heel, and the heel is where a Frame's foot cracks. Turn on the ball of the foot, he says, and the fitters will love you."
+          }
+        ],
+        "voice": {
+          "register": "Slow, happy, full of stories that go the long way round.",
+          "tics": [
+            "Holds up a finger when he's about to get to the good part, and then doesn't get to it for a while.",
+            "Talks about Frames the way people talk about old horses, and about pilots the way people talk about somebody else's children."
+          ],
+          "samples": [
+            "\"Now. This is the good part. Where was I?\"",
+            "\"She was a lovely machine, but that boy drove her like a wheelbarrow.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What did you do on the Frames?",
+            "a": "\"Feet. Forty years of feet. Soles, ankles, toes, all of it. Nobody ever looks at the feet until they break.\""
+          },
+          {
+            "q": "What's it like, being that close to one?",
+            "a": "\"Loud. Hot. You're under three storeys of iron with a spanner, and the pilot's up top eating his lunch. You learn to trust people.\""
+          },
+          {
+            "q": "What happened with the cabbage crate?",
+            "a": "He holds up a finger. \"Now. This is the good part.\" It takes him ten minutes to get there."
+          },
+          {
+            "q": "Why did you stop?",
+            "a": "He looks at his hands under the water. \"Too hot in here. Mori! Cooler!\""
+          },
+          {
+            "q": "What do you think of the offer for the bathhouse?",
+            "a": "\"Where else would an old man go? Pull it down and I'll sit in the harbour.\""
+          },
+          {
+            "q": "Any advice for a new pilot?",
+            "a": "\"Be nice to your fitters. Bring them tea. We remember who brings the tea.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, an old working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "sigrun",
+      "npcRef": "sigrun",
+      "label": "Sigrun Halvard",
+      "role": "a crane driver on the quays, champion of the hottest pool",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Splashes out of the pool as they get in, and tells the whole women's side what she thinks of candidates.",
+          "unfriendly": "Laughs at them for testing the water with a toe, and makes sure everyone hears it.",
+          "indifferent": "Sizes them up from the hottest pool, and wonders out loud whether any of them could last in it.",
+          "friendly": "Challenges them to the hottest pool the moment they walk in, and cheers when they get in.",
+          "helpful": "Treats them like her own crane crew, tells them which quays are working through the night, and shouts at anyone who says a word against them."
+        },
+        "faction": "harbour-hands",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The place beside her: she saves it in the hottest pool, and a character who lasts there with her gets a +1 circumstance bonus to Fortitude saves against heat until their next rest."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Her crane: she says which quays are working through the night, and once she lifts something off the east quay for them, no docket and no questions."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The women's side: she tells it what she thinks of them, and the next Diplomacy check they make with anyone who works the quays takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "A rival in the hottest pool worth the name, and to save enough to bring her little brother across the world to join her.",
+        "opensWith": "\"Candidates! The big pool is for babies. The hot one is over here, if you are brave.\"",
+        "willDiscuss": [
+          {
+            "topic": "Where she's from",
+            "note": "The Lands of the Linnorm Kings, in the far north, where people sit in steam huts and then roll in the snow. She came to Kurose over the top of the world, on foot and then by ship."
+          },
+          {
+            "topic": "Driving a crane",
+            "note": "She lifts crates off the ships on the island's quays, and sometimes lifts parts for the Frames. \"I can put a crate on a coin. Ask anyone.\""
+          },
+          {
+            "topic": "The hottest pool",
+            "note": "Nobody has stayed in it longer than her this year. She says it's barely warm."
+          },
+          {
+            "topic": "The offer for the bathhouse",
+            "note": "She's for it. New rooms on the island might mean a room for her brother."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why her brother isn't here already",
+            "why": "The money isn't there yet, and she promised their mother she'd send for him properly or not at all. \"Next year. Get in the pool.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Loud, blunt and cheerful, in short, strong sentences.",
+          "tics": [
+            "Sinks into the hottest pool without a flinch and looks mildly let down by the temperature.",
+            "Slaps the water when she laughs."
+          ],
+          "samples": [
+            "\"This one? At home we bathe the babies in this.\"",
+            "\"You lasted! Ha! I like you. You can stay.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"North. Very north. Then I walked over the top of the world, and here I am, lifting crates.\""
+          },
+          {
+            "q": "How hot is that pool?",
+            "a": "\"Get in and see.\""
+          },
+          {
+            "q": "What do you do?",
+            "a": "\"Cranes. The big one on the east quay is mine. Well, it is the office's. But it is mine.\""
+          },
+          {
+            "q": "Why do you want the bathhouse sold?",
+            "a": "\"I don't want it sold. I want my brother here. If the rooms come, maybe he comes. It is not the same thing.\""
+          },
+          {
+            "q": "Do you miss home?",
+            "a": "She slaps the water and laughs. \"Home is cold. Here is hot. Get in the pool.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a strong working adult, non-combat but able to hold her own. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-door",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the room. Kazue stops them at the step, takes their boots, and gives them the rules once.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-bath",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"How does your character take a bath? Long and slow, in and out, or only when someone makes them? And where in all this steam do they end up?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "closing",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Kazue rings the ship's bell over her seat for closing, and hands every bather a cold bottle of milk on the way out, to be drunk standing up with one hand on the hip, facing the mural. Apply the rest: half of maximum HP, and temporary HP equal to each character's level until their next rest.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "wash-first",
+      "kind": "roll",
+      "title": "Wash first",
+      "text": "The bath has rules that everyone on the island learned as a child. A character has to get from the locker deck to the water without breaking any of them, while Kazue watches from her high seat and Hachi calls out advice nobody asked for.",
+      "prompt": "The pool is right there, steaming. Kazue has her whistle in her hand. What does your character do first?",
+      "check": "Society (Recall Knowledge) to know the custom, or Perception to pick it up by watching the regulars, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They wash, rinse, fold the towel on their head and slip into the water without a ripple. Kazue paints a number on a wooden bucket and puts it on the shelf with the regulars' buckets. It is theirs now. Kazue goes up a step.",
+        "success": "They get it right, near enough. Kazue lowers the whistle.",
+        "failure": "They are halfway to the water with soap still on them when the whistle goes. Kazue marches them back to a stool and watches them rinse. The regulars enjoy it very much.",
+        "criticalFailure": "They climb in soapy with the towel round their middle, and the towel comes off and floats. Kazue blows the whistle until she runs out of breath, orders everyone out, and has the big pool drained and refilled while the whole bathhouse sits on the stools and waits. Kazue goes down a step, and so does Sigrun."
+      },
+      "shifts": [
+        {
+          "regular": "kazue",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "kazue",
+          "change": -1,
+          "when": "criticalFailure"
+        },
+        {
+          "regular": "sigrun",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-hot-pool",
+      "kind": "roll",
+      "title": "The hottest pool",
+      "text": "In the corner is a small pool so hot that the steam comes off it in sheets. Sigrun sits in it up to her chin and challenges a character to get in and stay in longer than she does. Nobody else has lasted in it all year. The regulars stop what they're doing to watch, and somebody shouts \"hotter!\" down the speaking pipe to the boiler room.",
+      "prompt": "Sigrun is grinning at you through the steam. The water is turning your feet pink. How does your character bear it, and what do they say to her while they do?",
+      "check": "A very hard Fortitude save: the level-based DC +5 (20 at level 1). This one is meant to be hard, and there is no shame in getting out early.",
+      "outcomes": {
+        "criticalSuccess": "They outlast her. Sigrun climbs out red to the ears, roaring with laughter, and Kazue hangs a little wooden tag with the character's name on the champion's peg beside the pool, where Sigrun's has hung all year. Sigrun goes up a step and demands a rematch next visit.",
+        "success": "They get out together, both the colour of boiled crabs, and Sigrun shakes their hand. \"Not bad. Not bad at all.\" The heat stays in them: a +1 status bonus to saves against heat and fire until their next rest.",
+        "failure": "They're out first, and Sigrun doesn't gloat much. \"Out already? That's the hard part done. Next time.\" They are pink and pleased with themselves.",
+        "criticalFailure": "The room goes white at the edges and they come to on the tiles, with Sigrun fanning them with a washbowl. They are Sickened 1 until they have eaten breakfast. Kazue bans them from the hot pool for a week, and goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "sigrun",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "kazue",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "The champion's peg stays with the bathhouse. Whoever's tag is on it is who Sigrun comes looking for next visit."
+    },
+    {
+      "id": "the-mural",
+      "kind": "roll",
+      "title": "The painted harbour",
+      "text": "Lying back in the big pool, a character looks properly at the mural for the first time. It is the harbour of Kurose as it was when the bathhouse opened: fishing boats where the steamers are now, fewer chimneys, the old town low along the waterfront, and on the quay a crowd of tiny people, each painted with care. Hachi says the painter put every regular of that winter somewhere in the crowd, and paid for a year of baths with it.",
+      "prompt": "Hachi says he's in there somewhere, and nobody has ever found him. Where does your character start looking?",
+      "check": "Perception to find the hidden regulars, or Society (Recall Knowledge) to read what has changed in the harbour since, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They find a young man with Hachi's ears carrying a toolbox bigger than he is, and, up on the quay wall, a girl in a sailor's cap who can only be Kazue. Hachi laughs so hard he has to get out of the water. He goes up a step, and Kazue pretends not to have heard.",
+        "success": "They find the young Hachi with his toolbox, and Hachi is delighted. He tells them who half the others in the crowd were.",
+        "failure": "It's a lovely picture, and the steam makes the little people hard to pick out. Hachi says it took him a year to find the painter's dog.",
+        "criticalFailure": "They reach up to point, and a flake of old paint comes away under their fingertip, right where somebody's face was. The pool goes quiet. Kazue goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "hachi",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "kazue",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "If a player asks where they would be standing if they were painted into the harbour today, let them answer. It's a good question to leave the table with."
+    },
+    {
+      "id": "the-wrong-basket",
+      "kind": "roll",
+      "title": "The wrong basket",
+      "text": "Every bather gets a wooden tag with a number on it for their basket of clothes. When a character comes back to the locker deck, their tag opens a basket holding a pair of overalls big enough to sleep in, and a very large stevedore in a towel is standing at the next basket, holding up their uniform and looking puzzled.",
+      "prompt": "The stevedore is holding your uniform up against himself. It reaches his belly button. What do you say to him?",
+      "check": "Diplomacy to sort it out with the stevedore and Kazue, or Perception to spot where the tags were swapped, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They find the swap in a moment, and the stevedore is so pleased to have his overalls back that he tells the whole locker deck the candidates are all right. Kazue goes up a step.",
+        "success": "Clothes back where they belong, and a good laugh on both sides.",
+        "failure": "It takes a long, damp quarter of an hour and three other baskets before everyone is dressed in their own things.",
+        "criticalFailure": "Trying to sort it out, they knock over a whole row of baskets. Forty dockworkers in towels have to find their own clothes in one heap, and Kazue has to stand in the middle of it with her whistle. She goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "kazue",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "kazue",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "shogi-on-the-bench",
+      "kind": "roll",
+      "title": "A game on the bench",
+      "text": "Out on the cool bench by the door, Hachi has a shogi board set up, with a bottle of milk beside it. Shogi is Minkai's chess, played with little wedge-shaped pieces, and a piece you capture can come back onto the board fighting for you. He wants a game, and he is very good at it.",
+      "prompt": "Hachi pushes the first piece forward and looks up at you. How does your character play: carefully, boldly, or by trying to make him laugh until he loses track?",
+      "check": "Society, a Lore about games, or Deception to bluff him into a bad move, against Hachi's Will DC, or the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They win. Hachi stares at the board for a long time, then shakes their hand and tells the whole bench. He goes up a step, and wants a rematch on every visit from now on.",
+        "success": "A close game. Hachi wins by one move and says it was the best game he's had all month.",
+        "failure": "Hachi wins, kindly, and shows them where it went wrong.",
+        "criticalFailure": "Hachi wins in eleven moves, and the whole bench saw it. The bench calls the character 'Eleven' for the rest of the night, and possibly for the rest of the year."
+      },
+      "shifts": [
+        {
+          "regular": "hachi",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "scrub-my-back",
+      "kind": "buff",
+      "title": "Scrub my back",
+      "text": "Hachi holds out a scrubbing cloth and turns round on his stool. In this bathhouse, you scrub a neighbour's back and they scrub yours. While the character scrubs, he tells them the story of the Frame that stepped on a cabbage crate, and when they're done he takes the cloth back and does theirs. Forty years of fitting has taught him where every knot in a working back lives.",
+      "prompt": "Hachi's back is in front of you, and the story has just reached the cabbages. What does your character say to him while they scrub?",
+      "shifts": [
+        {
+          "regular": "hachi",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "The character whose back Hachi scrubs gets a +1 circumstance bonus to Athletics checks until their next rest. If they are Fatigued, the condition ends instead."
+    },
+    {
+      "id": "the-press",
+      "kind": "buff",
+      "title": "Pressed for the morning",
+      "text": "Kazue looks at the group's uniforms, still stiff with the day's dirt, and sniffs. The boiler room has a steam press, and she has pressed a ship's officers' whites before. By morning the uniforms are clean, crisp and folded on the characters' baskets.",
+      "prompt": "Kazue holds out her hand for your uniform. Does your character hand it over, and what do they wear home?",
+      "shifts": [
+        {
+          "regular": "kazue",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Kazue offers this only if she is friendly or better; otherwise it costs a few coins and a polite word. Each character who hands over a uniform gets a +1 circumstance bonus to Diplomacy checks to Make an Impression until their next rest. Press her button if they thank her properly."
+    },
+    {
+      "id": "the-offer",
+      "kind": "dilemma",
+      "title": "The offer",
+      "text": "The regulars are arguing across the wall again. The Directorate's housing office wants to buy the bathhouse, pull it down, and put up a block of rooms for the people it keeps bringing to the island. Hachi says it's the only place on the island where an officer and a stevedore sit in the same water, and pulling it down would be a crime. Sigrun says new rooms might mean a room for her brother, and a bath can go anywhere. Kazue, on her high seat, says nothing until the whistle has gone twice, and then asks the newest people in the room.",
+      "prompt": "Kazue turns to you. \"You're the ones the rooms would be for. If you sat up here, sailor, would you sell?\"",
+      "check": "Diplomacy against Kazue's Will DC, for a character who wants to argue for a third way, such as the new block keeping a bath of its own with Kazue to run it.",
+      "outcomes": {
+        "criticalSuccess": "Kazue writes the idea down on the back of the letter, and both Hachi and Sigrun say it could work. Kazue goes up a step.",
+        "success": "Kazue says she'll put it to the office, and the argument goes quiet for the first time in a week.",
+        "failure": "Hachi and Sigrun both say it would never happen, and for once they agree about something.",
+        "criticalFailure": "Hachi and Sigrun both decide the character is trying to please everybody, and both go down a step."
+      },
+      "shifts": [
+        {
+          "regular": "hachi",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "sigrun",
+          "change": -1,
+          "when": "any"
+        },
+        {
+          "regular": "kazue",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "hachi",
+          "change": -1,
+          "when": "criticalFailure"
+        },
+        {
+          "regular": "sigrun",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Saying keep it: Hachi up, Sigrun down. Saying sell: press the reverse by hand (Hachi down, Sigrun up). The roll is only for a character who argues for both. Either answer is fair: the island needs rooms and the bath is where its people meet. Kazue decides nothing tonight. The offer comes back on later visits, a little better each time."
+    },
+    {
+      "id": "the-speaking-pipe",
+      "kind": "informant",
+      "title": "Down the speaking pipe",
+      "text": "Mori, the stoker, comes up from the boiler room for a bottle of milk, black with coal dust to the elbows. The speaking pipe from the pools runs straight down to his boiler, and every word said near it comes down the pipe with the orders for hotter and cooler. He has heard officers, clerks and crane drivers talk in that water for twelve years. He tells a character, cheerfully, that the officers who bathe late on Thursdays have been talking about beds: more candidates are being sent for than the island has bunks for, which is why the overflow block went up so fast, and the housing office has surveyors coming to measure the bathhouse's ground at dawn next week.",
+      "prompt": "Mori wipes his mouth with the back of a sooty hand. \"People forget the pipe goes somewhere.\" What does your character ask him?",
+      "note": "Something the table can use later: the island is growing faster than it can house people, and the bathhouse is in the way. Mori will say which officers bathe on Thursdays if asked, but he never repeats what anyone said about a candidate by name."
+    },
+    {
+      "id": "show-your-scars",
+      "kind": "roleplay",
+      "title": "Show your scars",
+      "text": "In the big pool, the dockworkers compare the marks their work has left on them, one story each: a crate hook, a winch cable, a rope burn from a ship that wouldn't wait. Sigrun shows the long white line on her shoulder where a crane chain caught her in her first winter. Then everyone turns to the candidates.",
+      "prompt": "Sigrun has told the story of her shoulder, and now the whole pool is looking at you. What mark did today leave on your character, and how did they get it? Take a moment first.",
+      "shifts": [
+        {
+          "regular": "sigrun",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "A bruise from the flood tunnel counts, and so does a blister from new boots. Press Sigrun's button if the story lands. There is nothing to roll."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Kazue rings the ship's bell for closing, or the group leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The night air is cold after the steam, and the bottles of milk are colder, and the walk back to the bunks is quiet.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Who has a numbered bucket on the shelf, and whose name hangs on the champion's peg.",
+      "What each character told Kazue about the offer.",
+      "Who handed a uniform to Kazue to be pressed, and who had their back scrubbed by Hachi."
+    ],
+    "position": {
+      "locationRef": "the-bathhouse-447",
+      "state": "together",
+      "note": "They leave together at closing and walk back to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They start a fight: Kazue's whistle brings every dockworker in the building, and a fight in a wet, tiled room ends quickly and badly; run it as theatre-of-the-mind if it happens. Kazue goes to hostile and they are barred until they apologise. They lie to the regulars, about being pilots already or anything else: Deception against the listener's Perception DC; in a bathhouse, the truth is round the island by morning either way. They go through the baskets: Thievery against Kazue's Perception DC, and from her high seat she sees both sides at once; caught, they are barred, and Kazue goes to hostile. They sneak down to the boiler room: Stealth against Kazue's Perception DC; down there is coal, pipes and Mori, who is glad of the company. They cross to the other side of the wall: the whistle, a loud lecture, and Kazue goes down a step. They follow a regular home: Stealth against that regular's Perception DC. Hachi goes to a room above a noodle stall, Sigrun to the crane drivers' barracks by the quay, and Kazue to a small room behind the boiler; a follower who is caught gets asked in for tea by Hachi, laughed at by Sigrun, or whistled at by Kazue, who goes down a step. They split up: run each side of the wall as its own small event; the talk carries over the wall either way. They leave before bathing: they get half their HP back, and no temporary HP."
+}

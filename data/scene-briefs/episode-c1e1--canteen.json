@@ -106,6 +106,7 @@
     },
     {
       "id": "technical-track-student",
+      "npcRef": "technical-track-student",
       "label": "A technical-track student, easier to talk to",
       "role": "Texture, a friendlier contrast",
       "walkOn": true,
@@ -191,11 +192,11 @@
       "mandatory": true,
       "delivery": "table",
       "text": "Establish scale before anything else happens -- this is the biggest room the six of them have shared all day, and most of the people in it are strangers.",
-      "direction": "Let it feel different from every scene so far. Intake Medicals and Kit Issue were both small and administrative; this is loud, social, and for the first time today the six of them are visibly outnumbered by people who aren't them.\n\nSomewhere under the noise, a radio nobody is really listening to: a man's voice, a phone-in programme, something about his daughter being held without charge. Nobody at the table has any reason to know either name. No check, nobody reacts, gone under the noise as fast as it arrived.\n\nLead with the noise. Everything today has been a queue, a counter or an office, and this is the first room that is bigger than the party rather than narrower.",
+      "direction": "Let it feel different from every scene so far. Intake Medicals and Kit Issue were both small and administrative; this is loud, social, and for the first time today the six of them are visibly outnumbered by people who aren't them.\n\nSomewhere under the noise, a radio nobody is really listening to: a man's voice, a phone-in programme, something about his daughter being held without charge. Neither name is said on air, and nobody at the table has any reason to know them. (GM-only: the father is Kudo, and the girl is Shinobu, who walks away from a lorry in Chapter 6; plant 10, LEDGER #44.) No check, nobody reacts, gone under the noise as fast as it arrived.\n\nLead with the noise. Everything today has been a queue, a counter or an office, and this is the first room that is bigger than the party rather than narrower.",
       "nodeRefs": [
         "mystery-ledger-10"
       ],
-      "readAloud": "Four hundred people eating in a room built for it. It does not register as sound at all -- it registers as weather.\n\nEvery table is somebody's. You can tell by how people sit down at them -- no looking, no deciding, straight in.\n\nSomewhere behind all of it there is a radio nobody is listening to: a man's voice, a phone-in, an argument about a harbour."
+      "readAloud": "Four hundred people eating in a room built for it. It does not register as sound at all -- it registers as weather.\n\nEvery table is somebody's. You can tell by how people sit down at them -- no looking, no deciding, straight in.\n\nSomewhere behind all of it there is a radio nobody is listening to: a phone-in, and a man trying hard not to shout. His daughter is seventeen, she's being held without charge, and nobody will tell him where."
     },
     {
       "id": "meet-someone",

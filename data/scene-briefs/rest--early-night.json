@@ -1,0 +1,671 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--early-night",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "early-night",
+  "title": "An Early Night",
+  "summary": "Back to the bunk in the overflow block, where the beds came before the furniture. Half of maximum HP, a warden with a torch, a homesick roommate, a snorer through the wall, and a night that is never quite as early as it was meant to be.",
+  "goal": "Each player who came here has spent a night in the block, in character, and wakes with half their HP back and a standing with the warden and their neighbours that the next night will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the room, give each player a turn to say how their character makes the bunk their own, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls and chances to talk in character. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "Row C, Block 3 is the first-term overflow block, at the landing end of the island, and the beds were issued long before the furniture. Packing crates stand in for nightstands, the walls between rooms are plywood, and one radiator serves the whole corridor and knocks like somebody at the door. The Wash House is next door, so the block hears every laundry-day argument on the row, and the last train of the night rattles along the causeway just after lights-out.",
+    "changes": "New furniture arrives a room at a time, in grey steel, and the old crates go out to be burned. Every term the block is a little tidier and a little more like every other block on the island, and a little less like itself.",
+    "upgrades": [
+      {
+        "id": "the-furniture",
+        "title": "The furniture",
+        "text": "Mrs Morishita's twentieth requisition goes through. The group's room gets chairs, a cupboard each and a lock on every one, and the packing crates go to the incinerator yard.",
+        "how": "Get the requisition through: a critical failure on the slat hands her the evidence, or a character takes her carbons to the quartermaster's office in person and argues for them, with Society at the level-based DC + 2.",
+        "rest": {
+          "hp": "three-quarters",
+          "buff": "Nothing else: a proper night's sleep in a furnished room."
+        }
+      },
+      {
+        "id": "the-radiator",
+        "title": "The radiator",
+        "text": "Grenna finally gets at the corridor radiator. It stops knocking like somebody at the door and heats the whole corridor, and the block sleeps through to the bell.",
+        "how": "Mend it with Grenna: Crafting (Repair) at the level-based DC + 2, one try a visit, once she is friendly or better.",
+        "rest": {
+          "hp": "half",
+          "buff": "A warm, unbroken night: each character gains a +1 circumstance bonus to their first initiative roll before their next rest."
+        }
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "a-crowded-floor",
+        "title": "A crowded floor",
+        "text": "A new intake arrives before its blocks are ready, and two strangers sleep on mattresses on the group's floor for a week, snoring in two different keys.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "quarter",
+          "buff": "Nothing else: a crowded night on a crowded floor."
+        }
+      },
+      {
+        "id": "a-block-like-the-others",
+        "title": "A block like the others",
+        "text": "The grey steel furniture arrives in every room, the crates are burned, and a printed list of rules goes up by the door. Lights are at ten, not half past, and Mrs Morishita's card goes to the office without her reading it back to anyone.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "half",
+    "buff": "Nothing else: a plain night's sleep in their own bunk."
+  },
+  "intro": {
+    "where": "Row C, Block 3, the first-term overflow block at the landing end of the island, late at night.",
+    "firstThing": "The warden in the doorway with a torch and a clipboard, counting them in.",
+    "readAloud": "Row C, Block 3 is a long wooden building with a tin roof, and every window but one is dark. That one is the warden's, and she is standing in the doorway under it, in felt slippers and a cardigan, with a torch in one hand and a clipboard in the other.\n\nInside, the corridor smells of floor polish and other people's socks. The rooms have bunks and nothing else: where the chairs and cupboards should be there are packing crates, stencilled with the names of places the crates came from, doing duty as nightstands.\n\nThe walls between the rooms are plywood, thin enough to hear somebody turn over. At the end of the corridor the only radiator knocks twice, stops, and knocks again, exactly like somebody at the door.",
+    "carriesIn": [
+      {
+        "when": "A character comes in still wet or filthy from the night's duty",
+        "then": "Mrs Morishita stops them on the step, hands them a towel from a pile she keeps by the door, and points at their boots until they take them off."
+      }
+    ],
+    "holdInReserve": "On the underside of the top bunk in the group's room, where only the person on the bottom bunk would ever see it, somebody from an earlier intake has drawn a map of the island's rooftops in pencil. A ladder in Row E is marked with a star and the words \"nobody locks it\".",
+    "landmark": "The warden's lit window, and the radiator at the end of the corridor.",
+    "position": {
+      "locationRef": "row-c-block-3",
+      "state": "together",
+      "note": "Everyone who chose an early night is here together, in the same room or rooms on the same corridor. They sleep here until the morning bell."
+    }
+  },
+  "cast": [
+    {
+      "id": "morishita",
+      "npcRef": "morishita",
+      "label": "Mrs Fumiko Morishita",
+      "role": "the block warden, who counts everyone in",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Stands in their doorway at every round until they are lying down, and writes something on her clipboard every time she looks at them.",
+          "unfriendly": "Counts them twice, checks under the bunks, and tells them the rule before they have broken it.",
+          "indifferent": "Counts them in, says \"Lights, please,\" and moves on to the next room.",
+          "friendly": "Leaves a hot-water bottle on the end of a bunk for anyone who came in cold, and looks the other way about small things.",
+          "helpful": "Tells them which morning the porters are coming, which tap in the Wash House runs hot, and what she writes on her card about who came in late."
+        },
+        "faction": "block-wardens",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Small things overlooked: food on a crate stays on the crate, and a character who comes in a little late is written 'in' on her card."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The card read back: she tells them what she has written beside each name before it goes to the section officers, and once a visit she changes one 'late' or 'out' to 'in' if they ask."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "No benefit of the doubt: she watches them in particular, and every Stealth or Deception check against her takes a -2 circumstance penalty."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "Their room: the troublemaker sleeps on a mattress in the corridor under the radiator, and wakes with a quarter of their maximum HP back instead of half."
+          }
+        ],
+        "wants": "Everyone counted, everyone in bed, and the furniture she has asked for nineteen times to finally turn up.",
+        "opensWith": "\"Names, please, and boots off on the step. It's past lights already, so quietly.\"",
+        "willDiscuss": [
+          {
+            "topic": "The rules of the block",
+            "note": "Lights at half past ten, no food in the rooms because of the mice, boots off at the door, and nobody on the roof. She will add, if asked, that the mice have never read the rules either."
+          },
+          {
+            "topic": "The furniture",
+            "note": "She has put in nineteen requisitions for chairs and cupboards, and every one has come back stamped \"noted\". She keeps the carbon copies in a folder and will show anyone who asks."
+          },
+          {
+            "topic": "The Wash House",
+            "note": "Thursdays are the worst, because Rows B and C both do their washing on a Thursday, and the far dryer eats coins."
+          },
+          {
+            "topic": "Her time on the island",
+            "note": "Thirty-one years, the first twenty of them in the quartermaster's office. She took the warden's job because she liked the candidates better than the stores."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What she writes on her card each night",
+            "why": "The card goes to the section officers in the morning, and she thinks it is between her and them. \"It's a head count, candidate. Heads. Counted.\""
+          },
+          {
+            "topic": "Her biscuit tin",
+            "why": "Everything she confiscates goes into a tin with the owner's name on it and comes back at the end of term. She has never once reported anyone for food, and she would rather the block didn't know that."
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What the card says",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: she writes \"in\", \"late\" or \"out\" beside every name. Nobody has ever been in trouble for \"late\" in the first week, but \"out\" gets somebody asked about it before breakfast."
+          }
+        ],
+        "voice": {
+          "register": "Brisk and proper, and then kind by accident when she thinks nobody is watching.",
+          "tics": [
+            "Shines the torch at the ceiling, never in anyone's face, because that would be rude.",
+            "Asks for lights out rather than ordering it, and thanks the room when it complies."
+          ],
+          "samples": [
+            "\"That's four in, two to come. I can wait. I've a cardigan.\"",
+            "\"No food in the rooms. The mice have filed a complaint.\"",
+            "\"Nineteen requisitions, candidate. I have the carbons.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What time is lights out?",
+            "a": "\"Half past ten. You're already late, so I'd hurry if I were you.\""
+          },
+          {
+            "q": "Where's the furniture?",
+            "a": "\"Noted.\" She sighs. \"That's what they write on the requisition, dear. Noted. Nineteen times.\""
+          },
+          {
+            "q": "Why is this called the overflow block?",
+            "a": "\"Because the other blocks were full, and then this one was full, and it's been full every term since. Temporary, they said. It's been temporary for six years.\""
+          },
+          {
+            "q": "Can we go up on the roof?",
+            "a": "\"No.\" She looks at the ceiling for a moment. \"And if you did, I wouldn't want to hear about it.\""
+          },
+          {
+            "q": "What happens if we come in late?",
+            "a": "\"I write it down, and you're tired in the morning. In that order.\""
+          },
+          {
+            "q": "Do you live here?",
+            "a": "\"The end room, with the only kettle in the building. Knock if you're ill. Don't knock if you're hungry.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, an older working adult, non-combat, with a sharp Perception. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "haru",
+      "npcRef": "haru",
+      "label": "Haru Ishikawa",
+      "role": "a first-term candidate in the group's room, a long way from home",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Turns to face the wall when they come in, and pretends to be asleep until they are.",
+          "unfriendly": "Answers when spoken to, and not much more.",
+          "indifferent": "Polite and shy, and busy with his bag.",
+          "friendly": "Talks to them in the dark after lights-out, about his village and about everything that happened today.",
+          "helpful": "Saves them a seat at breakfast, shares whatever his grandmother sends, and takes their side in any argument before he knows what it's about."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "A friend in the intake: at breakfast he backs up whatever they say, which gives a +1 circumstance bonus to one check they make with another first-termer tomorrow."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Grandmother's parcel: a share of whatever comes from home, including a pickled plum each visit, with the plums' +1 circumstance bonus to Fortitude saves against disease and poison until their next rest."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "What the intake hears: he tells the other first-termers how he was treated, and the next Diplomacy check they make with a first-termer takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "Somebody to tell him it's all right to miss home, and one good reason to stay until Friday.",
+        "opensWith": "\"Is it always this loud at night? At home you can hear the river and that's all.\"",
+        "willDiscuss": [
+          {
+            "topic": "His village",
+            "note": "Up in the hills of Minkai, a day and a half by train and cart. His family keep silkworms, and the whole house smells of mulberry leaves in the spring."
+          },
+          {
+            "topic": "His grandmother",
+            "note": "She raised him, she writes to him every week, and she sent him off with a jar of pickled plums and a long list of instructions."
+          },
+          {
+            "topic": "Today",
+            "note": "He will talk about anything that happened today, and he remembers everyone's name."
+          },
+          {
+            "topic": "Kinuoka, his village",
+            "note": "Terraced mulberry hills above a slow brown river, a day and a half by train and cart. In early summer the whole village stays up feeding the worms leaf by leaf, and the sound of them eating is like light rain on a roof. The reeling shed steams every dawn, the bridge has a bell nobody rings any more, and in winter the terraces go white and quiet for months."
+          },
+          {
+            "topic": "Being what he is at home",
+            "note": "Everybody in Kinuoka has always known he is an android and nobody has ever made anything of it: he was just Haru, who could thread a loom in the dark. Here he is the first thing people notice. He would like to be the second."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why he came",
+            "why": "He didn't volunteer. The village elders put his name forward, and his family were proud, and he couldn't find a way to say no. He is ashamed of that and changes the subject: \"It's a good opportunity. Everyone says.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Quiet, polite, a little formal, and funny when he forgets to be nervous.",
+          "tics": [
+            "Brings up home the way people press a bruise, mostly by accident, and then looks embarrassed.",
+            "Apologises to furniture when he bumps into it."
+          ],
+          "samples": [
+            "\"By now I'd have been asleep three hours, with the river going.\"",
+            "\"Sorry.\" He is talking to the crate. \"Sorry.\"",
+            "\"My grandmother says never trust a bed you didn't make yourself.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"Up in the hills, a place called Kinuoka. You won't have heard of it. There's a river, and a lot of silkworms, and my grandmother.\""
+          },
+          {
+            "q": "Are you all right?",
+            "a": "\"Yes.\" A long pause in the dark. \"Mostly. Ask me again on Friday.\""
+          },
+          {
+            "q": "Did you want to come here?",
+            "a": "\"It's a good opportunity. Everyone says.\" He turns over. \"Goodnight.\""
+          },
+          {
+            "q": "What's in the jar?",
+            "a": "\"Pickled plums. My grandmother's. You're not supposed to have food in the rooms, so it isn't food. It's medicine.\""
+          },
+          {
+            "q": "What did you think of today?",
+            "a": "\"Too much of it. All of it at once. Some of it was good, though. I didn't expect that.\""
+          },
+          {
+            "q": "What's it like where you're from?",
+            "a": "\"Loud in the summer, if you can believe it. Two hundred thousand worms, all eating. You can't hear yourself think, and it's the best sound there is.\""
+          },
+          {
+            "q": "What is a silkworm farm actually like?",
+            "a": "\"Mostly leaves. Somebody has to carry leaves all night for a month. Then one morning they all stop, and it goes so quiet you think something has died. That's when they're spinning.\""
+          },
+          {
+            "q": "Do people stare at you here?",
+            "a": "\"A bit.\" He looks at his hands. \"At home nobody did. That's all.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a young candidate, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "grenna",
+      "npcRef": "grenna",
+      "label": "Grenna Hollowmark",
+      "role": "a dwarf candidate in the next room, who snores, and whom everyone forgives",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Bangs on the plywood wall whenever they so much as whisper.",
+          "unfriendly": "Stops offering her tea, and mends everyone's things but theirs.",
+          "indifferent": "Nods in the corridor and gets on with whatever she's mending.",
+          "friendly": "Knocks on the wall to say goodnight, lends them her tea, and fixes anything they leave on her crate.",
+          "helpful": "Declares them honorary members of the next room, which means an open door, a share of every parcel from home, and her fists on their side in any pillow fight."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Mending: anything they leave on her crate is fixed by morning, as if she had succeeded at Repair on it."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Room Five: an open door next door, a share of every parcel, and Grenna on their side if trouble comes to the block."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Her tools: she mends everyone's things but theirs and won't lend a tool, so a character who wants to Repair something in the block needs a repair toolkit of their own."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "A night's sleep: she bangs on the plywood at every whisper, and anyone in the room beside hers wakes Fatigued until breakfast."
+          }
+        ],
+        "wants": "To be liked, to be useful, and for nobody to mention the snoring.",
+        "opensWith": "\"You're next door? Good. Sorry in advance. You'll see.\"",
+        "willDiscuss": [
+          {
+            "topic": "Where she's from",
+            "note": "The mountains, a very long way away, where every room is carved out of rock and nothing is ever made of plywood."
+          },
+          {
+            "topic": "Mending things",
+            "note": "She has a roll of tools under her pillow and has already fixed three bunks, a door and the warden's kettle."
+          },
+          {
+            "topic": "The block",
+            "note": "She loves it. \"Everything's broken. There's so much to do.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The snoring",
+            "why": "She knows, she is mortified, and she has written to her mother for a remedy. If anyone raises it she goes red and changes the subject to whatever needs fixing."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Cheerful, practical, and louder than she means to be.",
+          "tics": [
+            "Raps her knuckles on any piece of wood before she trusts it.",
+            "Handles broken things like patients: gently, and talking to them quietly."
+          ],
+          "samples": [
+            "\"Hand me that. No, the one with the limp.\"",
+            "\"Plywood. They've built a house out of biscuits.\"",
+            "\"What snoring?\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Do you snore?",
+            "a": "She goes very red. \"Has your bunk got a wobble? Let me look at your bunk.\""
+          },
+          {
+            "q": "Where are you from?",
+            "a": "\"The mountains. Real walls, real doors, real ceilings. This place is a tent with ambitions.\""
+          },
+          {
+            "q": "Can you fix this?",
+            "a": "\"Probably. Put the patient on my crate and I'll look at it in the morning.\""
+          },
+          {
+            "q": "Why did you come here?",
+            "a": "\"Somebody has to keep these machines standing, and I'd like it to be me.\""
+          },
+          {
+            "q": "What do you think of the warden?",
+            "a": "\"I fixed her kettle. She pretends she doesn't like me. She does.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a sturdy young candidate, non-combat but strong. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "counted-in",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the block, then let Mrs Morishita count them in and point them to their room.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-bunk",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"Top bunk or bottom? What's the one thing your character puts on the crate beside the bed to make it theirs?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "morning-bell",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The block falls quiet at last, apart from the radiator and Grenna. Apply the rest: half of each character's maximum HP. The morning bell rings, and Mrs Morishita is already in the corridor with her clipboard.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "the-snorer",
+      "kind": "roll",
+      "title": "Grenna snores",
+      "text": "Through the plywood wall, Grenna snores like somebody slowly sawing a tram in half. The whole room is awake. Haru whispers the block's cure: a snorer turns over if you whistle one long, low note at them, and the character nearest the wall has to do it.",
+      "prompt": "The whole room is looking at you, because your bunk is against the wall. How do you whistle a snorer quiet?",
+      "check": "Performance (Perform) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "One note, perfectly pitched. There is a sigh through the wall, a creak as Grenna turns over, and silence. From tonight the character is the block's official whistler, and people knock on their door to ask.",
+        "success": "It takes three tries, and then she turns over and the room sleeps.",
+        "failure": "Grenna snores along with the whistle, in harmony. It becomes a duet, the room laughs until it can't any more, and everyone falls asleep anyway.",
+        "criticalFailure": "The whistle wakes Grenna, who thinks it's an alarm. She hammers on the wall shouting \"Is it a drill? Is it a drill?\" and wakes the whole block, and Mrs Morishita comes down the corridor in her slippers to find out who started it. Mrs Morishita goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "morishita",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "lights-please",
+      "kind": "roll",
+      "title": "Lights, please",
+      "text": "The warden's last round. Felt slippers come down the corridor, and a torch beam moves across the ceiling. Food in the rooms is against the rules, and there is a paper bag of buns on one of the crates, smuggled out of the canteen for later.",
+      "prompt": "Footsteps in felt slippers are coming down the corridor, and the bag of buns is on your crate. Where does it go?",
+      "check": "Stealth (Conceal an Object) against Mrs Morishita's Perception DC, or the level-based DC (15 at level 1). Roll it for the player in secret.",
+      "outcomes": {
+        "criticalSuccess": "Hidden so well that the character can't find it themselves until morning. Mrs Morishita stops in the doorway, runs her torch round the room and says \"Tidiest room in the block.\" She goes up a step.",
+        "success": "She counts heads, says \"Lights, please,\" and moves on.",
+        "failure": "The torch finds the bag. She takes it without a word, writes the character's name on a label, and puts it in her biscuit tin. \"End of term, candidate.\"",
+        "criticalFailure": "The torch finds the bag, and then a second bag, a pair of boots on a pillow, and a tin of sardines nobody will admit to owning. She confiscates the lot and stands in the doorway until somebody owns up to the sardines. She goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "morishita",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "morishita",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Deception works too, against the same DC, if a player would rather talk her out of looking than hide the bag."
+    },
+    {
+      "id": "the-bunk",
+      "kind": "roll",
+      "title": "The slat",
+      "text": "The bunks were put together by porters in a hurry. Some time after midnight, a slat drops out of the top bunk onto whoever is underneath, the mattress sags, and the person on top holds very, very still.",
+      "prompt": "The slat is on the floor, the mattress is sagging, and whoever is on top isn't moving. What do you fix it with?",
+      "check": "Crafting (Repair) at the level-based DC (15 at level 1). No toolkit is needed for a bed: a boot makes a fine hammer.",
+      "outcomes": {
+        "criticalSuccess": "Fixed better than the porters made it. Grenna, woken by the hammering, comes round in her nightshirt to look, raps her knuckles on the frame, and approves. She goes up a step.",
+        "success": "It holds for the night.",
+        "failure": "It holds until about four in the morning and then goes again. Both sleepers finish the night on the mattress on the floor, which turns out to be quite comfortable.",
+        "criticalFailure": "The whole bunk folds up like a deckchair with a crash that wakes the block. Nobody is hurt. Mrs Morishita arrives, looks at the wreck, and is plainly delighted: it is exactly the evidence her twentieth requisition needed. The two sleepers spend the night on packing crates pushed together."
+      },
+      "shifts": [
+        {
+          "regular": "grenna",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "harus-bag",
+      "kind": "roll",
+      "title": "Haru's bag",
+      "text": "At one in the morning Haru is sitting on his bunk in the dark, fully dressed, with his coat on and his bag packed on his knees. He is going to ask for a travel warrant at breakfast and go home. He says it very quietly, as if he wants somebody to talk him out of it.",
+      "prompt": "Haru has his coat on and his bag on his knees. He says he's going home in the morning. What do you say to him?",
+      "check": "Diplomacy (Request) against Haru's Will DC, or the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "He laughs at himself, unpacks, and talks for an hour about his grandmother and the silkworms. He goes up a step, and from tomorrow he saves them a seat at breakfast.",
+        "success": "He agrees to stay until Friday, and then they'll see. He unpacks the bag, but sleeps in his coat.",
+        "failure": "He takes the coat off and gets into bed, but leaves the bag packed by the door. He'll decide at breakfast.",
+        "criticalFailure": "He hears it as agreement, thanks them, and goes to knock on the warden's door there and then. Mrs Morishita, in her dressing gown, talks him back to bed in ten minutes flat, and wants to know who put the idea in his head. She goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "haru",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "morishita",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Whatever the roll, Haru is at breakfast in the morning. Whether he stays past Friday is for later."
+    },
+    {
+      "id": "pillow-fight",
+      "kind": "roll",
+      "title": "Room Five declares war",
+      "text": "A pillow comes over the top of the plywood wall and hits somebody in the face. From the next room, Grenna's voice announces that Room Five is at war with everyone, and a second pillow follows the first.",
+      "prompt": "A pillow has just come over the wall and hit you in the face, and Room Five is cheering. What do you do about it?",
+      "check": "Athletics, or Acrobatics to dodge and strike back, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "Room Five surrenders. Their pillows are held as prisoners of war until morning, and Grenna, beaming, declares the character the finest opponent she has ever had. She goes up a step.",
+        "success": "A short, loud, glorious victory, and everyone goes back to bed breathing hard.",
+        "failure": "An honourable defeat. Room Five sings a victory song through the wall, badly.",
+        "criticalFailure": "A pillow bursts. The room fills with feathers just as the felt slippers come down the corridor. Mrs Morishita says nothing at all, hands the character a dustpan, and waits while both rooms pick up every feather. She goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "grenna",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "morishita",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-plums",
+      "kind": "buff",
+      "title": "Grandmother's plums",
+      "text": "Haru unscrews a jar from under his pillow: his grandmother's pickled plums, wrinkled and red and salty enough to make your eyes water. At home it is what you eat when you are ill or worn out, and he offers one to anyone who looks rough after the night's duty.",
+      "prompt": "Haru holds out the jar, and the smell reaches you first. Do you take one? What does your face do?",
+      "shifts": [
+        {
+          "regular": "haru",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Anyone who eats one gets a +1 circumstance bonus to Fortitude saves against disease and poison until their next rest. Press Haru's button if anyone takes one."
+    },
+    {
+      "id": "your-day",
+      "kind": "roleplay",
+      "title": "The day, by torchlight",
+      "text": "After lights-out, under the blanket with a torch, a character goes back over the day before they sleep: in a diary, in a letter they'll never send, or only in their head.",
+      "prompt": "Before you sleep, you go back over today. Tell us about your character's day: where it started, what they did, and how they did it. What's the one thing from today they'll still remember in a year? Take a moment before you answer.",
+      "note": "Nothing to roll. If another player wants a turn, give them one."
+    },
+    {
+      "id": "the-remedy",
+      "kind": "roleplay",
+      "title": "A letter from the mountains",
+      "text": "Grenna knocks on the door with a letter in her hand, pink to the ears. It's from her mother, answering a question Grenna asked about \"a friend\" who snores, and it is three pages of mountain remedies: sleep with a flat stone on your chest, sleep with your boots on, sleep standing up, and, underlined twice, \"stop blaming the friend, Grenna\". She reads it out to anyone who will listen, and then she asks a question back.",
+      "prompt": "Grenna folds the letter and asks you: if you wrote to someone tonight, who would it be, and what would you leave out? Take a moment.",
+      "shifts": [
+        {
+          "regular": "grenna",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "A player whose character has nobody to write to can say so; Grenna will offer to share her mother."
+    },
+    {
+      "id": "midnight-lockers",
+      "kind": "dilemma",
+      "title": "The midnight delivery",
+      "text": "At midnight a lorry pulls up outside, and two porters come down the corridor with a docket and a trolley: grey steel lockers, one for every bed, for this room only. The docket says the crates go to the incinerator yard in the morning. Inside the lid of every crate, in pencil and paint and penknife, are the names of candidates from every intake that has slept in this room, and Haru has just found one from his own village. Mrs Morishita, in her dressing gown, has one retention slip: a room can keep its crates, but then its lockers go to the next block and this room goes to the bottom of the list.",
+      "prompt": "The porter holds out the docket and a pencil. Lockers in and crates out, or the crates stay and the lockers go next door. The room is looking at you. Which is it?",
+      "check": "Anyone who wants to save the names another way can. Copying every name by torchlight before the porters lose patience is Society or Crafting at the level-based DC (15 at level 1); prising a lid off to keep without the porters minding is Thievery at the same DC, and on a failure the porters mind.",
+      "outcomes": {
+        "criticalSuccess": "The names are saved, and the porters are so taken with it that they add their own to the list.",
+        "success": "The names are saved.",
+        "failure": "Half the names are saved before the porters want to go home.",
+        "criticalFailure": "The porters take everything, lid and all, and leave the docket unsigned, so nobody gets the lockers tonight."
+      },
+      "shifts": [
+        {
+          "regular": "haru",
+          "change": -1,
+          "when": "any"
+        },
+        {
+          "regular": "morishita",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Taking the lockers: Haru down, Mrs Morishita up, since she has asked for them for six years. Keeping the crates: press the reverse by hand, Haru up and Mrs Morishita down. Either answer is a fair one: the island is getting new things faster than it knows what to do with the old ones, and somebody loses by it every time. This comes back as the city keeps changing."
+    },
+    {
+      "id": "second-termer",
+      "kind": "informant",
+      "title": "At the window",
+      "text": "Just after midnight, Sachi Nomura, a second-termer from Block 7 further down the row, comes back from the Wash House with a basket of warm washing, because midnight is the only time all the dryers are free. She sees a torch on in the group's room, taps on the window, and props her basket on the sill to talk.",
+      "prompt": "Sachi rests her basket on the sill and says, \"First night? Ask me anything. I was you last term.\" What do you ask her?",
+      "note": "WHAT SHE TELLS THEM: she tells them, freely and cheerfully, how the first week really goes. The timetable pinned up on the first day is a guess, and the real one goes up each morning on the board outside the canteen. Thursday is washing day for two whole rows, so go on a Wednesday.\n\nTHE WARDEN'S CARD: beside every name on the warden's card is \"in\", \"late\" or \"out\", and the card goes to the section officers before breakfast: nobody is ever in trouble for \"late\" in the first week, but \"out\" means a question.\n\nTHE LEDGERS: and, with a laugh, the island writes everything down: the gate has a ledger, the Wash House has a rota, the warden has her card, and the office reads all of them. \"That's what offices are for.\""
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Everyone in the block is asleep, or the morning bell rings.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The last train of the night rattles along the causeway, the radiator knocks once more, and the block sleeps.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Whether Haru's bag is packed or unpacked in the morning.",
+      "Lockers or crates, and whether the names were saved.",
+      "Whose names are on labels in Mrs Morishita's biscuit tin.",
+      "Who is the block's official whistler."
+    ],
+    "position": {
+      "locationRef": "row-c-block-3",
+      "state": "together",
+      "note": "They wake together in the block at the morning bell."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They sneak out after lights-out: Stealth (Sneak) against Mrs Morishita's Perception DC; caught, they are marked \"out\" on her card and she waits up for them with the torch, and she goes down a step; unseen, they are marked \"in\" and nobody is any the wiser. They lie to her about where they have been: Deception against her Perception DC; she will find out the truth within the week either way. They steal from another room, or raid her biscuit tin: Thievery against her Perception DC; caught, she goes to hostile and the tin goes to the quartermaster, which she has never done before. They pick a real fight with Room Five: Grenna refuses to fight anyone she has lent tea to, and Mrs Morishita moves the troublemaker to a bunk in the corridor for the night. They split up across rooms: run each room as its own small event. They walk out and sleep elsewhere: they are marked \"out\", and the rest is whatever they chose instead."
+}

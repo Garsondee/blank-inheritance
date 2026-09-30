@@ -1,0 +1,333 @@
+{
+  "note": "Artwork registered 2026-09-30 during Ingram's /goal (create and register Episode 1 art). Place art follows the scene/location template (no people, 1990s Japanese animation background art, matte painting with gouache and watercolour texture, --ar 2:1, stylize 200, subtle upscale once). The visual language: teal-grey is the cold, stone-cut authority of institutions; warm orange golden-hour light is the life inside them.",
+  "registrations": [
+    {
+      "id": "general-hospital--ward",
+      "category": "locations",
+      "path": "artwork/locations/general-hospital--ward.png",
+      "assignedKind": "location",
+      "ref": "general-hospital",
+      "note": "Ward Four at night for the General Hospital haunt: two rows of iron beds under small blue night lamps, an old brass sign over the door, and one warm amber lamp at the night desk at the far end. The whole room is cold institutional teal; the only life in it is that one lamp, which is the night sister. Picked from the third frame of the first batch (the centred lamp and the sign over the door read best), then subtle-upscaled."
+    },
+    {
+      "id": "the-crew-mess--bar",
+      "category": "locations",
+      "path": "artwork/locations/the-crew-mess--bar.png",
+      "assignedKind": "location",
+      "ref": "the-crew-mess",
+      "note": "The Crew Mess: the bar made from a sheet of Frame armour plate across two oil drums, the huge chalk slate of crews and tabs behind it, wet coats hung on hooks, three orange lamps in teal machine-shop shadow. Teal is the dock's steel; orange is the crews' warmth. Second frame of the batch, subtle-upscaled."
+    },
+    {
+      "id": "the-bathhouse-447--pool",
+      "category": "locations",
+      "path": "artwork/locations/the-bathhouse-447--pool.png",
+      "assignedKind": "location",
+      "ref": "the-bathhouse-447",
+      "note": "The Bathhouse: the big tiled pool under a painted harbour mural, slanting pale-gold afternoon light through tall windows, steam, wooden lockers and the attendant's high seat. The first attempt used 'warm orange light streaming through high windows into steam' and the windows read as a building on fire, so it was redone gentler (pale gold, calm and peaceful). Fourth frame of the second batch, subtle-upscaled."
+    },
+    {
+      "id": "row-c-block-3--corridor",
+      "category": "locations",
+      "path": "artwork/locations/row-c-block-3--corridor.png",
+      "assignedKind": "location",
+      "ref": "row-c-block-3",
+      "note": "Row C, Block 3, the overflow block for An Early Night: a long plywood corridor under a tin roof, packing crates for nightstands, one iron radiator, and at the far end a single doorway glowing orange where the warden's lamp is on. Teal is the building; the orange doorway is the one person awake looking after them. The other frame with a figure in the doorway was rejected (scene art has no people). Subtle-upscaled."
+    },
+    {
+      "id": "the-shrine-gate-444--gate",
+      "category": "locations",
+      "path": "artwork/locations/the-shrine-gate-444--gate.png",
+      "assignedKind": "location",
+      "ref": "the-shrine-gate-444",
+      "note": "The Shrine Gate at dusk: a faded red torii, the fat straw rope hung with paper fortunes, the stone basin, the offering box with a cat on top, one paper lantern glowing orange against a teal-grey street. The one warm thing on the block. Second frame of the batch, subtle-upscaled."
+    },
+    {
+      "id": "row-e-block-9--roof",
+      "category": "locations",
+      "path": "artwork/locations/row-e-block-9--roof.png",
+      "assignedKind": "location",
+      "ref": "row-e-block-9",
+      "note": "The Roof of Row E, Block 9: a flat tarred roof with a low wall, the water tank on iron legs, the ladder top and a blanket, and across the black harbour the whole of Kurose lit gold and orange up its hills under a deep teal sky. The clearest single picture of the contrast this campaign wants: a cold sky, a warm city. Top-left frame, subtle-upscaled."
+    },
+    {
+      "id": "row-b-block-8--common-room",
+      "category": "locations",
+      "path": "artwork/locations/row-b-block-8--common-room.png",
+      "assignedKind": "location",
+      "ref": "row-b-block-8",
+      "note": "The Rumour Mill: Row B, Block 8's common room after lights out, a blanket pinned over the window, one lamp on the floor throwing orange up the wall, the kettle on its hot plate, the armchair with the fat notebook left on it, dressing gowns on the hooks. Second frame, subtle-upscaled."
+    },
+    {
+      "id": "the-met-office--roof",
+      "category": "locations",
+      "path": "artwork/locations/the-met-office--roof.png",
+      "assignedKind": "location",
+      "ref": "the-met-office",
+      "note": "The Night Observer: the Met Office roof, the white slatted instrument box, the copper rain bucket, the mast with its spinning cups, the barometer and the chalkboard by the door, one orange lamp above the stair head, and the black harbour with a far shore of small lights. Fourth frame, subtle-upscaled."
+    },
+    {
+      "id": "no-1-machine-shop--night-hall",
+      "category": "locations",
+      "path": "artwork/locations/no-1-machine-shop--night-hall.png",
+      "assignedKind": "location",
+      "ref": "no-1-machine-shop",
+      "note": "The Night Shift: No. 1 Machine Shop, tall as a church, two gantry cranes under the roof, pools of hard white lamplight with darkness between, and the huge lower leg of a Frame standing in its pit, with a few warm orange sparks at the right. Third frame, subtle-upscaled."
+    },
+    {
+      "id": "the-market-hall-456--after-hours",
+      "category": "locations",
+      "path": "artwork/locations/the-market-hall-456--after-hours.png",
+      "assignedKind": "location",
+      "ref": "the-market-hall-456",
+      "note": "The Market Hall after hours, for the Magic Show: shuttered stalls against the walls, rows of borrowed benches, blankets pinned over the high windows, and at the back a scaffold holding the Oddwater Company's lantern with its orange light. A cold hall with one warm thing waiting to happen. Second frame, subtle-upscaled."
+    },
+    {
+      "id": "row-f-block-5--common-room",
+      "category": "locations",
+      "path": "artwork/locations/row-f-block-5--common-room.png",
+      "assignedKind": "location",
+      "ref": "row-f-block-5",
+      "note": "The Card Game: Row F, Block 5's common room, the round table under its one good hanging lamp with mismatched chairs, the ginger cat on the radiator, the door-sized chalk debt board on the wall, damp coats on hooks, and one pool of orange light on the boards under the table. Second frame, subtle-upscaled."
+    },
+    {
+      "id": "kazue",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/kazue.png",
+      "assignedKind": "npc",
+      "ref": "kazue",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the bathhouse haunt. Ancestry Vesk (alien: a visible sore thumb in a teal-grey world). A crocodilian Vesk woman in a white sailor's cap and navy smock, brass whistle at her collar, arms folded: stern and faintly amused, and the room's biggest sore thumb. Picked: image 3 of the search batch; the cap and whistle read clearest. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "hachi",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hachi.png",
+      "assignedKind": "npc",
+      "ref": "hachi",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the bathhouse haunt. Ancestry Dwarf. An old bald dwarf with a great white moustache, a folded towel on his head and his bucket under one arm, eyes screwed shut in a happy grin. Picked: image 1: the happiest, eyes shut, bucket under the arm. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "sigrun",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/sigrun.png",
+      "assignedKind": "npc",
+      "ref": "sigrun",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the bathhouse haunt. Ancestry Ikeshti (alien: a visible sore thumb in a teal-grey world). A small stocky red-scaled Ikeshti with orange eyes and a towel round her neck, grinning: a bright red sore thumb in a teal room. Picked: image 3: the widest grin and most upright pose. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "michiru",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/michiru.png",
+      "assignedKind": "npc",
+      "ref": "michiru",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the card-game haunt. Ancestry Human. A neat-bobbed young woman in the slate tunic with its orange collar tab, chalk behind her ear, a fan of cards in one hand: the uniform worn exactly as issued. Picked: image 2: cards held up, calm and precise. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review: the first version had the chalk behind her ear and it read as chalk stored in her ear. New prompt keeps the chalk stub between two fingers and nothing in her hair; picked image 4 (cards fanned in one hand, chalk held clearly in the other). The first version is kept in artwork/review/replaced/."
+    },
+    {
+      "id": "lucan",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/lucan.png",
+      "assignedKind": "npc",
+      "ref": "lucan",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the card-game haunt. Ancestry Halfling. A cocky small young man in the slate tunic worn open over a mustard-yellow waistcoat, a coin in his raised fist: the sore thumb of the card table. Picked: image 3: the waistcoat and the walking coin. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "chiyo",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/chiyo.png",
+      "assignedKind": "npc",
+      "ref": "chiyo",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the card-game haunt. Ancestry Human. A round-cheeked young woman with a scrap of blue cloth in her hair, cards clutched to her chest, hiding a hopeful smile. Picked: image 1: cards clutched to her chest and a smile she is hiding. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "morishita",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/morishita.png",
+      "assignedKind": "npc",
+      "ref": "morishita",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the early-night haunt. Ancestry Human. A grey-haired warden in round spectacles and a lumpy hand-knitted cardigan, her torch aimed politely at the ceiling and a clipboard under her arm. Picked: image 1: spectacles, cardigan and the torch aimed politely at the ceiling. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "haru",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/haru.png",
+      "assignedKind": "npc",
+      "ref": "haru",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the early-night haunt. Ancestry Android. A slight, pale young android with faint seam lines at the temple and cheek, reading a folded letter in a tunic a size too big. Picked: image 3: faint seam lines at the temple and cheek, a folded letter. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "grenna",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/grenna.png",
+      "assignedKind": "npc",
+      "ref": "grenna",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the early-night haunt. Ancestry Dwarf. PLACEHOLDER Picked: third attempt: the first two batches came out as small children rather than an adult dwarf, so the prompt was rebuilt around a stocky adult build and a strong jaw; image 1. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "genzo",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/genzo.png",
+      "assignedKind": "npc",
+      "ref": "genzo",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the met-office haunt. Ancestry Ysoki. PLACEHOLDER Picked: second attempt: the first (without a humanoid anchor) gave a literal mouse face; anchoring it as a humanoid man of the ysoki ancestry with human proportions fixed it; image 2. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "nadi",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/nadi.png",
+      "assignedKind": "npc",
+      "ref": "nadi",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the met-office haunt. Ancestry Human. PLACEHOLDER Picked: image 3: two pencils and a raised eyebrow. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review (the pair of pencils, which Midjourney draws badly): the new prompt has one pencil held in her hand and nothing in her hair; picked image 2. The NPC description and her habit now say one pencil in her hand. The first version is kept in artwork/review/replaced/."
+    },
+    {
+      "id": "kaede",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/kaede.png",
+      "assignedKind": "npc",
+      "ref": "kaede",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the night-shift haunt. Ancestry Elf. PLACEHOLDER Picked: image 2: pencil poised over the clipboard, orange crew number on the sleeve. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "joji",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/joji.png",
+      "assignedKind": "npc",
+      "ref": "joji",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the night-shift haunt. Ancestry Goblin. PLACEHOLDER Picked: image 4: cap, oil-stained overalls, a hand on a huge steel knee joint, a crooked half-smile. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review (his arm was not green): the new prompt insists on green-grey skin on face, ears, neck, forearms and hands with sleeves rolled to the elbow; picked image 3. The first version is kept in artwork/review/replaced/."
+    },
+    {
+      "id": "nkiru",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/nkiru.png",
+      "assignedKind": "npc",
+      "ref": "nkiru",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the night-shift haunt. Ancestry Skittermander (alien: a visible sore thumb in a teal-grey world). PLACEHOLDER Picked: image 4: the widest grin, one hand waving and two on the levers (six arms). Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "hana",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hana.png",
+      "assignedKind": "npc",
+      "ref": "hana",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the rumour-mill haunt. Ancestry Gnome. PLACEHOLDER Picked: image 3: pencil in her teeth, notebook clutched to her chest. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face. REDONE 2026-09-30 after Ingram's review (pencil in mouth looked awkward): the new prompt has the pencil raised in her hand and her mouth closed in a smile; picked image 3. The first version is kept in artwork/review/replaced/. Ingram may still edit this one by hand."
+    },
+    {
+      "id": "obi",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/obi.png",
+      "assignedKind": "npc",
+      "ref": "obi",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the rumour-mill haunt. Ancestry Elf. PLACEHOLDER Picked: image 3: round spectacles and one finger raised mid-argument. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "mrs-ueda",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mrs-ueda.png",
+      "assignedKind": "npc",
+      "ref": "mrs-ueda",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the rumour-mill haunt. Ancestry Halfling. PLACEHOLDER Picked: image 3: headscarf over curlers, torch held like a candle, knuckles raised to knock. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "tokuji",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tokuji.png",
+      "assignedKind": "npc",
+      "ref": "tokuji",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the shrine-gate haunt. Ancestry Human. PLACEHOLDER Picked: second attempt: the first came out as tiny full-length figures with no usable face, so it was re-prompted as a close portrait with the cat on his shoulder; image 3. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "mira",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mira.png",
+      "assignedKind": "npc",
+      "ref": "mira",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the shrine-gate haunt. Ancestry Brenneri (alien: a visible sore thumb in a teal-grey world). PLACEHOLDER Picked: second attempt: both batches came out as straight otters (real animal faces) rather than a person-shaped Brenneri; kept as it is, since less-humanoid ancestries are fine and she is a striking sore thumb in the teal room; image 3. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "sayo",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/sayo.png",
+      "assignedKind": "npc",
+      "ref": "sayo",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-roof haunt. Ancestry Human. PLACEHOLDER Picked: image 3: chart and pencil in one hand, a finger raised to a star. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "faruq",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/faruq.png",
+      "assignedKind": "npc",
+      "ref": "faruq",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-roof haunt. Ancestry Pahtra (alien: a visible sore thumb in a teal-grey world). PLACEHOLDER Picked: second attempt: an Abyssinian-cat Pahtra with a maroon scarf blazing against the teal; image 1 (harmonica in hand). Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "isamu",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/isamu.png",
+      "assignedKind": "npc",
+      "ref": "isamu",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-roof haunt. Ancestry Orc. PLACEHOLDER Picked: image 3: peaked cap, pea coat, the ledger under his arm, glaring at the ceiling. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "tomoe",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tomoe.png",
+      "assignedKind": "npc",
+      "ref": "tomoe",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the crew-mess haunt. Ancestry Human. PLACEHOLDER Picked: image 3: chalk stub, chalk tally marks on her sleeve, a dry unimpressed look. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "petr",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/petr.png",
+      "assignedKind": "npc",
+      "ref": "petr",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the crew-mess haunt. Ancestry Orc. PLACEHOLDER Picked: image 3: head back mid-song, welder cap and scorch-marked apron. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "ren",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/ren.png",
+      "assignedKind": "npc",
+      "ref": "ren",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the crew-mess haunt. Ancestry Halfling. PLACEHOLDER Picked: image 2: orange-striped cap, patched overalls, spanner in his pocket. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "tamsin",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/tamsin.png",
+      "assignedKind": "npc",
+      "ref": "tamsin",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-magic-show haunt. Ancestry Gnome. PLACEHOLDER Picked: image 4: violet top hat, star-lined coat, a coin glowing over her raised glove. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "daisuke",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/daisuke.png",
+      "assignedKind": "npc",
+      "ref": "daisuke",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-magic-show haunt. Ancestry Human. PLACEHOLDER Picked: image 1: lantern in hand, canvas apron, a straight face with a laugh behind it. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "mrs-handa",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/mrs-handa.png",
+      "assignedKind": "npc",
+      "ref": "mrs-handa",
+      "note": "Generated 2026-09-30 during Ingram's /goal (create and register Episode 1 art), a regular of the the-magic-show haunt. Ancestry Human. PLACEHOLDER Picked: image 3: round spectacles, tight bun, floral apron, pickle jar, warning finger. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face."
+    },
+    {
+      "id": "the-young-one",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/the-young-one.png",
+      "assignedKind": "npc",
+      "ref": "the-young-one",
+      "note": "Generated 2026-09-30, the pilot-track student at the Canteen. Elf, buttoned to the throat in the slate tunic exactly as issued, a level half-smile. Deliberately shows only what the table sees; his GM-only secrets are not in the picture. The uniform worn perfectly is the visual of hiding behind conformity (D054). Picked: image 2. Character-portrait template, --ar 2:3."
+    },
+    {
+      "id": "technical-track-student",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/technical-track-student.png",
+      "assignedKind": "npc",
+      "ref": "technical-track-student",
+      "note": "Generated 2026-09-30, the walk-on technical-track student at the Canteen. Talphi, an alien mole-like ancestry (a sore thumb by design), thick round spectacles, sleeves rolled, the tunic hung over the chair behind, arms folded and unhurried: the friendlier contrast to the pilot-track student. Picked: image 4. Character-portrait template, --ar 2:3."
+    }
+  ]
+}

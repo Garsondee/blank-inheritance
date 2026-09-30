@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "tsubaki",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Haruko Tsubaki",
+  "role": "Night sister, Ward Four, the General Hospital",
+  "pole": null,
+  "ancestry": null,
+  "affiliation": "directorate",
+  "description": "Night sister of Ward Four at the General Hospital -- a department store once, and the ward still carries the old brass sign for Gentlemen's Outfitting over its door. After dark, she is the ward's real boss. Brisk and low-voiced, a night voice that carries further than a shout, kind underneath and never in a hurry to show it. Calls every patient by their bed number until she likes them, and 'dear' once she does; taps the watch pinned to her apron when she wants someone to stop talking. Twenty-two years on nights. She has done the evening paper's crossword every night for twenty of them and has never finished one -- she reads the clues aloud to anybody still awake. Runs a tight ward (lights out at ten, rounds at two) and nobody dies on it if she can help it, and she usually can.\n\nShe wants a quiet ward, every patient asleep by midnight, and one crossword finished before she retires.\n\nUnderneath the brisk exterior: her bottom desk drawer is full of postcards from patients who went home, and she keeps every one. She'll show them to a character who is kind to her, or who simply asks what she's smiling at.\n\nShe keeps one thing back: the soldier in the next bed, Private Shuhei Kuroki, was brought in this afternoon with his wrist in plaster and a card that says he fell. She didn't write that card. She knows it isn't true, and she keeps her own counsel about it -- 'I write every card on this ward, dear. I didn't write his.'",
+  "designNotes": "Created 2026-09-29, extracted from her full cast entry in canon/scenes/rest--general-hospital.json (the General Hospital haunt, D050/D051/D052) -- nothing here is invented, all of it (the crossword, the postcard drawer, the bed-number-to-'dear' progression, the soldier's card line) is already written into her `brief` there (voice, doors, willDiscuss, holdInReserve, coercible, questions). This file exists so the Character Card / Actor / token pipeline (module/blank-inheritance/scripts/foundry/sync.mjs, scene-build.mjs) has a real npc to point at -- the haunts system was authored with full regulars baked directly into scene `cast[]` entries, and none of them were ever split out into their own data/npcs/ file. `canon/scenes/rest--general-hospital.json`'s cast entry for her needs its own `npcRef: \"tsubaki\"` added (then `node tools/story/story.mjs build` to sync data/) before the automatic pipeline can place a hidden reference token for her in that scene.\n\nApproved by Ingram as written, no twist, no ancestry change (2026-09-29) -- kept human/unspecified ancestry on purpose.\n\nHer real statblock is still a placeholder in the scene file itself: \"Proposed: level 2, a senior nurse, non-combat. Made with Ingram once the NPC generator exists.\" Not carried into this file's `statblock` field for that reason -- she's statblock-less here, same as every other purely-social NPC.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "established and voiced (the General Hospital haunt is built and playable) -- first haunt regular formalized into a real npc file",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "the-postcard-drawer",
+        "text": "Her bottom desk drawer is full of postcards from patients who went home, and she keeps every one.",
+        "revealTrigger": {
+          "narrative": "Being kind to her, or asking what she's smiling at."
+        },
+        "revealed": false
+      },
+      {
+        "id": "she-did-not-write-the-soldiers-card",
+        "text": "The soldier in the next bed has a card that says he fell. She didn't write it, and she knows it isn't true -- but she keeps her own counsel about what actually happened to him.",
+        "revealTrigger": {
+          "skill": "diplomacy",
+          "dc": "her Will DC, friendly attitude or better"
+        },
+        "revealed": false
+      }
+    ]
+  }
+}

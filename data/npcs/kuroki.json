@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "kuroki",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Shuhei Kuroki",
+  "role": "Private, Minkai army city garrison -- a patient in the next bed, the General Hospital",
+  "pole": null,
+  "ancestry": "Orc",
+  "affiliation": null,
+  "description": "A young soldier of Minkai's army, city garrison, brought over from the causeway gate this afternoon with his wrist in fresh plaster. His army tunic is folded on the chair, and there's a bag of oranges on his locker that he hasn't touched. Guarded and angry -- not ashamed, angry. The moment he sees the party's Directorate kit on their own chairs, he says flatly, 'You're theirs, then,' and turns his back.\n\nHis card says he had a fall. That's all he'll give anyone: 'If anyone asks, I fell. Everyone's agreed I fell.' Push harder and he shuts down entirely: 'Tell your officers I've said nothing and I'll say nothing.'\n\nSomething about the story doesn't add up to anyone who looks closely -- his knuckles are skinned and bruised the way a hand looks after it's hit something hard, not the way a fall leaves it. Nothing is confirmed tonight.",
+  "designNotes": "Created 2026-09-29, extracted from the 'bed-eight' plot event in canon/scenes/rest--general-hospital.json. Like gennai.json, he had no formal cast entry before now -- only event prose -- so his cast entry was created from scratch (kind: \"plot\", the haunt's one plot-tier event) rather than an npcRef added to an existing one.\n\nANCESTRY, Ingram's own request (2026-09-29): Orc, checked against data/campaign/ancestry-catalogue.json (`terrestrial: true`, Golarion-native, no disguise needed). Fits directly: 'a proud people known for their loyalty and ferocity... value principled and trustworthy allies, seek out great challenges' reads straight onto a young soldier who took a beating over something he believes was right and won't back down from the cover story he and his own side agreed to.\n\nGM-ONLY, held for later, not surfaced in the description above per the scene's own note and Ingram's standing 'we don't need to dive into the deep story unless I ask': he punched a Directorate gate guard who searched his sister's bag at the causeway, and his army and the Directorate agreed to call it a fall and say nothing. Who he hit, and why, is deliberately not said tonight -- this is a plant, not a payoff.\n\nHis real statblock is still a placeholder in the scene file: \"Proposed: level 1, a Minkai army private, non-combat tonight, made with Ingram.\" Not carried into this file's `statblock` field for that reason -- his numbers are still hers to set.\n\nNo socialProfile authored: he has no attitude/doors/coercible structure in the source, only a single knowledge/insight check with no lasting relationship track attached.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "established and voiced (a plot-tier event, not a stub, but no formal cast entry existed before now) -- fifth General Hospital haunt NPC formalized into a real npc file"
+}

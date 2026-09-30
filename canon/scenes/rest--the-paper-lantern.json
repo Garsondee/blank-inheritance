@@ -1,0 +1,564 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--the-paper-lantern",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-paper-lantern",
+  "title": "The Paper Lantern",
+  "summary": "A civilian izakaya in Kurose's entertainment quarter, off Directorate ground, where nobody's rank matters past the noren curtain. A quarter of maximum HP, a keeper who runs the place exactly her own way, a wanderer who never quite leaves, and a walk back after curfew.",
+  "goal": "Each player who came here has spent an evening off base, in character, and leaves with a quarter of their HP back, a hangover risk, and a standing with the regulars that the next visit will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the room, give each player a turn to say how their character spends the evening, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, buffs and chances to talk in character. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "A low room down a side street in the entertainment quarter, a noren curtain hanging in the doorway and paper lanterns strung from the beams overhead. A long wooden counter runs down one side, benches crowded along the other, and a charcoal brazier at the back sends up steam and the smell of grilled skewers. Nobody checks a rank here. Whoever is drinking is a regular, and whoever is a regular gets served next.",
+    "changes": "As the base grows and curfew is enforced harder, more candidates start finding their way here after hours, and the walk back gets watched more closely than it used to be. Some nights the room is half Directorate kit and half dock overalls, and Kiku minds that more than she lets on.",
+    "upgrades": [
+      {
+        "id": "kikus-corner",
+        "title": "Kiku's corner",
+        "text": "Kiku keeps the corner booth by the brazier for the group, even on a full night, and waves off anyone who tries to move them along.",
+        "how": "A critical success at Stand a round with Kiku friendly or better, and the tab settled square by the end of the week.",
+        "rest": {
+          "hp": "quarter",
+          "buff": "In the morning, each character who drank rolls the Fortitude save at the level-based DC with a +2 circumstance bonus, because Kiku waters the last round without saying so once she likes someone. On a failure they are Sickened 1 until they have eaten breakfast."
+        }
+      },
+      {
+        "id": "sanzos-true-story",
+        "title": "Sanzo tells it straight",
+        "text": "Once a visit, Sanzo drops the performance and tells the group one thing he actually saw on the road, no embellishment. It's always small, and it's always true.",
+        "how": "Win Sanzo to helpful."
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "swept-for-curfew",
+        "title": "Swept for curfew",
+        "text": "A patrol sweep closes the quarter's bars for a week after one too many candidates were found here after hours. The Paper Lantern is shut, and there is nowhere to rest here until it reopens.",
+        "lasting": "temporary"
+      },
+      {
+        "id": "kiku-closes-the-door",
+        "title": "Kiku closes the door",
+        "text": "Kiku decides the risk isn't worth it any more and stops serving Directorate candidates outright. The regulars still drink here; the group does not, until something changes her mind, and nothing has yet.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "In the morning, each character who drank rolls a Fortitude save at the level-based DC (15 at level 1). On a failure they are Sickened 1 until they have eaten breakfast."
+  },
+  "intro": {
+    "where": "The Paper Lantern, an izakaya off Directorate ground, late at night.",
+    "firstThing": "The noise and the smell of grilled skewers, after the quiet of the checkpoint outside.",
+    "readAloud": "Down a side street in the entertainment quarter, a noren curtain hangs over a low doorway, and paper lanterns are strung the length of the room inside, throwing everything into warm orange light. A long wooden counter runs down one side, and benches crowded with dockworkers, clerks and off-duty fishermen line the other.\n\nAt the back, a charcoal brazier sends up steam and the smell of grilled skewers. Somewhere in the crowd, a shamisen is being played, not quite in time with anything.\n\nBehind the counter, a stout, sharp-eyed woman is pouring for three people at once without spilling a drop. She looks up as you come in, weighs you for exactly one second, and goes back to pouring.",
+    "carriesIn": [
+      {
+        "when": "A character came here after a hard duty that night",
+        "then": "Kiku sees it before she serves them anything, and the first cup is on the house, no comment made."
+      }
+    ],
+    "holdInReserve": "Kiku keeps a spare stool behind the counter itself, for whoever she decides needs a quiet corner rather than the room. Nobody is told why some people get it.",
+    "landmark": "The noren curtain over the door, and Kiku's shamisen behind the counter when Sanzo isn't playing it.",
+    "position": {
+      "locationRef": "the-paper-lantern",
+      "state": "together",
+      "note": "Everyone who chose the Paper Lantern is here together. They walk back to the checkpoint together before curfew, or after it if it comes to that."
+    }
+  },
+  "cast": [
+    {
+      "id": "kiku",
+      "npcRef": "kiku",
+      "label": "Kiku Enomoto",
+      "role": "keeper of the Paper Lantern",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Won't serve them. Points at the door without a word.",
+          "unfriendly": "Serves them last, watches them the whole time, and keeps the good bottles out of reach.",
+          "indifferent": "Serves them the same as anyone else, and watches to see what they do with it.",
+          "friendly": "Pours before they ask, and keeps their corner clear even on a full night.",
+          "helpful": "Waters the last round without saying so, saves them the corner by the brazier, and tells the room to leave them be."
+        },
+        "faction": "old-town-regulars",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Who to sit away from tonight: she nods at a table and says which regular is in a mood, so the group can avoid the one fight in the room without asking."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The back room: a small room behind the counter where the quarter's older regulars actually talk. Once a visit, a character there can ask what's really being said about the base in the quarter, and get a straight answer."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Credit: no tab for candidates she doesn't trust. Every drink is paid on the spot, and Stand a round takes a -2 circumstance penalty."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "Service: nobody serves them, the room goes quiet when they're in it, and the night gives them no rest here."
+          }
+        ],
+        "wants": "A room where rank doesn't matter, and to keep it that way as long as she can.",
+        "opensWith": "\"New faces don't worry me. New uniforms make me watch the door a little more. Sit anywhere that isn't Sanzo's stool, and don't start anything.\"",
+        "willDiscuss": [
+          {
+            "topic": "The bar and how it runs",
+            "note": "Everyone drinks together here, dock and desk and whatever the group is. She built it that way on purpose."
+          },
+          {
+            "topic": "The quarter",
+            "note": "\"This street's older than the base. It'll be here after it too, one way or another.\""
+          },
+          {
+            "topic": "Sanzo",
+            "note": "\"He tells everyone he's leaving in the spring. He's been leaving in the spring for longer than I've owned this place.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Her husband",
+            "why": "He went out to the causeway digs years ago and didn't come back. She built this place afterward, and she doesn't talk about why. \"Ask me something useful.\""
+          },
+          {
+            "topic": "Directorate business",
+            "why": "She keeps out of it on principle, and she'd like the group to do the same while they're under her roof. \"Leave it at the door.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What she really thinks of the base growing into the quarter",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: more uniforms every season, more sweeps after curfew, and she isn't sure how much longer she can keep this room the way it's always been."
+          }
+        ],
+        "voice": {
+          "register": "Warm underneath, dry on top, never wastes a word.",
+          "tics": [
+            "Wipes the counter when she's deciding what to say.",
+            "Counts a table by heads before she pours, and has never once got a tab wrong."
+          ],
+          "samples": [
+            "\"You're drinking slower than you're talking. Fix one of those.\"",
+            "\"I've heard worse lies than that one bought a round.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What is this place?",
+            "a": "\"Mine. Everyone's welcome who behaves, and I decide what behaving means.\""
+          },
+          {
+            "q": "How long have you run it?",
+            "a": "\"Since I stopped waiting for someone else to open a place like this.\""
+          },
+          {
+            "q": "Who's the one playing?",
+            "a": "\"Sanzo. Wanderer, liar, plays that thing worse than he thinks he does. Buy him a drink and he'll tell you his whole life. Most of it's true.\""
+          },
+          {
+            "q": "Is it true rank doesn't matter here?",
+            "a": "\"It's true because I say it's true. Try it the other way in my room and see how far you get.\""
+          },
+          {
+            "q": "Do many candidates come here?",
+            "a": "\"More every season. I haven't decided yet if that's good for the place or bad for it.\""
+          }
+        ],
+        "statblock": "Proposed: level 2, a working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "sanzo",
+      "npcRef": "sanzo",
+      "label": "Sanzo",
+      "role": "wandering musician and storyteller, the room's friend",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Stops playing when they come in, and doesn't start again while they're there.",
+          "unfriendly": "Polite, brief, and keeps his stories for someone else.",
+          "indifferent": "Nods and goes back to the shamisen.",
+          "friendly": "Waves them over, and the story gets better the closer they sit.",
+          "helpful": "Drops the performance and tells them something true, and puts in a word for them with someone he knows down the road."
+        },
+        "faction": "old-town-regulars",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Road gossip: whatever he's picked up passing through the rest of the island lately, worth a +1 circumstance bonus to one Society check about somewhere off the base before their next rest."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A word down the road: once, he puts in a good word with someone he knows elsewhere on the island, opening a door that would otherwise want an introduction."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The good stories: he keeps them for the regulars, and neither his song nor his gossip is on offer for the group this visit."
+          }
+        ],
+        "wants": "An audience, and one more good reason to stay past spring, which he always finds.",
+        "opensWith": "\"New faces! Sit close. The story only gets good if you sit close.\"",
+        "willDiscuss": [
+          {
+            "topic": "Where he's been",
+            "note": "Everywhere on the island at least twice, by his own account, and several places that may not exist."
+          },
+          {
+            "topic": "The shamisen",
+            "note": "He plays it badly and knows it. Kiku's is the good one; his own is held together with wire."
+          },
+          {
+            "topic": "What he's heard lately",
+            "note": "Real, small, useful things, buried in a lot of colour: which road is out, which office is hiring, who's arguing with whom."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why he never actually leaves",
+            "why": "He says he's leaving every spring, and every spring he's still here. He changes the subject with a song before it gets uncomfortable, for him or for anyone else."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Warm, theatrical, always slightly performing even when he isn't trying to.",
+          "tics": [
+            "Starts a true story exactly the same way he starts a false one.",
+            "Tunes the shamisen between sentences, whether or not it needs it."
+          ],
+          "samples": [
+            "\"Now, this part is true. The part after it, less so.\"",
+            "\"Sit down. I was about to be interesting.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"Somewhere I stopped mentioning years ago. It's a better story if I keep it vague.\""
+          },
+          {
+            "q": "Why do you keep coming back here?",
+            "a": "He tunes the shamisen instead of answering, for a moment. \"Good crowd. Good counter. I'll tell you the real reason someday.\""
+          },
+          {
+            "q": "Is any of your story true?",
+            "a": "\"Most of it. You'll never know which parts, and that's the fun of it.\""
+          },
+          {
+            "q": "What have you heard lately?",
+            "a": "\"Depends what you're buying.\" A grin. \"Or who you're asking on behalf of.\""
+          },
+          {
+            "q": "When are you leaving?",
+            "a": "\"Spring. Definitely spring. Ask me again in spring.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, an elderly civilian, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "tama",
+      "npcRef": "tama",
+      "label": "Tama",
+      "role": "waitress at the Paper Lantern, the youngest regular",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Serves them without a word and doesn't come near their table again.",
+          "unfriendly": "Quick and correct, and keeps her questions to herself.",
+          "indifferent": "Watches them over the tray, curious, saying little.",
+          "friendly": "Lingers at their table asking what it's like out there, wherever 'out there' was that day.",
+          "helpful": "Saves them the good skewer off the grill, and tells them everything she's overheard that night without being asked."
+        },
+        "faction": "old-town-regulars",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "What she overhears: she's in and out of every table in the room all night, and passes on one useful thing she caught before the group's next rest."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The good cut: she saves them the best of whatever's on the grill, and Kiku's tab for the group runs a little kinder without either of them saying why."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Her ear: she stops passing anything along, and the next thing worth overhearing in the room happens at a table she isn't at."
+          }
+        ],
+        "wants": "To see anywhere that isn't this island, and to stop pretending she doesn't want that.",
+        "opensWith": "\"You're candidates? Actual candidates? What's it like out past the checkpoint? Is it different?\"",
+        "willDiscuss": [
+          {
+            "topic": "The bar",
+            "note": "She's worked here since she was old enough to carry a tray, and keeps Kiku's books straight on the quiet nights."
+          },
+          {
+            "topic": "Wanting out",
+            "note": "She's never once been past the checkpoint onto Directorate ground, let alone off the island. She asks a lot of questions about both."
+          },
+          {
+            "topic": "The regulars",
+            "note": "She knows everyone's usual order and most of their business, whether they meant to tell her or not."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why she hasn't just left",
+            "why": "There isn't a good reason, and she knows it, which is worse. \"I will. I'm just -- not yet.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Quick, eager, a little too many questions at once.",
+          "tics": [
+            "Asks a second question before the first one's answered.",
+            "Balances the tray on one hand without seeming to notice she's doing it."
+          ],
+          "samples": [
+            "\"Is it true you can see the whole harbour from a Frame? Properly see it?\"",
+            "\"One day I'm just going to get on a boat. One day.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "How old are you?",
+            "a": "\"Old enough to carry the tray without dropping it, most nights.\""
+          },
+          {
+            "q": "Do you want to be a candidate?",
+            "a": "\"I want to be anywhere that isn't here. Being a candidate's just the version of that I've actually met.\""
+          },
+          {
+            "q": "What's Kiku like?",
+            "a": "\"Fair. Fierce about this place. She'd never say so, but she'd fight for any of us.\""
+          },
+          {
+            "q": "What's Sanzo really like?",
+            "a": "\"Kind. Full of nonsense. I don't think anyone knows why he really stays, including him.\""
+          },
+          {
+            "q": "What should we know about this place?",
+            "a": "\"Buy a round and you're a regular by midnight. Cause trouble and Kiku remembers it longer than the trouble was worth.\""
+          }
+        ],
+        "statblock": "Proposed: level 0, a young civilian, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the room, then let Kiku size the group up over the counter.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-evening",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"What does your character order, and where in the room do they end up sitting?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "closing",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Kiku calls last orders and the room starts to clear. Apply the rest. Tomorrow morning, before duty, each character who drank rolls the Fortitude save.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "stand-a-round",
+      "kind": "roll",
+      "title": "Stand a round",
+      "text": "A character buys a round for the whole counter and has to say something as they hand it over. The room quiets down just enough to hear it.",
+      "prompt": "The whole counter is looking at you, glass in hand. What do you say to them?",
+      "check": "Diplomacy (Make an Impression) against Kiku's Will DC, or the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The room lifts their glasses back. Kiku doesn't say anything, but the corner booth is theirs from then on. Kiku goes up a step.",
+        "success": "Glasses go up, and the counter talks to them for the rest of the night about the quarter, the harbour, and who's arguing with whom this week.",
+        "failure": "Polite nods, and the talk moves on. The drink was welcome; the speech wasn't needed.",
+        "criticalFailure": "They raise a toast to something that turns out to be a sore subject at this counter. Silence, then a few dry laughs at them rather than with them. Kiku goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "kiku",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "kiku",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "A round for the counter costs a few credits; the price is whatever feels right for the table."
+    },
+    {
+      "id": "sanzos-story",
+      "kind": "roleplay",
+      "title": "Sanzo has a story",
+      "text": "Sanzo puts the shamisen down, pulls a stool round, and says he's got a good one tonight -- about the time he nearly drowned, or didn't, or maybe it was someone else. He wants an audience.",
+      "prompt": "Sanzo leans in. \"Tell me something first -- what's the strangest thing that's happened to you since you got here?\" Take a moment before you answer him.",
+      "shifts": [
+        {
+          "regular": "sanzo",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press his button if the story lands. He trades it for one of his own, and nobody at the table is ever quite sure how much of his is true."
+    },
+    {
+      "id": "the-song",
+      "kind": "buff",
+      "title": "Sanzo plays one everyone knows",
+      "text": "Sanzo starts a song the whole room seems to know, badly in tune and completely committed to it. Half the counter joins in on the chorus.",
+      "prompt": "Does your character sing? Out loud, badly, with everyone else?",
+      "note": "Everyone who joins in gets a +1 status bonus to saves against fear until their next rest. Nobody has to."
+    },
+    {
+      "id": "tamas-question",
+      "kind": "roleplay",
+      "title": "Tama wants to know",
+      "text": "Tama finds a reason to linger at the table with an empty tray under one arm, working up to the question she always asks new faces.",
+      "prompt": "Tama asks, quietly so Kiku doesn't hear: \"Is it worth it? Being a candidate. Would you do it again if you could choose?\" Take a moment before you answer her.",
+      "shifts": [
+        {
+          "regular": "tama",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Whatever the honest answer is, take it. There's nothing to roll and nothing riding on it beyond the conversation itself."
+    },
+    {
+      "id": "the-walk-back",
+      "kind": "roll",
+      "title": "The walk back",
+      "text": "It's well past curfew by the time the group leaves, and the checkpoint road is the only way back. A patrol is working the quarter tonight.",
+      "prompt": "You can hear the patrol before you see them. How does your character get back onto Directorate ground?",
+      "check": "Stealth against the patrol's Perception DC to avoid them entirely, or Diplomacy against their Will DC to talk their way through.",
+      "outcomes": {
+        "criticalSuccess": "Back on base without a word exchanged, or with the patrol waving them through laughing at something said on the way.",
+        "success": "Back on base. The patrol notes the time and lets it go.",
+        "failure": "Caught, and it's written up as the minor thing it is -- a note in the file and a dry word from whoever's on duty in the morning. Nothing more.",
+        "criticalFailure": "Caught loudly enough that a section officer hears about it by breakfast. Still a minor mark, still nothing that closes a door -- just a conversation nobody enjoys having twice."
+      },
+      "note": "Curfew is a genuinely minor infraction, D053 -- even a critical failure costs an awkward morning, never a real consequence. Nobody loses anything permanent for being seen walking home late."
+    },
+    {
+      "id": "the-argument",
+      "kind": "roleplay",
+      "title": "Two regulars, one argument",
+      "text": "Two of the counter's regulars are arguing, not for the first time, about the base creeping further into the quarter every season -- more patrols, more curfew sweeps, more nights like this one. Neither is right or wrong exactly, and both look over at the group as the newest uniforms in the room.",
+      "prompt": "One of them turns to your table. \"You're one of them. Go on then -- is it worth what it's costing this street?\" What do you say?",
+      "shifts": [
+        {
+          "regular": "kiku",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "There's no wrong answer and nothing to roll. Kiku is listening from the counter either way, and presses her button by hand if the answer is thoughtful rather than dismissive. This comes back as the quarter keeps changing."
+    },
+    {
+      "id": "the-loose-tongue",
+      "kind": "informant",
+      "title": "A loose tongue at the counter",
+      "text": "A dockhand two stools down, well into his cups, is telling anyone who'll listen that the harbour office is quietly moving cargo out of the old sheds at night, no manifest, no explanation. He doesn't know why. He just knows the schedule doesn't add up.",
+      "prompt": "He's talking to your character now, mostly because you're the nearest ear. What do you ask him?",
+      "note": "Something the table can use later: unmarked night cargo moving through the old harbour sheds. He can say when, not why."
+    },
+    {
+      "id": "trouble-at-the-door",
+      "kind": "danger",
+      "title": "Trouble at the door",
+      "text": "A knot of off-duty soldiers who don't drink here often gets loud, then rude, then physical with one of the regulars over a spilled glass. Kiku is already moving round the counter with a look that says she'll handle this herself if nobody else does.",
+      "prompt": "A soldier has just shoved one of the regulars into your table. What does your character do?",
+      "check": "To calm it: Diplomacy or Intimidation at the level-based DC (15 at level 1), before it goes further. To leave: nothing, but the room notices who left. To fight: theatre-of-the-mind, fists only, nobody armed.",
+      "outcomes": {
+        "criticalSuccess": "The soldiers back off, embarrassed, and buy the regular a replacement drink on their way out. Kiku goes up a step.",
+        "success": "The soldiers leave, sullen, and the room settles.",
+        "failure": "It becomes a scuffle. Run it as theatre-of-the-mind: three off-duty soldiers, brawlers with fists only, nobody trying to hurt anybody badly.",
+        "criticalFailure": "It becomes a scuffle, and the character who spoke is the one they go for first."
+      },
+      "fight": {
+        "foe": "Three off-duty soldiers, loud and embarrassed rather than genuinely dangerous.",
+        "press": "They lose their nerve once the loudest one is put down; the other two pick him up and leave, muttering.",
+        "retreat": "If the group leaves, the regulars handle it themselves -- someone gets a black eye, Kiku bars the soldiers for a month, and the room remembers who walked out on them.",
+        "surrender": "None of them want a real fight. One knocked down or clearly beaten puts his hands up, and the rest follow once he does."
+      },
+      "shifts": [
+        {
+          "regular": "kiku",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "If the group fights and wins cleanly, Kiku warms to them noticeably; if the fight wrecks anything, she goes down a step regardless of who started it."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Kiku calls last orders and the room clears, or the group leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The walk back to the checkpoint is quiet after the noise of the room, lantern light fading behind them.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Whose name is remembered at the counter, and how.",
+      "Whether the walk back after curfew went cleanly.",
+      "Who failed the Fortitude save in the morning."
+    ],
+    "position": {
+      "locationRef": "the-paper-lantern",
+      "state": "together",
+      "note": "They leave together at closing and walk back to the checkpoint before returning to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They leave without paying: Kiku goes down a step and remembers their faces. They start the fight rather than stopping one: the bell over the door rings, Kiku and two regulars have them out on the street inside a minute, and she goes to hostile. They lie about being candidates: Deception against Kiku's Perception DC; the counter finds out within the week either way, and it costs more trust than the lie was worth. They ask to see the back room before earning it: refused, plainly, no roll needed. They split up: run each table as its own small event."
+}

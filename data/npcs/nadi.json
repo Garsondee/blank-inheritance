@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "nadi",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Nadi Obasi",
+  "role": "The observer's assistant, eighteen",
+  "pole": null,
+  "ancestry": "Human",
+  "affiliation": null,
+  "description": "The observer's assistant: eighteen, quick and practical, with a pencil always in her hand, chalk dust on her fingers, a grey work smock and a raised eyebrow. She chalks the numbers on the board and corrects anyone's arithmetic, her own included, out loud. She thinks in numbers, and has a sharp sense of humour.\n\nShe wants a day job so she can go to evening school and sit the exam for a ship's officer's ticket, and she does not want to be the reason Genzō's watch ends.",
+  "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--met-office.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Human ('Humans are known for their ability to adapt and thrive in the most challenging situations.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: See the asset registry note for nadi: image 3: two pencils and a raised eyebrow. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 0, a young working adult, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "the-day-clerk-s-post",
+        "text": "she's been offered it, she wants it, and she feels terrible about it.",
+        "revealTrigger": {
+          "narrative": "Friendly or better, and Diplomacy at her Will DC, out of Genzō's hearing"
+        },
+        "revealed": false
+      }
+    ]
+  }
+}

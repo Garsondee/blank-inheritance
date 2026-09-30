@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "technical-track-student",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": null,
+  "role": "Technical-track student at the Canteen, easier to talk to",
+  "pole": null,
+  "ancestry": "Talphi",
+  "affiliation": "directorate",
+  "description": "A young Talphi, small and soft-furred, with a pink snub nose, tiny kind eyes behind thick round spectacles and broad clever hands, sitting back in a chair with the sleeves of a technical-track uniform rolled and the tunic hung over the chair behind. Quiet, warm and unhurried, the easiest person in the room to end up next to. Asks a real follow-up question instead of talking about themself, and is honest, a little tired, and not glamorous about what repair crew work is actually like: mostly waiting for the part to actually break.\n\nThey want an actual conversation, which is rarer tonight than it should be. They will tell the party what a thing is, but never who did it.",
+  "designNotes": "Created 2026-09-30 from the walk-on entry in data/scene-briefs/episode-c1e1--canteen.json (a friendlier contrast to the pilot-track student). No name yet, deliberately: a walk-on, and nothing in the scene names them.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal: Talphi ('a mole-like humanoid species... specialize in burrowing, gravity attunement, and elemental earth magic' -- ancestry-catalogue.json), an alien ancestry, so one of the room's visible sore thumbs (D054); a fit for someone technical who is comfortable with the underside of things. Portrait: image 4 of the second batch; arms folded and restful. The chair-back tunic shows a candidate who took the uniform off.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30; a walk-on",
+  "socialProfile": {
+    "attitude": "friendly"
+  }
+}

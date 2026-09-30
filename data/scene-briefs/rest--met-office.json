@@ -1,0 +1,576 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--met-office",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "met-office",
+  "title": "The Night Observer",
+  "summary": "A night on the Met Office roof, keeping the night observer company while he reads the instruments and chalks up the hour. A quarter of maximum HP, a roll to read tomorrow's weather and tides, and room for only two.",
+  "goal": "Each player who came here has spent a night on the roof in character, reading instruments with an old man who loves them, and leaves with a quarter of their HP back, a forecast for tomorrow that may or may not be right, and a standing with the two people who keep the watch.",
+  "howToPlay": "A haunt: a menu, not a script. There is room on the roof for two visitors, so no more than two players can choose it. Set the roof, give each player a turn to say how their character settles in, then draw events from the deck, two or three per player or as many as the table is enjoying. Most are rolls at the instruments and chances to talk in character. At the four o'clock reading, each visitor rolls for tomorrow's weather. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "A square two-storey building in the middle of the island, with a flat roof full of instruments and a railing round it. Every hour, day and night, somebody reads the instruments and chalks the numbers on a board the size of a door on the wall facing the path, and no operation on the island is ordered without a reading from this building. At night that somebody is Genzō Amemiya, who has kept the night watch for twenty years and talks to his instruments as if they could hear him.",
+    "changes": "The Directorate is trying out a clockwork recording drum that writes the weather down by itself, all night, with nobody watching it. If it passes its trial, the night watch ends. The instruments on the roof will be read by a machine and the board chalked by a day clerk, and the roof will be empty after dark.",
+    "upgrades": [
+      {
+        "id": "assistant-observers",
+        "title": "Assistant observers",
+        "text": "Genzō writes the group into the log as assistant observers. They can come up any night, three at a time rather than two, and take the hourly reading themselves.",
+        "how": "Win Genzō to helpful, and take three hourly readings without an error (a success or better at Grandmother, Old Kame or the Bucket).",
+        "rest": {
+          "hp": "quarter",
+          "buff": "At four o'clock each visitor reads tomorrow's weather and tides from readings they took themselves: Nature (Recall Knowledge) or Survival at the level-based DC with a +1 circumstance bonus, and the degrees work as before."
+        }
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "the-drum-passes",
+        "title": "The drum passes",
+        "text": "The recording drum passes its trial. The night watch ends, Nadi takes the day clerk's post, the board is chalked by day, and nobody keeps the watch after dark. There is no one to keep company here any more.",
+        "lasting": "permanent"
+      },
+      {
+        "id": "storm-watch",
+        "title": "Storm watch",
+        "text": "A storm warning is up for three nights. Visitors are kept downstairs by the stove while Genzō and Nadi work the roof in oilskins, and nobody reads tomorrow at four.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "quarter",
+          "buff": "Nothing: no forecast roll while the storm watch is on."
+        }
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "At the four o'clock reading, each visitor rolls Nature (Recall Knowledge) or Survival at the level-based DC (15 at level 1) to read tomorrow's weather and tides from the night's readings. Decide tomorrow's weather and tides before the roll, if they aren't settled already. Critical success: the character knows tomorrow's weather and the times of high and low water, and the GM tells them what tomorrow will bring; once tomorrow, they gain a +1 circumstance bonus to one check that the weather or the sea affects. Success: the character knows tomorrow's weather and tides, and the GM tells them what tomorrow will bring. Failure: the character knows how the weather will be at dawn, and nothing about the tides or the rest of the day. Critical failure: the character is sure of a forecast that is wrong; the GM tells them the opposite of one thing tomorrow will bring."
+  },
+  "intro": {
+    "where": "The roof of the Met Office, in the middle of the island, after midnight.",
+    "firstThing": "An old man in an oilskin coat, talking quietly and fondly to a barometer.",
+    "readAloud": "The Met Office is a square little building in the middle of the island, and its roof is crowded with instruments. There is a white slatted box on legs where the thermometers live, a copper bucket that catches the rain, and a tall iron mast with three little cups at the top, spinning in the wind off the sea.\n\nBeyond the fence the harbour is black, and the lights of Kurose run along the far shore. By the stairhead, an old man in an oilskin coat is tapping the glass of a brass barometer with one finger and telling it, very kindly, that it has done well tonight.\n\nHe looks up, sees you, and says, \"Visitors! Mind the rain bucket, she's full.\"",
+    "carriesIn": [
+      {
+        "when": "A character came up soaked from the flood tunnel",
+        "then": "Genzō hangs their coat by the stove downstairs without asking, and writes their arrival in the log: \"Visitor, damp.\""
+      }
+    ],
+    "holdInReserve": "In the margin of every night's page of the log, in small careful writing, Genzō has written a three-line poem about that night's weather. He has done it for twenty years and has never shown anybody. A character who reads over his shoulder sees tonight's, half finished. If they ask, he closes the book and says, \"Just the weather.\"",
+    "landmark": "The chalk board facing the path, and the mast with its spinning cups.",
+    "position": {
+      "locationRef": "the-met-office",
+      "state": "together",
+      "note": "Room for two. The one or two players who chose the Night Observer are on the roof together until the four o'clock reading."
+    }
+  },
+  "cast": [
+    {
+      "id": "genzo",
+      "npcRef": "genzo",
+      "label": "Genzō Amemiya",
+      "role": "the night observer, twenty years on the night watch",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Reads his instruments with his back to them, says the hour out loud to nobody, and writes their names in the log as a nuisance.",
+          "unfriendly": "Answers what he's asked and no more, and keeps them away from the instruments.",
+          "indifferent": "Lets them sit on the spare stool, tells them each reading as he takes it, and doesn't ask them anything.",
+          "friendly": "Introduces every instrument by name, hands them the barometer to tap, and asks them what they make of the sky.",
+          "helpful": "Lets them take the hourly reading on their own, reads them old order sheets from the log, and tells them tomorrow's weather before anyone else on the island knows it."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Grandmother to tap: he lets them read the instruments with him, which gives a +1 circumstance bonus to the four o'clock forecast roll."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Tomorrow, first: he tells them tomorrow's weather before four o'clock, so their forecast roll can do no worse than a success."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "His help at four: they make the forecast on their own, and the roll takes a -2 circumstance penalty."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The stairhead: their names go in the log as a nuisance, and on their next visit they are handed a biscuit and sent back down, like a third visitor."
+          }
+        ],
+        "wants": "Company in the small hours, and for somebody to learn to read the sky properly before a machine takes over the watch.",
+        "opensWith": "\"You'll want the spare stool. It wobbles to the left, so lean right. Now, have you met Grandmother?\"",
+        "willDiscuss": [
+          {
+            "topic": "His instruments",
+            "note": "Each one has a name. The barometer is Grandmother, the spinning cups on the mast are the Sparrow, the tide gauge in the cellar is Old Kame (kame means turtle: it's slow, and it will outlive everybody), and the rain bucket is just the Bucket, because it has never earned a name."
+          },
+          {
+            "topic": "The hourly board",
+            "note": "The duty officers, the harbour and the morning shift all read it at dawn. \"If I chalk it wrong, forty people get wet.\""
+          },
+          {
+            "topic": "What the offices ask him for",
+            "note": "Every order sheet in the log. He doesn't know what the Directorate does; he knows what it asks for, and he has a very good idea what the asking means. He tells it cheerfully to anyone who asks."
+          },
+          {
+            "topic": "The new recording drum",
+            "note": "He calls it the new boy and speaks of it kindly. \"It doesn't sleep, it doesn't get cold, and it doesn't argue with the Sparrow. It's a very good machine.\""
+          },
+          {
+            "topic": "His years at sea",
+            "note": "He was a ship's quartermaster before this, and learned the sky on deck, from a captain who could smell rain a day off."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The poems in the margins",
+            "why": "They are the one thing in twenty years of night watches that is only his. \"Just the weather.\""
+          },
+          {
+            "topic": "The date his watch ends",
+            "why": "He has been given one, if the drum passes, and he hasn't said it out loud to anybody yet, not even at home. He talks about the Sparrow instead."
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The date his watch ends",
+            "how": "Friendly or better, and Diplomacy at his Will DC: the end of the season, if the drum passes its trial. He says it to the barometer rather than to them."
+          }
+        ],
+        "voice": {
+          "register": "Old-fashioned, gentle and precise, with a sailor's habits. Talks to his instruments in the same voice as to people.",
+          "tics": [
+            "Knocks the hour out on the brass rail with one knuckle, one knock for each hour, and only afterwards says the number.",
+            "Taps the barometer's glass and says good evening to it."
+          ],
+          "samples": [
+            "\"Grandmother's falling. She never falls for nothing.\"",
+            "\"Three o'clock, wind west, and the Sparrow's in a mood.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What is this place?",
+            "a": "\"The Met Office. Weather, tides and how far you can see, for everything that moves on this island. Nothing goes out without a reading from this roof.\""
+          },
+          {
+            "q": "Why do you give them names?",
+            "a": "\"You'd give them names too, if you'd sat up with them for twenty years. Grandmother has never once lied to me.\""
+          },
+          {
+            "q": "How long have you done this?",
+            "a": "\"Twenty years of nights. Before that, the sea. Before that, I was too small to see over the rail.\""
+          },
+          {
+            "q": "Don't you get lonely up here?",
+            "a": "\"With the Sparrow chattering all night? I can't hear myself think.\""
+          },
+          {
+            "q": "What's that box with the drum in it?",
+            "a": "\"The new boy. It writes the weather down by itself, all night. It's on trial.\" He pats its lid. \"It's doing very well.\""
+          },
+          {
+            "q": "What will the weather be tomorrow?",
+            "a": "\"Ask me at four. Better still, you tell me at four, and I'll tell you if you're right.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, an elderly working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "nadi",
+      "npcRef": "nadi",
+      "label": "Nadi Obasi",
+      "role": "the observer's assistant, eighteen, who chalks the board",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Takes the chalk off them, stands between them and the instruments, and goes downstairs to fetch the guard if they touch anything.",
+          "unfriendly": "Checks everything they read, twice, out loud, so they can hear her checking.",
+          "indifferent": "Gets on with the board, and corrects their arithmetic without looking up.",
+          "friendly": "Hands them the chalk, shows them the quick way to read the rain glass, and shares her tea.",
+          "helpful": "Tells them what's on tomorrow's order sheet before Genzō does, and asks them to put in a good word for her at the harbour office."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The quick way with the rain glass: she shows them, which gives a +1 circumstance bonus to their checks at the Bucket and at Old Kame."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Tomorrow's order sheet: she tells them which readings the offices have asked for tomorrow, before Genzō does."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The Remarks line: she checks every reading they give out loud, twice, and rubs out anything they write under Remarks before dawn."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The guard: if they touch an instrument she fetches the guard from the path, and they are reported to their section officer in the morning."
+          }
+        ],
+        "wants": "A day job, so she can go to evening school and sit the exam for a ship's officer's ticket, and not to be the reason Genzō's watch ends.",
+        "opensWith": "\"If you're staying, you can hold the lamp. Don't point it at the board, it makes the chalk shine.\"",
+        "willDiscuss": [
+          {
+            "topic": "Where she's from",
+            "note": "The Mwangi coast, in Garund, on the far side of the world. Her mother came for the base laundry's wages and brought Nadi at twelve."
+          },
+          {
+            "topic": "The ship's officer's exam",
+            "note": "Navigation, tides and weather, which is why she's here. The classes are in the evenings, and she works nights."
+          },
+          {
+            "topic": "The recording drum",
+            "note": "She thinks it's a marvel, and she understands exactly what it means for Genzō, and she says both."
+          },
+          {
+            "topic": "Genzō",
+            "note": "\"He taught me every cloud on that chart. He'd teach the Sparrow if it sat still.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The day clerk's post",
+            "why": "If the drum passes, a day clerk will change its paper and chalk the board, and she has already been offered the post. She hasn't told Genzō. \"Nothing's decided.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The day clerk's post",
+            "how": "Friendly or better, and Diplomacy at her Will DC, out of Genzō's hearing: she's been offered it, she wants it, and she feels terrible about it."
+          }
+        ],
+        "voice": {
+          "register": "Quick, practical and precise, with a sharp sense of humour. Thinks in numbers.",
+          "tics": [
+            "Always has a pencil in her hand, and chalk dust to the wrists.",
+            "Corrects anyone's arithmetic, including her own, out loud."
+          ],
+          "samples": [
+            "\"That's a seven, not a one. Cross your sevens, the harbour office can't read.\"",
+            "\"He's talking to the barometer again. Leave him, it's good for both of them.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What do you do here?",
+            "a": "\"I chalk the board, I fetch the tea, and I read everything he reads to make sure he hasn't fallen asleep. He never has.\""
+          },
+          {
+            "q": "Where are you from?",
+            "a": "\"The Mwangi coast. It rains there properly. This is barely weather.\""
+          },
+          {
+            "q": "What do you think of the drum?",
+            "a": "\"It's brilliant. It's also going to put him out of a job. Both of those are true, so stop looking at me like that.\""
+          },
+          {
+            "q": "What do you want to do?",
+            "a": "\"Ship's officer. Mate first, then my own watch on a bridge somewhere. I need the evenings for classes, and I work nights.\""
+          },
+          {
+            "q": "Why does he name them?",
+            "a": "\"Because he's been up here alone for twenty years. I'd name them too. I'd name the chalk.\""
+          }
+        ],
+        "statblock": "Proposed: level 0, a young working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-roof",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the roof, then let Genzō introduce his instruments by name.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "settling-in",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each visitor, one at a time: \"Genzō gives you the spare stool and a blanket that smells of the sea. What has your character brought up here with them, and how do they pass the time between the readings?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-watch",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: two or three events for each visitor, or as many as the table is enjoying. Genzō calls each hour as it comes. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "four-oclock",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "At the four o'clock reading, Genzō turns to each visitor and asks, \"Well? What's tomorrow going to do?\" Each rolls for the rest, and says their forecast out loud as their character. Apply the rest.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "grandmother",
+      "kind": "roll",
+      "title": "Grandmother",
+      "text": "It's the hour, and Genzō lets a character take the barometer reading. Grandmother is a brass barometer on the wall by the stairhead. The glass has to be tapped once, gently, and the needle read against the little brass pointer Genzō set last hour, to see whether she has risen or fallen since.",
+      "prompt": "Genzō stands back with his hands behind him. How do you tap Grandmother, and what do you tell him she says?",
+      "check": "Nature (Recall Knowledge) or Crafting at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They read her true, and they say what the fall means before Genzō can: weather coming in by morning. He writes their name in the log as the observer for that hour, and goes up a step.",
+        "success": "They read her true. Genzō nods and writes it down.",
+        "failure": "They read her a little high. Genzō reads her again over their shoulder, kindly, and shows them how to keep one eye level with the needle.",
+        "criticalFailure": "They tap too hard and the needle jumps. Genzō apologises to Grandmother, out loud and at some length, and goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "genzo",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "genzo",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-sparrow",
+      "kind": "roll",
+      "title": "The Sparrow",
+      "text": "The three little cups at the top of the mast have stopped spinning, though the wind hasn't. Salt has got into the bearing again. Somebody has to climb the iron rungs of the mast in the wind with an oil can in one hand. Genzō's knees won't do it any more, and he says so with great dignity.",
+      "prompt": "Genzō holds out the oil can and looks up at the Sparrow. How does your character get up there, and what do they do at the top?",
+      "check": "Athletics at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They are up, the bearing is oiled and the Sparrow is spinning inside a minute. From the top of the mast they can see the whole harbour, and the lights of a ship coming in that nobody on the ground has seen yet. Genzō writes the ship into the log with their name beside it, and goes up a step.",
+        "success": "They get up, oil the bearing, and the Sparrow spins again. Genzō applauds.",
+        "failure": "They can't get the oil into the bearing with the wind pulling at them, and they come down. Nadi goes up in their place, faster, and doesn't say a word about it.",
+        "criticalFailure": "Halfway up, the wind gusts and they freeze. Genzō talks them down, one rung at a time, and the Sparrow stays stopped until morning. For the first time in years, the log's wind column says \"estimated\". Genzō goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "genzo",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "genzo",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "old-kame",
+      "kind": "roll",
+      "title": "Old Kame",
+      "text": "The tide gauge is in the cellar: a round well in the floor, fed by a pipe from the harbour, with a copper float on a wire and a brass scale on the wall beside it. Genzō calls it Old Kame (kame means turtle), because it's slow and it will outlive everybody. The reading has to be taken by lantern, to the quarter inch, and the observer has to say whether the tide is making or ebbing, which are Genzō's words for rising and falling.",
+      "prompt": "You're alone in the cellar with a lantern and the sound of the sea coming up the pipe. What do you read on Old Kame, and how sure are you?",
+      "check": "Perception at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They read it true, and they notice the float's wire is catching on a burr on the pulley, which is why it has been sticking all month. They file it smooth with a coin. Genzō has been fighting that burr since the spring, and goes up a step.",
+        "success": "They read it true, and whether it's making or ebbing.",
+        "failure": "They read it a line off. Nadi checks it on her next trip down, and corrects the log in pencil without comment.",
+        "criticalFailure": "The lantern slips off its hook and goes into the well. They finish the reading by feel, in the dark, and get it wrong by a foot. Genzō laughs until he has to sit down, fetches the spare lantern, and from then on Old Kame keeps the first one at the bottom of the well."
+      },
+      "shifts": [
+        {
+          "regular": "genzo",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "the-bucket",
+      "kind": "roll",
+      "title": "The Bucket",
+      "text": "The rain gauge is a copper bucket with a funnel that runs into a bottle, and the rain is measured by pouring the bottle into a narrow glass tube marked in hundredths of an inch. Tonight there is a small green frog sitting in the funnel, again. It has to come out before the rain can be measured, and the rain must not be spilled.",
+      "prompt": "The frog is looking at you from the funnel. How do you get it out without losing the night's rain?",
+      "check": "Nature at the level-based DC (15 at level 1), or Thievery for steady hands.",
+      "outcomes": {
+        "criticalSuccess": "The frog comes out gently, the rain is measured to the hundredth, and the frog climbs onto the character's shoulder and stays there for the rest of the night. Nadi names it after them and goes up a step.",
+        "success": "The frog comes out, and the rain is measured without a drop lost.",
+        "failure": "The frog comes out, and so does the rain. Genzō writes in the log, \"Rain: some. Frog: one.\"",
+        "criticalFailure": "The frog goes into the bottle, then out of the bottle, then down the drainpipe. Nadi goes down three flights after it, and comes back with the frog in her cupped hands and a look on her face. Nadi goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "nadi",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "nadi",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-cloud-chart",
+      "kind": "roll",
+      "title": "The cloud chart",
+      "text": "Pinned inside the stairhead door is Genzō's cloud chart: every kind of cloud, painted by hand in watercolour, with its old name underneath. There is one blank square at the bottom. A cloud is coming over the moon, and Genzō asks a character to name it and say what it brings.",
+      "prompt": "Genzō points at the cloud crossing the moon, then at the chart. What is it, and what does it bring?",
+      "check": "Nature (Recall Knowledge) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They name it and say what it brings, and Genzō gives them the paintbox: the next cloud that isn't on the chart goes in the blank square, in their hand. He goes up a step.",
+        "success": "They name it, near enough. Genzō gives them its old name as well.",
+        "failure": "They get it wrong. Genzō tells them the name, and what it brings, and taps the painting of it so they'll know it next time.",
+        "criticalFailure": "They invent a cloud, with total confidence. Genzō is delighted, and pencils it into the blank square with a question mark, in case it turns out to be real. It is still there on their next visit."
+      },
+      "shifts": [
+        {
+          "regular": "genzo",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "the-hourly-board",
+      "kind": "roleplay",
+      "title": "The hourly board",
+      "text": "On the hour, Nadi chalks the reading on the big board facing the path, where the duty officers, the harbour and the morning shift will read it at dawn. The numbers are hers. The line at the bottom, marked Remarks, is the one line anyone on the watch may fill, and nobody has written anything there but \"Nil\" for eleven years. Nadi holds out the chalk.",
+      "prompt": "Nadi holds out the chalk. The whole island reads this board at dawn. What do you write under Remarks, and how big? Take a moment.",
+      "shifts": [
+        {
+          "regular": "nadi",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Nadi's button if what they write makes her laugh. Whatever they write is on the board at dawn, and somebody at breakfast mentions it."
+    },
+    {
+      "id": "the-squall",
+      "kind": "roll",
+      "title": "The squall",
+      "text": "Out on the harbour, a grey wall of rain is coming across the water, and the lights on the far shore are going out behind it one by one. Genzō gives it two minutes. In that time the log has to go inside, the slatted box has to be shut, the board has to be covered, and everybody has to be under the stairhead roof.",
+      "prompt": "Genzō shouts, \"Two minutes!\" and grabs the log. What does your character grab, and where do they run?",
+      "check": "Athletics or Acrobatics, on a wet roof in the wind, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "Everything is in and dry, and they are standing in the stairhead doorway with Genzō, watching the squall pass over. He times it with his pocket watch and writes it in the log with their name beside it. He goes up a step.",
+        "success": "Everything is in, and they are only a little wet.",
+        "failure": "Everything is in, and they are soaked through. The cover blows off the board, the rain washes it clean, and the whole hour has to be chalked up again.",
+        "criticalFailure": "The night's loose reading sheets go over the railing and away into the dark. Nadi goes down to the path with a torch to find them, and Genzō rebuilds the night's readings from memory, slowly, while everyone waits. He goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "genzo",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "genzo",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-order-sheets",
+      "kind": "informant",
+      "title": "The order sheets",
+      "text": "Downstairs, a shelf of logbooks runs the length of the wall, one for every year, going back further than anyone has read. Pasted into the front of each are the order sheets: which readings the offices on the island asked for, and when. Genzō has a book from twelve years ago open on his knee, and he's happy to explain. \"I don't know what they do. I know what they ask me for. When they ask for the wind at the height of the hangar roofs, a Frame is walking. When they ask for low water at dawn three days running, something is going out by boat. When they ask for rain up in the hills and the height of the tide after dark, somebody is going into a flood tunnel.\" On the night of the flood tunnel duty, he looks at them over his glasses and adds, \"That was you tonight, wasn't it? You've got the look.\"",
+      "prompt": "Genzō has the old logbook open on his knee and he's enjoying himself. What do you ask him?",
+      "note": "He will read out any order sheet from any year, and tell them what readings like that usually mean. He knows readings, never reasons. If they ask about tomorrow's sheet, he reads it out: answer in readings, from what is truly planned for tomorrow, and let the table work out what it means."
+    },
+    {
+      "id": "the-new-boy",
+      "kind": "dilemma",
+      "title": "The new boy",
+      "text": "In a varnished box by the stairhead is the recording drum: a clockwork drum wrapped in squared paper, turning once a day, with a pen on an arm that draws the pressure as a line all night by itself. It is on trial beside Grandmother for a month, and every night Genzō writes down how the two compare. Tonight Nadi frowns at it: the drum's line is running a little low against Grandmother. Genzō asks a character to look at both and tell him which one is wrong. If the drum is wrong tonight, it fails its trial for another month, and the night watch goes on. If it's right, it's one night closer to the end of the watch, and to Nadi's day job.",
+      "prompt": "Genzō holds out the trial report and his pen. \"You've read them both. What do I write?\"",
+      "check": "Crafting at the level-based DC (15 at level 1), to find out which one is wrong.",
+      "outcomes": {
+        "criticalSuccess": "The drum's pen arm was bent in its crate, and a minute's work would straighten it. They can also see that, straightened, it is a better instrument than anyone expected. What to write is up to them.",
+        "success": "It's the drum: the pen arm is bent. It could be straightened in a minute, or left as it is. What to write is up to them.",
+        "failure": "They can't tell which one is wrong. What to write is still up to them.",
+        "criticalFailure": "Trying to find the fault, they knock the pen across the paper and spoil the whole night's line. The report has to say why, and Nadi goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "nadi",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "nadi",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Straightening the pen and writing the truth: press Nadi up. Leaving it bent, or writing that the drum is wrong: press Nadi down by hand when she finds out, which she does within the week. Genzō says \"Thank you\" either way and puts the kettle on. Either answer is fair. The drum comes either way; the choice is how soon, and who pays for the wait."
+    },
+    {
+      "id": "the-bearing",
+      "kind": "buff",
+      "title": "The bearing",
+      "text": "Around three o'clock the cloud breaks, and Genzō shows the visitors a trick from his years at sea: how to find north from the harbour lighthouse and two stars, anywhere within sight of the water. He makes each of them do it twice.",
+      "prompt": "Genzō is pointing at the lighthouse, then up at the stars. While you look, he asks, \"When did you last look at the sky this long, and where were you?\" Take a moment.",
+      "shifts": [
+        {
+          "regular": "genzo",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Everyone on the roof who tries it gains a +1 circumstance bonus to Survival checks to Sense Direction until their next rest. Press Genzō's button if the answer to his question lands."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The four o'clock reading is chalked up and Genzō sends the visitors to bed, or they leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The stairs down are dark and smell of wet coats, and behind them Genzō is telling Grandmother all about the visitors.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Each visitor's forecast for tomorrow, and whether their roll was a critical failure.",
+      "Who has the +1 circumstance bonus for tomorrow, and who has the bonus to Sense Direction.",
+      "What they wrote under Remarks on the board.",
+      "What they told Genzō to write about the drum.",
+      "Anything they put on the cloud chart."
+    ],
+    "position": {
+      "locationRef": "the-met-office",
+      "state": "together",
+      "note": "They go down together after the four o'clock reading and walk back to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. A third player who wants to come up is given a biscuit and sent back down: the roof is small and the instruments are not to be jostled. They break an instrument on purpose: Nadi fetches the guard from the path, they are reported to their section officer in the morning, and both regulars go to hostile. They attack either regular: Genzō is an old man and Nadi runs for the guard; there is no fight to have, only a report in the morning. They lie about where they've been or what they read: Deception against the regular's Perception DC; a false reading goes up on the board and forty people read it at dawn, so it comes out by breakfast. They steal from the log or the order sheets: Thievery against Nadi's Perception DC; the order sheets are only readings, and a missing page is noticed at the four o'clock reading. They go through the desk downstairs: Stealth against Nadi's Perception DC; they find tomorrow's order sheet, the trial report and a tin of biscuits. They split up: one on the roof and one in the cellar is how the watch always runs, so run each as its own small event. They leave early: Genzō writes the time they left in the log, and the rest still covers them, but only a visitor who is there at four o'clock rolls for tomorrow's weather."
+}

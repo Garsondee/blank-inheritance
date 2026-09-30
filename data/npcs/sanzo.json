@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "sanzo",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Sanzo",
+  "role": "Wandering musician and storyteller, the Paper Lantern",
+  "pole": null,
+  "ancestry": "Goblin",
+  "affiliation": null,
+  "description": "A wandering musician and storyteller who's been drifting through Kurose for years, and always seems to circle back to the Paper Lantern's counter. Small, wiry, and never quite still, he plays a battered shamisen badly and with complete commitment, and tells stories that are half true and impossible to sort from the half that isn't. Warm, theatrical, always slightly performing even when he isn't trying to. Starts a true story exactly the same way he starts a false one, and tunes the shamisen between sentences whether or not it needs it.\n\nHe wants an audience, and one more good reason to stay past spring, which he always finds.\n\nHe keeps one thing back: why he never actually leaves. He says he's leaving every spring, and every spring he's still here. He changes the subject with a song before it gets uncomfortable, for him or for anyone else -- this is left deliberately unresolved.",
+  "designNotes": "Created 2026-09-29, extracted from his full cast entry in canon/scenes/rest--the-paper-lantern.json -- the Paper Lantern haunt's Petr-equivalent role (the room's friend). Nothing here is invented beyond what's already written into his `brief` there.\n\nANCESTRY, Ingram's own pick (2026-09-29): Goblin, checked against data/campaign/ancestry-catalogue.json ('eccentric... tricksters... can live anywhere, eat anything, thrive despite whatever obstacles', terrestrial: true) -- a strong fit for an itinerant who's outlived several other lives. His portrait was deliberately anchored humanoid in the Midjourney prompt ('elderly humanoid goblin man, small wiry build, human proportions and hands') to avoid a monster-not-person render, since Goblin is tagged `humanoid` in the SF2e traits list -- contrast with Tama below, whose ancestry is not.\n\nWhy he never leaves is an intentional, unresolved plant, same device as founders.alive in the Crew Mess haunt (see canon/scenes/rest--crew-mess.json's 'the-one-who-paid-for-everyone' event) but its own separate thread, not a restatement of that one -- no fact ref, no coercible mechanism, nothing to reveal yet. Held for later.\n\nHis real statblock is still a placeholder in the scene file: \"Proposed: level 1, an elderly civilian, non-combat. Made with Ingram once the NPC generator exists.\"",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "established and voiced (the Paper Lantern haunt is built and playable) -- second regular of the new haunt formalized into a real npc file",
+  "socialProfile": {
+    "attitude": "friendly"
+  }
+}

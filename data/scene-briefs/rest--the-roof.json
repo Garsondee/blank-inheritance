@@ -1,0 +1,638 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--the-roof",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-roof",
+  "title": "The Roof",
+  "summary": "Up an unlocked maintenance ladder to the roof of Row E, Block 9, with the whole of Kurose lit up across the harbour. Half of maximum HP, a chance to learn the city by its lights, a stargazer with a homemade chart, a harmonica, and a warden who has never once seen anybody up here.",
+  "goal": "Each player who came here has spent a clear night on the roof, in character, and leaves with half their HP back, perhaps a steadier head for tomorrow, and a standing with the roof's regulars that the next clear night will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the roof, give each player a turn to say where their character settles and to read the city by its lights, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, a buff and chances to talk in character. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "A flat tarred roof four floors up, with a low wall round the edge and a water tank on iron legs in one corner, reached by a maintenance ladder up the back of the block that nobody has ever bothered to lock. Its third rung wobbles. On a clear night the whole of Kurose is lit up across the harbour, and there is nearly always somebody already up here. The rules of the roof are simple: torches off, no shouting, and the warden does not exist.",
+    "changes": "The office on the island keeps sending new rules, new locks and brighter lamps, and every one of them makes the roof a little smaller. Across the water, the old town's lanterns are going over to electric light street by street, so the view that the regulars know by heart changes a little every month.",
+    "upgrades": [
+      {
+        "id": "the-second-key",
+        "title": "The second key",
+        "text": "The ladder is locked, and the group has a key. They let themselves up, lock it behind them, and have the roof whenever they like.",
+        "how": "Keep the second key when the padlock goes on (the third way in the new padlock), or win Isamu to helpful."
+      },
+      {
+        "id": "the-chart-finished",
+        "title": "The chart finished",
+        "text": "Sayo finishes her chart of the autumn sky before the stars turn for winter, with the group's names on it, and pins it inside the hatch of the water tank for anyone who comes up.",
+        "how": "Help her finish it: succeed at Name the Stars on two visits, or learn Grandmother's Comb from her and give it its place on the chart.",
+        "rest": {
+          "hp": "half",
+          "buff": "Once during the night, each character reads the city by its lights with the finished chart beside them: Perception at the level-based DC with a +1 circumstance bonus. On a success or better they gain a +1 status bonus to Will saves until their next rest; on a critical failure something of theirs drops into the yard, as before."
+        }
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "the-ladder-locked",
+        "title": "The ladder locked",
+        "text": "The office's new padlock goes on the ladder and stays on. On every later visit the group needs the second key, Isamu's goodwill (the key on the stairwell hook), or Thievery (Pick a Lock) at the level-based DC to get up.",
+        "lasting": "permanent"
+      },
+      {
+        "id": "the-floodlight",
+        "title": "The floodlight",
+        "text": "The office puts a floodlight on the Container Ground, facing the blocks, for the month the new cranes are fitted. It washes the city out, and nobody on the roof can read its lights.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "half",
+          "buff": "Nothing else: under the floodlight the city is a smear, and there is nothing to read."
+        }
+      }
+    ]
+  },
+  "rest": {
+    "hp": "half",
+    "buff": "Once during the night, each character looks out over the city and rolls Perception at the level-based DC (15 at level 1) to learn which lights are which district. Critical success: they know the city by its lights, and gain a +1 status bonus to Will saves until their next rest; Sayo writes their name on her chart beside the first district they picked out. Success: a +1 status bonus to Will saves until their next rest. Failure: the lights stay a beautiful muddle, and that is all. Critical failure: they lean out over the wall to point, and something of theirs (a cap, a glove, a pencil with their name on it) drops four floors into the yard. Isamu the warden finds it in the morning and has to decide whether he saw it; he goes down a step unless they go and ask for it back."
+  },
+  "intro": {
+    "where": "The roof of Row E, Block 9, near where the causeway comes onto the island, late on a clear night.",
+    "firstThing": "The stars, and then the city: the whole of Kurose lit up across the black water.",
+    "readAloud": "The ladder runs up the back of Row E, Block 9, past four floors of dark windows, and its third rung wobbles under your foot. At the top is a flat tarred roof with a low wall round the edge, a water tank standing on iron legs in one corner, and more sky than you have seen all day.\n\nAcross the harbour, the whole of Kurose is lit up. There are warm yellow lamps along the waterfront, a long row of orange glow where the factories are working through the night, and lights climbing the hills behind the city like somebody has spilled them.\n\nIn the very middle of the roof, somebody has spread a blanket, and a candidate in a borrowed greatcoat is lying on it with a sheet of paper and a stub of pencil. Over by the water tank, where you can barely see him, somebody is playing a harmonica, very quietly.",
+    "carriesIn": [
+      {
+        "when": "A character came up here straight from a hard duty that night",
+        "then": "Sayo takes one look at them, moves over, and makes room on the blanket without a word."
+      }
+    ],
+    "holdInReserve": "Scratched into the lead flashing by the water tank, very small and very old, are two sets of initials inside a heart. Isamu carved them when the block was new. If anyone asks him about them, he says he has no idea what anybody is talking about, and goes red to the ears.",
+    "landmark": "The water tank on its iron legs, and Sayo's blanket in the exact middle of the roof.",
+    "position": {
+      "locationRef": "row-e-block-9",
+      "state": "together",
+      "note": "Everyone who chose the roof is up here together. They climb down to their bunks when the night gets too cold, or when Isamu's keys start rattling for the last time."
+    }
+  },
+  "cast": [
+    {
+      "id": "sayo",
+      "npcRef": "sayo",
+      "label": "Sayo Iwamura",
+      "role": "a second-term candidate, stargazer, keeper of a homemade chart of the sky",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Rolls up her chart and moves to the far side of the tank, and talks to Faruq as if nobody else were up here.",
+          "unfriendly": "Answers in single words and keeps her chart turned away from them.",
+          "indifferent": "Nods when they arrive, tells them to put their torches out, and goes back to her drawing.",
+          "friendly": "Pats the blanket beside her, shares her chart and her flask of barley tea, and names every star they point at.",
+          "helpful": "Writes their names on the chart beside a star of their own, and keeps the warm end of the blanket for them every clear night."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Her blanket: a character on it gets a +1 circumstance bonus to the Perception check to read the city by its lights."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A star with their name: she writes it on the chart and shows them Grandmother's Comb, and once, lost at night under a clear sky, they find their way as if they had critically succeeded at Sense Direction."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Her chart: she keeps it turned away, and neither Name the Stars nor North by the Needle is drawn for them."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The middle of the roof: she moves behind the tank, nobody tells them which light is which, and the roll to read the city takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "To finish her chart of the autumn sky before the stars turn for winter, and to have someone to show it to who won't laugh.",
+        "opensWith": "\"Mind the third rung, it wobbles. And put that torch out, you'll ruin everybody's eyes.\"",
+        "willDiscuss": [
+          {
+            "topic": "The stars and their names",
+            "note": "She knows the fishermen's names, which her grandmother taught her from a boat, and a few she has made up herself because nobody had bothered."
+          },
+          {
+            "topic": "The harbour",
+            "note": "She has watched it from up here every clear night for a year, and she knows its comings and goings like a clock."
+          },
+          {
+            "topic": "The rules of the roof",
+            "note": "Torches off, no shouting, and the warden does not exist."
+          },
+          {
+            "topic": "Home",
+            "note": "She comes from a fishing village up the coast, smaller than Kurose was a hundred and fifty years ago. Her grandmother still takes the boat out."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why she never goes near the edge",
+            "why": "She is frightened of heights and always has been, which is ridiculous for someone who lives on a roof, and she knows it. \"I like the middle. The middle has the best view of the sky.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The star she has never shown anybody",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: a little curl of five faint stars she has named Grandmother's Comb, drawn in the corner of the chart and covered by her thumb whenever anybody looks."
+          }
+        ],
+        "voice": {
+          "register": "Quick, precise, a little bossy, and very kind underneath it.",
+          "tics": [
+            "Counts stars off on her fingers when she names them.",
+            "Talks about stars the way other people talk about relatives: strong opinions, no doubt at all."
+          ],
+          "samples": [
+            "\"No, left of that. Left. Further. There.\"",
+            "\"If you're going to sit on my blanket you have to learn at least one.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What are you drawing?",
+            "a": "\"The whole sky. Well, the half you can see from here. It'll be finished by winter, if the clouds behave.\""
+          },
+          {
+            "q": "Why do you come up here?",
+            "a": "\"Because down there it's all bells and lists and lights-out. Up here, the only thing telling you what to do is the sky.\""
+          },
+          {
+            "q": "Aren't you worried about falling off?",
+            "a": "\"I don't go near the edge, so the edge doesn't come near me.\" She does not look at the edge."
+          },
+          {
+            "q": "What's that bright one?",
+            "a": "\"That's the Needle, at the tip of the Net-Mender. She never moves. Find her and you've found north.\""
+          },
+          {
+            "q": "Does the warden know you're up here?",
+            "a": "\"What warden?\""
+          },
+          {
+            "q": "Where are you from?",
+            "a": "\"Up the coast, in a village of three houses and a boat. My grandmother taught me all of these from the boat, so I'd always get home.\""
+          }
+        ],
+        "statblock": "Proposed for Sayo Iwamura: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "faruq",
+      "npcRef": "faruq",
+      "label": "Faruq Sallah",
+      "role": "a candidate from Katapesh, far across the sea, who plays the harmonica and says very little",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Puts the harmonica in his pocket and climbs down the moment they come up.",
+          "unfriendly": "Turns his back and plays to the harbour instead.",
+          "indifferent": "Lifts the harmonica an inch in greeting and plays on.",
+          "friendly": "Plays whatever they ask for, badly if he doesn't know it, and asks them one question a night.",
+          "helpful": "Teaches them a tune from home, and plays theirs whenever they come up the ladder."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "A song on request: a character who asks him for one before they sleep gains a +1 circumstance bonus to their first Will save tomorrow."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A tune from home: he teaches them one, which gives a +1 circumstance bonus to one Performance check before their next rest, and he plays theirs whenever they come up the ladder."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The warning: he no longer stops mid-note when Isamu's keys rattle, so the Stealth check to hide from the warden's torch takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "Quiet, the roof the way it was when he found it, and to remember how the rest of one particular song goes.",
+        "opensWith": "He lifts the harmonica an inch in greeting and goes on playing.",
+        "willDiscuss": [
+          {
+            "topic": "Katapesh",
+            "note": "Katapesh is markets, heat and a thousand voices at once, under a sky so thick with stars that this one looks thin to him."
+          },
+          {
+            "topic": "The harmonica",
+            "note": "He bought it in the market in Kurose for next to nothing. It is in the wrong key for everything he knows, so everything he plays sounds a little bit homesick."
+          },
+          {
+            "topic": "The roof",
+            "note": "He found the ladder unlocked in his first week, and thinks of the roof as his, although he would never say so."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The tune he plays last every night",
+            "why": "His mother sang it to him, and he only remembers half of it. He stops at the same place every night. \"That's where it ends.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What the last tune is",
+            "how": "Friendly or better, and a Diplomacy check at his Will DC: it was his mother's, he has lost the end of it, and he has been trying to find it again for a year."
+          }
+        ],
+        "voice": {
+          "register": "Soft, few words, very dry. Often answers with a phrase on the harmonica instead of speaking.",
+          "tics": [
+            "Taps the harmonica against his palm before he plays.",
+            "Answers a question he doesn't like with two notes, going down."
+          ],
+          "samples": [
+            "\"Good day or bad day?\"",
+            "\"In Katapesh the stars are closer. Here they're politer.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"Katapesh. It's hot, it's loud, and it's very far away.\""
+          },
+          {
+            "q": "Will you play something?",
+            "a": "He taps the harmonica on his palm and plays it, whatever it was."
+          },
+          {
+            "q": "What's that song?",
+            "a": "\"It's one from home.\""
+          },
+          {
+            "q": "Why do you come up here?",
+            "a": "\"It's the only place on the island where nobody tells me where to stand.\""
+          },
+          {
+            "q": "Can you teach me?",
+            "a": "\"Yes, but slowly.\""
+          },
+          {
+            "q": "Why do you always stop in the same place?",
+            "a": "He plays two notes, going down. \"That's where it ends.\""
+          }
+        ],
+        "statblock": "Proposed for Faruq Sallah: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "isamu",
+      "npcRef": "isamu",
+      "label": "Isamu Hamada",
+      "role": "the block warden of Row E, a retired tug skipper who has never seen anybody on his roof",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Waits at the foot of the ladder with his book open, and writes down every name.",
+          "unfriendly": "Rattles the ladder at eleven sharp and stands at the bottom with his arms folded until everyone has come down.",
+          "indifferent": "Rattles his keys on the stairs so everybody hears him coming, shines his torch at nothing, and sees nothing.",
+          "friendly": "Leaves the stairwell light on so they can find the ladder, and a flask of hot tea on the top rung on cold nights.",
+          "helpful": "Tells them, casually and to nobody in particular, which night the office inspection is coming."
+        },
+        "faction": "block-wardens",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "He sees nobody: on the warden's torch, a failure counts as a success for the group."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The inspection night: he tells the ceiling which night the office inspection is coming, and if the ladder is ever padlocked, the second key hangs on the stairwell hook."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Eleven sharp: he rattles the ladder at eleven and waits at the bottom, so only one event is drawn, and the rest is a quarter of maximum HP instead of half."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "His book: every name on the roof goes in it, and the book goes to the office on Friday, rain or not."
+          }
+        ],
+        "wants": "Nobody falling off his roof, nobody making him write their name in his book, and a quiet last year before his pension.",
+        "opensWith": "From the bottom of the ladder, not looking up: \"I'm going to bed. If anybody were up there, I'd tell them the third rung wobbles.\"",
+        "willDiscuss": [
+          {
+            "topic": "The block",
+            "note": "It was built in a month, it leaks in three places, and he knows all three by their sound."
+          },
+          {
+            "topic": "The tugs",
+            "note": "He spent thirty years skippering tugs in the harbour before his knees gave out. He can name any tug on the water by her engine."
+          },
+          {
+            "topic": "The rules",
+            "note": "He can recite every one of them, and does, loudly, at the foot of the ladder."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether he knows who goes up on the roof",
+            "why": "If he knew, he'd have to do something about it, and he doesn't want to. \"I don't know anything about any roof.\""
+          },
+          {
+            "topic": "The initials by the water tank",
+            "why": "He proposed to his wife up there when the block was new, and he will not be teased about it by candidates. He goes red to the ears."
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "When the office will next inspect the block",
+            "how": "Friendly or better, and a Diplomacy check at his Will DC: he tells them the day, to nobody in particular, while looking at the ceiling."
+          }
+        ],
+        "voice": {
+          "register": "Gruff, loud, slow, and not nearly as stern as he would like to be.",
+          "tics": [
+            "Talks to the ceiling when he is saying something he shouldn't.",
+            "Addresses every candidate as if they were a visiting officer, however young."
+          ],
+          "samples": [
+            "\"I see nobody. I shall go on seeing nobody for exactly as long as it takes you to go to bed.\"",
+            "\"Rule nine. No persons on the roof. Very good rule. Somebody should enforce it.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Are you going to report us?",
+            "a": "\"Report who? I'm talking to a stairwell, young sir.\""
+          },
+          {
+            "q": "Why is the ladder never locked?",
+            "a": "\"Is it not? Shocking. I'll see to it. Tomorrow. Or the day after.\""
+          },
+          {
+            "q": "How long have you been the warden?",
+            "a": "\"Four years now, and thirty on the tugs before that, until my knees said no.\""
+          },
+          {
+            "q": "Have you ever been up there yourself?",
+            "a": "He looks at the ceiling for a long time. \"Once or twice. A long time ago. Go to bed.\""
+          },
+          {
+            "q": "What's the worst thing that's happened on the roof?",
+            "a": "\"Nothing has happened on the roof, because nobody goes on the roof. Mind the third rung.\""
+          }
+        ],
+        "statblock": "Proposed for Isamu Hamada: level 2, a working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-ladder",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the roof, then let Sayo tell them to put their torches out and pat the blanket.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-lights",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"Where on the roof does your character settle, and what did they bring up with them?\" Give them a moment to picture it. Then each looks out over the city and rolls Perception for the rest. What a success can pick out: the old town on the waterfront, low and yellow, with oil lamps and paper lanterns in its doorways; the factories along the shore, a row of orange furnace glow and sparks that never goes out; the river running inland, with a thread of street lamps beside the tram line and a blue-white spark each time a tram crosses the points; the newcomers' streets, straight rows of hard white electric light, with the roofs of a dozen different temples lit up among them; the Upper Wards stacked on the hillside to the north, like a staircase of lights; the campus on the cliff top, where the windows go out one by one; the riding lights of small boats crossing the harbour; and, behind the roof, the Container Ground on the island itself, where the cranes are lit all night.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "coming-down",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The cold gets into everyone at last, and Isamu's keys rattle on the stairs below for the last time tonight. Apply the rest, and the Will bonus for anyone who read the city.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "name-the-stars",
+      "kind": "roll",
+      "title": "Name the stars",
+      "text": "Sayo holds her chart up to the sky and challenges one character to name three constellations, the way the fishermen of Minkai name them. The ones she knows are the Net-Mender, a long crooked line with the Needle at its tip, which points north; the Heron's Ladder, climbing out of the sea in the east; the Lantern Boat, low over the harbour; and the Sleeping Ox, which she says is the laziest thing in the sky because it never gets up before midnight.",
+      "prompt": "Sayo hands you the pencil and points at the sky. \"Three. Go on.\" Which ones do you find, and how?",
+      "check": "Nature (Recall Knowledge), or a Lore about the sea or the sky, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They find all three, and then a fourth that isn't on Sayo's chart at all. She makes them name it on the spot, writes it down, and goes up a step.",
+        "success": "They find the Net-Mender and the Heron's Ladder, and Sayo grudgingly allows the Lantern Boat.",
+        "failure": "They point very confidently at the lamp on top of a chimney. Sayo gently turns their head half a turn to the left and starts again.",
+        "criticalFailure": "Their best find turns out to be the warning lamps on a crane across on the Container Ground, which moves while they are pointing at it. Sayo writes it on the chart anyway, as the Candidate's Mistake, and Faruq plays a little tune about it every time they come up the ladder from now on."
+      },
+      "shifts": [
+        {
+          "regular": "sayo",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "north-by-the-needle",
+      "kind": "buff",
+      "title": "North by the Needle",
+      "text": "Sayo shows everyone on the blanket how to find the Needle: follow the Net-Mender's line from the handle to the tip, and there she is, the one star in the sky that never moves. \"Now you can always find your way home. Or at least find north, which is a start.\"",
+      "prompt": "Sayo lines your finger up with the Needle. Does your character have somewhere they'd walk to by it, if they had to?",
+      "note": "Everyone Sayo shows gets a +1 circumstance bonus to Survival checks to Sense Direction until their next rest."
+    },
+    {
+      "id": "the-wardens-torch",
+      "kind": "roll",
+      "title": "The warden's torch",
+      "text": "Keys rattle on the stairs below, very loudly, and then a torch beam comes wobbling up the ladder. Isamu is doing his rounds, and he is making as much noise about it as a man possibly can. Sayo flattens herself on the blanket; Faruq stops playing mid-note.",
+      "prompt": "The beam of the torch is coming over the top of the wall. Where does your character go, and how still can they keep?",
+      "check": "Stealth (Hide) against Isamu's Perception DC, or the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The beam sweeps the whole roof and finds nothing it is willing to find. Isamu says loudly, to nobody, \"Nobody up here, then,\" and leaves a flask of hot tea on the top rung before he goes down. He goes up a step.",
+        "success": "The beam sweeps the roof, stops on nothing, and goes back down the ladder. The keys rattle away along the corridor.",
+        "failure": "The beam lands square on a character's face. Isamu and the candidate look at each other for a long moment. \"I see nobody,\" he says. \"I shall go on seeing nobody for exactly as long as it takes you to go to bed.\" The night goes on, a little more quietly.",
+        "criticalFailure": "Someone knocks over Sayo's flask, which rolls across the roof and clangs off the water tank like a temple bell. Isamu can't pretend any longer. He climbs all the way up, wheezing, opens his book, and writes down every name on the roof. The book goes to the office on Friday, he says, unless it rains, and he looks at the sky as if he hopes it will. He goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "isamu",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "isamu",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Whether the book ever reaches the office is up to the GM and how the group treat Isamu from here on."
+    },
+    {
+      "id": "the-paper-lantern",
+      "kind": "roll",
+      "title": "The paper lantern",
+      "text": "A paper lantern, still lit, comes drifting across the harbour from the old town on the night wind, sinks lower and lower, and snags on the lightning rod on top of the water tank. The candle inside is starting to scorch the paper. The tank's iron ladder is slick with dew.",
+      "prompt": "The lantern is caught on the tank, burning, and the tank's ladder is wet. How does your character get it down?",
+      "check": "Athletics (Climb) or Acrobatics (Balance) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They get it up, unhooked and down with the candle still burning and the paper whole. Somebody has written on it in a child's careful hand: \"Please let my big sister be sent for this year.\" Ask the player what their character does with it.",
+        "success": "They get it down, a little scorched. There is writing on it in a child's hand, too smudged now to read all of it.",
+        "failure": "The lantern slips off the rod and drifts on over the island, towards the hangars, getting smaller until it's gone.",
+        "criticalFailure": "Their foot goes off the wet rung and they slide all the way down the side of the tank, which booms like a gong across the whole block. Nobody is hurt, but their trousers are torn at the knee and lights are coming on in the windows below. Go straight to the warden's torch, starting at its failure."
+      },
+      "note": "The lantern is somebody's wish sent off from the old town; nothing more. If the warden's torch has already been played, the critical failure brings Isamu up the ladder in his dressing gown instead, with the same result as that event's failure."
+    },
+    {
+      "id": "the-frame-at-night",
+      "kind": "roll",
+      "title": "A Frame on the move",
+      "text": "From somewhere over towards the hangars comes a long, slow sound: a thud, then a scrape of metal, then another thud, each one felt in the roof as much as heard. Lamps are moving between the buildings. Somebody is walking a Frame, one of the great walking machines, across the island in the middle of the night. Faruq, without looking up, starts playing in time with its footsteps.",
+      "prompt": "The roof shivers under you with each step. What does your character make of it?",
+      "check": "Perception, or Piloting (Recall Knowledge), at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "By the rhythm, they can tell it's favouring one leg: a long step and a short one. It's being walked round to the dry dock for mending, at night, while the roads are empty. Faruq changes his tune to limp along with it, and goes up a step.",
+        "success": "It's being moved from the hangars towards the dry dock, taking the long way round while the roads are clear. It is nothing more exciting than a machine going in for repair.",
+        "failure": "It's just thunder in the dark, a long way off, and then it stops.",
+        "criticalFailure": "They're sure it's coming this way, and they say so, loudly. It isn't. Windows open below, somebody shouts up at the roof to shut it, and Faruq puts his harmonica away for the rest of the night. He goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "faruq",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "faruq",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-shooting-star",
+      "kind": "roleplay",
+      "title": "A shooting star",
+      "text": "A star falls right across the sky, slow enough that everyone on the roof sees it. Sayo says that means one wish for everyone who saw it, as long as you don't say it out loud. Then, after about three seconds, she asks everyone what they wished for.",
+      "prompt": "You saw it fall. What did your character wish for, and do they tell Sayo? Take a moment first.",
+      "shifts": [
+        {
+          "regular": "sayo",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Sayo's button for a character who tells her, whatever the wish. There is nothing to roll."
+    },
+    {
+      "id": "faruqs-question",
+      "kind": "roleplay",
+      "title": "Good day or bad day?",
+      "text": "Faruq comes over from the tank, sits down on the edge of the blanket, and taps his harmonica on his palm. He asks one character a single question, and waits as long as it takes for the answer. When they have finished, he plays their day back to them as a tune: the good parts high, the bad parts low.",
+      "prompt": "Faruq asks you, \"Good day or bad day?\" Tell him about it: what happened, and what you did about it. Take a moment first.",
+      "shifts": [
+        {
+          "regular": "faruq",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Faruq's button if the story lands. The tune he plays back can be as funny or as sad as the day was."
+    },
+    {
+      "id": "the-city-goes-to-bed",
+      "kind": "roleplay",
+      "title": "The city goes to bed",
+      "text": "At midnight, the city starts going to sleep in an order the regulars know by heart. The old town's lanterns go first, doorway by doorway. Then the campus windows on the cliff top, one row at a time. Then the newcomers' streets. The factories never go out at all. Sayo narrates each one like a race. Somewhere across the water, one single window stays lit long after everything around it has gone dark.",
+      "prompt": "Somewhere past all those lights is home, wherever home is for your character. Which way is it from this roof, and what's happening there right now, at this hour? Take a moment first.",
+      "note": "Anyone who wants to can also decide whose that one lit window is, and what they're doing up so late."
+    },
+    {
+      "id": "the-padlock",
+      "kind": "dilemma",
+      "title": "The new padlock",
+      "text": "When the group come down, Isamu is waiting at the foot of the ladder in his dressing gown, holding a brand-new brass padlock with two keys on a string. The office has sent it round with a note: the roof ladder is to be locked, from tonight. He says his shoulder is bad, and holds the padlock out to the nearest candidate. Sayo and Faruq are still up on the roof.",
+      "prompt": "Isamu is holding out a new brass padlock and two keys, and Sayo and Faruq are still up there. What do you do with it?",
+      "check": "A third way, if anyone tries it: lock the ladder but keep the second key, by Thievery (Palm an Object) against Isamu's Perception DC, or by asking him for it with Diplomacy against his Will DC.",
+      "outcomes": {
+        "criticalSuccess": "The ladder is locked, the office is satisfied, and the second key is in a candidate's pocket. Isamu either never noticed, or has decided not to have noticed.",
+        "success": "The key is theirs. If they asked for it, Isamu hands it over while looking at the ceiling and says he can't imagine what they want it for.",
+        "failure": "Isamu keeps both keys, and the ladder is locked.",
+        "criticalFailure": "Isamu catches them at it, and has to take it seriously. The ladder is locked, both keys go on his belt, and he goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "isamu",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "sayo",
+          "change": -1,
+          "when": "any"
+        },
+        {
+          "regular": "faruq",
+          "change": -1,
+          "when": "any"
+        }
+      ],
+      "note": "LOCKING IT AS ORDERED: Isamu up, Sayo and Faruq down.\n\nREFUSING: refusing the order, or leaving it unlocked for Isamu to deal with: press the reverse by hand (Isamu down, Sayo and Faruq up), and the padlock goes into his drawer \"until the office asks\". The rolls only come in if someone tries the third way.\n\nLATER VISITS: if the ladder is locked, it stays locked on every later visit: the group need the second key, Isamu's goodwill (friendly or better, and he leaves it on the stairwell hook), or Thievery (Pick a Lock) at the level-based DC. Either answer is a fair one: the office's rules are coming either way, and somebody loses by it. This comes back as the city keeps changing."
+    },
+    {
+      "id": "the-harbour-clock",
+      "kind": "informant",
+      "title": "Sayo's harbour clock",
+      "text": "Sayo has watched the harbour from this roof every clear night for a year, and she knows it like a clock. The last ferry crosses at a quarter to midnight. The pilot boat goes out the moment a ship's lights show past the headland. The fishing boats leave the old town at four, all together, like ducks. And she has noticed one thing nobody else seems to have: the night before a Frame goes out of the hangars in the morning, the tugs are moved out of the berths below the hangars, and the canteen kitchens light up at four instead of five. \"You can tell a day before anyone in the office tells you. Tonight? Berths full, kitchens dark. Nothing's going anywhere.\"",
+      "prompt": "Sayo is pointing out the harbour's night, piece by piece. What do you ask her about it?",
+      "note": "True, and ordinary: the tugs and the kitchens get their orders the night before anything leaves the hangars. A player who remembers it can see an exercise or a call-out coming a night early, from any rooftop with a view of the berths."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The cold wins, or Isamu's keys rattle on the stairs for the last time tonight, and the group climb down.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The ladder is colder going down than it was coming up, and the third rung wobbles again, just to be sure you remember it.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Who read the city by its lights, and has the +1 to Will saves until their next rest.",
+      "Anything of theirs that went over the edge into the yard.",
+      "Whether the padlock went on, and who has the second key.",
+      "Whose name went in Isamu's book, and whose name went on Sayo's chart."
+    ],
+    "position": {
+      "locationRef": "row-e-block-9",
+      "state": "together",
+      "note": "They climb down together and go back to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They make a lot of noise: draw the warden's torch next, starting at its failure. They lie to Isamu about where they've been: Deception against his Perception DC; he badly wants to believe them, so on any success he does, and on a critical failure he writes them in his book for insulting his intelligence. They take or read Sayo's chart without asking: Thievery against her Perception DC; caught, she goes to hostile and the blanket is closed to them. They try to cross to the next block's roof: it's a long gap and a long drop, Athletics (Long Jump) at the level-based DC plus 5, and Sayo won't watch; a failure is a scramble back to safety and the warden's torch. Anyone who picks a fight: nobody up here will fight; Sayo and Faruq climb down, and neither will be up here next time until someone makes amends. They split up: the roof is small, so run each corner as its own small event. They go down early: the rest still counts if they go straight to bed."
+}

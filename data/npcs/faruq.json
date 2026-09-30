@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "faruq",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Faruq Sallah",
+  "role": "Candidate from Katapesh, harmonica player",
+  "pole": null,
+  "ancestry": "Pahtra",
+  "affiliation": null,
+  "description": "A quiet young pahtra from Katapesh, far across the sea: short tawny fur, tall ears, a candidate's tunic worn under a maroon wool scarf that is the loudest thing on the roof. He plays the harmonica and says very little, tapping it against his palm before he plays, and answering a question he dislikes with two notes, going down. Soft, few words, very dry.\n\nHe wants quiet, the roof the way it was when he found it, and to remember how the rest of one particular song goes.",
+  "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--the-roof.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Pahtra ('Pahtras are a humanoid feline species from a nearby star system.' -- ancestry-catalogue.json): an alien ancestry: aliens are rare in Kurose and draw stares, and many refuse to wear glamour (canon/world/glamour.md, D024), which makes this one of the room's sore thumbs.\n\nPORTRAIT: See the asset registry note for faruq: second attempt: an Abyssinian-cat Pahtra with a maroon scarf blazing against the teal; image 1 (harmonica in hand). Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nHer or his real statblock is still a placeholder in the scene file (Proposed for Faruq Sallah: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "what-the-last-tune-is",
+        "text": "it was his mother's, he has lost the end of it, and he has been trying to find it again for a year.",
+        "revealTrigger": {
+          "narrative": "Friendly or better, and a Diplomacy check at his Will DC"
+        },
+        "revealed": false
+      }
+    ]
+  }
+}

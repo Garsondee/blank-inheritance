@@ -1,0 +1,623 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "discovery--the-magic-show",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "magic-show",
+  "title": "The Magic Show",
+  "summary": "Somewhere new, on the first night: a private magic show in the Market Hall after hours, where a travelling company fills the hall with illusions you sit inside. A quarter of maximum HP, a sharper eye in the morning, and a volunteer's gamble on stage that can pay better than any ordinary rest or leave its mark.",
+  "goal": "Each player who chose somewhere new has watched the show in character, taken part in at least one moment of it, and leaves with a quarter of their HP back, the show's bonus or the volunteer's result, and half a ticket with their name in the performer's book.",
+  "howToPlay": "A discovery, played once: a menu, not a script. The players chose it without knowing what it was, so let them find it. Set the door, give each player a turn to say where their character sits, then draw events from the deck while the show runs, one or two per player or as many as the table is enjoying. The finale is the gamble: one volunteer walks into the picture. The regulars' attitudes move with what happens, and each of them opens or closes something for the group as they do.",
+  "runsAbout": "15-25 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "The Market Hall after hours: the stalls pushed back against the walls and shuttered, rows of borrowed benches, a stove by the front row, and blankets pinned over the high windows so no light shows outside. At the back, on a scaffold, the Oddwater Company's brass lantern hums to itself. Under its light, the roof of the hall becomes whatever Tamsin Oddwater says it is.",
+    "changes": "Each time the company comes back to Kurose, the city has changed and the show changes with it: bigger rooms, bigger audiences, more of them from far away, and a little more care about who sees the light under the door.",
+    "discovery": true,
+    "oneTime": true
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "Automatically, each character who watched the finale gains a +1 status bonus to Perception checks until their next rest: the world looks sharper after the show. The gamble is the volunteer. Tamsin asks for one volunteer to walk into the finale; any character can put a hand up, and she picks one (two if the table is enjoying it). The volunteer rolls a Will save at the level-based DC (15 at level 1), or Performance at the same DC if they play it to the crowd. Critical success: temporary Hit Points equal to twice their level, and a +1 status bonus to all saving throws, both until their next rest. Success: temporary Hit Points equal to twice their level until their next rest. Failure: the ordinary Perception bonus, and a round of applause. Critical failure: the picture stays with them, and the floor keeps tilting whenever they shut their eyes; they are Stupefied 1 until their next rest, and do not get the Perception bonus."
+  },
+  "intro": {
+    "where": "Somewhere new: a player chose it on The City without knowing what it was. Walking the island at night, they find a private magic show in the Market Hall, after hours.",
+    "firstThing": "Music from a building that ought to be shut, muffled by blankets over the windows.",
+    "readAloud": "Somewhere on the island's grid of dark offices, there is music coming from a building that ought to be shut: a fiddle and a little drum, muffled, as if someone has hung blankets over the windows. It's the Market Hall, the covered market, and its shutters are down for the night.\n\nIn the alley along its side, people in their good coats are waiting at a small door, one at a time. Each of them knocks twice, says something quietly, and goes in.\n\nWhen it's your turn, the door opens a hand's width, and a broad man in a stagehand's apron looks you up and down. \"Private show,\" he says. \"What's in your pocket is the ticket, and what you see stays in here.\"",
+    "carriesIn": [
+      {
+        "when": "A character arrives still wet or muddy from the night's duty",
+        "then": "Daisuke hands them a towel from the prop basket without a word, and Mrs Handa moves up to make room for them by the stove."
+      }
+    ],
+    "holdInReserve": "Tamsin's book of names has a page for every town the company has played, going back more than a hundred years, and beside each name is the seat its owner sat in. Kurose's first page is from when it was a fishing village with one road in.",
+    "landmark": "The brass lantern on its scaffold at the back of the hall, the size of a kitchen stove, which throws every illusion.",
+    "position": {
+      "locationRef": "the-market-hall-456",
+      "state": "together",
+      "note": "Everyone who chose somewhere new is here together. They leave by the side door when the show ends."
+    }
+  },
+  "cast": [
+    {
+      "id": "tamsin",
+      "npcRef": "tamsin",
+      "label": "Tamsin Oddwater",
+      "role": "illusionist, and the head of the Oddwater Company",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "faction": "the-oddwater-company",
+        "byAttitude": {
+          "hostile": "Plays the whole show without once looking their way, and when she has to speak of them, refers to them as the people who know better.",
+          "unfriendly": "Cool and professional. Her jokes land on everyone in the hall except them.",
+          "indifferent": "Treats them as an audience: charming, a little distant, busy.",
+          "friendly": "Plays half of every act to their benches, and wants to know what they thought at the door.",
+          "helpful": "Takes them backstage after the show, and talks to them as if they were already part of the company."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "When she asks for a volunteer, she picks a character of theirs who puts a hand up, before anyone else in the hall."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Backstage after the show, she lets them put a hand into the lantern's beam and shows them how an illusion is made. Until their next rest, each of them gains a +1 circumstance bonus to Perception checks and Will saves to see through an illusion."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "She will not pick them as the volunteer, however high their hands go."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "She names them from the stage, and the lights find them all through the next act: every check they make during the rest of the show is at +2 DC."
+          }
+        ],
+        "wants": "A full hall that gasps in the right places, and to know, at the door, which part each person will remember.",
+        "opensWith": "\"You were in the third row, on the end. What did you like best? Be honest. I can take it.\"",
+        "willDiscuss": [
+          {
+            "topic": "The company",
+            "note": "She was born on a river barge, joined the company at nine, and has run it for longer than anyone in the hall has been alive. It is her, Daisuke, and whoever they hire in each town."
+          },
+          {
+            "topic": "Kurose",
+            "note": "She first played here when it was a fishing village with one road in, in a net shed, to thirty people. She likes it better now, and says so."
+          },
+          {
+            "topic": "Why the show is private",
+            "note": "\"Showy magic is for emergencies, they say. So we have a small emergency, once a month, behind a blanket.\""
+          },
+          {
+            "topic": "The book of names",
+            "note": "\"I like to know who I played for. When we come back, I write to them.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "How the finale is done",
+            "why": "A trade secret, and the only one she keeps. \"If I told you, it would just be a lantern and an old woman waving her arms.\""
+          },
+          {
+            "topic": "Who built the lantern",
+            "why": "Her husband, Aubrey, who died on the road six years ago. She will talk about the lantern for an hour, and never about him; she changes the subject by asking about theirs."
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "Where the company is going next",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: along the coast, town by town, and back to Kurose when it can. She never says when, because private shows are safer unannounced."
+          }
+        ],
+        "voice": {
+          "register": "On stage, huge and warm. Off stage, quick, plain and funny, like somebody's favourite aunt.",
+          "tics": [
+            "Greets a town by name like an old friend she is slightly worried about.",
+            "Asks a question and answers it herself before anyone else can."
+          ],
+          "samples": [
+            "\"Good evening, Kurose. You've grown.\"",
+            "\"Did you like the whale? Of course you did. Everyone likes the whale.\"",
+            "\"No, you can't see the lantern. Yes, it's hot. Go home.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Is it real?",
+            "a": "\"The light is real. The whale is mine. Whether it's real is up to you.\""
+          },
+          {
+            "q": "Are you a gnome?",
+            "a": "\"Since birth. On stage I'm taller. It's easier on the back rows.\""
+          },
+          {
+            "q": "How long have you been doing this?",
+            "a": "\"Long enough to have played Kurose when it was a fishing village with one road in. Look at it now.\""
+          },
+          {
+            "q": "Why is it a secret show?",
+            "a": "\"It isn't a secret, it's private. Everybody knows. Nobody says. That's how Kurose likes its magic.\""
+          },
+          {
+            "q": "Why do you want our names?",
+            "a": "\"So I know who I played for. And so I can find you when there's a next time.\""
+          },
+          {
+            "q": "Can we come again?",
+            "a": "\"Keep your half of the ticket, my dear. That's what it's for.\""
+          }
+        ],
+        "statblock": "Proposed: level 3, a gnome illusionist and stage performer; a spellcaster whose spells are illusions, who avoids a fight but is dangerous to start one with. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "daisuke",
+      "npcRef": "daisuke",
+      "label": "Daisuke Kanno",
+      "role": "stagehand, doorman and lantern-keeper for the Oddwater Company",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "faction": "the-oddwater-company",
+        "byAttitude": {
+          "hostile": "Stands at the end of their bench with his arms folded for the whole show.",
+          "unfriendly": "Takes their tickets and says nothing, and keeps an eye on them from the scaffold.",
+          "indifferent": "Polite, busy, and gone the moment the lights go down.",
+          "friendly": "Stops at their bench in the interval to ask what they thought of the sea.",
+          "helpful": "Treats them like old friends from home, and tells them things about the show that Tamsin would rather he didn't."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "He finds them the good bench by the stove, and in the interval brings them barley tea from the company's urn and won't take money for it."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "He lets them watch the finale from the scaffold beside the lantern, and sees them backstage without anyone asking: any check to work out how an effect is done gains a +2 circumstance bonus."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "He seats them on the bench behind the iron pillar, where half of every act happens round the corner: any check to work out how an effect is done is at +2 DC."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "He walks them out through the side door before the finale, politely and completely. They keep the quarter HP, and get no Perception bonus."
+          }
+        ],
+        "wants": "To get through a week in his home town without his mother finding out he is here.",
+        "opensWith": "\"Coats on till she starts. It's cold in here until the sea comes in.\"",
+        "willDiscuss": [
+          {
+            "topic": "The lantern",
+            "note": "He keeps it: cleans the brass, carries it, feeds it. \"She does the magic. I stop it falling over.\""
+          },
+          {
+            "topic": "Running away with the company",
+            "note": "He is from Kurose's old town. He went to one of Tamsin's shows at sixteen and left with the company the next morning, twenty years ago."
+          },
+          {
+            "topic": "How Kurose has changed",
+            "note": "Trams, electric light, an island full of strangers. \"I left a village. I've come back to a city. Nobody told me.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "His family",
+            "why": "They are still in the old town, and he has not told them he is back. He left without saying goodbye and has never known how to walk up to the door. \"Another time.\""
+          },
+          {
+            "topic": "How the lantern works",
+            "why": "It's Tamsin's, and so is the secret. \"Ask her. She won't tell you either.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "Whether he means to see his family",
+            "how": "Friendly or better, and a Diplomacy check at his Will DC: he does, and he's frightened of it, and he'd go if somebody walked him to the end of the street."
+          }
+        ],
+        "voice": {
+          "register": "Short and dry, with a laugh he tries to keep in.",
+          "tics": [
+            "Puts a hand on something solid before he starts any job, as if the floor might argue.",
+            "Calls Tamsin 'the boss', never by her name."
+          ],
+          "samples": [
+            "\"Mind the cable.\"",
+            "\"The boss says no. The boss always says no. Come round the back in five minutes.\"",
+            "\"Twenty years. The fish shop's a bank now.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What is this?",
+            "a": "\"A magic show. The proper kind. Sit down and find out.\""
+          },
+          {
+            "q": "How much are tickets?",
+            "a": "\"What's in your pocket. If it's nothing, it's nothing. She'd rather a full hall.\""
+          },
+          {
+            "q": "Are you from here?",
+            "a": "\"From the old town. A long time ago.\" He looks at the door. \"Don't tell anyone.\""
+          },
+          {
+            "q": "What's the big brass thing at the back?",
+            "a": "\"The lantern. Don't touch it. It's hot, it's old, and it's hers.\""
+          },
+          {
+            "q": "Is this allowed?",
+            "a": "\"It's private. Private's allowed. Mostly.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a strong stagehand used to heavy rigging; no fighter, but he will put himself between trouble and the lantern. Made with Ingram."
+      }
+    },
+    {
+      "id": "mrs-handa",
+      "npcRef": "mrs-handa",
+      "label": "Mrs Chiyoko Handa",
+      "role": "keeps the pickle stall in the Market Hall, front row at every show",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Tells the whole front row, in a whisper that carries, exactly what she thinks of them.",
+          "unfriendly": "Shushes them before they have said anything.",
+          "indifferent": "Nods, and turns back to the stage. She is here for the show.",
+          "friendly": "Offers them a ginger sweet from a paper twist, and tells them to watch the left-hand wall in the second act.",
+          "helpful": "Tells everyone near her that these are good young people, and saves them the front row next to her."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "She whispers what is coming in each act, which she knows by heart: a +1 circumstance bonus to any check during the show that knowing what comes next would help, such as keeping their seat when the dragon comes."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Her stall in the Market Hall becomes theirs to use: she keeps messages for them and passes them on, and gives them a jar of pickles every time they come by."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "She shushes them, loudly, every time they speak, and the rows around them turn to look: any Deception or Stealth check they make during the show is at +2 DC."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "She tells the market. At any stall in the Market Hall, by day, nobody sells to them at the ordinary price."
+          }
+        ],
+        "wants": "To see the dragon one more time from the front row, and for young people to learn to sit still through it.",
+        "opensWith": "\"You're sitting in Mr Obata's seat. He died in the spring. You can have it if you're quiet.\"",
+        "willDiscuss": [
+          {
+            "topic": "Every show she has ever seen",
+            "note": "She has been to every show the Oddwater Company has played in Kurose for thirty years, and describes each one, in order, if allowed."
+          },
+          {
+            "topic": "The market",
+            "note": "Who sells what, who cheats on weight, and which stallholders have taken a second job at the Directorate since the island filled up."
+          },
+          {
+            "topic": "Good manners",
+            "note": "A glamour in public is good manners, the same as a clean collar. She says it without malice and means it."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What she wishes for in the lantern act",
+            "why": "The same wish every year, and it has never come true. \"If I told you, it wouldn't come.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "Who in the market to trust",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC; or buy a jar of pickles and ask nicely."
+          }
+        ],
+        "voice": {
+          "register": "Brisk, bossy, fond. Talks to young people as if they were her grandchildren, whether they are or not.",
+          "tics": [
+            "Draws herself up an inch before she tells anyone off, so you always get a moment to reconsider.",
+            "Pats the arm of whoever she is talking to."
+          ],
+          "samples": [
+            "\"Feet off the bench.\"",
+            "\"Watch the left wall. No, the left. Your other left.\"",
+            "\"Thirty years, and she still does the whale first. Quite right.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Have you been before?",
+            "a": "\"Every time, for thirty years. I've never missed one, and I don't intend to start.\""
+          },
+          {
+            "q": "What's the best part?",
+            "a": "\"The dragon. Don't tell her I said so. She thinks it's the whale.\""
+          },
+          {
+            "q": "Who's the little boy?",
+            "a": "\"My great-grandson, Kenta. Six. His first show. He'll either love it or cry, and I've brought a handkerchief for both.\""
+          },
+          {
+            "q": "Why is it so secret?",
+            "a": "\"It isn't secret, it's private. My mother came to these. Everybody's been to one. You just don't talk about it at the tram stop.\""
+          },
+          {
+            "q": "What do you sell?",
+            "a": "\"Pickles. The best on the island. Plum, radish, ginger. Come by in the morning and I'll prove it.\""
+          }
+        ],
+        "statblock": "Proposed: level -1, an elderly civilian with a sharp tongue and a sharper memory; non-combat. Made with Ingram."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-side-door",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the door. Daisuke takes whatever is in their pockets as the ticket and lets them in; Mrs Handa is already in the front row.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-seat",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"Where in the hall does your character sit, and who do they end up next to?\" Give them a moment. The front row is Mrs Handa's, by the stove; the bench behind the iron pillar is the one nobody wants.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-show",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "The lights go out all at once. In the dark, a woman's voice, much bigger than any woman, says, \"Good evening, Kurose. Tonight, the sea is coming in.\" And then it does: cold blue light pours down the walls and fills the hall to the roof, and fish the size of your hand go flickering between the benches.",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. The show is two acts, the sea and then the lantern city, with an interval between; play each event where it fits. Played events never come back; put back any the table never saw.",
+      "facts": [
+        "glamour.debate",
+        "kurose.fishing-village"
+      ],
+      "gmFacts": [
+        "era.engines"
+      ]
+    },
+    {
+      "id": "the-finale",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "solo",
+      "readAloud": "The lights go down to a single beam. The tall woman made of light who has been on stage all night lets herself go out like a candle, and the one left standing there is a gnome in a patched coat, a little over three feet tall, with copper hair and ink on her fingers. \"I need,\" says Tamsin Oddwater, \"one volunteer.\"",
+      "text": "Take the raised hands, and let Tamsin pick one volunteer, or two if the table is enjoying it; her doors say whom she favours. Ask the volunteer, word for word: \"Where would you go tonight, if you could go anywhere at all?\" Describe the hall becoming that place around them, then roll the volunteer's check (the rest).",
+      "direction": "If nobody puts a hand up, Tamsin picks Mrs Handa, who has volunteered every year for thirty years, and the hall becomes a beach at dawn.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-way-out",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Tamsin stands at the side door and shakes every hand on the way out. She asks each character their name and where to send word, writes both in her book, and tears each of them half a ticket: \"Keep your half. When there's a next performance, the other half comes to you, and that's your invitation.\" Apply the rest.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "the-whale",
+      "kind": "roleplay",
+      "title": "The whale",
+      "text": "In the first act, a whale made of light swims the length of the hall under the roof, so low that its belly passes an arm's length above one character's head. It turns one great eye to look at them as it goes by.",
+      "prompt": "The whale is right above you, and it is looking at you. What does your character do?"
+    },
+    {
+      "id": "the-cloud",
+      "kind": "roll",
+      "title": "The cloud that wandered off",
+      "text": "A small rain cloud Tamsin has made to rain on her sea drifts off its mark and settles over one character, raining light on them. The rain is cold, like the real thing, though they stay dry. From the stage: \"Would you be so kind as to bring my cloud back?\"",
+      "prompt": "The whole hall has turned round to look at you and your cloud. How do you get it back to the stage?",
+      "check": "Performance, or Deception to make it look planned, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They lead it back to the stage like a dog on a lead, and it rains on Tamsin instead. The hall roars. Tamsin goes up a step, and if the character wants the volunteer slot at the finale, it is theirs.",
+        "success": "The cloud goes back where it belongs, and the hall applauds.",
+        "failure": "The cloud follows them back to their seat and rains on them for the rest of the act. The hall laughs, kindly.",
+        "criticalFailure": "They swipe at it, and their hand goes into the lantern's beam. The whole hall goes dark for a long moment while Daisuke restarts the lantern, and he goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tamsin",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "daisuke",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "how-is-it-done",
+      "kind": "roll",
+      "title": "How is it done?",
+      "text": "A character tries to work out how the illusions are made: where the light comes from, and who is shaping it.",
+      "prompt": "You're watching the stage, the walls and the back of the hall at once. What is your character looking for?",
+      "check": "Arcana or Occultism (Recall Knowledge), or Perception, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "It is two things at once: the brass lantern at the back throws the light, and Tamsin shapes it with her hands, a heartbeat before every change. She catches their eye across the hall and winks. Tamsin goes up a step.",
+        "success": "It is real illusion magic, shaped by someone very good at it, and far stronger than the cheap glamours sold on the high street.",
+        "failure": "They can't tell. It looks real, all of it.",
+        "criticalFailure": "They decide it is all done with mirrors, and say so, loud enough for three rows to hear. Mrs Handa turns round and shushes them, and goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tamsin",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "mrs-handa",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-dragon",
+      "kind": "roll",
+      "title": "The dragon",
+      "text": "In the second act, the roof becomes a city of paper lanterns, and a dragon of red and gold light comes down out of it, flies the length of the hall at head height, and turns at the far end to come back along the front row.",
+      "prompt": "The dragon is coming straight down the row at you. What does your character do?",
+      "check": "A Will save at the level-based DC (15 at level 1), to keep their seat.",
+      "outcomes": {
+        "criticalSuccess": "They don't flinch. The dragon stops an arm's length from their face and bows its head to them, and the hall applauds. Tamsin goes up a step.",
+        "success": "They keep their seat and watch it all the way past.",
+        "failure": "They duck with the whole front row, and come up laughing with them.",
+        "criticalFailure": "They throw themselves backwards off the bench, and the whole bench goes over, with Mrs Handa on the end of it. Nobody is hurt. Mrs Handa is helped up, straightens her hat, and goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tamsin",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "mrs-handa",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-wish-lanterns",
+      "kind": "buff",
+      "title": "The wish lanterns",
+      "text": "Near the end of the second act, a paper lantern drifts down to every seat, with a pencil tied to it. Tamsin asks the hall to write a wish on the paper. When everyone has, the lanterns rise into the roof and become stars.",
+      "prompt": "What does your character write on their lantern? They don't have to tell anyone.",
+      "note": "Everyone who writes a wish gains temporary Hit Points equal to their level until their next rest. Temporary Hit Points come from one source at a time: a volunteer who wins more at the finale keeps the larger amount."
+    },
+    {
+      "id": "kenta",
+      "kind": "roleplay",
+      "title": "Kenta's first show",
+      "text": "Mrs Handa's great-grandson, Kenta, six years old and at his first show, has decided the dragon is coming back for him. He has climbed off her lap and pushed his face into the sleeve of the nearest character.",
+      "prompt": "Kenta is hiding in your character's sleeve, and the dragon is coming round again. What does your character do or say?",
+      "shifts": [
+        {
+          "regular": "mrs-handa",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Mrs Handa's button if Kenta comes out of the sleeve smiling. There is nothing to roll."
+    },
+    {
+      "id": "the-interval",
+      "kind": "roleplay",
+      "title": "The queue for tea",
+      "text": "The interval. The house lights come up a little, and there is a queue for barley tea at Daisuke's urn. A stranger in the queue, still blinking, asks the nearest character whether they have ever seen anything like it.",
+      "prompt": "Tell us the most wonderful thing your character had ever seen before tonight. Where were they, and who were they with? Take a moment."
+    },
+    {
+      "id": "the-glamour-song",
+      "kind": "dilemma",
+      "title": "One song without a glamour",
+      "text": "Before the last song of the second act, Tamsin tells the hall that anyone wearing a glamour is welcome to let it go for one song: under her lights, everyone looks like something wonderful anyway. The tall man in the row in front of the group does. His own face is grey-green and scaled, with gold eyes. When the house lights come up for the interval he has forgotten to put the glamour back, and Mrs Handa, beside him with Kenta, says loudly that he should have the manners to cover up with children present. He turns round. He is looking at the group, who saw it all.",
+      "prompt": "The man is looking at you, and so is Mrs Handa. Does your character say anything?",
+      "shifts": [
+        {
+          "regular": "tamsin",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "mrs-handa",
+          "change": -1,
+          "when": "any"
+        }
+      ],
+      "note": "Backing the man: press these (Tamsin up, because she asked for it; Mrs Handa down). Backing Mrs Handa: press the reverse by hand (Mrs Handa up, Tamsin down). Saying nothing: press nothing, and the man puts his glamour back on and leaves before the finale. Either answer is a fair one: some in the city call a glamour good manners, and some say it has pushed people into hiding who have done nothing wrong."
+    },
+    {
+      "id": "the-watchman",
+      "kind": "informant",
+      "title": "The night watchman",
+      "text": "Mr Ikeda, the old night watchman who unlocked the hall for the company, is warming his hands at the stove in the interval, and talks to whoever stands next to him. Officers from the Directorate come to these shows, he says, in civilian coats. They sit at the back and leave before the lights come up: the same ones who would tell you showy magic is only for emergencies. Tonight there is one in the back row with a moustache, laughing louder than anyone.",
+      "prompt": "Mr Ikeda nods at the back row and grins at your character. What do you ask him?",
+      "note": "HOW TO PLAY IT. Mr Ikeda shares this freely and thinks it is funny: the people who make the rules like a guilty pleasure as much as anyone. GM-ONLY. The officer is nobody the group has met, and is not a threat. If a character goes to the back row to look, the seat is empty and still warm."
+    },
+    {
+      "id": "backstage",
+      "kind": "roll",
+      "title": "Behind the curtain",
+      "text": "In the interval, a character wants to see behind the hanging sheet at the side of the stage, where Tamsin went.",
+      "prompt": "The sheet is right there, and Daisuke is busy with the tea. How does your character get a look behind it?",
+      "check": "Stealth against Daisuke's Perception DC, or Diplomacy against his Will DC to be let through.",
+      "outcomes": {
+        "criticalSuccess": "Daisuke not only lets them look, he takes them up the scaffold to see the lantern: warm as a stove, humming, with the chalk marks on the floor where every illusion stands. Daisuke goes up a step.",
+        "success": "A look: the lantern humming on its scaffold, chalk marks all over the floor, and Tamsin eating a rice ball with her feet up on a crate.",
+        "failure": "Daisuke turns them round by the shoulders. No hard feelings.",
+        "criticalFailure": "They trip over a crate of props in the dark, and the second act starts ten minutes late while Daisuke puts it all back. He goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "daisuke",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "daisuke",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Tamsin has shaken the last hand at the side door.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Outside, the island is dark and quiet again, and the sky over it is the ordinary one.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Who volunteered, where they asked to go, and how their check went.",
+      "Whose names went into Tamsin's book, with where to send word, and who kept half a ticket.",
+      "What the group said, if anything, about the man without his glamour."
+    ],
+    "position": {
+      "locationRef": "the-market-hall-456",
+      "state": "together",
+      "note": "They leave together by the side door and walk back to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "WHAT THIS IS. A private magic show. Showy magic is frowned on in Kurose except in an emergency, so shows like this run behind blankets: a guilty pleasure, and most people in the city have been to at least one. The Oddwater Company is exactly what it looks like: two honest performers, a lantern, and a hired hall.\n\nTHE BOOK AND THE TICKET HALVES. Tamsin writes each character's name, and where to send word, in her book, and gives each of them half a ticket. That is the company's invitation list. Keep a note of who is on it.\n\nIF THE GROUP DO SOMETHING ELSE. They cast a spell of their own during the show: Tamsin weaves it into the act if she can (Performance or Arcana at her Will DC to make it look planned, and she goes up a step) or stops the show to ask them not to, and goes down a step. They try to read or take the book: Thievery against Tamsin's Perception DC; caught, she goes to unfriendly and Daisuke to hostile. They heckle: Tamsin sends a rain cloud to follow the heckler for the rest of the act, and Mrs Handa goes down a step. They leave before the finale: the quarter HP, and no Perception bonus. They split up across the hall: run each bench as its own small event."
+}

@@ -1,0 +1,671 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--card-game",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "card-game",
+  "title": "The Card Game",
+  "summary": "The common room of Row F, Block 5, where a card game has been running for longer than anyone living there has been a candidate. A quarter of maximum HP, a hand of Last Ferry played for chores and favours, and a debt board that remembers everything.",
+  "goal": "Each player who came here has sat at the table in character, played at least one hand, and leaves with a quarter of their HP back and their name on the debt board, owing something or owed something, with regulars who will remember how they played.",
+  "howToPlay": "A haunt: a menu, not a script. Set the room, have each player chalk their character's name on the board, deal everyone a hand, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, buffs and chances to talk in character. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "The common room of Row F, Block 5, where a card game called Last Ferry has been running, with players coming and going, for longer than anyone living in the block has been a candidate. The debt board hangs on the wall behind the door, so the game starts when the door shuts. The stakes are chores and favours, never money, and nobody in the block treats the board as a joke.",
+    "changes": "As the city's money reaches the island, candidates come back from their leave days with city habits, and every few weeks somebody asks whether the board should take credits. Michiru always says never. Somebody will ask again, and one day she won't be here to answer.",
+    "upgrades": [
+      {
+        "id": "the-stove",
+        "title": "The stove",
+        "text": "The old iron stove in the corner of the common room is lit again. The room stays warm all night, the Admiral moves from the radiator to the stove, and the game runs till dawn.",
+        "how": "Mend the stove, Crafting (Repair) at the level-based DC + 2, or buy the block a winter's coal (the GM sets the credits).",
+        "rest": {
+          "hp": "half",
+          "buff": "The gamble as before: every character who plays a hand of Last Ferry rolls for chores and favours at the level-based DC, and the board keeps the result."
+        }
+      },
+      {
+        "id": "keeper-of-the-board",
+        "title": "Keeper of the board",
+        "text": "When Michiru's time as a candidate is over, she hands the chalk to one of the group. The new keeper settles disputes, reads the board at the last hand, and learns what the forty-one favours in the keeper's column are for.",
+        "how": "Be helpful with Michiru when she leaves, and never have been written in red."
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "credits-on-the-board",
+        "title": "Credits on the board",
+        "text": "The block votes to let the board take credits. From then on every chore has a price, a critical failure on a hand costs credits as well as a favour, and the room starts to feel like a card house on the waterfront.",
+        "lasting": "permanent"
+      },
+      {
+        "id": "the-board-taken-down",
+        "title": "The board taken down",
+        "text": "Warden Ogata takes the debt board down for a fortnight after trouble in the block, such as the Ninth Pier's visit or a fight. No hands are played while it is gone.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "quarter",
+          "buff": "Nothing: with the board gone, there is no game to play."
+        }
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "Nothing is given automatically: the game is the gamble. Each character who plays a hand of Last Ferry rolls Deception (to bluff), Thievery (to cheat, by palming or passing a card they shouldn't) or Society (to read the table) at the level-based DC (15 at level 1). On a critical success they win a favour, owed by whoever lost the hand, a regular or another character, and it goes on the board in yellow chalk. On a success, one chore comes off their own list. On a failure they owe a chore. On a critical failure they owe a favour to someone they'd rather not owe: Lucan, unless the GM has somebody worse in mind. A critical failure with Thievery is also a cheat seen by the whole table, and Michiru writes it in red. A chore is a named job around the block; a favour is anything reasonable, asked for once."
+  },
+  "intro": {
+    "where": "The common room of Row F, Block 5, a candidates' block on the island, late at night.",
+    "firstThing": "The door being shut behind them, and the board on the back wall that the door was hiding.",
+    "readAloud": "The common room of Row F, Block 5 is warm and crowded, and it smells of tea and damp coats. A card table stands in the middle under the one good lamp, with six chairs round it that don't match, and an enormous ginger cat is asleep on the radiator. Somebody shuts the door behind you, and on the wall it was hiding hangs a board as big as the door itself, ruled into columns and covered from top to bottom in chalk: names, and under every name the jobs that person owes.\n\nRight at the top, painted in blue and older than anything else in the room, one line reads: Blue Hat owes the block one favour. At the table, a young woman with a stub of chalk behind her ear looks up from the deck she's shuffling.\n\n\"Door shut, please,\" she says. \"Are you playing?\"",
+    "carriesIn": [
+      {
+        "when": "A character came here straight from the flood tunnel",
+        "then": "Michiru puts a towel on the chair nearest the radiator before they sit in it, and the cat moves over, very slightly."
+      }
+    ],
+    "holdInReserve": "Michiru's column is at the far end of the board. Every line in it is a favour owed to her, forty-one of them, and not one has ever been called in. Anyone who asks is told it's the keeper's column and isn't in play.",
+    "landmark": "The debt board behind the common-room door, with Blue Hat's line painted across the top.",
+    "position": {
+      "locationRef": "row-f-block-5",
+      "state": "together",
+      "note": "Everyone who chose the card game is here together. They walk back across the rows to their own bunks when Michiru calls the last hand."
+    }
+  },
+  "cast": [
+    {
+      "id": "michiru",
+      "npcRef": "michiru",
+      "label": "Michiru Arai",
+      "role": "third-termer, the dealer and keeper of the debt board",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Rubs their names off the board and deals round their chairs as if they were empty.",
+          "unfriendly": "Deals to them, and reads every debt they run up aloud to the whole room as she chalks it.",
+          "indifferent": "Explains the rules once, deals fairly, and writes everything down.",
+          "friendly": "Tells them which chores on the board are easy and which only look easy, and offers them a swap before anyone else.",
+          "helpful": "Lets them hold the chalk for a hand, which in this block means she trusts them with the board."
+        },
+        "faction": "card-table",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "First pick of a swap: once a visit she offers them a chore swap before anyone else, so one of their chores becomes an easy one without a roll."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The chalk: she lets a character hold it for a hand, and they may rub one white-chalk chore off their column."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The keeper's patience: every debt they run up is read aloud to the room, and a favour owed to them can't be called in until it has been on the board a full week."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "A seat at the table: she deals round their chairs, so they play no hand, and the card game's rest gives them the quarter HP and nothing else."
+          }
+        ],
+        "wants": "A game kept honest, and somebody fit to keep the board when her time as a candidate is over.",
+        "opensWith": "\"First time? Then you owe the sinks. Everybody does. Sit down and win them off.\"",
+        "willDiscuss": [
+          {
+            "topic": "The rules of Last Ferry",
+            "note": "Four cards each; every round you pass one to your left; four of one suit and you slap the table and call 'Last ferry!' to win; whoever is holding the Ferryman, the one joker left in the deck, when somebody calls, pays double."
+          },
+          {
+            "topic": "The board",
+            "note": "White chalk is a chore, yellow is a favour, and red means somebody was caught cheating. The board says what you owe, and you pay it by the end of the week."
+          },
+          {
+            "topic": "Blue Hat",
+            "note": "Nobody knows who Blue Hat was. The line was painted before any keeper anyone can name, and every keeper hands it on."
+          },
+          {
+            "topic": "Who's who on the island",
+            "note": "Everyone who has ever sat at this table is in her exercise books, and the regulars know every candidate on the island by name, habit and debt."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Her own column",
+            "why": "Forty-one favours are owed to her, and she is saving every one of them to wipe Chiyo's list clean on the day she leaves. Chiyo mustn't know. \"Keeper's column. It isn't in play.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What her favours are for",
+            "how": "Helpful, or friendly and a Diplomacy check at her Will DC: she tells them the favours are for Chiyo, and asks them to keep it to themselves."
+          }
+        ],
+        "voice": {
+          "register": "Precise and dry, like a court clerk who enjoys the job more than she lets on.",
+          "tics": [
+            "Writes on the board while she talks, without looking at it.",
+            "Lets the board do her talking: a rule is a rule because it is up there, in her handwriting."
+          ],
+          "samples": [
+            "\"It's the sinks. I've already written it down.\"",
+            "\"I don't make the rules. I just write them down very neatly.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "How do you play?",
+            "a": "\"Four cards each. Every round you pass one to your left. Get four of a suit, slap the table and call 'Last ferry!', and you've won. Whoever's holding the Ferryman when someone calls pays double. That's him, the joker.\""
+          },
+          {
+            "q": "What do we play for?",
+            "a": "\"Chores and favours. White chalk's a chore, yellow's a favour. Red means somebody cheated, and you don't want to be in red.\""
+          },
+          {
+            "q": "Why not money?",
+            "a": "\"Because you can't pay the sinks in credits, and nobody's ever cried over losing the sinks.\""
+          },
+          {
+            "q": "How long has this game been going?",
+            "a": "\"Longer than me. Longer than the woman who gave me the chalk. Ask Blue Hat.\""
+          },
+          {
+            "q": "Who was Blue Hat?",
+            "a": "\"Nobody knows. That's the whole point of Blue Hat.\""
+          },
+          {
+            "q": "What's in your column?",
+            "a": "She doesn't look round. \"Keeper's column. It isn't in play.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "lucan",
+      "npcRef": "lucan",
+      "label": "Lucan Farrow",
+      "role": "second-termer from Absalom, a cardsharp who cheats",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Deals himself out when they sit down, and tells the room they cheat.",
+          "unfriendly": "Plays hardest against them, and cheats against them first.",
+          "indifferent": "Charming, as he is to anyone new, while he works out what they're worth at the table.",
+          "friendly": "Sits beside them, tells them the real rules, and gets a good look at their cards while he does it.",
+          "helpful": "Shows them how he palms a card, and swears them to secrecy with his hand on the deck."
+        },
+        "faction": "card-table",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The real rules: sitting beside them, he gives a +1 circumstance bonus to the hand of Last Ferry they play for the rest, while he gets a good look at their cards."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The palm: he shows them how he does it, which gives a +2 circumstance bonus to one Thievery check to Palm an Object before their next rest, and a quick pair of hands in private whenever they ask."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "An honest hand: he cheats against them first, and their hand of Last Ferry takes a -2 circumstance penalty whatever skill they use."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "Their good name: he tells the room they cheat, so a critical failure on their hand is written in red whatever skill they used."
+          }
+        ],
+        "wants": "To win, to be the cleverest person at the table, and, though he would never say so, to see Chiyo win a hand.",
+        "opensWith": "\"New blood! Sit by me. I'll explain the rules, and then someone else will explain the real rules.\"",
+        "willDiscuss": [
+          {
+            "topic": "Absalom",
+            "note": "The biggest city in the world, to hear him tell it, and he is banned from two card rooms there."
+          },
+          {
+            "topic": "How to win at Last Ferry",
+            "note": "Watch who passes hearts, never sit with your back to the window, and keep an eye on the Ferryman."
+          },
+          {
+            "topic": "The other blocks' games",
+            "note": "Every block has one, and they are all worse. \"Row A plays for boot polish. Boot polish!\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "His leave day in the city",
+            "why": "He played at a card house on the waterfront, won a great deal with a marked deck, and the house wants it back. He is frightened and hides it with jokes. \"I went to see the sea. Lovely sea.\""
+          },
+          {
+            "topic": "The cards he slips to Chiyo",
+            "why": "He has been cheating to make her win for a whole term, and it has never worked. \"I have no idea what you mean, friend.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "Why he's jumpy tonight",
+            "how": "Friendly and a Diplomacy check at his Will DC, or an Intimidation check at his Will DC at any attitude: he owes money in the city to a harbour gang called the Ninth Pier, and they know where he sleeps."
+          }
+        ],
+        "voice": {
+          "register": "Quick and charming, a performer who talks to the whole room even when he's talking to one person.",
+          "tics": [
+            "Walks a coin across his knuckles while he thinks.",
+            "Gets more generous the closer he is to cheating: the drinks are on him, the good seat is yours."
+          ],
+          "samples": [
+            "\"I'd never cheat you. Michiru, now, that's a matter of principle.\"",
+            "\"Last ferry! Oh, no, wait. Three hearts and a club. Carry on.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"Absalom. Biggest city in the world, and I'm banned from two card rooms in it. Here I'm banned from none. So far.\""
+          },
+          {
+            "q": "Do you cheat?",
+            "a": "\"Friend, I'm hurt. Watch me very closely and find out.\""
+          },
+          {
+            "q": "What are the real rules?",
+            "a": "\"Michiru never looks under the table. Chiyo always smiles when she's got a good hand. And never, ever sit with your back to the window.\""
+          },
+          {
+            "q": "What did you do on your leave day?",
+            "a": "\"I went to see the sea. Lovely sea. Your deal.\""
+          },
+          {
+            "q": "What do you think of Chiyo?",
+            "a": "He looks at his cards for a moment. \"Best person in this block. Worst card player in the world.\""
+          },
+          {
+            "q": "Why did you come to Kurose?",
+            "a": "\"They sent for me and I came, same as you. Nobody in Absalom was sorry to see me go.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a candidate and cardsharp with strong Deception and Thievery, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "chiyo",
+      "npcRef": "chiyo",
+      "label": "Chiyo Nakamura",
+      "role": "second-termer from a fishing village up the coast, who has never won a hand",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Goes quiet, finishes her tea and goes to bed early, and the whole table notices.",
+          "unfriendly": "Polite, with her eyes on her own cards instead of on them.",
+          "indifferent": "Smiles at everyone, and makes tea for anyone who wants it.",
+          "friendly": "Tells them, kindly and exactly, what their tell is and how to hide it.",
+          "helpful": "Does one of their chores before breakfast without being asked, so that Michiru can rub it off the board."
+        },
+        "faction": "card-table",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Their tell: she tells them what it is and how to hide it, which gives a +1 circumstance bonus to Deception to bluff at Last Ferry until their next rest."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A chore done: once a visit she does one of their chores before breakfast without being asked, and Michiru rubs it off the board."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Her read: she keeps what she sees to herself, and Watch the Hands is not offered to them."
+          }
+        ],
+        "wants": "To win one hand, fairly, before the end of the term.",
+        "opensWith": "\"Hello! Do you want tea? I should warn you now, I'm very bad at this.\"",
+        "willDiscuss": [
+          {
+            "topic": "Home",
+            "note": "A village up the coast with two boats and a lot of fish. Her grandmother mends nets and taught her cards, and her grandmother always wins."
+          },
+          {
+            "topic": "Reading faces",
+            "note": "She can tell what everyone at the table is holding. She just can't hide what she's holding herself."
+          },
+          {
+            "topic": "Her chores",
+            "note": "Thirty-one on the board, a block record, and she does them all cheerfully. She likes the sinks."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The cards Lucan slips her",
+            "why": "She knows he cheats for her, and she drops every card he passes, because she won't win that way and she won't get him into trouble either. \"I'm just clumsy.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Warm and bright and a little breathless, and she apologises when she wins an argument.",
+          "tics": [
+            "Smiles the moment she picks up a good hand, knows she's doing it, and can't stop.",
+            "Counts her chores on her fingers."
+          ],
+          "samples": [
+            "\"Oh no. Oh, that's a good one. Sorry, everyone, you can all see my face.\"",
+            "\"Thirty-one! Michiru says that's a record.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Have you really never won?",
+            "a": "\"Never! Two whole terms. Michiru had to give me a second column.\""
+          },
+          {
+            "q": "Why do you keep playing?",
+            "a": "\"Because it's the nicest room on the island. And one day I'll win.\""
+          },
+          {
+            "q": "How do you read people?",
+            "a": "\"Watch their hands. Faces tell lies, but hands don't know how.\""
+          },
+          {
+            "q": "Where's home?",
+            "a": "\"A village up the coast. Two boats and a lot of fish. My grandmother taught me cards, and she always beats me.\""
+          },
+          {
+            "q": "Don't you mind all the chores?",
+            "a": "\"I like the sinks. It's warm, and nobody talks to you.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a candidate with a sharp Perception for reading people, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the room. Michiru explains Last Ferry in one breath, and Lucan pulls out a chair.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-name",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Michiru hands the chalk round. Ask each player, one at a time: \"Your name goes on the board under 'the sinks'. What does your character write there: their own name, a nickname, or something else?\" Give them a moment before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Every character who sits in plays a hand and makes the roll, and the result goes on the board. Then draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "last-hand",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Michiru calls the last hand, then reads the whole night's board aloud, name by name. Apply the rest.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "under-the-table",
+      "kind": "dilemma",
+      "title": "Under the table",
+      "text": "In the middle of a hand, one character (the GM picks who) sees Lucan slide a card off the bottom of the deck and pass it under the table to Chiyo, who has not won a hand in two terms. Chiyo hasn't taken it yet. Nobody else has seen.",
+      "prompt": "You saw that, and Lucan knows you saw it: he's looking straight at you. Do you say something?",
+      "check": "To call it out and make it stick, Society (quoting the board's rules) or Diplomacy at the level-based DC (15 at level 1). Saying nothing needs no roll.",
+      "outcomes": {
+        "criticalSuccess": "Michiru strikes the hand and writes a favour owed by Lucan to the whole table, in red. Lucan laughs, bows and pays up with good grace, and Chiyo quietly says she was never going to pick the card up.",
+        "success": "It sticks. Michiru writes Lucan up in red and strikes the hand, and Lucan sulks for the rest of the night.",
+        "failure": "Lucan says the card fell out of the deck, and Michiru can't rule on what she didn't see. The hand plays on, and Lucan knows who tried.",
+        "criticalFailure": "Lucan turns it round: the card is found by the accuser's chair. Michiru writes the accuser up in red, and Chiyo, who saw everything, says nothing either way."
+      },
+      "shifts": [
+        {
+          "regular": "michiru",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "michiru",
+          "change": 1,
+          "when": "success"
+        },
+        {
+          "regular": "lucan",
+          "change": -1,
+          "when": "success"
+        },
+        {
+          "regular": "lucan",
+          "change": -1,
+          "when": "failure"
+        },
+        {
+          "regular": "michiru",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "If the character says nothing, Chiyo drops the card on the floor and loses the hand as usual, and Lucan owes that character a favour in private, never on the board: press Lucan up a step by hand. The truth: Lucan cheats for Chiyo and she won't take a cheated win. Either answer costs something, and neither is wrong."
+    },
+    {
+      "id": "blue-hat",
+      "kind": "roleplay",
+      "title": "Who was Blue Hat?",
+      "text": "Michiru swings the door round. Its back is covered from edge to edge in chalked guesses about Blue Hat, the name painted at the top of the board: a pirate queen, a warden's dog, a man who ate a whole wedding cake, and a great many rude ones. Every new player adds one; it's the custom.",
+      "prompt": "Michiru hands you the chalk. Who was Blue Hat, and what does the block get when that favour is finally called in? Take a moment; it stays on the door.",
+      "check": "Anyone who wants to look closer at the painted line: Crafting or Society (Recall Knowledge) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The board was a door before it was a board, taken from an older building: the hinge holes are still there under the paint, and a small brass number 3 is still screwed to the frame. Michiru didn't know that, and she's delighted.",
+        "success": "The paint is older than the block. Blue Hat's line was on this board before the board came to Row F.",
+        "failure": "It's blue, and it's old.",
+        "criticalFailure": "They announce a confident date for the paint, and Michiru chalks it on the door as one more guess."
+      },
+      "shifts": [
+        {
+          "regular": "michiru",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "Nobody knows who Blue Hat was, and nothing in the campaign depends on it. The guess the table likes best is the one the regulars repeat on the next visit."
+    },
+    {
+      "id": "not-a-chore",
+      "kind": "roll",
+      "title": "Something that isn't a chore",
+      "text": "A character wants to raise the stakes and bet something real: a keepsake, a letter, their bunk by the window, a week of their pudding. The board has never taken anything but chores and favours, and Michiru is the board.",
+      "prompt": "You want to put something on the table that isn't a chore. What is it, and why does your character want to risk it?",
+      "check": "Diplomacy against Michiru's Will DC, or the level-based DC (15 at level 1), to have the board accept it.",
+      "outcomes": {
+        "criticalSuccess": "Michiru allows it for one hand, the whole room crowds round to watch, and Lucan and Chiyo each put up something of their own to match it: Lucan a silver coin from Absalom, Chiyo a pair of dice her grandmother carved. Play the hand as normal; the winner takes everything on the table.",
+        "success": "Michiru allows it once, as long as it's something the character could live without. Play the hand as normal; win it and they keep their stake and win a favour, lose it and the stake goes to whoever won.",
+        "failure": "\"Chores and favours. Nothing anybody would cry over.\" The board says no, and the night goes on.",
+        "criticalFailure": "The board says no, and to make the point Michiru writes 'offered to bet' and the thing itself under the character's name, where the whole block will read it for the rest of the week."
+      },
+      "shifts": [
+        {
+          "regular": "michiru",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "Michiru's rule is that the board never takes anything a person would cry over, and never money. A character who loses a real keepsake here can win it back on a later visit."
+    },
+    {
+      "id": "your-tell",
+      "kind": "roleplay",
+      "title": "Your tell",
+      "text": "Chiyo, who can read every face at the table and can't hide a thing on her own, leans over and tells one character, kindly, that she already knows their tell.",
+      "prompt": "Everybody at this table has a tell. What does your character do, without knowing it, when they're holding a good hand? And when they're sure they'll win, what do they bet? Take a moment.",
+      "shifts": [
+        {
+          "regular": "chiyo",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Nothing to roll. Chiyo names the tell back to them the next time they win a hand here."
+    },
+    {
+      "id": "the-exercise-books",
+      "kind": "informant",
+      "title": "The exercise books",
+      "text": "Michiru pulls a stack of old exercise books from under the stairs: every board since before her time, copied out by each keeper before it was wiped. Everyone who has ever sat at this table is in them, candidates and the island's staff who drop in on a night off, and the regulars know every candidate on the island. She'll look up anyone the group names: who they owe, who owes them, and what the board thinks of them. On the way she says, as if everybody knew it, that half the island's small jobs get done by favours, not orders: if you need a shift swapped, a door left open or a message carried, you find somebody who owes the person who can do it.",
+      "prompt": "Michiru has the book open and her finger on the page. Whose name do you want her to look up?",
+      "shifts": [
+        {
+          "regular": "michiru",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Something the table can use later: the base runs on favours as much as on orders, and this board is a map of who owes whom. Michiru gives a name's debts and one line of gossip about them, and never opens her own column."
+    },
+    {
+      "id": "the-ninth-pier",
+      "kind": "danger",
+      "title": "The Ninth Pier",
+      "text": "Somebody at the window sees two men crossing the yard towards the back door with their collars up, and Lucan goes white. There is about half a minute before they're inside. They are Mister Kanda, thin, in a good coat, with coal dust in the creases of his hands, and a very large, silent man he calls Goro. Like a lot of city men, they work days in the base's coal yard; on some nights they collect for the Ninth Pier, a harbour gang. On his leave day Lucan played at a card house on the waterfront and won a lot of money, and the house says he did it with a marked deck (he did). Kanda wants it back, with interest, tonight. He is very polite until he isn't.",
+      "prompt": "Lucan is looking at the door, and then at you. You've got about half a minute. What does your character do?",
+      "check": "To hide Lucan before they come in: Stealth at the level-based DC (15 at level 1) to get him into the linen cupboard or out of the window, then Deception against Kanda's Perception DC to say he isn't here. To pay: the winnings and the interest come to about a month of a candidate's pay (the GM sets the credits), and anyone can chip in; Kanda takes it and goes. To bluff (Lucan's been taken off for a night duty, the warden's on his way up): Deception against Kanda's Perception DC. To fetch the block warden, Warden Ogata, who sleeps beside the telephone on the ground floor: Stealth against Goro's Perception DC to get past him or out of the window; the warden arrives two minutes later with a lamp and a whistle. To face them down: Intimidation against Kanda's Will DC. To fight: theatre-of-the-mind.",
+      "outcomes": {
+        "criticalSuccess": "They leave, believing every word. Kanda touches his hat on the way out and says the Ninth Pier always remembers people who handle themselves. Lucan owes the character a favour, and Michiru chalks it in yellow without being asked.",
+        "success": "They leave, for tonight. The debt is still owed, and Kanda says so at the door: he'll see Lucan another week.",
+        "failure": "Kanda doesn't believe a word of it. Goro takes Lucan by the collar and starts walking him to the door. There's still time for one more try, a different way out, or a fight.",
+        "criticalFailure": "It turns violent. Goro swings first, at the character who spoke, and it's a fight."
+      },
+      "fight": {
+        "foe": "Mister Kanda and Goro, collecting for the Ninth Pier.",
+        "press": "Goro is the one to get down: he has the cosh and does the work, and Kanda draws his knife only if somebody else draws a weapon first. Once Goro is on the floor, Kanda lifts both hands, talks terms from the doorway, and leaves without Lucan; the debt is still owed, to a man who has now been shown up in front of candidates.",
+        "retreat": "They run with Lucan or without him: out of the window, or down the back stairs to Warden Ogata's door. Kanda won't chase across the base; if they leave Lucan behind, Goro walks him to the yard, and he comes back at dawn with a split lip and a promise to pay.",
+        "surrender": "Kanda gives up the moment Goro goes down or the warden's whistle goes, because a stabbing inside the fence would bring the garrison and cost him his job in the coal yard. Goro gives up when he is badly hurt, and says nothing at all."
+      },
+      "shifts": [
+        {
+          "regular": "lucan",
+          "change": 2,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "lucan",
+          "change": 1,
+          "when": "success"
+        },
+        {
+          "regular": "michiru",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "The fight is theatre-of-the-mind: Goro has a cosh, and Kanda has a knife he only draws if somebody else draws a weapon first. They came for Lucan, not for a brawl with candidates on the base, and both leave as soon as either of them is badly hurt or the warden's whistle goes. If the warden comes, Lucan's day in the city goes into his report: press Lucan down a step by hand, however grateful he is. Stat blocks proposed: Kanda, level 1, a sly criminal; Goro, level 2, a bruiser. Made with Ingram once the NPC generator exists."
+    },
+    {
+      "id": "watch-the-hands",
+      "kind": "buff",
+      "title": "Watch the hands",
+      "text": "Chiyo, who has lost every hand for two terms, can say exactly what everyone else is holding. She offers to show anyone how she does it: watch the hands, not the eyes.",
+      "prompt": "Chiyo pulls her chair round next to yours and nods at Lucan. \"Watch his hands, not his face. What do you see?\"",
+      "shifts": [
+        {
+          "regular": "chiyo",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Anyone who spends the rest of the evening watching faces with her gets a +1 circumstance bonus to their next Perception check to Sense Motive before their next rest. Nobody has to."
+    },
+    {
+      "id": "the-tomatoes",
+      "kind": "roll",
+      "title": "The tomatoes",
+      "text": "The board allows a swap if both people agree. This week Lucan has the easiest chore on it: watering the warden's tomato plants. Right underneath, a character still owes the sinks, or something worse.",
+      "prompt": "Lucan's tomatoes are right there on the board, just above your sinks. How do you talk him into a swap?",
+      "check": "Diplomacy or Deception against Lucan's Will DC.",
+      "outcomes": {
+        "criticalSuccess": "He swaps, and he's so taken with the pitch that he throws in the boots as well. Lucan goes up a step.",
+        "success": "Michiru rubs out, rewrites, and the tomatoes are theirs.",
+        "failure": "He laughs, and says he'll swap for a favour. They can take the deal or leave it.",
+        "criticalFailure": "He swaps at once. In the morning they learn that the tomatoes are watered at six, and that Warden Ogata stands beside them the whole time and talks about tomatoes for an hour."
+      },
+      "shifts": [
+        {
+          "regular": "lucan",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "the-admiral",
+      "kind": "roll",
+      "title": "The Admiral",
+      "text": "The Admiral, the block's enormous ginger cat, gets off the radiator, walks across the table in the middle of a hand, lies down on the discard pile and will not move. By the rules the hand isn't finished until the discards are counted.",
+      "prompt": "The Admiral is lying on the discards, looking at you. How does your character get him off?",
+      "check": "Nature (Command an Animal) or Diplomacy at the level-based DC (15 at level 1), or Athletics to lift a very heavy and unwilling cat.",
+      "outcomes": {
+        "criticalSuccess": "The Admiral gets up, stretches, and moves into their lap, where he stays all night. The block counts this as an honour, and Michiru writes it on the board.",
+        "success": "He moves, grumbling, and the hand is counted.",
+        "failure": "He moves, and takes three cards with him. The hand is void, and nobody wins or loses anything.",
+        "criticalFailure": "He goes off like a firework and the cards go everywhere. The hand is void, the character has a scratch to show for it, and the table agree they owe a chore for the disturbance."
+      },
+      "shifts": [
+        {
+          "regular": "michiru",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Michiru calls the last hand and reads the board aloud, or the group leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The walk back across the rows is cold and quiet, and every window is dark except the one in Row F, Block 5.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "The name each character chalked on the board, and what each one owes or is owed.",
+      "Whether anyone called out Lucan's cheating, or kept quiet.",
+      "What happened with the Ninth Pier, if they came, and whether Lucan's debt is still owed.",
+      "The table's guess about Blue Hat."
+    ],
+    "position": {
+      "locationRef": "row-f-block-5",
+      "state": "together",
+      "note": "They leave together after the last hand and walk back to their own bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They walk out without playing: they still owe the sinks, and the board keeps it. They leave owing: \"The board keeps,\" says Michiru, and it does. They rub a chore off the board: Thievery against Michiru's Perception DC; caught, they go up in red and are barred for a week, and Michiru goes down two steps. They lie to the regulars: Deception against the regular's Perception DC; Chiyo reads it at once, and Lucan assumes it anyway. They attack a regular: the game stops, Michiru rubs their names off the board, and Chiyo goes to hostile. They go upstairs or through other candidates' rooms: kit, letters and sleeping candidates, and the warden if they're loud. They follow Kanda after he leaves: he walks back to the coal yard and over the causeway with the last of the night shift, and Stealth against Goro's Perception DC keeps them unseen. They split up: run each table or corner as its own small event."
+}

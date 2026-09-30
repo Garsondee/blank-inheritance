@@ -1,0 +1,631 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--crew-mess",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "crew-mess",
+  "title": "The Crew Mess",
+  "summary": "The bar where the repair crews drink when a refit finishes. A quarter of maximum HP, a round to stand, a crew chief to win over, and a morning to pay for it.",
+  "goal": "Each player who came here has spent an evening among the repair crews, in character, and leaves with a quarter of their HP back, a hangover risk, and a standing with the regulars that the next visit will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the room, give each player a turn to say how their character spends the evening, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, buffs and chances to talk in character. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "A long low room behind the dry dock, with a bar made from a Frame's armour plate laid across two oil drums. The slate behind it lists every crew's tab in chalk. When a refit has finished, the room is loud; when one hasn't, it is half empty and the talk is all about what went wrong.",
+    "changes": "As the Directorate brings in newer machines and faster methods, the crews who built the old ones feel it first. The slate gets shorter, the arguments get sharper, and some faces stop coming in.",
+    "upgrades": [
+      {
+        "id": "on-the-crews-slate",
+        "title": "On the crews' slate",
+        "text": "The group's names go up on the slate with the crews. They drink at the crews' price, sit on the crews' stools, and Tomoe pours for them herself.",
+        "how": "A critical success at Stand a Round with Tomoe friendly or better, and the candidates' tab paid square by the end of the week.",
+        "rest": {
+          "hp": "quarter",
+          "buff": "In the morning, each character who drank rolls the Fortitude save at the level-based DC with a +2 circumstance bonus, because Tomoe poured it herself and knows their limit. On a failure they are Sickened 1 until they have eaten breakfast."
+        }
+      },
+      {
+        "id": "the-back-room",
+        "title": "The back room",
+        "text": "Tomoe opens the back room behind the bar, where the crew chiefs talk over tomorrow's work by a stove. Once a visit, a character there can ask one chief the real state of one Frame, and get it.",
+        "how": "Win Tomoe to helpful."
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "shut-for-a-week",
+        "title": "Shut for a week",
+        "text": "The Mess is shut for a week: a burst keg, a broken bar, or a brawl that brought the office round. The crews drink in the canteen, and there is nowhere to rest here until it opens.",
+        "lasting": "temporary"
+      },
+      {
+        "id": "crew-three-moved-on",
+        "title": "Crew Three moved on",
+        "text": "The new refit machines come in, and Crew Three is moved on, Tomoe with it, the way the rubbed-out crew was. Its line on the slate is rubbed out and never rewritten, Ren is kept back and put on another crew, a stranger keeps the slate, and the room is half empty every night.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "In the morning, each character who drank rolls a Fortitude save at the level-based DC (15 at level 1). On a failure they are Sickened 1 until they have eaten breakfast."
+  },
+  "intro": {
+    "where": "The Crew Mess, a bar behind the dry dock, late at night.",
+    "firstThing": "The noise: a room full of repair crews, and somebody singing badly at the far end.",
+    "readAloud": "The Crew Mess is a long, low room behind the dry dock, and it smells of beer, machine oil and wet wool. The bar is a sheet of armour plate off an old Frame, laid across two oil drums and polished by a thousand elbows.\n\nBehind it, a slate the size of a door lists every repair crew on the island in chalk, with what each one owes. A crew has finished a refit tonight, and the room is loud with it.\n\nAt the far end, a very large man is singing, badly and happily, to nobody in particular.",
+    "carriesIn": [
+      {
+        "when": "A character came here after a hard duty that night",
+        "then": "The crews can see it on them. Someone slides a stool out without being asked."
+      }
+    ],
+    "holdInReserve": "The slate has one line rubbed out and never rewritten: a crew that stopped coming in. Anyone who asks gets a shrug from Tomoe and a long look from Petr.",
+    "landmark": "The armour-plate bar and the slate behind it.",
+    "position": {
+      "locationRef": "the-crew-mess",
+      "state": "together",
+      "note": "Everyone who chose the Crew Mess is here together. They walk back to their bunks at closing."
+    }
+  },
+  "cast": [
+    {
+      "id": "tomoe",
+      "npcRef": "tomoe",
+      "label": "Tomoe Hashida",
+      "role": "chief of Refit Crew Three, who keeps the slate",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Won't serve them. Turns her back and talks to the crews as if the group were furniture.",
+          "unfriendly": "Serves them last and short, and makes sure they see her writing the price on the slate.",
+          "indifferent": "Serves them the same as anyone, and watches to see what they do with it.",
+          "friendly": "Pours before they ask, and tells them which crew to avoid tonight.",
+          "helpful": "Writes their names on the slate with the crews, which means the crews will do a job for them nobody allocated."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Tonight's warning: she tells them which crew to avoid, so when a rival crew comes in the group can be at the door or beside Petr before a word is said."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "A name on the slate: once a visit the crews do the group one job nobody allocated, such as a part fetched, a repair done overnight, or a machine looked at."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "Credit: no tab for candidates she doesn't trust. Every drink is paid on the spot at double the crews' price, and Stand a Round takes a -2 circumstance penalty."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "Service: nobody behind the bar pours for them, the crews turn their backs, and the night gives them no rest here."
+          }
+        ],
+        "wants": "A quiet night after a hard refit, and for these new candidates to learn that the crews keep the Frames standing.",
+        "opensWith": "\"You're new. Candidates drink on their own tab, and you pay it by the end of the week.\"",
+        "willDiscuss": [
+          {
+            "topic": "The crews and what they do",
+            "note": "Every Frame on the island is held together by the refit crews, and the pilots forget it."
+          },
+          {
+            "topic": "The slate",
+            "note": "A crew's tab. Pay it and you're square; stand a round and you're remembered."
+          },
+          {
+            "topic": "Which Frames are in trouble",
+            "note": "On a good day she'll say which machine has a bad knee this week. The pilots are the last to hear."
+          },
+          {
+            "topic": "The old man and his print",
+            "note": "\"He tells everyone that story. Buy him a drink and he tells it twice.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The rubbed-out line on the slate",
+            "why": "It was a crew she trained. They were moved on, and she doesn't know where, and that bothers her more than she will show strangers."
+          },
+          {
+            "topic": "Directorate business",
+            "why": "She has a pension to think of. \"Ask your section officer.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "Why the crews are nervous this month",
+            "how": "Friendly or better, and a Diplomacy check at her Will DC: new machines are coming in, and the old crews think they are next to be moved on."
+          }
+        ],
+        "voice": {
+          "register": "Short, dry, never unkind. Counts everything.",
+          "tics": [
+            "Taps the slate with the chalk when she makes a point.",
+            "Knows everyone by crew before she knows their name; anyone without one is simply a candidate until proven otherwise."
+          ],
+          "samples": [
+            "\"That's two. You're on the slate now.\"",
+            "\"Pilots. Always the last to know which knee is going.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What is this place?",
+            "a": "\"Where the crews drink. You're welcome if you behave. You're very welcome if you buy.\""
+          },
+          {
+            "q": "What's the slate?",
+            "a": "\"Every crew's tab. Yours is under 'candidates', bottom left, and it's already in chalk.\""
+          },
+          {
+            "q": "Who's the singer?",
+            "a": "\"Petr. Welder. Best in the dock and the worst voice on the island. Don't encourage him.\""
+          },
+          {
+            "q": "Do you work on the Frames?",
+            "a": "\"I run Crew Three. We rebuilt a shoulder today. Twelve hours. So yes.\""
+          },
+          {
+            "q": "Is it true the Frames are hard to drive?",
+            "a": "\"They're machines older than your grandparents, candidate. They're hard to do anything with.\""
+          },
+          {
+            "q": "Whose line is rubbed out?",
+            "a": "She wipes the bar. \"Nobody's.\""
+          }
+        ],
+        "statblock": "Proposed: level 2, a working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "petr",
+      "npcRef": "petr",
+      "label": "Petr Vasko",
+      "role": "welder, singer, the room's friend",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Stops singing when they come in, and the room notices.",
+          "unfriendly": "Polite and careful, and keeps his stories to himself.",
+          "indifferent": "Nods, and goes back to his song.",
+          "friendly": "Waves them over and wants to hear everything about their day.",
+          "helpful": "Introduces them to strangers as his own candidates and fights anyone who says a word against them."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Dock stories: which leg was welded when and which will go first, worth a +1 circumstance bonus to one Crafting or Piloting check to Recall Knowledge about a Frame before their next rest."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "My candidates: in any fight in the Mess or on the dock, Petr stands with them and brawls on their side."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The stool beside him: he keeps his stories to himself, and neither his question about their day nor his song is drawn for them."
+          }
+        ],
+        "wants": "Company, a song, and to hear about somebody else's day for once.",
+        "opensWith": "\"New faces! Sit, sit. Tell me what they had you doing.\"",
+        "willDiscuss": [
+          {
+            "topic": "Where he's from",
+            "note": "A long way west, over the sea. He came for the work and stayed for the dock."
+          },
+          {
+            "topic": "Welding a Frame",
+            "note": "\"You don't weld a Frame, you argue with it.\" The old plate is thick and nobody makes it any more."
+          },
+          {
+            "topic": "The petition",
+            "note": "The crews are signing a petition to keep the old way of doing refits. He will ask them to sign."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "His family",
+            "why": "He sends money home and hasn't been back in eleven years. He changes the subject with a song."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Big, warm, loud, full of stories that wander.",
+          "tics": [
+            "Takes a breath like a man about to dive before every story, and the room leans in.",
+            "Hums when he's thinking."
+          ],
+          "samples": [
+            "\"There I am, halfway up a leg, and the leg starts walking.\"",
+            "\"Sing with me! No? Next time.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Where are you from?",
+            "a": "\"West. Very far. Over the sea, and then over more sea. Now I am from here.\""
+          },
+          {
+            "q": "What do you do?",
+            "a": "\"I weld. Legs, mostly. The legs always go first.\""
+          },
+          {
+            "q": "What's the petition?",
+            "a": "\"The office wants new machines to do the refits. Faster, cheaper, no welders. We ask them to wait. Will you sign?\""
+          },
+          {
+            "q": "Why do you sing?",
+            "a": "\"Because the room is too quiet when I don't.\""
+          },
+          {
+            "q": "What's it like, working on a Frame?",
+            "a": "\"Like fixing a house while it is still a little bit alive.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a strong working adult, non-combat but able to brawl. Made with Ingram."
+      }
+    },
+    {
+      "id": "ren",
+      "npcRef": "ren",
+      "label": "Ren Saeki",
+      "role": "apprentice fitter, nineteen, the youngest in the crews",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Gets up and leaves when they sit down.",
+          "unfriendly": "Needles them about candidates getting everything handed to them.",
+          "indifferent": "Watches them sideways, curious, trying not to look it.",
+          "friendly": "Asks them everything about being a candidate, and tells them which crew chief to stay on the right side of.",
+          "helpful": "Would swap places with them tomorrow, and says so. Brings them news from the dock before anyone else hears it."
+        },
+        "faction": "repair-crews",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Which chief to keep sweet: he names the crew chief to stay on the right side of this week, and says why."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The list first: the morning after a visit, he brings them the list of Frames fit for the day before the pilots see it."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "A fair hearing: when a crew is deciding whether to help candidates, Ren is the one who says no, and the next request they make of a repair crew takes a -2 circumstance penalty."
+          }
+        ],
+        "wants": "To be a pilot, which he isn't, and to be treated as more than the one who fetches things.",
+        "opensWith": "\"You're candidates? What's it like? Did they put you in a Frame yet?\"",
+        "willDiscuss": [
+          {
+            "topic": "The new machines",
+            "note": "He thinks they're wonderful and doesn't understand why the old crews are frightened of them."
+          },
+          {
+            "topic": "Wanting to pilot",
+            "note": "He applied twice and wasn't sent for."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why he wasn't sent for",
+            "why": "He doesn't know, and it hurts. \"Doesn't matter.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Quick, eager, trying too hard to sound older.",
+          "tics": [
+            "Wipes his hands on his overalls when nervous.",
+            "Picks his words carefully, as if he might be marked on them."
+          ],
+          "samples": [
+            "\"Did you see one move? Actually move?\"",
+            "\"I'm on Crew Three. It's official. I've seen the sheet.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "How old are you?",
+            "a": "\"Nineteen. Old enough.\""
+          },
+          {
+            "q": "Do you want to be a pilot?",
+            "a": "\"I applied twice.\" He looks at his drink. \"Next year.\""
+          },
+          {
+            "q": "What do you think of the new machines?",
+            "a": "\"They're brilliant! They do in an hour what Petr does in a day. Don't tell him I said that.\""
+          },
+          {
+            "q": "What's Tomoe like?",
+            "a": "\"Fair. Terrifying. Fair.\""
+          },
+          {
+            "q": "What should we know about the crews?",
+            "a": "\"Buy a round once and they'll remember you forever. Break something and they'll remember you longer.\""
+          }
+        ],
+        "statblock": "Proposed: level 0, a young working adult, non-combat. Made with Ingram."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the room, then let Petr wave them over.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-evening",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"What does your character order, and where in this room do they end up sitting?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "closing",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Tomoe calls time by ringing a spanner on the armour plate. Apply the rest. Tomorrow morning, before breakfast, each character who drank rolls the Fortitude save.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "stand-a-round",
+      "kind": "roll",
+      "title": "Stand a round",
+      "text": "A character buys a drink for the whole crew who finished the refit, and has to say something as they hand it over. The crews go quiet to hear it.",
+      "prompt": "The whole of Crew Three is looking at you, glass in hand. What do you say to them?",
+      "check": "Diplomacy (Make an Impression) against Tomoe's Will DC, or the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The room roars. Tomoe chalks the character's name on the slate beside Crew Three's, which means the crews will do them a favour nobody allocated. Tomoe goes up a step.",
+        "success": "Glasses go up. The crews talk to them all night about the machines: which Frames are sound, which aren't, and how far the pilots never know.",
+        "failure": "Polite nods, and the talk goes back to the refit. The drink was welcome; the speech wasn't needed.",
+        "criticalFailure": "They toast the wrong crew by name, the one that dropped a load on Crew Three last month. Silence, then laughter at them rather than with them. Tomoe goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tomoe",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "tomoe",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "A round for a crew costs a few credits; the price is whatever feels right for the table."
+    },
+    {
+      "id": "the-keg",
+      "kind": "roll",
+      "title": "The new keg",
+      "text": "The keg has run dry, and the new one has to come down the cellar steps. Petr's back is bad. Somebody young and strong, please.",
+      "prompt": "Petr points at the steps, and at you. How do you get a full keg down a narrow flight of wet steps?",
+      "check": "Athletics, or another skill they can argue for, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "Down, tapped and pouring before anyone has finished their sentence. Petr kisses them on both cheeks and goes up a step.",
+        "success": "Down and tapped, with a little help and a lot of shouting.",
+        "failure": "The keg gets away on the last three steps, bounces, and takes out the mirror behind the bar. Nobody is hurt. Tomoe looks at the mirror for a long time and goes down a step.",
+        "criticalFailure": "The keg goes all the way down, through the cellar door, and bursts. The room is ankle-deep in beer and the bar is shut for the night. Tomoe goes down two steps, and the character is on the slate for a new keg and a mirror."
+      },
+      "shifts": [
+        {
+          "regular": "petr",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "tomoe",
+          "change": -1,
+          "when": "failure"
+        },
+        {
+          "regular": "tomoe",
+          "change": -2,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "petrs-question",
+      "kind": "roleplay",
+      "title": "Petr wants to hear your day",
+      "text": "Petr pulls a stool round, sits on it backwards, and asks one character to tell him their whole day. He means it, and he listens.",
+      "prompt": "Petr wants to hear your whole day, from the moment you woke up. What was the best part? What was the worst, and what did you do about it? Take a moment first.",
+      "shifts": [
+        {
+          "regular": "petr",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Petr's button if the story lands. There is nothing to roll."
+    },
+    {
+      "id": "the-petition",
+      "kind": "dilemma",
+      "title": "The petition",
+      "text": "Petr has a sheet of paper, soft from being folded, with forty signatures on it. The office wants new machines to do the refits: faster, cheaper, and needing no welders. The crews are asking for the old way to stay. He asks the group to sign. Ren, at the next table, rolls his eyes: he thinks the new machines are the best thing that's happened to the dock.",
+      "prompt": "Petr holds out the pen. Ren is watching. Do you sign?",
+      "shifts": [
+        {
+          "regular": "petr",
+          "change": 1,
+          "when": "any"
+        },
+        {
+          "regular": "ren",
+          "change": -1,
+          "when": "any"
+        }
+      ],
+      "note": "Signing: Petr up, Ren down. Refusing, or arguing for the machines: press the reverse by hand (Petr down, Ren up). Either answer is a fair one: the change is coming either way, and somebody loses by it. This comes back as the city keeps changing."
+    },
+    {
+      "id": "name-the-part",
+      "kind": "roll",
+      "title": "Name the part",
+      "text": "Tomoe slaps a greasy piece of metal on the bar, the size of a loaf, with a joint at one end. \"Buy the next round, or tell me what that is.\"",
+      "prompt": "Tomoe slides it over to you. What do you make of it?",
+      "check": "Crafting or Piloting (Recall Knowledge) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "A finger joint from a Frame's hand, from one of the old ones, and they can say how it moves. Tomoe goes up a step and pours them one free.",
+        "success": "Part of a Frame's hand. Near enough; Tomoe grunts and takes it back.",
+        "failure": "Wrong, and a round on the slate.",
+        "criticalFailure": "Confidently, gloriously wrong, and the crews repeat the answer for the rest of the night. A round on the slate."
+      },
+      "shifts": [
+        {
+          "regular": "tomoe",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "petr-sings",
+      "kind": "buff",
+      "title": "Petr sings",
+      "text": "Petr stands on a chair and starts a crew song, the one every repair crew knows, about a Frame that walked into the sea. The room joins in.",
+      "prompt": "Does your character sing? Out loud, badly, with everyone?",
+      "note": "Everyone who joins in gets a +1 status bonus to saves against fear until their next rest. Nobody has to."
+    },
+    {
+      "id": "the-list",
+      "kind": "informant",
+      "title": "The list nobody reads",
+      "text": "A tired fitter from Crew One, three drinks in, tells anyone near her that the list of Frames fit for tomorrow is written by the crews, not the officers, and that the pilots are always the last to see it. Tonight it has two names crossed off that the pilots don't know about yet.",
+      "prompt": "She's talking to your character now, because nobody else is listening. What do you ask her?",
+      "note": "Something the table can use later: who really knows what state the machines are in is the crews. She will say which Frames are on tomorrow's list if asked, but not why the two came off."
+    },
+    {
+      "id": "the-one-who-paid",
+      "kind": "plot",
+      "title": "The one who paid for everyone",
+      "text": "An old fitter, retired and still coming in, has pinned a Founding Day print of the four founders behind the bar, the kind supporters put in their shop windows. When he hears the group are new, he points at it with his pipe. \"One of them came in here, you know. Years ago. Sat where you are sitting, paid the whole slate, and left before anyone thought to say thank you.\" He will not say which one, and when pressed he only taps the print and laughs.",
+      "prompt": "The old man is pointing at the print, and at your seat. What do you ask him?",
+      "check": "Sense Motive at the level-based DC (15 at level 1) to tell he believes every word; Diplomacy at the same DC gets one more detail and no name.",
+      "outcomes": {
+        "criticalSuccess": "He believes it, and he adds one thing: they looked exactly like the picture, which surprised him, because that picture is older than he is. Then he changes the subject and will not come back to it.",
+        "success": "He believes it completely.",
+        "failure": "He could be telling a story he's told a hundred times.",
+        "criticalFailure": "They laugh at him, and the room goes a little colder towards the group."
+      },
+      "shifts": [
+        {
+          "regular": "tomoe",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "This plants a question and answers nothing. The founders are alive (founders.alive) and one does sometimes turn up in person; which one, and why they still look like a picture older than the fitter, are held for later. No name, no confirmation, and no second sighting."
+    },
+    {
+      "id": "two-crews",
+      "kind": "danger",
+      "title": "Two crews, one grudge",
+      "text": "A tug crew from the harbour comes in, loud and already drunk, the same crew that dropped a load on Crew Three's refit last month. Words go back and forth across the room. Someone pushes someone. A bottle breaks. It can be a brawl in about a minute.",
+      "prompt": "A tug-hand has just shoved Petr, and Petr is standing up. What does your character do?",
+      "check": "To stop it: Diplomacy or Intimidation at the level-based DC (15 at level 1), before anyone swings. To leave: nothing, but the crews notice who left. To fight: theatre-of-the-mind, fists and bottles, nobody armed.",
+      "outcomes": {
+        "criticalSuccess": "The room calms, the tug crew buys a round for Crew Three by way of apology, and Tomoe goes up a step.",
+        "success": "The tug crew leaves, sullen, and the night goes on.",
+        "failure": "It becomes a brawl. Run it as theatre-of-the-mind: four tug-hands, brawlers with fists and bottles, nobody out to kill.",
+        "criticalFailure": "It becomes a brawl, and the character who spoke is the one they come for first."
+      },
+      "fight": {
+        "foe": "Four tug-hands from the harbour, led by the big one who shoved Petr.",
+        "press": "They need the big one down. Once he is on the floor, the other three lose interest, pick him up and carry him out, and the room buys a drink for whoever put him there. Petr fights beside the group if he is friendly or better.",
+        "retreat": "If they go, the brawl runs without them: Petr takes a black eye, the broken glasses go on the tug crew's slate, and the crews remember who walked out.",
+        "surrender": "Tug-hands brawl for pride, not blood: one who is knocked down or badly hurt puts his hands up and backs off, and the whole crew leaves once two of them are down."
+      },
+      "shifts": [
+        {
+          "regular": "tomoe",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "If the group fights and wins, Petr goes up a step; if they break the bar, Tomoe goes down one. The tug-hands need stat blocks: proposed level 0 brawlers, made with Ingram."
+    },
+    {
+      "id": "rens-letter",
+      "kind": "roleplay",
+      "title": "Ren's letter home",
+      "text": "Ren is writing a letter home on the back of a work docket, and he's stuck. He asks one of the group how they'd tell their family where they are and what they're doing without worrying them.",
+      "prompt": "Ren hands you the pencil. What would you write home tonight, if you were writing? Take a moment.",
+      "shifts": [
+        {
+          "regular": "ren",
+          "change": 1,
+          "when": "any"
+        }
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Tomoe rings the spanner on the armour plate for closing, or the group leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The walk back to the bunks is cold after the room, and quiet.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Whose name went on the slate, and what each character owes.",
+      "Whether anyone signed the petition.",
+      "Who failed the Fortitude save in the morning."
+    ],
+    "position": {
+      "locationRef": "the-crew-mess",
+      "state": "together",
+      "note": "They leave together at closing and walk back to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They leave without paying: they're on the slate, and Tomoe goes down a step. They steal: Thievery at Tomoe's Perception DC; caught, they're barred until it's paid back, and Tomoe goes to hostile. They lie to the crews about being pilots already: Deception against Tomoe's Perception DC; the crews find out within the week either way. They go looking behind the bar or in the cellar: it is beer, oil and spare parts. They split up: run each table as its own small event."
+}

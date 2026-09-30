@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "imai",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Setsuko Imai",
+  "role": "Long-stay patient, Ward Four, the General Hospital -- formerly ran the island's telephone exchange for thirty-one years",
+  "pole": null,
+  "ancestry": "Ysoki",
+  "affiliation": null,
+  "description": "A long-stay patient on Ward Four with a mending hip, in the bed next to the soldier. Ran the island's telephone exchange for thirty-one years before her hip put her here -- every call on the island went through her board, and she still knows a voice before it gives its name, in her sleep. Bright, fast and nosy, with an operator's crisp manners when she remembers them. Knits without looking at her needles, and points with them instead of her finger. Opens on any newcomer at once: 'New ones! Come here where I can see you. What have they done to you, and who's your mother?'\n\nShe wants company, news from outside, and to be home before the plum blossom.\n\nWhat she'll happily talk about: the exchange itself, and everyone else on the ward (Mr Aucourt is a dear and a terrible snorer; the soldier hasn't eaten; the nurse is an angel who pretends otherwise). What she won't: any call she ever put through -- 'an operator never tells, dear' -- and her grandson, who hasn't visited in three months. She covers for him without being asked ('He's with the trams, you know. Very busy.') and changes the subject.",
+  "designNotes": "Created 2026-09-29, extracted from her cast entry in canon/scenes/rest--general-hospital.json (the General Hospital haunt) -- same reasoning and process as tsubaki.json, her ward-mate, formalized the same day. Her cast entry needs its own `npcRef: \"imai\"` added in canon (then a story build) before the automatic token pipeline can place a hidden reference token for her.\n\nTWO changes from Ingram, both direct (2026-09-29), otherwise kept as written -- 'I like them... that's great stuff overall':\n1. ANCESTRY: Ysoki (ratfolk), a deliberate 'fun twist' request -- checked against data/campaign/ancestry-catalogue.json (`terrestrial: true`, one of Golarion's own peoples, no disguise needed). Picked because it plays directly into her established characterization: a switchboard operator who reads a voice before it gives its name is exactly what a ratfolk's keen hearing and whiskers are for. Real variety against the rest of the cast too (no ysoki cast yet).\n2. DROPPED: her voice.tics originally included saying 'Putting you through' whenever she changed the subject, straight from her scene entry. Cut on Ingram's instruction as 'a bit over the top' -- her other tic (knitting without looking, pointing with the needle) carries the same characterization without it. Noted here so nobody re-adds it later thinking it was an oversight.\n\nHer real statblock is still a placeholder in the scene file: \"Proposed: level -1, an elderly civilian, non-combat. Made with Ingram once the NPC generator exists.\" Not carried into this file's `statblock` field for that reason.\n\nNo socialProfile.facts authored: her two willNotDiscuss items (the grandson, any call she ever put through) both have an empty `coercible: []` in the source -- no authored reveal trigger for either, so nothing invented here rather than making one up.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "established and voiced (the General Hospital haunt is built and playable) -- second haunt regular formalized into a real npc file",
+  "socialProfile": {
+    "attitude": "friendly"
+  }
+}

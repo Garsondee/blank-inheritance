@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-25T10:57:56.214Z",
+  "generatedAt": "2026-09-30T13:44:41.600Z",
   "generatedBy": "tools/npc-gaps/generate.mjs -- do not hand-edit this file, rerun the script instead",
   "counts": {
-    "total": 42,
-    "missingPortrait": 23,
-    "missingFacts": 29,
-    "placeholderName": 36
+    "total": 80,
+    "missingPortrait": 18,
+    "missingFacts": 48,
+    "placeholderName": 37
   },
   "missingPortraitIds": [
     "canteen-manager",
@@ -15,11 +15,8 @@
     "deep-storage-custodian",
     "generating-hall-engineer",
     "goods-inwards-officer",
-    "intake-medicals-clerk",
     "landing-end-duty-nco",
-    "noodle-stand-owner",
     "plot-room-supervisor",
-    "registry-clerk",
     "repair-chief-kimura",
     "repair-chief-nakamura",
     "repair-chief-sato",
@@ -27,34 +24,51 @@
     "school-registrar",
     "the-rock-research-director",
     "the-rock-warden",
-    "the-storekeeper",
-    "the-young-one",
     "vermilion-block-custodian",
     "vermilion-block-director"
   ],
   "missingFactsIds": [
+    "aucourt",
     "canteen-manager",
     "caretaker",
     "chief-draughtsman",
+    "chiyo",
     "commander",
     "deep-storage-custodian",
     "generating-hall-engineer",
+    "gennai",
     "goods-inwards-officer",
+    "grenna",
+    "haru",
     "hospital-chief-of-staff",
+    "imai",
     "intake-medicals-clerk",
+    "joji",
+    "kuroki",
     "landing-end-duty-nco",
+    "mira",
+    "mori",
+    "mrs-ueda",
+    "nkiru",
+    "obi",
+    "petr",
     "plot-room-supervisor",
     "registry-clerk",
+    "ren",
     "repair-chief-ishikawa",
     "repair-chief-kaneda",
     "repair-chief-kimura",
     "repair-chief-nakamura",
     "repair-chief-sato",
     "repair-chief-watanabe",
+    "sanzo",
     "school-civil-defence-instructor",
     "school-natural-history-teacher",
     "school-registrar",
+    "sigrun",
     "switchboard-supervisor",
+    "tama",
+    "technical-track-student",
     "the-rock-research-director",
     "the-rock-warden",
     "the-young-one",
@@ -91,6 +105,7 @@
     "school-natural-history-teacher",
     "school-registrar",
     "switchboard-supervisor",
+    "technical-track-student",
     "the-rock-research-director",
     "the-rock-warden",
     "the-storekeeper",
@@ -102,6 +117,16 @@
     "works-manager"
   ],
   "npcs": [
+    {
+      "id": "aucourt",
+      "name": "Basile Aucourt",
+      "role": "Long-stay patient, Ward Four, the General Hospital -- a harbour pilot from Taldor, on the far side of the world",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
     {
       "id": "canteen-manager",
       "name": null,
@@ -133,6 +158,16 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "chiyo",
+      "name": "Chiyo Nakamura",
+      "role": "Second-term candidate from a fishing village, has never won a hand",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "commander",
       "name": null,
       "role": "The Commander",
@@ -151,6 +186,16 @@
       "factCount": 2,
       "nameIsPlaceholder": true,
       "namingPlaceholderRef": "comms-officer-name"
+    },
+    {
+      "id": "daisuke",
+      "name": "Daisuke Kanno",
+      "role": "Stagehand, doorman and lantern-keeper for the Oddwater Company",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
     },
     {
       "id": "deep-storage-custodian",
@@ -173,6 +218,16 @@
       "namingPlaceholderRef": "deputy-director-name"
     },
     {
+      "id": "faruq",
+      "name": "Faruq Sallah",
+      "role": "Candidate from Katapesh, harmonica player",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "generating-hall-engineer",
       "name": null,
       "role": "Duty Engineer, The Generating Hall",
@@ -180,6 +235,26 @@
       "hasSocialProfile": false,
       "factCount": 0,
       "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "gennai",
+      "name": "Gennai",
+      "role": "Night porter, the General Hospital",
+      "hasPortrait": true,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "genzo",
+      "name": "Genzō Amemiya",
+      "role": "Night observer, the Met Office",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
     {
@@ -193,6 +268,46 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "grenna",
+      "name": "Grenna Hollowmark",
+      "role": "Dwarf candidate in the next room, who snores",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "hachi",
+      "name": "Hachirō Mase",
+      "role": "Retired Frame fitter, bucket number four, the Bathhouse",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "hana",
+      "name": "Hana Kurogane",
+      "role": "Second-term candidate, keeper of the notebook",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "haru",
+      "name": "Haru Ishikawa",
+      "role": "First-term candidate, in the group's room",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "hospital-chief-of-staff",
       "name": null,
       "role": "Chief of Staff, The General Hospital",
@@ -203,13 +318,83 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "imai",
+      "name": "Setsuko Imai",
+      "role": "Long-stay patient, Ward Four, the General Hospital -- formerly ran the island's telephone exchange for thirty-one years",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "intake-medicals-clerk",
       "name": null,
       "role": "Records clerk, Intake Medicals",
-      "hasPortrait": false,
+      "hasPortrait": true,
       "hasSocialProfile": false,
       "factCount": 0,
       "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "isamu",
+      "name": "Isamu Hamada",
+      "role": "Block warden of Row E, retired tug skipper",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "joji",
+      "name": "Joji Mabuchi",
+      "role": "Pit hand, the oldest on the night crew",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "kaede",
+      "name": "Kaede Ishimori",
+      "role": "Night foreman, No. 1 Machine Shop",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "kazue",
+      "name": "Kazue Tsurumi",
+      "role": "Attendant, the Bathhouse",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "kiku",
+      "name": "Kiku Enomoto",
+      "role": "Keeper, the Paper Lantern",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "kuroki",
+      "name": "Shuhei Kuroki",
+      "role": "Private, Minkai army city garrison -- a patient in the next bed, the General Hospital",
+      "hasPortrait": true,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
     {
@@ -223,12 +408,102 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "lucan",
+      "name": "Lucan Farrow",
+      "role": "Second-term candidate from Absalom, cardsharp",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "manako",
       "name": "Manako",
       "role": "A retired chemist in a tea house. The Original Cultist, the founder of Cicada, and the campaign's primary human antagonist",
       "hasPortrait": true,
       "hasSocialProfile": true,
       "factCount": 6,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "michiru",
+      "name": "Michiru Arai",
+      "role": "Third-term candidate, dealer and keeper of the debt board",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "mira",
+      "name": "Mira Kostel",
+      "role": "Switchboard operator on the island's night exchange",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "mori",
+      "name": "Aiko Mori",
+      "role": "Cleaner, the General Hospital, contracted through a firm from the city",
+      "hasPortrait": true,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "morishita",
+      "name": "Mrs Fumiko Morishita",
+      "role": "Block warden, Row C Block 3",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "mrs-handa",
+      "name": "Mrs Chiyoko Handa",
+      "role": "Keeps the pickle stall in the Market Hall, front row at every show",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "mrs-ueda",
+      "name": "Mrs. Ueda",
+      "role": "The block's night warden, Row B Block 8",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "nadi",
+      "name": "Nadi Obasi",
+      "role": "The observer's assistant, eighteen",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "nkiru",
+      "name": "Nkiru Oduya",
+      "role": "Gantry-crane driver, who sings the lifts",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
       "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
@@ -246,10 +521,30 @@
       "id": "noodle-stand-owner",
       "name": null,
       "role": "Runs the late stand by the harbour where off-duty Directorate staff end up",
-      "hasPortrait": false,
+      "hasPortrait": true,
       "hasSocialProfile": true,
       "factCount": 1,
       "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "obi",
+      "name": "Obiajulu Eze",
+      "role": "Second-term candidate from far away, checks every rumour",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "petr",
+      "name": "Petr Vasko",
+      "role": "Welder, singer, the room's friend",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
     {
@@ -276,10 +571,20 @@
       "id": "registry-clerk",
       "name": null,
       "role": "Registry Clerk, The Registry",
-      "hasPortrait": false,
+      "hasPortrait": true,
       "hasSocialProfile": false,
       "factCount": 0,
       "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "ren",
+      "name": "Ren Saeki",
+      "role": "Apprentice fitter, nineteen, the youngest in the crews",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
     {
@@ -340,6 +645,26 @@
       "hasSocialProfile": false,
       "factCount": 0,
       "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "sanzo",
+      "name": "Sanzo",
+      "role": "Wandering musician and storyteller, the Paper Lantern",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "sayo",
+      "name": "Sayo Iwamura",
+      "role": "Second-term candidate, stargazer",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
     {
@@ -413,6 +738,16 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "sigrun",
+      "name": "Sigrun Halvard",
+      "role": "Crane driver, champion of the hottest pool, the Bathhouse",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "switchboard-supervisor",
       "name": null,
       "role": "Switchboard Supervisor, The Telephone Exchange",
@@ -430,6 +765,36 @@
       "hasSocialProfile": true,
       "factCount": 5,
       "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "tama",
+      "name": "Tama",
+      "role": "Waitress, the Paper Lantern",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "tamsin",
+      "name": "Tamsin Oddwater",
+      "role": "Illusionist, head of the Oddwater Company",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "technical-track-student",
+      "name": null,
+      "role": "Technical-track student at the Canteen, easier to talk to",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 0,
+      "nameIsPlaceholder": true,
       "namingPlaceholderRef": null
     },
     {
@@ -456,7 +821,7 @@
       "id": "the-storekeeper",
       "name": null,
       "role": "Runs the counter at the harbour-quarter store, and is the obstacle in The Errand",
-      "hasPortrait": false,
+      "hasPortrait": true,
       "hasSocialProfile": true,
       "factCount": 1,
       "nameIsPlaceholder": true,
@@ -466,7 +831,7 @@
       "id": "the-young-one",
       "name": null,
       "role": "Pilot-track student, a year or two ahead of Section Nine -- GM-ONLY: a Cicada Cadre member and a Directorate Frame pilot",
-      "hasPortrait": false,
+      "hasPortrait": true,
       "hasSocialProfile": false,
       "factCount": 0,
       "nameIsPlaceholder": true,
@@ -483,6 +848,26 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "tokuji",
+      "name": "Tokuji Tsuruta",
+      "role": "Keeper of the shrine",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "tomoe",
+      "name": "Tomoe Hashida",
+      "role": "Chief of Refit Crew Three, keeper of the slate",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 1,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "transparency-advocate",
       "name": null,
       "role": "The Transparency Advocate",
@@ -490,6 +875,16 @@
       "hasSocialProfile": true,
       "factCount": 3,
       "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "tsubaki",
+      "name": "Haruko Tsubaki",
+      "role": "Night sister, Ward Four, the General Hospital",
+      "hasPortrait": true,
+      "hasSocialProfile": true,
+      "factCount": 2,
+      "nameIsPlaceholder": false,
       "namingPlaceholderRef": null
     },
     {

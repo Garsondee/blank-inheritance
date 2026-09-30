@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "isamu",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Isamu Hamada",
+  "role": "Block warden of Row E, retired tug skipper",
+  "pole": null,
+  "ancestry": "Orc",
+  "affiliation": null,
+  "description": "The block warden of Row E and a retired tug skipper: a big grey-stubbled orc with small worn tusks, a peaked cap and a heavy pea coat, who has never once seen anybody on his roof. He talks to the ceiling when he is saying something he shouldn't, and addresses every candidate as if they were a visiting officer, however young. Gruff, loud, slow, and nowhere near as stern as he would like to be.\n\nHe wants nobody falling off his roof, nobody making him write their name in his book, and a quiet last year before his pension.",
+  "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--the-roof.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Orc ('Orcs are a proud people known for their loyalty and ferocity.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: See the asset registry note for isamu: image 3: peaked cap, pea coat, the ledger under his arm, glaring at the ceiling. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nVOICE NOTES: forced catchphrases in this regular's tics and sample lines were rewritten as habits and manner (tools/art-review/ledger.json has each before and after).\n\nHer or his real statblock is still a placeholder in the scene file (Proposed for Isamu Hamada: level 2, a working adult, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "socialProfile": {
+    "attitude": "indifferent",
+    "facts": [
+      {
+        "id": "when-the-office-will-next-inspect-the-block",
+        "text": "he tells them the day, to nobody in particular, while looking at the ceiling.",
+        "revealTrigger": {
+          "narrative": "Friendly or better, and a Diplomacy check at his Will DC"
+        },
+        "revealed": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "aucourt",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Basile Aucourt",
+  "role": "Long-stay patient, Ward Four, the General Hospital -- a harbour pilot from Taldor, on the far side of the world",
+  "pole": null,
+  "ancestry": "Kalo",
+  "affiliation": null,
+  "description": "A long-stay patient with a leg in traction, in a contraption of pulleys he complains about constantly. Courtly, theatrical and a little too grand, in a Minkai he learned over ships' radios. Calls the ward 'the ship', the nurse 'the captain', and the other patients 'passengers' -- his opening line to anyone new is 'Ah, new passengers. Welcome aboard. The captain is at the far end, and she runs a very tight ship.' He tells the time by the tide rather than the clock, and still wakes for the four o'clock high water out of thirty years' habit, even though the rest of him can't act on it.\n\nHe wants company at three in the morning, and to be back on the water.\n\nWhat he'll happily talk about: being a harbour pilot ('a captain knows the sea. I know this harbour -- every rock, every sandbank, every current'), Taldor (he came over on a ship thirty years ago meaning to stay a season, and never went home; he still dreams in Taldane), and the tides, which he can give the time of, any day this week, without looking.\n\nWhat he won't: whether he'll go back to work. The harbour office wants a doctor's letter saying he can climb a ship's ladder again, and he's more frightened than he lets anyone see that he can't. He deflects with a joke about the hospital's rice instead.",
+  "designNotes": "Created 2026-09-29, extracted from his cast entry in canon/scenes/rest--general-hospital.json -- same process as tsubaki.json and imai.json, his ward-mates, formalized the same day. His cast entry needs its own `npcRef: \"aucourt\"` added in canon (then a story build) before the automatic token pipeline can place a hidden reference token for him.\n\nANCESTRY, Ingram's own request (2026-09-29): 'we have a lot of humans in the campaign so far so we've got work to do to bring the average around.' Kalo -- checked against data/campaign/ancestry-catalogue.json (`terrestrial: false`, a genuinely alien people, aquatic humanoids from a moon of Bretheda), not another Golarion-native pick like Imai's Ysoki. Chosen because it lands directly on what's already written about him: a man who has spent thirty years reading tides, currents and sandbanks by feel, still homesick for a country on the far side of the world he never went back to. Per Brack (shop-boss.json)'s established precedent, an alien on this base draws no stares any more -- he's simply been here thirty years.\n\nHis real statblock is still a placeholder in the scene file: \"Proposed: level 1, a harbour pilot, non-combat. Made with Ingram once the NPC generator exists.\" Not carried into this file's `statblock` field for that reason.\n\nNo socialProfile.facts authored: his one willNotDiscuss item (whether he'll go back to work) has an empty `coercible: []` in the source -- no authored reveal trigger, so nothing invented here rather than making one up.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "established and voiced (the General Hospital haunt is built and playable) -- third haunt regular formalized into a real npc file",
+  "socialProfile": {
+    "attitude": "indifferent"
+  }
+}

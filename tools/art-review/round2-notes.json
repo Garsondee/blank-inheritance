@@ -1,0 +1,46 @@
+{
+  "note": "What Ingram said in round 1 and what was done, shown on the review page beside each card. Keys match the page's item keys. `reset` lists items that changed and so need her to look again; everything else keeps her round-1 answer.",
+  "items": {
+    "rest--early-night/haru": {
+      "said": "If he talks about home I need some details about home for him to talk about, where is his home, what was it like etc etc.",
+      "did": "Named his village (Kinuoka) and gave him two new topics and three new answers: the terraces, the river and the reeling shed, what silkworms sound like at feeding time, and how it felt to be an android nobody ever remarked on at home versus the first thing people notice here."
+    },
+    "rest--early-night/grenna": {
+      "said": "A++ A fun simple character",
+      "did": "Kept as is, except one small change: she now raps her knuckles on wood, so that Mrs Ueda is the only one who knocks twice."
+    },
+    "rest--bathhouse/sigrun": {
+      "said": "A very hard fortitude test would be a great compliment to this haunt scene. Allowing players to brave the hot hot tub.",
+      "did": "The hottest-pool event was already a Fortitude save at the plain level DC. It is now a very hard save (level DC +5, so 20 at level 1), with all four outcomes paying and a +1 status bonus against heat and fire for a success. Also removed four leftover 'lukewarm' catchphrase lines."
+    },
+    "rest--card-game/michiru": {
+      "said": "The chalk is in front of the ear... making it looks like she stores chalk IN her ears....",
+      "did": "New portrait with the chalk held between two fingers and nothing in her hair; her description now says the same."
+    },
+    "rest--card-game/lucan": {
+      "said": "\"New blood! Sit by me. I'll explain the rules, and then someone else will explain the real rules.\"",
+      "did": "Used your wording exactly."
+    },
+    "rest--rumour-mill/hana": {
+      "said": "Pencil in mouth looks awkward, I'll probably need to edit this one myself.",
+      "did": "New portrait with the pencil raised in her hand and her mouth closed. Her tic still says she taps her pencil on her teeth (in the text you approved); the picture just doesn't show it. Tell me if you'd rather I change the text too."
+    },
+    "rest--rumour-mill/mrs-ueda": {
+      "said": "\"she knocks twice on everything\" - second time you've used this wording? Is it meant to be the same character?",
+      "did": "No, not meant to be. Both Grenna and Mrs Ueda had a 'knocks twice' habit in the original scenes and I didn't catch the clash. Two knocks is Mrs Ueda's (it is her opening line and her own event), so it is now hers alone, and only on the door; Grenna raps her knuckles instead."
+    },
+    "rest--met-office/nadi": {
+      "said": "We can probably get rid of the pair of pencils. Midjourney sucks at doing things like this realistically.",
+      "did": "New portrait with a single pencil in her hand. Her description and habit now say one pencil in her hand, chalk dust to the wrists."
+    },
+    "rest--night-shift/joji": {
+      "said": "the arm isn't green. I can fix this one manually but we might want to regenerate.",
+      "did": "Regenerated with green-grey skin insisted on the face, ears, neck, forearms and hands. His forearms and hands are green in the new one."
+    }
+  },
+  "reset": [
+    "rest--early-night/haru", "rest--early-night/grenna", "rest--bathhouse/sigrun",
+    "rest--card-game/michiru", "rest--card-game/lucan", "rest--rumour-mill/hana",
+    "rest--rumour-mill/mrs-ueda", "rest--met-office/nadi", "rest--night-shift/joji"
+  ]
+}

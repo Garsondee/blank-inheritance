@@ -1,0 +1,583 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--shrine-gate",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "shrine-gate",
+  "title": "The Shrine Gate",
+  "summary": "A small roadside shrine on a corner of the island, kept by an old man with a broom. A quarter of maximum HP, a wish made out loud or kept, a fortune drawn from the stick box, and a dark road home.",
+  "goal": "Each player who came here has spent a quiet hour at the shrine, in character, and leaves with a quarter of their HP back, a fortune slip that might be worth something tomorrow, and a standing with the keeper and his regular visitor that the next visit will remember.",
+  "howToPlay": "A haunt: a menu, not a script. Set the gate, give each player a turn to say what their character does first, then draw events from the deck, one or two per player or as many as the table is enjoying. Most are rolls, a wish, a fortune and chances to talk in character. Before they leave, everyone draws a fortune. The regulars' attitudes move with what happens, and how each of them behaves now is shown beside their name.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "A little shrine on a corner of the island, where the street bends round it as if the road had been told to go carefully. Two posts and two crossbeams make the gate, painted red once, and a fat straw rope hangs between them with paper strips and old fortune slips knotted along it. Inside there is a stone basin, a bell on a rope, an offering box, and a roof no bigger than a bus shelter over a grey stone. The keeper is always sweeping, and the shrine cat is always sitting on the offering box.",
+    "changes": "The island keeps growing round the shrine. The street wants to be wider, the offices want the corner, and the people who pray here are fewer and older, or newer and from further away. The shrine may be moved, or lit, or paved round, or kept exactly as it is, and each visit can show which way it is going.",
+    "upgrades": [
+      {
+        "id": "net-mending-night",
+        "title": "Net-Mending Night",
+        "text": "The festival draws twenty people and more. The knotted cord hangs along the gate's rope all year with lanterns strung on it, and the keeper lights them every night.",
+        "how": "Bring the festival something (a critical success at Net-Mending Night, or keep a promise made there), and bring enough people that the keeper counts twenty.",
+        "rest": {
+          "hp": "quarter",
+          "buff": "The fortune from the stick box as before, under the lit rope: on a 9 or a 10 it is a great blessing (a Hero Point, or the blessing's +1 for a character who already holds three)."
+        }
+      },
+      {
+        "id": "the-corner-lamp",
+        "title": "The corner lamp",
+        "text": "The street lamp on the corner stays up after all, and the hundred dark paces home are lit. The dark road can't be drawn here again, and Mira walks home past the shrine without hurrying.",
+        "how": "Get the works office to keep the lamp: a critical success on the keeper's letter, or a request pressed in person with Society at the level-based DC + 2."
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "moved-to-the-gardens",
+        "title": "Moved to the gardens",
+        "text": "The works office moves the shrine to its plinth in the gardens by the offices: lit, paved, near the tram, and busy until late. The grey stone the fishermen touched stays behind under the wider road, and the keeper sweeps a garden that doesn't need it.",
+        "lasting": "permanent",
+        "rest": {
+          "hp": "quarter",
+          "buff": "The fortune from the stick box works as before, drawn in a lit garden with people passing; nobody can touch the fishermen's stone."
+        }
+      },
+      {
+        "id": "the-rope-comes-down",
+        "title": "The rope comes down",
+        "text": "Surveyors take the gate's straw rope down for a month while they measure the corner. There is nowhere to tie a curse: a character who draws a 1 carries it home, and takes a -1 status penalty to their first check the next day.",
+        "lasting": "temporary"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "Before they leave, each character draws a fortune. They shake the old wooden stick box until one numbered stick falls out, which is a d10, and the keeper hands them the slip from the drawer with that number. On a 1 the fortune is a curse: they tie the slip to the gate's rope and leave it behind, and it has no effect. On a 2 to 6 it is an ordinary fortune: a line to keep, with no mechanical effect. On a 7 to 9 it is a blessing: a +1 status bonus to one check of their choice, declared before they roll, at any time before their next rest. On a 10 it is a great blessing: a Hero Point (a character who already holds three takes the blessing's +1 instead). The slips read: 1, \"Misfortune. What you are waiting for is waiting somewhere else. Tie this slip to the rope and walk home without looking back.\" 2, \"Small fortune. The letter is slow, but it is not lost. The rain will stop soon after you give up on it.\" 3, \"Small fortune. Your shoes will outlast your patience. Mend the first and keep the second.\" 4, \"Ordinary fortune. A borrowed umbrella is still an umbrella. Say thank you, and remember to give it back.\" 5, \"Ordinary fortune. For travel, go, but eat first. For lost things, look underneath something. For love, be patient, and wash.\" 6, \"Ordinary fortune. The tide only goes out so that it can come back in. Go to sleep.\" 7, \"Blessing. The net will hold. When the moment comes, pull.\" 8, \"Blessing. Your hands know more than you do. Let them go first.\" 9, \"Blessing. Someone is about to be very glad you were there. Be there.\" 10, \"Great blessing. The Net-Mender has mended your net already. Go out tomorrow and fish.\""
+  },
+  "intro": {
+    "where": "The Shrine Gate, a small roadside shrine on a corner in the middle of the island, around midnight.",
+    "firstThing": "The quiet: a broom going back and forth on stone, and a bell somebody rang a minute ago still humming.",
+    "readAloud": "In the middle of the island, between two office blocks with their lights out, the street bends round a corner as if it had been asked to be careful. On that corner is a shrine.\n\nThe gate is two old posts and two crossbeams, painted red a long time ago, with a fat straw rope strung between them and dozens of paper fortunes knotted along it. Beyond the gate there is a stone basin with a wooden ladle, a bell on a frayed rope, a battered offering box with a large cat asleep on top of it, and a little roof over a round grey stone.\n\nAn old man in a padded coat is sweeping the paving stones, very slowly, in the light of one paper lantern. This shrine belongs to the Net-Mender, a kami: one of Minkai's small local spirits, the kind that looks after one place and the people who come to it.",
+    "carriesIn": [
+      {
+        "when": "A character came here straight from a hard, wet duty that night",
+        "then": "The keeper looks at the state of them, fills the ladle himself, and holds it out. \"Hands first. Then your face. Then we'll see.\""
+      },
+      {
+        "when": "A character is still in uniform",
+        "then": "The keeper notices it and says nothing about it. The cat opens one eye."
+      }
+    ],
+    "holdInReserve": "Under the little roof, the grey stone has a smooth groove worn into one side, the shape of a thumb. The keeper says fishermen touched it for luck before they went out, for longer than anyone has been counting. A character he likes, friendly or better, may touch it too.",
+    "landmark": "The faded red gate with the straw rope and its knotted fortunes.",
+    "position": {
+      "locationRef": "the-shrine-gate-444",
+      "state": "together",
+      "note": "Everyone who chose the shrine is here together. They walk back to their bunks together when the keeper puts out his lantern."
+    }
+  },
+  "cast": [
+    {
+      "id": "tokuji",
+      "npcRef": "tokuji",
+      "label": "Tokuji Tsuruta",
+      "role": "keeper of the shrine, seventy-eight, who sweeps it every night",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Stops sweeping, stands in the middle of the path with his broom, and waits for them to leave. He says nothing at all.",
+          "unfriendly": "Sweeps round them pointedly, and tells them the shrine is closed, which it never is.",
+          "indifferent": "Keeps sweeping and watches whether they wash their hands before they ring the bell.",
+          "friendly": "Leans on his broom and talks: about the fishermen, the old town, and the cat, who he treats as a colleague.",
+          "helpful": "Hands them the second broom, lets them touch the stone, and tells them things about the shrine he hasn't told anyone in years."
+        },
+        "faction": "harbour-hands",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The fishermen's stone: a character may touch the worn groove before they draw their fortune, and on a 1 they draw again instead of taking the curse."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The keeper's lantern: he walks them to the corner with it and holds it up until they are past the office blocks, which gives a +2 circumstance bonus to the Perception check to spot trouble on the dark road."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The stick box: he tells them the shrine is closed, which it never is, and they draw no fortune tonight."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The gate: he stands in the middle of the path with his broom until they go, and there is no rest here for them."
+          }
+        ],
+        "wants": "For the shrine to stay where it is, and for someone younger to care about it when he can't hold a broom any more.",
+        "opensWith": "\"Wash your hands before you ring the bell. The ladle's there. The cat is not a ladle.\"",
+        "willDiscuss": [
+          {
+            "topic": "The Net-Mender",
+            "note": "The fishermen's kami, who mends what is torn: nets, boats, quarrels, people. \"Everything the sea breaks, she can mend, if you ask properly and wait.\""
+          },
+          {
+            "topic": "How the shrine came to be here",
+            "note": "He says the fishermen from the old town rowed out to the rock and left offerings on it long before there was any island, and when the Directorate built the island round the rock, the builders laid the streets round the shrine rather than be the one who moved it. Nobody built it, he says; it was let stay."
+          },
+          {
+            "topic": "The fortunes",
+            "note": "\"Take what comes. If it's bad, tie it to the rope and let the wind have it. The rope's strong. It can carry anything.\""
+          },
+          {
+            "topic": "The old town",
+            "note": "He fished from the old town until his knees gave out. He crosses on the last train every night with a pass older than the guard who stamps it."
+          },
+          {
+            "topic": "The cat",
+            "note": "The keeper calls him the Abbot, because he sits on the offering box all night and takes a cut."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The letter in his coat",
+            "why": "A letter from the island's works office about the shrine's future. He is proud and doesn't want pity, and he can't read all of it himself. He deflects with: \"Business. It's in hand.\""
+          },
+          {
+            "topic": "His son",
+            "why": "His son works in the shops on this island, thinks the shrine is an old man's nonsense, and wants him to stop coming. They hardly speak. He deflects with: \"He has his work. I have mine.\""
+          },
+          {
+            "topic": "Reading and writing",
+            "why": "He went to sea at ten and never learned more than his letters. He deflects with: \"My eyes aren't what they were. You read it.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The letter",
+            "how": "Friendly or better, and a Diplomacy check at his Will DC: he takes the letter out and asks for help with it. This opens the letter event if it hasn't been drawn."
+          }
+        ],
+        "voice": {
+          "register": "Slow, dry, old-town plain. Says exactly what he means and not a word more.",
+          "tics": [
+            "Leans on his broom before he says anything he thinks is important.",
+            "Talks to the cat as if the cat were in charge."
+          ],
+          "samples": [
+            "\"The Abbot says you can stay. He's not usually wrong.\"",
+            "\"Sixty years I've swept this. It never stays swept. That's how you know it's alive.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What is this place?",
+            "a": "\"The Net-Mender's. She was here before the island. Wash your hands.\""
+          },
+          {
+            "q": "Who is the Net-Mender?",
+            "a": "\"The fishermen's kami. She mends what's torn. Nets, mostly, in the old days. Now it's anything. People come with all sorts.\""
+          },
+          {
+            "q": "Why do you sweep it at night?",
+            "a": "\"Because in the day there are people on it. You can't sweep round people. Well, you can, but they look at you.\""
+          },
+          {
+            "q": "How do we pray?",
+            "a": "\"Wash. Coin in the box. Ring the bell so she knows you're here. Bow, clap, bow. Then ask, and don't ask for too much at once.\""
+          },
+          {
+            "q": "What's the cat's name?",
+            "a": "\"The Abbot. He takes the offerings before she does. We've come to an arrangement.\""
+          },
+          {
+            "q": "Do you work for the Directorate?",
+            "a": "He leans on the broom. \"I work for her. The Directorate just built its island round her.\""
+          }
+        ],
+        "statblock": "Proposed: level 0, an old working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "mira",
+      "npcRef": "mira",
+      "label": "Mira Kostel",
+      "role": "switchboard operator on the island's night exchange, who prays here on her way home",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Turns round at the gate when she sees them there and goes home the long way round in the dark.",
+          "unfriendly": "Prays quickly, eyes on them the whole time, and leaves without a word.",
+          "indifferent": "Nods politely, prays, and heads off, too tired for company.",
+          "friendly": "Glad of company on a dark road, chatty, and full of small news about who rang whom tonight, without names.",
+          "helpful": "Waits for them at the gate so they can all walk back together, and tells them which streets on the island are lit and which aren't."
+        },
+        "faction": "island-exchange",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Company on the road: she walks home with them, and anyone beside her gets a +1 circumstance bonus to Perception checks on the dark road."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "Put through first: a call they place on the island at night is connected at once, whoever else is waiting on the board, and she tells them which streets are lit tonight."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The night board: their calls wait behind everyone else's, so a message they send by telephone after eight at night doesn't get through until morning."
+          }
+        ],
+        "wants": "Travel papers for her little brother, so he can come and join her, and not to walk the last stretch home alone in the dark.",
+        "opensWith": "\"Oh, thank goodness, people. It's like walking through a cupboard, that road.\"",
+        "willDiscuss": [
+          {
+            "topic": "Her work",
+            "note": "She connects calls on the island's night exchange: plugs, cords and a board of little lights, from eight until midnight. \"Nobody rings at night unless it's important or they're drunk.\""
+          },
+          {
+            "topic": "Where she's from",
+            "note": "A mountain country a long way west, over the sea. She came three years ago for the Directorate's wages, which are very good, and stayed for the same reason."
+          },
+          {
+            "topic": "Why she prays here",
+            "note": "\"At home I pray to my own lady, the one of stars and roads, with the butterflies. She won't mind. She's a traveller herself. And this one's on my way.\""
+          },
+          {
+            "topic": "Her brother",
+            "note": "Fourteen, clever, and waiting on travel papers that have been 'in hand' for two years. This is what she wishes for, every night."
+          },
+          {
+            "topic": "The road home",
+            "note": "Half the street lamps on this side of the island are out, and she thinks the works office has forgotten they exist."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What she hears on the lines",
+            "why": "The operators' first rule is that they connect calls and never listen to them, and she would lose her job and her brother's chances with it. She deflects with: \"I plug them in. I don't listen. That's the whole job.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Quick, warm, a little breathless, with a foreigner's careful Minkai and a laugh at the end of most sentences.",
+          "tics": [
+            "Rubs the dent the headset leaves above her ear.",
+            "Introduces people by patching them together: a hand on each elbow, a small pause, and then they are talking."
+          ],
+          "samples": [
+            "\"Four hundred calls tonight, and every one of them was sure they were the only one.\"",
+            "\"Tokuji, these are candidates. Candidates, Tokuji. There.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What do you do?",
+            "a": "\"I'm on the night exchange. Somebody on this island picks up a telephone at eleven at night, and I'm the one who puts them through.\""
+          },
+          {
+            "q": "Where are you from?",
+            "a": "\"West. Mountains, snow, goats with opinions. Three years here now, and I still miss the snow.\""
+          },
+          {
+            "q": "Why pray at a kami shrine if you're not from here?",
+            "a": "\"My lady at home is a traveller. She'd want me to be polite to the local people. And the Net-Mender mends things. I've got something that needs mending.\""
+          },
+          {
+            "q": "What do you wish for?",
+            "a": "\"My brother's papers. Every night. I think the kami is sick of my voice by now.\""
+          },
+          {
+            "q": "Is it safe, walking home?",
+            "a": "\"It's the island. It's safe. It's just dark. Dark isn't the same as unsafe.\" She doesn't sound sure."
+          },
+          {
+            "q": "Who rings at night?",
+            "a": "She laughs. \"People who are important, people who are drunk, and a man in the stores who rings his wife every night at eleven to say goodnight. That's all you're getting.\""
+          }
+        ],
+        "statblock": "Proposed: level 0, a working adult, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-gate",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the gate. The keeper looks up from his broom and points at the stone basin.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "your-evening",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Ask each player, one at a time: \"Your character has walked through the gate at midnight at the end of a very long first day. What do they do first, and what are they still carrying from today?\" Give them a moment to picture it before they answer.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-fortune",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "The keeper sets the stick box on the step. Each character shakes it and draws a fortune; the slips are listed with the rest. A curse gets tied to the rope before they go. Then the keeper puts out his lantern, and the rest is applied.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "the-wish",
+      "kind": "roleplay",
+      "title": "A coin and a wish",
+      "text": "A character drops a coin in the offering box, under the Abbot's nose, rings the bell, and puts their hands together. The keeper stops sweeping while they do it, out of politeness, and looks away.",
+      "prompt": "You've rung the bell and the Net-Mender is listening. What does your character wish for? You can say it out loud, or tell us only that they wished and keep the rest to yourself. Take a moment.",
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press the keeper's button if the wish is made in earnest, spoken or not. A player who keeps their wish secret can write it down and hand it to the GM; it's worth keeping."
+    },
+    {
+      "id": "the-old-way",
+      "kind": "roll",
+      "title": "The old way",
+      "text": "A character goes up to the bell, and the keeper leans on his broom to watch how they do it. There is a right way: wash at the basin, walk up the side of the path because the middle belongs to the kami, coin, bell, bow, clap, bow, and then ask.",
+      "prompt": "The keeper is watching you, and so is the cat. How does your character go about it?",
+      "check": "Religion (Recall Knowledge) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "Every step right, even walking up the side of the path, which nearly everyone forgets. The keeper nods slowly, goes up a step, and tells them how the fishermen used to row out to the rock with their offerings before there was an island here at all.",
+        "success": "Done properly. The keeper grunts, which from him is warm.",
+        "failure": "Muddled: they clap first and bow in the wrong place. The keeper puts his broom down and walks them through it, patiently, holding their elbow like a grandson's.",
+        "criticalFailure": "They haul on the bell rope as if it were a ship's, and the bell jumps off its hook and clangs across the paving stones. Lights come on in the billets across the street. The keeper spends ten minutes getting it back up and goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "tokuji",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-abbot",
+      "kind": "roll",
+      "title": "The Abbot",
+      "text": "The shrine cat is enormous, tortoiseshell, missing half an ear, and asleep on the offering box. The keeper calls him the Abbot because he takes the offerings before the kami does. He opens one eye at a character, which is either an invitation or a warning.",
+      "prompt": "The Abbot is looking straight at you. What does your character do about it?",
+      "check": "Nature (Command an Animal, or just reading him) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The Abbot gets up, stretches, and leads them round the back of the shrine to his hoard: odd gloves, a fountain pen, three tram tokens, a tin soldier, and a silver ring with something engraved inside it. The keeper, shown the hoard, says he'll pin the ring to the gate for its owner, and goes up a step.",
+        "success": "The Abbot allows himself to be stroked, then climbs into their lap and stays there, heavy and purring, for as long as they sit.",
+        "failure": "The Abbot closes his eye again, turns round twice, and goes back to sleep with his back to them.",
+        "criticalFailure": "The Abbot takes something small of theirs, a glove or a pencil or a button off their coat, and is over the wall before anyone can move. The keeper says it will turn up. It will, but not tonight."
+      },
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "Whatever the Abbot takes on a critical failure is in his hoard behind the shrine, and the keeper has it ready for them on their next visit."
+    },
+    {
+      "id": "the-wish-boards",
+      "kind": "roll",
+      "title": "The wish boards",
+      "text": "Along one side of the shrine is a rack hung with hundreds of little wooden boards, each with a wish written on it by somebody who came here. Most are old and weathered, some are new, and they click against each other when the wind comes off the harbour.",
+      "prompt": "Your character starts reading the boards. What are they looking for, or what catches their eye?",
+      "check": "Perception at the level-based DC (15 at level 1) to find the ones worth reading among hundreds.",
+      "outcomes": {
+        "criticalSuccess": "As a success, and one more, hung low and half hidden, in shaky capitals: \"Let my son come to the shrine with me, just once.\" It is the keeper's own. They now know something about him that he hasn't said.",
+        "success": "Two that stand out. One, in a fisherman's heavy hand: \"Let the new sea wall leave us a beach.\" The other, in a child's careful letters: \"Please let Papa's machine not break again, because he is sad when it breaks.\"",
+        "failure": "Exams, sweethearts, the price of fish, a good harvest for somebody's aunt. The ordinary wishes of a lot of ordinary people.",
+        "criticalFailure": "The peg at the end of the rack gives way, and forty boards clatter across the stones. The keeper helps them hang every one back, slowly and in silence, and goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "The keeper's board is something the players can use with him or leave alone. If they bring it up kindly, he tells them about his son."
+    },
+    {
+      "id": "net-mending-night",
+      "kind": "roll",
+      "title": "Net-Mending Night",
+      "text": "The keeper and Mira are sitting on the step with a sheet of paper, planning the shrine's festival. Next month is Net-Mending Night: lanterns strung along the gate's rope, and everyone who comes ties a knot of their own string into one long cord, to mend what's been torn in the year. Last year twelve people came. The keeper would like twenty. He asks the group what they do for festivals where they come from.",
+      "prompt": "The keeper asks what your character's people do at a festival. What do you tell him, and what could you bring to this one?",
+      "check": "Crafting (to design a lantern), Performance (to offer a song or a dance), or another skill they can argue for, at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "The idea is so good that the keeper writes it into the plan on the spot, and Mira says she'll tell the whole exchange. The festival will have something of theirs in it. The keeper goes up a step.",
+        "success": "A good idea, and a welcome one. They're invited, and the keeper expects them to come.",
+        "failure": "A lovely idea that won't work at a shrine the size of a bus shelter. They're invited anyway.",
+        "criticalFailure": "They volunteer for something grand, and the keeper writes their name down beside it in large careful letters. Now they owe Net-Mending Night a lantern, a song or whatever it was, and he will hold them to it."
+      },
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "mira",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ]
+    },
+    {
+      "id": "the-letter",
+      "kind": "dilemma",
+      "title": "The letter in his coat",
+      "text": "The keeper takes a folded letter out of his coat, soft from being carried for a week. It is from the island's works office. The street is to be widened, and the shrine is to be moved, at no cost to him, to a new stone plinth in the gardens by the offices: lit, paved, near the tram stop, and seen by far more people. If he doesn't agree, the letter says politely, it will be removed. He can't write a good letter himself, so he asks a character to write his answer for him. He says the Net-Mender lives in the stone and the stone lives in the rock, and a rock doesn't move. Mira, who walks home past this corner in the dark every night, says quietly that the gardens would be lit, and nearer the tram, and she would feel safer.",
+      "prompt": "The keeper hands you a pencil and a sheet of paper, and waits. What do you write for him?",
+      "check": "Society at the level-based DC (15 at level 1) to write a letter the works office will take seriously, whatever it says.",
+      "outcomes": {
+        "criticalSuccess": "The office replies with a real person's name, and a date when that person will come to the shrine to talk to the keeper face to face. Whatever happens to the shrine, the keeper will have a say in how. He goes up a step.",
+        "success": "The letter is read. A reply will come in a week or two.",
+        "failure": "A printed card comes back thanking the keeper for his interest.",
+        "criticalFailure": "The letter comes out muddled, and the office reads it as the keeper's agreement, whichever way it was meant. The date for the move comes forward. The keeper goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "tokuji",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Either answer is a fair one. Moved, the shrine is safe, lit and busier, and Mira walks home in the light, but the stone the fishermen touched stays behind under a wider road. Kept, the shrine stays on its rock, the road stays dark, and the office may move it one day without asking. What was written, and what came back, returns as the island keeps growing."
+    },
+    {
+      "id": "the-linesman",
+      "kind": "informant",
+      "title": "The linesman",
+      "text": "A linesman from the island's electrical works is up a ladder at the corner, changing a street lamp by torchlight and swearing gently at it. He is happy to talk to anyone who holds the ladder. When a Frame has to walk down a street at night, he says, the works office sends linesmen round an hour beforehand to switch off every lamp on its route and swing the heads out of the way, so a foot doesn't catch them. So if you ever see the lamps go dark one after another in a line across the island, a Frame is coming that way, long before anybody announces it. And he's been told to take the lamp on this corner down next month, and not to put it back.",
+      "prompt": "He's talking to your character now, because you're the one holding his ladder. What do you ask him?",
+      "note": "Something the table can use later: the lamps going out in a line is how anyone on the island can tell a Frame is being moved before it's announced. The lamp on this corner coming down is because of the road widening; he knows no more than that."
+    },
+    {
+      "id": "miras-wish",
+      "kind": "roleplay",
+      "title": "Wish it for me",
+      "text": "Mira has made the same wish every night for two years: travel papers for her little brother, who is fourteen and waiting a long way west. Tonight she stops at the bell and laughs at herself. She's sure the Net-Mender is sick of her voice by now. She asks one of the group to make the wish for her, in their own words.",
+      "prompt": "Mira steps back from the bell and nods at you. How does your character ask the Net-Mender for Mira's brother? Take a moment first.",
+      "shifts": [
+        {
+          "regular": "mira",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Press Mira's button if the wish is made kindly. There is nothing to roll."
+    },
+    {
+      "id": "sweep-with-him",
+      "kind": "buff",
+      "title": "The second broom",
+      "text": "The keeper has a second broom leaning against the gate post. Without a word, he holds it out to one character. If they take it, they sweep the shrine with him from the gate to the step, in silence, the way he has done every night for sixty years. It takes a quarter of an hour, and when it's done the paving stones are clean for about a minute.",
+      "prompt": "The keeper holds out the second broom. Does your character take it, and what do they think about while they sweep?",
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "A character who sweeps with him rolls twice when they draw their fortune tonight, and keeps the better result. \"She likes a clean floor.\""
+    },
+    {
+      "id": "the-dark-road",
+      "kind": "danger",
+      "title": "The dark road",
+      "text": "On the walk back, the street between the office blocks is unlit for a hundred paces. Three men are waiting by a stack of drainage pipes. One of them, thin and nervous, steps out and asks, almost politely, if the candidates could lend him something, anything, because he's in trouble. The other two stay behind him with short clubs, and they are not nervous at all. The thin one is Kaito, a crane hand who lost his job when the new cranes came and borrowed from the wrong lender in the city. The other two are the lender's men, here to see he pays tonight. Kaito has been taking coins from the shrine's offering box for a month, and it hasn't been enough.",
+      "prompt": "Kaito is holding out his hand, and it's shaking. The two men behind him are not. What does your character do?",
+      "check": "To spot them before they step out: Perception at the level-based DC (15 at level 1), which lets the group choose another road or choose where they stand. To talk Kaito out of it: Diplomacy at the level-based DC; he is the weak link, and without him the other two lose their nerve. To scare them off: Intimidation against the lender's men's Will DC, because robbing Directorate candidates inside the fence brings the garrison. To bluff: Deception against their Perception DC, that a patrol is right behind. To run: nothing to roll; the lit street is a hundred paces back, and the lender's men won't chase far on this island. To pay: hand over what they're carrying, and the men go. To fight: theatre-of-the-mind.",
+      "outcomes": {
+        "criticalSuccess": "Kaito lets his hand fall, the lender's men melt away into the dark, and Kaito, ashamed, admits he's been taking from the offering box. He asks them to tell the keeper he'll put it back. If they do, the keeper goes up a step.",
+        "success": "The men back off and go. Kaito looks back once as he leaves.",
+        "failure": "The lender's men call the bluff. The group can hand over what they have, or it's a fight: two men with clubs, run as theatre-of-the-mind, out to hurt and frighten, not to kill. Kaito runs at the first blow.",
+        "criticalFailure": "It's a fight, and the lender's men go for the one who spoke first. Kaito runs, and takes whatever purse or bag is nearest with him."
+      },
+      "fight": {
+        "foe": "The lender's two men, with short clubs. Kaito does not fight.",
+        "press": "They need the bigger of the two down. The moment he falls, the other drags him off into the dark, and Kaito is left alone on the road with his hand still out, ready to talk. The garrison patrol arrives about three rounds in and takes names on both sides.",
+        "retreat": "They run back the hundred paces to the lit street, and the lender's men don't follow past the first lamp. Kaito is left with them, and the keeper's offering box is lighter again by morning.",
+        "surrender": "The lender's men are paid to frighten, not to kill: either one drops his club and walks away when he is badly hurt or his partner goes down. Kaito gives up at once, to anyone, and cries."
+      },
+      "shifts": [
+        {
+          "regular": "tokuji",
+          "change": 1,
+          "when": "criticalSuccess"
+        }
+      ],
+      "note": "This happens on the walk home, after the fortunes. A garrison patrol arrives about three rounds into any fight and takes names on both sides. If the group gives Kaito money freely, he tries to pay it back. Stat blocks needed, made with Ingram once the NPC generator exists: the lender's men, proposed level 1 thugs with clubs and nonlethal intent; Kaito, proposed level -1, a frightened working adult who won't fight."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The keeper finishes sweeping and puts out his lantern, or the group leave.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The road back to the bunks runs dark between the office blocks, and for a while the only light behind them is the shrine's lantern, and then that goes out too.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Each character's fortune: who holds a blessing's +1 or a Hero Point, and whose curse is tied to the rope.",
+      "What each character wished for, if the player told you.",
+      "What the letter to the works office said, if one was written.",
+      "What anyone owes Net-Mending Night, and anything the Abbot took.",
+      "What happened on the dark road, and whether Kaito's secret reached the keeper."
+    ],
+    "position": {
+      "locationRef": "the-shrine-gate-444",
+      "state": "together",
+      "note": "They leave together when the lantern goes out, and walk back to their bunks."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "IF THE GROUP DO SOMETHING ELSE. They attack the keeper or Mira: the keeper stands still with his broom and doesn't raise it, Mira runs for the telephone box on the corner, and a garrison patrol arrives within minutes; the keeper goes to hostile. They lie to him: Deception against his Perception DC; he usually knows, and lets it go, because the kami hears it anyway. They steal from the offering box: Thievery against his Perception DC, and the lock is older than they are; caught, he goes to hostile and sends Mira for the patrol; not caught, he counts the box in the morning and knows, and he is a step down next visit. They go round the back of the shrine: the grey stone under its little roof, and the Abbot's hoard. They follow Mira: she walks to a billet three streets away, and the road there is dark. They split up: run each part as its own small event. They walk out early: the keeper says goodnight to their backs, and they still draw a fortune if they stop at the stick box on the way out."
+}

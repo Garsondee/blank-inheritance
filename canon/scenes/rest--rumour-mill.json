@@ -1,0 +1,780 @@
+{
+  "$schema": "../../data/schema/scene-brief.schema.json",
+  "id": "rest--rumour-mill",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "rumour-mill",
+  "title": "The Rumour Mill",
+  "summary": "Sitting up late in Row B, Block 8, where the second-termers trade theories after lights-out. A quarter of maximum HP, and three rumours each: some true, some not.",
+  "goal": "Each player who came here has rolled blind for rumours, heard their three, and had a chance to add a theory of their own to the block's collection.",
+  "howToPlay": "A haunt, and a game of rumours. Each player names any skill they can justify for getting people talking, and you roll it for them in secret. Press the degree in the Rumours block and read them their three, in the voice of whoever tells them. A critical failure is three lies; a failure, two lies and one truth; a success, two truths and one lie; a critical success, three truths. Only you know which is which. Draw events between rounds.",
+  "runsAbout": "10-20 minutes",
+  "mode": "downtime",
+  "spectrum": "downtime",
+  "haunt": {
+    "everyVisit": "The common room of Row B, Block 8 after lights-out: blankets over the window so the warden can't see the lamp, a kettle on a hot plate, and a dozen second-termers in dressing gowns arguing in whispers. Hana Kurogane sits in the one armchair with her notebook open.",
+    "changes": "The rumours follow the city. As the Directorate grows and the city changes, the theories get stranger, some of them turn out to be true, and people start to be careful whom they say them to.",
+    "upgrades": [
+      {
+        "id": "a-page-of-their-own",
+        "title": "A page of their own",
+        "text": "Hana gives the group a page in the notebook with a 'came true' column of their own, and reads the room's best theories to them first.",
+        "how": "Get one of the group's rumours into the 'came true' column: start it here, then make it true.",
+        "rest": {
+          "hp": "quarter",
+          "buff": "Three rumours for each player, dealt from this episode's sets by how well they rolled; a character with a rumour in the 'came true' column rolls twice and takes the better degree."
+        }
+      },
+      {
+        "id": "the-good-tea",
+        "title": "The good tea",
+        "text": "Mrs. Ueda knocks twice, comes in with her cup, and stays. The gathering is never broken up again, and each visit she adds one rumour of her own, true or not.",
+        "how": "Bring Mrs. Ueda a tin of the good tea from the city (the GM sets the price) while she is friendly or better."
+      }
+    ],
+    "setbacks": [
+      {
+        "id": "lights-out-means-out",
+        "title": "Lights-out means out",
+        "text": "After a report, the office has the wardens sit up in the common rooms for a week. The blankets come down, the kettle goes back to the kitchen, and there are no rumours to be had.",
+        "lasting": "temporary",
+        "rest": {
+          "hp": "quarter",
+          "buff": "Nothing: nobody talks with a warden in the room."
+        }
+      },
+      {
+        "id": "careful-whom-you-tell",
+        "title": "Careful whom you tell",
+        "text": "Somebody's rumour turns out to be true, and somebody is moved on for saying it. After that the second-termers are careful whom they talk to, and the rumour check takes a -2 circumstance penalty for good, unless Hana is friendly or better and vouches for the group.",
+        "lasting": "permanent"
+      }
+    ]
+  },
+  "rest": {
+    "hp": "quarter",
+    "buff": "The rumours themselves: three for each player, dealt from this episode's sets by how well they rolled."
+  },
+  "intro": {
+    "where": "The common room of Row B, Block 8, after lights-out.",
+    "firstThing": "A dozen people in dressing gowns going silent at once, then relaxing when they see the group aren't the warden.",
+    "readAloud": "The common room of Row B, Block 8 should be dark. Instead there's a blanket pinned over the window, a single lamp on the floor, and a kettle muttering on a hot plate. A dozen second-termers in dressing gowns and blankets freeze when the door opens, then relax when they see you aren't the warden.\n\nIn the one armchair, a young woman with her hair in a scarf closes a fat notebook on her finger. \"New ones,\" she says.\n\n\"Sit down. Tell us what you've heard, and we'll tell you what we have.\"",
+    "carriesIn": [
+      {
+        "when": "The group heard anything strange at their own medical",
+        "then": "Here is where people will want to hear about it. Hana writes down whatever they say."
+      }
+    ],
+    "holdInReserve": "Hana's notebook has a page for every intake going back three years, each with its rumours and a column headed 'came true'. Most of that column is empty.",
+    "landmark": "Hana's armchair, and the notebook.",
+    "position": {
+      "locationRef": "row-b-block-8",
+      "state": "together",
+      "note": "Everyone who chose the Rumour Mill is here together, until the kettle runs dry."
+    }
+  },
+  "cast": [
+    {
+      "id": "hana",
+      "npcRef": "hana",
+      "label": "Hana Kurogane",
+      "role": "second-termer, keeper of the notebook",
+      "arrival": null,
+      "brief": {
+        "attitude": "friendly",
+        "byAttitude": {
+          "hostile": "Closes the notebook when they come in, and the room follows her lead.",
+          "unfriendly": "Deals their rumours short and doesn't write down anything they say.",
+          "indifferent": "Trades rumour for rumour, and no more.",
+          "friendly": "Saves them the good seats and tells them which theories she thinks are nearly right.",
+          "helpful": "Shows them the notebook's 'came true' column, and adds their names to the page as people worth listening to."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Nearly right: once a visit, after a character hears their three, she tells them which one she believes. If any of the three is true, she picks a true one."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "People worth listening to: a rumour the group starts goes round the island within two days word for word, instead of coming back changed."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "A full deal: she deals their rumours short, and their rumour check takes a -2 circumstance penalty."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "The notebook: she closes it when they come in, the room follows, and nobody deals them any rumours tonight."
+          }
+        ],
+        "wants": "To be the first to know anything, and to be right, once, in writing.",
+        "opensWith": "\"What did they say at your medical? Exactly what. Word for word if you can.\"",
+        "willDiscuss": [
+          {
+            "topic": "The notebook",
+            "note": "Three years of rumours, by intake. She'll read any page aloud."
+          },
+          {
+            "topic": "The block's theories about 'the marker'",
+            "note": "A name the second-termers give to whatever the blood draw is looking for. She has eleven theories and believes none of them."
+          },
+          {
+            "topic": "Who's who on the island",
+            "note": "Which instructors are fair, which crew chiefs to avoid, which warden sleeps through his rounds."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What her own medical found",
+            "why": "Nothing, as far as she knows, and she's quietly disappointed. \"Mine was boring.\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "The notebook's 'came true' column",
+            "how": "Friendly or better and a Diplomacy check at her Will DC; or trade her something she hasn't heard."
+          }
+        ],
+        "voice": {
+          "register": "Fast, delighted, precise about her sources.",
+          "tics": [
+            "Never repeats a rumour without saying who she got it from and how far she trusts them.",
+            "Taps her pencil on her teeth."
+          ],
+          "samples": [
+            "\"That's from a laundry girl, and laundry girls are never wrong about a hem.\"",
+            "\"Wrong. Wonderful, but wrong. I'll write it down.\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "What's the marker?",
+            "a": "\"Nobody knows! That's the fun. It's what we call whatever they're looking for in your blood. I've got eleven theories.\""
+          },
+          {
+            "q": "Has anything in the notebook come true?",
+            "a": "\"Four things. In three years. I'm very proud of all four.\""
+          },
+          {
+            "q": "Why keep a notebook?",
+            "a": "\"Because in ten years someone will want to know what we thought, and I'll have it.\""
+          },
+          {
+            "q": "Can we trust these rumours?",
+            "a": "\"Some of them. That's the game.\""
+          },
+          {
+            "q": "What happens if the warden comes?",
+            "a": "\"Lamp out, blankets over heads, everybody snores. We practise.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists."
+      }
+    },
+    {
+      "id": "obi",
+      "npcRef": "obi",
+      "label": "Obiajulu Eze",
+      "role": "second-termer from far away, who checks every rumour and is nearly always wrong",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Tells the room the group's rumours are nonsense before they've finished them.",
+          "unfriendly": "Argues with everything they say, on principle.",
+          "indifferent": "Listens, frowning, and asks where they heard it.",
+          "friendly": "Invites them on his next night-time expedition to check a rumour for himself.",
+          "helpful": "Tells them the one thing he has ever checked that turned out true, and swears them to secrecy about it."
+        },
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "The next expedition: he takes them along, and he has walked every route twice, which gives a +1 circumstance bonus to Stealth on it."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The one true thing: he tells them about the cook's plate at Long Hall, and a character who misses supper can always find one there."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "A hearing: he argues every rumour they bring into the ground, and a rumour the group starts tonight doesn't spread past this room."
+          }
+        ],
+        "wants": "Proof. Of anything. Just once.",
+        "opensWith": "\"Where did you hear that? No, where exactly?\"",
+        "willDiscuss": [
+          {
+            "topic": "His expeditions",
+            "note": "He has checked the cellar under Long Hall, the Met Office roof and the old sea wall at night. He found nothing each time and remains optimistic."
+          },
+          {
+            "topic": "Where he's from",
+            "note": "Garund, a long way south-west. He came because the letter said the work mattered, and he'd like to find out how."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The one true thing he found",
+            "why": "Unless helpful: it is the only thing he has ever proved, and he is protecting the person it helps."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Earnest, precise, quick to get excited and quick to be let down.",
+          "tics": [
+            "Counts points on his fingers.",
+            "Is at his most certain a moment before he turns out to be wrong."
+          ],
+          "samples": [
+            "\"The cellar is just potatoes. I checked twice, and I was very thorough.\"",
+            "\"Tonight. We go tonight. Who's coming?\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Have you ever proved a rumour?",
+            "a": "\"Disproved eleven. Proved none. The odds are getting better.\""
+          },
+          {
+            "q": "Where are you from?",
+            "a": "\"Garund. The south-west. Very hot, very far, very good food.\""
+          },
+          {
+            "q": "What's in the cellar under Long Hall?",
+            "a": "\"Potatoes. In fact, a great many potatoes.\""
+          },
+          {
+            "q": "Why come to Kurose?",
+            "a": "\"The letter said the work mattered. I'm still finding out how.\""
+          },
+          {
+            "q": "What's the true thing you found?",
+            "a": "Only if helpful: \"The cook at Long Hall leaves a plate out every night for anyone who missed supper. I stayed up and watched. Don't tell him I know.\""
+          }
+        ],
+        "statblock": "Proposed: level 1, a candidate, non-combat. Made with Ingram."
+      }
+    },
+    {
+      "id": "mrs-ueda",
+      "npcRef": "mrs-ueda",
+      "label": "Mrs. Ueda",
+      "role": "the block's night warden",
+      "arrival": null,
+      "brief": {
+        "attitude": "indifferent",
+        "byAttitude": {
+          "hostile": "Writes every name down and reports them in the morning.",
+          "unfriendly": "Breaks the gathering up and sends them to bed.",
+          "indifferent": "Knocks twice before she comes in, so the lamp is out by the time she opens the door.",
+          "friendly": "Knocks twice, comes in, and asks for a cup of tea.",
+          "helpful": "Sits down with them, and turns out to have the best rumour of anyone."
+        },
+        "faction": "block-wardens",
+        "doors": [
+          {
+            "kind": "opens",
+            "at": "friendly",
+            "text": "Two knocks and a cup: she comes in and sits down, and the gathering is not broken up tonight however loud it gets."
+          },
+          {
+            "kind": "opens",
+            "at": "helpful",
+            "text": "The best rumour: she tells them one true rumour of the GM's choice from this episode's sets, on top of their three."
+          },
+          {
+            "kind": "closes",
+            "at": "unfriendly",
+            "text": "The second round: she breaks the gathering up after the first round of rumours, and no events are drawn."
+          },
+          {
+            "kind": "closes",
+            "at": "hostile",
+            "text": "Her book: every name goes to the section officers in the morning, with extra laundry duty for the week."
+          }
+        ],
+        "wants": "A quiet night, and for nobody to be tired and useless at drill tomorrow.",
+        "opensWith": "Two knocks at the door.",
+        "willDiscuss": [
+          {
+            "topic": "The block, and the candidates before them",
+            "note": "She has been warden for twelve years and remembers most of them."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Where the candidates she remembers went after",
+            "why": "Some were posted a long way off; she writes to a few. She keeps it to herself."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Slow, amused, unimpressed.",
+          "tics": [
+            "Is so gentle with everyone that it takes a while to notice she is counting them.",
+            "Knocks twice on the door before she comes in, and never on anything else."
+          ],
+          "samples": [
+            "\"Lamp out. I'm counting to ten, very slowly.\"",
+            "\"Is that the good tea?\""
+          ]
+        },
+        "questions": [
+          {
+            "q": "Are we in trouble?",
+            "a": "\"Not yet, dear.\""
+          },
+          {
+            "q": "How long have you been warden?",
+            "a": "\"Twelve years. You're the twelfth lot to think you invented this.\""
+          },
+          {
+            "q": "Do you know anything about the marker?",
+            "a": "\"I know it keeps you all up late. That's all I need to know.\""
+          },
+          {
+            "q": "Will you sit with us?",
+            "a": "\"Only if that's the good tea.\""
+          },
+          {
+            "q": "What's the best rumour you ever heard?",
+            "a": "Only if helpful: she tells them one true rumour of your choice from this episode's sets."
+          }
+        ],
+        "statblock": "Proposed: level 2, an older working adult, non-combat. Made with Ingram."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the room, and let Hana ask for their news.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "a-round",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Each player names a skill they can justify for getting the room talking, and says how their character does it. Roll it for them in secret at the level-based DC (15 at level 1), press the degree in the Rumours block, and read them their three.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-night",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Draw from the deck between rounds: one or two events, or as many as the table is enjoying.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "kettle-dry",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The kettle runs dry and the lamp goes out. Apply the rest.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "events": [
+    {
+      "id": "start-a-rumour",
+      "kind": "roleplay",
+      "title": "Start a rumour",
+      "text": "Hana turns to a fresh page and licks her pencil. \"Your turn. Give us one of yours.\" The group can start any rumour they like, true or invented.",
+      "prompt": "Hana's pencil is waiting. What rumour does your character start? It can be true, or it can be something they just made up. Take a moment.",
+      "shifts": [
+        {
+          "regular": "hana",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Write it down. It comes back later, changed, from somebody else's mouth: shorter, stranger, and attached to someone who never said it."
+    },
+    {
+      "id": "your-theory",
+      "kind": "roleplay",
+      "title": "Your theory of the marker",
+      "text": "The room is debating what the blood draw is really looking for. They want a new theory, and they want it from someone who's just had theirs done.",
+      "prompt": "Everyone is looking at you. What does your character think the blood test is really for?",
+      "note": "However close a player comes, nobody here confirms anything, because nobody here knows. Hana writes it down as theory number twelve."
+    },
+    {
+      "id": "obis-expedition",
+      "kind": "roll",
+      "title": "Obi's expedition",
+      "text": "Obi has a new rumour to check: that the lamps on the Long Hall roof are left on all night for a reason. He wants to go and see, now, and he wants company.",
+      "prompt": "Obi has his coat on and a torch in his hand. Do you go with him, and how do you get out without the warden hearing?",
+      "check": "Stealth at Mrs. Ueda's Perception DC, or the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "Out and back without a sound. The lamps are on because the cook is afraid of the dark, and he tells them so over a free bun. Obi is thrilled to have proved something at last and goes up a step.",
+        "success": "Out and back. The lamps are left on by mistake. Obi is disappointed, and a little proud of them.",
+        "failure": "Mrs. Ueda is waiting on the stairs when they get back. She sends them to bed without a word, which is somehow worse.",
+        "criticalFailure": "They meet Mrs. Ueda on the way out. Names are taken; there will be extra laundry duty. She goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "obi",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "mrs-ueda",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "two-knocks",
+      "kind": "roll",
+      "title": "Two knocks",
+      "text": "Two knocks at the door. Mrs. Ueda, the warden. The lamp has to go out, the kettle has to be hidden, and a dozen people have to be convincingly asleep in a common room.",
+      "prompt": "Two knocks. You have about three seconds. What does your character do?",
+      "check": "Deception or Stealth at Mrs. Ueda's Perception DC, or the level-based DC (15 at level 1). The whole room acts together; take the best result.",
+      "outcomes": {
+        "criticalSuccess": "She opens the door on a room of perfect snoring, says \"Very good, dears,\" and closes it again. She goes up a step: she likes good work.",
+        "success": "She sighs, says \"Ten minutes,\" and goes.",
+        "failure": "She comes in, sits down, and waits until everyone has gone to bed.",
+        "criticalFailure": "The kettle falls off the hot plate with a crash. Everybody gets a chore, and she goes down a step."
+      },
+      "shifts": [
+        {
+          "regular": "mrs-ueda",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "mrs-ueda",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ]
+    },
+    {
+      "id": "the-page-about-you",
+      "kind": "dilemma",
+      "title": "The page about you",
+      "text": "Hana has already started a page for the new intake. One entry is about a member of the group, and it's wrong, flattering and already spreading: that they were sent for because they are secretly very rich.",
+      "prompt": "Hana reads it out and looks up at you. Do you set it straight, or let it grow?",
+      "shifts": [
+        {
+          "regular": "hana",
+          "change": 1,
+          "when": "any"
+        }
+      ],
+      "note": "Setting it straight: Hana is delighted to cross something out (press her button). Letting it grow: in the next few days people start treating that character as if they have money, and some of them want it."
+    },
+    {
+      "id": "the-laundry-girl",
+      "kind": "informant",
+      "title": "The laundry girl's rule",
+      "text": "A candidate who works the Wash House in the mornings says she can tell who's been near the Frames by their uniforms: the ones that come back smelling of hot oil and scorched cloth. She says it quite happily, as a trick of the trade.",
+      "prompt": "She's showing you how to sniff a sleeve. What do you ask her?",
+      "note": "Useful and true: the laundry knows who was near the machines before anyone else does. She'll tell them which blocks send the most scorched uniforms."
+    },
+    {
+      "id": "cocoa",
+      "kind": "buff",
+      "title": "Hana's cocoa",
+      "text": "Hana has a tin of real cocoa from home, which she shares only with people who've brought her a good rumour.",
+      "prompt": "Hana holds out a cup. What did your character tell her to earn it?",
+      "note": "Whoever gets a cup has a +1 circumstance bonus to one Society check about who's who on the island, before their next rest."
+    },
+    {
+      "id": "the-came-true-column",
+      "kind": "roll",
+      "title": "The 'came true' column",
+      "text": "Hana lets someone look through three years of the notebook, if they can make sense of it. Her handwriting is tiny, and the ratings are in a code of her own.",
+      "prompt": "The notebook is in your lap, open at three years ago. What are you looking for?",
+      "check": "Society or Occultism (Recall Knowledge, or just reading carefully) at the level-based DC (15 at level 1).",
+      "outcomes": {
+        "criticalSuccess": "They find the pattern: every rumour in the 'came true' column was first heard in the Wash House. Hana has never noticed, and goes up a step when told.",
+        "success": "They find the four that came true, and one of them is about somebody they've met today.",
+        "failure": "Three years of theories about the marker, all wrong, all very entertaining.",
+        "criticalFailure": "They spill tea on the page for the intake before theirs. Hana goes very quiet and down a step."
+      },
+      "shifts": [
+        {
+          "regular": "hana",
+          "change": 1,
+          "when": "criticalSuccess"
+        },
+        {
+          "regular": "hana",
+          "change": -1,
+          "when": "criticalFailure"
+        }
+      ],
+      "note": "Which four came true is yours to choose from anything the table has already seen."
+    }
+  ],
+  "rumours": [
+    {
+      "id": "e1-set-1",
+      "episode": "episode-c1e1-mothers-maiden-name",
+      "set": 1,
+      "truths": [
+        {
+          "text": "The ladder up to the roof of Row E, Block 9 has never been locked, and the wardens know it."
+        },
+        {
+          "text": "Tomoe at the Crew Mess writes every candidate's tab on her slate, and she has never forgotten one."
+        },
+        {
+          "text": "The card game in Row F, Block 5 has been running for longer than anyone living there has been a candidate."
+        },
+        {
+          "text": "Nobody moves a Frame without a reading from the Met Office, and the night observer chalks one up every hour."
+        },
+        {
+          "text": "The Bathhouse attendant can tell which dock you work on by the way you wash.",
+          "hint": "Invites a guess at what else she knows about people who come in."
+        }
+      ],
+      "lies": [
+        {
+          "text": "The Frames can walk by themselves if their pilot falls asleep."
+        },
+        {
+          "text": "Every candidate gets a Frame of their own in the first month."
+        },
+        {
+          "text": "The Crew Mess won't serve candidates after nine o'clock."
+        },
+        {
+          "text": "The island was a prison once, and the cells are still under Long Hall."
+        },
+        {
+          "text": "The four founders are buried under the Founding Day painting in the Administrative Block.",
+          "plot": true,
+          "fact": "founders.alive",
+          "hint": "Invites a guess at whether they're alive at all."
+        }
+      ]
+    },
+    {
+      "id": "e1-set-2",
+      "episode": "episode-c1e1-mothers-maiden-name",
+      "set": 2,
+      "truths": [
+        {
+          "text": "The blood draw at the medical takes thirty seconds, and they never tell you what it's for."
+        },
+        {
+          "text": "The head of the medical side is called Shucks Mordant."
+        },
+        {
+          "text": "Second-termers get another medical in the spring, and it takes all morning."
+        },
+        {
+          "text": "A candidate who fails the medical is sent home with their fare paid."
+        }
+      ],
+      "lies": [
+        {
+          "text": "'The marker' is something they put in your blood so they can find you anywhere."
+        },
+        {
+          "text": "The blood test is to see whether you'd be seasick inside a Frame."
+        },
+        {
+          "text": "They keep a jar of every candidate's blood in the cellar under Long Hall."
+        },
+        {
+          "text": "If you give the wrong mother's maiden name on your forms, they have to start your whole medical again."
+        }
+      ]
+    },
+    {
+      "id": "e1-set-3",
+      "episode": "episode-c1e1-mothers-maiden-name",
+      "set": 3,
+      "truths": [
+        {
+          "text": "Minkai's generals and admirals complain about the base in the newspapers, and don't care who knows it."
+        },
+        {
+          "text": "Some of the old families on the waterfront never sold to the newcomers, and still haven't."
+        },
+        {
+          "text": "The newspapers print a complaint about the base nearly every week, and most of them are signed."
+        },
+        {
+          "text": "There are people in the city who will sell you anything, including a pass off the island."
+        },
+        {
+          "text": "Nobody at the Founding Day speeches has ever said why the Directorate came to Kurose, of all places.",
+          "plot": true,
+          "fact": "directorate.why-kurose-unexplained",
+          "hint": "Invites the question of why."
+        }
+      ],
+      "lies": [
+        {
+          "text": "The Directorate pays a pension to every family in Kurose."
+        },
+        {
+          "text": "The tram line to the Upper Wards was laid by Frames in a single night."
+        },
+        {
+          "text": "Anyone who's lived in Kurose for ten years can join the Directorate without being sent a letter."
+        },
+        {
+          "text": "The garrison and the Directorate take turns guarding the causeway, a week each."
+        }
+      ]
+    },
+    {
+      "id": "e2-set-1",
+      "episode": "episode-c1e2-scheduled-exercise",
+      "set": 1,
+      "truths": [
+        {
+          "text": "The list of which Frames are fit for tomorrow is written by the crews, not the officers."
+        },
+        {
+          "text": "Petr the welder has sent money home every month for eleven years."
+        },
+        {
+          "text": "The night observer at the Met Office has kept the same watch for twenty years."
+        },
+        {
+          "text": "A crew that drops a load owes every other crew a round, and pays it."
+        }
+      ],
+      "lies": [
+        {
+          "text": "A Frame that falls over during an exercise is scrapped the same day."
+        },
+        {
+          "text": "Pilots are chosen by a lottery drawn every Monday."
+        },
+        {
+          "text": "The instructors are paid by the candidate, so they want you to fail slowly."
+        },
+        {
+          "text": "The machine shop has a Frame hidden in its pit that nobody is allowed to see.",
+          "plot": true,
+          "fact": "frames.gen-2",
+          "hint": "Misleads about where anything newer than the old Frames would be."
+        }
+      ]
+    },
+    {
+      "id": "e2-set-2",
+      "episode": "episode-c1e2-scheduled-exercise",
+      "set": 2,
+      "truths": [
+        {
+          "text": "Hana Kurogane's notebook has four rumours in its 'came true' column, and all four were first heard in the Wash House."
+        },
+        {
+          "text": "The old man who sweeps the shrine in the island's centre says fishermen prayed at that rock before there was an island.",
+          "hint": "Invites a guess at how old the island really is."
+        },
+        {
+          "text": "Mrs. Ueda writes to some of the candidates she used to look after."
+        },
+        {
+          "text": "The cook at Long Hall leaves a plate out every night for any candidate who missed supper, and has never been caught doing it."
+        }
+      ],
+      "lies": [
+        {
+          "text": "Mrs. Ueda was a pilot herself, forty years ago."
+        },
+        {
+          "text": "The shrine keeper owns half the island on paper."
+        },
+        {
+          "text": "The bathhouse is being turned into officers' housing next month."
+        },
+        {
+          "text": "The card game's oldest debt is owed by the Commander."
+        }
+      ]
+    },
+    {
+      "id": "e2-set-3",
+      "episode": "episode-c1e2-scheduled-exercise",
+      "set": 3,
+      "truths": [
+        {
+          "text": "Some people in Kurose think of the Directorate as a foreign thorn in the city's side."
+        },
+        {
+          "text": "One of the founders might turn up in person to cut the ribbon at a big event."
+        },
+        {
+          "text": "Glamours are so cheap in the city that half the faces on the tram might not be the faces people were born with."
+        },
+        {
+          "text": "The Directorate answers to nobody in Minkai, and the generals hate it."
+        }
+      ],
+      "lies": [
+        {
+          "text": "The Directorate is going to leave Kurose within the year."
+        },
+        {
+          "text": "The city is going to buy the base from the Directorate and turn it into a harbour for pleasure boats."
+        },
+        {
+          "text": "Anyone wearing a glamour has to register it at the Civic Hall."
+        },
+        {
+          "text": "The founders never existed; the painting was made up to sell the Founding Day parade.",
+          "plot": true,
+          "fact": "founders.four",
+          "hint": "Misleads about whether there were ever four real founders."
+        }
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The kettle runs dry and the lamp goes out, or the warden sends everyone to bed.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "Blankets are taken down, the lamp goes out, and the block is dark and snoring within five minutes.",
+      "scatterRisk": false
+    },
+    "onwards": "Morning.",
+    "writeDown": [
+      "Each player's three rumours, and which were true.",
+      "Any rumour the group started, so it can come back changed.",
+      "Anything Hana wrote down about them."
+    ],
+    "position": {
+      "locationRef": "row-b-block-8",
+      "state": "together",
+      "note": "They make their way back to their own blocks after the lamp goes out."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [],
+  "notes": "HOW THE ROUND WORKS. A player names any skill and says how their character gets the room talking: Diplomacy to charm, Deception to trade a made-up rumour for real ones, Society to know whom to ask, Performance to tell a better story, Thievery to read Hana's notebook over her shoulder. Roll it in secret at the level-based DC. The Rumours block deals their three by the degree: the player hears three statements and never learns which are true. At most one statement in a set touches the actual story; the rest are the island's gossip, true or not.\n\nIF THE GROUP DO SOMETHING ELSE. They report the gathering: Mrs. Ueda breaks it up with a sigh, and every regular goes down a step. They steal the notebook: Thievery at Hana's Perception DC; she knows by morning and never forgives it (hostile). They lie about their medical: Deception against Hana's Perception DC; she writes the lie down, and it spreads. They split up: run each corner of the room as its own small round."
+}
