@@ -52,7 +52,7 @@ the general mechanism this whole project needs, not just this one queue.
 **A version of this already exists, for one content type, and it has never cleared a single item.**
 
 `data/schema/location.schema.json` has carried `authoring.status: needs-lore | drafted | approved`
-since the gazetteer work. `tools/gazetteer/` has a built review mode: a filterable list, a form
+since the gazetteer work. `tools/gazetteer/` (since retired, design/location-editor.md §10 phase 6) had a built review mode: a filterable list, a form
 showing the lore fields, a "still owes" depth check, and an Approve button wired to
 `POST /api/location/<id>/approve` — the one endpoint in that server permitted to write the value,
 with every other write path (promotion, normal edit, mass-edit-by-instruction) refusing it loudly

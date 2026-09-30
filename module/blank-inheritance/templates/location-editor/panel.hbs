@@ -1,0 +1,181 @@
+<div class="bi-location-editor__body">
+    {{#if busy}}<p class="bi-location-editor__busy"><i class="fa-solid fa-spinner fa-spin"></i> {{busy}}</p>{{/if}}
+    {{#unless onHubScene}}
+    <p class="bi-location-editor__warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "BLANKINHERITANCE.LocationEditor.NotOnHub"}}</p>
+    {{/unless}}
+
+    <div class="bi-location-editor__modes">
+        <button type="button" class="bi-location-editor__mode{{#if (eq mode "areas")}} is-active{{/if}}" data-action="setMode" data-mode="areas">
+            <i class="fa-solid fa-map"></i> {{localize "BLANKINHERITANCE.LocationEditor.Mode.Areas"}}
+        </button>
+        <button type="button" class="bi-location-editor__mode{{#if (eq mode "places")}} is-active{{/if}}" data-action="setMode" data-mode="places">
+            <i class="fa-solid fa-building"></i> {{localize "BLANKINHERITANCE.LocationEditor.Mode.Places"}}
+        </button>
+    </div>
+
+    {{#if (eq mode "places")}}
+    <div class="bi-location-editor__row">
+        <label class="bi-location-editor__radio"><input type="radio" name="placesShapeKind" data-action="setShapeKind" data-shape-kind="site" value="site" {{#if (eq placesShapeKind "site")}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.ShapeKind.Site"}}</label>
+        <label class="bi-location-editor__radio"><input type="radio" name="placesShapeKind" data-action="setShapeKind" data-shape-kind="point" value="point" {{#if (eq placesShapeKind "point")}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.ShapeKind.Point"}}</label>
+    </div>
+    {{/if}}
+
+    <div class="bi-location-editor__tools">
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "select")}} is-active{{/if}}" data-action="setTool" data-tool="select" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Select'}}"><i class="fa-solid fa-arrow-pointer"></i></button>
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "lasso")}} is-active{{/if}}" data-action="setTool" data-tool="lasso" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Lasso'}}"><i class="fa-solid fa-lasso"></i></button>
+        {{#if (eq mode "areas")}}
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "polygon")}} is-active{{/if}}" data-action="setTool" data-tool="polygon" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Polygon'}}"><i class="fa-solid fa-draw-polygon"></i></button>
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "rect")}} is-active{{/if}}" data-action="setTool" data-tool="rect" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Rect'}}"><i class="fa-regular fa-square"></i></button>
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "circle")}} is-active{{/if}}" data-action="setTool" data-tool="circle" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Circle'}}"><i class="fa-regular fa-circle"></i></button>
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "bisect")}} is-active{{/if}}" data-action="setTool" data-tool="bisect" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Bisect'}}"><i class="fa-solid fa-scissors"></i></button>
+        {{else if (eq placesShapeKind "site")}}
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "polygon")}} is-active{{/if}}" data-action="setTool" data-tool="polygon" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Polygon'}}"><i class="fa-solid fa-draw-polygon"></i></button>
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "rect")}} is-active{{/if}}" data-action="setTool" data-tool="rect" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Rect'}}"><i class="fa-regular fa-square"></i></button>
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "circle")}} is-active{{/if}}" data-action="setTool" data-tool="circle" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Circle'}}"><i class="fa-regular fa-circle"></i></button>
+        {{else}}
+        <button type="button" class="bi-location-editor__tool{{#if (eq tool "point")}} is-active{{/if}}" data-action="setTool" data-tool="point" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Point'}}"><i class="fa-solid fa-location-dot"></i></button>
+        {{/if}}
+    </div>
+
+    {{#if (eq tool "bisect")}}
+    <div class="bi-location-editor__advice">
+        {{#if bisectTargetId}}
+        <p class="bi-location-editor__advice-label">{{localize "BLANKINHERITANCE.LocationEditor.Bisect.Cutting"}} <strong>{{bisectTargetName}}</strong> ({{bisectTargetId}})</p>
+        <button type="button" class="bi-location-editor__button" data-action="clearBisectTarget" {{#if busy}}disabled{{/if}}>{{localize "BLANKINHERITANCE.LocationEditor.Bisect.ChangeTarget"}}</button>
+        {{else}}
+        <p class="bi-location-editor__advice-label">{{localize "BLANKINHERITANCE.LocationEditor.Bisect.Prompt"}}</p>
+        <div class="bi-location-editor__row">
+            <input type="text" name="bisectTargetInput" placeholder="{{localize 'BLANKINHERITANCE.LocationEditor.Bisect.IdPlaceholder'}}">
+            <button type="button" class="bi-location-editor__button" data-action="loadBisectTarget" {{#if busy}}disabled{{/if}}>{{localize "BLANKINHERITANCE.LocationEditor.Bisect.Load"}}</button>
+        </div>
+        {{#if bisectInputError}}<p class="bi-location-editor__advice-list--warn">{{bisectInputError}}</p>{{/if}}
+        {{/if}}
+    </div>
+    {{/if}}
+
+    {{#if status}}<p class="bi-location-editor__status">{{status}}</p>{{/if}}
+
+    <section class="bi-location-editor__section">
+        <h2 class="bi-location-editor__title">{{localize "BLANKINHERITANCE.LocationEditor.SessionHeading"}} ({{items.length}})</h2>
+        <ul class="bi-location-editor__items">
+            {{#each items}}
+            <li class="bi-location-editor__item{{#if selected}} is-selected{{/if}}{{#if locked}} is-locked{{/if}}">
+                <button type="button" class="bi-location-editor__item-select" data-action="selectItem" data-local-id="{{localId}}">
+                    <span class="bi-location-editor__item-tier">{{tier}}</span> {{label}}
+                </button>
+                <button type="button" class="bi-location-editor__item-delete" data-action="deleteItem" data-local-id="{{localId}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Delete'}}"><i class="fa-solid fa-trash"></i></button>
+            </li>
+            {{else}}
+            <li class="bi-location-editor__empty">{{localize "BLANKINHERITANCE.LocationEditor.NoItems"}}</li>
+            {{/each}}
+        </ul>
+    </section>
+
+    {{#if multiSelected}}
+    <section class="bi-location-editor__section">
+        <h2 class="bi-location-editor__title">{{selectedCount}} {{localize "BLANKINHERITANCE.LocationEditor.BatchSelected"}}</h2>
+        <button type="button" class="bi-location-editor__button bi-location-editor__button--danger" data-action="deleteSelected" {{#if busy}}disabled{{/if}}>
+            <i class="fa-solid fa-trash"></i> {{localize "BLANKINHERITANCE.LocationEditor.DeleteSelected"}}
+        </button>
+    </section>
+    {{/if}}
+
+    {{#if selected}}
+    <section class="bi-location-editor__section">
+        <h2 class="bi-location-editor__title">
+            {{selected.tier}}{{#if selected.locationId}} · {{selected.locationId}}{{else}} · {{localize "BLANKINHERITANCE.LocationEditor.NotYetSaved"}}{{/if}}
+        </h2>
+
+        {{#if problems.length}}
+        <ul class="bi-location-editor__problems">{{#each problems}}<li>{{this}}</li>{{/each}}</ul>
+        {{/if}}
+
+        {{#if depthAdvice}}
+        <div class="bi-location-editor__advice">
+            {{#if depthAdvice.missing.length}}
+            <p class="bi-location-editor__advice-label">{{localize "BLANKINHERITANCE.LocationEditor.Advice.Missing"}}</p>
+            <ul class="bi-location-editor__advice-list bi-location-editor__advice-list--warn">{{#each depthAdvice.missing}}<li>{{this}}</li>{{/each}}</ul>
+            {{else}}
+            <p class="bi-location-editor__advice-ok">{{localize "BLANKINHERITANCE.LocationEditor.Advice.DepthOk"}}</p>
+            {{/if}}
+            {{#if depthAdvice.overweight.length}}
+            <p class="bi-location-editor__advice-label">{{localize "BLANKINHERITANCE.LocationEditor.Advice.Overweight"}}</p>
+            <ul class="bi-location-editor__advice-list bi-location-editor__advice-list--warn">{{#each depthAdvice.overweight}}<li>{{this}}</li>{{/each}}</ul>
+            {{/if}}
+            {{#if depthAdvice.orphaned.length}}
+            <p class="bi-location-editor__advice-label">{{localize "BLANKINHERITANCE.LocationEditor.Advice.Orphaned"}}</p>
+            <ul class="bi-location-editor__advice-list">{{#each depthAdvice.orphaned}}<li>{{this}}</li>{{/each}}</ul>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if shapeAdvice}}
+        <div class="bi-location-editor__advice">
+            <p class="bi-location-editor__advice-label">{{localize "BLANKINHERITANCE.LocationEditor.Advice.ShapeHeading"}}</p>
+            <ul class="bi-location-editor__advice-list{{#unless shapeAdvice.ok}} bi-location-editor__advice-list--warn{{/unless}}">{{#each shapeAdvice.reasons}}<li>{{this}}</li>{{/each}}</ul>
+        </div>
+        {{/if}}
+
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Name"}}
+            <input type="text" name="name" value="{{fields.name}}">
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.NameJa"}}
+            <input type="text" name="nameJa" value="{{fields.nameJa}}">
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Kind"}}
+            <input type="text" name="kind" value="{{fields.kind}}">
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Tags"}}
+            <input type="text" name="tagsText" value="{{fields.tagsText}}" placeholder="comma, separated, tags">
+        </label>
+        <div class="bi-location-editor__row">
+            <label class="bi-location-editor__field bi-location-editor__field--narrow">{{localize "BLANKINHERITANCE.LocationEditor.Field.Rank"}}
+                <select name="rank">
+                    <option value="">—</option>
+                    {{#each ranks}}<option value="{{this}}" {{#if (eq this ../fields.rank)}}selected{{/if}}>{{this}}</option>{{/each}}
+                </select>
+            </label>
+            <label class="bi-location-editor__field bi-location-editor__field--narrow">{{localize "BLANKINHERITANCE.LocationEditor.Field.Depth"}}
+                <select name="depth">
+                    {{#each depths}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}
+                </select>
+            </label>
+            <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Classification"}}
+                <select name="classification">
+                    {{#each classifications}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                </select>
+            </label>
+        </div>
+
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Summary"}}
+            <textarea name="lore.summary" rows="3">{{fields.lore.summary}}</textarea>
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.PlayerFacing"}}
+            <textarea name="lore.playerFacing" rows="3">{{fields.lore.playerFacing}}</textarea>
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.GmOnly"}}
+            <textarea name="lore.gmOnly" rows="3">{{fields.lore.gmOnly}}</textarea>
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Hooks"}}
+            <textarea name="hooksText" rows="2">{{fields.hooksText}}</textarea>
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Activities"}}
+            <textarea name="activitiesText" rows="2">{{fields.activitiesText}}</textarea>
+        </label>
+        <label class="bi-location-editor__field">{{localize "BLANKINHERITANCE.LocationEditor.Field.Note"}}
+            <textarea name="note" rows="2">{{fields.note}}</textarea>
+        </label>
+
+        <div class="bi-location-editor__row">
+            <button type="button" class="bi-location-editor__button bi-location-editor__button--primary" data-action="save" {{#if busy}}disabled{{/if}}>
+                <i class="fa-solid fa-floppy-disk"></i> {{localize "BLANKINHERITANCE.LocationEditor.Save"}}
+            </button>
+            {{#if pendingCount}}<span class="bi-location-editor__note">{{localize "BLANKINHERITANCE.LocationEditor.PendingCount" pendingCount}}</span>{{/if}}
+        </div>
+    </section>
+    {{/if}}
+
+    <button type="button" class="bi-location-editor__button" data-action="refresh" {{#if busy}}disabled{{/if}}>
+        <i class="fa-solid fa-rotate"></i> {{localize "BLANKINHERITANCE.LocationEditor.Refresh"}}
+    </button>
+</div>

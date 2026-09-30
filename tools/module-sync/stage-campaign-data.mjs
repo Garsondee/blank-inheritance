@@ -44,9 +44,12 @@ export const SYNCED_CAMPAIGN_DIRS = [
  * ARE real module content, for two different reasons: travel-graph.json and
  * campaign-map.json are GENERATED, read by foundry/travel.mjs for the
  * map-travel ritual (ideas/entries/road-network-routing.json);
- * gazetteer-requests.json is not generated at all -- it's the gazetteer's own
- * authored Claude-to-Ingram request queue (tools/gazetteer/core/requests.py),
- * needed here so the Approvals Desk's out-tray (issue #171 §6) can actually
+ * gazetteer-requests.json is not generated at all -- it's Claude's own
+ * authored Claude-to-Ingram request queue (design/location-editor.md;
+ * written directly to this file, kept unchanged and under its original
+ * name through the retirement of the gazetteer tool that used to read it,
+ * design/location-editor.md §10 phase 6), needed here so the Approvals
+ * Desk's out-tray (issue #171 §6) can actually
  * count its open entries instead of silently reading nothing. All three are
  * named explicitly, one file at a time, rather than opening data/map/ as a
  * synced directory — the same "safer failure direction" reasoning as the

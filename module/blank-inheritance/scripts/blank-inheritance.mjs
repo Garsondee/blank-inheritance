@@ -80,10 +80,18 @@ import { registerTravelCameraHook } from "./foundry/travel-camera.mjs";
 import { registerTravelTrailHook } from "./foundry/travel-trail.mjs";
 import { mountSessionRail, noteSceneActivated, refreshSessionRail, registerSessionRailSettings } from "./foundry/session-rail.mjs";
 import { playOpeningForTable, registerOpeningSocket, registerOpeningTitleSettings } from "./foundry/opening-titles.mjs";
+import { createLocationEditorMacroIfMissing, openLocationEditor, registerLocationEditorHooks } from "./foundry/location-editor.mjs";
+import { registerLocationDrawKeybindings, registerLocationDrawLayer } from "./foundry/location-draw-layer.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
 Hooks.once("init", () => {
+  // Must happen during init, before canvas.mjs builds the layer stack from
+  // CONFIG.Canvas.layers -- registering later would build the Campaign Map
+  // scene's canvas with no locationDraw layer in it at all.
+  registerLocationDrawLayer();
+  registerLocationDrawKeybindings();
+  registerLocationEditorHooks();
   const mod = game.modules.get(MODULE_ID);
   // writeAuthoredProfile is exposed rather than only called from a pipeline
   // because nothing yet carries an authored socialProfile from data/npcs into
@@ -94,6 +102,9 @@ Hooks.once("init", () => {
   // hand until a sync step carries them automatically.
   if (mod) {
     mod.api = {
+      // The Location Editor (design/location-editor.md): GM-only, enforced
+      // inside openLocationEditor itself.
+      openLocationEditor,
       runDiagnosticTestSync,
       runRealContentSync,
       deriveFoundryId,
@@ -469,6 +480,7 @@ Hooks.once("ready", async () => {
     await createRealSyncMacroIfMissing();
     await createStageDemoMacroIfMissing();
     await createSceneSetMacroIfMissing();
+    await createLocationEditorMacroIfMissing();
     await createEquipmentPanelMacroIfMissing();
     await createDirectorPanelMacroIfMissing();
     await createApprovalsDeskMacroIfMissing();

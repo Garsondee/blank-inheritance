@@ -4,14 +4,15 @@
 prose-length thresholds are deliberately provisional and expected to move once a few hundred real
 locations exist to measure against (see "Thresholds are guesses" at the end).
 
-**Implemented by:** `tools/gazetteer/core/depth.py` and its JS twin `core/depth.mjs`, held to each
+**Implemented by:** `tools/location-sync/core/depth.py` and its JS twin `core/depth.mjs` (relocated
+unchanged from the retired `tools/gazetteer/`, design/location-editor.md §10 phase 6), held to each
 other by `test/fixtures/gazetteer-depth-cases.json`, the same way the grid pair is.
 
 ---
 
 ## The problem this solves
 
-The gazetteer can produce locations far faster than a campaign can use them. A single marquee adopts
+The Location Editor can produce locations far faster than a campaign can use them. A single marquee adopts
 three hundred real buildings in one gesture, and Claude can write a line of purpose for every one of
 them in a single pass. That is the point — it is the bulk imagination work the tool exists to make
 possible.
@@ -215,7 +216,7 @@ The first drawing session made this concrete. Fifty-one adopted footprints rangi
 16,479 m²** were offered the same blank note field and the same invitation to write. One of them is a
 bicycle store. Nothing in the tool said so.
 
-`tools/gazetteer/core/shape.py` (mirrored in `shape.mjs`, held together by
+`tools/location-sync/core/shape.py` (mirrored in `shape.mjs`, held together by
 `test/fixtures/gazetteer-shape-cases.json`) measures the footprint and reports a **ceiling** on the
 depth ladder:
 

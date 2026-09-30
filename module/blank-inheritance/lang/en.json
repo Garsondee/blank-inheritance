@@ -964,6 +964,86 @@
         "FolderName": "Opening titles: video folder",
         "FolderHint": "The folder in Foundry’s data directory that holds opening-full.mp4 and opening-reduced.mp4, and an episode-titles folder with one title card per episode, each named by its episode’s id plus .mp4. The default is blank-inheritance-video."
       }
+    },
+    "LocationEditor": {
+      "Title": "Location Editor",
+      "ControlGroup": "Location Editor",
+      "MacroName": "Blank Inheritance: Location Editor",
+      "Failed": "That failed: {error}",
+      "NotOnHub": "Open the Campaign Map scene to draw locations.",
+      "Mode": {
+        "Areas": "Areas",
+        "Places": "Buildings & Points"
+      },
+      "ShapeKind": {
+        "Site": "Building (footprint)",
+        "Point": "Point (a pin, no footprint)"
+      },
+      "Tool": {
+        "Select": "Select",
+        "Lasso": "Lasso (freehand multi-select)",
+        "Polygon": "Polygon",
+        "Rect": "Rectangle",
+        "Circle": "Circle",
+        "Point": "Drop a point",
+        "Bisect": "Bisect (split a real region in two)"
+      },
+      "SessionHeading": "This session's drawings",
+      "NoItems": "Nothing drawn yet -- pick a tool above and draw on the Campaign Map.",
+      "Delete": "Delete",
+      "NotYetSaved": "not yet saved to the repo",
+      "BatchSelected": "selected",
+      "DeleteSelected": "Delete selected",
+      "SelectExactlyOne": "Select exactly one item to edit its details -- several are selected right now.",
+      "Keybinding": {
+        "Finish": "Location Editor: Finish Drawing"
+      },
+      "Bisect": {
+        "Prompt": "Type the real, already-promoted region's own id to load it for cutting.",
+        "IdPlaceholder": "e.g. the-old-district",
+        "Load": "Load",
+        "ChangeTarget": "Change target",
+        "Loading": "Loading",
+        "Cutting": "Cutting",
+        "NotFound": "No location file called \"{id}\".",
+        "NotARegion": "\"{id}\" is not a region -- only a region can be bisected.",
+        "NoGeometry": "\"{id}\" has no derived geometry to cut -- resync it first.",
+        "NoTarget": "Load a region to bisect first.",
+        "BadCut": "That cut meets the region's border {count} time(s); a split needs exactly two. Draw it again, ends on or past the border.",
+        "Saved": "Queued a split of \"{id}\". Pull with \"npm run locations\" to actually cut it."
+      },
+      "Advice": {
+        "Missing": "Still owes, at this depth:",
+        "Overweight": "Past this depth's own ceiling:",
+        "Orphaned": "Written, but not required until a deeper depth:",
+        "DepthOk": "Meets everything its declared depth requires.",
+        "ShapeHeading": "What this footprint will carry"
+      },
+      "Field": {
+        "Name": "Name",
+        "NameJa": "Name (Japanese)",
+        "Kind": "Kind",
+        "Tags": "Tags",
+        "Rank": "Rank",
+        "Depth": "Depth",
+        "Classification": "Classification",
+        "Summary": "Summary (GM-facing)",
+        "PlayerFacing": "Player-facing",
+        "GmOnly": "GM only",
+        "Hooks": "Hooks (one per line)",
+        "Activities": "Activities (one per line)",
+        "Note": "Note -- the rough brief this was drawn from (required)"
+      },
+      "Save": "Save",
+      "PendingCount": "{0} not yet pulled into the repo",
+      "Refresh": "Refresh",
+      "NothingSelected": "Select or draw an item first.",
+      "NoteRequired": "A note is required -- what is this, roughly?",
+      "Saving": "Saving",
+      "SavedNew": "Saved. Pull with \"npm run locations\" to promote it into a real location file.",
+      "Saved": "Saved.",
+      "Deleting": "Deleting",
+      "Refreshing": "Refreshing"
     }
   }
 }

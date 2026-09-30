@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "location.schema.json",
   "title": "Location",
-  "description": "A place on the campaign map: a district, a building or block, or a pinned point. One file per location in data/locations/. Produced by promoting a tools/gazetteer drawing-session item once its lore has been written together, not authored from scratch -- see tools/gazetteer/core/location.py's promote(). geometry.rings is canonical (lon/lat, WGS84); everything under `derived` is recomputed from it by tools/gazetteer/derive.mjs and must never be hand-edited. `realWorld` is research about the real Kobe geography this map was drawn from -- material for writing a convincing place, never itself canon, and no string from it may appear verbatim in `lore`.",
+  "description": "A place on the campaign map: a district, a building or block, or a pinned point. One file per location in data/locations/. Produced by promoting a drawn shape once its lore has been written together, not authored from scratch -- drawn and promoted from inside Foundry itself by the Location Editor (design/location-editor.md); tools/gazetteer/ was fully retired 2026-09-29, design/location-editor.md §10 phase 6. geometry.rings is canonical (lon/lat, WGS84); everything under `derived` is recomputed from it and must never be hand-edited. `realWorld` is research about the real Kobe geography this map was drawn from -- material for writing a convincing place, never itself canon, and no string from it may appear verbatim in `lore`. Ownership split (design/data-ownership.md): `geometry`/`derived`/`pinAnchor` are `lifecycle`-owned by the Location Editor alone (see their own `$comment`s) -- name/nameJa/kind/tags/rank/classification/depth/lore/scene.hooks+activities/authoring.note are `promotable`: either the Location Editor or Claude may write them, with clash detection in tools/location-sync (design/location-editor.md §5,6), same doctrine as design/scene-edits.md.",
   "type": "object",
   "required": ["$schema", "id", "type", "tier", "geometry", "derived", "authoring"],
   "additionalProperties": false,
@@ -27,7 +27,7 @@
 
     "tags": {
       "type": "array",
-      "description": "Freeform structural markers, same convention as a gazetteer session item's own `tags`. Notably 'underground': tools/gazetteer/coverage.py excludes a region carrying it from the surface-tessellation and overlap checks, since it occupies the same footprint as whatever district sits above it -- a real Z-axis stack the tessellation has no way to represent in two dimensions, not an overlap to report.",
+      "description": "Freeform structural markers, same convention as a gazetteer session item's own `tags`. Notably 'underground': tools/location-sync/coverage.py excludes a region carrying it from the surface-tessellation and overlap checks, since it occupies the same footprint as whatever district sits above it -- a real Z-axis stack the tessellation has no way to represent in two dimensions, not an overlap to report.",
       "items": { "type": "string" }
     },
 
@@ -48,11 +48,12 @@
     "depth": {
       "enum": ["named", "sketch", "scene", "standing"],
       "default": "named",
-      "description": "How developed this location is supposed to be, and therefore what it owes -- see design/location-depth.md, enforced by tools/gazetteer/core/depth.py. named: a purpose in one line, the bulk tier. sketch: a few paragraphs, enough for a brief moment in passing. scene: enough to run a full scene with the group, and the first depth that earns its own artwork, playlist and a named NPC. standing: returned to across the campaign, carrying history and consequence. DECLARED by hand, never inferred from how much text exists -- declaring it first makes it a commission rather than a description. Independent of `tier`, which is geometric scale: a region can be depth named and a point can be depth standing."
+      "description": "How developed this location is supposed to be, and therefore what it owes -- see design/location-depth.md, enforced by tools/location-sync/core/depth.py. named: a purpose in one line, the bulk tier. sketch: a few paragraphs, enough for a brief moment in passing. scene: enough to run a full scene with the group, and the first depth that earns its own artwork, playlist and a named NPC. standing: returned to across the campaign, carrying history and consequence. DECLARED by hand, never inferred from how much text exists -- declaring it first makes it a commission rather than a description. Independent of `tier`, which is geometric scale: a region can be depth named and a point can be depth standing."
     },
 
     "geometry": {
       "type": "object",
+      "$comment": "OWNER: location-editor. Once a location has been touched by the Location Editor (design/location-editor.md), only its harvest path (tools/location-sync) may write geometry -- the repo/Claude never hand-edits a shape. lon/lat is computed there from a Foundry-drawn shape via tools/location-sync/core/georef.py, kept deliberately server-side rather than ported to JS (design/location-editor.md §5 explains why).",
       "description": "Canonical. lon/lat (WGS84), never image pixels or map-frame metres -- design/map-generation.md: the frame's centre, rotation and extent have all changed before, and pixel coordinates would silently detach a location from its place the next time they do. Which of rings/point is required and non-empty depends on `tier` -- see the top-level `allOf` below.",
       "additionalProperties": false,
       "properties": {
@@ -82,6 +83,7 @@
 
     "pinAnchor": {
       "type": ["array", "null"],
+      "$comment": "OWNER: location-editor. Same writer as geometry, same reasoning -- set from Places mode by dragging a location's pin independently of its footprint.",
       "description": "[lon, lat] -- where a Foundry map pin should actually sit. Null defaults to the area centroid, which lands badly on an L-shaped or annular footprint (a courtyard, a dock basin); set this explicitly once that matters.",
       "items": { "type": "number" },
       "minItems": 2,
@@ -90,12 +92,13 @@
 
     "derived": {
       "type": "object",
+      "$comment": "OWNER: location-editor. Same writer as geometry -- recomputed by tools/location-sync on every promotion/re-derive, never hand-edited by the repo/Claude.",
       "description": "Everything computable from geometry, recomputed on every promotion/re-derive and never hand-edited. Present so the file is readable and queryable without running the tool.",
       "additionalProperties": false,
       "properties": {
         "imagePx": { "description": "geometry.rings reprojected to campaign-map image pixels, same shape as geometry.rings. Null for tier 'point' -- there is no ring to reproject; see derived.centroidPx for the point's own pixel position.", "type": ["array", "null"] },
         "centroidPx": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
-        "cells": { "type": "array", "items": { "type": "string" }, "description": "Every grid reference the shape touches -- tools/gazetteer/core/grid.py's cell_coverage, area-exact." },
+        "cells": { "type": "array", "items": { "type": "string" }, "description": "Every grid reference the shape touches -- tools/location-sync/core/grid.py's cell_coverage, area-exact." },
         "ref": { "type": ["string", "null"], "description": "The single reference to say aloud -- the cell the centroid falls in." },
         "areaM2": { "type": ["number", "null"] },
         "withinRegionRef": {
@@ -109,7 +112,7 @@
         },
         "neighbourRefs": {
           "type": "array",
-          "description": "For a region: other region ids sharing a boundary. tools/gazetteer/core/containment.py computes this correctly for draft items (it's what drives the drawing UI's tree and handoff views), but the promotion path does not yet carry it onto the promoted document -- build_location() still hardcodes this to empty, same shape as the scene/cross-ref gap that promotion once had, just not closed yet. A region tagged 'underground' (see top-level `tags`) legitimately has none either way: it sits entirely inside another region's footprint rather than bordering it.",
+          "description": "For a region: other region ids sharing a boundary. tools/location-sync/core/containment.py computes this correctly for draft items (it's what drives the drawing UI's tree and handoff views), but the promotion path does not yet carry it onto the promoted document -- build_location() still hardcodes this to empty, same shape as the scene/cross-ref gap that promotion once had, just not closed yet. A region tagged 'underground' (see top-level `tags`) legitimately has none either way: it sits entirely inside another region's footprint rather than bordering it.",
           "items": { "type": "string" }
         },
         "sourceSession": { "type": ["string", "null"], "description": "The gazetteer draft this was promoted from, for provenance." },
@@ -170,7 +173,7 @@
 
     "realWorld": {
       "type": "object",
-      "description": "Research about the real Kobe geography under this shape -- from tools/gazetteer/enrich.py querying data/map/kurose.gpkg. Never canon. No string here may appear verbatim in `lore`.",
+      "description": "Research about the real Kobe geography under this shape -- meant to come from querying data/map/kurose.gpkg (an 'enrich.py' this description has referenced since the schema was first written, but which was never actually built -- confirmed: no such file exists in the repo's history, and this field is empty in all 236 locations promoted so far). Never canon. No string here may appear verbatim in `lore`.",
       "additionalProperties": true,
       "properties": {
         "character": { "type": "string" },

@@ -73,7 +73,19 @@ async function loadTravelGraph() {
   return graphCache;
 }
 
-let mapWidthCache = null;
+let manifestCache = null;
+/** The campaign map manifest, fetched once and shared by every accessor below — one cached fetch, not one per field. */
+async function campaignMapManifest() {
+  if (manifestCache !== null) return manifestCache;
+  try {
+    manifestCache = await fetchModuleJson(CAMPAIGN_MAP_MANIFEST_PATH);
+  } catch (err) {
+    console.warn("Blank Inheritance | Could not load the campaign map manifest:", err);
+    manifestCache = {};
+  }
+  return manifestCache;
+}
+
 /**
  * The master map image's own pixel width (data/map/campaign-map.json's
  * `image.width`) — only needed as sceneCalibration's fallback when the hub
@@ -85,15 +97,24 @@ let mapWidthCache = null;
  * can drift out of sync with this one the way the pin math already did once.
  */
 export async function campaignMapImageWidth() {
-  if (mapWidthCache !== null) return mapWidthCache;
-  try {
-    const manifest = await fetchModuleJson(CAMPAIGN_MAP_MANIFEST_PATH);
-    mapWidthCache = manifest?.image?.width ?? null;
-  } catch (err) {
-    console.warn("Blank Inheritance | Could not load the campaign map manifest:", err);
-    mapWidthCache = null;
-  }
-  return mapWidthCache;
+  const manifest = await campaignMapManifest();
+  return manifest?.image?.width ?? null;
+}
+
+/**
+ * Real metres per output pixel of the master map image
+ * (campaign-map.json's own `metresPerPixel`, already derived once from the
+ * map's real rotation/projection by tools/location-sync/core/georef.py at
+ * build time — reused here as a flat published constant rather than
+ * re-derived, since a second hand-written copy of THAT math is exactly the
+ * duplicate georef.py's own docstring warns against). Used by
+ * foundry/location-editor.mjs's shape/capacity advisory check to turn a
+ * drawn footprint's pixel area into real square metres.
+ */
+export async function campaignMapMetresPerPixel() {
+  const manifest = await campaignMapManifest();
+  const value = Number(manifest?.metresPerPixel);
+  return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
 async function locationCentroid(locationRef) {

@@ -11427,3 +11427,56 @@
   line-height: 1;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Location Editor (design/location-editor.md) -- a GM utility panel,  */
+/*  legibility-first like the Scene Runner's own --sr-* carve-out       */
+/*  (ux-doctrine.md §7b), not costumed as GLASS or PAPER.               */
+/* ------------------------------------------------------------------ */
+
+.bi-location-editor__body { display: flex; flex-direction: column; gap: 0.6em; padding: 0.4em 0.2em; color: #e8e4da; }
+.bi-location-editor__busy { color: var(--bi-phosphor, #6fe39a); }
+.bi-location-editor__warn { color: #e0a24a; }
+.bi-location-editor__status { font-size: 0.85em; color: #b7b2a4; min-height: 1.2em; }
+
+.bi-location-editor__modes { display: flex; gap: 0.4em; }
+.bi-location-editor__mode,
+.bi-location-editor__tool,
+.bi-location-editor__button { background: #24211c; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0.35em 0.7em; cursor: pointer; }
+.bi-location-editor__mode.is-active,
+.bi-location-editor__tool.is-active { background: var(--bi-phosphor-dim, #2f6a48); border-color: var(--bi-phosphor, #6fe39a); }
+.bi-location-editor__button--primary { background: var(--bi-phosphor-dim, #2f6a48); border-color: var(--bi-phosphor, #6fe39a); }
+.bi-location-editor__button--danger { border-color: #a8483a; color: #d97a6c; }
+.bi-location-editor__mode:disabled,
+.bi-location-editor__tool:disabled,
+.bi-location-editor__button:disabled { opacity: 0.5; cursor: default; }
+
+.bi-location-editor__row { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+.bi-location-editor__radio { display: flex; align-items: center; gap: 0.3em; font-size: 0.9em; }
+.bi-location-editor__tools { display: flex; gap: 0.3em; }
+
+.bi-location-editor__section { border-top: 1px solid #3a362e; padding-top: 0.5em; }
+.bi-location-editor__title { font-size: 1em; margin: 0 0 0.4em; color: #cfc9b8; }
+
+.bi-location-editor__items { list-style: none; margin: 0; padding: 0; max-height: 8em; overflow-y: auto; display: flex; flex-direction: column; gap: 0.2em; }
+.bi-location-editor__item { display: flex; align-items: center; gap: 0.3em; }
+.bi-location-editor__item-select { flex: 1; text-align: left; background: #1c1a16; border: 1px solid #3a362e; color: #e8e4da; border-radius: 4px; padding: 0.3em 0.5em; cursor: pointer; }
+.bi-location-editor__item.is-selected .bi-location-editor__item-select { border-color: var(--bi-phosphor, #6fe39a); }
+.bi-location-editor__item.is-locked .bi-location-editor__item-tier { color: #6fae7c; }
+.bi-location-editor__item-tier { text-transform: uppercase; font-size: 0.75em; opacity: 0.7; margin-right: 0.4em; }
+.bi-location-editor__item-delete { background: transparent; border: none; color: #a8483a; cursor: pointer; padding: 0.3em; }
+.bi-location-editor__empty { opacity: 0.6; font-style: italic; padding: 0.3em; }
+
+.bi-location-editor__field { display: flex; flex-direction: column; gap: 0.2em; font-size: 0.9em; }
+.bi-location-editor__field--narrow { max-width: 8em; }
+.bi-location-editor__field input,
+.bi-location-editor__field select,
+.bi-location-editor__field textarea { background: #1c1a16; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0.3em 0.5em; font-family: inherit; }
+.bi-location-editor__problems { color: #e0a24a; margin: 0; padding-left: 1.2em; }
+.bi-location-editor__note { font-size: 0.8em; opacity: 0.7; }
+
+.bi-location-editor__advice { font-size: 0.85em; background: #1c1a16; border: 1px solid #3a362e; border-radius: 4px; padding: 0.4em 0.6em; margin-bottom: 0.4em; }
+.bi-location-editor__advice-label { margin: 0.3em 0 0.1em; opacity: 0.8; }
+.bi-location-editor__advice-label:first-child { margin-top: 0; }
+.bi-location-editor__advice-ok { margin: 0; color: var(--bi-phosphor, #6fe39a); }
+.bi-location-editor__advice-list { margin: 0 0 0.3em; padding-left: 1.2em; }
+.bi-location-editor__advice-list--warn { color: #e0a24a; }

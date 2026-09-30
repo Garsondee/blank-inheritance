@@ -15,10 +15,12 @@ Two panels, because "with context" means two different questions:
 A single zoom answers one of those and hides the other. A tight crop of the
 wrong district looks perfectly reasonable.
 
-Reuses tools/gazetteer/crop.py's window maths rather than reimplementing it, and
-reads the same 12400x12400 painted sheet. That file is gitignored, so this skips
-loudly (a clear, catchable error) rather than producing a blank image, per the
-house rule the gazetteer's own map-touching modules follow.
+Reuses tools/location-sync/crop.py's window maths rather than reimplementing it
+(relocated unchanged from the retired tools/gazetteer/, design/location-editor.md
+§10 phase 6), and reads the same 12400x12400 painted sheet. That file is
+gitignored, so this skips loudly (a clear, catchable error) rather than producing
+a blank image, per the house rule the old gazetteer's own map-touching modules
+followed and this tool's relocated core still does.
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
-sys.path.insert(0, os.path.join(_REPO_ROOT, "tools", "gazetteer"))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "tools", "location-sync"))
 
 import crop as crop_mod  # noqa: E402  -- path set above on purpose
 

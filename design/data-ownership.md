@@ -27,7 +27,8 @@ Approvals Desk were both on track to claim the right to write `authoring.status:
 location. Ingram caught it before it shipped and resolved it directly: *"We make the Approvals Desk
 in Foundry VTT the final word in what is considered approved. The gazetteer is a tool for drawing
 shapes and drafting things."* `design/approvals-desk.md` §7 records the fix, already shipped in
-`tools/gazetteer/server.py` and `test/gazetteer/test_server.py`.
+that tool's own `server.py` and its test suite before both were retired in turn
+(design/location-editor.md §10 phase 6).
 
 **Both are the identical shape of bug, at different scales.** A capability (a field, a concept, a
 status) exists in more than one system, no rule says which one is the real one, and the two drift —
@@ -203,3 +204,10 @@ convention (§4) are design calls open for his preference the same as anything e
 enforcement principle (§5, "a test, not a comment") is already this project's own stated practice
 elsewhere (`design/testing-strategy.md`, the gazetteer's own approve-endpoint comments) and is
 proposed here mainly to be applied consistently rather than invented fresh.
+
+**2026-09-27, scene edits ([scene-edits.md](scene-edits.md) §8).** A new store arrived under this
+rule, not beside it. Records of Ingram's Scene Runner edits are written only by the Runner, and only
+into `storage/`. The ledger `data/campaign/scene-edits.json` and the harvested copies are written only
+by `tools/scene-edits`. That is declared with `OWNER:` in `scene-edits.schema.json` and enforced by the
+pre-edit hook, which refuses a hand edit. A merge of her words is an authored-content write through the
+repo, not a second owner of any field, and a record may never name `authoring` or `review` at all.

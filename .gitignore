@@ -141,20 +141,21 @@ harvest/test-reports/
 # of source data worth tracking.
 harvest/inference/
 
-# Gazetteer: calibration overlays and crops are regenerable working images,
-# not project content. Same treatment as tools/city-map/_out/.
-/tools/gazetteer/_calibration/
-/tools/gazetteer/_tiles/
+# location-sync (design/location-editor.md; retired tools/gazetteer/'s own
+# geometry core, moved here 2026-09-29): calibration overlays and crops are
+# regenerable working images, not project content. Same treatment as
+# tools/city-map/_out/.
+/tools/location-sync/_calibration/
+/tools/location-sync/map-production/_calibration/
 # Land/water mask and overlay renders, all derived from the gitignored
-# master PNG. Regenerate with tools/gazetteer/landmask.py.
-/tools/gazetteer/_cache/
-# Client-reported activity log (tool changes, drags, welds, saves, JS
-# errors) -- a debugging aid for reading back what a session actually did,
-# not project content.
-/tools/gazetteer/_client.log
+# master PNG. Regenerate with tools/location-sync/landmask.py.
+/tools/location-sync/_cache/
 
-# Drawing-session drafts: raw input awaiting hand-conversion into real location
-# entities, exactly like data/map/editor-submissions/ before them.
+# The retired gazetteer's own draft-session storage and client log --
+# nothing writes here any more (design/location-editor.md §3.4: the
+# equivalent session now lives in the Foundry module's own storage/), kept
+# only so any leftover local file from before the retirement stays ignored.
+/tools/gazetteer/_client.log
 /data/map/gazetteer-drafts/
 
 # SQLite WAL-mode sidecar files. citymap.store.gpkg opens data/map/kurose.gpkg
