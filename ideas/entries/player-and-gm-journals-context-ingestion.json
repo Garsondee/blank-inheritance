@@ -8,12 +8,12 @@
   "summary": "Each PC gets a Foundry journal only they can see, for their own notes; the GM gets one too, populated via a timestamped text field in a GM management tool. After a session, the difference since last checked gets ingested as additional context for writing future episodes.",
   "description": "Each player character gets a private JournalEntry visible only to that player, for recording their own in-character or out-of-character thoughts as the campaign goes. A parallel GM journal exists, populated by a timestamped text field inside whatever GM-facing management tool gets built — the GM's own version of the same idea.\n\nThe point: after a session, the *difference* in these journals since they were last checked gets ingested as additional context for writing the next episode. This is a direct, concrete use case for the harvest mechanism already designed in design/foundry-module-design.md §4 (promotable content, GM-pulled, not automatic) — private journal content is exactly the kind of thing that should never be pushed/overwritten and should only ever move Foundry-to-repo. Combined with chat-log-knowledge-base, the intent is a complete picture of a session — including when players go somewhere the plan never anticipated, and the GM's own improvised notes about how they handled it — so future episodes can actually respond to what happened rather than what was planned.",
   "capturedDate": "2026-08-22",
-  "lastTouchedDate": "2026-08-22",
+  "lastTouchedDate": "2026-09-29",
   "sourceContext": "User planning message on dialogue/journal/campaign-management systems, prior to the ideas/ system existing — originally captured as prose in design/campaign-arc.md's 'Foundry module: new concept threads' section, migrated here on audit.",
   "openSubQuestions": [
     "Exact mechanism for 'the timestamped text field in a GM tool' — part of campaign-managing-system, not designed yet.",
     "How a 'diff since last checked' is computed and where the boundary/checkpoint is tracked."
   ],
-  "relatedRefs": ["chat-log-knowledge-base", "design/foundry-module-design.md#4-bidirectional-sync-and-the-file-system-question"],
-  "resolution": null
+  "relatedRefs": ["chat-log-knowledge-base", "design/foundry-module-design.md#4-bidirectional-sync-and-the-file-system-question", "party-notebook"],
+  "resolution": "SHARED HALF COVERED 2026-09-29 by the party notebook (ideas/entries/party-notebook.json, design/notebook.md): every player writes in one shared, collaboratively edited notebook, and the GM's client files it as storage/notebook.json where sync-harvest.mjs already pulls the module's storage folder home, with each page's author, last editor and text. NOT covered: a private journal per PC and the GM's own timestamped journal; the notebook has no private pages (ownership hides a page from the interface, not from another player's browser, so private pages need a different mechanism). Still accepted for that part."
 }

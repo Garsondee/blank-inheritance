@@ -150,7 +150,7 @@ A real tension, named rather than smoothed. v4 §6 says death is rare, meaningfu
 
 Child pilots are a genre staple carrying two opposite readings, both live in any work that uses them. **[C/Q]** The **early reading** (*Tetsujin 28-go*, *Giant Robo*) treats a child holding enormous power as a story about responsibility, and it is fundamentally hopeful: Daisaku is not the machine's victim, he is its conscience, and the drama is whether he will be worthy of it. The **critical reading** (*Evangelion*, and most work after 1995) treats a society that puts children in weapons as indicting itself; the drama is about the adults, and the child's competence is the accusation rather than the reassurance.
 
-This campaign has the critical reading in its premise — an institution that puts its students into its machines — and the early reading in its register, deliberately. (The founding charter's buried self-diagnosis, which this paragraph used to cite as the foundation, is under review — `open-questions.json#founding-charter-rethink`, LEDGER #36 — and is not restated here.)
+This campaign has the critical reading in its premise — an institution that puts its students into its machines — and the early reading in its register, deliberately. (The founding charter's painted-out paragraph, which this paragraph used to cite as the foundation, has been cut, LEDGER #41.)
 
 The two are compatible, and what makes them compatible is **where the accusation points**. v4 §1: nobody in this campaign has ever done anything evil. The Directorate is not a villain; it is frightened people exercising one reflex for two hundred years, and v4 §24 is explicit that it never has to become villainous.
 

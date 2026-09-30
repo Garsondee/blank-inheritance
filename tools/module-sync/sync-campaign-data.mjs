@@ -33,7 +33,8 @@ import { fileURLToPath } from "node:url";
 import { computeLocalChecksums } from "./local-hash.mjs";
 import { uploadDirectory, remoteChecksums } from "./remote.mjs";
 import { diffChecksums, summarizeDiff } from "./checksums.mjs";
-import { stageCampaignData, cleanupStagedData } from "./stage-campaign-data.mjs";
+import { stageCampaignData, cleanupStagedData, ledgerLast } from "./stage-campaign-data.mjs";
+import { checkReversions, pathsFor } from "../scene-edits/edits.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -69,13 +70,25 @@ const config = {
  * `localDir`) rather than mutating the `config` object a caller passed in.
  */
 export async function runCampaignDataSync(config, remote = { uploadDirectory, remoteChecksums }) {
+  // Ingram's critical requirement (design/scene-edits.md §5.3): no push may
+  // carry older words than hers. `npm run deploy` checks this too; this older,
+  // standalone push must not be the way round it.
+  const reversions = (config.checkReversions ?? checkReversions)(pathsFor(path.resolve(config.dataRoot, "..")));
+  if (reversions.length) {
+    console.log(`REFUSED: the repo has gone back to older words than Ingram's in ${reversions.map((r) => `${r.file} ${r.path}`).join("; ")}. Run \`npm run edits -- restore\` first.`);
+    process.exitCode = 1;
+    return;
+  }
+
   const stagingDir = await stageCampaignData(config.dataRoot);
   console.log(`=== Staged sync content into ${stagingDir} ===`);
   try {
     const runConfig = { ...config, localDir: stagingDir };
 
     console.log(`=== 1. Local checksums (${stagingDir}) ===`);
-    const localMap = await computeLocalChecksums(stagingDir);
+    // The scene-edits ledger goes up last, so it never says an edit of hers
+    // is merged before the file holding her words has arrived.
+    const localMap = ledgerLast(await computeLocalChecksums(stagingDir));
     console.log(`${localMap.size} files staged`);
 
     if (config.dryRun) {

@@ -22,16 +22,29 @@
     already-visible member's own entrance. foundry/stage.mjs#_prepareContext
     is what decides who that is.
 --}}
+{{!--
+    `label` is what the TABLE calls this person: a protected person's `called`
+    line until their name is told, then the real one (core/stage-names.mjs).
+    `realName` and `nameHidden` exist only on the Director's copy, so a player's
+    frame never carries the real name even in a tooltip. `renamedFrom` is set
+    only for the render a name lands on: the old plate is struck through, then
+    the new one stamps in.
+--}}
 <figure class="bi-frame{{#if concealed}} bi-frame--concealed{{/if}}" data-portrait-id="{{portraitId}}"
-    {{#if entrance}}data-entrance="{{entrance}}"{{/if}}>
-    <button type="button" class="bi-frame__scope" data-action="openCard"
-        data-actor-id="{{actorId}}" data-label="{{label}}"
-        title="{{label}}">
+    {{#if entrance}}data-entrance="{{entrance}}"{{/if}}{{#if nameHidden}} data-name-hidden="true"{{/if}}>
+    {{!-- The portrait opens the party notebook on this person's page
+          (foundry/stage.mjs#onOpenNotes); the Card key below opens the
+          Character Card. `data-concealed` lets the Director's ghost frame be
+          refused a page: a page's title is visible to every player. --}}
+    <button type="button" class="bi-frame__scope" data-action="openNotes"
+        data-portrait-id="{{portraitId}}" data-actor-id="{{actorId}}" data-label="{{label}}"
+        data-img="{{img}}" data-kind="{{kind}}" data-concealed="{{#if concealed}}true{{else}}false{{/if}}"
+        title="{{label}}{{#if realName}} ({{realName}}){{/if}}">
         <span class="bi-frame__art">
             {{#if img}}<img src="{{img}}" alt="">{{else}}<i class="fa-solid fa-user bi-frame__art-fallback" aria-hidden="true"></i>{{/if}}
         </span>
         <span class="bi-frame__lamp"></span>
-        <span class="bi-frame__plate">{{label}}</span>
+        <span class="bi-frame__plate"{{#if renamedFrom}} data-renamed-from="{{renamedFrom}}"{{/if}}>{{label}}</span>
     </button>
 
     <div class="bi-frame__keys">

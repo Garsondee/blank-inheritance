@@ -13,7 +13,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 
 import {
   BEAT_STATES,
@@ -581,22 +581,30 @@ test("a run stored before nudges existed (no `adjust`) reads exactly as it did",
 // In rebuilt around each player's own opening -- look, first shot, a small
 // problem on the way in, the skill they used, a roll against a normal DC, and
 // a few sentences of how it went, told by the player.
-test("From Up Here is Scene 0: first in the episode, a speech with no cast, no rolls and no choices", () => {
+// 2026-09-27, after Ingram's full read (canon/decisions/D048.md): Scene 0 is the one scene with no skill rolls and no
+// questions, and it builds mystery: the four founders are not named, and the prophecy, where the rift stopped and
+// Cicada all come later. The Recall Knowledge answers the first re-read had added are gone.
+test("From Up Here is Scene 0: first in the episode, one speech with no cast, no rolls and no questions", () => {
   const episode = readJson(new URL("../data/episodes/episode-c1e1-mothers-maiden-name.json", import.meta.url));
   const sorted = [...episode.scenes].sort((a, b) => a.order - b.order);
   assert.equal(sorted[0].id, "from-up-here");
   assert.equal(sorted[1].id, "the-road-in");
+  assert.deepEqual(sorted[0].challengeRefs, []);
   const brief = realBrief("episode-c1e1--from-up-here");
   assert.deepEqual(brief.cast, []);
-  assert.ok(brief.beats.every((b) => (b.kind ?? "action") === "action" && !b.challengeRef && !b.choicePoint), "the players' turn is The Road In, not this");
+  assert.ok(brief.beats.length >= 3, "the speech is at least three beats");
+  assert.ok(brief.beats.every((b) => b.mandatory && (b.kind ?? "action") === "action" && !b.challengeRef && !b.choicePoint && !b.when), "every beat is part of the speech: no rolls, no questions, nothing optional");
   assert.ok(brief.beats.every((b) => b.readAloud), "every beat of the speech is written out");
+  assert.ok(!existsSync(new URL("../data/challenges/c1e1-from-up-here.json", import.meta.url)), "Scene 0 has no challenge");
 });
 
-test("From Up Here keeps to the player-facing rules: common knowledge only, nothing GM-only, the four named", () => {
+test("From Up Here keeps to the player-facing rules: common knowledge only, nothing GM-only, the four not yet named", () => {
   const spoken = realBrief("episode-c1e1--from-up-here").beats.map((b) => b.readAloud).join("\n");
-  for (const name of ["Hyuck", "Rupiah", "Anabala", "Shucks Mordant", "Kurose", "Kortos", "Absalom", "Golarion"]) {
+  for (const name of ["Kurose", "Minkai", "Kortos", "Absalom", "Golarion"]) {
     assert.ok(spoken.includes(name), `the speech should name ${name}`);
   }
+  // Held back for later in play (D048): the founders' names, where the rift stopped, the prophecy, Cicada.
+  assert.doesNotMatch(spoken, /Hyuck|Rupiah|Anabala|Shucks|Mordant|Pharasma|prophec|the gods|Cicada/i);
   // GM-only material that must never be read to the table (LEDGER #26-#28).
   assert.doesNotMatch(spoken, /Watcher|Observer|hull|starship|Envoy|Manako|mitflit|Gen(eration)? ?2|fumble|dropped|caught/i);
   // Gen 1 Frames are never graceful (Mystery Ledger #11).

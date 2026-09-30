@@ -9,7 +9,9 @@ import { buildJournalEntryData, episodeToJournalSource } from "../core/generator
 import { validateActor, validateScene, validateJournalEntry } from "../core/validate.mjs";
 import { summarizeReport, reportToHtml, reportToClipboardText } from "../core/report.mjs";
 import { PROMOTABLE_STATUSES } from "../core/promote.mjs";
-import { fetchModuleJson, writeReportFile, copyTextToClipboard } from "./io.mjs";
+import { FALLBACK_EPISODE_PATHS, sourceIdFromPath } from "../core/world-sync.mjs";
+import { documentEditFilename, documentEditSnapshot, editedSinceWritten, journalWords } from "../core/foundry-edits.mjs";
+import { fetchModuleJson, writeReportFile, writeStorageJson, copyTextToClipboard, listModuleJsonIds, listModuleImageIds } from "./io.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const FLAG_SCOPE = MODULE_ID;
@@ -269,11 +271,11 @@ export function isPushable(source) {
   return PROMOTABLE_STATUSES.includes(source?.authoring?.status);
 }
 
-async function runRealCreatureCase(fetchPath) {
+async function runRealCreatureCase(fetchPath, { tokenImage = null, portraitImage = null } = {}) {
   const source = await fetchModuleJson(fetchPath);
   if (!isPushable(source)) return withheldForDraftStatus("creature", source, game.actors);
 
-  const data = await buildCreatureActorData(source, { tokenImage: TOKEN_IMAGE_BY_ID[source.id] ?? null });
+  const data = await buildCreatureActorData(source, { tokenImage, portraitImage });
   const hash = await contentHash(source);
 
   const existing = game.actors.get(data._id);
@@ -290,11 +292,14 @@ async function runRealCreatureCase(fetchPath) {
   return { ...(await validateActor(created, source, data._id, "creature")), skipped: false };
 }
 
-async function runRealNpcCase(fetchPath) {
+// isPushable/withheldForDraftStatus are DELIBERATELY NOT called here, unlike
+// runRealCreatureCase above -- see the block comment where REAL_NPC_PATHS
+// used to live, further down this file, for why a social NPC's Actor sync
+// and a creature/Claimant's are no longer the same gate.
+async function runRealNpcCase(fetchPath, { tokenImage = null, portraitImage = null } = {}) {
   const source = await fetchModuleJson(fetchPath);
-  if (!isPushable(source)) return withheldForDraftStatus("npc", source, game.actors);
 
-  const data = await buildNpcActorData(source, { tokenImage: TOKEN_IMAGE_BY_ID[source.id] ?? null });
+  const data = await buildNpcActorData(source, { tokenImage, portraitImage });
   const hash = await contentHash(source);
 
   const existing = game.actors.get(data._id);
@@ -373,8 +378,25 @@ async function runRealJournalCase(fetchPath, transform) {
   const hash = await contentHash(journalSource);
 
   const existing = game.journal.get(data._id);
-  if (shouldSkip(existing, hash)) {
-    return { ...(await validateJournalEntry(existing, journalSource, data._id)), skipped: true };
+  if (existing) {
+    // A journal Ingram has edited here, in Foundry, since this sync last wrote
+    // it is never deleted and rebuilt from the repo -- her words are the
+    // latest (design/scene-edits.md §7). Kept, said on the update card, and
+    // filed into storage/ for me to fold into the repo.
+    const words = journalWords(pagesOf(existing));
+    const current = await contentHash(words);
+    const written = existing.getFlag(FLAG_SCOPE, "pushedHash");
+    if (editedSinceWritten(current, written)) {
+      await fileKeptJournal(journalSource, existing, words);
+      return { sourceId: journalSource.id, foundryType: "JournalEntry", expectedId: data._id, actualId: existing.id, checks: [], keptEdited: true, name: existing.name };
+    }
+    if (shouldSkip(existing, hash)) {
+      // Journals made before this check carry no fingerprint yet; nothing had
+      // been edited in Foundry when it arrived (Ingram, 2026-09-27), so the
+      // words they hold now are the words the sync wrote.
+      if (!written) await existing.setFlag(FLAG_SCOPE, "pushedHash", current);
+      return { ...(await validateJournalEntry(existing, journalSource, data._id)), skipped: true };
+    }
   }
 
   await teardown(game.journal, data._id);
@@ -382,39 +404,92 @@ async function runRealJournalCase(fetchPath, transform) {
   if (created) {
     await created.setFlag(FLAG_SCOPE, "sourceId", journalSource.id);
     await created.setFlag(FLAG_SCOPE, "sourceHash", hash);
+    // Taken from what Foundry STORED: its server cleans HTML on the way in,
+    // so a fingerprint of what was sent would never match on the next sync.
+    await created.setFlag(FLAG_SCOPE, "pushedHash", await contentHash(journalWords(pagesOf(created))));
   }
   return { ...(await validateJournalEntry(created, journalSource, data._id)), skipped: false };
 }
 
-// A staged Dynamic Token Ring subject texture (tools/token-ring/'s output),
-// keyed by the entity's own repo `id` -- resolved here, not inside
-// core/generators/npc.mjs|creature.mjs themselves, so those stay pure
-// functions of their arguments (see token-ring.mjs's header). Only
-// shucks-mordant has one so far: the six placeholder Directorate-staff
-// portraits assigned 2026-09-18 (hospital-chief-of-staff, school-history-
-// teacher, works-manager, section-officer, repair-chief-ishikawa,
-// repair-chief-kaneda) are DELIBERATELY NOT listed here even though they're
-// already circle-cropped and registered in asset-registry.json -- see the
-// REAL_NPC_PATHS comment immediately below for why a still-placeholder NPC
-// never belongs in this real/live sync regardless of whether art exists for
-// it. Demoed instead against the local throwaway Foundry world.
-const TOKEN_IMAGE_BY_ID = {
-  "shucks-mordant": "modules/blank-inheritance/assets/tokens/shucks-mordant.webp"
-};
+/**
+ * Whether a synced journal has been edited in Foundry since the sync last
+ * wrote it. The world sync asks before retiring an old journal whose source
+ * is gone: an edit of hers is never deleted, whatever happened to its source.
+ */
+export async function journalEditedInFoundry(journal) {
+  if (!journal || journal.documentName !== "JournalEntry") return false;
+  return editedSinceWritten(await contentHash(journalWords(pagesOf(journal))), journal.getFlag(FLAG_SCOPE, "pushedHash"));
+}
 
-// Real content synced so far -- deliberately NOT the kids/Frames (still
-// marked DRAFT/not confirmed in data/characters/) or the three Directorate
-// poles (Commander/Caretaker/Transparency Advocate are still "placeholder —
-// not yet named or cast"). Syncing draft/placeholder identity content into a
-// live world reads as finalizing it, which is the user's collaborative
-// creative call to make, not something to do just because the pipeline can
-// now technically reach it -- see CLAUDE.md's "don't invent/finalize the six
-// kids/Frames" rule. The episode outlines and the three NPCs below all have
-// no such open-question flag -- each is "established and voiced" per its own
-// data/npcs/*.json status field, not a placeholder. This is also why
-// TOKEN_IMAGE_BY_ID above stays this short: a portrait existing for a
-// placeholder NPC is not the same thing as that NPC being real enough to
-// sync -- the same "placeholder" status gate applies to both.
+/** A journal's pages as a plain list: a real EmbeddedCollection, or the plain array a test's mock document holds. */
+function pagesOf(journal) {
+  const pages = journal?.pages;
+  if (Array.isArray(pages)) return pages;
+  return pages?.contents ?? [];
+}
+
+async function fileKeptJournal(journalSource, journal, words) {
+  try {
+    const snapshot = documentEditSnapshot({
+      kind: "journal",
+      sourceId: journalSource.id,
+      source: `data/episodes/${journalSource.id}.json`,
+      name: journal.name,
+      words,
+      at: new Date().toISOString()
+    });
+    await writeStorageJson("", documentEditFilename("journal", journalSource.id), snapshot);
+  } catch (err) {
+    console.error(`Blank Inheritance | Kept your edits to "${journal.name}", but could not file a copy for Claude:`, err);
+  }
+}
+
+// The module directories tools/token-ring/'s two staging scripts write into
+// -- crop_ring_subject.py for the token's own canvas art (a circle-cropped
+// subject), stage_npc_portraits.py for the Actor's own `img` and the
+// Theatre-of-Mind character frame (an ordinary rectangular resize). Both are
+// keyed by the entity's own repo `id` (asset-registry.json's assignedTo.ref
+// IS the filename stem, by convention -- see either script's own header), so
+// "does modules/blank-inheritance/assets/<dir>/<id>.webp exist" is the whole
+// lookup: no hand-maintained id->path map to keep in sync with the registry
+// by hand every time a new portrait is registered (that map used to live
+// here, as TOKEN_IMAGE_BY_ID, exactly one entry deep). Resolved ONCE per
+// sync run (one FilePicker.browse call per directory, not one per npc) and
+// handed down to each case rather than looked up per-id inside it, so
+// npc.mjs/creature.mjs stay pure functions of their arguments.
+const TOKEN_ART_DIR = "assets/tokens";
+const PORTRAIT_ART_DIR = "assets/stage";
+
+async function resolveArtForId(id, stagedTokenIds, stagedPortraitIds) {
+  return {
+    tokenImage: stagedTokenIds.has(id) ? `modules/${MODULE_ID}/${TOKEN_ART_DIR}/${id}.webp` : null,
+    portraitImage: stagedPortraitIds.has(id) ? `modules/${MODULE_ID}/${PORTRAIT_ART_DIR}/${id}.webp` : null
+  };
+}
+
+// Every social NPC in data/npcs/ is synced now -- not a hand-picked
+// REAL_NPC_PATHS array (this used to be exactly three names: shucks-mordant,
+// nobu, intake-medicals-clerk). Changed 2026-09-29, at Ingram's direct
+// request: every NPC should have a real Actor and a token she can click into
+// during Theatre of Mind play, not just the few someone remembered to add to
+// a list by hand -- and isPushable()'s sound/final requirement (below) was,
+// checked directly, blocking all three of the old names anyway, since
+// nothing in data/npcs/ has ever actually been promoted past "drafted".
+//
+// isPushable/PROMOTABLE_STATUSES is NOT weakened or bypassed by this --
+// runRealCreatureCase above still uses it unchanged, and so would any other
+// content type that keys off it later. What changed is narrower: a social
+// NPC's own Actor sync no longer goes through that gate AT ALL, because the
+// two protect different things. isPushable's whole point (see
+// withheldForDraftStatus's comment, and design/approvals-desk.md §3) is
+// "don't finalize Ingram's own unreviewed creative call without her" --
+// but she is the one making that call, directly, by asking for this. And the
+// mechanism she asked for is a HIDDEN token (foundry/scene-build.mjs), which
+// design/theatre-of-the-mind-staging.md §4 already named as the right way to
+// keep something off a player's client regardless of anything else about the
+// document: "a Token's `hidden` flag plus document ownership already governs
+// what is sent to a client." A GM-only reference sheet for a still-drafted
+// NPC finalizes nothing a player will ever see.
 //
 // REMOVED 2026-09-19, at Ingram's direct instruction: there was a
 // REAL_CLAIMANT_PATH constant here and a "claimant:contact-unclassified" case
@@ -425,32 +500,49 @@ const TOKEN_IMAGE_BY_ID = {
 // header) was deleted: unapproved, stale, and the frame-scale simulator work
 // it belonged to predates and is lower quality than the personnel-scale work
 // that superseded it. No real Claimant exists to sync right now. Restore this
-// case (same shape as REAL_NPC_PATHS below, but via runRealCreatureCase since
-// a Claimant carries a combat statblock) once a new, approved one exists.
-// Statblock-less social NPCs, already fully written in ideas/story/bible/ and
-// voiced in real scene briefs -- see GitHub epic #140's Session 0/1 audit.
-// Pushed via buildNpcActorData (core/generators/npc.mjs), not
-// buildCreatureActorData: none of the three carry a combat statblock.
-const REAL_NPC_PATHS = [
-  "data/campaign/npcs/shucks-mordant.json",
-  "data/campaign/npcs/nobu.json",
-  "data/campaign/npcs/intake-medicals-clerk.json"
-];
-// Narrowed 2026-09-13: the three episodes this used to list were deleted along
-// with every other drafted beat beyond Session 0/1 (see CLAUDE.md's data/episodes
-// entry). Episode One is now the only episode in the repo, and the only one this
-// pipeline has anything real to push.
-const REAL_EPISODE_PATHS = [
-  "data/campaign/episodes/episode-c1e1-mothers-maiden-name.json"
-];
+// case (via runRealCreatureCase, still isPushable-gated -- a creature/
+// Claimant's combat stat block is a different, still-sensitive kind of
+// content from a social NPC's blurb, and stays behind the Approvals Desk)
+// once a new, approved one exists.
+const NPC_DIR = "data/campaign/npcs";
+// The episodes whose journals this syncs when the caller names none. Stale
+// for two weeks before 2026-09-27: it listed Episode One alone, a comment
+// having said "Episode One is now the only episode in the repo" on the same
+// day Episode Two was created, so Episode Two's journal never reached a
+// world. The automatic world sync (foundry/world-sync.mjs) now passes the
+// deploy stamp's own list of every episode file instead, and this list is
+// only the fallback -- shared with it, so the two cannot disagree.
+const REAL_EPISODE_PATHS = FALLBACK_EPISODE_PATHS.map((p) => `data/campaign/${p}`);
 
-export async function runRealContentSync() {
+/**
+ * Every source id this sync manages, for the world sync's old-document
+ * clean-up. `npcSourceIds` are bare ids (every id runRealContentSync actually
+ * processed this run, read straight off its own report -- see world-sync.mjs's
+ * call site), unlike episodePaths, which are still module-relative paths, so
+ * the two are combined rather than mapped through sourceIdFromPath the same
+ * way.
+ */
+export function managedSourceIds(episodePaths = REAL_EPISODE_PATHS, npcSourceIds = []) {
+  return new Set([...npcSourceIds, ...episodePaths.map(sourceIdFromPath)]);
+}
+
+/**
+ * @param {object} [options]
+ * @param {boolean} [options.quiet]  the automatic world sync's mode: still
+ *   writes the report file, but posts no chat card, no toasts, and never
+ *   touches the clipboard -- the world sync reports once for everything it did,
+ *   and an update that runs by itself at login must not overwrite whatever the
+ *   GM last copied.
+ * @param {string[]} [options.episodePaths]  module-relative episode files to
+ *   sync journals from; REAL_EPISODE_PATHS when omitted
+ */
+export async function runRealContentSync({ quiet = false, episodePaths = REAL_EPISODE_PATHS } = {}) {
   if (!game.user.isGM) {
-    ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.RealSync.NotGM"));
+    if (!quiet) ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.RealSync.NotGM"));
     return null;
   }
 
-  ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.RealSync.Running"));
+  if (!quiet) ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.RealSync.Running"));
   console.log("Blank Inheritance | Starting real content sync...");
 
   const report = {
@@ -463,17 +555,33 @@ export async function runRealContentSync() {
   };
 
   try {
-    for (const path of REAL_NPC_PATHS) {
-      const label = path.split("/").pop().replace(/\.json$/, "");
-      report.results.push(await runCase(`npc:${label}`, () => runRealNpcCase(path)));
+    const npcIds = await listModuleJsonIds(NPC_DIR);
+    const [stagedTokenIds, stagedPortraitIds] = await Promise.all([
+      listModuleImageIds(TOKEN_ART_DIR).then((ids) => new Set(ids)),
+      listModuleImageIds(PORTRAIT_ART_DIR).then((ids) => new Set(ids))
+    ]);
+    for (const id of npcIds) {
+      const art = await resolveArtForId(id, stagedTokenIds, stagedPortraitIds);
+      report.results.push(await runCase(`npc:${id}`, () => runRealNpcCase(`${NPC_DIR}/${id}.json`, art)));
     }
-    for (const path of REAL_EPISODE_PATHS) {
+    for (const path of episodePaths) {
       const label = path.split("/").pop().replace(/\.json$/, "");
       report.results.push(await runCase(`episode:${label}`, () => runRealJournalCase(path, episodeToJournalSource)));
     }
   } catch (err) {
     console.error("Blank Inheritance | Real content sync failed:", err);
     report.fatalError = err?.message ?? String(err);
+  }
+
+  if (quiet) {
+    try {
+      report.reportPath = await writeReportFile(report);
+      report.reportFileWritten = true;
+    } catch (err) {
+      console.error("Blank Inheritance | Could not write report file:", err);
+    }
+    console.log("Blank Inheritance | Sync report:", report);
+    return report;
   }
 
   return finalizeSync(report, {

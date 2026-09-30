@@ -19,13 +19,16 @@ import { resolveTokenRing } from "./token-ring.mjs";
  * document schema instead — see token-ring.mjs's own header. `tokenImage`
  * (optional, caller-resolved) selects a circle-cropped portrait, written to
  * `prototypeToken.texture.src` (the token's own base art, not
- * `ring.subject.texture` — see token-ring.mjs's header). resolveTokenRing
- * colors the ring violet automatically for anything carrying the "claimant"
- * trait (module/.../bi-tokens.css already reserves that color for "Claimant
+ * `ring.subject.texture` — see token-ring.mjs's header). `portraitImage`
+ * (also optional, caller-resolved — an uncropped resize of the same
+ * registered portrait) is written to the Actor's own top-level `img`, same
+ * reasoning as npc.mjs's own header. resolveTokenRing colors the ring violet
+ * automatically for anything carrying the "claimant" trait
+ * (module/.../bi-tokens.css already reserves that color for "Claimant
  * telemetry" — applying an existing decision, not inventing one), amber
  * otherwise.
  */
-export async function buildCreatureActorData(source, { tokenImage = null } = {}) {
+export async function buildCreatureActorData(source, { tokenImage = null, portraitImage = null } = {}) {
   const id = await deriveFoundryId(source.id);
   const { system, items } = buildCombatStatblockSystemData(source);
 
@@ -38,6 +41,7 @@ export async function buildCreatureActorData(source, { tokenImage = null } = {})
     prototypeToken: {
       ring: resolveTokenRing("creature", source),
       ...(tokenImage ? { texture: { src: tokenImage } } : {})
-    }
+    },
+    ...(portraitImage ? { img: portraitImage } : {})
   };
 }

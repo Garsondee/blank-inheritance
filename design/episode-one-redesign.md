@@ -134,8 +134,8 @@ afternoon, is *"that lot wrote theirs down, and then they painted over it."* Rig
 no referent for that line and it floats past as an old man's opinion. If they queued past the frame
 at eight in the morning, it detonates instead.
 
-*(Under review since 2026-09-25, LEDGER #36: the founding charter, and what the painted-out paragraph
-hides, `open-questions.json#founding-charter-rethink`. Build nothing new on it until that is answered.)*
+*(Cut 2026-09-27, LEDGER #41: the charter has no painted-out paragraph any more, Manako's line in The Errand is
+rewritten, and the charter check in Intake Medicals studies its four signatures instead.)*
 
 **Add — the hand (optional, and it is canon we are currently not using).** LEDGER #1 establishes that
 Shucks is a **literal animated skeleton**, that his right hand is a detached, flying, nonverbal
@@ -226,7 +226,7 @@ focused attention. **Episode Two opens differently depending on which they picke
 flagged as pending — LEDGER #18: *"STILL OPEN: what actually happens when the vial requisition lands
 — Episode Two's business."* Making it a choice does not resolve that; it gives it an input.
 
-**Add — bulk reagent theft (Ledger #7).** The general store. The storekeeper grumbles that dull stock
+**Add — bulk reagent theft (Ledger #7).** The general store *(moved to the instrument makers' workshop, LEDGER #45)*. The storekeeper grumbles that dull stock
 keeps walking — nothing valuable, nothing anyone would bother with, which is exactly why nobody has
 looked into it. One line, no check, and the heist loop is planted.
 
@@ -353,7 +353,7 @@ Nobody answers it. The episode ends there.
 
 ## 4. What this adds up to
 
-**Plants, before and after:** 3 of 13 → 8 of 13. Added: the blacked-out charter (#5), Nozomi's locker
+**Plants, before and after:** 3 of 13 → 8 of 13. Added: the blacked-out charter (#5, since cut, LEDGER #41), Nozomi's locker
 (#2), bulk reagent theft (#7), the girl in the news (#10), dogs and birds (#9). Every one of them
 lands in a scene that already exists, none needs a check, and none is explained.
 

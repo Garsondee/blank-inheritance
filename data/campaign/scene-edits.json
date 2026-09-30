@@ -1,0 +1,6 @@
+{
+  "$schema": "../schema/scene-edits.schema.json",
+  "id": "scene-edits",
+  "description": "Which of Ingram's Scene Runner edits have reached the repo. Written only by tools/scene-edits (design/scene-edits.md); the Runner reads it to know which edits are merged. The edits themselves are in harvest/scene-edits/.",
+  "entries": {}
+}

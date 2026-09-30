@@ -20,6 +20,7 @@ import { cp, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { listSources } from "./local-hash.mjs";
 
 export const SYNCED_CAMPAIGN_DIRS = [
   "antagonists",
@@ -57,21 +58,54 @@ export const SYNCED_CAMPAIGN_DIRS = [
  */
 export const SYNCED_MAP_FILES = ["travel-graph.json", "campaign-map.json", "gazetteer-requests.json"];
 
+/**
+ * Exactly the files a campaign-data push carries, as a Map from the path they
+ * land at under data/campaign/ on the server to the real file in repo-root
+ * data/. The one definition of the allow-list's reach: stageCampaignData
+ * copies from it, and tools/module-sync/deploy.mjs and deploy-status.mjs
+ * upload and fingerprint straight from it without copying anything, so the
+ * three can never disagree about what "the campaign data" is.
+ */
+export async function campaignDataSources(dataRoot) {
+  const sources = new Map();
+  for (const dirName of SYNCED_CAMPAIGN_DIRS) {
+    const dir = path.join(dataRoot, dirName);
+    if (!existsSync(dir)) continue;
+    for (const [relativePath, absolutePath] of await listSources(dir)) sources.set(`${dirName}/${relativePath}`, absolutePath);
+  }
+  for (const name of SYNCED_MAP_FILES) {
+    const file = path.join(dataRoot, "map", name);
+    if (existsSync(file)) sources.set(`map/${name}`, file);
+  }
+  return sources;
+}
+
+/**
+ * The scene-edits ledger's place in the data channel (design/scene-edits.md).
+ * It is always sent LAST: it tells the Scene Runner which of Ingram's edits
+ * are already in the deployed files, so it must never arrive before those
+ * files do, or a page loaded in between would stop showing her words.
+ */
+export const LEDGER_DATA_PATH = "campaign/scene-edits.json";
+
+/** Data-channel paths (an array, or a Map keyed by path) with the ledger moved to the end. */
+export function ledgerLast(paths) {
+  if (paths instanceof Map) {
+    if (!paths.has(LEDGER_DATA_PATH)) return paths;
+    const out = new Map([...paths].filter(([p]) => p !== LEDGER_DATA_PATH));
+    out.set(LEDGER_DATA_PATH, paths.get(LEDGER_DATA_PATH));
+    return out;
+  }
+  return [...paths.filter((p) => p !== LEDGER_DATA_PATH), ...paths.filter((p) => p === LEDGER_DATA_PATH)];
+}
+
 export async function stageCampaignData(dataRoot) {
   const stagingDir = await mkdtemp(path.join(os.tmpdir(), "blank-inheritance-campaign-data-"));
-  for (const dirName of SYNCED_CAMPAIGN_DIRS) {
-    const source = path.join(dataRoot, dirName);
-    if (!existsSync(source)) continue;
-    await cp(source, path.join(stagingDir, dirName), { recursive: true });
+  for (const [relativePath, absolutePath] of await campaignDataSources(dataRoot)) {
+    const destination = path.join(stagingDir, ...relativePath.split("/"));
+    await mkdir(path.dirname(destination), { recursive: true });
+    await cp(absolutePath, destination);
   }
-
-  const mapFiles = SYNCED_MAP_FILES.filter((name) => existsSync(path.join(dataRoot, "map", name)));
-  if (mapFiles.length) {
-    const mapStagingDir = path.join(stagingDir, "map");
-    await mkdir(mapStagingDir, { recursive: true });
-    for (const name of mapFiles) await cp(path.join(dataRoot, "map", name), path.join(mapStagingDir, name));
-  }
-
   return stagingDir;
 }
 

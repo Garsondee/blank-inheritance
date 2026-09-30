@@ -3,6 +3,7 @@
 
   "_profiles": {
     "full": "Latin + punctuation + kana + the common CJK ideograph block. ~2.8MB per weight in Mincho. ONLY for faces that must render arbitrary Japanese a GM might type — realistically just the document body face.",
+    "typewriter": "Not from Google Fonts: built from its `source` (a URL, the characters to keep, the OpenType features to keep). TT2020 carries ten versions of every glyph, so it is allowed up to 600KB.",
     "ui": "Latin + punctuation + kana + a curated kanji vocabulary (below). ~85KB per weight. For display faces that only ever render strings WE author — stamps, legends, headings. If a new Kanji is added to the UI it must be added to uiKanji and the fonts rebuilt, or it will render in a fallback face.",
     "latin": "No CJK. Latin-only families, converted to woff2 and otherwise untouched."
   },
@@ -32,6 +33,10 @@
     { "name": "Bruno Ace SC",         "weights": [400],      "profile": "latin", "role": "Small-caps display variant." },
     { "name": "Rajdhani",             "weights": [500, 700], "profile": "latin", "role": "Condensed techno. Tight labels where Chakra Petch is too wide." },
     { "name": "Press Start 2P",       "weights": [400],      "profile": "latin", "role": "Pixel Latin. The phone OS, paired with DotGothic16." },
-    { "name": "Antonio",              "weights": [400, 700], "profile": "latin", "role": "Condensed poster. Marquee headlines, alert banners." }
+    { "name": "Antonio",              "weights": [400, 700], "profile": "latin", "role": "Condensed poster. Marquee headlines, alert banners." },
+    {"name":"TT2020","weights":[400],"profile":"typewriter","role":"Typewriter for paper handouts: everything typed on a document. TT2020 Style E by Fredrick R. Brennan, OFL 1.1, from GitHub (not Google Fonts). Ten versions of every glyph, cycled by its own calt, so no two letters strike alike.","source":{"url":"https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleE-Regular.ttf","license":"OFL-1.1","unicodes":"U+0020-007E,U+00A0-00FF,U+2010-2027,U+2030-203A","layoutFeatures":"calt"}},
+    {"name":"TT2020 Fault 1","weights":[400],"profile":"typewriter","role":"One fixed damaged version of every lower-case letter, from TT2020 Style F (misstruck, faint, part-missing), for a typewriter whose typebar for that letter is broken. Three families so the renderer can vary the damage.","source":{"url":"https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleF-Regular-ASCII.ttf","license":"OFL-1.1","unicodes":"U+0020,U+0061-007A","letters":"abcdefghijklmnopqrstuvwxyz","alternate":3}},
+    {"name":"TT2020 Fault 2","weights":[400],"profile":"typewriter","role":"One fixed damaged version of every lower-case letter, from TT2020 Style F (misstruck, faint, part-missing), for a typewriter whose typebar for that letter is broken. Three families so the renderer can vary the damage.","source":{"url":"https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleF-Regular-ASCII.ttf","license":"OFL-1.1","unicodes":"U+0020,U+0061-007A","letters":"abcdefghijklmnopqrstuvwxyz","alternate":5}},
+    {"name":"TT2020 Fault 3","weights":[400],"profile":"typewriter","role":"One fixed damaged version of every lower-case letter, from TT2020 Style F (misstruck, faint, part-missing), for a typewriter whose typebar for that letter is broken. Three families so the renderer can vary the damage.","source":{"url":"https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleF-Regular-ASCII.ttf","license":"OFL-1.1","unicodes":"U+0020,U+0061-007A","letters":"abcdefghijklmnopqrstuvwxyz","alternate":7}}
   ]
 }

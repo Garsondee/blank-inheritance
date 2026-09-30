@@ -399,23 +399,25 @@ function present(payload, sync = null) {
 }
 
 /**
- * A scene brief's handout, revealed by the music. The content travels WITH the
- * reveal rather than being granted ahead of time — nothing about the handout
- * reaches a player's browser until the moment it lands (doctrine Law 11).
+ * A scene brief's handout, revealed by the music: filed in the players' Papers
+ * and opened on their screens at the marker, the same act as the scene
+ * runner's own reveal button (foundry/handouts.mjs). No confirm: pressing the
+ * cue is the deliberate act, and a dialog mid-phrase would miss the beat.
+ *
+ * Until 2026-09-26 this broadcast the handout's RAW body into a dialog on
+ * every client. That skipped the renderer, so a <redact> in a music-revealed
+ * handout would have shown its hidden words (a browser displays the text
+ * inside a tag it does not know), and nothing it showed was kept. The marker
+ * still decides WHEN; the journal opens at the GM's copy of the beat rather
+ * than each client's own, which is close enough for a document.
  */
-async function presentHandout(step, sync) {
+async function presentHandout(step, _sync) {
   const brief = await fetchBrief(step.brief);
   const handout = (brief?.handouts ?? []).find((h) => h.id === step.handout);
   if (!handout) throw new Error(`Scene brief "${step.brief}" has no handout "${step.handout}"`);
-  present(
-    {
-      kind: "handout",
-      title: handout.title,
-      body: handout.body ?? null,
-      image: handout.imagePath ?? null
-    },
-    sync
-  );
+  const { fileHandout } = await import("./handouts.mjs");
+  const handed = await fileHandout(handout, { audience: "table", confirm: false });
+  if (!handed) throw new Error(`Could not hand over "${handout.title}"`);
 }
 
 const briefCache = new Map();

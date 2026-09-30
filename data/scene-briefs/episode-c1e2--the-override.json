@@ -95,7 +95,7 @@
       "nodeRefs": [
         "arc-mitflit-frame-core-link"
       ],
-      "note": "PLANT. Third touch on the same thread: they were flagged together at intake, streamed into one section, and are now being named individually in an order from a department with no business giving it: Medical, the department that took their blood.\n\nGM-ONLY: the marker they all carry is why. Nothing tonight or tomorrow confirms that and no character in this episode knows it except Shucks, who says nothing, and Rand, who wrote the order.\n\nWHAT IT DOES NOT MEAN: nobody is being singled out for punishment, nobody is under suspicion, and this is not a trap. It is an administrative consequence of a fact about their blood that nobody has told them.\n\nIF NOBODY REACTS: that is fine and common. The fact is now in the room and in their notes. It does not need to land tonight.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): the order is Rand's, Shucks's detached right hand, signed \"Rand\" over the Medical stamp in Shucks's old handwriting. If a player works out a pattern at the table, write down what they said and confirm nothing -- see `arc-the-countersignature`.",
+      "note": "PLANT. Third touch on the same thread: they were flagged together at intake, streamed into one section, and are now being named individually in an order from a department with no business giving it: Medical, the department that took their blood.\n\nGM-ONLY: the marker they all carry is why. Nothing tonight or tomorrow confirms that and no character in this episode knows it except Shucks, who says nothing, and Rand, who wrote the order.\n\nWHAT IT DOES NOT MEAN: nobody is being singled out for punishment, nobody is under suspicion, and this is not a trap. It is an administrative consequence of a fact about their blood that nobody has told them.\n\nIF NOBODY REACTS: that is fine and common. The fact is now in the room and in their notes. It does not need to land tonight.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, accepted with its reason in LEDGER #46): the order is Rand's, Shucks's detached right hand, signed \"Rand\" over the Medical stamp in Shucks's old handwriting. If a player works out a pattern at the table, write down what they said and confirm nothing -- see `arc-the-countersignature`.\n\nGM-ONLY (proposal, LEDGER #43): the names are in the order the six went through Intake Medicals, which is the order their files sit in Medical's cabinet. A player who remembers the queue can notice. Why the hand wrote the order at all is in `ideas/story/bible/characters/rand.md` (accepted, LEDGER #46).",
       "readAloud": "He reads the distribution list because he reads everything, and about a third of the way through it he slows down.\n\nIt is not addressed to Section Nine. It is addressed to six people, by name, in an order that is not alphabetical and is not the order on his roster.\n\nHe finishes reading it out anyway."
     },
     {
@@ -174,7 +174,34 @@
     "transition": {
       "mechanism": "scheduled",
       "line": "Nothing moves them on. The evening box is empty and muster is over, which is the whole invitation.",
-      "scatterRisk": false
+      "scatterRisk": true
+    },
+    "departure": {
+      "kind": "free",
+      "question": "The evening is yours. What are you doing with it?",
+      "destinations": [
+        {
+          "id": "stay-in",
+          "label": "Stay on base",
+          "placeRef": "main-mech-hangar",
+          "briefRef": "episode-c1e2--the-night-off",
+          "blurb": "The base after hours. The hangar lights are still on."
+        },
+        {
+          "id": "go-out",
+          "label": "Over the wire, into the city",
+          "placeRef": "old-landing",
+          "briefRef": "episode-c1e2--the-night-off",
+          "blurb": "No pass tonight. The city after dark, and the problem of getting back in."
+        }
+      ],
+      "then": {
+        "kind": "muster",
+        "placeRef": "long-hall",
+        "briefRef": "episode-c1e2--zero-six-hundred",
+        "label": "Breakfast",
+        "question": "Breakfast is from half five, and the hangar is at seven."
+      }
     },
     "onwards": "Straight into The Night Off.",
     "writeDown": [

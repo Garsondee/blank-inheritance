@@ -49,6 +49,27 @@ test("a closure that should NOT advance (unfinished, or a PANIC verdict) never c
   assert.doesNotMatch(hook[0], /\bcomplete\b/, "the listener reads `complete` again instead of the single `advances` decision core already made");
 });
 
+// Ingram, 2026-09-28: the day ring should follow the story, not wait for a GM to click "advance" by hand
+// (design/ux-doctrine.md §7a: "the ring is the fiction's time of day"). Found while confirming Episode One's
+// scenes actually carry a day/quarter: nothing moved the campaign clock when the table moved between authored
+// scenes at all, only the Director's own manual control.
+test("advancing to the next authored scene also moves the day ring to that scene's own day and quarter", () => {
+  const fn = src.match(/async function advanceAfterClose\(closedBriefId\) \{[\s\S]*?\n\}/);
+  assert.ok(fn);
+  assert.match(fn[0], /await advanceMomentTo\(next\);/, "the next scene's day/quarter never reaches the campaign clock");
+  // Before anything about backdrops or travel: the clock reflects the story even when the next scene has no built
+  // Scene document yet.
+  const momentAt = fn[0].indexOf("advanceMomentTo(next)");
+  const backdropAt = fn[0].indexOf("backdropsFor(next.briefRef)");
+  assert.ok(momentAt > -1 && backdropAt > momentAt, "the clock is moved after the backdrop lookup, not before it");
+
+  const helper = src.match(/async function advanceMomentTo\(next\) \{[\s\S]*?\n\}/);
+  assert.ok(helper, "advanceMomentTo is missing from scene-runner.mjs");
+  assert.match(helper[0], /if \(!Number\.isInteger\(next\?\.day\) \|\| !next\?\.quarter \|\| !game\.user\?\.isGM\) return;/, "a scene with no fixed day/quarter (Scene 0, or the plan's flexible/unknown) must never force the clock");
+  assert.match(helper[0], /if \(before\.day === next\.day && before\.quarter === next\.quarter\) return;/, "must not call setMoment when the quarter has not actually changed -- every write fires the segment ceremony on every client");
+  assert.match(helper[0], /await setMoment\(\{ day: next\.day, quarter: next\.quarter \}\);/);
+});
+
 // This used to assert the specific pair Kit Issue (order 3) -> The Errand
 // (order 4). That was a snapshot of one running order, and it broke the moment
 // a scene was inserted between them -- which is not a bug, it is authoring. The

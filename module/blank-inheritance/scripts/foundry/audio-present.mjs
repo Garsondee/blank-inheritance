@@ -7,8 +7,8 @@
  * apart (foundry/audio-director.mjs#delayForSync).
  *
  * The content travels with the reveal rather than being granted in advance:
- * nothing about a handout reaches a player's browser until the moment it
- * lands (doctrine Law 11 — redaction is removal, not hiding).
+ * nothing reaches a player's browser until the moment it lands (doctrine
+ * Law 11 — redaction is removal, not hiding).
  */
 
 import { showNotice } from "./sting.mjs";
@@ -22,25 +22,10 @@ function showImage({ src, title }) {
   new foundry.applications.apps.ImagePopout({ src, window: { title: title ?? "" } }).render({ force: true });
 }
 
-/**
- * A handout as a PAPER card. The register is deliberate: a document looks like
- * a document whatever screen shows it (design/ux-doctrine.md §7b), and the
- * rest of the console is GLASS.
- */
-async function showHandout({ title, body, image }) {
-  const parts = [];
-  if (image) parts.push(`<img class="bi-audio-handout__image" src="${image}" alt="${foundry.utils.escapeHTML(title ?? "")}">`);
-  if (body) parts.push(`<div class="bi-audio-handout__body">${body}</div>`);
-  const content = `<div class="bi-doc bi-audio-handout">${parts.join("") || `<p>${foundry.utils.escapeHTML(title ?? "")}</p>`}</div>`;
-  const dialog = new foundry.applications.api.DialogV2({
-    window: { title: title ?? game.i18n.localize("BLANKINHERITANCE.Audio.Handout") },
-    classes: ["bi-theme", "bi-audio-handout-window"],
-    content,
-    buttons: [{ action: "close", label: "BLANKINHERITANCE.Audio.Close", default: true }],
-    modal: false
-  });
-  return dialog.render({ force: true });
-}
+// A cue's handout used to arrive here too, as a PAPER card built from the
+// brief's raw body. Since 2026-09-26 a handout is filed in the players' Papers
+// on the GM's side instead (foundry/audio-director.mjs#presentHandout ->
+// foundry/handouts.mjs), so no handout body is ever broadcast to clients.
 
 /**
  * Present one payload on this client. Never throws: a reveal that fails must
@@ -53,8 +38,6 @@ export function presentLocally(payload) {
         return showNotice(NOTICE_KINDS.has(payload.noticeKind) ? payload.noticeKind : "info", payload.text);
       case "image":
         return showImage(payload);
-      case "handout":
-        return showHandout(payload);
       default:
         console.warn(`Blank Inheritance | Unknown audio presentation "${payload?.kind}"`);
         return null;

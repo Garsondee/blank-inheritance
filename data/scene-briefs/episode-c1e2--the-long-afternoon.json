@@ -121,7 +121,7 @@
       "delivery": "table",
       "text": "Lay out where they can go, take everyone's pick, then run the rotation. Anything a player invents that is reachable in an afternoon is on the menu.",
       "direction": "Offer the list as places, not as activities with labelled rewards -- the machine shop, the range, the records office, the school block, the kitchens, the vehicle park, or off base with a pass. Do not describe what any of them 'gives'.\n\n**Every option below returns something real.** That is a promise to keep, not a thing to announce.",
-      "note": "HOW TO PLAY IT, and the whole scene in one instruction: take a player, put them in their place, play ONE exchange or ONE roll, hand them something concrete, move to the next player. Three to five minutes each. Come back round if there is appetite.\n\nTHE MENU AND WHAT EACH ONE ACTUALLY RETURNS:\n\n(1) MACHINE SHOP FLOOR -- Hulda Brack, in person, plus a tool in the hand within a minute. Returns: she puts a name to the face, which matters at Familiarisation, and one genuinely useful piece of advice about which machines come back needing least work.\n\n(2) THE RANGE -- the Range Safety Officer, running somebody else's qualification. Returns: knowing how he calls a run before it is their run being called, at the Exercise tomorrow. He will let a trainee watch and will explain his own criteria if asked.\n\n(3) RECORDS OFFICE -- the registry clerk and an open shelf. Returns: the countersignature thread. Requisition logs and signature blocks are open record, and nobody has thought to tell the party that.\n\n(4) THE SCHOOL BLOCK -- they are still students, and there is a lesson going on without them. Returns: a normal hour, a teacher who treats them as a pupil rather than as personnel, and whatever a player wants to make of being sixteen in a term they are missing.\n\n(5) THE KITCHENS -- warm, loud, permanently short-staffed, and delighted by free labour. Returns: food to take away, which is a real object a player can give to somebody else later, plus the base's gossip, which is where the trainee rumour mill actually lives.\n\n(6) THE VEHICLE PARK -- rows of covered machines nobody has introduced them to yet. Returns: a genuine preview before Familiarisation, and first refusal on anything they get properly interested in.\n\n(7) OFF BASE, WITH A PASS -- legitimate, signed, and back by muster. The general store is reachable and so is the tea house, and the tea house is the one that matters. Returns: see GOING BACK TO THE TEA HOUSE below. Anything else in the city returns whatever the city returns.\n\n(8) SLEEP -- always available, never a lesser choice. Returns: rest, and a player saying out loud that their character is tired is worth more than most rolls.\n\nGOING BACK TO THE TEA HOUSE. If the player holding the contact route from Episode One uses it -- or if anybody simply walks in -- he is there, on a Thursday, exactly as he said he would be.\n\nWHAT HE IS PLEASED ABOUT, AND DO NOT UNDERPLAY IT: somebody came. He said `Nobody's asked me anything in a very long time` and then somebody asked. He does not make a speech about it and he does not thank them. He gets them a drink without being asked and he is noticeably better company than he was a day ago.\n\nWHAT HE CAN ACTUALLY DO: read a document and tell them what it really says. That is the same thing he did with the docket and it is the whole of his usefulness. Show him the roster, the countersignature, a requisition, anything written -- and he will read it properly.\n\nWHAT HE CANNOT DO, AND THIS MATTERS MORE: he does not work inside the Directorate and he does not know its people. Asked who signed the roster, he does not know and says so immediately. He is not withholding and there is no roll that gets it out of him, because there is nothing to get. **The party's most valuable relationship is useless for the thing they most want, and that is correct.**\n\nSee `c1e2-the-long-afternoon`'s `read-it-to-me` check. Nothing here advances any mystery; it deepens the one relationship the campaign is built on."
+      "note": "HOW TO PLAY IT, and the whole scene in one instruction: take a player, put them in their place, play ONE exchange or ONE roll, hand them something concrete, move to the next player. Three to five minutes each. Come back round if there is appetite.\n\nTHE MENU AND WHAT EACH ONE ACTUALLY RETURNS:\n\n(1) MACHINE SHOP FLOOR -- Hulda Brack, in person, plus a tool in the hand within a minute. Returns: she puts a name to the face, which matters at Familiarisation, and one genuinely useful piece of advice about which machines come back needing least work.\n\n(2) THE RANGE -- the Range Safety Officer, running somebody else's qualification. Returns: knowing how he calls a run before it is their run being called, at the Exercise tomorrow. He will let a trainee watch and will explain his own criteria if asked.\n\n(3) RECORDS OFFICE -- the registry clerk and an open shelf. Returns: the countersignature thread. Requisition logs and signature blocks are open record, and nobody has thought to tell the party that.\n\n(4) THE SCHOOL BLOCK -- they are still students, and there is a lesson going on without them. Returns: a normal hour, a teacher who treats them as a pupil rather than as personnel, and whatever a player wants to make of being sixteen in a term they are missing.\n\n(5) THE KITCHENS -- warm, loud, permanently short-staffed, and delighted by free labour. Returns: food to take away, which is a real object a player can give to somebody else later, plus the base's gossip, which is where the trainee rumour mill actually lives.\n\n(6) THE VEHICLE PARK -- rows of covered machines nobody has introduced them to yet. Returns: a genuine preview before Familiarisation, and first refusal on anything they get properly interested in.\n\n(7) OFF BASE, WITH A PASS -- legitimate, signed, and back by muster. The instrument makers are reachable and so is the tea house, and the tea house is the one that matters. Returns: see GOING BACK TO THE TEA HOUSE below. Anything else in the city returns whatever the city returns.\n\n(8) SLEEP -- always available, never a lesser choice. Returns: rest, and a player saying out loud that their character is tired is worth more than most rolls.\n\nGOING BACK TO THE TEA HOUSE. If the player holding his number from Episode One messages him first -- or if anybody simply walks in -- he is there, at his usual table, exactly as he said he would be.\n\nWHAT HE IS PLEASED ABOUT, AND DO NOT UNDERPLAY IT: somebody came. He said `Nobody's asked me anything in a very long time` and then somebody asked. He does not make a speech about it and he does not thank them. He gets them a drink without being asked and he is noticeably better company than he was a day ago.\n\nWHAT HE CAN ACTUALLY DO: read a document and tell them what it really says. That is the same thing he did with the docket and it is the whole of his usefulness. Show him the roster, the countersignature, a requisition, anything written -- and he will read it properly.\n\nWHAT HE CANNOT DO, AND THIS MATTERS MORE: he does not work inside the Directorate and he does not know its people. Asked who signed the roster, he does not know and says so immediately. He is not withholding and there is no roll that gets it out of him, because there is nothing to get. **The party's most valuable relationship is useless for the thing they most want, and that is correct.**\n\nSee `c1e2-the-long-afternoon`'s `read-it-to-me` check. Nothing here advances any mystery; it deepens the one relationship the campaign is built on."
     },
     {
       "id": "the-pass",
@@ -129,6 +129,9 @@
       "mandatory": false,
       "delivery": "solo",
       "text": "Going off base this afternoon is legitimate and needs a signed pass. If anyone wants one, it is a trip back to the hatch.",
+      "forDestination": [
+        "off-base"
+      ],
       "challengeRef": "c1e2-the-long-afternoon",
       "checkRef": "get-a-pass",
       "when": {
@@ -143,6 +146,9 @@
       "mandatory": false,
       "delivery": "solo",
       "text": "If anyone goes to records chasing who countersigned the roster, offer the check.",
+      "forDestination": [
+        "records"
+      ],
       "challengeRef": "c1e2-the-long-afternoon",
       "checkRef": "chase-the-countersignature",
       "npcRef": "registry-clerk",
@@ -150,7 +156,7 @@
         "condition": "if a player goes looking for the requisition log or the roster's signature block"
       },
       "direction": "Give them the name flatly: **Rand**. Do not weight it, do not pause on it, and do not let the clerk find it interesting.\n\nOn a critical success they also get the department, **Medical**, which has no business countersigning a stores requisition.",
-      "note": "PLANT, unassigned. Second touch on the same thread As Discussed opened.\n\nGM-ONLY: whose name it is and why a senior officer spent four minutes on Section Nine is not decided. Do not invent it at the table without writing it down afterwards -- and if you do invent it, it becomes canon and belongs on a Node.\n\nWHAT IT DOES NOT MEAN: nobody is protecting the party, nobody is watching them, and this is not a patron. The honest state of this thread is that a name exists and its owner has not been characterised.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): Rand is Shucks's detached right hand. The clerk has never heard of Rand and doesn't find that interesting. See `ideas/story/bible/characters/rand.md`."
+      "note": "PLANT, unassigned. Second touch on the same thread As Discussed opened.\n\nGM-ONLY (LEDGER #34 and #43; accepted, LEDGER #46): it is Rand, Shucks's detached right hand. Why it did it is in ideas/story/bible/characters/rand.md. No roll here reveals who Rand is.\n\nWHAT IT DOES NOT MEAN: nobody is protecting the party, nobody is watching them, and this is not a patron. The honest state of this thread is that a name exists and its owner has not been characterised.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, accepted in LEDGER #46): Rand is Shucks's detached right hand. The clerk has never heard of Rand and doesn't find that interesting. See `ideas/story/bible/characters/rand.md`."
     },
     {
       "id": "spotlight",
@@ -169,10 +175,13 @@
       "mandatory": false,
       "delivery": "table",
       "text": "If anybody spends their quarter going back to the old man, he is there.",
+      "forDestination": [
+        "off-base"
+      ],
       "challengeRef": "c1e2-the-long-afternoon",
       "checkRef": "read-it-to-me",
       "when": {
-        "condition": "if a player uses the contact route from Episode One, or simply walks into the tea house"
+        "condition": "if the player with his number from Episode One messages him, or anybody simply walks into the tea house"
       },
       "readAloud": "He looks up, and it takes him a second, and then it does not. \"Oh -- you came back.\"\n\nHe is already getting up to get them something, which is not what he did last time.\n\n\"Sit down. Sit down. What have they had you doing?\"",
       "direction": "**Somebody came.** He said nobody had asked him anything in a very long time and then somebody asked, and the whole beat is him being quietly, undramatically pleased about it. He does not say so and he does not thank them.\n\nHe is useful for exactly one thing: reading a document properly. Anything written, he will read. Anything about the Directorate's people, he genuinely does not know.",
@@ -238,7 +247,7 @@
     },
     {
       "id": "he-said-most-days",
-      "text": "He said he is in on a Thursday and most other days if he is honest. It is a Thursday."
+      "text": "He said most days he's at that table. He is."
     }
   ],
   "reactionPrompts": [

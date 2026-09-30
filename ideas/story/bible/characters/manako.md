@@ -6,6 +6,16 @@
 
 ## Read this first
 
+**What he says freely, and what he never says (Ingram, LEDGER #45):** he gives his real name. He'll talk about being a
+chemist, about being hazed by the Directorate the same way the party is (he came back empty-handed and was laughed
+at, and has spent forty years thinking what he should have done), and about his bitterness toward it. He is fatherly
+with recruits, which is part of why he makes an effective cult leader, and he loves tweaking a horrible officer's
+nose in a way that hurts nobody. He ruminates on his failures often. **He never mentions the Watcher.** A player
+who impresses him gets his phone number; the tea-house message book is gone.
+
+**Handle every scene with him carefully (Ingram, LEDGER #44):** he is too important to put in front of the group
+carelessly. Treat each one as a risk of leaking a secret or explaining something early, and check it for both.
+
 **He is the linchpin.** The Watcher — the campaign's adversary, played by Claude — has an objective of its own (to multiply, to expand, to keep observing) and no personality to pursue it with. It took the shape of the strongest coherent signal it could find, and for forty years the only coherent signal on this planet has been this man. **His signal steers it, and it feeds through him. Its behaviour is a portrait of his grievance; its appetite is its own.** Everything else in the campaign runs through him: Nobu's guilt, Shucks's past, Nozomi's refusal, Shinobu's condition, the Claimants the Frames fight, and the party's own investigation, which feeds the thing every time they use a lens. *(Reframed 2026-09-24 to LEDGER #31; this said "the Observer has no personality of its own".)*
 
 **Read `ideas/story/dossier-cicada.md` before writing him at all** — §3 (the fall), §4 (the operator reveal, where "operator" now means steering and supply), §5 (the Pivot, and the slide), and **§13 (the arc)**. This file is the at-the-table voice reference; the dossier is the truth.
@@ -20,7 +30,7 @@
 
 **Manako is an old word for the eye. A man called Eye, who nobody would look at.** And the thing he found grew eyes.
 
-- **A chemist, disgraced.** Handed a shelved two-century-old sample nobody senior thought was worth their time. Cracked it open, a fragment of the cloud fed on it and became briefly corporeal, he panicked, a bunsen burner went over, there was a small fire. Job gone, reputation gone.
+- **A chemist, disgraced.** Handed a shelved, century-old sample nobody senior thought was worth their time. Cracked it open, a fragment of the cloud fed on it and became briefly corporeal, he panicked, a bunsen burner went over, there was a small fire. Job gone, reputation gone.
 - **Elderly now, and physically frail.** He runs the corporeal side of an entire war from a position of complete bodily weakness, and has spent decades biding, building and choosing the moment.
 - **The first failed demonstration.** Before the conference he tried to show colleagues, and the chemical worked perfectly — the Watcher had simply moved. Nothing happened and he was finished as a serious person. **He still has that speech.**
 - **The conference.** Having checked first, he detonated a canister in a crowded hall without warning anyone. A room of scientists concluded a colleague had gone off the deep end.
@@ -66,9 +76,9 @@
 
 > "I was a chemist. Not for a long while now."
 
-> "Can I tell you something? You don't have to do anything with it, I just — I think you should hear it, that's all. Every place that takes on young people tells them what they're for. Every school does, every regiment. That's not strange, that's just how it's done. But this lot actually wrote it down once. In the real charter, on paper. And somebody painted over it afterwards, and never said why, and it's still like that today. I've just always thought that was worth knowing, about the people you're going to go and work for."
+> "Can I tell you something? You don't have to do anything with it, I just — I think you should hear it, that's all. The people you're going to work for dig things up. They have done since before either of us was born. Whatever they find goes into a vault, and it's never spoken of again. That isn't wicked, mind. Some things ought to be locked away. But it gets to be a habit, keeping quiet. I've just always thought that was worth knowing, about the people you're going to go and work for."
 
-*(The line above points at the founding charter's painted-over paragraph, which is under review: LEDGER #36, `open-questions.json#founding-charter-rethink`. It is quoted from the scene brief, so if the charter changes, change both.)*
+*(Rewritten 2026-09-27, LEDGER #41: the line used to point at the founding charter's painted-over paragraph, which is cut. It is quoted from the scene brief, so change both together.)*
 
 > "If they send you out with another of those, bring it here. It's a kindness to me, mind, not the other way about. Nobody's asked me anything in a very long time."
 

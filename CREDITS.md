@@ -47,6 +47,19 @@ shape as `tools/font-pipeline/`'s upstream-TTF-to-shipped-woff2 split.
 
 ---
 
+## Paper handouts (`design/handouts.md`)
+
+### TT2020 — Fredrick R. Brennan
+
+- **Author:** Fredrick R. Brennan, [github.com/ctrlcctrlv/TT2020](https://github.com/ctrlcctrlv/TT2020) (version 0.2.1)
+- **License:** SIL Open Font License 1.1, so bundling and redistribution inside the module are fine.
+- **What we use:** Style E (a well-inked ribbon) for everything typed on a handout, and one fixed
+  damaged version of each lower-case letter from Style F (misstrikes) for a typewriter with a
+  broken typebar. Chosen 2026-09-26 at Ingram's suggestion, so the damage on our documents comes
+  from a real typewriter font rather than being drawn in CSS.
+- **How it ships:** `tools/font-pipeline/build_fonts.py` downloads the TTFs from GitHub, subsets
+  them (Latin, keeping the font's own glyph-cycling `calt`) and writes `assets/fonts/tt2020-*.woff2`.
+
 ## The opening titles (`design/opening-titles.md`)
 
 ### Fonts
@@ -70,3 +83,29 @@ All of these permit embedding in rendered output, so rendering them into a video
   - The ending song is credited in the outro, which plays it.
 
   A credit is honesty, not a licence: it changes nothing above about private use.
+
+## Session and scene music (`design/audio-system.md`)
+
+### Source material: private table use only
+
+The pipeline's raw sources, `audio/in-tray/music/` (gitignored), draw on three copyrighted, unlicensed
+soundtracks, sorted by hand into folders named for dramatic use (`battle`, `briefing`, `playful`, and so
+on). Processed copies live in `audio/library/` (also gitignored) and are served, loudness-matched, from
+the private Foundry server to the six players only — never committed, uploaded anywhere public, or
+distributed. Same private-table-use terms as the opening titles' song above.
+
+- **Masamichi Amano — the *Giant Robo: The Day the Earth Stood Still* score**, performed by the Warsaw
+  Philharmonic Orchestra. The bulk of the library: the campaign's tone is locked to this series
+  ([[feedback_tone_giant_robo_not_eva]]), so its own score is the default in-session music. First named
+  use: "Ashita e no Kibou" (track `05-masamichi-amano-ashita-e-no-kibou`), Ingram's pick for Scene 0,
+  "From Up Here," 2026-09-27.
+- **Shiro Sagisu — the *Neon Genesis Evangelion* score.** Filed under the `eva-3-*`/`OST1`/`OST2` names.
+  Used freely for mood and cue variety (Ingram, 2026-09-17: the score itself is fine; only the series'
+  *tone* is quarantined, per `design/research/evangelion/tone-guardrail.md`).
+  `data/audio/review.json` records two corrupted `eva-3-*` sources, rejected and excluded from every
+  pool.
+- **Maurice Jarre — his waltz from *Is Paris Burning?* (1966)**, in
+  `audio/in-tray/music/Directorate Theme Song - …mp3`. The Directorate's own theme.
+
+Already credited on screen in the opening titles, above; the credit there stands for this broader,
+in-session use too.

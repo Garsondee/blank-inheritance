@@ -27,7 +27,7 @@
  * No Foundry, no DOM.
  */
 
-import { PROMOTABLE_STATUSES, SEALABLE_STATUSES } from "./promote.mjs";
+import { CLEARED_STATUSES } from "./promote.mjs";
 import { episodeTitlePath, isEpisodeId, isMissingStatus, isSceneId } from "./opening-titles.mjs";
 
 const text = (value) => (typeof value === "string" && value.trim() ? value.trim() : null);
@@ -93,14 +93,15 @@ function byPlayOrder(a, b) {
 
 /**
  * A scene's authoring status worth a line in the confirm window, or null.
- * Cleared means the Desk's grades (sound, final) or the Sign-Off's seal
- * (live, the rung a scene is actually cleared on: design/scene-signoff.md).
+ * Cleared means core/promote.mjs's CLEARED_STATUSES, the list the cue gate
+ * also reads: the Desk's grades (sound, final) or the Sign-Off's seal (live,
+ * the rung a scene is actually cleared on: design/scene-signoff.md).
  * A scene with no authoring block at all is not tracked, so it says nothing.
  */
 export function unclearedStatus(authoring) {
   const status = text(authoring?.status);
   if (!status) return null;
-  return [...PROMOTABLE_STATUSES, ...SEALABLE_STATUSES].includes(status) ? null : status;
+  return CLEARED_STATUSES.includes(status) ? null : status;
 }
 
 /**

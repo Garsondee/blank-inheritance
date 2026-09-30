@@ -21,6 +21,8 @@
  *   guard that proves it still holds.
  */
 
+import { isNameProtected, tableLabel } from "./stage-names.mjs";
+
 /**
  * The arrangements. Five, because five is what the campaign's scenes actually
  * need — a sixth should have to justify itself against these.
@@ -67,7 +69,8 @@ export const SIDES = Object.freeze(["left", "centre", "right"]);
  */
 const PUBLISHABLE = Object.freeze([
   "portraitId", "label", "img", "side", "actorId",
-  "sting", "stingSeq", "faction", "standing", "kind"
+  "sting", "stingSeq", "faction", "standing", "kind",
+  "nameSeq", "nameSting"
 ]);
 
 /**
@@ -85,7 +88,7 @@ const PUBLISHABLE = Object.freeze([
  * published — a teammate being busy is a shared game fact, an unannounced
  * arrival is not.
  */
-export function publishedCast(authored = []) {
+export function publishedCast(authored = [], known) {
   return authored
     .filter((member) => member?.revealed)
     .map((member) => {
@@ -93,6 +96,10 @@ export function publishedCast(authored = []) {
       for (const key of PUBLISHABLE) {
         if (member[key] !== undefined && member[key] !== null) published[key] = member[key];
       }
+      // The plate is what the table calls them, never the authored real name
+      // unless the table has learned it (core/stage-names.mjs). Only `called`
+      // members are touched; everyone else publishes as they always did.
+      if (isNameProtected(member)) published.label = tableLabel(member, known);
       return published;
     });
 }
@@ -211,6 +218,13 @@ export function castMemberFromDescriptor(descriptor) {
   };
   if (descriptor.img) member.img = descriptor.img;
   if (descriptor.actorId) member.actorId = descriptor.actorId;
+  // A protected person keeps their real name in `label` (GM-side only) and
+  // carries the line the table uses until they learn it. `nameKey` is what
+  // their name knowledge is filed under; it is never published.
+  if (descriptor.called) {
+    member.called = descriptor.called;
+    member.nameKey = descriptor.nameKey ?? descriptor.id;
+  }
   return member;
 }
 

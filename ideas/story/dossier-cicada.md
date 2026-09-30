@@ -75,8 +75,8 @@ Elderly now, no longer fighting fit. He runs the corporeal side of the entire wa
 
 Every step small and reasonable. The destination monstrous.
 
-1. **The assignment.** A two-century-old shelved sample handed to a junior with everything to lose, because nobody senior considered it worth their time. Catalogued as Inert 12: noble, non-reactive, useless.
-2. **The accident.** He cracks open an alien capsule of the fluid. A weak nearby tentacle takes notice. A little is spilled on it — and it becomes *immediately stronger*, visible and corporeal for the first time in a very long while. He panics. A knocked-over bunsen burner. A small fire.
+1. **The assignment.** A century-old shelved sample handed to a junior with everything to lose, because nobody senior considered it worth their time. Catalogued as Inert 12: noble, non-reactive, useless.
+2. **The accident.** He cracks open an alien capsule of the fluid. A weak nearby tentacle takes notice. A little is spilled on it — and it becomes *immediately stronger*, visible and corporeal for the first time in a very long while. He panics. A knocked-over bunsen burner. A small fire. His lab assistant, Nobu, saw the tentacle too, and refused to back him up: he thought the chemical had made them both see things (LEDGER #39).
 3. **The disgrace.** Job gone: the Directorate employed him, and let him go (LEDGER #34). Reputation gone. Decline begins.
 4. **Self-justification.** Desperate to prove it real — **to defend the blunder that ruined him**, not from pure curiosity. This matters. The obsession begins as damage control.
 5. **Superstition.** He concludes he is cursed. It follows him everywhere he goes. **It is in fact waiting to see whether more food turns up.** The relationship that eventually kills thousands begins as a man misreading a stray dog.
@@ -145,7 +145,7 @@ He should be **defeated and kept alive** — a tactical necessity, not a moral p
 
 Once he understands what he is, he becomes **the only living being with four decades of hands-on experience shaping the cloud**, and therefore the only one who can un-shape it.
 
-*(Reframed 2026-09-24, LEDGER #31: what he can change is **how** it pursues its objective — method, not objective, the same limit the Mirror now works under (proposal, LEDGER #31) — and he can keep it steerable on the road to the home world. He cannot talk it out of wanting to multiply.)*
+*(Reframed 2026-09-24, LEDGER #31: what he can change is **how** it pursues its objective — method, not objective, the same limit the Mirror now works under (proposal, LEDGER #31) — and he can keep it steerable on the road to the home world. He cannot talk it out of wanting to multiply.)* *(LEDGER #42, 2026-09-27: where he is in Books IV and V, and whether he is still alive, is decided closer to the time. If the party befriends him or turns him away from violence, perhaps he becomes helpful; he may already be dead.)*
 
 Not forgiveness. **Redemption as labour**, performed in front of everyone he hurt.
 
@@ -277,7 +277,7 @@ Taking it down is a genuine triumph and should be played as one — and it raise
 
 ### NOBU (the Quartermaster)
 
-**He was Manako's lab assistant.** He was present at the accident. **He saw the tentacle.** And when it mattered he could not make himself say so without proof — so he said nothing, watched a man's life come apart, and kept his job.
+**He was Manako's lab assistant.** He was present at the accident. **He saw the tentacle.** And when it mattered he refused to back Manako up: he thought the chemical had made them both see things (Ingram, LEDGER #39). So he said nothing, watched a man's life come apart, and kept his job.
 
 He now runs Directorate procurement: materials, permits, budgets, **and the technician-day pool.** Which makes him the person the party argues with about repairs, and the person **UME** must beg for every accommodation. She thinks him unusually kind. He is paying a debt she knows nothing about.
 
@@ -558,7 +558,7 @@ The drift must be gradual enough that nobody spots the pattern until it is alrea
 
 **Movement IV is the dangerous one**, and in a new way: he does large, loud, expensive things specifically to make the question unaskable. That is not a plan. It is a man shouting.
 
-**Movement V is redemption as labour** (§4), performed in front of everyone he hurt. Not forgiveness.
+**Movement V is redemption as labour** (§4), performed in front of everyone he hurt. Not forgiveness. *(LEDGER #42: V is one possible end, not a plan. Where he is in Books IV and V, and whether he is alive, is decided closer to the time, from how the party treated him.)*
 
 **The movements and the slide** *(reconciled 2026-09-24 with LEDGER #31 D12, §5; D12 is canon, the mapping below is a proposal)*. D12 makes him a man sliding from decent to monstrous, and the five movements are the last stretch of that slide, played in front of the party:
 
@@ -593,7 +593,7 @@ The party spends the campaign reading one man's psychological deterioration in t
 
 *(2026-09-24, LEDGER #31. The culpable moment is also where D12's slide completes — he accepts that he is becoming a monster (§13.1, proposal). And, proposal from the same entry: the Mass Clock's final threshold is now the moment the Watcher no longer needs any human to feed it, because its own children make its Sap (§8). Every dose still advances it.)*
 
-*(Where this road can end, still open — LEDGER #26, Ingram's own answer: one of three candidate causes for **Second Impact** is "Cicada's worst member detonating stolen mitflit spaceship fuel on purpose"; the other two are an accident and a tragic misunderstanding. The fuel is the search ship's, under the city (`design/campaign-arc.md`). Nobody has said who "the worst member" is. If that candidate is chosen, this escalation engine is the road to it.)*
+*(Where this road ends is open. It no longer runs to Second Impact: LEDGER #26 once listed a Cicada member detonating stolen fuel among three candidate causes, and LEDGER #40 replaced all three. Second Impact is a weapon the Watcher builds from exotic matter, without understanding what it can do.)*
 
 **The party's competence is what creates the danger.** Which rhymes exactly with the Watcher, where every victory teaches it that fighting was correct. Both halves of the campaign punish force, for different reasons, and in neither case is it the GM saying no.
 
@@ -628,9 +628,9 @@ Two consequences, and they matter more than they look.
 
 ### 13.6 The channel
 
-**First met in Episode One**, in the city, as a retired chemist who reads a two-century-old catalogue name off a Directorate docket in nine seconds (`data/scene-briefs/episode-c1e1--the-errand.json`). He is kind, useful, and says one true thing about the Directorate (`dossier-the-directorate.md` §5).
+**First met in Episode One**, in the city, as a retired chemist who reads a century-old catalogue name off a Directorate docket in nine seconds (`data/scene-briefs/episode-c1e1--the-errand.json`). He is kind, useful, and says one true thing about the Directorate (`dossier-the-directorate.md` §5).
 
-**He leaves them a way to reach him**, and it is sincere: this is what he does with anyone he thinks might actually look, and it aligns exactly with a forty-year crusade whose entire object is to be asked a question. It is deliberately slow, public and written — a message book in a tea house, not a private line.
+**He leaves them a way to reach him**, and it is sincere: this is what he does with anyone he thinks might actually look, and it aligns exactly with a forty-year crusade whose entire object is to be asked a question. *(Changed 2026-09-27, LEDGER #45: it is his phone number, given to one player who impresses him or is especially kind to him, and anything typed to it can be read by the Directorate and the Watcher. The tea-house message book is gone.)*
 
 **And the Directorate reads it**, as routine policy the party consented to on their first morning without reading the form. Later in the campaign the institution acts on those intercepts, at a moment the players did not choose, using information the players generated, wrecking a plan the players had. Nobody betrays anybody; a clerk does a filing job. See `dossier-the-directorate.md` §2.7.
 

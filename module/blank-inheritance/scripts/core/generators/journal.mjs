@@ -1,6 +1,6 @@
 import { deriveFoundryId } from "../ids.mjs";
 import { redactHtml, assertNoUnprocessedRedactions } from "../redact.mjs";
-import { PROMOTABLE_STATUSES } from "../promote.mjs";
+import { CLEARED_STATUSES } from "../promote.mjs";
 
 const HTML_FORMAT = 1; // CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML (foundryvtt common/constants.mjs:993)
 const SORT_INTEGER_DENSITY = 100000; // spacing convention Foundry itself uses for sortable siblings (common/constants.mjs:955)
@@ -62,8 +62,9 @@ function paragraph(label, value) {
 }
 
 // design/approvals-desk.md §3, issue #168: "not a silent allow, not a hard
-// block." A page whose authoring isn't sound/final yet still exists (the GM
-// can see the scene is there and roughly what it's called), but its actual
+// block." A page whose authoring isn't cleared yet (CLEARED_STATUSES: the
+// Desk's sound/final, or a scene the Sign-Off sealed live) still exists (the
+// GM can see the scene is there and roughly what it's called), but its actual
 // prose is replaced with this note rather than shown -- the same "withhold,
 // don't hide the structure" shape the Director's panel's cue-gate uses.
 const WITHHELD_CONTENT =
@@ -71,7 +72,7 @@ const WITHHELD_CONTENT =
   `(design/approvals-desk.md §3). Promote it to "sound" or "final" to include the real text here.</em></p>`;
 
 function isReviewed(authoring) {
-  return PROMOTABLE_STATUSES.includes(authoring?.status);
+  return CLEARED_STATUSES.includes(authoring?.status);
 }
 
 /**

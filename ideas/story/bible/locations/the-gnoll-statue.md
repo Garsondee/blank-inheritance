@@ -22,6 +22,8 @@ in narration.
   *(Hyuck)*." Planted as unexplained ambient texture among several other unrelated items — never a
   scene, never explained by any NPC. *(`blank-inheritance-ch1-v2.md` §4)*
 - **Pose and subject:** a fearsome gnoll barbarian warrior, on guard. *(2026-09-09)*
+- **Which body** *(proposal, LEDGER #41)*: Hyuck lives on through the Carrying (`bible/characters/hyuck.md`), so the
+  statue shows one of his earlier bodies. It is him, but not the face he wears now.
 - **Expression, in detail:** not straightforwardly dignified. If the stone were flesh, it would read
   as foaming at the mouth — tongue lolling between oversized teeth. At the same time, it's clear a
   lot of sculptural effort went into making this feral quality carry a certain dignity anyway — the

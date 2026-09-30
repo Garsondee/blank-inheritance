@@ -14,6 +14,8 @@
  * already uses for "rejected".
  */
 
+import { CLEARED_STATUSES } from "./promote.mjs";
+
 /**
  * `changes`: files a one-line note into a lore-instructions.json document as
  * a real, trackable instruction -- NOT a new store (issue #171's own
@@ -57,9 +59,10 @@ export function fileChangesInstruction(loreInstructionsDoc, { entityId, entityTy
 
 /**
  * `cut`: the entity's terminal, recorded "no" -- not a failure, a decision
- * (design/approvals-desk.md §2). Refuses to cut something already sound/
- * final (that is a demotion, a different and much rarer action this project
- * has not asked for yet) or something with no authoring block to begin with.
+ * (design/approvals-desk.md §2). Refuses to cut something already cleared
+ * (CLEARED_STATUSES: sound/final, or a scene the Sign-Off sealed live -- that
+ * is a demotion, a different and much rarer action this project has not asked
+ * for yet) or something with no authoring block to begin with.
  */
 export function cutItem(entity, { gradedBy, note = null } = {}) {
   if (!entity || typeof entity !== "object" || Array.isArray(entity)) {
@@ -68,7 +71,7 @@ export function cutItem(entity, { gradedBy, note = null } = {}) {
   if (!entity.authoring || typeof entity.authoring !== "object") {
     throw new Error(`entity "${entity.id ?? "(no id)"}" has no authoring block -- nothing to cut`);
   }
-  if (entity.authoring.status === "sound" || entity.authoring.status === "final") {
+  if (CLEARED_STATUSES.includes(entity.authoring.status)) {
     throw new Error(
       `cutItem() refused: "${entity.id ?? "(no id)"}" is already "${entity.authoring.status}" -- ` +
       `demoting reviewed content is a different, rarer action this project has not built yet`

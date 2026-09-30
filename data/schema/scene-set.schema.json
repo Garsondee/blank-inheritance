@@ -151,42 +151,6 @@
             ],
             "description": "One-time bridge for a real Scene that already existed in Foundry before this manifest entry did, by exact Foundry Scene name -- the real production \"Campaign Map\" Scene (built by hand before this hub concept existed) is the one confirmed case. Checked ONLY when no scene is found by deterministic id or by a previously-stamped sourceId flag: scene-build.mjs then looks this name up (game.scenes.getName) and adopts it (stamps our flags, updates authored fields, keeps its own real id forever) instead of creating a duplicate. Deliberately narrow and explicit -- a name match is fragile in general, so this only ever fires for a scene an author named here on purpose, never as an automatic heuristic over every scene in the world."
           },
-          "pins": {
-            "type": "array",
-            "description": "hub only. One per scene reachable from the map.",
-            "items": {
-              "type": "object",
-              "required": [
-                "sceneRef"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "sceneRef": {
-                  "type": "string",
-                  "description": "A scenes[].id -- the scene this pin travels to."
-                },
-                "label": {
-                  "type": [
-                    "string",
-                    "null"
-                  ],
-                  "description": "Overrides the target scene's name on the map."
-                },
-                "offsetPx": {
-                  "type": [
-                    "array",
-                    "null"
-                  ],
-                  "items": {
-                    "type": "number"
-                  },
-                  "minItems": 2,
-                  "maxItems": 2,
-                  "description": "Nudge, in THIS scene's pixels, applied after the location's centroid. Two real buildings eleven pixels apart need their signposts further apart than they are; the pin is a signpost, not a survey mark."
-                }
-              }
-            }
-          },
           "approximate": {
             "type": "boolean",
             "default": false,

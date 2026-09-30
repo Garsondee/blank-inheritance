@@ -2,7 +2,7 @@
 
 **Category:** character
 **Status:** partial. What it is (LEDGER #1, #28) and its name (#34) are canon. That it countersigned Section Nine's
-roster is Claude's answer at Ingram's request, awaiting her read (#34).
+roster is Claude's answer at Ingram's request, accepted in LEDGER #46 (#34).
 **Sources:** `ideas/story/bible/LEDGER.md` #1, #28, #34; `ideas/story/bible/characters/shucks-mordant.md` (the Hand,
 `arc-shucks-hand`); `ideas/story/bible/characters/the-section-officer.md` (`arc-the-countersignature`); the old
 campaign's `ideas/story/source-material/the-trouble-with-mitflits/player-characters/shuck-s-right-hand.md` (source,
@@ -13,7 +13,7 @@ not canon).
 **Rand is Shucks Mordant's right hand, detached.** It is a small, nonverbal familiar that flies on a kite and
 investigates the city on its own, as "a conspiracy theorist" (Ingram, LEDGER #1). Ingram named it (LEDGER #34):
 *"Right hand... Rand... Get it?"* **It is who countersigned Section Nine's roster**, not a senior officer (LEDGER #34,
-Claude's answer at Ingram's request, awaiting her read). Play it as warm comedy with a real job: never a horror element, and never a rescuer.
+Claude's answer at Ingram's request, accepted in LEDGER #46). Play it as warm comedy with a real job: never a horror element, and never a rescuer.
 
 ## What's established
 
@@ -28,7 +28,7 @@ Claude's answer at Ingram's request, awaiting her read). Play it as warm comedy 
 - **Shucks's sleeve ends in a very convincing prosthetic.** Noticing it is a real Perception or Medicine check at
   Intake Medicals, never narration (`data/scene-briefs/episode-c1e1--intake-medicals.json`, beat `the-hand`).
 
-## The countersignature (LEDGER #34; Claude's answer at Ingram's request, awaiting her read)
+## The countersignature (LEDGER #34; Claude's answer at Ingram's request, accepted in LEDGER #46)
 
 - **What it did.** It countersigned the party's vial requisition in Episode One's errand, then the Section Officer's
   punishment roster. It wrote the override that put the six on Frame and vehicle familiarisation. And it chalked
@@ -40,7 +40,19 @@ Claude's answer at Ingram's request, awaiting her read). Play it as warm comedy 
 - **The handwriting** is Shucks's own, from before the hand came off: it learned to write as his writing hand. He
   writes with his left hand now, so nobody alive recognises it. Anything the four founders signed two hundred years
   ago shows it, the founding charter's signature page included.
-- **Why.** Its theory about the city is right: something is watching, and it is getting closer. It has been
+- **Why, in one line (Claude's answer to Ingram's challenge, LEDGER #43; accepted, LEDGER #46): it does what Shucks
+  won't.** In full: the night after Intake Medicals it read Shucks's notes, as it reads everything on his desk, and
+  found six carriers of the marker in one intake, which it had never seen. Shucks would do nothing about it: a founder
+  openly steering six trainees draws exactly the attention the marker mustn't get. The hand has no position to
+  protect. So it countersigned their requisition in Episode One (and enjoyed making the rules bite the officer who
+  hazed them), and when the fortnight came it stacked a Medical order on top: a fitness familiarisation, Frame and
+  vehicle, which a medical department can order and a Section Officer can't refuse. The six names are in the order
+  their files sit in Medical's cabinet, the order they went through Intake Medicals. It chalked "Same six. Tomorrow."
+  to keep them together. At the end of Episode Two, Shucks sees his own old handwriting on the order, knows his hand
+  wrote it, and walks into the Deputy Director's office to make it stick. *(The text below is the earlier account;
+  it still holds.)*
+- **Why.** Its theory about the city is right as far as it goes: something in the city is wrong, and getting worse. It
+  doesn't know what, and doesn't suspect the Watcher; nobody on the base does (LEDGER #40). It has been
   collecting the evidence on paper for years. The party's vial requisition, a trainee section making the rules bite a
   pompous officer, was exactly its sense of humour (the old campaign's Hand was an agent of chaos), so it signed it.
   Then it looked the six up in Shucks's intake files and found that all six carry the marker a Gen 2 needs in its
@@ -74,7 +86,7 @@ end of the campaign.
   Manual Dexterity), became a character of its own in the twelfth session, "Shuck's Gets Given a Hand": a scout and an
   agent of chaos. The table remembers it grabbing faces. Craig, who played Shucks, is at the new table.
 - **This campaign:** detached rather than merely his, flies on a kite, investigates on its own, a conspiracy theorist,
-  nonverbal (LEDGER #1); named Rand (#34); writes in Shucks's old handwriting (#34, Claude's answer at Ingram's request, awaiting her read).
+  nonverbal (LEDGER #1); named Rand (#34); writes in Shucks's old handwriting (#34, Claude's answer at Ingram's request, accepted in LEDGER #46).
 
 ## Tone and register — what NOT to do
 
@@ -90,7 +102,7 @@ end of the campaign.
 
 ## Open questions
 
-1. **Whether Ingram accepts it** as the countersignature's author (LEDGER #34).
+1. ~~**Whether Ingram accepts it** as the countersignature's author (LEDGER #34).~~ **Accepted (LEDGER #46)**, with the reason in *The countersignature* above.
 2. **What its theory contains, and what its archive holds.**
 3. **When the party first meets it face to face**, so to speak, if they do.
 4. **How it detached** (still open in `shucks-mordant.md`).

@@ -20,7 +20,7 @@
         "appearance": { "type": ["string", "null"], "description": "Free-text appearance notes -- induction terminal Page 7." },
         "age": {
           "type": ["integer", "string", "null"],
-          "description": "17 is the charter age for civil-defense CONSCRIPTION, not a floor on the character — design/induction.md §1 settled that the party are volunteers and that volunteering has no age limit, so an older PC is legal and supported. A string is permitted because sf2e's own system.details.age.value is a free-text field and the induction terminal writes straight to it (design/induction-intake-audit.md §6a)."
+          "description": "17 is the age of conscription into the kingdom's own national service, which is separate from the Directorate, and is not a floor on the character — design/induction.md §1 settled that the party are volunteers and that volunteering has no age limit, so an older PC is legal and supported. A string is permitted because sf2e's own system.details.age.value is a free-text field and the induction terminal writes straight to it (design/induction-intake-audit.md §6a)."
         },
         "height": { "type": ["string", "null"], "description": "Free text, matching sf2e's own system.details.height.value -- induction terminal Page 7." },
         "weight": { "type": ["string", "null"], "description": "Free text, matching sf2e's own system.details.weight.value -- induction terminal Page 7." },

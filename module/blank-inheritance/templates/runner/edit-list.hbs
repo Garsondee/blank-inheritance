@@ -1,0 +1,24 @@
+{{!--
+    A list in the edit sheet: things to write down, lines to steal,
+    temptations, after-scene prompts. Each line edits in place like any other
+    field; the x takes it out; the box at the foot adds one (Ctrl+Enter or
+    the Add key). `data-plain` says whether an added line is plain text or an
+    item that needs an id of its own (core/scene-edits.mjs#newItemId).
+--}}
+<div class="bi-edit__list" data-list-key="{{key}}">
+    <span class="bi-edit__label"><span class="bi-edit__label-text">{{localize label}}</span></span>
+    {{#each items}}
+    <div class="bi-edit__list-item{{#if isNewItem}} bi-edit__list-item--new{{/if}}">
+        {{> "modules/blank-inheritance/templates/runner/edit-field.hbs"}}
+        <button type="button" class="bi-edit__tool bi-edit__tool--remove" data-action="editRemoveItem"
+            data-list-key="{{../key}}" data-index="{{index}}" data-item-id="{{itemId}}"
+            data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.RemoveLine'}}" aria-label="{{localize 'BLANKINHERITANCE.Runner.Edit.RemoveLine'}}">&times;</button>
+    </div>
+    {{/each}}
+    <div class="bi-edit__list-add">
+        <textarea class="bi-edit__input bi-edit__add-input" rows="1" name="add::{{key}}" data-add-list="{{key}}"
+            aria-label="{{localize 'BLANKINHERITANCE.Runner.Edit.AddPlaceholder'}}" placeholder="{{localize 'BLANKINHERITANCE.Runner.Edit.AddPlaceholder'}}"></textarea>
+        <button type="button" class="bi-runner__stamp" data-action="editAddItem" data-list-key="{{key}}"
+            data-plain="{{isPlain}}" data-id-prefix="{{idPrefix}}" data-text-key="{{textKey}}">{{localize "BLANKINHERITANCE.Runner.Edit.AddLine"}}</button>
+    </div>
+</div>

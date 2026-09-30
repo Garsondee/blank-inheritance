@@ -9,18 +9,20 @@
  *   secret: attitude is perceptible in fiction, and a revealed fact is by
  *   definition already known.
  *
- *   WHAT THE GM AUTHORED lives in a GM-only JournalEntry. Foundry only sends
- *   a document to clients that have permission on it, so a JournalEntry with
- *   `ownership.default: NONE` genuinely never reaches a player's browser.
- *   An Actor flag would: a player who can see the token can read the actor's
- *   flags, and no amount of not-rendering-it in our UI changes what was sent
- *   over the socket. Doctrine Law 11 is removal, not hiding, and this is the
- *   difference between honouring that and merely looking like it.
+ *   WHAT THE GM AUTHORED lives in a GM-only JournalEntry
+ *   (`ownership.default: NONE`), which keeps it out of every player's sidebar
+ *   and UI. An Actor flag would be on every screen that draws the actor.
+ *
+ *   VERIFIED LIVE 2026-09-29 (design/theatre-of-the-mind-staging.md §12.1): ownership does NOT
+ *   stop a document being sent. A Player-role client held every NONE-ownership Actor and
+ *   JournalEntry in full, including this kind of vault and other players' private handouts.
+ *   So this is a boundary against the UI and against casual inspection, not against a player
+ *   who opens the browser's developer tools. Nothing here is cryptographic secrecy.
  *
  * The journal is used as a keyed container rather than as prose. That is
- * unusual and deliberate: it is the only document type Foundry lets us make
- * genuinely GM-only, and the alternative (a world setting) is readable by
- * every client by design.
+ * unusual and deliberate: it is the only document type Foundry lets us keep
+ * out of every player-facing screen, and the alternative (a world setting) is
+ * readable by every client by design.
  */
 
 import { deriveFoundryId } from "../core/ids.mjs";
@@ -110,8 +112,11 @@ export async function ensureIntelVault() {
 /**
  * The authored social profile for one actor, or null.
  *
- * Returns null on a player's client by construction: they cannot see the
- * vault, so `findIntelVault` finds nothing and there is nothing to leak.
+ * NOT null on a player's client. The vault is not in a player's sidebar, but
+ * the document is still sent to them and `findIntelVault` finds it (verified
+ * live 2026-09-29, design/theatre-of-the-mind-staging.md §12.1). What keeps a
+ * player from seeing unrevealed Facts is core/social-intel.mjs#buildCard's
+ * redaction, so never hand this function's result to a player-facing surface.
  */
 export function authoredProfileFor(actorId) {
   const vault = findIntelVault();

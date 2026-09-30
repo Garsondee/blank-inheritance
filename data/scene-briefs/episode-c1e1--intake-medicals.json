@@ -154,7 +154,7 @@
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "The queue passes the lobby wall, where the Directorate's founding charter hangs framed. Describe it plainly once, in passing -- a document under glass, one paragraph blacked out. Offer the check only if a player actually stops to look, not as something the queue forces on them.",
+      "text": "The queue passes the lobby wall, where the Directorate's founding charter hangs framed. Describe it plainly once, in passing -- a document under glass, signed at the foot in four hands. Offer the check only if a player actually stops to look, not as something the queue forces on them.",
       "challengeRef": "c1e1-the-medical",
       "checkRef": "the-charter",
       "when": {
@@ -163,7 +163,7 @@
       "nodeRefs": [
         "mystery-ledger-5"
       ],
-      "note": "The charter is scenery unless a player chooses to look at it. Nothing here reveals the blacked-out text tonight, on any roll -- that is a genuine long-term secret, not this scene's to give up. What a good roll does confirm is real and satisfying: the redaction is original to the founding, not a later cover-up.\n\nThe GM-only answer on the mystery-ledger-5 Node is under review, so don't improvise one at the table.\n\nDescribed plainly on purpose. The original texture note for this detail came from the project's earliest, over-poetic era and was rewritten at Ingram's direction."
+      "note": "The charter is scenery unless a player chooses to look at it. What a look finds is its four signatures (see the check): the founders' own hands, which don't match the founders in the pictures. Nothing here explains them, on any roll."
     },
     {
       "id": "overhear-the-search",
@@ -185,7 +185,7 @@
       "delivery": "table",
       "text": "The clerk <trig id=\"clerk-appears\"/> hands out Form 12-B. It asks for mother's maiden name in box 4, and again in box 19, in capitals.",
       "readAloud": "\"Box four is mother's maiden name. Box nineteen is also mother's maiden name, but in capitals.\n\nNo, I don't know why. Box four goes to Records and box nineteen goes to Welfare, and Records and Welfare haven't spoken since the flood.\"",
-      "direction": "Play it for the laugh and do not explain it. This is a joke and it is also the entire Directorate in one piece of paper: two centuries of an institution that has never been tested and has never thrown anything away.",
+      "direction": "Play it for the laugh and do not explain it. This is a joke and it is also the entire Directorate in one piece of paper: two centuries of an institution that has never been tested and has never thrown anything away.\n\nEvery copy of the form already has that candidate's name typed at the top, before they reach the hatch: the roster is ahead of the person. It was typed on the same machine as their acceptance letter, so the lower-case e drops low and prints faint. Describe the name being there if anyone looks; never point out the e. It is for whoever reads their letter closely.",
       "npcRef": "clerk",
       "triggers": [
         {
@@ -228,7 +228,7 @@
         "arc-shucks-hand",
         "arc-the-countersignature"
       ],
-      "note": "He is plainly a skeleton already, established the moment the queue gets a proper look at him. This check is specifically about the hand guiding their arm, not about him.\n\nA success only ever confirms the prosthetic. It never confirms the reason for it.\n\nGM-ONLY, never stated tonight: the real hand is a detached, nonverbal familiar, loose in the city and pursuing its own investigations. Shucks genuinely doesn't know where it is and isn't worried -- it always comes back once it's hungry. Full detail and open questions on the arc-shucks-hand Node and in bible/characters/shucks-mordant.md.\n\nTHIS CHECK IS NOW LOAD-BEARING (LEDGER #34, Claude's answer at Ingram's request, awaiting her read). The hand is called Rand, and in Episode Two it countersigns Section Nine's roster as \"Rand\" of Medical. A player who noticed the prosthetic here has one of the routes to who Rand is. Still: a success here confirms the prosthetic and nothing else."
+      "note": "He is plainly a skeleton already, established the moment the queue gets a proper look at him. This check is specifically about the hand guiding their arm, not about him.\n\nA success only ever confirms the prosthetic. It never confirms the reason for it.\n\nGM-ONLY, never stated tonight: the real hand is a detached, nonverbal familiar, loose in the city and pursuing its own investigations. Shucks genuinely doesn't know where it is and isn't worried -- it always comes back once it's hungry. Full detail and open questions on the arc-shucks-hand Node and in bible/characters/shucks-mordant.md.\n\nTHIS CHECK IS NOW LOAD-BEARING (LEDGER #34, Claude's answer at Ingram's request, accepted in LEDGER #46). The hand is called Rand, and in Episode Two it countersigns Section Nine's roster as \"Rand\" of Medical. A player who noticed the prosthetic here has one of the routes to who Rand is. Still: a success here confirms the prosthetic and nothing else."
     },
     {
       "id": "the-flag",
@@ -287,7 +287,7 @@
         "condition": "if a player goes for the form rather than the man"
       },
       "handoutRef": null,
-      "note": "On a success they keep it. This is the scene's artefact and the first thing in the campaign the party owns rather than was told."
+      "note": "On a success they keep it. This is the scene's artefact, and the first thing in the campaign the party takes for themselves rather than is handed or told: the acceptance letter was handed to them, and this they palm."
     }
   ],
   "artefacts": [

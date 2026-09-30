@@ -1,0 +1,11 @@
+{{!--
+    One card of the edit sheet that is not a beat: the scene's own fields,
+    the opening, the ending, a person, a handout, the extras. Its fields,
+    then its lists, then its notes for Claude.
+--}}
+<div class="bi-edit__block" data-block="{{id}}">
+    {{#if title}}<p class="bi-edit__subhead"><b>{{title}}</b></p>{{/if}}
+    {{#each fields}}{{> "modules/blank-inheritance/templates/runner/edit-field.hbs"}}{{/each}}
+    {{#each lists}}{{> "modules/blank-inheritance/templates/runner/edit-list.hbs"}}{{/each}}
+    {{#if noteAnchor}}{{> "modules/blank-inheritance/templates/runner/edit-notes.hbs"}}{{/if}}
+</div>

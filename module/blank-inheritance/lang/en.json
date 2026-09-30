@@ -124,7 +124,8 @@
           "SceneRunner": "Scene Runner",
           "Equipment": "Equipment Locker",
           "SceneClose": "Scene Close",
-          "Induction": "Induction Terminal"
+          "Induction": "Induction Terminal",
+          "Admin": "Admin"
         },
         "Log": {
           "AllTypes": "All",
@@ -149,6 +150,7 @@
       "NoSubject": "Select a token",
       "Sheet": "Sheet",
       "Comms": "Comms",
+      "Notes": "Notes",
       "Console": "Console",
       "Runner": "Script",
       "Sound": "Sound",
@@ -224,6 +226,7 @@
       "GearSub": "The Console, open at Gear",
       "SheetSub": "The whole character, in the Console",
       "CommsSub": "Your comm device",
+      "NotesSub": "The party's shared notebook. Everyone can write in it at once.",
       "RunnerSub": "The running order for this scene",
       "SoundSub": "The Sound Desk",
       "Find": "Find",
@@ -405,7 +408,37 @@
         "Hint": "When the scene's soundscape names combat music, start it automatically at the beginning of an encounter and return to the scene's own music when the encounter ends."
       }
     },
+    "Notebook": {
+      "WindowTitle": "Notebook",
+      "Keybinding": "Open or close the party notebook",
+      "Index": "Pages in the notebook",
+      "Search": "Search the notebook",
+      "NewArticle": "New article",
+      "Filters": "Show",
+      "All": "Everything",
+      "Kind": {
+        "person": "People",
+        "place": "Places",
+        "clue": "Clues",
+        "plan": "Plans",
+        "note": "Notes"
+      },
+      "Title": "Title of this page",
+      "KindLabel": "Filed under",
+      "Written": "Last written by {name}, {ago}",
+      "WrittenAgo": "Last written {ago}",
+      "WrittenNobody": "Nothing written yet",
+      "Delete": "Delete this article",
+      "DeleteTitle": "Delete article",
+      "DeleteConfirm": "Delete \"{name}\" for everyone? This cannot be undone.",
+      "NotOpen": "The notebook isn't open yet. It opens when the GM loads the world.",
+      "Empty": "Nothing written yet. Start an article, or click anyone's portrait on the stage to write about them.",
+      "NoMatches": "Nothing matches that search.",
+      "NothingSelected": "Pick a page on the left, or start a new article.",
+      "NotMetYet": "The table hasn't met them yet, so they have no page. Reveal them first."
+    },
     "Stage": {
+      "FilesExposed": "Blank Inheritance: {names} can browse the server's files, which lets them read portrait file names. Names shown on the stage are protected, but a browsing player could still see what's in the module folders. Change Configure Permissions > Browse File Explorers if that matters for your table.",
       "Reveal": "Reveal to the table",
       "Conceal": "Conceal from the table",
       "AskCheck": "Ask the table for a check",
@@ -447,11 +480,14 @@
       "Passive": "Unannounced",
       "PickPlayer": "Who should see this?",
       "PickPlayerHint": "Only the player you choose will see it. Nobody else is told anything happened.",
-      "RevealConfirm": "Show \"{title}\" to {who}?",
-      "RevealConfirmHint": "They see it immediately, and it cannot be unseen.",
+      "RevealConfirm": "Hand \"{title}\" to {who}?",
+      "RevealConfirmHint": "It opens on their screens now and stays in their Papers for the rest of the campaign. It cannot be unseen.",
+      "RevealConfirmPersonal": "Each player gets their own copy, with their character's name typed on it, and nobody sees anyone else's. It opens on their screens now and stays in their Papers for the rest of the campaign.",
       "Everyone": "the whole table",
-      "Revealed": "Showed \"{title}\" to {who}.",
+      "Filed": "Handed \"{title}\" to {who}. It is in their Papers.",
+      "InPapers": "In their Papers",
       "NoPlayers": "Nobody else is connected to show it to.",
+      "NoPlayersToFile": "There is nobody to hand it to yet: no player accounts exist.",
       "SceneMissing": "That scene's brief could not be loaded — check it has been pushed to the server.",
       "CritSuccess": "Crit success",
       "Success": "Success",
@@ -470,7 +506,7 @@
       "EquipmentBonus": "Already given as a free extra this scene",
       "Grant": "Hand it over",
       "GrantConfirm": "Give the players \"{title}\" permanently?",
-      "GrantConfirmHint": "It goes into their own journals and stays there for the rest of the campaign. This cannot be undone.",
+      "GrantConfirmHint": "It goes into their Papers and stays there for the rest of the campaign. This cannot be undone.",
       "Granted": "The party now hold \"{title}\".",
       "Held": "Held by the party",
       "Insight": "Free to ask",
@@ -482,6 +518,12 @@
       "PutOnStage": "Put them on stage",
       "OnStage": "Already on stage — click to stage again",
       "NoSceneToStage": "There is no scene open to stage anyone onto.",
+      "Name": "Name",
+      "Named": "Named",
+      "TellName": "Tell the table their real name. Shift also drops the banner.",
+      "NameTold": "The table already knows this name.",
+      "NameNotHidden": "{name} is already shown by name, so there is nothing to tell.",
+      "NameToldLog": "The table learned that {called} is {name}.",
       "CloseScene": "Close this scene",
       "CloseSceneFooterHint": "That is the whole scene. Closing it records the beats, then travels to the next one.",
       "ChoiceInvented": "The table can invent something else entirely here — price or adjudicate it in the spirit of the options above rather than refusing it.",
@@ -537,7 +579,195 @@
       "ClockUp": "One step up",
       "ClockDown": "One step down",
       "ClockNow": "Now:",
-      "ClockNext": "Next, at"
+      "ClockNext": "Next, at",
+      "HandoutKept": "Kept your edited version of \"{title}\" in Papers: it was not rewritten from the scene. A copy has been filed for Claude to fold into the repo.",
+      "Edit": {
+        "Toggle": "Edit",
+        "Stop": "Done editing",
+        "ToggleHint": "Rewrite this scene. Every change saves itself to the server as you go, and no deploy can overwrite it.",
+        "PendingHint": "Your edits that haven't reached the repo yet. They show here, and nothing old can replace them.",
+        "Lede": "Click any text and change it. It saves itself the moment you click away, straight onto the server, where nothing a deploy sends can overwrite it. Esc puts back the box you're in. A one-line box saves on Enter; a longer one on Ctrl+Enter.",
+        "PendingCount": "Not in the repo yet: {n}",
+        "AllIn": "Everything you've changed is in the repo",
+        "ClashCount": "Changed by Claude since you saw them: {n}. Yours is what shows, and Claude will bring you both versions",
+        "BehindCount": "Where the server had an older version: {n}. Yours is what shows",
+        "NotesCount": "Notes waiting for Claude: {n}",
+        "Saving": "Saving…",
+        "SaveFailed": "Couldn't save that to the server ({reason}). Your words are still in the box: click in and out of it to try again.",
+        "Gone": "That part of the scene isn't there any more ({reason}), so the change wasn't saved.",
+        "BadNumber": "A DC has to be a number. Nothing was saved.",
+        "ListError": "Couldn't read your earlier edits from the server just now. Anything new you type still saves.",
+        "Unplaceable": "One of your edits has nowhere to go:",
+        "Empty": "Empty. Type to add",
+        "AddBeatTop": "+ A beat at the top",
+        "AddBeat": "+ A beat here",
+        "MoveUp": "Move this beat up",
+        "MoveDown": "Move this beat down",
+        "RemoveBeat": "Remove",
+        "Removed": "Removed:",
+        "PutBack": "Put it back",
+        "CheckFile": "The check",
+        "CheckShared": "This check is also used by:",
+        "Choice": "The choice they make here",
+        "AddLine": "Add",
+        "AddPlaceholder": "Add a line…",
+        "RemoveLine": "Remove this line",
+        "NotePlaceholder": "A note for Claude: anything that isn't a wording fix",
+        "SendNote": "Send",
+        "NoteWaiting": "waiting for Claude",
+        "NoteReply": "Claude:",
+        "TakeBack": "Take back",
+        "Mark": {
+          "Pending": "not in the repo yet",
+          "Clash": "Claude changed this after you saw it",
+          "Behind": "the server had an older version",
+          "Draft": "not saved yet, click away to save",
+          "Failed": "didn't save",
+          "New": "new",
+          "Moved": "moved"
+        },
+        "Section": {
+          "Scene": "The scene",
+          "Opening": "Opening",
+          "Beats": "Beats",
+          "Ending": "Ending",
+          "People": "People",
+          "Kit": "Handouts and things they keep",
+          "Extras": "Notes, temptations and what to ask afterwards"
+        },
+        "Field": {
+          "Title": "Title",
+          "Goal": "Goal",
+          "Summary": "Summary",
+          "HowToPlay": "How to play it",
+          "RunsAbout": "Runs about",
+          "Where": "Where",
+          "FirstThing": "The first thing they notice",
+          "ReadAloud": "Read aloud",
+          "Landmark": "Landmark",
+          "HoldInReserve": "Hold in reserve",
+          "CarriesInWhen": "If",
+          "CarriesInThen": "Then",
+          "BeatLine": "The line",
+          "When": "Only if",
+          "Direction": "How to play it",
+          "BeatNote": "Note",
+          "Mandatory": "Required",
+          "Delivery": "Who it's for",
+          "CheckName": "Check",
+          "Dc": "DC",
+          "CritSuccess": "Critical success",
+          "Success": "Success",
+          "Failure": "Failure",
+          "CritFailure": "Critical failure",
+          "BySkill": "With",
+          "ChoiceLabel": "The choice",
+          "ChoiceOption": "Option",
+          "ChoiceConsequence": "What it leads to",
+          "EndsWhen": "Ends when",
+          "TransitionLine": "The line that moves them on",
+          "Onwards": "Onwards",
+          "WriteDown": "Write down",
+          "CarryForward": "Carry forward",
+          "PersonLabel": "Name shown",
+          "Role": "Role",
+          "Wants": "Wants",
+          "OpensWith": "Opens with",
+          "Voice": "Voice",
+          "Samples": "Lines to steal",
+          "WillTopic": "Will talk about",
+          "WillNote": "How",
+          "WontTopic": "Won't talk about",
+          "WontWhy": "Why not",
+          "CoercibleTopic": "Can be moved on",
+          "CoercibleHow": "How",
+          "HandoutTitle": "Title",
+          "HandoutBody": "Text, as the file stores it",
+          "GmNotes": "GM notes",
+          "Catchables": "What a sharp reader can catch",
+          "ArtefactTitle": "Title",
+          "ArtefactBody": "Text",
+          "Temptation": "Temptations",
+          "ReactionPrompt": "What to ask about afterwards",
+          "Notes": "GM notes for this scene"
+        },
+        "Delivery": {
+          "table": "The table",
+          "each": "Each player",
+          "solo": "One player",
+          "passive": "Nobody asks"
+        },
+        "Kind": {
+          "action": "Action",
+          "check": "Check",
+          "reveal": "Reveal",
+          "combat": "Fight"
+        }
+      },
+      "Spectrum": {
+        "story": {
+          "Label": "Story",
+          "Hint": "Plot beats: run as written. What happens here is what the scene is for."
+        },
+        "mixed": {
+          "Label": "Mixed",
+          "Hint": "A story frame with events drawn from its deck inside it."
+        },
+        "downtime": {
+          "Label": "Downtime",
+          "Hint": "Relaxed and low stakes: role-play, rest and events from the deck. Nothing here has to happen."
+        }
+      },
+      "Rest": {
+        "Title": "The night's rest",
+        "Apply": "Apply the rest",
+        "Applied": "Rested: {who}.",
+        "quarter": "a quarter of max HP",
+        "half": "half of max HP",
+        "threeQuarters": "three quarters of max HP",
+        "full": "full HP"
+      },
+      "Deck": {
+        "Title": "Events",
+        "Draw": "Draw an event",
+        "Witnessed": "Played",
+        "PutBack": "Put it back",
+        "Empty": "Every event in this deck is on the table or has been played.",
+        "Fight": {
+          "Foe": "Foe",
+          "Press": "Press the attack",
+          "Retreat": "Retreat",
+          "Surrender": "Surrender"
+        }
+      },
+      "Haunt": {
+        "Label": "Haunt"
+      },
+      "Condition": {
+        "Title": "Upgrades & setbacks"
+      },
+      "Alert": {
+        "danger": "Danger: this event can turn violent. The players have not been warned.",
+        "plot": "More than it seems: this event touches the story. Run it as a scene."
+      },
+      "Rumours": {
+        "Title": "Rumours",
+        "Set": "Set",
+        "criticalFailure": "Critical failure",
+        "failure": "Failure",
+        "success": "Success",
+        "criticalSuccess": "Critical success",
+        "True": "TRUE",
+        "False": "FALSE",
+        "Plot": "plot"
+      },
+      "Regulars": {
+        "Title": "The regulars",
+        "ByHand": "shifted by hand",
+        "Up": "Warmer",
+        "Down": "Cooler",
+        "LoweredByFaction": "faction only; personally"
+      }
     },
     "Induction": {
       "MacroName": "Blank Inheritance: Begin Induction",
@@ -841,12 +1071,18 @@
       "AutoBuilt": "Built {count} audio playlists — the library had not been set up in this world yet."
     },
     "Scenes": {
-      "MacroName": "Build the scene set",
-      "Built": "Scenes: {created} built, {updated} updated, {pins} pins on the map.",
+      "Built": "Scenes: {created} built, {updated} updated.",
       "Retired": "Retired {count} temporary scene(s).",
       "OrphansRetired": "Removed {count} scene(s) no longer in the adventure.",
+      "DuplicatesRetired": "Removed {count} empty duplicate scene(s).",
       "Quarantined": "Moved {count} stray scene(s) into \"Diagnostics & Fixtures\".",
       "PinJournal": "The City — Places"
+    },
+    "WorldSync": {
+      "MacroName": "Blank Inheritance: Update the World",
+      "Updating": "Blank Inheritance: new content is on the server — updating the world…",
+      "AlreadyCurrent": "Blank Inheritance: the world is already up to date with the content on the server.",
+      "NotGM": "Only a GM can update the world."
     },
     "Travel": {
       "TokenName": "The Party"
@@ -963,6 +1199,190 @@
         "Full": "Full opening (fast cuts and flashing lights)",
         "FolderName": "Opening titles: video folder",
         "FolderHint": "The folder in Foundry’s data directory that holds opening-full.mp4 and opening-reduced.mp4, and an episode-titles folder with one title card per episode, each named by its episode’s id plus .mp4. The default is blank-inheritance-video."
+      }
+    },
+    "City": {
+      "WhereNext": "Where next?",
+      "HowArrive": "How do you arrive in Kurose?",
+      "Kind": {
+        "sent": "Moving on",
+        "together": "Together: choose one place",
+        "free": "Your own time: go where you like",
+        "muster": "Everyone meets",
+        "arrive": "Arrival"
+      },
+      "Status": {
+        "ready": "Decided",
+        "away": "Not at the table",
+        "browsing": "Looking at the map · {time}",
+        "waiting": "Not chosen yet · {time}"
+      },
+      "JustNow": "just now",
+      "Minutes": "{count} min",
+      "Decided": "decided",
+      "Must": "Must go",
+      "MustGo": "Someone has to go here.",
+      "CostsSlice": "Takes the rest of this part of the day.",
+      "RoomFor": "Room for {count}.",
+      "Needs": "Needs {what}.",
+      "Full": "Full",
+      "NotForYou": "Not open to you",
+      "Muster": "Meeting point",
+      "Going": "Going",
+      "NobodyYet": "Nobody yet",
+      "EveryoneHere": "Send everyone here",
+      "YoureGoing": "You're going here.",
+      "ChangeMind": "Change my mind",
+      "ImGoing": "I'm going here",
+      "Held": "The GM has paused choosing.",
+      "HeldShort": "paused",
+      "Close": "Close",
+      "Go": "Go",
+      "GoWaiting": "Go anyway ({count} still choosing)",
+      "Hold": "Pause choosing",
+      "Reopen": "Reopen choosing",
+      "Cancel": "Cancel",
+      "ShowOptions": "Choose how you arrive",
+      "YourPick": "Your choice",
+      "StillChoosing": "Still choosing: {names}",
+      "EveryoneChosen": "Everyone has chosen.",
+      "SeeMap": "See the map",
+      "Refused": {
+        "full": "That place is full.",
+        "gmUsesSend": "As GM, use Send everyone here.",
+        "gone": "That choice has closed.",
+        "held": "The GM has paused choosing.",
+        "noAnswer": "The GM's screen did not answer. Try again in a moment.",
+        "noGm": "No GM is connected to take your choice.",
+        "noUser": "Your player account could not be found.",
+        "notEligible": "That place is not open to you.",
+        "notGm": "Only the GM can do that.",
+        "nothingToPick": "There is nothing to choose right now.",
+        "unknownDestination": "That place is not one of the choices."
+      },
+      "Runner": {
+        "Title": "The party",
+        "Move": "Send elsewhere:",
+        "ForHint": "Only for the players who went here"
+      }
+    },
+    "Admin": {
+      "Title": "Admin",
+      "MacroName": "Blank Inheritance: Admin Panel",
+      "Failed": "{what} failed: {error}",
+      "NotUndoable": "(cannot be undone)",
+      "Reset": {
+        "Heading": "Start over",
+        "Lead": "Puts every system back to the very start of Episode One, for testing. A snapshot is saved first, so the reset can be undone. Scene edits, authored content and the session log's files are never touched.",
+        "Button": "Reset to the start",
+        "Busy": "Resetting to the start",
+        "ConfirmTitle": "Reset to the start?",
+        "ConfirmLead": "This will, in order:",
+        "ConfirmKept": "Scene edits, NPCs, locations, the scene set and the session log's files are kept. Handouts are taken back from the players, not deleted.",
+        "Done": "The world is back at the start of Episode One.",
+        "Partial": "The reset finished, but these steps failed: {steps}. See the console.",
+        "NoSnapshot": "Nothing was reset: the snapshot could not be saved, so there would have been no way back."
+      },
+      "Undo": {
+        "Button": "Undo the last reset",
+        "Busy": "Undoing the last reset",
+        "Taken": "Last snapshot:",
+        "AlreadyUndone": "already undone",
+        "ConfirmTitle": "Undo the last reset?",
+        "ConfirmLead": "Put back everything as it was just before the reset of {when}. Ended combats cannot be brought back.",
+        "Done": "The last reset has been undone.",
+        "Partial": "The undo finished, but these parts failed: {steps}. See the console."
+      },
+      "Option": {
+        "clearChat": "Clear the chat log (the Scene Runner reads old rolls from it)",
+        "endCombats": "End any combat",
+        "cutToStart": "Cut to the first scene",
+        "deleteInductionCharacters": "Delete characters made at the induction terminal",
+        "clearNotebook": "Clear the party notebook (every page the players wrote, kept in the snapshot)"
+      },
+      "Step": {
+        "snapshot": "Save a snapshot of everything below, for undo.",
+        "city": "Cancel any departure on The City and remove every pawn.",
+        "settings": "Set the clock, bookings, the Scene Runner, scene-close flags, equipment given out, portrait splashes, the soundscape, every event deck and every regular's attitude back to the start, and stop all sound.",
+        "downtime": "Clear private downtime bookings.",
+        "papers": "Take every handout back from the players.",
+        "stage": "Clear who is on stage in every campaign scene.",
+        "social": "Forget every NPC's attitude and every fact revealed about them.",
+        "travel": "Clear journeys in progress on the map.",
+        "notebook": "Clear every page of the party notebook.",
+        "chat": "Clear the chat log.",
+        "combats": "End every combat.",
+        "induction": "Delete the characters made at the induction terminal.",
+        "scene": "Cut to the first scene of Episode One.",
+        "log": "Write the reset into the session log."
+      },
+      "Party": {
+        "Heading": "The players",
+        "Status": "Player accounts with a character:",
+        "LentCount": "lent by this panel:",
+        "Lend": "Lend test characters to empty accounts",
+        "GiveBack": "Take the test characters back",
+        "Lent": "Lent {count} test characters.",
+        "Returned": "Took back {count} test characters."
+      },
+      "Autopilot": {
+        "Heading": "Autopilot",
+        "Lead": "Stand-ins play for every player account that has a character, by the same rules a real player meets. The switches are yours alone: they never turn on for anyone else.",
+        "Departures": "Choose where to go on The City",
+        "AutoGo": "Press Go once everyone has chosen",
+        "Rolls": "Roll the Scene Runner's checks",
+        "Downtime": "Book a slice each quarter",
+        "Strategy": "Choosing:",
+        "PickNow": "Choose for everyone now",
+        "RollNow": "Roll the last check for everyone",
+        "BookNow": "Book this quarter for everyone",
+        "Picked": "{count} players chose.",
+        "Rolled": "{count} characters rolled.",
+        "Booked": "{count} players booked a slice."
+      },
+      "Strategy": {
+        "random": "at random",
+        "spread": "spreading out",
+        "together": "sticking together"
+      },
+      "Clock": {
+        "Heading": "Time",
+        "Day": "Day",
+        "Set": "Set the clock",
+        "Next": "Next quarter"
+      },
+      "Jump": {
+        "Heading": "Jump to a scene",
+        "Lead": "Opens the scene in the Scene Runner, cuts to its backdrop and sets the clock to its day and quarter.",
+        "Go": "Go there",
+        "NoBackdrop": "The Runner is on that scene, but it has no backdrop to cut to."
+      },
+      "City": {
+        "Heading": "The City",
+        "Open": "Open this departure",
+        "Cancel": "Cancel the open departure",
+        "RemovePawns": "Remove every pawn",
+        "PawnsRemoved": "Removed {count} pawns."
+      },
+      "World": {
+        "Heading": "The world",
+        "Sync": "Update the world from the last deploy",
+        "Rebuild": "Rebuild the scenes",
+        "StopAudio": "Stop all sound"
+      },
+      "State": {
+        "Heading": "State",
+        "Clock": "Clock (day · quarter)",
+        "Scene": "Active scene",
+        "Runner": "Scene Runner",
+        "Departure": "Departure",
+        "Pawns": "Pawns on the map",
+        "Bookings": "Downtime bookings",
+        "Handouts": "Handouts given out",
+        "Chat": "Chat messages",
+        "Copy": "Copy everything as JSON",
+        "Copied": "State copied to the clipboard.",
+        "CopyFailed": "Could not copy: {error}"
       }
     },
     "LocationEditor": {

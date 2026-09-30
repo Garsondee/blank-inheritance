@@ -234,6 +234,13 @@ if (args.length) {
   }
   let total = 0;
   for (const id of ids) {
+    // A scene rebuilt in canon/ answers to canon/reread.md instead (see
+    // test/tier2-scene-audit.test.mjs); say so rather than list findings
+    // that scene is not meant to fix.
+    if (existsSync(path.join(repoRoot, "canon", "scenes", `${id}.json`))) {
+      console.log(`\n${id} — in canon/: checked by its re-read (canon/scenes/${id}.reread.md), not this audit`);
+      continue;
+    }
     const r = auditScene(id);
     total += r.findings.length;
     const head = `${r.title ?? id} — ${r.findings.length} finding${r.findings.length === 1 ? "" : "s"}`;

@@ -1,0 +1,132 @@
+<div class="bi-admin__body">
+    {{#if busy}}<p class="bi-admin__busy"><i class="fa-solid fa-spinner fa-spin"></i> {{busy}}</p>{{/if}}
+
+    {{!-- START OVER: the reset, and its undo. --}}
+    <section class="bi-admin__section bi-admin__section--danger">
+        <h2 class="bi-admin__title"><i class="fa-solid fa-rotate-left"></i> {{localize "BLANKINHERITANCE.Admin.Reset.Heading"}}</h2>
+        <p class="bi-admin__lead">{{localize "BLANKINHERITANCE.Admin.Reset.Lead"}}</p>
+        <div class="bi-admin__checks">
+            {{#each resetOptions}}
+            <label class="bi-admin__check"><input type="checkbox" data-reset-option="{{id}}" {{#if checked}}checked{{/if}}> {{localize labelKey}}</label>
+            {{/each}}
+        </div>
+        <div class="bi-admin__row">
+            <button type="button" class="bi-admin__button bi-admin__button--danger" data-action="reset" {{#if busy}}disabled{{/if}}>
+                <i class="fa-solid fa-rotate-left"></i> {{localize "BLANKINHERITANCE.Admin.Reset.Button"}}
+            </button>
+            {{#if snapshot}}
+            <button type="button" class="bi-admin__button" data-action="undo" {{#if busy}}disabled{{/if}}{{#if snapshot.undone}} disabled{{/if}}>
+                <i class="fa-solid fa-clock-rotate-left"></i> {{localize "BLANKINHERITANCE.Admin.Undo.Button"}}
+            </button>
+            <span class="bi-admin__note">{{localize "BLANKINHERITANCE.Admin.Undo.Taken"}} <span data-snapshot-when>{{snapshot.takenAt}}</span>{{#if snapshot.undone}} · {{localize "BLANKINHERITANCE.Admin.Undo.AlreadyUndone"}}{{/if}}</span>
+            {{/if}}
+        </div>
+    </section>
+
+    {{!-- THE PLAYERS: a roster to test with, and the stand-ins. --}}
+    <section class="bi-admin__section">
+        <h2 class="bi-admin__title"><i class="fa-solid fa-users"></i> {{localize "BLANKINHERITANCE.Admin.Party.Heading"}}</h2>
+        <p class="bi-admin__lead">{{localize "BLANKINHERITANCE.Admin.Party.Status" }} <strong>{{roster.withCharacter}}/{{roster.total}}</strong>{{#if roster.lent}} · {{localize "BLANKINHERITANCE.Admin.Party.LentCount"}} <strong>{{roster.lent}}</strong>{{/if}}</p>
+        <ul class="bi-admin__roster">
+            {{#each roster.list}}
+            <li class="bi-admin__roster-row{{#if online}} is-online{{/if}}"><span class="bi-admin__who">{{name}}</span> <span class="bi-admin__what">{{#if character}}{{character}}{{else}}—{{/if}}</span></li>
+            {{/each}}
+        </ul>
+        <div class="bi-admin__row">
+            <button type="button" class="bi-admin__button" data-action="lend" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-user-plus"></i> {{localize "BLANKINHERITANCE.Admin.Party.Lend"}}</button>
+            <button type="button" class="bi-admin__button" data-action="giveBack" {{#if busy}}disabled{{/if}}{{#unless roster.lent}} disabled{{/unless}}><i class="fa-solid fa-user-minus"></i> {{localize "BLANKINHERITANCE.Admin.Party.GiveBack"}}</button>
+        </div>
+
+        <h3 class="bi-admin__subtitle">{{localize "BLANKINHERITANCE.Admin.Autopilot.Heading"}}</h3>
+        <p class="bi-admin__lead">{{localize "BLANKINHERITANCE.Admin.Autopilot.Lead"}}</p>
+        <div class="bi-admin__checks">
+            <label class="bi-admin__check"><input type="checkbox" data-autopilot="departures" {{#if autopilot.departures}}checked{{/if}}> {{localize "BLANKINHERITANCE.Admin.Autopilot.Departures"}}</label>
+            <label class="bi-admin__check"><input type="checkbox" data-autopilot="autoGo" {{#if autopilot.autoGo}}checked{{/if}}> {{localize "BLANKINHERITANCE.Admin.Autopilot.AutoGo"}}</label>
+            <label class="bi-admin__check"><input type="checkbox" data-autopilot="rolls" {{#if autopilot.rolls}}checked{{/if}}> {{localize "BLANKINHERITANCE.Admin.Autopilot.Rolls"}}</label>
+            <label class="bi-admin__check"><input type="checkbox" data-autopilot="downtime" {{#if autopilot.downtime}}checked{{/if}}> {{localize "BLANKINHERITANCE.Admin.Autopilot.Downtime"}}</label>
+            <label class="bi-admin__check">{{localize "BLANKINHERITANCE.Admin.Autopilot.Strategy"}}
+                <select data-autopilot-strategy>
+                    {{#each autopilot.strategies}}<option value="{{id}}"{{#if selected}} selected{{/if}}>{{localize labelKey}}</option>{{/each}}
+                </select>
+            </label>
+        </div>
+        <div class="bi-admin__row">
+            <button type="button" class="bi-admin__button" data-action="pickNow" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-map-location-dot"></i> {{localize "BLANKINHERITANCE.Admin.Autopilot.PickNow"}}</button>
+            <button type="button" class="bi-admin__button" data-action="rollNow" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-dice-d20"></i> {{localize "BLANKINHERITANCE.Admin.Autopilot.RollNow"}}</button>
+            <button type="button" class="bi-admin__button" data-action="bookNow" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-calendar-check"></i> {{localize "BLANKINHERITANCE.Admin.Autopilot.BookNow"}}</button>
+        </div>
+        {{#if activity.length}}
+        <ol class="bi-admin__activity">
+            {{#each activity}}<li><span class="bi-admin__when">{{at}}</span> {{text}}</li>{{/each}}
+        </ol>
+        {{/if}}
+    </section>
+
+    {{!-- TIME, and a JUMP to any scene. --}}
+    <section class="bi-admin__section">
+        <h2 class="bi-admin__title"><i class="fa-solid fa-clock"></i> {{localize "BLANKINHERITANCE.Admin.Clock.Heading"}}</h2>
+        <div class="bi-admin__row">
+            <label class="bi-admin__field">{{localize "BLANKINHERITANCE.Admin.Clock.Day"}} <input type="number" min="1" step="1" value="{{clock.day}}" data-clock-day></label>
+            <select data-clock-quarter>
+                {{#each clock.quarters}}<option value="{{id}}"{{#if selected}} selected{{/if}}>{{label}}</option>{{/each}}
+            </select>
+            <button type="button" class="bi-admin__button" data-action="setClock" {{#if busy}}disabled{{/if}}>{{localize "BLANKINHERITANCE.Admin.Clock.Set"}}</button>
+            <button type="button" class="bi-admin__button" data-action="nextQuarter" {{#if busy}}disabled{{/if}}>{{localize "BLANKINHERITANCE.Admin.Clock.Next"}}</button>
+        </div>
+
+        <h3 class="bi-admin__subtitle">{{localize "BLANKINHERITANCE.Admin.Jump.Heading"}}</h3>
+        <p class="bi-admin__lead">{{localize "BLANKINHERITANCE.Admin.Jump.Lead"}}</p>
+        <div class="bi-admin__row">
+            <select data-jump-episode>
+                {{#each episodes}}<option value="{{id}}"{{#if selected}} selected{{/if}}>{{title}}</option>{{/each}}
+            </select>
+            <select data-jump-scene class="bi-admin__grow">
+                {{#each jumpScenes}}<option value="{{briefRef}}">{{label}}</option>{{/each}}
+            </select>
+            <button type="button" class="bi-admin__button" data-action="jump" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-person-walking-arrow-right"></i> {{localize "BLANKINHERITANCE.Admin.Jump.Go"}}</button>
+        </div>
+    </section>
+
+    {{!-- THE CITY: departures on the map. --}}
+    <section class="bi-admin__section">
+        <h2 class="bi-admin__title"><i class="fa-solid fa-map"></i> {{localize "BLANKINHERITANCE.Admin.City.Heading"}}</h2>
+        <div class="bi-admin__row">
+            <select data-departure class="bi-admin__grow">
+                {{#each departures}}<option value="{{briefId}}">{{label}}</option>{{/each}}
+            </select>
+            <button type="button" class="bi-admin__button" data-action="openDeparture" {{#if busy}}disabled{{/if}}>{{localize "BLANKINHERITANCE.Admin.City.Open"}}</button>
+        </div>
+        <div class="bi-admin__row">
+            <button type="button" class="bi-admin__button" data-action="cancelDeparture" {{#if busy}}disabled{{/if}}{{#unless departureOpen}} disabled{{/unless}}>{{localize "BLANKINHERITANCE.Admin.City.Cancel"}}</button>
+            <button type="button" class="bi-admin__button" data-action="removePawns" {{#if busy}}disabled{{/if}}>{{localize "BLANKINHERITANCE.Admin.City.RemovePawns"}}</button>
+        </div>
+    </section>
+
+    {{!-- THE WORLD: the maintenance a GM otherwise hunts for. --}}
+    <section class="bi-admin__section">
+        <h2 class="bi-admin__title"><i class="fa-solid fa-globe"></i> {{localize "BLANKINHERITANCE.Admin.World.Heading"}}</h2>
+        <div class="bi-admin__row">
+            <button type="button" class="bi-admin__button" data-action="worldSync" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-cloud-arrow-down"></i> {{localize "BLANKINHERITANCE.Admin.World.Sync"}}</button>
+            <button type="button" class="bi-admin__button" data-action="rebuildScenes" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-map-pin"></i> {{localize "BLANKINHERITANCE.Admin.World.Rebuild"}}</button>
+            <button type="button" class="bi-admin__button" data-action="stopAudio" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-volume-xmark"></i> {{localize "BLANKINHERITANCE.Admin.World.StopAudio"}}</button>
+        </div>
+    </section>
+
+    {{!-- STATE: what every system holds right now. --}}
+    <section class="bi-admin__section">
+        <h2 class="bi-admin__title"><i class="fa-solid fa-stethoscope"></i> {{localize "BLANKINHERITANCE.Admin.State.Heading"}}</h2>
+        <dl class="bi-admin__facts">
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Clock"}}</dt><dd>{{state.moment.day}} · {{state.moment.quarter}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Scene"}}</dt><dd>{{state.activeScene}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Runner"}}</dt><dd>{{state.runner.brief}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Departure"}}</dt><dd>{{#if state.city.departure}}{{state.city.departure.kind}} · {{state.city.departure.status}} · {{state.city.departure.picks}}{{else}}—{{/if}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Pawns"}}</dt><dd>{{state.city.pawns}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Bookings"}}</dt><dd>{{state.commitments}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Handouts"}}</dt><dd>{{state.handoutsGivenOut}}</dd>
+            <dt>{{localize "BLANKINHERITANCE.Admin.State.Chat"}}</dt><dd>{{state.chatMessages}}</dd>
+        </dl>
+        <div class="bi-admin__row">
+            <button type="button" class="bi-admin__button" data-action="copyState"><i class="fa-solid fa-copy"></i> {{localize "BLANKINHERITANCE.Admin.State.Copy"}}</button>
+        </div>
+    </section>
+</div>

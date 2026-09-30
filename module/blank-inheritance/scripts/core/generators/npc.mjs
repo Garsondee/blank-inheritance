@@ -45,8 +45,20 @@ import { resolveTokenRing } from "./token-ring.mjs";
  * `tokenImage`, when given, is written to `prototypeToken.texture.src` — the
  * token's own base art field, not `ring.subject.texture` (see token-ring.mjs's
  * header for why that distinction is load-bearing, found live 2026-09-18).
+ *
+ * `portraitImage`, likewise optional and caller-resolved (tools/token-ring/
+ * stage_npc_portraits.py's output, an UNCROPPED resize of the same registered
+ * portrait), is written to the Actor's own top-level `img` — a field nothing
+ * in this pipeline set before 2026-09-29, so every NPC Actor defaulted to
+ * Foundry's mystery-man silhouette on its sheet, in the Actors directory, and
+ * in the Theatre-of-Mind character frame's `actor.img` fallback
+ * (design/theatre-of-the-mind-staging.md §7: "the frames can render
+ * Foundry's own `actor.img`, which is already correct plumbing"). Distinct
+ * from `tokenImage` on purpose: the ring wants a circle-cropped square
+ * subject, `img` wants the ordinary rectangular portrait a sheet or frame
+ * actually looks right with.
  */
-export async function buildNpcActorData(source, { tokenImage = null } = {}) {
+export async function buildNpcActorData(source, { tokenImage = null, portraitImage = null } = {}) {
   const id = await deriveFoundryId(source.id);
   const prototypeToken = {
     ring: resolveTokenRing("npc", source),
@@ -61,7 +73,8 @@ export async function buildNpcActorData(source, { tokenImage = null } = {}) {
       type: "npc",
       system,
       items,
-      prototypeToken
+      prototypeToken,
+      ...(portraitImage ? { img: portraitImage } : {})
     };
   }
 
@@ -75,6 +88,7 @@ export async function buildNpcActorData(source, { tokenImage = null } = {}) {
     type: "npc",
     system,
     items,
-    prototypeToken
+    prototypeToken,
+    ...(portraitImage ? { img: portraitImage } : {})
   };
 }

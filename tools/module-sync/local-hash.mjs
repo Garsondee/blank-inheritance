@@ -5,6 +5,7 @@
  * process behavior to mock.
  */
 import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -61,4 +62,37 @@ export async function computeLocalChecksums(rootDir, { skip = null } = {}) {
     result.set(relativePath, await hashFile(absolutePath));
   }
   return result;
+}
+
+/**
+ * Every file under rootDir as a Map from POSIX relative path to its absolute
+ * local path -- the "sources" shape remote.mjs's uploadFiles and hashSources
+ * below take. Same `skip` rule as computeLocalChecksums.
+ */
+export async function listSources(rootDir, { skip = null } = {}) {
+  const absoluteFiles = await listFilesRecursive(rootDir, rootDir, skip);
+  return new Map(absoluteFiles.map((absolutePath) => [path.relative(rootDir, absolutePath).split(path.sep).join("/"), absolutePath]));
+}
+
+/**
+ * SHA-256 of every file in a sources Map, keyed the same way. Streams each
+ * file rather than reading it whole, because the opening titles are hundreds
+ * of megabytes each.
+ */
+export async function hashSources(sources) {
+  const result = new Map();
+  for (const [relativePath, absolutePath] of sources) {
+    result.set(relativePath, await hashFileStreamed(absolutePath));
+  }
+  return result;
+}
+
+function hashFileStreamed(absolutePath) {
+  return new Promise((resolve, reject) => {
+    const hash = createHash("sha256");
+    createReadStream(absolutePath)
+      .on("data", (chunk) => hash.update(chunk))
+      .on("end", () => resolve(hash.digest("hex")))
+      .on("error", reject);
+  });
 }

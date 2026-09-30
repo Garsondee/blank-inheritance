@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "party-notebook",
+  "type": "idea",
+  "title": "The party notebook: one shared, collaboratively edited note space, opened from a portrait or a Notes key",
+  "status": "done",
+  "domains": [
+    "ui",
+    "tooling",
+    "workflow",
+    "narrative"
+  ],
+  "summary": "A shared notebook the whole table writes in at once: a page for every person the party has met (opened by clicking their portrait) and any article a player starts, edited in Foundry's own collaborative editor, kept in Foundry's ownership system, and exported for the harvest.",
+  "description": "Ingram, 2026-09-29: \"A shared note taking app which can be summoned by clicking on a portrait and which allows any player to write or edit notes on any NPC. The idea being that we allow players to add notes during the session to encourage them to use the in engine interface for note taking which means that notes are always where they need to be. If Taka turns up someone could write a fun note about them and write down what they think they are doing, then when Taka turns up in a later scene his notes from previous sessions are there for players to read. This involves creating a note making app that allows a whole group to write at once so it's not a small feature but I think it has huge value. We should go further, we should put a 'note' button for players to use on their UIs and make this a combined note taking space which players can use to write into with the ability to create articles easily.\" Set with her direction that access should be Foundry's own ownership system, granted (and changed) when players newly should be able to reach something.",
+  "capturedDate": "2026-09-29",
+  "lastTouchedDate": "2026-09-29",
+  "sourceContext": "The /goal Ingram set on 2026-09-29, straight after names on the stage (in-scene-character-portrait-frames) and the finding that Foundry sends players every document whatever its ownership (GitHub #212).",
+  "openSubQuestions": [
+    "Private notes (one player's own page): ownership cannot keep a page off another player's browser, so it needs a different mechanism and an honest label. Not decided."
+  ],
+  "resolvedSubQuestions": [
+    "How several players write in one page at once: Foundry's own collaborative ProseMirror element, hosted in our window with the page's sheet guarded and the page saved by the window itself. Verified live with a GM seat and a Player seat.",
+    "Who may do what: one JournalEntry at default OWNER, repaired at every GM login; a person's page appears when the stage reveals them and is retitled when the table learns a name; only an article's author and the GM may delete."
+  ],
+  "relatedRefs": [
+    "in-scene-character-portrait-frames",
+    "player-and-gm-journals-context-ingestion",
+    "design/notebook.md",
+    "design/theatre-of-the-mind-staging.md",
+    "design/foundry-technical-reference.md"
+  ],
+  "resolution": "BUILT, TESTED AND DEPLOYED 2026-09-29. design/notebook.md is the record: scripts/core/notebook.mjs (rules), scripts/foundry/notebook-store.mjs (documents), scripts/foundry/notebook.mjs (the window, the N key, the hooks), templates/notebook/, styles/bi-notebook.css. Opened by clicking a portrait, the Notes key on every player's deck, the N key, and the GM's Palette. Exports to storage/notebook.json for the harvest. Tests: tier1-notebook, tier3-notebook-contract."
+}

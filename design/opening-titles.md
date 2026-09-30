@@ -832,7 +832,9 @@ the trainee (R110), with the searchlight glare at R109.
   `design/opening-titles-prompts.md` opens with that anchor and a list of additions to try. The additions include
   `original character`, to keep the show's own cast out.
 - **No Midjourney parameters and no Niji** (Ingram): set 4:3 in the web interface, and use whichever model is giving
-  the best anime results.
+  the best anime results. *(Loosened 2026-09-26, while starting the propaganda manga: `--ar`, `--no` and similar
+  modifiers are now welcome in any prompt. Still no Niji, never a version number, and no reference parameters,
+  because Ingram attaches references by hand. See `design/propaganda-manga.md` §8.)*
 - **Everything is generated new.** Existing portraits are never used in the video. The founders' opening stills may
   be attached as character references, to keep the likeness.
 

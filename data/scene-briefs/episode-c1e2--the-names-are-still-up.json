@@ -36,7 +36,7 @@
       "delivery": "table",
       "text": "The chalk from this morning is still up, and this morning was before any of it.",
       "direction": "Show them the board rather than describing it, then stop talking.\n\nFill the six name cells in with the party's own names as they are written up -- the handout is left blank because the six real PCs do not exist yet.\n\nThe names were chalked at seven for a routine familiarisation. Everything since happened after that. Nobody needs to point that out and the GM least of all.",
-      "note": "HOW TO PLAY IT. Reveal it, then count to five before filling the silence.\n\nTHE SECOND LINE IS THE PLANT AND IT IS NOT EXPLAINED. \"Same six. Tomorrow.\" in a different hand, pressed harder. Nobody identifies the writing and no roll here can. See `arc-the-countersignature`.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): Rand chalked it, Shucks's detached right hand, in Shucks's old handwriting. It pressed hard because it is a hand on its own, putting its whole weight into the chalk.\n\nIf somebody rubs their own name off, or writes something on it, let them and do not interpret it.",
+      "note": "HOW TO PLAY IT. Reveal it, then count to five before filling the silence.\n\nTHE SECOND LINE IS THE PLANT AND IT IS NOT EXPLAINED. \"Same six. Tomorrow.\" in a different hand, pressed harder. Nobody identifies the writing and no roll here can. See `arc-the-countersignature`.\n\nGM-ONLY (LEDGER #34, Claude's answer at Ingram's request, accepted with its reason in LEDGER #46): Rand chalked it, Shucks's detached right hand, in Shucks's old handwriting. It pressed hard because it is a hand on its own, putting its whole weight into the chalk.\n\nIf somebody rubs their own name off, or writes something on it, let them and do not interpret it.\n\nTHE STRUCK-THROUGH SEVENTH NAME is Nozomi (plant 2, LEDGER #44), older chalk from before she stopped answering. Don't fill it with a player's name, and don't explain it.",
       "handoutRef": "hangar-two-chalk-board"
     },
     {
@@ -78,7 +78,7 @@
       "title": "Hangar Two -- the chalk board by the door",
       "journalRef": null,
       "pageName": null,
-      "body": "<p><strong>HANGAR TWO &mdash; DAILY ALLOCATION</strong></p>\n<p><em>(chalk, this morning's hand, neat)</em></p>\n<table><tbody>\n<tr><td>&mdash;</td><td>excavator, manipulator fit</td></tr>\n<tr><td>&mdash;</td><td>excavator, manipulator fit</td></tr>\n<tr><td>&mdash;</td><td>crane rig</td></tr>\n<tr><td>&mdash;</td><td>army truck, markings painted over</td></tr>\n<tr><td>&mdash;</td><td>army truck, markings painted over</td></tr>\n<tr><td>&mdash;</td><td>&mdash;</td></tr>\n</tbody></table>\n<p><em>(lower down, different chalk, a different hand, pressed harder)</em></p>\n<p>Same six. Tomorrow.</p>"
+      "body": "<p><strong>HANGAR TWO &mdash; DAILY ALLOCATION</strong></p>\n<p><em>(chalk, this morning's hand, neat)</em></p>\n<table><tbody>\n<tr><td>&mdash;</td><td>excavator, manipulator fit</td></tr>\n<tr><td>&mdash;</td><td>excavator, manipulator fit</td></tr>\n<tr><td>&mdash;</td><td>crane rig</td></tr>\n<tr><td>&mdash;</td><td>army truck, markings painted over</td></tr>\n<tr><td>&mdash;</td><td>army truck, markings painted over</td></tr>\n<tr><td>&mdash;</td><td>&mdash;</td></tr>\n<tr><td><s>Nozomi</s></td><td>&mdash;</td></tr>\n</tbody></table>\n<p><em>(lower down, different chalk, a different hand, pressed harder)</em></p>\n<p>Same six. Tomorrow.</p>"
     }
   ],
   "gmModifiers": [],

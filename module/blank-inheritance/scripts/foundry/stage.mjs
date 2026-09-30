@@ -9,8 +9,14 @@
  *
  *   THE AUTHORED CAST — everyone who could appear in this scene, including the
  *   ones nobody has met yet — lives in a GM-only JournalEntry
- *   (`ownership.default: NONE`). Foundry only sends a document to clients with
- *   permission on it, so that content genuinely never reaches a player.
+ *   (`ownership.default: NONE`), which keeps it out of every player's sidebar,
+ *   sheets and stage.
+ *
+ *   VERIFIED LIVE 2026-09-29 (design/theatre-of-the-mind-staging.md §12.1): ownership does NOT
+ *   stop a document being sent. A Player-role client held every NONE-ownership Actor and
+ *   JournalEntry in full, including this kind of vault and other players' private handouts.
+ *   So this is a boundary against the UI and against casual inspection, not against a player
+ *   who opens the browser's developer tools. Nothing here is cryptographic secrecy.
  *
  *   THE REVEALED CAST is published onto the Scene as a flag, because a scene
  *   document IS sent to every client. That is precisely why the concealed half
@@ -21,11 +27,16 @@
  */
 
 import { STAGE_LAYOUTS, castMemberFromDescriptor, publishedCast, stageState } from "../core/stage-layout.mjs";
+import { isNameProtected, nameKeyOf, presentCast, renamedMembers, stageAlias } from "../core/stage-names.mjs";
+import { deriveFoundryId } from "../core/ids.mjs";
 import { STING_TIERS } from "../core/sting.mjs";
 import { isFirstSplash } from "../core/splash.mjs";
 import { engageArrivals } from "../core/engage.mjs";
-import { deriveFoundryId } from "../core/ids.mjs";
 import { openCharacterCard } from "./character-card.mjs";
+import { ensureStorageImageCopy } from "./io.mjs";
+import { openNotebook } from "./notebook.mjs";
+import { syncPeoplePages } from "./notebook-store.mjs";
+import { MODULE_ID, ensureStageVault, markNameKnown, readKnownNames } from "./stage-store.mjs";
 import { postInlineCheck } from "./rolls.mjs";
 // Deliberately one-directional: this file imports FROM foundry/splash.mjs,
 // which never imports back — splash.mjs cannot call setRevealed itself
@@ -35,30 +46,24 @@ import { everSplashedPortraits, markSplashed } from "./splash.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const MODULE_ID = "blank-inheritance";
 const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates/stage`;
 const FLAG_KEY = "stage";
-const VAULT_SOURCE_ID = "stage-cast-vault";
-const VAULT_NAME = "Blank Inheritance — Staged Casts (GM only)";
 
 /* ---------------------------------------------------------------- */
 /*  The GM-side store                                                */
 /* ---------------------------------------------------------------- */
 
-export async function ensureStageVault() {
-  if (!game.user.isGM) return null;
-  const id = await deriveFoundryId(VAULT_SOURCE_ID);
-  const existing = game.journal.get(id);
-  if (existing) return existing;
-  return JournalEntry.create(
-    {
-      _id: id,
-      name: VAULT_NAME,
-      ownership: { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE },
-      flags: { [MODULE_ID]: { sourceId: VAULT_SOURCE_ID, casts: {} } }
-    },
-    { keepId: true }
-  );
+// The vault and the record of known names live in foundry/stage-store.mjs so
+// that code which only needs to ask "does the table know this name?" does not
+// have to load the overlay class. Re-exported: admin-actions and the Runner
+// have always imported these from here.
+export { ensureStageVault, readKnownNames };
+
+/** GM only. Every scene's authored cast, keyed by scene id. */
+async function readAllAuthoredCasts() {
+  if (!game.user.isGM) return {};
+  const vault = await ensureStageVault();
+  return vault?.getFlag(MODULE_ID, "casts") ?? {};
 }
 
 /** GM only. The full authored cast for one scene, concealed members included. */
@@ -85,8 +90,85 @@ export async function writeAuthoredCast(scene, cast, layout = STAGE_LAYOUTS.LINE
   casts[scene.id] = cast;
   await vault.setFlag(MODULE_ID, "casts", casts);
 
-  await scene.setFlag(MODULE_ID, FLAG_KEY, { layout, cast: publishedCast(cast) });
+  const published = publishedCast(cast, await readKnownNames());
+  await scene.setFlag(MODULE_ID, FLAG_KEY, { layout, cast: published });
+
+  // The notebook follows the stage: a page for each NPC newly revealed, and a
+  // page retitled the moment the table learns a name. Access is granted when
+  // someone is met, and this is the one place a person becomes met. It must
+  // never hold up or break a stage write.
+  syncPeoplePages(published).catch((err) =>
+    console.warn("Blank Inheritance | Could not update the notebook's people:", err)
+  );
   return cast;
+}
+
+/**
+ * GM only. Tell the table someone's real name.
+ *
+ * One press, and it is known for the rest of the campaign wherever that person
+ * appears: the knowledge is filed by person, then every scene that has them
+ * staged is republished with the real name in place of the `called` line.
+ *
+ * `nameSeq` is stamped on each affected member for the same reason `stingSeq`
+ * is (see setRevealed): the moment has to reach every client as DATA in the
+ * same update that changes the plate, so each screen plays the stamp from one
+ * event. `announce` adds the banner half, as Shift does for a reveal.
+ */
+export async function revealName(nameKey, { announce = false } = {}) {
+  if (!game.user.isGM || !nameKey) return null;
+  const vault = await ensureStageVault();
+  if (!vault) return null;
+  const now = Date.now();
+
+  await markNameKnown(nameKey, now);
+
+  const casts = await readAllAuthoredCasts();
+  for (const [sceneId, cast] of Object.entries(casts)) {
+    const isThem = (member) => isNameProtected(member) && nameKeyOf(member) === nameKey;
+    if (!cast.some(isThem)) continue;
+    const scene = game.scenes.get(sceneId);
+    if (!scene) continue;
+    const next = cast.map((member) =>
+      isThem(member) ? { ...member, nameSeq: now, nameSting: announce ? STING_TIERS.ANNOUNCED : STING_TIERS.QUIET } : member
+    );
+    const layout = scene.getFlag(MODULE_ID, FLAG_KEY)?.layout ?? STAGE_LAYOUTS.LINE;
+    await writeAuthoredCast(scene, next, layout);
+  }
+  await unmaskReferenceTokens(nameKey);
+  return now;
+}
+
+/**
+ * GM only. Give a person's hidden reference tokens their real name and
+ * picture back. They are held anonymous while the name is held back
+ * (foundry/scene-build.mjs) because a Token is part of the Scene, which every
+ * client receives; once the table knows the name there is nothing to protect.
+ * Best effort: a failure here must not undo the reveal that already happened.
+ */
+async function unmaskReferenceTokens(nameKey) {
+  const alias = stageAlias(nameKey);
+  const actor = game.actors.get(await deriveFoundryId(nameKey));
+  if (!actor) return;
+  for (const scene of game.scenes) {
+    const tokens = scene.tokens.filter(
+      (t) => t.getFlag(MODULE_ID, "referenceToken") && t.getFlag(MODULE_ID, "npcRef") === alias
+    );
+    if (!tokens.length) continue;
+    try {
+      await scene.updateEmbeddedDocuments(
+        "Token",
+        tokens.map((t) => ({ _id: t.id, name: actor.name, "texture.src": actor.prototypeToken.texture.src }))
+      );
+    } catch (err) {
+      console.warn(`Blank Inheritance | Could not restore the reference tokens on "${scene.name}":`, err);
+    }
+  }
+}
+
+/** GM only. Whether this person's real name has been told to the table yet. */
+export async function isNameRevealed(nameKey) {
+  return (await readKnownNames()).has(nameKey);
 }
 
 /**
@@ -120,6 +202,18 @@ export async function setRevealed(scene, portraitId, revealed, sting = STING_TIE
   return writeAuthoredCast(scene, next, layout);
 }
 
+/** A picture copied under a name that says nothing about who it is, or null if that could not be done. */
+async function protectedArt(sourcePath, id) {
+  const extension = String(sourcePath).split(".").pop().toLowerCase();
+  const safe = /^[a-z0-9]{2,5}$/.test(extension) ? extension : "webp";
+  try {
+    return await ensureStorageImageCopy(sourcePath, `stage-art-${id}.${safe}`);
+  } catch (err) {
+    console.warn("Blank Inheritance | Could not make an anonymous copy of a stage portrait; showing the silhouette instead:", err);
+    return null;
+  }
+}
+
 /**
  * Bring anyone onto the CURRENT scene's stage, right now — "a way to summon
  * any character to any theatre of the mind scene" (Ingram, 2026-09-17).
@@ -141,6 +235,18 @@ export async function summonToStage(scene, descriptor, { side = null } = {}) {
   if (!game.user.isGM || !scene || !descriptor?.id) return null;
   const member = castMemberFromDescriptor(descriptor);
   if (side) member.side = side;
+  // A protected person's picture is shown under an opaque file name, because
+  // `assets/stage/<npc id>.webp` is a name in all but spelling. If the copy
+  // cannot be made the frame shows its silhouette rather than the real path.
+  if (member.called && member.img) {
+    const copied = await protectedArt(member.img, descriptor.id);
+    if (copied) member.img = copied;
+    else delete member.img;
+  }
+  // Someone who would plainly be introduced (a name badge, a teacher at the
+  // front of the class) arrives already named: known BEFORE the cast is
+  // published, so no `called` line is ever sent for them.
+  if (member.called && descriptor.nameOnArrival) await markNameKnown(member.nameKey);
 
   const cast = await readAuthoredCast(scene.id);
   const next = cast.some((m) => m.portraitId === member.portraitId)
@@ -178,7 +284,12 @@ async function castForThisClient(scene) {
   if (!published) return null;
   if (!game.user.isGM) return { layout: published.layout, cast: published.cast ?? [] };
   const authored = await readAuthoredCast(scene.id);
-  return { layout: published.layout, cast: authored.length ? authored : published.cast ?? [] };
+  // The Director sees the stage the way the table does, with the real name on
+  // hover, so the two screens never disagree about who is who.
+  return {
+    layout: published.layout,
+    cast: authored.length ? presentCast(authored, await readKnownNames()) : published.cast ?? []
+  };
 }
 
 /* ---------------------------------------------------------------- */
@@ -192,6 +303,7 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["bi-stage"],
     window: { frame: false, positioned: false },
     actions: {
+      openNotes: StageOverlay.#onOpenNotes,
       openCard: StageOverlay.#onOpenCard,
       toggleReveal: StageOverlay.#onToggleReveal,
       askCheck: StageOverlay.#onAskCheck,
@@ -262,6 +374,10 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     const arrivals = new Map(
       engageArrivals(this._lastVisibleCast, visible).map((a) => [a.portraitId, a.entrance])
     );
+    // Same diff basis, a different question: who was just TOLD their name.
+    // Both are read off this render's own before/after, so a re-render for
+    // any other reason cannot replay a stamp.
+    const renamed = renamedMembers(this._lastVisibleCast, visible);
     this._lastVisibleCast = visible;
 
     const cast = staged.cast.map((member) => ({
@@ -277,7 +393,10 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
       // only emits data-entrance when this is set, so an ordinary re-render
       // (someone else's reveal, a sting change) never replays an already-
       // visible member's own entrance animation.
-      entrance: arrivals.get(member.portraitId) ?? null
+      entrance: arrivals.get(member.portraitId) ?? null,
+      // The label they had a moment ago, only for the render their name lands
+      // on; frame.hbs draws it struck through beneath the new one.
+      renamedFrom: renamed.get(member.portraitId) ?? null
     }));
     const state = stageState({ cast, layout: staged.layout, canDirect });
     return { ...state, present: true, sceneName: scene?.name ?? null };
@@ -288,7 +407,25 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------------------------- */
 
   /**
-   * The frame is the button (staging doc §3). Both seats open the same
+   * Clicking a portrait opens the notebook on that person's page: the whole
+   * table's notes about them, from every session so far, and a place to add
+   * more. Everyone has the same page and may write in it at the same time.
+   *
+   * Refused for a concealed frame (the Director's ghost). A page's title is
+   * visible to every player, so someone the table has not met is given no
+   * page until they are revealed.
+   */
+  static async #onOpenNotes(event, target) {
+    const { portraitId, label, img, kind, concealed } = target.dataset;
+    if (concealed === "true") {
+      ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.Notebook.NotMetYet"));
+      return null;
+    }
+    return openNotebook({ subject: portraitId, label, img: img || null, kind: kind || "npc" });
+  }
+
+  /**
+   * The frame's Card key (staging doc §3). Both seats open the same
    * Character Card; what differs is what is INSIDE it, which
    * core/social-intel.mjs already decides from `isGM`. This does not need to
    * know, and must not learn — a second place that reasons about seats is a

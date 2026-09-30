@@ -209,6 +209,27 @@ test("buildNpcActorData/buildCreatureActorData/buildCharacterActorData: every Ac
   assert.equal(characterData.prototypeToken.texture.src, "modules/blank-inheritance/assets/tokens/z.webp");
 });
 
+test("buildNpcActorData/buildCreatureActorData: portraitImage flows to the Actor's own top-level img, distinct from and independent of tokenImage -- added 2026-09-29, previously never set by anything", async () => {
+  const npcData = await buildNpcActorData(
+    { id: "x" },
+    { tokenImage: "modules/blank-inheritance/assets/tokens/x.webp", portraitImage: "modules/blank-inheritance/assets/stage/x.webp" }
+  );
+  assert.equal(npcData.img, "modules/blank-inheritance/assets/stage/x.webp");
+  assert.equal(npcData.prototypeToken.texture.src, "modules/blank-inheritance/assets/tokens/x.webp", "img and the token's texture.src must resolve independently, from two different options");
+
+  const npcWithStatblock = await buildNpcActorData(
+    { id: "x2", statblock: {} },
+    { portraitImage: "modules/blank-inheritance/assets/stage/x2.webp" }
+  );
+  assert.equal(npcWithStatblock.img, "modules/blank-inheritance/assets/stage/x2.webp", "the statblock branch must also carry img through");
+
+  const npcWithNoPortrait = await buildNpcActorData({ id: "no-portrait" });
+  assert.equal(npcWithNoPortrait.img, undefined, "no portraitImage supplied -- img must be omitted entirely, not an empty/null placeholder");
+
+  const creatureData = await buildCreatureActorData({ id: "y" }, { portraitImage: "modules/blank-inheritance/assets/stage/y.webp" });
+  assert.equal(creatureData.img, "modules/blank-inheritance/assets/stage/y.webp");
+});
+
 test("buildSceneData matches golden output", async () => {
   const sceneSource = readFixture("test-scene.json");
   const actorIdBySourceId = readGolden("actor-id-by-source-id.json");

@@ -121,3 +121,14 @@ test("runCampaignDataSync: the staging directory is cleaned up even when remoteC
   const stagingDir = extractStagingDir(lines);
   assert.ok(!existsSync(stagingDir), "the finally block must clean up the staging dir even on a thrown error");
 });
+
+test("runCampaignDataSync: CRITICAL -- refuses before staging or sending anything if the repo holds older words than Ingram's edits", async () => {
+  const { remote, calls } = createMockRemote({ remoteChecksums: new Map() });
+  const reverted = [{ file: "scene-briefs/episode-x", path: "title", kind: "field", recordId: "r" }];
+  const { lines, exitCode } = await runCampaignDataSyncCaptured(baseConfig({ checkReversions: () => reverted }), remote);
+  assert.equal(exitCode, 1);
+  assert.equal(calls.uploadDirectory.length, 0);
+  assert.equal(calls.remoteChecksums.length, 0);
+  assert.ok(lines.some((l) => l.startsWith("REFUSED") && l.includes("npm run edits -- restore")), lines.join("\n"));
+  assert.ok(!lines.some((l) => l.startsWith("=== Staged")), "nothing was even staged");
+});

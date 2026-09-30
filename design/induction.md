@@ -24,9 +24,11 @@ faster. If the party has not been told something, the GM has not told the table 
 of them decided to do next with their life, and **each player defines their own reason** — where
 they came from, what they left, why this. The campaign issues nobody a backstory.
 
-**Age is not a barrier.** The bible's "pilots are seventeen" is because the charter permits
-*conscription* at seventeen. Law, not biology. Conscription has an age; volunteering does not. Two
-intake streams in one building, and some of these six may be considerably older than the local kids.
+**Age is not a barrier.** Seventeen is the age the kingdom's own national service takes people, and
+that service is separate from the Directorate (`open-questions.json#directorate-extraterritorial-vs-national-service`).
+The Directorate takes candidates who apply or are streamed to it (LEDGER #26), and volunteering has no age. Two
+intake streams in one building, and some of these six may be considerably older than the local kids. *(Rewritten
+2026-09-27: this said the charter permits conscription at seventeen. The charter says nothing about it, LEDGER #41.)*
 
 ### Why all six are flagged: they are a cohort, not a coincidence
 
@@ -70,6 +72,10 @@ something in our blood, and the sorting was so ordinary that none of us thought 
 **At the start of the campaign every character presents as human, elf, halfling or similar.**
 Anything else in the SF2E roster is there, and is disguised — by magic, by technology, or by their
 own biology.
+
+**Disguise is ordinary in Kurose (LEDGER #44).** Aliens are treated as outsiders, and the magic that hides an unusual
+nature is so freely available that glamoured clothing can be bought on the high street. Plenty of aliens in the city
+refuse to wear it; Hulda Brack, who runs the machine shop, is one.
 
 Ingram's reason: *"part of the theming of this is people coming out of their shells and revealing
 their inner self to friends."*

@@ -147,7 +147,7 @@
   "lore": {
     "summary": "The largest indoor space on the island: 7,246 m2 under a single span, one storey, no internal walls worth the name. Built so that an entire intake fits in one room at one time, which is the only thing it is for and the reason nothing in it is permanent. Chairs come out for an address and go away again; between times it is a floor.\n\nIt sits 209 m from the Main School Complex and 1.3 km from the Intake Infirmary, which matters: an intake does not wander here from the medical hall, it is marched.",
     "playerFacing": "Rows of chairs that do not quite fill the room, a raised platform at one end, and a line of senior staff along the wall behind it. The roof is one span with nothing holding it up in the middle, so the sound of four hundred people sitting down arrives twice -- once from the chairs and once, a beat later, off the far wall.\n\nAbove the platform, in a frame, the Directorate's founding charter. Big enough to read from the back row if you are the sort of person who reads things from the back row.",
-    "gmOnly": "A PLAIN RECTANGLE WITH NOTHING TO LEAN ON. 93% rectangular, no plan features, no alcoves, no gallery. Whatever makes a scene here distinctive has to be deliberately put there -- the room will not supply it. Use the acoustics, the staff line, and who is standing where.\n\nTHE CHARTER ABOVE THE PLATFORM. A framed copy of the same founding charter the intake queue passes in the Infirmary lobby. **Read `mystery-ledger-5` before letting anyone study it closely** -- the blacked-out paragraph is a live plant and which chapter pays it off is the Node's business, not this file's.\n\nTHE STAFF LINE IS THE REAL CONTENT. Assembly is the only scene where every significant adult in the campaign is visible at once, standing still, doing nothing. That is a cast list the players get to look at before they have met anybody."
+    "gmOnly": "A PLAIN RECTANGLE WITH NOTHING TO LEAN ON. 93% rectangular, no plan features, no alcoves, no gallery. Whatever makes a scene here distinctive has to be deliberately put there -- the room will not supply it. Use the acoustics, the staff line, and who is standing where.\n\nTHE CHARTER ABOVE THE PLATFORM. A framed copy of the same founding charter the intake queue passes in the Infirmary lobby, signatures and all. Nothing on it is painted out (LEDGER #41).\n\nTHE STAFF LINE IS THE REAL CONTENT. Assembly is the only scene where every significant adult in the campaign is visible at once, standing still, doing nothing. That is a cast list the players get to look at before they have met anybody."
   },
   "scene": {
     "hooks": [
@@ -157,7 +157,7 @@
     ],
     "activities": [
       "Sit through it, and watch the line of staff instead of the speaker -- a Perception check to notice who is bored, who is not listening, and who is watching the intake rather than the front.",
-      "Read the charter from the back row. Society or a relevant Lore check; see `mystery-ledger-5` before giving anything away.",
+      "Read the charter from the back row. Society or a relevant Lore check; the signatures are the interesting part (see Intake Medicals' check).",
       "Get out fast afterwards, or get caught by somebody who wanted a word."
     ],
     "history": "",

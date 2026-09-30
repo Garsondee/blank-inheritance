@@ -34,16 +34,29 @@ import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.m
 import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
-import { buildSceneSet, createSceneSetMacroIfMissing, quarantineStrayScenes, retireOrphanedScenes, retireTemporaryScenes } from "./foundry/scene-build.mjs";
+import { buildSceneSet, quarantineStrayScenes, retireDuplicateScenes, retireOrphanedScenes, retireTemporaryScenes } from "./foundry/scene-build.mjs";
+import { ensureWorldSyncMacro, registerWorldSyncSettings, runWorldSync, startWorldSync } from "./foundry/world-sync.mjs";
 import { registerPaletteKeybinding, registerPaletteSettings, toggleDirectorPalette } from "./foundry/director-palette.mjs";
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
 import { checkForSplash, forceDismissSplash, primeSplashCache, registerSplashSettings } from "./foundry/splash.mjs";
 import {
   mountSceneRunner,
   openSceneRunner,
+  refreshSceneRunner,
   registerSceneRunnerSettings,
   resetSceneRunnerCache
 } from "./foundry/scene-runner.mjs";
+import {
+  cancelCityDeparture,
+  cityState,
+  goCityDeparture,
+  openCityDeparture,
+  reassignCityPlayer,
+  registerCityConversation,
+  registerCitySettings
+} from "./foundry/city-state.mjs";
+import { registerPawnGuards } from "./foundry/city-pawns.mjs";
+import { mountCityLayer, onCityPan, onCityTokenMoved, refreshCityLayer } from "./foundry/city-layer.mjs";
 import { openInductionTerminal, createInductionTerminalMacroIfMissing, registerInductionSettings } from "./foundry/induction-terminal.mjs";
 import { registerInductionSocket } from "./foundry/induction-relay.mjs";
 import { ensureLandingScene } from "./foundry/landing-scene.mjs";
@@ -66,6 +79,9 @@ import { createTravelTestMacroIfMissing, placeTestFixturesOnWesternEdge } from "
 import { mountConsoleWindow, refreshConsoleWindow } from "./foundry/console-window.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 import { createApprovalsDeskMacroIfMissing, openApprovalsDesk } from "./foundry/approvals-desk.mjs";
+import { registerAdminSettings } from "./foundry/admin-actions.mjs";
+import { registerAutopilotHooks, registerAutopilotSettings } from "./foundry/admin-autopilot.mjs";
+import { createAdminMacroIfMissing, openAdminPanel, refreshAdminPanel } from "./foundry/admin-panel.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
 import { registerChatExportHooks } from "./foundry/chat-export.mjs";
 import { installAudioEngine, registerAudioSettings, registerAudioSocket } from "./foundry/audio-engine.mjs";
@@ -80,6 +96,8 @@ import { registerTravelCameraHook } from "./foundry/travel-camera.mjs";
 import { registerTravelTrailHook } from "./foundry/travel-trail.mjs";
 import { mountSessionRail, noteSceneActivated, refreshSessionRail, registerSessionRailSettings } from "./foundry/session-rail.mjs";
 import { playOpeningForTable, registerOpeningSocket, registerOpeningTitleSettings } from "./foundry/opening-titles.mjs";
+import { playersWhoCanBrowseFiles } from "./core/file-exposure.mjs";
+import { registerNotebook, startNotebook } from "./foundry/notebook.mjs";
 import { createLocationEditorMacroIfMissing, openLocationEditor, registerLocationEditorHooks } from "./foundry/location-editor.mjs";
 import { registerLocationDrawKeybindings, registerLocationDrawLayer } from "./foundry/location-draw-layer.mjs";
 
@@ -102,9 +120,6 @@ Hooks.once("init", () => {
   // hand until a sync step carries them automatically.
   if (mod) {
     mod.api = {
-      // The Location Editor (design/location-editor.md): GM-only, enforced
-      // inside openLocationEditor itself.
-      openLocationEditor,
       runDiagnosticTestSync,
       runRealContentSync,
       deriveFoundryId,
@@ -148,6 +163,13 @@ Hooks.once("init", () => {
       // The Approvals Desk (design/approvals-desk.md, issue #170). GM-only,
       // enforced inside openApprovalsDesk itself.
       openApprovalsDesk,
+      // The admin panel: reset to the start, stand-in players, and the other
+      // unusual things a GM testing alone needs (foundry/admin-panel.mjs).
+      openAdminPanel,
+      // The Location Editor (design/location-editor.md): drawing and
+      // authoring data/locations/*.json inside Foundry. GM-only, enforced
+      // inside openLocationEditor itself.
+      openLocationEditor,
       // The scene-close dialogue (design/ux-doctrine.md §10.3a). Reachable
       // from the Director's panel's own button; exposed here too for the
       // same "console access alongside the UI trigger" reason every other
@@ -168,12 +190,13 @@ Hooks.once("init", () => {
       buildSceneSet,
       retireTemporaryScenes,
       retireOrphanedScenes,
+      retireDuplicateScenes,
       quarantineStrayScenes,
-      // The three calls above, run in the same order and with the same
-      // notify settings as the automatic canvasReady hook below -- the
-      // console-friendly way to re-trigger a full sync without reloading
-      // Foundry, e.g. right after pushing new campaign data.
-      runAutomaticSync,
+      // Everything above and the content sync, in order, reported once: what
+      // the world does by itself at GM login and whenever a new deploy lands
+      // (foundry/world-sync.mjs). This is the "Update the World" macro's own
+      // call, and the way to force it from the console.
+      runWorldSync,
       // One search box for everything a GM can do, Ctrl+K. Half of it is our
       // own machinery, half is Foundry's own; the group that sorts first is
       // the one for when the table went somewhere nobody wrote down.
@@ -185,7 +208,15 @@ Hooks.once("init", () => {
       // The demo/walkthrough runner's own macro calls this directly
       // (ideas/entries/ui-demo-walkthrough-system.json) -- the console-
       // friendly way in, same reason every other panel is on this API too.
-      toggleDemoRunner
+      toggleDemoRunner,
+      // Departures on The City (design/world-map-destinations.md). The
+      // Scene Runner opens and resolves them itself; these are the console
+      // way in, for a departure nobody authored.
+      openCityDeparture,
+      goCityDeparture,
+      cancelCityDeparture,
+      reassignCityPlayer,
+      cityState
     };
   }
 
@@ -195,6 +226,9 @@ Hooks.once("init", () => {
   registerThemeSettings();
   registerPaletteSettings();
   registerPaletteKeybinding();
+  // The party notebook: the N key, and the hooks that keep it (and its harvest
+  // export) current. Every client, because every player writes in it.
+  registerNotebook();
 
   // The campaign clock is a world setting, so its onChange fires on EVERY
   // client -- which is what makes a segment transition arrive at the whole
@@ -236,6 +270,25 @@ Hooks.once("init", () => {
   // happened. All GM-written, all world-scoped: what the table did is a fact
   // about the campaign, not about one browser.
   registerSceneRunnerSettings();
+
+  // Departures on The City: the one GM-written world setting every screen
+  // redraws from, and the guards that stop a player moving a pawn by hand
+  // (Ingram, 2026-09-28: "the only way to move their tokens is via our
+  // system"). Guards are client-side hooks, so every client registers them.
+  registerCitySettings(() => {
+    refreshCityLayer().catch((err) => console.error("Blank Inheritance | City layer refresh failed:", err));
+    refreshSceneRunner();
+  });
+  registerPawnGuards();
+
+  // The admin panel: its record of the last reset and of the test party
+  // (world), and the GM's own autopilot switches (client).
+  registerAdminSettings(() => refreshAdminPanel());
+  registerAutopilotSettings(() => refreshAdminPanel());
+
+  // Which deployed build this world was last brought up to
+  // (foundry/world-sync.mjs). World-scoped for the same reason.
+  registerWorldSyncSettings();
 
   // Every equipment grant so far. Not secret -- the whole party can see who
   // took what, same as the downtime board -- so onChange repaints any open
@@ -296,6 +349,28 @@ Hooks.once("ready", async () => {
       await ensureStageVault();
     } catch (err) {
       console.error("Blank Inheritance | Could not open the staged-cast vault:", err);
+    }
+    // The party notebook: make sure it exists and still lets every player
+    // write in it, and that everyone already on a stage has a page. Its own
+    // try: a notebook problem must never stop the rest of ready.
+    try {
+      await startNotebook();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not open the party notebook:", err);
+    }
+    // Name protection cannot reach the server's file browser (see
+    // core/file-exposure.mjs), so a GM is told once per login if anyone at the
+    // table can open it. Cosmetic to everything else: its own try.
+    try {
+      const names = playersWhoCanBrowseFiles(
+        game.users.map((u) => ({ name: u.name, role: u.role })),
+        game.permissions?.FILES_BROWSE ?? []
+      );
+      if (names.length) {
+        ui.notifications.warn(game.i18n.format("BLANKINHERITANCE.Stage.FilesExposed", { names: names.join(", ") }), { permanent: true });
+      }
+    } catch (err) {
+      console.error("Blank Inheritance | Could not check who can browse files:", err);
     }
     // The idle "home base" scene (design/foundry-module-design.md §7) a
     // freshly-created character's token lands on. Check-then-create, same as
@@ -365,6 +440,25 @@ Hooks.once("ready", async () => {
     registerOpeningSocket();
   } catch (err) {
     console.error("Blank Inheritance | Could not open the opening-titles socket:", err);
+  }
+
+  // Departures: players send their picks to the active GM (CONFIG.queries),
+  // and every screen hears who is looking at the map right now.
+  try {
+    registerCityConversation(() => refreshCityLayer());
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the departures conversation:", err);
+  }
+
+  // The admin panel's stand-in players act only on the active GM's client
+  // (they check for themselves), and its window follows any setting of ours.
+  try {
+    registerAutopilotHooks();
+    Hooks.on("updateSetting", (setting) => {
+      if (setting?.key?.startsWith("blank-inheritance.")) refreshAdminPanel();
+    });
+  } catch (err) {
+    console.error("Blank Inheritance | Could not start the admin autopilot:", err);
   }
 
   // The console. Every client, both seats -- the class is picked here once and
@@ -479,62 +573,51 @@ Hooks.once("ready", async () => {
     await createTestSyncMacroIfMissing();
     await createRealSyncMacroIfMissing();
     await createStageDemoMacroIfMissing();
-    await createSceneSetMacroIfMissing();
-    await createLocationEditorMacroIfMissing();
+    await ensureWorldSyncMacro();
     await createEquipmentPanelMacroIfMissing();
     await createDirectorPanelMacroIfMissing();
     await createApprovalsDeskMacroIfMissing();
+    await createAdminMacroIfMissing();
+    await createLocationEditorMacroIfMissing();
     await createInductionTerminalMacroIfMissing();
     await createDemoMacroIfMissing();
     await createTravelTestMacroIfMissing();
   } catch (err) {
     console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
+
+  // The world keeps itself in step with the content on the server
+  // (foundry/world-sync.mjs): brought up to date now if a newer deploy has
+  // landed since it was last updated, then watched for as long as this page is
+  // open. Ingram, 2026-09-19: "every time I load Foundry it just updates, adds
+  // or removes scenes to get us to the current state of the adventure"; and
+  // 2026-09-27: "a system which keeps the Foundry server updated
+  // automatically". Here in `ready` rather than on the first canvasReady, where
+  // it used to be: Foundry never fires canvasReady when no scene is active.
+  // Not awaited -- the page must not wait on a rebuild to finish loading.
+  startWorldSync({ beforeApply: () => resetSceneRunnerCache() }).catch((err) =>
+    console.error("Blank Inheritance | Could not keep the world up to date:", err)
+  );
 });
 
-// Ingram's own request, 2026-09-19: "I wouldn't even see a dialogue that I
-// have to confirm, every time I load Foundry it just updates, adds or
-// removes scenes to get us to the current state of the adventure." Replaces
-// the old confirm-first promptToRunSync (sync-dialog.mjs, now deleted).
-// Content first, then the scene set built from it, then anything the scene
-// set no longer names -- each step gets its own try, same as every other
-// multi-step block in the ready hook above, so one failing step never
-// silently cancels the others (sync.mjs's own per-case isolation already
-// means one bad case inside runRealContentSync won't even get this far).
-// Never silent either way: each step's own whispered chat report and
-// ui.notifications summaries are unchanged, so a real problem is still
-// visible without ever blocking on a click to find out.
-async function runAutomaticSync() {
-  try {
-    await runRealContentSync();
-  } catch (err) {
-    console.error("Blank Inheritance | Automatic content sync failed:", err);
-  }
-  try {
-    await buildSceneSet({ notify: true });
-  } catch (err) {
-    console.error("Blank Inheritance | Automatic scene build failed:", err);
-  }
-  try {
-    await retireOrphanedScenes({ notify: true });
-  } catch (err) {
-    console.error("Blank Inheritance | Automatic orphaned-scene cleanup failed:", err);
-  }
-}
-
-// GM-only, and Hooks.once means this fires exactly once per client session --
-// right as the FIRST scene finishes loading, not on every scene change
-// (canvasReady itself fires on every scene activation).
-Hooks.once("canvasReady", () => {
-  if (!game.user.isGM) return;
-  runAutomaticSync().catch((err) => console.error("Blank Inheritance | Automatic sync failed:", err));
-});
-
-// NOT GM-gated, unlike the sync hook above -- see tile-resilience.mjs's own
+// NOT GM-gated, unlike the world sync above -- see tile-resilience.mjs's own
 // header for why. Hooks.on, not once: canvasReady fires per scene activation,
 // and any scene's own tiles can independently hit the race in any client.
 Hooks.on("canvasReady", () => {
   healStuckTiles().catch((err) => console.error("Blank Inheritance | Tile self-heal pass failed:", err));
+});
+
+// The departures layer on The City: markers, the board, the dashed lines.
+// Mounting on any other scene clears it. Braces for the same Hooks.call
+// reason as the command bar below.
+Hooks.on("canvasReady", () => {
+  mountCityLayer().catch((err) => console.error("Blank Inheritance | Could not mount the city layer:", err));
+});
+Hooks.on("canvasPan", () => {
+  onCityPan();
+});
+Hooks.on("updateToken", (tokenDoc) => {
+  onCityTokenMoved(tokenDoc);
 });
 
 // Re-assert the bar on every scene change. Cheap, and idempotent by way of
@@ -783,7 +866,14 @@ Hooks.on("combatStart", (combat) => {
 // update (updateUser fires everywhere a User document changes), but only
 // the affected user's own `character` field is worth a repaint here.
 Hooks.on("updateUser", (user, changes) => {
-  if (user.id !== game.user.id || !("character" in changes)) return;
+  if (!("character" in changes)) return;
+  // The GM's Runner lists whose characters a rest covers, and the admin panel
+  // the roster: both follow ANY player's character changing.
+  if (game.user.isGM) {
+    refreshSceneRunner();
+    refreshAdminPanel();
+  }
+  if (user.id !== game.user.id) return;
   refreshCommandBar();
   refreshConsoleWindow();
 });

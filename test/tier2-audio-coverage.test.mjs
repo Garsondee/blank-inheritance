@@ -101,14 +101,15 @@ test("every cue trigger's beat id exists in the scene brief it targets", () => {
   assert.deepEqual(problems, []);
 });
 
-test("the campaign overture cold-opens From Up Here, not The Road In -- moved 2026-09-24", () => {
+test("the campaign overture cold-opens From Up Here, not The Road In -- moved 2026-09-24, track picked by Ingram 2026-09-27", () => {
   // Ingram asked for a "Scene 0" ahead of The Road In: From Up Here, a long
-  // GM speech over one high-altitude picture of the city. The overture ("Main
-  // Title", reserved as the campaign-open moment) belongs to whatever the
-  // campaign actually opens on, so it moved with the cold open. The Road In
-  // got its own track the same day, which must be a real, playable,
-  // unreserved one -- not the overture played twice in a row.
-  const OVERTURE = "01-masamichi-amano-main-title";
+  // GM speech over one high-altitude picture of the city. The overture
+  // (reserved as the campaign-open moment) belongs to whatever the campaign
+  // actually opens on, so it moved with the cold open. The Road In got its
+  // own track the same day, which must be a real, playable, unreserved one --
+  // not the overture played twice in a row. The overture was "Main Title"
+  // until Ingram picked "Ashita e no Kibou" for it instead, 2026-09-27.
+  const OVERTURE = "05-masamichi-amano-ashita-e-no-kibou";
   const fromUpHere = readJson("data/audio/soundscapes/episode-c1e1--from-up-here.json");
   const roadIn = readJson("data/audio/soundscapes/episode-c1e1--the-road-in.json");
   assert.equal(fromUpHere.music?.track, OVERTURE, "From Up Here no longer plays the overture");
@@ -128,6 +129,10 @@ test("the campaign overture cold-opens From Up Here, not The Road In -- moved 20
   const registry = readJson("data/campaign/asset-registry.json");
   const reservation = registry.assets.find((a) => a.kind === "audio" && a.id === OVERTURE);
   assert.deepEqual(reservation?.assignedTo, { kind: "moment", ref: "campaign-open" }, "the overture lost its campaign-open reservation");
+
+  // Its predecessor is freed, not left reserved for a track that no longer plays.
+  const RETIRED_OVERTURE = "01-masamichi-amano-main-title";
+  assert.ok(!registry.assets.some((a) => a.kind === "audio" && a.id === RETIRED_OVERTURE), `"${RETIRED_OVERTURE}" is still reserved after the overture moved off it`);
 
   // The Road In's replacement: in the library, a music track, not rejected in
   // review, and not already held for some other purpose.

@@ -89,6 +89,24 @@ test("cueGateDecision: sound or final authoring allows without needing an overri
   assert.deepEqual(cueGateDecision({ status: "final" }), { allowed: true, status: "final", gated: false });
 });
 
+test("cueGateDecision: a scene the Sign-Off sealed live is cleared, so cueing it asks nothing (regression: The Road In asked 'still drafted?' on every cue)", () => {
+  // Shaped like the real sealed record in data/episodes/episode-c1e1-mothers-maiden-name.json:
+  // seal() writes "live" and never sound/final, because a scene is sealed rather than
+  // promoted (design/scene-signoff.md §3). Resolved the same way checkCueGate does it.
+  const episodes = [{
+    scenes: [
+      { briefRef: "episode-c1e1--the-road-in", authoring: { status: "live", gradedAt: "2026-09-22", gradedBy: "Ingram" } },
+      { briefRef: "episode-c1e1--intake-medicals", authoring: { status: "drafted" } }
+    ]
+  }];
+  assert.deepEqual(cueGateDecision(findSceneAuthoring(episodes, "episode-c1e1--the-road-in")), { allowed: true, status: "live", gated: false });
+  assert.deepEqual(
+    cueGateDecision(findSceneAuthoring(episodes, "episode-c1e1--intake-medicals")),
+    { allowed: false, status: "drafted", gated: true },
+    "the drafted scene beside it still asks"
+  );
+});
+
 test("cueGateDecision: drafted or needs-lore authoring blocks, naming the real status", () => {
   assert.deepEqual(cueGateDecision({ status: "drafted" }), { allowed: false, status: "drafted", gated: true });
   assert.deepEqual(cueGateDecision({ status: "needs-lore" }), { allowed: false, status: "needs-lore", gated: true });

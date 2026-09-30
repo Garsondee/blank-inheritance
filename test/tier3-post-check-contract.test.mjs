@@ -26,9 +26,14 @@ const en = JSON.parse(readFileSync(path.join(moduleRoot, "lang", "en.json"), "ut
 test("#onPostCheck posts every skill in skillOptions, not just the first", () => {
   const fn = src.match(/static async #onPostCheck\(event, target\) \{[\s\S]*?\n {2}\}/);
   assert.ok(fn, "#onPostCheck is missing from scene-runner.mjs");
-  assert.match(fn[0], /enrichersFor\(\{\s*skillOptions:\s*check\.skillOptions\s*\?\?\s*\[\]/, "no longer builds the posted content from the FULL skillOptions list");
+  // checkSkills(check) is core/roll-intent.mjs's own "every skill this check
+  // offers" (the whole skillOptions list, or every skill for an any-skill
+  // check). This assertion still named the older inline form after the
+  // source moved to it, and failed at HEAD from 2026-09-26's big commit.
+  assert.match(fn[0], /enrichersFor\(\{\s*skillOptions:\s*checkSkills\(check\)/, "no longer builds the posted content from the FULL skillOptions list");
   assert.doesNotMatch(fn[0], /skillOptions\s*\?\?\s*\[\]\s*\)\s*\[0\]/, "still slices out only the first skill option somewhere");
-  assert.match(src, /import \{ enrichersFor \} from "\.\.\/core\/roll-intent\.mjs"/, "no longer imports the multi-skill enricher builder");
+  assert.doesNotMatch(fn[0], /checkSkills\(check\)\s*\[0\]/, "still slices out only the first skill option somewhere");
+  assert.match(src, /import \{[^}]*\benrichersFor\b[^}]*\} from "\.\.\/core\/roll-intent\.mjs"/, "no longer imports the multi-skill enricher builder");
   assert.doesNotMatch(src, /import \{ enricherFor \} from/, "still imports the single-skill-only enricherFor directly, suggesting the old first-skill-only path may still be reachable");
 });
 

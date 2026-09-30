@@ -128,7 +128,7 @@
       "delivery": "table",
       "encounterRef": "c1e2-first-contact",
       "text": "Three contacts, six machines, two hundred yards of harbour road, and a tram in the middle of it.",
-      "direction": "**Use what they found on the proving ground.** Anybody who took the push-it check yesterday has one specific capability and this is what it was for -- the arm that takes a person's weight, the crane that reaches a first-floor window, the canvas back that holds six people, the bike that goes up steps. Invite those.\n\nThe contacts are dangerous and clumsy. They hit hard and inaccurately, they damage the road and the buildings constantly, and they are genuinely bad at fighting. Play their threat as environmental as much as directed.\n\n**Nothing dies.** A beaten contact comes apart -- structure failing, pieces going still, the rest going elsewhere. See the encounter file.",
+      "direction": "**Use what they found on the proving ground.** Anybody who took the push-it check on the proving ground this morning has one specific capability and this is what it was for -- the arm that takes a person's weight, the crane that reaches a first-floor window, the canvas back that holds six people, the bike that goes up steps. Invite those.\n\nThe contacts are dangerous and clumsy. They hit hard and inaccurately, they damage the road and the buildings constantly, and they are genuinely bad at fighting. Play their threat as environmental as much as directed.\n\n**Nothing dies.** A beaten contact comes apart -- structure failing, pieces going still, the rest going elsewhere. See the encounter file.",
       "note": "HOW TO PLAY IT. The machines amplify the people inside them; nobody has become a vehicle. Keep asking what the character is doing, not what the Frame is doing.\n\nTHE WIN CONDITION IS THE ROAD BEING EMPTY OF PEOPLE. Say it, mean it, and award it. A party that clears the tram and then withdraws has completed this scene successfully and should be told so by the fiction -- the Comms Officer says it, plainly, on the radio.\n\nA PARTY IN TROUBLE always has the harbour wall. A machine can go over it and survive; a contact that follows goes into deep water and stops being a problem. That is a real, discoverable tactic and it is in the terrain from the first description."
     },
     {
@@ -197,7 +197,7 @@
     },
     {
       "id": "use-what-you-found",
-      "text": "Whatever they found their machine could do yesterday morning, this is what it was for."
+      "text": "Whatever they found their machine could do this morning, this is what it was for."
     }
   ],
   "reactionPrompts": [

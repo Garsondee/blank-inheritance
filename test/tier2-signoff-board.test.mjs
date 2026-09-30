@@ -95,11 +95,22 @@ test("findScene() resolves a scene by brief id, by scene id, and by episode#scen
 });
 
 test("the Place link is read from scene-set.json, the same place play-sequence.mjs reads it", () => {
-  const sited = board.rows.filter((r) => r.sited);
+  const sited = board.rows.filter((r) => r.sited && !r.locationWaived);
   assert.ok(sited.length > 0, "at least some scenes should resolve to a real location");
   for (const row of sited) {
     assert.ok(corpus.locations[row.locationRef], `${row.sceneId} claims location ${row.locationRef}`);
     assert.ok(row.locationName, `${row.sceneId}'s location has no name`);
+  }
+});
+
+test("INVARIANT: a row is only sited-without-a-location when P1 was actually waived on its own review record, never by a bare note", () => {
+  // A locationNote in scene-set.json (e.g. From Up Here's) explains a case
+  // FOR an exception; it is not itself the exception. Only a recorded waiver,
+  // made at an actual Place pass, may excuse P1 -- design/scene-signoff.md's
+  // own rule that Place's verdict is "genuinely hers rather than mine".
+  for (const row of board.rows) {
+    if (row.locationRef || !row.sited) continue;
+    assert.ok(row.locationWaived, `${row.sceneId} counts as sited with no locationRef but P1 was not waived on its review record`);
   }
 });
 

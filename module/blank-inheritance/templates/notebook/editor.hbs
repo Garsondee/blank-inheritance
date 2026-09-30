@@ -1,0 +1,63 @@
+{{!--
+    The notebook's page: a title, who wrote it last, and the writing itself.
+
+    The writing is Foundry's own collaborative ProseMirror element, the same
+    markup its journal pages use (templates/journal/pages/text/edit.hbs):
+    `collaborate` plus the page's UUID is all it takes for several players to
+    type in one page at once, see each other's changes as they happen, and see
+    who else is in the page (the little player badges in the editor's menu).
+
+    The <prose-mirror> is only mounted by ApplicationV2 when this part renders,
+    and this part renders only when the selected page changes, never because
+    somebody else typed (foundry/notebook.mjs keeps the two apart).
+
+    Must render exactly ONE top-level element.
+--}}
+<article class="bi-notebook__page" data-page-id="{{selected.id}}">
+    {{#if selected}}
+    <header class="bi-notebook__head">
+        {{#if selected.img}}<img class="bi-notebook__portrait" src="{{selected.img}}" alt="">{{/if}}
+        <div class="bi-notebook__titles">
+            {{#if selected.canRetitle}}
+            <input type="text" name="title" class="bi-notebook__title" value="{{selected.name}}" maxlength="80" autocomplete="off"
+                aria-label="{{localize 'BLANKINHERITANCE.Notebook.Title'}}">
+            {{else}}
+            <h2 class="bi-notebook__title bi-notebook__title--fixed">{{selected.name}}</h2>
+            {{/if}}
+            <p class="bi-notebook__meta">
+                {{#if selected.kinds}}
+                <select name="kind" class="bi-notebook__kind" aria-label="{{localize 'BLANKINHERITANCE.Notebook.KindLabel'}}">
+                    {{#each selected.kinds}}<option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>{{/each}}
+                </select>
+                {{else}}
+                <span class="bi-notebook__kindtag"><i class="{{selected.kindIcon}}" aria-hidden="true"></i> {{selected.kindLabel}}</span>
+                {{/if}}
+                <span class="bi-notebook__written" data-written>{{selected.written}}</span>
+            </p>
+        </div>
+        <div class="bi-notebook__actions">
+            {{#if selected.cardActorId}}
+            <button type="button" class="bi-notebook__act" data-action="openCard" data-actor-id="{{selected.cardActorId}}"
+                data-tooltip="{{localize 'BLANKINHERITANCE.Console.Card.Open'}}" aria-label="{{localize 'BLANKINHERITANCE.Console.Card.Open'}}">
+                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+            </button>
+            {{/if}}
+            {{#if selected.canDelete}}
+            <button type="button" class="bi-notebook__act bi-notebook__act--danger" data-action="deletePage"
+                data-tooltip="{{localize 'BLANKINHERITANCE.Notebook.Delete'}}" aria-label="{{localize 'BLANKINHERITANCE.Notebook.Delete'}}">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+            </button>
+            {{/if}}
+        </div>
+    </header>
+    <div class="bi-notebook__sheet">
+        <prose-mirror name="text.content" class="bi-notebook__prose" value="{{selected.html}}"
+            data-document-uuid="{{selected.uuid}}" collaborate></prose-mirror>
+    </div>
+    {{else}}
+    <div class="bi-notebook__blank">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+        <p>{{#if ready}}{{localize "BLANKINHERITANCE.Notebook.NothingSelected"}}{{else}}{{localize "BLANKINHERITANCE.Notebook.NotOpen"}}{{/if}}</p>
+    </div>
+    {{/if}}
+</article>

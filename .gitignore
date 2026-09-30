@@ -135,11 +135,22 @@ module/blank-inheritance/assets/tokens/
 # test reports are pure diagnostics, regenerated on every run, and are not.
 harvest/test-reports/
 
+# What this machine last deployed (tools/module-sync/deploy.mjs), read by
+# deploy-status.mjs at session start. A per-machine record, not content; the
+# server's own data/campaign/build.json stays the truth.
+tools/module-sync/.last-deploy.json
+
 # tools/module-sync/review-harvest.mjs's own output -- a reproducible
 # summary derived FROM harvest/sessions/ and harvest/chat-*.json, same
 # "regenerate on demand" category as test-reports/ above, not a second copy
 # of source data worth tracking.
 harvest/inference/
+
+# Scene edits (design/scene-edits.md): harvest/scene-edits/*.json -- every edit
+# Ingram makes in the Scene Runner, pulled home -- IS tracked; it is the record
+# of her changes. The merge lock and this machine's "last pulled" note are not.
+harvest/scene-edits/.merge.lock
+tools/scene-edits/.state.json
 
 # location-sync (design/location-editor.md; retired tools/gazetteer/'s own
 # geometry core, moved here 2026-09-29): calibration overlays and crops are
@@ -173,3 +184,6 @@ data/intray/
 # Sign-Off reports: the HTML is generated from reviews/<scene>.json by
 # tools/scene-signoff/report.mjs -- the JSON is the source, the page is the build.
 reviews/*.html
+
+# The Casebook build output (tools/casebook/build.mjs); the source is tools/casebook/ and canon/
+tools/casebook/out/

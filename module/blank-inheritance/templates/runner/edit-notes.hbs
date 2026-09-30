@@ -1,0 +1,26 @@
+{{!--
+    Notes for Claude, pinned to one part of the scene: anything that is not a
+    wording fix ("cut this beat", "the DC is too high", "Nobu should be here").
+    A note is saved the same way as an edit and comes home the same way; I act
+    on it and the ledger carries my reply back here. Her own idea from
+    2026-09-27 ("the 'save' button outputs the changes as a text prompt for
+    you"), kept for the changes that need me, without the copy and paste.
+--}}
+<div class="bi-edit__notes">
+    {{#each notes}}
+    <p class="bi-edit__note{{#if isDone}} bi-edit__note--done{{/if}}">
+        <span class="bi-edit__note-text">{{this.text}}</span>
+        {{#if isDone}}
+        <span class="bi-edit__note-reply"><b>{{localize "BLANKINHERITANCE.Runner.Edit.NoteReply"}}</b> {{this.reply}}</span>
+        {{else}}
+        <span class="bi-edit__note-state">{{localize "BLANKINHERITANCE.Runner.Edit.NoteWaiting"}}</span>
+        <button type="button" class="bi-runner__linkbtn" data-action="editWithdrawNote" data-note-id="{{this.id}}">{{localize "BLANKINHERITANCE.Runner.Edit.TakeBack"}}</button>
+        {{/if}}
+    </p>
+    {{/each}}
+    <div class="bi-edit__note-new">
+        <textarea class="bi-edit__input bi-edit__note-input" rows="1" name="note::{{noteAnchor}}" data-note-anchor="{{noteAnchor}}"
+            aria-label="{{localize 'BLANKINHERITANCE.Runner.Edit.NotePlaceholder'}}" placeholder="{{localize 'BLANKINHERITANCE.Runner.Edit.NotePlaceholder'}}"></textarea>
+        <button type="button" class="bi-runner__stamp" data-action="editSaveNote" data-note-anchor="{{noteAnchor}}">{{localize "BLANKINHERITANCE.Runner.Edit.SendNote"}}</button>
+    </div>
+</div>

@@ -256,6 +256,14 @@ The content of a handout travels **with** the reveal rather than being granted
 ahead of time — nothing about it reaches a player's browser until the moment it
 lands (doctrine Law 11).
 
+**A handout step files it, and is not per-client (changed 2026-09-26).** A
+music-revealed handout goes through the same filer as the scene runner's reveal
+button (`design/handouts.md`): it lands in the players' Papers for good and
+opens at the GM's copy of the beat, not each client's own. Banners still land
+per client. It used to broadcast the brief's raw body into a dialog on every
+screen, which skipped the renderer: a `<redact>` in it would have shown its
+hidden words, and nothing shown was kept.
+
 ### 5.5 Journals in both directions
 
 - **Journal → music:** an `@Cue[cue-id]{Label}` link in any journal page fires

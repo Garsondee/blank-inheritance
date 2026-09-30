@@ -125,9 +125,13 @@ after them is older and is corrected in place where #31, #32 or #34 changed it.*
   and the ship's technology leaked outwards anyway.)*
 - **The Watcher is their ancestors' ship's own navigation and sensor system (LEDGER #31 item 3, and
   Ingram's correction A1.4).** First Impact tore it out of the generation ship and ground it into a swarm
-  of nanotech that isn't bound by anything (`ideas/story/dossier-observer.md`). So **"the Observer", the
-  mitflits' own name for it, is simply the crew's word for a piece of their own ship**: a job title,
-  said flatly and without fear. Ingram, 2026-09-24: *"Yes the Mitflits are descendants of that crew, I
+  of nanotech that isn't bound by anything (`ideas/story/dossier-observer.md`). **The mitflits don't
+  perceive it as the Watcher** (LEDGER #40). They may be aware of something in the air, and it feels to them
+  almost like a comforting religious experience: being watched by something godlike that has always kept
+  mitflits going the right way. *(Claude's reconciliation, marked, LEDGER #40:)* **"the Observer" began as the
+  crew's word for a piece of their own ship**, a job title; over tens of thousands of years it became that
+  tradition's name for the watching, guiding presence they feel, and no mitflit knows it is real. *(Rewritten
+  2026-09-27: this used to call it a job title said flatly and without fear.)* Ingram, 2026-09-24: *"Yes the Mitflits are descendants of that crew, I
   had hoped this would be obvious by now in the lore documents."* It should have been, so say it
   plainly from here on. GM-only, like everything about the Watcher: it is unseen at campaign start
   (standing rule), and what any given mitflit knows about it follows the tiered-knowledge rule further
@@ -306,9 +310,9 @@ after them is older and is corrected in place where #31, #32 or #34 changed it.*
   **Abraxas may emerge from Anabala during the campaign and become a new problem, and Anabala must be
   there for it to happen** (LEDGER #32 item 14; Ingram: *"Anabala must be there for it to happen."*).
   Ingram's preferred way in: the party breaks into the Directorate's deepest vaults in search of
-  information and causes the demon to emerge unexpectedly. *(Proposal, LEDGER #31, veto freely: the
-  deepest vault holds the unredacted founding charter, so the break-in comes when the party goes after the
-  last blacked-out paragraph.)* *(On hold: the founding charter is under review, LEDGER #36.)* **Pippa may choose to keep playing Anabala in the new campaign, as one of
+  information and causes the demon to emerge unexpectedly. *(The LEDGER #31 proposal that the
+  deepest vault holds an unredacted charter is cut with the charter's black bar, LEDGER #41. The party still
+  breaks in in search of information.)* **Pippa may choose to keep playing Anabala in the new campaign, as one of
   the students** (item 14): *"Anabala could be there at the right time and place easily enough."* Open,
   to be solved later (`open-questions.json#anabala-as-student`). *(LEDGER #33: the two don't conflict. Abraxas can
   emerge from Anabala, and Anabala stays Pippa's to play.)*
@@ -394,7 +398,8 @@ after them is older and is corrected in place where #31, #32 or #34 changed it.*
   which makes her placement a structural decision and not just a casting one. **The last clause is a
   register instruction:** mitflits are not a tragic people guarding a sad secret. They are up for it.
   *(2026-09-24: "everything" now includes the two ships, what the Watcher was, and Abraxas. That raises
-  the stakes on when and how the party meets her, not the tier rule itself.)*
+  the stakes on when and how the party meets her, not the tier rule itself.)* *(LEDGER #40: knowing what the ship's
+  eyes were is not knowing they survived. Anabala doesn't know the Watcher exists, and doesn't suspect it.)*
 
 ## Arcs
 

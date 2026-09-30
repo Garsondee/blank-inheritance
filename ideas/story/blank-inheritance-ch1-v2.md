@@ -63,7 +63,7 @@
 
 ## 3. The Premise
 
-**The Directorate has never defended anything.** A century and a half of Frames, a charter, a chain of command, an anthem, a maintenance budget, a conscription statute — and no war. It is a rite of passage, mildly boring, faintly prestigious, and entirely untested.
+**The Directorate has never defended anything.** A century and a half of Frames, a charter, a chain of command, an anthem, a maintenance budget — and no war. It is a rite of passage, mildly boring, faintly prestigious, and entirely untested.
 
 *(Full name: 特別対策本部, Tokubetsu Taisaku Honbu — "Special Countermeasures Headquarters." "The Directorate" is the standing shorthand used throughout.)*
 
@@ -73,7 +73,7 @@ The institution is **calcified rather than sinister**. The adults are not compet
 
 ## 4. Show, Never Tell
 
-**History —** A weathered gnoll statue in the harbour square, plaque reading HYUCK *(legible since LEDGER #27; it was "worn past reading")*, pigeons, kids climbing it *(Hyuck)*. ~~The emergency protocol recited sing-song at assembly, opening with a line about brothers everyone takes as metaphor *(it isn't)*.~~ *(On hold 2026-09-24, LEDGER #32. This was "the berserk protocol", then #31's proposal of Hyuck's emergency protocol for machines that fail under their pilots. Ingram: Hyuck would build something like that, but only with Gen 2, and it is an open question to pin down much later. A Gen 2-only protocol is not something everyone recites at assembly, so this plant waits with it; see §5, #8.)* An anthem with no composer credited *(Rupiah)*. The founding charter framed in the lobby with **one paragraph blacked out** since before anyone alive was born *(under review: LEDGER #36, `open-questions.json#founding-charter-rethink`)*. A skeletal physician who has done ten thousand intake medicals and is very good at it *(a founder, two centuries old)*.
+**History —** A weathered gnoll statue in the harbour square, plaque reading HYUCK *(legible since LEDGER #27; it was "worn past reading")*, pigeons, kids climbing it *(Hyuck)*. ~~The emergency protocol recited sing-song at assembly, opening with a line about brothers everyone takes as metaphor *(it isn't)*.~~ *(On hold 2026-09-24, LEDGER #32. This was "the berserk protocol", then #31's proposal of Hyuck's emergency protocol for machines that fail under their pilots. Ingram: Hyuck would build something like that, but only with Gen 2, and it is an open question to pin down much later. A Gen 2-only protocol is not something everyone recites at assembly, so this plant waits with it; see §5, #8.)* An anthem with no composer credited *(Rupiah)*. The founding charter framed in the lobby, signed at the foot in four hands *(the painted-out paragraph that used to be here is cut, LEDGER #41; the signatures are Shucks's old hand, HYUCK, and Anabala's mitflit script)*. A skeletal physician who has done ten thousand intake medicals and is very good at it *(a founder, two centuries old)*.
 
 **Society —** Someone mends a window with a cantrip and apologises for it. A shopkeeper blames a caster because a preservation charm doesn't hold like it used to, and is wrong. Sail-rigged traders tied up alongside coal cranes. Cliff-top red tile against the smokestack tenement line. A hand-lettered notice asking anyone who spots a mitflit to report it to the Harbour Office, not handle it themselves. Draft paperwork with a queue for every form.
 
@@ -88,20 +88,20 @@ The plants themselves are lore and stay. **The payoff column has been cleared**:
 | # | Plant | Pays off |
 |---|---|---|
 | 1 | All six flag "irregularities" on the DNA screen | *unassigned* |
-| 2 | Nozomi's name still on the roster, locker still assigned | *unassigned* |
-| 3 | The tarp in Hangar Four *(proposal, 2026-09-24, following LEDGER #32 but not decided by it: the natural home for a mothballed Gen 2 prototype; see #4)* | *unassigned* |
+| 2 | Nozomi's name still on the roster, locker still assigned *(planted, LEDGER #44: struck through on the Hangar Two board, Episode Two)* | *unassigned* |
+| 3 | The tarp in Hangar Four *(proposal, 2026-09-24, following LEDGER #32 but not decided by it: the natural home for a mothballed Gen 2 prototype; see #4; planted, LEDGER #44: glimpsed through the shutter in Episode Two's Familiarisation)* | *Chapter 4* |
 | 4 | The same hull breach recurring in the same position across the Gen 2 prototypes *(moved 2026-09-24, LEDGER #32: this said "across every Frame, for decades". Gen 1 Frames have no living core and no seat that shapes itself, so the breach belongs to the Gen 2 prototypes, or the plant is cut)* | *unassigned* |
-| 5 | The blacked-out paragraph | *unassigned* |
+| 5 | ~~The blacked-out paragraph~~ Cut (LEDGER #41): the charter's four signatures instead | *1 on* |
 | 6 | Stencils sited where crowds stand | *unassigned* |
 | 7 | Bulk reagent theft | *unassigned* |
 | 8 | Hyuck's protocol and its line about brothers *(Gen 2 only, and open, LEDGER #32: "maybe we develop this idea to only happen with Gen 2"; formerly the "berserk protocol", then #31's emergency protocol; see §4)* | *unassigned* |
-| 9 | Dogs, birds, the street, the rooftop | *unassigned* |
-| 10 | The girl in the news | *unassigned* |
+| 9 | Dogs, birds, the street, the rooftop | *Episode Two (the harbour road)* |
+| 10 | The girl in the news *(re-planted, LEDGER #44: the Canteen's read-aloud now carries her father on a phone-in)* | *Chapter 6* |
 | 11 | A Frame moves more gently than ordered | *unassigned* |
 | 12 | Cultists helping people up while being arrested | *unassigned* |
 | 13 | **The lens that doesn't work** | *unassigned* |
 
-**Episode One already plants #1, #6, #7, #9, #10 and #11** — the flagged screens at Intake Medicals, the violet marks on The Road In and The Errand, the storekeeper's grumble about dull reagents walking off the shelf, a street the dogs won't use, a radio in the canteen, and the distant Frame on a critical success. Those six are live in the repo today; the rest are unplanted. (#7, #9 and #10 added 2026-09-19, closing gaps between this table and the actually-shipped scene files — see their own Nodes below.)
+**Episode One already plants #1, #6, #7, #9 and #10, and Episode Two plants #2 and #3** *(#11, the gentle Frame, is not planted: The Road In shows a clumsy Gen 1, and Ingram chose not to plant it, LEDGER #44)* — the flagged screens at Intake Medicals, the violet marks on The Road In and The Errand, the instrument makers' grumble about dull stock walking off their stores cupboard *(it was the general store's storekeeper until LEDGER #45)*, a street the dogs won't use, and the father on the canteen radio; then Nozomi's name struck through on Hangar Two's board and the tarp through Hangar Four's shutter (LEDGER #44). #5's replacement, the charter's four signatures, is in Intake Medicals too. (The distant Frame on The Road In's critical success is clumsy, not gentle, so it does not plant #11.) Those seven, and the signatures, are live in the repo today; the rest are unplanted. *(Updated 2026-09-27: this said Episode One plants five and nothing else is planted.)* (#7, #9 and #10 added 2026-09-19, closing gaps between this table and the actually-shipped scene files — see their own Nodes below.)
 
 ## Arcs
 
@@ -122,34 +122,23 @@ schedule that no longer exists. (Found live 2026-09-19: The Road In's own beat h
 still claiming "pays off Ch5" — fixed the same day, see `design/node-registry.md` §11's Bug A.)
 **Referenced by:** *(generated — see `data/generated/node-index.json`, do not hand-edit this line)*
 
-### `mystery-ledger-5` — the founding charter's blacked-out paragraph
-**UNDER REVIEW (LEDGER #36, 2026-09-25).** Ingram: the answer below "belongs to much older generated ideas and notes that don't really feel sane any more". Don't build on it until `open-questions.json#founding-charter-rethink` is settled.
-**Status:** open · **Last touched:** 2026-09-24
-**Setup:** Ledger plant #5, above. The founding charter hangs framed in the intake lobby, one paragraph
-blacked out since before anyone alive was born (`design/design-bible.md`'s original "Show, Never Tell"
-texture note). **The real answer, GM-only, already established and not new:**
-`ideas/story/dossier-first-impact.md` §10 — the four founders wrote a private self-diagnosis about
-themselves roughly five years after founding the Directorate, confronted with what they had nearly
-unleashed. They called themselves *children with guns* and buried the line out of fear of what they
-had become. Two centuries later the institution's actual practice is putting real children into real
-guns; the founders diagnosed themselves accurately on day one. **Nobody currently alive and ordinary
-has read the literal words — that stays a genuine long-term secret, not solvable by any roll.** What
-IS solvable now: `data/challenges/c1e1-the-medical.json`'s `the-charter` check, added 2026-09-19,
-gives a real DC ladder confirming the redaction is original to the founding (crit success) without
-ever handing over the text itself. *(Proposal, LEDGER #31, 2026-09-24: the unredacted charter is kept
-in the Directorate's deepest vault, so the redacted-document chain ends there, and the break-in to
-reach it comes when the party goes after the last black bar. That break-in is where Anabala's demon,
-Abraxas, may emerge. GM-only; see `ideas/story/blank-inheritance-v4.md` §14.)* *(LEDGER #32,
-2026-09-24: Abraxas is female, and Anabala must be there for her to emerge; whether Anabala is,
-including as a PC, is open.)* **Payoff chapter deliberately unassigned**, same discipline as
-`mystery-ledger-6` above.
+### `mystery-ledger-5` — the founding charter's blacked-out paragraph (cut)
+**Status:** resolved · **Last touched:** 2026-09-27 (LEDGER #41: cut)
+**Setup:** Ledger plant #5 was a paragraph of the founding charter painted out since before anyone alive was born.
+**Cut 2026-09-27 (LEDGER #41).** Ingram: *"the charter is a useful document and good lore, but publicly censoring part
+of it is odd - a secret that is flaunted, hints of 1984 and it makes the Directorate seem evil instead of just very
+secretive."* The charter stays, framed in the Infirmary lobby and above the platform in the drill hall, with nothing
+painted out, and the old answer to the bar is withdrawn everywhere. **What replaces the plant (Claude's proposal):** the
+charter's four signatures: Shucks's old hand, which is the hand Rand writes in (`bible/characters/rand.md`); HYUCK in
+capitals; and a line of mitflit script, Anabala's. It is the `the-charter` check in
+`data/challenges/c1e1-the-medical.json`.
 **Referenced by:** *(generated — see `data/generated/node-index.json`, do not hand-edit this line)*
 
 ### `mystery-ledger-7` — bulk reagent theft
 **Status:** open · **Last touched:** 2026-09-19
 **Setup:** Ledger plant #7, above. Added 2026-09-19 to `data/scene-briefs/episode-c1e1--the-errand.json`
-— the general store's storekeeper, if it comes up naturally, mentions that dull stock keeps walking off
-her shelves: nothing valuable, nothing anyone would normally bother stealing, which is exactly why
+— the instrument makers' stores cupboard *(moved from the general store, LEDGER #45)*: one of them, if it comes up
+naturally, mentions that dull stock keeps walking off the shelves: nothing valuable, nothing anyone would normally bother stealing, which is exactly why
 nobody has looked into it. One line, no check, pure ambient texture; this scene never confirms it means
 anything. **The real answer, GM-only:** raw material for a lab stakeout: lab inventory turns up bulk quantities of extremely dull reagents
 missing across three months, resolving in a fight with four professionals through a window at two in the
@@ -159,12 +148,15 @@ removed from `design/induction.md` on 2026-09-25; read it as a candidate, not a 
 **Referenced by:** *(generated — see `data/generated/node-index.json`, do not hand-edit this line)*
 
 ### `mystery-ledger-9` — dogs, birds, the street, the rooftop
-**Status:** open · **Last touched:** 2026-09-19
+**Status:** open · **Last touched:** 2026-09-27 (LEDGER #43: answer and payoff)
 **Setup:** Ledger plant #9, above. Added 2026-09-19 to `data/scene-briefs/episode-c1e1--the-errand.json`
-— free city texture on the walk to the general store: a street the local dogs refuse to use, a good
-rooftop with no birds on it. No check, no explanation offered, no character reacts to it. **No GM-only
-answer recorded yet, unlike #5 and #7** — what this eventually connects to, if anything, is genuinely
-open rather than withheld. **Payoff chapter deliberately unassigned.**
+— free city texture on the walk to the instrument makers *(was the general store, LEDGER #45)*: a street the local dogs refuse to use, a good
+rooftop with no birds on it. No check, no explanation offered, no character reacts to it. **GM-only answer
+(Ingram, LEDGER #43):** dogs, birds and other creatures sense the Watcher's nanoparticles in some deep-down
+way, perhaps as a high-frequency buzzing that upsets them, so they go anywhere else. **Payoff (Ingram's
+suggestion, placed by Claude):** the street drops to the harbour road below the old town, where Cicada
+clashed with the police and Sap was released, and where the three Proto-Claimants form in Episode Two.
+*(Proposal: animals keeping away is also a tell the party can learn to read from Chapter 4.)*
 **Referenced by:** *(generated — see `data/generated/node-index.json`, do not hand-edit this line)*
 
 ### `mystery-ledger-10` — the girl in the news

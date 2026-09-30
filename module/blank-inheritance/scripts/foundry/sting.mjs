@@ -27,6 +27,7 @@
 
 import { STING_TIERS, diffCast, noticeForArrival } from "../core/sting.mjs";
 import { NOTICE_CAP, NOTICE_DWELL, NoticeQueue } from "../core/notices.mjs";
+import { noticeForRename, renamedMembers } from "../core/stage-names.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const TEMPLATE_PATH = `modules/${MODULE_ID}/templates/stage/banner.hbs`;
@@ -192,6 +193,16 @@ export function announceCastChange(scene) {
   const { arrived } = diffCast(previous, next);
   for (const member of arrived) {
     const notice = noticeForArrival(member);
+    if (notice) notify(notice.kind, notice.text);
+  }
+
+  // A name being told is the same kind of event as an arrival, read off the
+  // same update, so its banner and the plate's stamp land together.
+  const renamed = renamedMembers(previous, next);
+  for (const member of next) {
+    const before = renamed.get(member.portraitId);
+    if (!before) continue;
+    const notice = noticeForRename(before, member);
     if (notice) notify(notice.kind, notice.text);
   }
 }

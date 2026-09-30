@@ -41,7 +41,7 @@
       "id": "age",
       "text": "Age",
       "bioPath": "system.details.age.value",
-      "purposeNote": "Volunteers have no upper age limit — only conscripts do. Older than the cadets around you is a real, supported choice.",
+      "purposeNote": "Volunteers have no upper age limit. Older than the cadets around you is a real, supported choice.",
       "suggestions": ["17", "19", "24", "31", "46"]
     },
     {

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manga-issue.schema.json",
+  "title": "Manga issue",
+  "description": "One issue of the Directorate's recruitment comic: the page format, the lettering sizes, and every page's layout, art and words in both editions. It drives tools/manga/render.py; the plan is design/propaganda-manga.md. A new store, flagged deliberately, like data/title-sequences/. Positions (`at`, `tail`) are fractions of the item's own panel, x from the left and y from the top, so a layout change never strands a balloon. `gm` notes are GM-only: the renderer never reads them, and a test holds that none is ever drawn. Not synced to Foundry (tools/module-sync/stage-campaign-data.mjs uses an explicit allow-list); the table gets rendered pages through the handouts system.",
+  "type": "object",
+  "required": ["id", "type", "authoring", "title", "format", "lettering", "artDir", "pages"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "type": { "const": "manga-issue" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
+    "title": { "$ref": "#/$defs/bilingual" },
+    "note": { "type": "string", "description": "GM-facing notes about the issue as a whole." },
+    "format": {
+      "type": "object",
+      "required": ["trim_mm", "bleed_mm", "binding", "inner_mm", "gutter_mm", "frame_mm"],
+      "additionalProperties": false,
+      "properties": {
+        "trim_mm": { "$ref": "#/$defs/pair" },
+        "bleed_mm": { "type": "number", "minimum": 0 },
+        "binding": { "enum": ["right", "left"], "description": "right: a Japanese book, spine on the right, odd pages on the left." },
+        "inner_mm": {
+          "type": "object",
+          "required": ["top", "bottom", "outer", "spine"],
+          "additionalProperties": false,
+          "properties": {
+            "top": { "type": "number" },
+            "bottom": { "type": "number" },
+            "outer": { "type": "number" },
+            "spine": { "type": "number" }
+          }
+        },
+        "gutter_mm": {
+          "type": "object",
+          "required": ["side", "tier"],
+          "additionalProperties": false,
+          "properties": {
+            "side": { "type": "number", "description": "Between panels side by side." },
+            "tier": { "type": "number", "description": "Between tiers; at least 1.8 times the side gap." }
+          }
+        },
+        "frame_mm": { "type": "number", "description": "Panel border weight at print size." }
+      }
+    },
+    "lettering": {
+      "type": "object",
+      "required": ["ja_em_mm", "en_size_mm", "line_mm", "pad_em"],
+      "additionalProperties": false,
+      "properties": {
+        "ja_em_mm": { "type": "number", "description": "Japanese dialogue character size at print (12.5Q = 3.125 mm)." },
+        "en_size_mm": { "type": "number", "description": "English dialogue font size at print." },
+        "line_mm": { "type": "number", "description": "Balloon outline weight; lighter than the panel border." },
+        "pad_em": { "type": "number", "description": "Space between the words and the balloon, in character sizes." }
+      }
+    },
+    "artDir": { "type": "string", "description": "Repo-relative folder of the panel art (gitignored), named by prompt code." },
+    "pages": { "type": "array", "items": { "$ref": "#/$defs/page" } }
+  },
+  "$defs": {
+    "pair": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+    "bilingual": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "ja": { "type": "string" }, "en": { "type": "string" } }
+    },
+    "page": {
+      "type": "object",
+      "required": ["id", "number", "tiers", "panels"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "number": { "type": "integer", "minimum": 1, "description": "The booklet page number; its parity decides which side the spine is on." },
+        "mangaPage": { "type": "integer", "minimum": 1 },
+        "hashira": { "$ref": "#/$defs/bilingual", "description": "The editor's copy in the outer margin." },
+        "gm": { "type": "string" },
+        "tiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["height_mm", "panels"],
+            "additionalProperties": false,
+            "properties": {
+              "height_mm": { "type": "number" },
+              "panels": {
+                "type": "array",
+                "description": "Right to left: the first panel listed is read first.",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "width_mm"],
+                  "additionalProperties": false,
+                  "properties": { "id": { "type": "string" }, "width_mm": { "type": "number" } }
+                }
+              }
+            }
+          }
+        },
+        "panels": { "type": "object", "additionalProperties": { "$ref": "#/$defs/panel" } }
+      }
+    },
+    "panel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "art": { "type": ["string", "null"], "description": "File name in artDir, named by prompt code." },
+        "focus": { "$ref": "#/$defs/pair", "description": "Where the crop centres, as fractions of the image." },
+        "zoom": { "type": "number", "minimum": 1 },
+        "gm": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/item" } }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": ["kind", "at"],
+      "properties": {
+        "kind": { "enum": ["balloon", "caption", "sfx", "mark", "sign", "title", "aori"] },
+        "at": { "$ref": "#/$defs/pair" },
+        "tail": { "$ref": "#/$defs/pair", "description": "The speaker's mouth; the tail stops `stop` of the way there." },
+        "stop": { "type": "number" },
+        "shape": { "enum": ["oval", "burst", "angular", "wobbly", "caption", "none"] },
+        "text": { "oneOf": [{ "type": "string" }, { "$ref": "#/$defs/bilingual" }] },
+        "sub": { "type": "string", "description": "The English edition's gloss beside a Japanese sound effect or sign." },
+        "sub_at": { "$ref": "#/$defs/pair" },
+        "sub_angle": {
+          "type": "number",
+          "description": "Degrees to turn the gloss; -90 runs it down the page beside a vertical sign."
+        },
+        "sub_size_mm": { "type": "number" },
+        "size_mm": { "type": "number" },
+        "scale": { "type": "number" },
+        "max_cells": { "type": "integer", "minimum": 1 },
+        "aspect": { "type": "number" },
+        "angle": { "type": "number" },
+        "step": { "$ref": "#/$defs/pair" },
+        "grow": { "type": "number" },
+        "wobble": { "type": "number" },
+        "caption_scale": { "type": "number" },
+        "ja": { "type": "object", "description": "Overrides for the Japanese edition." },
+        "en": { "type": "object", "description": "Overrides for the English edition." },
+        "gm": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

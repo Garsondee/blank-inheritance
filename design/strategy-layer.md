@@ -112,6 +112,11 @@ feels like escalation rather than promotion.
 
 Rungs are gated by chapter as well as cost, so nobody buys Prodigies in Chapter 2.
 
+**How the top rungs happen in the fiction (LEDGER #42, 2026-09-27):** the party earns them by showing extraordinary
+ability and judgement. The Deputy Director, the founders and the city all back them, and people whose judgement failed
+resign and take full responsibility for their blunders. The result is promotion, and the freedom to decide how to
+respond; the adults stay, and follow their lead.
+
 ### SITE CLASSIFICATION — a second, different axis *(new, 2026-09-12)*
 
 Clearance rungs answer one question: given a party already knows a place exists, how far inside

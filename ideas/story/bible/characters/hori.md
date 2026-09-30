@@ -94,7 +94,7 @@ person alive who knows her name". The court heard it too; he is the one who kept
 
 ## Ties
 
-- **Hori and Oda.** Both men fired when frightened, one in a street and one in a cockpit. They have never met, and
+- **Hori and the Commander** *(named Oda in older notes; the name is unsettled)*. Both men fired when frightened, one in a street and one in a cockpit. They have never met, and
   never will unless the party arranges it (v4 §2).
 - **Hori and the Soldier.** The officer who fired and the officer who filed the report. Neither knows the other
   carries the same day.

@@ -52,6 +52,7 @@ const ANY_TRIG_OPEN = /<trig\b/i;
 export const TRIGGER_KIND_META = Object.freeze({
   "npc-enter": { key: "good", glyph: "▸" },
   "npc-exit": { key: "good-dim", glyph: "◂" },
+  "reveal-name": { key: "info", glyph: "✎" },
   "reveal-handout": { key: "info", glyph: "▤" },
   "post-check": { key: "info", glyph: "⟳" },
   "gm-tool": { key: "warn", glyph: "⚙" },

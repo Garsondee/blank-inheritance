@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e2-scheduled-exercise",
   "sceneRef": "school-period-two",
   "title": "School: Period Two",
-  "summary": "Afternoon lessons, attended by six people covered in sea-wall paint. Field medicine, taught by the skeleton who took their blood a fortnight ago, or civics, taught by the one officer in the building whose job is openness, from a charter with a paragraph painted out of it.",
+  "summary": "Afternoon lessons, attended by six people covered in sea-wall paint. Field medicine, taught by the skeleton who took their blood yesterday, or civics, taught by the one officer in the building whose job is openness, from the founding charter.",
   "goal": "Every player has sat a second class of their own choosing and come out with something they can use, or with extra work.",
   "howToPlay": "Short, warm and slightly ridiculous -- they are covered in paint and neither teacher was told why.\n\nSame structure as period one: run both rooms in parallel, one image, one exchange, one optional roll each, fifteen minutes for the whole thing.\n\n**Shucks being an ordinary, kind teacher here is doing structural work.** The more unremarkable he is in this classroom, the harder it lands when he walks into the Deputy Director's office at the end of the episode and is granted a private audience in ten seconds. Do not foreshadow it at all.",
   "runsAbout": "15 minutes for both, run in parallel",
@@ -74,7 +74,7 @@
       "id": "transparency-advocate",
       "npcRef": "transparency-advocate",
       "label": "The Transparency Advocate",
-      "role": "Teaches civics from the founding charter, which hangs framed on the wall with a paragraph painted out of it.",
+      "role": "Teaches civics from the founding charter, which hangs framed on the wall.",
       "arrival": "announced",
       "brief": {
         "wants": "Them to know their own rights and duties precisely, because almost nobody in this building does and it costs people.",
@@ -85,17 +85,17 @@
             "note": "Precisely and generously. This is genuinely useful institutional knowledge and nobody else will give it to them."
           },
           {
-            "topic": "The charter on the wall, including the part that is painted over",
+            "topic": "The charter on the wall: what it promises, and who signed it",
             "note": "Openly and with obvious frustration. It is the single thing about this institution that most annoys them and they will say so to a room of sixteen-year-olds."
           },
           {
             "topic": "What they themselves have asked for and been refused",
-            "note": "Briefly and without self-pity. They have asked to see the unredacted charter more than once. The answer is always that the original is not held here."
+            "note": "Briefly and without self-pity. They have asked more than once to see the inventory of what the Directorate keeps in its deep storage vaults. The answer is always that it is held above their clearance."
           }
         ],
         "willNotDiscuss": [
           {
-            "topic": "What the painted-over paragraph says",
+            "topic": "What is in the deep storage vaults (they don't know)",
             "why": "They do not know. Nobody they have ever asked knows. They are entirely honest about this and find it maddening."
           }
         ],
@@ -134,8 +134,8 @@
           },
           {
             "id": "civics",
-            "label": "Civics -- rights, duties and standing orders, under a framed charter with a paragraph painted out of it.",
-            "consequence": "The one adult in the building whose job is openness, teaching from a document that has been redacted since before anybody alive was born."
+            "label": "Civics -- rights, duties and standing orders, under the framed founding charter.",
+            "consequence": "The one adult in the building whose job is openness, in an institution that keeps its biggest secrets in vaults."
           }
         ],
         "allowsInventedOption": true
@@ -172,11 +172,8 @@
         "condition": "for players who chose civics, and only if one of them properly engages"
       },
       "readAloud": "\"You are entitled to see any standing order that is used against you. Nobody will ever tell you that, so I am telling you now. Write it down.\n\nFourteen, paragraph four. A direct instruction from a controlling officer. Learn that one -- it is the one that will be quoted at you.\"",
-      "direction": "Genuinely useful and genuinely generous. They are arming trainees against their own institution and they know exactly what they are doing.\n\nIf anybody looks at the charter on the wall, let them see the painted-over paragraph and let the Advocate be entirely honest: they do not know what it says, they have asked three times, and the original is not held here.",
-      "nodeRefs": [
-        "mystery-ledger-5"
-      ],
-      "note": "HOW TO PLAY IT. This is the second touch on the charter thread, and the important difference from the Assembly is the source: an officer of this institution, whose actual job is openness, saying plainly that they have asked and been refused.\n\nGM-ONLY: what the paragraph says is a long-term secret and is not decided. Nothing here reveals it and no roll in this scene can.\n\nWHAT IT DOES NOT MEAN: the Advocate is not a conspirator, is not recruiting the party, and is not hinting at anything. They are a frustrated professional answering a question honestly.\n\nPAYS OFF IN THE HAMMER. A player who has Standing Order 14 para 4 will hear it quoted in the Deputy Director's office and will know exactly what is being invoked. Do not mention that now."
+      "direction": "Genuinely useful and genuinely generous. They are arming trainees against their own institution and they know exactly what they are doing.\n\nIf anybody asks what the Advocate can't find out, let them be entirely honest: they have asked three times for the inventory of the deep storage vaults, and it is held above their clearance. They don't know what's in them.",
+      "note": "HOW TO PLAY IT. An officer of this institution, whose actual job is openness, saying plainly that they have asked and been refused.\n\nGM-ONLY: the vaults hold recovered alien technology, locked away so it can't cause a disaster (LEDGER #40). Nothing here reveals that, and no roll in this scene can.\n\nWHAT IT DOES NOT MEAN: the Advocate is not a conspirator, is not recruiting the party, and is not hinting at anything. They are a frustrated professional answering a question honestly.\n\nPAYS OFF IN THE HAMMER. A player who has Standing Order 14 para 4 will hear it quoted in the Deputy Director's office and will know exactly what is being invoked. Do not mention that now."
     },
     {
       "id": "out-again",
@@ -206,7 +203,77 @@
     "transition": {
       "mechanism": "scheduled",
       "line": "The board has their names against an empty box for the rest of the afternoon.",
-      "scatterRisk": false
+      "scatterRisk": true
+    },
+    "departure": {
+      "kind": "free",
+      "question": "The afternoon is yours. Where do you go?",
+      "destinations": [
+        {
+          "id": "machine-shop",
+          "label": "The machine shop floor",
+          "placeRef": "no-1-machine-shop",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "Hulda Brack's floor. Somebody will put a tool in your hand within a minute."
+        },
+        {
+          "id": "the-range",
+          "label": "The range",
+          "placeRef": "range-control",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "Somebody else's qualification is running, and trainees may watch."
+        },
+        {
+          "id": "records",
+          "label": "The records office",
+          "placeRef": "the-registry",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "The island's records, and a clerk with an open shelf."
+        },
+        {
+          "id": "school",
+          "label": "The school block",
+          "placeRef": "main-school-complex",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "There is a lesson going on without you."
+        },
+        {
+          "id": "kitchens",
+          "label": "The kitchens",
+          "placeRef": "long-hall",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "Warm, loud, short-staffed, and glad of free hands."
+        },
+        {
+          "id": "vehicle-park",
+          "label": "The vehicle park",
+          "placeRef": "the-long-store",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "Rows of covered machines nobody has introduced you to yet."
+        },
+        {
+          "id": "off-base",
+          "label": "Off base, with a pass",
+          "placeRef": "the-tea-house-420",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "needs": "a signed pass from the hatch",
+          "blurb": "Signed out and back by muster. The city is yours for the afternoon."
+        },
+        {
+          "id": "sleep",
+          "label": "Sleep",
+          "placeRef": "row-c-block-3",
+          "briefRef": "episode-c1e2--the-long-afternoon",
+          "blurb": "Your bunk, and an afternoon of it."
+        }
+      ],
+      "then": {
+        "kind": "muster",
+        "placeRef": "the-muster-yard",
+        "briefRef": "episode-c1e2--the-override",
+        "label": "Evening muster",
+        "question": "Evening muster, in the yard."
+      }
     },
     "onwards": "Into The Long Afternoon.",
     "writeDown": [
@@ -246,5 +313,5 @@
       "text": "Whether either class's later usefulness stayed unannounced."
     }
   ],
-  "notes": "STRUCTURAL PURPOSE. Shucks is an ordinary teacher here and nothing about him is remarkable. That is the entire point: it is what makes him walking unannounced into the Deputy Director's office at the end of the episode land as strange. Do not foreshadow, do not weight a line, do not let anybody comment on his standing.\n\nBOTH ROOMS PAY OFF THIS EPISODE AND NEITHER SAYS SO. Field medicine is usable on injured civilians at the tram. Civics gives the party the exact standing order that gets quoted at them in The Hammer. Unannounced payoffs are the reward for engaging.\n\nTHE TRANSPARENCY ADVOCATE IS NOT A CONSPIRATOR. They are a serving officer doing an unpopular job honestly, who has asked three times to see an unredacted founding charter and been told the original is not held here. That is all true and all of it is maddening to them.\n\nSAME COST STRUCTURE AS PERIOD ONE. Not rolling is free. Failure costs a free quarter. Critical failure costs a quarter and leaves them Fatigued the next day. Risks are never announced beforehand."
+  "notes": "STRUCTURAL PURPOSE. Shucks is an ordinary teacher here and nothing about him is remarkable. That is the entire point: it is what makes him walking unannounced into the Deputy Director's office at the end of the episode land as strange. Do not foreshadow, do not weight a line, do not let anybody comment on his standing.\n\nBOTH ROOMS PAY OFF THIS EPISODE AND NEITHER SAYS SO. Field medicine is usable on injured civilians at the tram. Civics gives the party the exact standing order that gets quoted at them in The Hammer. Unannounced payoffs are the reward for engaging.\n\nTHE TRANSPARENCY ADVOCATE IS NOT A CONSPIRATOR. They are a serving officer doing an unpopular job honestly, who has asked three times to see the inventory of the deep storage vaults and been told it is held above their clearance. That is all true and all of it is maddening to them.\n\nSAME COST STRUCTURE AS PERIOD ONE. Not rolling is free. Failure costs a free quarter. Critical failure costs a quarter and leaves them Fatigued the next day. Risks are never announced beforehand."
 }

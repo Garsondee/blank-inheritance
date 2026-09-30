@@ -42,6 +42,11 @@ could get something real out of.
 - **Consequence for the party: they were activated early.** "The group goes into action earlier than
   they normally should" is a direct quote from the discussion establishing this — her defection created
   a timing pressure that accelerated Day 1 itself, not just a vacancy the party happens to fill.
+- **The first trace of it is on paper (LEDGER #38, 2026-09-26).** Every acceptance letter this year has
+  its printed reporting date, "the first Monday of term", ruled through under a red 繰上 BROUGHT
+  FORWARD stamp, with "Monday next" typed in. It is a fact, not a lead: nothing on the letter points at
+  her, and nobody at the gate explains it. The overheard search at Intake Medicals is the first thing
+  that can make sense of it, and still only as a fragment (see below).
 - **Her current state: questioning and temporary detainment.** She's been through this once already
   with her actual questioners, which is exactly why a careful visitor might get more than official
   channels would — she's tired of repeating herself to the wrong kind of asking, not unwilling to talk
@@ -79,7 +84,8 @@ build directly off what a player overheard here without a real, separate scene m
   Perception check while queueing at Intake Medicals (`overhear-the-search`,
   `data/challenges/c1e1-the-medical.json`). Deliberately a fragment only, never her name resolving to
   anything actionable — see Tone and register below. When the FULL story surfaces (if ever, beyond this
-  early hint) is still open.
+  early hint) is still open. *(2026-09-27, LEDGER #44: a second fragment is planted in Episode Two, her name in older
+  chalk, struck through, on Hangar Two's board; the crew don't talk about it.)*
 - Can the party actually visit/interview her, and if so, when does that become available, and what's
   the real DC/skill for "don't ruffle her feathers"? Still fully open — the overhear check above is
   not that interview, only a hint one might exist to find later.

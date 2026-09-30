@@ -23,7 +23,7 @@
         "status": "drafted"
       },
       "title": "From Up Here",
-      "description": "Scene 0. The GM's opening speech over one picture of the world and the city: the rift at Kortos, the four who stopped it, the prophecy that named Kurose, the Directorate that built the city, and how the city feels about it. No questions to the table -- that is next scene.",
+      "description": "Scene 0. The GM's opening speech over one picture: the world two hundred years on, the rift at Kortos, the Directorate and the open question of why it came to Kurose, the fishing village that became a great city and who it left behind, what a Frame is, and the gate.",
       "briefRef": "episode-c1e1--from-up-here",
       "challengeRefs": []
     },
@@ -78,7 +78,9 @@
       "briefRef": "episode-c1e1--the-road-in",
       "challengeRefs": [
         "c1e1-the-road-in"
-      ]
+      ],
+      "day": 0,
+      "quarter": "morning"
     },
     {
       "order": 2,
@@ -91,7 +93,9 @@
       "briefRef": "episode-c1e1--intake-medicals",
       "challengeRefs": [
         "c1e1-the-medical"
-      ]
+      ],
+      "day": 1,
+      "quarter": "morning"
     },
     {
       "order": 3,
@@ -104,7 +108,9 @@
       "briefRef": "episode-c1e1--assembly",
       "challengeRefs": [
         "c1e1-assembly"
-      ]
+      ],
+      "day": 1,
+      "quarter": "morning"
     },
     {
       "order": 4,
@@ -117,7 +123,9 @@
       "briefRef": "episode-c1e1--school-first-period",
       "challengeRefs": [
         "c1e1-school-first-period"
-      ]
+      ],
+      "day": 1,
+      "quarter": "afternoon"
     },
     {
       "order": 5,
@@ -130,7 +138,9 @@
       "briefRef": "episode-c1e1--kit-issue",
       "challengeRefs": [
         "c1e1-kit-issue"
-      ]
+      ],
+      "day": 1,
+      "quarter": "afternoon"
     },
     {
       "order": 6,
@@ -143,7 +153,9 @@
       "briefRef": "episode-c1e1--school-second-period",
       "challengeRefs": [
         "c1e1-school-second-period"
-      ]
+      ],
+      "day": 1,
+      "quarter": "afternoon"
     },
     {
       "order": 7,
@@ -156,7 +168,9 @@
       "briefRef": "episode-c1e1--the-errand",
       "challengeRefs": [
         "c1e1-the-errand"
-      ]
+      ],
+      "day": 1,
+      "quarter": "afternoon"
     },
     {
       "order": 8,
@@ -169,7 +183,9 @@
       "briefRef": "episode-c1e1--the-tram-back",
       "challengeRefs": [
         "c1e1-the-tram-back"
-      ]
+      ],
+      "day": 1,
+      "quarter": "evening"
     },
     {
       "order": 9,
@@ -182,7 +198,9 @@
       "briefRef": "episode-c1e1--canteen",
       "challengeRefs": [
         "c1e1-canteen"
-      ]
+      ],
+      "day": 1,
+      "quarter": "evening"
     },
     {
       "order": 10,
@@ -193,7 +211,9 @@
       "title": "The Walk Down",
       "description": "The session's deliberate relax beat between the canteen's cold ending and the fight -- ten minutes, no NPCs required (Taka may see them off), kitting up and walking to Dock C with nobody else in the room.",
       "briefRef": "episode-c1e1--the-walk-down",
-      "challengeRefs": []
+      "challengeRefs": [],
+      "day": 1,
+      "quarter": "night"
     },
     {
       "order": 11,
@@ -208,7 +228,9 @@
         "c1e1-flood-tunnel"
       ],
       "encounterRef": "c1e1-flood-tunnel",
-      "subsystemRef": "c1e1-compactor-cycle"
+      "subsystemRef": "c1e1-compactor-cycle",
+      "day": 1,
+      "quarter": "night"
     }
   ],
   "requiredBeats": [
@@ -223,9 +245,10 @@
   "endOfEpisodeEffects": [],
   "openQuestionRefs": [],
   "danglingThreads": [
+    "Why every acceptance letter this year was stamped BROUGHT FORWARD over its printed date.",
     "What a blood screen with a pre-printed IRREGULAR tick-box is actually looking for.",
-    "What the blacked-out paragraph in the founding charter says, and who painted over it.",
-    "Who the old man in the tea house is, and why a retired chemist reads a two-century-old catalogue like sheet music.",
+    "Whose hands signed the founding charter, and why one of them is in a script nobody here reads.",
+    "Who the old man in the tea house is, and why a retired chemist reads a century-old catalogue like sheet music.",
     "That trainee messages are read as routine policy, and that the party agreed to it this morning without reading the form.",
     "A cicada, stencilled on a wall in the city, that meant nothing at the time.",
     "The name on the order that assembled them, spoken once from the platform and not explained."

@@ -33,6 +33,7 @@ import { openSceneRunner } from "./scene-runner.mjs";
 import { openEquipmentPanel } from "./equipment-panel.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { openInductionTerminal } from "./induction-terminal.mjs";
+import { openAdminPanel } from "./admin-panel.mjs";
 import { selectCastRow } from "./cast.mjs";
 import { refreshCommandBar } from "./command-bar.mjs";
 
@@ -86,7 +87,8 @@ const HUB_TILES = [
   { id: "scene-runner", labelKey: "BLANKINHERITANCE.Console.Window.Hub.SceneRunner", faIcon: "fa-solid fa-film", open: () => openSceneRunner() },
   { id: "equipment", labelKey: "BLANKINHERITANCE.Console.Window.Hub.Equipment", faIcon: "fa-solid fa-toolbox", open: () => openEquipmentPanel() },
   { id: "scene-close", labelKey: "BLANKINHERITANCE.Console.Window.Hub.SceneClose", faIcon: "fa-solid fa-clapperboard", open: () => openSceneCloseDialogue() },
-  { id: "induction", labelKey: "BLANKINHERITANCE.Console.Window.Hub.Induction", faIcon: "fa-solid fa-id-card", open: () => openInductionTerminal() }
+  { id: "induction", labelKey: "BLANKINHERITANCE.Console.Window.Hub.Induction", faIcon: "fa-solid fa-id-card", open: () => openInductionTerminal() },
+  { id: "admin", labelKey: "BLANKINHERITANCE.Console.Window.Hub.Admin", faIcon: "fa-solid fa-screwdriver-wrench", open: () => openAdminPanel() }
 ];
 
 async function buildHubTab() {

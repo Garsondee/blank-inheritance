@@ -1,0 +1,30 @@
+{{!--
+    One field of the edit sheet. The box is named by its field key
+    ("<file>::<path>", core/scene-edits.mjs#fieldKey) twice over: `name`, so
+    Foundry's own re-render keeps the focus on it, and `data-edit-key`, which
+    is what foundry/scene-runner.mjs saves it by.
+
+    Each state class is a literal inside its own {{#if}} (the tier-0 class
+    lint strips Handlebars before it looks), and every mark is always present
+    in the markup and shown by its field's state class -- so a save that marks
+    a field in place, without a re-render, has a mark to show.
+--}}
+<div class="bi-edit__field{{#if isRead}} bi-edit__field--read{{/if}}{{#if isProse}} bi-edit__field--prose{{/if}}{{#if isLine}} bi-edit__field--line{{/if}}{{#if isCode}} bi-edit__field--code{{/if}}{{#if isFlag}} bi-edit__field--flag{{/if}}{{#if isChoice}} bi-edit__field--choice{{/if}}{{#if isNumber}} bi-edit__field--number{{/if}}{{#if isPending}} bi-edit__field--pending{{/if}}{{#if isClash}} bi-edit__field--clash{{/if}}{{#if isServerBehind}} bi-edit__field--behind{{/if}}" data-field="{{key}}">
+    <span class="bi-edit__label">
+        <span class="bi-edit__label-text">{{localize label}}{{#if labelData}} <b>{{labelData}}</b>{{/if}}</span>
+        <span class="bi-edit__mark bi-edit__mark--pending">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.Pending"}}</span>
+        <span class="bi-edit__mark bi-edit__mark--clash">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.Clash"}}</span>
+        <span class="bi-edit__mark bi-edit__mark--behind">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.Behind"}}</span>
+        <span class="bi-edit__mark bi-edit__mark--draft">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.Draft"}}</span>
+        <span class="bi-edit__mark bi-edit__mark--failed">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.Failed"}}</span>
+    </span>
+    {{#if isText}}<textarea class="bi-edit__input" name="{{key}}" data-edit-key="{{key}}" data-edit-kind="{{kind}}" rows="{{rows}}" spellcheck="true"
+        aria-label="{{localize label}}" placeholder="{{localize 'BLANKINHERITANCE.Runner.Edit.Empty'}}">{{value}}</textarea>{{/if}}
+    {{#if isNumber}}<input class="bi-edit__input bi-edit__input--number" type="number" step="1" name="{{key}}" data-edit-key="{{key}}" data-edit-kind="number"
+        aria-label="{{localize label}}" value="{{value}}">{{/if}}
+    {{#if isFlag}}<input class="bi-edit__checkbox" type="checkbox" name="{{key}}" data-edit-key="{{key}}" data-edit-kind="flag"
+        aria-label="{{localize label}}"{{#if value}} checked{{/if}}>{{/if}}
+    {{#if isChoice}}<select class="bi-edit__select" name="{{key}}" data-edit-key="{{key}}" data-edit-kind="choice" aria-label="{{localize label}}">
+        {{#each options}}<option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{localize this.label}}</option>{{/each}}
+    </select>{{/if}}
+</div>

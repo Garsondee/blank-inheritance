@@ -2,10 +2,10 @@
   "$schema": "../schema/scene-set.schema.json",
   "id": "scene-set",
   "type": "scene-set",
-  "description": "Every real Foundry Scene in the campaign: the landing scene, one per beat of Episode One, the rooms inside those beats, the campaign map they hang off, and the Directorate's own building. Built into a world by the Scene Set macro, idempotently -- run it twice and nothing changes.",
+  "description": "Every real Foundry Scene in the campaign: the landing scene, one per beat of Episode One, the rooms inside those beats, and the campaign map they hang off. Built into a world by the Scene Set macro, idempotently -- run it twice and nothing changes.",
   "notes": [
-    "SCENE -> MAP -> SCENE. The map is the hub and the thing to cut back to between beats. Episode One is a corridor, so its pins run in story order; nothing about the map assumes that stays true, and adding a pin is one entry here.",
-    "Every pin's position comes from the gazetteer location it names (data/locations/<id>.json, derived.centroidPx), never from a coordinate written here. Move a building in the gazetteer and its signpost follows it. data/schema/location.schema.json's own `pinAnchor` field is the eventual home for 'where the pin should sit rather than the centroid'; it is null everywhere today, so centroid plus an explicit offsetPx is what we have.",
+    "SCENE -> MAP -> SCENE. The map is the hub and the thing to cut back to between beats. Where the party can go from it is no longer written here: since 2026-09-28 it is each scene brief's own outro.departure, drawn on the map as destination markers by the module's city layer (design/world-map-destinations.md).",
+    "RETIRED 2026-09-28: the hub's Note pins (one Journal pin per scene, positioned from each gazetteer location's derived.centroidPx plus an offsetPx). They showed every scene at once, including ones the party could not go to yet. Ingram asked for them to be replaced by the departures system, which shows only the places a departure offers, when it offers them. Each scene's locationRef is still what places its marker. The scene builder deletes any old pin it made; a GM's own Notes are untouched.",
     "RESOLVED 2026-09-18 (GitHub issue #164): Kit Issue now pins at The Quartermaster's Stores (the-quartermasters-stores), a real gazetteer location Ingram drew and named for exactly this. ONE PROPOSED CORRESPONDENCE remains: Flood Tunnel Clearance is still pinned at The Old Landing, a whole district rather than the exact chamber -- the brief wants a drainage/compactor chamber under the old town, reached from Dock C, and neither is in the gazetteer yet. See its own locationNote. (A separate new location, The Drain Head, was drawn on the fortress island the same day -- explicitly NOT this chamber, see its own gmOnly note -- and does not resolve this gap.)",
     "The Section Officer's office (episode-c1e2--as-discussed) now has art (GitHub issue #164) and its own scene under the episode-two group.",
     "Added 2026-09-20: two new Episode One beats from the Episode One rebuild, e1-the-tram-back and e1-the-walk-down -- both connective/relax scenes with no NPCs, neither pinned on the map since neither is a distinct place. e1-the-walk-down reuses Flood Tunnel Clearance's own art deliberately: the scene ends at the exact gate Flood Tunnel Clearance opens on, same site, same night. e1-the-tram-back has NO real art yet -- nothing in the asset set is a tram interior -- and temporarily borrows The Errand's alley shot for its dusk-lit mood. Wants real art: a half-empty tram interior, evening light, streetlights just starting to show through the window.",
@@ -13,7 +13,8 @@
     "ADDED 2026-09-22: the 17 scenes with no Scene document at all (3 in Episode One, 14 in Episode Two -- everything but As Discussed) now have one, closing the gap the second #189 comment measured. All 26 authored scenes across both episodes now have a Scene entry.",
     "THE FOUR SCHOOL SCENES, RESOLVED: each gets its own Scene document (matching every other scene, one per brief, so the Scene Runner's automatic soundscape-and-scene binding still works per-brief) rather than one shared or split Scene. Two pairs reuse one room's art each -- e1-school-first-period and e2-school-period-two both use location--school-classroom; the natural-history and prep rooms are each used once -- because a school has a handful of real rooms and the same room legitimately hosts different lessons, the same reasoning already applied to the art assignment itself. A table that splits into the OTHER room a scene offers is a GM manually switching to that room's own Scene (all three exist), not something this manifest needs to solve.",
     "LOCATION PINS: only six of the seventeen new entries got a locationRef (the four school scenes at main-school-complex, Familiarisation and The Names Are Still Up at main-mech-hangar, The Exercise at the-proving-ground, Unidentified Contact at the-plot-room) -- all confirmed against real, already-existing gazetteer files. The other scenes deliberately have none rather than a guessed one: some (The Long Afternoon, The Night Off) are genuinely multi-place scenes with no single location to pin, matching the existing precedent for e1-the-tram-back/e1-the-walk-down; the rest simply do not have a confirmed matching gazetteer entry yet. None of this blocks the Scene documents themselves, which need no pin to exist, show their art, or bind their soundscape -- it only means the campaign map's hub has fewer pins than it eventually could.",
-    "ADDED 2026-09-24: e1-from-up-here, a new opening scene ahead of The Road In -- Ingram asked for a \"Scene 0\": a long GM speech over one high-altitude picture of the city that sets up the world and hands straight into The Road In. It is order 0 and now THE landing scene (the one a new player meets); e1-the-road-in went from kind landing to kind beat the same day, since the schema allows exactly one landing. Order 0 is what numbers it \"00.\" in the sidebar (computeDisplayPrefixes), so The Road In keeps its \"01.\" and nothing after it renumbers. No locationRef and no hub pin, for the reason in its own locationNote. The campaign overture moved with it: it cold-opens From Up Here now, not The Road In (data/audio/soundscapes/)."
+    "ADDED 2026-09-24: e1-from-up-here, a new opening scene ahead of The Road In -- Ingram asked for a \"Scene 0\": a long GM speech over one high-altitude picture of the city that sets up the world and hands straight into The Road In. It is order 0 and now THE landing scene (the one a new player meets); e1-the-road-in went from kind landing to kind beat the same day, since the schema allows exactly one landing. Order 0 is what numbers it \"00.\" in the sidebar (computeDisplayPrefixes), so The Road In keeps its \"01.\" and nothing after it renumbers. No locationRef and no hub pin, for the reason in its own locationNote. The campaign overture moved with it: it cold-opens From Up Here now, not The Road In (data/audio/soundscapes/).",
+    "REMOVED 2026-09-27: the \"Directorate HQ\" group and its four scenes (hq-exterior, hq-lobby, hq-atrium, hq-loading-dock). Ingram deleted that folder and all four scenes from the live world herself the same day, after asking for the scenes which are not useful to go. They were general-facility pictures with no scene brief, no pin and no episode that used them (asset-registry.json had flagged them as not tied to any scene). With the world now rebuilding itself from this file at every GM login (module/blank-inheritance/scripts/foundry/world-sync.mjs), leaving them here would have brought them straight back. The art stays in module/blank-inheritance/assets/scenes/ (landing-scene.mjs still falls back to the lobby picture), so restoring one is a single entry here."
   ],
   "artRoot": "modules/blank-inheritance/assets/scenes",
   "groups": [
@@ -31,11 +32,6 @@
       "id": "the-city",
       "name": "The City",
       "colour": "#1e3a5f"
-    },
-    {
-      "id": "directorate",
-      "name": "Directorate HQ",
-      "colour": "#3a3a3a"
     }
   ],
   "scenes": [
@@ -103,7 +99,7 @@
       "order": 8,
       "briefRef": "episode-c1e1--the-errand",
       "locationRef": "the-general-store-416",
-      "blurb": "The biggest general store in the quarter: if it isn't in stock here, it isn't in stock nearby. The first time all six of you are outdoors in the city together — weather, noise, strangers, and the harbour two streets over."
+      "blurb": "An instrument makers' workshop in the city: brass gauges, glass vials, and spirit levels in open boxes. The first time all six of you are outdoors in the city together — weather, noise, strangers."
     },
     {
       "id": "e1-the-errand-tea-house",
@@ -230,120 +226,7 @@
       "width": 12400,
       "height": 12400,
       "adoptSceneNamed": "Campaign Map",
-      "blurb": "The city, as the Directorate draws it.",
-      "pins": [
-        {
-          "sceneRef": "e1-the-road-in",
-          "offsetPx": [
-            -70,
-            -40
-          ]
-        },
-        {
-          "sceneRef": "e1-intake-medicals",
-          "offsetPx": [
-            40,
-            34
-          ]
-        },
-        {
-          "sceneRef": "e1-kit-issue"
-        },
-        {
-          "sceneRef": "e1-the-errand"
-        },
-        {
-          "sceneRef": "e1-canteen",
-          "offsetPx": [
-            0,
-            -34
-          ]
-        },
-        {
-          "sceneRef": "e1-flood-tunnel"
-        },
-        {
-          "sceneRef": "e1-school-first-period",
-          "offsetPx": [
-            -48,
-            -48
-          ]
-        },
-        {
-          "sceneRef": "e1-school-second-period",
-          "offsetPx": [
-            48,
-            -48
-          ]
-        },
-        {
-          "sceneRef": "e2-school-period-one",
-          "offsetPx": [
-            -48,
-            48
-          ]
-        },
-        {
-          "sceneRef": "e2-school-period-two",
-          "offsetPx": [
-            48,
-            48
-          ]
-        },
-        {
-          "sceneRef": "e2-familiarisation",
-          "offsetPx": [
-            -40,
-            0
-          ]
-        },
-        {
-          "sceneRef": "e2-the-names-are-still-up",
-          "offsetPx": [
-            40,
-            0
-          ]
-        },
-        {
-          "sceneRef": "e2-the-exercise"
-        },
-        {
-          "sceneRef": "e2-unidentified-contact"
-        }
-      ]
-    },
-    {
-      "id": "hq-exterior",
-      "name": "Directorate HQ — Exterior",
-      "art": "directorate-headquarters--exterior",
-      "group": "directorate",
-      "kind": "place",
-      "order": 1
-    },
-    {
-      "id": "hq-lobby",
-      "name": "Directorate HQ — Lobby",
-      "art": "directorate-headquarters--lobby",
-      "group": "directorate",
-      "kind": "place",
-      "order": 2
-    },
-    {
-      "id": "hq-atrium",
-      "name": "Directorate HQ — The Atrium",
-      "art": "directorate-headquarters--atrium",
-      "group": "directorate",
-      "kind": "place",
-      "order": 3
-    },
-    {
-      "id": "hq-loading-dock",
-      "name": "Directorate HQ — Loading Dock",
-      "art": "directorate-headquarters--loading-dock",
-      "group": "directorate",
-      "kind": "place",
-      "order": 4,
-      "navigation": false
+      "blurb": "The city, as the Directorate draws it."
     },
     {
       "id": "e1-assembly",
@@ -420,7 +303,7 @@
       "order": 5,
       "briefRef": "episode-c1e2--school-period-two",
       "locationRef": "main-school-complex",
-      "blurb": "The Main School Complex, second period, afternoon light. A teaching bench set up for field medicine, equipment out and ready, and a civics room with the founding charter framed on the wall — one paragraph of it painted over, a long time ago."
+      "blurb": "The Main School Complex, second period, afternoon light. A teaching bench set up for field medicine, equipment out and ready, and a civics room with the founding charter framed on the wall."
     },
     {
       "id": "e2-the-long-afternoon",

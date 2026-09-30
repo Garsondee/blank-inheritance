@@ -168,6 +168,16 @@
   /* Clean typewriter, where Special Elite's noise would hurt legibility
      (control numbers, dense form fields). */
   --bi-font-typewriter-clean: "Courier Prime", "Courier New", Courier, monospace;
+  /* Everything typed on a paper handout (bi-papers.css): TT2020, a real
+     typewriter font whose ten versions of every glyph mean no two letters
+     strike alike. A machine's broken letters use its damaged cut instead
+     (--bi-font-typed-fault-1..3, one fixed misstrike each). */
+  --bi-font-typed: "TT2020", "Courier Prime", "Courier New", monospace;
+  --bi-font-typed-fault-1: "TT2020 Fault 1", "TT2020", "Courier Prime", monospace;
+  --bi-font-typed-fault-2: "TT2020 Fault 2", "TT2020", "Courier Prime", monospace;
+  --bi-font-typed-fault-3: "TT2020 Fault 3", "TT2020", "Courier Prime", monospace;
+  /* A clerk's fountain pen: corrections and margin notes on a handout. */
+  --bi-paper-pen: #1f355e;
 
   /* Military stencil. Hull numbers, crate markings, classification
      banners — sprayed through a plate, not typed. */
@@ -575,6 +585,11 @@
     repeating-linear-gradient(90deg, rgb(0 0 0 / 1.1%) 0 3px, transparent 3px 7px),
     radial-gradient(120% 90% at 22% 8%, rgb(255 255 255 / 34%) 0%, transparent 60%),
     linear-gradient(172deg, var(--bi-paper) 0%, var(--bi-paper-shade) 100%);
+
+  /* Rubber-stamp wear, used as a MASK: fractal noise mapped to alpha, so a
+     stamp's ink breaks up where the rubber did not meet the paper. Opaque
+     where the noise is low, gone where it peaks. */
+  --bi-mat-ink-wear: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='w'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3.2 0 0 0 2.35'/></filter><rect width='100%25' height='100%25' filter='url(%23w)'/></svg>");
 
   /* Brass bezel — a conic sweep so the highlight travels round the ring. */
   --bi-mat-brass:

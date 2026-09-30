@@ -164,8 +164,13 @@ test("the Director's doors fit their shoulder with room to spare (regression: th
   const pad = rule(components, ".bi-deck-director,\n.bi-deck-selectors");
   const room = token("--bi-deck-outer") - px(pad, "padding-left") - px(pad, "padding-right");
   assert.ok(pills * cap + (pills - 1) * gap <= room, `${pills} pills need ${pills * cap + (pills - 1) * gap}px; the shoulder has ${room}px`);
-  // The player's dossier carries four, under the same arithmetic.
-  assert.equal((identTemplate.match(/class="bi-deck-pill__cap"/g) ?? []).length, 4);
+  // The player's dossier carries five since Notes joined (2026-09-29), and a
+  // fifth pill at the base 44px cap left the caps overlapping by a pixel, so
+  // its row is the tight one too, under the same arithmetic.
+  const playerPills = (identTemplate.match(/class="bi-deck-pill__cap"/g) ?? []).length;
+  assert.equal(playerPills, 5, "Sheet, Spells, Gear, Notes, Comms");
+  assert.match(identTemplate, /class="bi-deck__pills bi-deck__pills--tight"/, "five pills must use the tight row");
+  assert.ok(playerPills * cap + (playerPills - 1) * gap <= room, `${playerPills} pills need ${playerPills * cap + (playerPills - 1) * gap}px; the shoulder has ${room}px`);
 });
 
 test("the log shows six timestamped lines, and the number of rows the CSS draws is the number the adapter sends", () => {

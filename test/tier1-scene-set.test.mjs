@@ -1,6 +1,7 @@
 // Tier 1 — the scene set's own planning (scripts/core/generators/scene-set.mjs):
-// where a map pin lands, what a bad manifest is caught saying, and the order
-// and navigation flags the built scenes come out with.
+// what a bad manifest is caught saying, and the order and navigation flags the
+// built scenes come out with. (The campaign map's Note pins were retired
+// 2026-09-28 -- design/world-map-destinations.md -- and their tests with them.)
 //
 // Runs against the REAL data/campaign/scene-set.json and the REAL gazetteer
 // locations it names, so this doubles as a corpus test: authoring a scene
@@ -14,16 +15,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  PIN_CROWDING_PX,
-  PIN_ICON_SIZE,
   computeDisplayPrefixes,
-  hubPinPlan,
   pinJournalPage,
-  pinPosition,
   sceneSetPlan,
   validateSceneSet
 } from "../module/blank-inheritance/scripts/core/generators/scene-set.mjs";
-import { sceneCalibration } from "../module/blank-inheritance/scripts/core/travel-animation.mjs";
+import { sceneCalibration, toScenePoint } from "../module/blank-inheritance/scripts/core/travel-animation.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const readJson = (rel) => JSON.parse(readFileSync(path.join(repoRoot, rel), "utf8"));
@@ -35,7 +32,7 @@ for (const ref of [...new Set(manifest.scenes.map((s) => s.locationRef).filter(B
   if (existsSync(path.join(repoRoot, file))) locations.set(ref, readJson(file));
 }
 
-test("the shipped scene set is internally consistent and every pin has somewhere real to sit", () => {
+test("the shipped scene set is internally consistent", () => {
   assert.deepEqual(validateSceneSet(manifest, { locations }), []);
 });
 
@@ -47,17 +44,7 @@ test("every scene's artwork actually exists in the module", () => {
   }
 });
 
-test("a pin is placed from its location's own centroid, calibrated, then nudged", () => {
-  const location = { id: "x", derived: { centroidPx: [7000, 6500] } };
-  assert.deepEqual(pinPosition(location, { originX: 0, originY: 0, scale: 0.5 }), { x: 3500, y: 3250 });
-  assert.deepEqual(pinPosition(location, { originX: 0, originY: 0, scale: 0.5 }, [-70, 40]), { x: 3430, y: 3290 });
-  assert.deepEqual(pinPosition(location, { originX: 0, originY: 0, scale: 1 }), { x: 7000, y: 6500 });
-  assert.throws(() => pinPosition({ id: "y", derived: {} }, { originX: 0, originY: 0, scale: 1 }), /centroidPx/);
-  assert.throws(() => pinPosition(location, { originX: 0, originY: 0, scale: 0 }), /scene calibration/);
-  assert.throws(() => pinPosition(location, null), /scene calibration/);
-});
-
-test("a pin honours a real Scene's own tile origin, not just its scale — the exact bug found live 2026-09-23", () => {
+test("a place on the hub honours a real Scene's own tile origin, not just its scale — the exact bug found live 2026-09-23", () => {
   // The real remote hub scene: four full-resolution tiles at
   // (6200,6200)/(12400,6200)/(6200,12400)/(12400,12400), each 6200 wide --
   // see core/travel-animation.mjs's own header for how this was found and
@@ -79,7 +66,7 @@ test("a pin honours a real Scene's own tile origin, not just its scale — the e
   assert.deepEqual(calibration, { originX: 3100, originY: 3100, scale: 1 });
 
   const location = { id: "x", derived: { centroidPx: [6200, 6200] } };
-  const at = pinPosition(location, calibration);
+  const at = toScenePoint({ x: location.derived.centroidPx[0], y: location.derived.centroidPx[1] }, calibration);
   assert.deepEqual(at, { x: 9300, y: 9300 });
   assert.notDeepEqual(
     at,
@@ -88,28 +75,19 @@ test("a pin honours a real Scene's own tile origin, not just its scale — the e
   );
 });
 
-test("crowded pins are REPORTED, never silently shoved apart", () => {
-  // The two campus buildings really are eleven pixels apart on the map.
-  const crowded = {
+test("a hub that still lists map pins is refused: they were retired, and would silently do nothing", () => {
+  const stale = {
     groups: [{ id: "g", name: "G" }],
     scenes: [
-      { id: "a", name: "A", art: "a", group: "g", kind: "landing", locationRef: "one" },
-      { id: "b", name: "B", art: "b", group: "g", kind: "beat", locationRef: "two" },
-      { id: "hub", name: "Hub", art: "m", group: "g", kind: "hub", pins: [{ sceneRef: "a" }, { sceneRef: "b" }] }
+      { id: "a", name: "A", art: "a", group: "g", kind: "landing" },
+      { id: "hub", name: "Hub", art: "m", group: "g", kind: "hub", pins: [{ sceneRef: "a" }] }
     ]
   };
-  const near = new Map([
-    ["one", { id: "one", derived: { centroidPx: [6962, 6486] } }],
-    ["two", { id: "two", derived: { centroidPx: [6944, 6500] } }]
-  ]);
-  const problems = validateSceneSet(crowded, { locations: near });
+  const problems = validateSceneSet(stale, { locations: new Map() });
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /overlap — give one an offsetPx/);
-
-  // And an offset silences it, because the author has now said where it goes.
-  crowded.scenes[2].pins[1].offsetPx = [80, 80];
-  assert.deepEqual(validateSceneSet(crowded, { locations: near }), []);
-  assert.equal(PIN_CROWDING_PX, PIN_ICON_SIZE, "the crowding threshold tracks the pin's own drawn size, not a copied Foundry default");
+  assert.match(problems[0], /pins were retired/);
+  const hub = manifest.scenes.find((s) => s.kind === "hub");
+  assert.ok(!("pins" in hub), "the shipped hub carries no pins: destinations are each scene brief's outro.departure");
 });
 
 test("a manifest that names a missing location, a missing group or two landing scenes is caught", () => {
@@ -172,8 +150,7 @@ test("From Up Here, the 2026-09-24 opening speech: the one landing scene, its ow
   // no locationRef, and therefore no pin on the campaign map -- the same
   // "none rather than a guessed one" rule the manifest's own notes apply.
   assert.ok(!entry.locationRef, "From Up Here is a view of the whole city, not one gazetteer location");
-  const hub = manifest.scenes.find((s) => s.kind === "hub");
-  assert.ok(!hub.pins.some((p) => p.sceneRef === "e1-from-up-here"), "the opening speech has no pin on the campaign map");
+
 });
 
 test("scene data carries the v14 shape: background on the level, padding 0, gridless", () => {
@@ -189,26 +166,6 @@ test("scene data carries the v14 shape: background on the level, padding 0, grid
   assert.equal(hub.data.height, 12400);
 });
 
-test("map pins point at a journal page and use texture, not the retired icon field", () => {
-  const hub = manifest.scenes.find((s) => s.kind === "hub");
-  const calibration = { originX: 0, originY: 0, scale: 1 };
-  const pins = hubPinPlan(hub, manifest, {
-    locations,
-    calibration,
-    journalFor: (sourceId) => ({ entryId: "J", pageId: `page-${sourceId}` })
-  });
-  assert.equal(pins.length, hub.pins.length);
-  const roadIn = pins.find((p) => p.sceneRef === "e1-the-road-in");
-  assert.equal(roadIn.data.text, "The Road In");
-  assert.equal(roadIn.data.entryId, "J");
-  assert.equal(roadIn.data.pageId, "page-e1-the-road-in");
-  assert.ok(roadIn.data.texture?.src, "a Note carries its image on `texture` in v14");
-  assert.equal(roadIn.data.icon, undefined);
-  assert.equal(roadIn.data.global, true, "a pin nobody has a token near must still be visible");
-  assert.ok(Number.isInteger(roadIn.data.x) && Number.isInteger(roadIn.data.y), "Note x/y are integer fields");
-  assert.equal(roadIn.data.iconSize, PIN_ICON_SIZE, "the pin draws at our own explicit size, not Foundry's much bigger default");
-});
-
 test("a pin's journal page says where it is and never what is waiting there", () => {
   const page = pinJournalPage(
     { name: "Flood Tunnel Clearance", blurb: "Ferry stages and chandlers." },
@@ -221,14 +178,6 @@ test("a pin's journal page says where it is and never what is waiting there", ()
   // Written from the manifest's own blurb only: nothing can reach in here
   // from the scene brief, which is where the centipedes are written down.
   assert.doesNotMatch(page.text.content, /centipede/i);
-});
-
-test("every blurb on a player-facing pin is written, not left to a placeholder", () => {
-  const hub = manifest.scenes.find((s) => s.kind === "hub");
-  for (const pin of hub.pins) {
-    const target = manifest.scenes.find((s) => s.id === pin.sceneRef);
-    assert.ok(target.blurb && target.blurb.length > 40, `${pin.sceneRef} is pinned on the map with no blurb for a player to read`);
-  }
 });
 
 /* ------------------------------------------------------------------ */

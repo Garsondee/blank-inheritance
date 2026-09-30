@@ -57,7 +57,9 @@ export const CUE_STEPS = Object.freeze({
   wait: { presentational: false },
   "at-marker": { presentational: false },
   banner: { presentational: true },
-  handout: { presentational: true },
+  // Decided once, on the GM, since 2026-09-26: a handout is filed in the
+  // players' Papers (foundry/handouts.mjs), not flashed per client.
+  handout: { presentational: false },
   macro: { presentational: false }
 });
 

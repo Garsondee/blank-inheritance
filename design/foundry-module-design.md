@@ -136,6 +136,14 @@ Every module install/update deletes the entire module folder **except** a direct
 - **Deploy only via WinSCP, never Foundry's built-in module updater.** The updater is precisely the operation that triggers the wipe. `persistentStorage` is insurance against an accidental update, not the primary workflow.
 
 ### Harvest, mechanically
+**2026-09-27: built for scenes, in a different shape. See [scene-edits.md](scene-edits.md).** A scene
+brief is not a Foundry document, so it has no promotable fields to detect. Ingram edits it in the Scene
+Runner's edit sheet. Each change is an immutable record in `storage/`, laid over the deployed files by
+the Runner and merged into the repo by `tools/scene-edits`, automatically at conversation start, before
+an edit of a scene file, and in `npm run deploy`. The promotable class below was realised for the episode
+journals and Papers handouts: one edited in Foundry is kept, not rebuilt or rewritten, and filed for
+folding in by hand (`core/foundry-edits.mjs`). The original plan follows.
+
 A GM-facing action (a context-menu entry on a document, or a button in the director's panel — TBD at build time) triggers, for a specific document: read its current *promotable* field values, serialize to JSON, `FilePicker.implementation.uploadPersistent("blank-inheritance", "harvest/<entity-id>.json", file, {}, {notify: false})`. That lands in `storage/harvest/`, which WinSCP pulls down on the next sync pass. A future (or immediate, manual) step reviews and merges it into the canonical `data/` file — deliberately not automatic, since "did the GM's edit actually improve on the authored version" is a judgment call, not a merge algorithm's job.
 
 ### Conflict handling stays narrow on purpose

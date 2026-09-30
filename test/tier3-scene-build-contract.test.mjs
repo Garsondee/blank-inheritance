@@ -84,16 +84,38 @@ test("a scene THIS pipeline built (found by its own deterministic id) still gets
   assert.match(elseIfBlock[0], /await existing\.update\(\{ \.\.\.updateData, folder: folder\?\.id \?\? null \}\);/);
 });
 
-test("every downstream lookup (hub pins, pin targets, landing activation) prefers the REAL id an adoption produced, not just the deterministic one", () => {
+test("every downstream lookup (the hub, landing activation) prefers the REAL id an adoption produced, not just the deterministic one", () => {
   assert.match(src, /realIdFor\.set\(plan\.sourceId, scene\.id\);/, "realIdFor is no longer populated — nothing downstream can find an adopted scene by its real id");
-  assert.match(src, /game\.scenes\.get\(realIdFor\.get\(hub\.id\) \?\? idFor\.get\(hub\.id\)\)/, "the hub-pin loop no longer checks realIdFor first — an adopted hub's pins would silently go nowhere");
-  assert.match(src, /targetSceneId: realIdFor\.get\(pin\.sceneRef\) \?\? idFor\.get\(pin\.sceneRef\) \?\? null/, "a pin's own target scene id no longer prefers realIdFor — a pin to an adopted scene would open nothing");
+  assert.match(src, /game\.scenes\.get\(realIdFor\.get\(hub\.id\) \?\? idFor\.get\(hub\.id\)\)/, "the hub loop no longer checks realIdFor first — an adopted hub's old pins would never be cleared");
+  // The map's Note pins were retired 2026-09-28 (design/world-map-destinations.md): the hub loop only removes ours.
+  assert.doesNotMatch(src, /createEmbeddedDocuments\(\s*"Note"/, "the scene builder creates map pins again — they were retired for the departures layer");
   assert.match(src, /game\.scenes\.get\(realIdFor\.get\(landing\.sourceId\) \?\? landing\.data\._id\)/, "activateLanding no longer checks realIdFor first — an adopted landing scene could never be auto-activated");
 });
 
 test("an adoption is reported, not silent — a GM should be told a hand-built scene was just claimed", () => {
   assert.match(src, /report\.adopted = \[\.\.\.\(report\.adopted \?\? \[\]\),/);
   assert.match(src, /for \(const adoption of report\.adopted \?\? \[\]\) ui\.notifications\.info/);
+});
+
+// 2026-09-29: hidden GM-reference tokens (Ingram — every npc should have a
+// real Actor and a token she can click into during Theatre of Mind play).
+// planReferenceTokens/castNpcRefs themselves are pure and directly unit
+// tested (test/tier1-scene-reference-tokens.test.mjs); what's pinned HERE is
+// the one thing only the calling code can guarantee — that an adopted,
+// hand-built scene is never touched by this either, same "hands off its
+// content" rule the rest of this file exists to protect.
+test("hidden reference tokens are never placed on an ADOPTED scene — same 'hands off a human's own scene' rule as its geometry", () => {
+  assert.match(
+    src,
+    /if \(!adopted && plan\.briefRef\) \{\s*try \{\s*await syncCastReferenceTokens\(scene, plan\.briefRef\);/,
+    "syncCastReferenceTokens must be gated on `!adopted` — placing tokens on a hand-built scene is exactly the kind of unasked-for write this file exists to prevent"
+  );
+});
+
+test("a failure placing reference tokens is reported as a problem, not left to throw and abort the rest of the scene build", () => {
+  const fn = src.match(/async function syncCastReferenceTokens\([\s\S]*?\n\}/);
+  assert.ok(fn, "syncCastReferenceTokens is missing");
+  assert.match(src, /await syncCastReferenceTokens\(scene, plan\.briefRef\);\s*\} catch \(err\) \{\s*report\.problems\.push/, "a reference-token failure for one scene must not stop the loop building the rest of the scene set");
 });
 
 test("quarantineStrayScenes is exported and reachable from the console, matching retireTemporaryScenes' own established pattern (2026-09-18: 'get rid of... and/or move into a special folder')", () => {
@@ -151,50 +173,59 @@ test("retireOrphanedScenes is GM-gated and reachable from the console, wired alo
   assert.match(entry, /^\s*retireOrphanedScenes,\s*$/m, "retireOrphanedScenes no longer sits on mod.api");
 });
 
-// --- runAutomaticSync (blank-inheritance.mjs, 2026-09-19) ------------------
+// --- The automatic sync: runAutomaticSync (2026-09-19) became the world sync (2026-09-27) ---
 //
-// Ingram's own request, same session as retireOrphanedScenes above: "I
-// wouldn't even see a dialogue that I have to confirm... it just updates,
-// adds or removes scenes." This is the orchestration that replaced the old
-// confirm-first promptToRunSync (sync-dialog.mjs, deleted the same day --
-// nothing imports it any more, checked by grep across the whole repo before
-// removal). Same reason as everything else in this file for reading source
-// text rather than mounting a mock: Hooks.once/canvasReady and the module's
-// own top-level hook wiring aren't something test/support/mock-foundry.mjs
-// models at all.
+// Ingram, 2026-09-19: "I wouldn't even see a dialogue that I have to confirm...
+// it just updates, adds or removes scenes." That orchestration first lived in
+// blank-inheritance.mjs as runAutomaticSync, on the first canvasReady of each GM
+// login. On 2026-09-27 it moved into foundry/world-sync.mjs, which knows which
+// deployed build the world was last brought up to: Foundry never fires
+// canvasReady when no scene is active, and the old version redid everything
+// (clipboard write and chat card included) at every login while never noticing
+// a deploy that landed mid-session. The world sync's own contract is
+// test/tier3-world-sync-contract.test.mjs; what stays here is the part that is
+// about this file's neighbours.
 
 const entry = readFileSync(path.join(moduleRoot, "blank-inheritance.mjs"), "utf8");
 
-test("runAutomaticSync runs content sync, then the scene set, then orphan cleanup, in that order", () => {
-  const fn = entry.match(/async function runAutomaticSync\(\)\s*\{[\s\S]*?\n\}/);
-  assert.ok(fn, "runAutomaticSync is missing from blank-inheritance.mjs");
-  const contentIndex = fn[0].indexOf("runRealContentSync()");
-  const sceneIndex = fn[0].indexOf("buildSceneSet(");
-  const orphanIndex = fn[0].indexOf("retireOrphanedScenes(");
-  assert.ok(contentIndex > -1 && sceneIndex > -1 && orphanIndex > -1, "runAutomaticSync no longer calls all three steps");
-  assert.ok(contentIndex < sceneIndex && sceneIndex < orphanIndex, "the three steps are no longer called in content -> scenes -> orphans order");
+test("runAutomaticSync and its canvasReady hook are gone, replaced by the world sync -- not kept as a shim", () => {
+  assert.doesNotMatch(entry, /async function runAutomaticSync\(/, "runAutomaticSync still exists beside the world sync -- two automatic syncs would race");
+  assert.doesNotMatch(entry, /runAutomaticSync\(\)/, "something still calls runAutomaticSync");
+  assert.match(entry, /startWorldSync\(\{ beforeApply: \(\) => resetSceneRunnerCache\(\) \}\)/, "the ready hook no longer starts the world sync");
 });
 
-test("runAutomaticSync isolates each of its three steps in its own try, so one failing step cannot cancel the others", () => {
-  const fn = entry.match(/async function runAutomaticSync\(\)\s*\{[\s\S]*?\n\}/);
-  const tryCount = (fn[0].match(/\btry\s*\{/g) ?? []).length;
-  assert.equal(tryCount, 3, "runAutomaticSync no longer wraps each of its three steps in its own try/catch");
+test("the world sync is exposed on mod.api, so a GM can force it from the console without reloading", () => {
+  assert.match(entry, /^\s*runWorldSync,\s*$/m, "runWorldSync no longer sits on mod.api");
+  assert.doesNotMatch(entry, /^\s*runAutomaticSync,\s*$/m, "runAutomaticSync is still on mod.api");
 });
 
-test("the canvasReady hook is GM-gated and calls runAutomaticSync, not the deleted promptToRunSync", () => {
-  // A historical mention of promptToRunSync in a comment (why this changed)
-  // is fine and expected; an import of it is not -- that's the part that
-  // would mean sync-dialog.mjs's deletion broke the module.
-  assert.doesNotMatch(entry, /import\s*\{[^}]*promptToRunSync[^}]*\}/, "blank-inheritance.mjs still imports the deleted promptToRunSync");
-  assert.match(
-    entry,
-    /Hooks\.once\("canvasReady", \(\) => \{\s*\n\s*if \(!game\.user\.isGM\) return;\s*\n\s*runAutomaticSync\(\)\.catch/,
-    "the canvasReady hook no longer calls runAutomaticSync"
-  );
+test("retireDuplicateScenes is exported and on mod.api beside its siblings", () => {
+  assert.match(src, /export async function retireDuplicateScenes\(\{ notify = true \} = \{\}\) \{\s*\n\s*if \(!game\.user\.isGM\) return \{ removed: \[\], kept: \[\] \};/);
+  assert.match(entry, /^\s*retireDuplicateScenes,\s*$/m);
 });
 
-test("runAutomaticSync is exposed on mod.api, so a GM can re-trigger a full sync from the console without reloading", () => {
-  assert.match(entry, /^\s*runAutomaticSync,\s*$/m, "runAutomaticSync no longer sits on mod.api");
+test("retireDuplicateScenes deletes only what core/world-sync.mjs calls a disposable duplicate, and rescues the table off an active scene first", () => {
+  const fn = src.match(/export async function retireDuplicateScenes\([\s\S]*?\n\}/);
+  assert.ok(fn, "retireDuplicateScenes is missing");
+  const guardIndex = fn[0].indexOf("isDisposableDuplicateScene(summary");
+  const deleteIndex = fn[0].indexOf("scene.delete()");
+  assert.ok(guardIndex > -1 && deleteIndex > -1 && guardIndex < deleteIndex, "the disposable-duplicate test must run before delete() is reached");
+  assert.match(fn[0], /placeables: placeableCount\(scene\)/, "the emptiness count must come from placeableCount, never be assumed");
+  assert.match(fn[0], /if \(scene\.active\) \{[\s\S]*?landing\.activate\(\)/);
+});
+
+test("placeableCount counts every embedded collection except levels, and admits it does not know rather than saying zero", () => {
+  const fn = src.match(/export function placeableCount\([\s\S]*?\n\}/);
+  assert.ok(fn);
+  assert.match(fn[0], /scene\?\.constructor\?\.metadata\?\.embedded/);
+  assert.match(fn[0], /filter\(\(name\) => name !== "levels"\)/);
+  assert.match(fn[0], /if \(!collections\.length\) return null;/, "an unknown shape must read as unknown (null), never as empty");
+});
+
+test("the old scene-set-only macro function is gone; its macro id now belongs to the world sync's macro", () => {
+  assert.doesNotMatch(src, /createSceneSetMacroIfMissing/, "scene-build.mjs still carries the old macro function");
+  assert.doesNotMatch(entry, /createSceneSetMacroIfMissing/, "blank-inheritance.mjs still calls the old macro function");
+  assert.match(entry, /await ensureWorldSyncMacro\(\);/);
 });
 
 test("sync-dialog.mjs is actually gone, not just unused (this project deletes dead code rather than keeping a shim)", () => {

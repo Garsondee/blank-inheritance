@@ -5359,6 +5359,61 @@
   text-overflow: ellipsis;
 }
 
+/* The Director's own cue that this person is still unnamed to the table. A
+   player's frame never carries data-name-hidden. */
+.bi-frame[data-name-hidden] .bi-frame__plate {
+  outline: 1px dashed var(--bi-vermilion);
+  outline-offset: -3px;
+}
+
+/* The name lands (design/theatre-of-the-mind-staging.md §12.2). The old plate
+   is drawn over the new one and struck through in vermilion, holds a beat,
+   fades, and the real name stamps in underneath it. The attribute exists only
+   on the render the reveal arrives on, so nothing replays. */
+.bi-frame__plate { position: relative; }
+.bi-frame__plate[data-renamed-from] {
+  animation: bi-name-stamp 620ms var(--bi-ease-servo) 950ms;
+}
+.bi-frame__plate[data-renamed-from]::before {
+  content: attr(data-renamed-from);
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, var(--bi-bone), var(--bi-bone-dim));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: bi-name-old 750ms ease-out 200ms both;
+}
+.bi-frame__plate[data-renamed-from]::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 2px;
+  background: var(--bi-vermilion);
+  transform-origin: left center;
+  animation: bi-name-strike 380ms ease-out 250ms both, bi-name-old 450ms ease-out 500ms both;
+}
+@keyframes bi-name-strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes bi-name-old {
+  0%, 50% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+@keyframes bi-name-stamp {
+  0% { transform: scale(1.35); filter: brightness(1.7); }
+  60% { transform: scale(0.97); filter: brightness(1); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bi-frame__plate[data-renamed-from],
+  .bi-frame__plate[data-renamed-from]::before,
+  .bi-frame__plate[data-renamed-from]::after { animation: none; }
+  .bi-frame__plate[data-renamed-from]::before,
+  .bi-frame__plate[data-renamed-from]::after { display: none; }
+}
+
 /* Two or three keys, never six. A frame with six buttons is a character
    sheet, and doctrine Law 13 already says the chassis is for what happens
    inside a turn — everything else lives elsewhere. */
@@ -6362,6 +6417,362 @@
   }
   .bi-runner__kit { border-top: 0; }
 }
+
+/* =====================================================================
+   THE EDIT SHEET (design/scene-edits.md), 2026-09-27
+   ---------------------------------------------------------------------
+   Ingram rewrites scenes here, on the server: "if I see something wrong I
+   don't want to have to describe it I just want to edit it." The Edit key
+   swaps the columns for one sheet below the header -- the whole scene as
+   text boxes, in running order, each box in the face its words are read in
+   (a read-aloud looks like a read-aloud), so the sheet still reads like the
+   scene rather than like a form.
+
+   A box is quiet until it is pointed at: a dashed edge on hover, a solid
+   accent edge while typing. Its state is a coloured left edge plus a word
+   in its label, never colour alone: amber "not in the repo yet", warn
+   "changed since you saw it", info "the server had an older one", and a
+   dashed amber while typed-but-unsaved.
+
+   .bi-runner__cols--editing beats the column grid by specificity (two
+   classes against the container queries' one), so the sheet takes the
+   full drawer width at every drawer size.
+   ===================================================================== */
+
+.bi-runner__cols.bi-runner__cols--editing {
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.bi-runner__edit-toggle .fa-pen-to-square { color: var(--sr-now); }
+.bi-runner__edit-toggle--on {
+  background: var(--sr-now);
+  border-color: var(--sr-now);
+  color: var(--sr-now-ink);
+}
+.bi-runner__edit-toggle--on .fa-pen-to-square { color: inherit; }
+.bi-runner__edit-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--sr-now);
+  color: var(--sr-now-ink);
+  font-size: var(--sr-min-type);
+  font-variant-numeric: tabular-nums;
+}
+.bi-runner__edit-toggle--on .bi-runner__edit-count { background: var(--sr-now-ink); color: var(--sr-now); }
+
+.bi-edit {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.bi-edit__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -24px 18px;
+  padding: 12px 24px 12px;
+  background: var(--sr-bg);
+  border-bottom: 1px solid var(--sr-border);
+  box-shadow: 0 6px 12px -10px rgb(0 0 0 / 40%);
+}
+.bi-edit__lede { margin: 0 0 8px; font-size: 14px; line-height: 1.5; color: var(--sr-text-dim); }
+.bi-edit__status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+.bi-edit__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border: 1px solid var(--sr-border-strong);
+  border-radius: 999px;
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sr-text-dim);
+}
+.bi-edit__badge--pending { border-color: var(--sr-now); color: var(--sr-now); }
+.bi-edit__badge--done { border-color: var(--sr-good); color: var(--sr-good); }
+.bi-edit__badge--clash { border-color: var(--sr-warn); color: var(--sr-warn); }
+.bi-edit__badge--behind { border-color: var(--sr-info); color: var(--sr-info); }
+.bi-edit__saving { font-family: var(--bi-font-condensed); font-size: 13px; font-style: italic; color: var(--sr-text-faint); }
+.bi-edit__error {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--sr-warn);
+  border-radius: 0 var(--sr-radius) var(--sr-radius) 0;
+  background: var(--sr-bg-sunken);
+  color: var(--sr-text);
+  font-size: 14px;
+}
+
+.bi-edit__section { margin: 0 0 30px; }
+.bi-edit__section-title {
+  margin: 0 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--sr-border);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sr-text-dim);
+}
+
+.bi-edit__block,
+.bi-edit__beat {
+  margin: 0 0 12px;
+  padding: 14px 16px 10px;
+  background: var(--sr-bg-raised);
+  border: 1px solid var(--sr-border);
+  border-radius: var(--sr-radius);
+}
+.bi-edit__beat--new { border-color: var(--sr-now); }
+.bi-edit__beat-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+.bi-edit__beat-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sr-bg-sunken);
+  border: 1px solid var(--sr-border-strong);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sr-text);
+}
+.bi-edit__beat-kind,
+.bi-edit__beat-npc {
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sr-text-faint);
+}
+.bi-edit__beat-npc { color: var(--sr-text-dim); text-transform: none; letter-spacing: 0; }
+.bi-edit__tag {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--sr-now);
+  color: var(--sr-now-ink);
+  font-family: var(--bi-font-condensed);
+  font-size: var(--sr-min-type);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.bi-edit__beat-tools { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.bi-edit__tool {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--sr-border-strong);
+  border-radius: var(--sr-radius);
+  background: var(--sr-bg);
+  color: var(--sr-text-dim);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+.bi-edit__tool:hover { color: var(--sr-text); border-color: var(--sr-text-faint); }
+.bi-edit__tool:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 2px; }
+.bi-edit__tool--remove:hover { color: var(--sr-warn); border-color: var(--sr-warn); }
+
+.bi-edit__settings { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 22px; margin: 0 0 6px; }
+
+.bi-edit__check {
+  margin: 8px 0 10px;
+  padding: 10px 12px 2px;
+  border: 1px dashed var(--sr-border-strong);
+  border-radius: var(--sr-radius);
+}
+.bi-edit__subhead { margin: 0 0 8px; font-family: var(--bi-font-condensed); font-size: 13px; color: var(--sr-text-dim); }
+.bi-edit__subhead b { color: var(--sr-text); }
+.bi-edit__hint { margin: -4px 0 8px; font-size: 13px; font-style: italic; color: var(--sr-warn); }
+
+.bi-edit__slot { display: flex; justify-content: center; margin: -4px 0 8px; }
+.bi-edit__slot-btn {
+  appearance: none;
+  cursor: pointer;
+  padding: 3px 14px;
+  border: 1px dashed var(--sr-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sr-text-faint);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+.bi-edit__slot-btn:hover { opacity: 1; color: var(--sr-now); border-color: var(--sr-now); }
+.bi-edit__slot-btn:focus-visible { opacity: 1; outline: 2px solid var(--sr-focus); outline-offset: 2px; }
+
+.bi-edit__removed {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 6px 12px;
+  border: 1px dashed var(--sr-warn);
+  border-radius: var(--sr-radius);
+  font-size: 14px;
+  color: var(--sr-text-dim);
+}
+
+/* --- One field ---------------------------------------------------------- */
+
+.bi-edit__field { margin: 0 0 10px; }
+.bi-edit__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 3px;
+  font-family: var(--bi-font-condensed);
+  font-size: var(--sr-min-type);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sr-text-faint);
+}
+.bi-edit__label-text b { color: var(--sr-text-dim); letter-spacing: 0; text-transform: none; }
+
+/* Every mark is in the markup; its field's state class shows it. */
+.bi-edit__mark { display: none; font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
+.bi-edit__field--pending .bi-edit__mark--pending { display: inline; color: var(--sr-now); }
+.bi-edit__field--clash .bi-edit__mark--clash { display: inline; color: var(--sr-warn); }
+.bi-edit__field--behind .bi-edit__mark--behind { display: inline; color: var(--sr-info); }
+.bi-edit__field--draft .bi-edit__mark--draft { display: inline; color: var(--sr-now); }
+.bi-edit__field--failed .bi-edit__mark--failed { display: inline; color: var(--sr-warn); }
+/* A clash says so even over a newer, quieter mark. */
+.bi-edit__field--clash .bi-edit__mark--pending { display: none; }
+
+.bi-edit__input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 7px 10px;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: var(--sr-text);
+  border: 1px dashed transparent;
+  border-left: 3px solid transparent;
+  border-radius: var(--sr-radius);
+  font-family: var(--bi-font-document);
+  font-size: 15px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  transition: border-color var(--bi-dur-servo) var(--bi-ease-servo), background var(--bi-dur-servo) var(--bi-ease-servo);
+}
+.bi-edit__input::placeholder { color: var(--sr-text-faint); font-style: italic; }
+.bi-edit__input:hover { border-color: var(--sr-border-strong); }
+.bi-edit__input:focus {
+  outline: none;
+  border-style: solid;
+  border-color: var(--sr-focus);
+  background: var(--sr-bg);
+}
+.bi-edit__field--line .bi-edit__input { font-family: var(--bi-font-condensed); font-size: 16px; font-weight: 600; }
+.bi-edit__field--prose .bi-edit__input { font-family: var(--bi-font-condensed); font-size: 14.5px; }
+.bi-edit__field--read .bi-edit__input {
+  background: var(--sr-read-bg);
+  border-color: var(--sr-border);
+  border-left: 3px solid var(--sr-border-strong);
+  font-family: var(--bi-font-document);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.bi-edit__field--code .bi-edit__input { font-family: ui-monospace, Consolas, monospace; font-size: 13px; line-height: 1.5; }
+
+.bi-edit__field--pending .bi-edit__input { border-left: 3px solid var(--sr-now); }
+.bi-edit__field--behind .bi-edit__input { border-left: 3px solid var(--sr-info); }
+.bi-edit__field--clash .bi-edit__input { border-left: 3px solid var(--sr-warn); }
+.bi-edit__field--draft .bi-edit__input { border-left: 3px dashed var(--sr-now); }
+.bi-edit__field--failed .bi-edit__input { border: 2px solid var(--sr-warn); }
+
+.bi-edit__field--flag,
+.bi-edit__field--choice,
+.bi-edit__field--number { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
+.bi-edit__field--flag .bi-edit__label,
+.bi-edit__field--choice .bi-edit__label,
+.bi-edit__field--number .bi-edit__label { margin: 0; }
+.bi-edit__input--number {
+  width: 90px;
+  border: 1px dashed var(--sr-border-strong);
+  font-family: var(--bi-font-condensed);
+  font-size: 16px;
+  font-weight: 700;
+}
+.bi-edit__checkbox { width: 18px; height: 18px; margin: 0; accent-color: var(--sr-now); cursor: pointer; }
+.bi-edit__select {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--sr-border-strong);
+  border-radius: var(--sr-radius);
+  background: var(--sr-bg);
+  color: var(--sr-text);
+  font-family: var(--bi-font-condensed);
+  font-size: 14px;
+}
+
+/* --- Lists and notes ---------------------------------------------------- */
+
+.bi-edit__list { margin: 4px 0 12px; }
+.bi-edit__list-item { display: flex; align-items: flex-start; gap: 6px; }
+.bi-edit__list-item .bi-edit__field { flex: 1 1 auto; min-width: 0; margin-bottom: 6px; }
+.bi-edit__list-item .bi-edit__label-text { display: none; }
+.bi-edit__list-item .bi-edit__tool { margin-top: 18px; }
+.bi-edit__list-item--new .bi-edit__input { border-left: 3px solid var(--sr-now); }
+.bi-edit__list-add,
+.bi-edit__note-new { display: flex; align-items: flex-start; gap: 8px; }
+.bi-edit__list-add .bi-edit__input,
+.bi-edit__note-new .bi-edit__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px dashed var(--sr-border-strong);
+  font-family: var(--bi-font-condensed);
+  font-size: 14px;
+}
+.bi-edit__add-input { min-height: 34px; }
+.bi-edit__note-input { min-height: 34px; }
+
+.bi-edit__notes { margin: 10px 0 4px; padding-top: 8px; border-top: 1px dotted var(--sr-border); }
+.bi-edit__note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--sr-now);
+  border-radius: 0 var(--sr-radius) var(--sr-radius) 0;
+  background: var(--sr-now-bg);
+  font-family: var(--bi-font-condensed);
+  font-size: 14px;
+  color: var(--sr-text);
+}
+.bi-edit__note--done { border-left-color: var(--sr-good); background: var(--sr-bg-sunken); }
+.bi-edit__note-text { flex: 1 1 60%; }
+.bi-edit__note-state { font-style: italic; color: var(--sr-text-faint); }
+.bi-edit__note-reply { flex: 1 1 100%; color: var(--sr-text-dim); }
 
 .bi-runner__section { margin-top: 18px; }
 .bi-runner__section:first-child { margin-top: 0; }
@@ -10609,11 +11020,8 @@
   font-size: 11px;
 }
 
-/* --- The handout a marker reveals (PAPER, like every other document) --- */
-.bi-audio-handout { max-width: 640px; }
-.bi-audio-handout__image { display: block; max-width: 100%; margin: 0 auto 10px; }
-.bi-audio-handout__body { font-size: 14px; }
-.bi-audio-handout-window .window-content { padding: 0; background: transparent; }
+/* A marker's handout is filed in the players' Papers now, and styled by
+   bi-papers.css (foundry/audio-director.mjs#presentHandout). */
 
 /* --- Comms: the hand-held field set (rebuilt 2026-09-23) ---------------
    Ingram, against the old 94%-wide slab that rose over the deck: "make the
@@ -11426,6 +11834,1079 @@
   font-size: 11px;
   line-height: 1;
 }
+
+
+/* ================================================================== */
+/*  The City: departures (design/world-map-destinations.md)             */
+/*  foundry/city-layer.mjs draws these. Markers live inside Foundry's   */
+/*  own #hud, which pans and zooms with the canvas; --bi-city-inv is    */
+/*  1/zoom, so a marker keeps one size on screen at every zoom and its  */
+/*  foot stays on the place it marks. #hud ignores the pointer, so      */
+/*  everything clickable opts back in.                                  */
+/* ================================================================== */
+
+/* Defaults for the knobs city-layer.mjs sets inline: 1/zoom here, a lift per
+   marker, a player's colour on their face, the share decided on the board. */
+.bi-city-markers {
+  --bi-city-inv: 1;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bi-city-marker {
+  --bi-city-lift: 0px;
+  --bi-city-ring: var(--bi-brass);
+  --bi-city-ring-lit: var(--bi-brass-lit);
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -100%) scale(var(--bi-city-inv, 1));
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 45%));
+}
+.bi-city-marker.is-must { --bi-city-ring: var(--bi-vermilion); --bi-city-ring-lit: #ff8a6a; }
+.bi-city-marker.is-mine { --bi-city-ring: var(--bi-phosphor); --bi-city-ring-lit: #b8ffcf; z-index: 2; }
+.bi-city-marker.is-open { z-index: 3; }
+.bi-city-marker.is-full,
+.bi-city-marker.is-closed { opacity: 0.62; }
+
+.bi-city-marker__faces {
+  order: 0;
+  display: flex;
+  margin: 0 0 -8px;
+  padding: 0;
+  list-style: none;
+  z-index: 1;
+}
+.bi-city-marker__faces .bi-city-face { margin-left: -6px; }
+.bi-city-marker__faces .bi-city-face:first-child { margin-left: 0; }
+
+.bi-city-marker__pin {
+  all: unset;
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.bi-city-marker__pin:focus-visible .bi-city-marker__medal { outline: 2px solid var(--bi-cyan); outline-offset: 3px; }
+
+/* The medal: a brass bezel round a window on the place. */
+.bi-city-marker__medal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, var(--bi-steel-600), var(--bi-steel-900));
+  box-shadow:
+    0 0 0 3px var(--bi-city-ring),
+    0 0 0 5px var(--bi-brass-shadow),
+    inset 0 2px 6px rgb(0 0 0 / 60%);
+  color: var(--bi-bone);
+  font-size: 30px;
+  transition: transform var(--bi-dur-snap, 120ms) ease, box-shadow var(--bi-dur-snap, 120ms) ease;
+}
+.bi-city-marker__medal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bi-city-marker__pin:hover .bi-city-marker__medal,
+.bi-city-marker.is-open .bi-city-marker__medal {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow:
+    0 0 0 3px var(--bi-city-ring-lit),
+    0 0 0 5px var(--bi-brass-shadow),
+    0 0 18px 2px var(--bi-city-ring),
+    inset 0 2px 6px rgb(0 0 0 / 60%);
+}
+.bi-city-marker.is-arrival .bi-city-marker__medal {
+  background: radial-gradient(circle at 50% 35%, var(--bi-bone), var(--bi-bone-dark));
+  color: var(--bi-ink);
+}
+.bi-city-marker.is-goal .bi-city-marker__medal {
+  width: 52px;
+  height: 52px;
+  background: var(--bi-vermilion);
+  color: var(--bi-bone);
+  font-size: 22px;
+}
+
+/* A surprise: the picture is there, but not readable yet. */
+.bi-city-marker.is-mystery .bi-city-marker__medal img,
+.bi-city-card.is-mystery .bi-city-card__art img {
+  filter: blur(4px) grayscale(1) brightness(0.7) contrast(0.9);
+  transform: scale(1.12);
+}
+.bi-city-marker__mystery,
+.bi-city-card__mystery {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-display);
+  font-size: 30px;
+  text-shadow: 0 2px 6px rgb(0 0 0 / 80%);
+}
+
+/* The name plate: bone, engraved. */
+.bi-city-marker__plate {
+  max-width: 200px;
+  padding: 3px 10px 2px;
+  border-radius: 3px;
+  background: linear-gradient(var(--bi-bone), var(--bi-bone-dim));
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 50%);
+  color: var(--bi-ink);
+  font-family: var(--bi-font-condensed);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bi-city-marker.is-mine .bi-city-marker__plate { background: linear-gradient(#e4ffe9, #b9e8c6); }
+
+.bi-city-marker__tag {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--bi-steel-800);
+  color: var(--bi-bone);
+  font-family: var(--bi-font-condensed);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bi-city-marker__tag--must { background: var(--bi-vermilion); }
+
+/* Longer when a crowded marker has been lifted clear of its neighbour
+   (--bi-city-lift, set by city-layer.mjs#spreadMarkers). */
+.bi-city-marker__stem {
+  order: 2;
+  width: 3px;
+  height: calc(22px + var(--bi-city-lift, 0px));
+  background: var(--bi-city-ring);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 55%);
+}
+.bi-city-marker__dot {
+  order: 3;
+  position: relative;
+  width: 12px;
+  height: 12px;
+  margin-bottom: -6px;
+  border-radius: 50%;
+  background: var(--bi-city-ring);
+  box-shadow: 0 0 0 2px var(--bi-steel-900);
+}
+.bi-city-marker__dot::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--bi-city-ring);
+  animation: bi-city-pulse 2.4s ease-out infinite;
+}
+@keyframes bi-city-pulse {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(3.2); opacity: 0; }
+}
+
+/* A player's face: their own colour round their portrait. */
+.bi-city-face,
+.bi-city-send,
+.bi-city-board__player { --bi-city-c: var(--bi-bone); }
+.bi-city-face {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--bi-steel-800);
+  box-shadow: 0 0 0 2px var(--bi-city-c, var(--bi-bone));
+  color: var(--bi-bone);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+}
+.bi-city-face img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ------------------------------------------------------------------ */
+/*  The card: what a place is, who is going, and the one button.        */
+/* ------------------------------------------------------------------ */
+
+.bi-city-card {
+  position: fixed;
+  z-index: calc(var(--z-index-ui, 60) - 1);
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  max-height: calc(100vh - 32px);
+  overflow: hidden auto;
+  border-radius: 8px;
+  background: var(--bi-steel-900);
+  box-shadow: 0 0 0 2px var(--bi-brass), 0 0 0 4px var(--bi-brass-shadow), 0 18px 40px rgb(0 0 0 / 60%);
+  color: var(--bi-bone);
+  font-family: var(--bi-font-body);
+  animation: bi-city-card-in var(--bi-dur-servo, 180ms) var(--bi-ease-servo, ease-out);
+}
+.bi-city-card.is-must { box-shadow: 0 0 0 2px var(--bi-vermilion), 0 0 0 4px var(--bi-brass-shadow), 0 18px 40px rgb(0 0 0 / 60%); }
+@keyframes bi-city-card-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.bi-city-card__close {
+  all: unset;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 55%);
+  color: var(--bi-bone);
+  cursor: pointer;
+}
+.bi-city-card__close:hover { background: rgb(0 0 0 / 80%); }
+.bi-city-card__art {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: 190px; /* the card is 340 wide: a 16:9 picture */
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, var(--bi-steel-600), var(--bi-steel-900));
+  border-bottom: 2px solid var(--bi-brass-shadow);
+}
+.bi-city-card__art img { width: 100%; height: 100%; object-fit: cover; }
+.bi-city-card__emblem { color: var(--bi-bone-dim); font-size: 56px; }
+.bi-city-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+.bi-city-card__title {
+  margin: 0;
+  border: 0;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-display);
+  font-size: 22px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.bi-city-card__blurb {
+  margin: 0;
+  color: var(--bi-bone-dim);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.bi-city-card__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.bi-city-card__facts i { width: 16px; color: var(--bi-brass-lit); text-align: center; }
+.bi-city-card__facts .is-must,
+.bi-city-card__facts .is-must i { color: #ff9a7c; }
+.bi-city-card__going {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bi-city-card__going ul { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.bi-city-card__going-label {
+  color: var(--bi-bone-dim);
+  font-family: var(--bi-font-condensed);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.bi-city-card__actions { display: flex; flex-direction: column; gap: 8px; }
+.bi-city-card__go,
+.bi-city-card__undo,
+.bi-city-send,
+.bi-city-board__controls button,
+.bi-city-arrival__foot button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 5px;
+  background: linear-gradient(var(--bi-steel-600), var(--bi-steel-700));
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 12%);
+  color: var(--bi-bone);
+  font-family: var(--bi-font-condensed);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-city-card__go {
+  min-height: 42px;
+  background: linear-gradient(var(--bi-brass-lit), var(--bi-brass));
+  color: var(--bi-ink);
+  font-size: 16px;
+}
+.bi-city-card__go:hover:not([disabled]) { filter: brightness(1.08); }
+.bi-city-card__go[disabled] { opacity: 0.45; cursor: not-allowed; }
+.bi-city-card__undo { background: transparent; box-shadow: 0 0 0 1px var(--bi-steel-500); }
+.bi-city-card__mine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-condensed);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.bi-city-card__why { margin: 0; color: var(--bi-bone-dim); font-size: 12px; }
+.bi-city-card__send { display: flex; flex-wrap: wrap; gap: 6px; }
+.bi-city-send {
+  min-height: 28px;
+  padding: 0 10px;
+  box-shadow: inset 3px 0 0 var(--bi-city-c, var(--bi-bone)), 0 0 0 1px var(--bi-brass-shadow);
+  font-size: 12px;
+}
+.bi-city-send.is-here { background: linear-gradient(var(--bi-phosphor-dim), var(--bi-steel-700)); }
+
+/* ------------------------------------------------------------------ */
+/*  The board: the question, who has decided, and the GM's Go.          */
+/* ------------------------------------------------------------------ */
+
+.bi-city-board {
+  position: fixed;
+  top: calc(var(--bi-top-stack-height, 0px) + 12px);
+  left: 50%;
+  z-index: calc(var(--z-index-ui, 60) - 2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  width: min(760px, calc(100vw - 640px));
+  min-width: 420px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: linear-gradient(rgb(20 22 20 / 94%), rgb(12 13 12 / 94%));
+  box-shadow: 0 0 0 2px var(--bi-brass), 0 0 0 4px var(--bi-brass-shadow), 0 12px 30px rgb(0 0 0 / 55%);
+  color: var(--bi-bone);
+  transform: translateX(-50%);
+}
+.bi-city-board.is-held { box-shadow: 0 0 0 2px var(--bi-amber), 0 0 0 4px var(--bi-brass-shadow), 0 12px 30px rgb(0 0 0 / 55%); }
+.bi-city-board__head { flex: 1 1 260px; min-width: 0; }
+.bi-city-board__kicker {
+  margin: 0;
+  color: var(--bi-brass-lit);
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.bi-city-board__question {
+  margin: 2px 0 0;
+  border: 0;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-display);
+  font-size: 22px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.bi-city-board__progress {
+  --bi-city-pct: 0;
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: conic-gradient(var(--bi-phosphor) calc(var(--bi-city-pct, 0) * 1%), var(--bi-steel-700) 0);
+  font-variant-numeric: tabular-nums;
+}
+.bi-city-board__progress::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--bi-steel-900);
+}
+.bi-city-board__progress span,
+.bi-city-board__progress small { position: relative; line-height: 1.1; }
+.bi-city-board__progress span { font-family: var(--bi-font-readout); font-size: 16px; }
+.bi-city-board__progress small { color: var(--bi-bone-dim); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; }
+.bi-city-board.is-complete .bi-city-board__progress { box-shadow: 0 0 14px 1px var(--bi-phosphor); }
+.bi-city-board__roster {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bi-city-board__player {
+  display: flex;
+  flex: 1 1 200px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 10px 5px 5px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+}
+.bi-city-board__player.is-picked,
+.bi-city-board__player.is-ready { box-shadow: inset 0 0 0 1px var(--bi-phosphor-dim); }
+.bi-city-board__player.is-away { opacity: 0.55; }
+.bi-city-board__face {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bi-steel-700);
+  box-shadow: 0 0 0 2px var(--bi-city-c, var(--bi-bone));
+  font-family: var(--bi-font-condensed);
+  font-weight: 700;
+}
+.bi-city-board__face img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.bi-city-board__face i {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--bi-phosphor);
+  color: var(--bi-ink);
+  font-size: 9px;
+}
+.bi-city-board__who {
+  overflow: hidden;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bi-city-board__status {
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--bi-bone-dim);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bi-city-board__player.is-picked .bi-city-board__status { color: var(--bi-phosphor); }
+.bi-city-board__player.is-browsing .bi-city-board__status { color: var(--bi-cyan); }
+.bi-city-board__controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.bi-city-board__controls .bi-city-board__go.is-ready {
+  background: linear-gradient(var(--bi-brass-lit), var(--bi-brass));
+  color: var(--bi-ink);
+}
+.bi-city-board__controls .bi-city-board__quiet { background: transparent; box-shadow: 0 0 0 1px var(--bi-steel-500); }
+
+/* ------------------------------------------------------------------ */
+/*  The arrival dialog: how each player comes in to the city.           */
+/* ------------------------------------------------------------------ */
+
+.bi-city-arrival {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: calc(var(--z-index-ui, 60) - 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(980px, calc(100vw - 48px));
+  max-height: calc(100vh - 96px);
+  overflow: hidden auto;
+  padding: 22px 24px 18px;
+  border-radius: 10px;
+  background: linear-gradient(rgb(22 24 22 / 97%), rgb(12 13 12 / 97%));
+  box-shadow: 0 0 0 2px var(--bi-brass), 0 0 0 4px var(--bi-brass-shadow), 0 24px 60px rgb(0 0 0 / 65%);
+  color: var(--bi-bone);
+  transform: translate(-50%, -50%);
+}
+.bi-city-arrival__kicker {
+  margin: 0;
+  color: var(--bi-brass-lit);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.bi-city-arrival__question {
+  margin: 2px 0 0;
+  border: 0;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-display);
+  font-size: 30px;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.bi-city-arrival__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.bi-city-option {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 150px;
+  padding: 14px;
+  border-radius: 8px;
+  background: linear-gradient(var(--bi-steel-700), var(--bi-steel-800));
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 8%);
+  cursor: pointer;
+  transition: transform var(--bi-dur-snap, 120ms) ease, box-shadow var(--bi-dur-snap, 120ms) ease;
+}
+.bi-city-option:hover { transform: translateY(-2px); box-shadow: 0 0 0 2px var(--bi-brass), 0 8px 18px rgb(0 0 0 / 40%); }
+.bi-city-option:focus-visible { outline: 2px solid var(--bi-cyan); outline-offset: 2px; }
+.bi-city-option.is-mine {
+  background: linear-gradient(#1c3a26, var(--bi-steel-800));
+  box-shadow: 0 0 0 2px var(--bi-phosphor), 0 0 16px rgb(80 255 140 / 25%);
+}
+.bi-city-option__emblem {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, var(--bi-bone), var(--bi-bone-dark));
+  box-shadow: 0 0 0 2px var(--bi-brass);
+  color: var(--bi-ink);
+  font-size: 20px;
+}
+.bi-city-option__label {
+  font-family: var(--bi-font-display);
+  font-size: 19px;
+  line-height: 1.15;
+}
+.bi-city-option__blurb { color: var(--bi-bone-dim); font-size: 13px; line-height: 1.4; }
+.bi-city-option__faces { display: flex; gap: 5px; margin: auto 0 0; padding: 0; list-style: none; }
+.bi-city-option__mine {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bi-city-arrival__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--bi-bone-dim);
+  font-size: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-city-marker__dot::after,
+  .bi-city-card { animation: none; }
+}
+
+/* ------------------------------------------------------------------ */
+/*  The Scene Runner's party block, while a split party is being run.   */
+/* ------------------------------------------------------------------ */
+
+.bi-runner__party-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.bi-runner__party-group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--sr-radius, 4px);
+  background: var(--sr-bg-sunken);
+  color: var(--sr-text);
+}
+.bi-runner__party-group span:last-child { color: var(--sr-text-dim); }
+.bi-runner__party-group b { flex: none; }
+.bi-runner__party-group span:last-child { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.bi-runner__party-group.is-now { background: var(--sr-now-bg); }
+.bi-runner__party-group.is-done { color: var(--sr-text-faint); text-decoration: line-through; }
+.bi-runner__party-players {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bi-runner__party-players li { display: flex; align-items: center; gap: 8px; }
+.bi-runner__party-name {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--sr-text);
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bi-runner__party-players select { flex: 0 1 45%; min-width: 0; }
+/* A beat only some of the party can see: the ones who went there. */
+.bi-runner__tag--for { border-color: var(--sr-info); color: var(--sr-info); }
+
+/* The party block itself: a thin rule above, so it reads as its own part of the panel. */
+.bi-runner__party { border-top: 1px solid var(--sr-border); }
+
+/* ================================================================== */
+/*  The admin panel (foundry/admin-panel.mjs): a GM's testing tool.     */
+/*  An ordinary framed window in the steel-and-brass of the other GM    */
+/*  panels; the reset section alone is edged in vermilion, because it   */
+/*  is the one that changes everything.                                 */
+/* ================================================================== */
+
+.bi-admin {
+  background: var(--bi-mat-steel);
+  color: var(--bi-bone);
+}
+
+.bi-admin__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px 16px;
+  font-family: var(--bi-font-body);
+  font-size: 14px;
+}
+
+.bi-admin__busy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 3px;
+  background: var(--bi-steel-800);
+  color: var(--bi-amber);
+  font-family: var(--bi-font-condensed);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bi-admin__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-radius: 4px;
+  background: var(--bi-steel-900);
+  box-shadow: inset 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-admin__section--danger { box-shadow: inset 0 0 0 1px var(--bi-vermilion-dim), inset 3px 0 0 var(--bi-vermilion); }
+
+.bi-admin__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  border: 0;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-display);
+  font-size: 18px;
+}
+.bi-admin__title i { color: var(--bi-brass-lit); }
+.bi-admin__section--danger .bi-admin__title i { color: var(--bi-vermilion); }
+
+.bi-admin__subtitle {
+  margin: 6px 0 0;
+  border: 0;
+  color: var(--bi-brass-lit);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bi-admin__lead {
+  margin: 0;
+  color: var(--bi-bone-dim);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.bi-admin__lead strong { color: var(--bi-bone); }
+
+.bi-admin__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.bi-admin__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--bi-bone);
+  font-size: 13px;
+  cursor: pointer;
+}
+.bi-admin__check select { margin-left: 4px; }
+
+.bi-admin__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+/* Foundry's own stylesheet makes every select full width; in a row, a select is as wide as its words unless it is the one meant to grow. */
+.bi-admin__row select { flex: none; width: auto; max-width: 100%; }
+.bi-admin__row .bi-admin__grow { flex: 1 1 220px; min-width: 0; }
+.bi-admin__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.bi-admin__field input { width: 70px; }
+
+.bi-admin__button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-height: 30px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(var(--bi-steel-600), var(--bi-steel-700));
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 10%);
+  color: var(--bi-bone);
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-admin__button:hover:not([disabled]) { filter: brightness(1.12); }
+.bi-admin__button[disabled] { opacity: 0.45; cursor: not-allowed; }
+.bi-admin__button--danger {
+  background: linear-gradient(var(--bi-vermilion), var(--bi-vermilion-dim));
+  color: var(--bi-bone);
+}
+
+.bi-admin__note {
+  color: var(--bi-bone-dim);
+  font-size: 12px;
+}
+
+.bi-admin__roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bi-admin__roster-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+.bi-admin__roster-row::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bi-steel-500);
+}
+.bi-admin__roster-row.is-online::before { background: var(--bi-phosphor); }
+.bi-admin__who { flex: none; font-weight: 700; }
+.bi-admin__what {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--bi-bone-dim);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bi-admin__activity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 150px;
+  margin: 0;
+  padding: 6px 8px;
+  overflow-y: auto;
+  border-radius: 3px;
+  background: var(--bi-void);
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-mono);
+  font-size: 12px;
+  list-style: none;
+}
+.bi-admin__when { color: var(--bi-phosphor-dim); }
+
+.bi-admin__facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 14px;
+  margin: 0;
+  font-size: 13px;
+}
+.bi-admin__facts dt { color: var(--bi-bone-dim); }
+.bi-admin__facts dd { margin: 0; font-family: var(--bi-font-mono); overflow-wrap: anywhere; }
+
+/* The reset's own confirmation lists its steps. */
+.bi-admin__plan { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 8px; padding-left: 20px; }
+.bi-admin__plan em { color: var(--bi-vermilion); font-style: normal; }
+
+/* ------------------------------------------------------------------ */
+/*  The Scene Runner: where a scene sits between story and downtime    */
+/*  (canon/decisions/D050.md). A full-width band under the head line:  */
+/*  vermilion for story, amber for mixed, green for downtime.          */
+/* ------------------------------------------------------------------ */
+
+.bi-runner__spectrum {
+  --bi-band: var(--bi-vermilion);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px 0 4px;
+  padding: 7px 12px;
+  border-radius: 4px;
+  background: var(--bi-band);
+  color: var(--bi-void);
+  font-family: var(--bi-font-condensed);
+}
+.bi-runner__spectrum[data-spectrum="mixed"] { --bi-band: var(--bi-amber); }
+.bi-runner__spectrum[data-spectrum="downtime"] { --bi-band: var(--bi-phosphor); }
+.bi-runner__spectrum[data-spectrum="story"] { color: var(--bi-bone); }
+.bi-runner__spectrum-label {
+  flex: none;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.bi-runner__spectrum-hint {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.85;
+}
+
+/* The rest, and the event deck. */
+.bi-runner__rest-buff { margin: 0 0 6px; color: var(--sr-text); }
+.bi-runner__rest-who {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 4px 12px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.bi-runner__rest-who li { display: flex; gap: 8px; min-width: 0; }
+.bi-runner__rest-hp { margin-left: auto; color: var(--sr-text-dim); font-variant-numeric: tabular-nums; }
+.bi-runner__rest-apply,
+.bi-runner__deck-draw { width: auto; }
+.bi-runner__deck-count { margin-left: 8px; color: var(--sr-text-dim); font-variant-numeric: tabular-nums; }
+.bi-runner__event {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--sr-accent);
+  border-radius: var(--sr-radius, 4px);
+  background: var(--sr-bg-sunken);
+}
+.bi-runner__event-title { margin: 0; border: 0; color: var(--sr-text); font-size: 15px; }
+.bi-runner__event-text { margin: 0; color: var(--sr-text); line-height: 1.45; }
+.bi-runner__event-check { margin: 0; color: var(--sr-info); }
+.bi-runner__event-note { margin: 0; color: var(--sr-text-dim); font-size: 13px; }
+.bi-runner__event-actions { display: flex; gap: 6px; }
+.bi-runner__event-actions button { width: auto; }
+
+/* The rest and the deck sit in the Runner body as ordinary sections; their own classes mark them for the eye and for tests. */
+.bi-runner__rest { border-top: 1px solid var(--sr-border); }
+.bi-runner__deck { border-top: 1px solid var(--sr-border); }
+
+/* ------------------------------------------------------------------ */
+/*  Haunts (canon/decisions/D051.md): the alert, rich event cards, the  */
+/*  rumour mill and the regulars.                                       */
+/* ------------------------------------------------------------------ */
+
+/* The alert under the banner: amber for "more than it seems", red for danger. */
+.bi-runner__alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: var(--bi-amber);
+  color: var(--bi-void);
+  font-family: var(--bi-font-condensed);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.bi-runner__alert[data-alert="danger"] {
+  background: var(--bi-vermilion);
+  color: var(--bi-bone);
+  animation: bi-runner-alert-pulse 1.6s ease-in-out infinite;
+}
+@keyframes bi-runner-alert-pulse {
+  50% { filter: brightness(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bi-runner__alert[data-alert="danger"] { animation: none; }
+}
+
+/* Event cards. */
+.bi-runner__event[data-kind="plot"] { border-left-color: var(--bi-amber); }
+.bi-runner__event[data-kind="danger"] { border-left-color: var(--bi-vermilion); }
+.bi-runner__event-kind {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border: 1px solid var(--sr-border-strong);
+  border-radius: 3px;
+  color: var(--sr-text-dim);
+  font-family: var(--bi-font-condensed);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.bi-runner__event-prompt { margin: 0; color: var(--sr-accent); font-style: italic; line-height: 1.45; }
+.bi-runner__event-outcomes {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 10px;
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+.bi-runner__event-outcomes dt { color: var(--sr-text-dim); font-family: var(--bi-font-condensed); text-transform: uppercase; letter-spacing: 0.05em; }
+.bi-runner__event-outcomes dd { margin: 0; color: var(--sr-text); }
+.bi-runner__event-shifts { display: flex; flex-wrap: wrap; gap: 6px; }
+.bi-runner__event-shifts button { width: auto; }
+
+/* The rumour mill. */
+.bi-runner__rumours { border-top: 1px solid var(--sr-border); }
+.bi-runner__rumour-sets,
+.bi-runner__rumour-degrees { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
+.bi-runner__rumour-sets button,
+.bi-runner__rumour-degrees button { width: auto; }
+.bi-runner__rumour-set.is-current { box-shadow: inset 0 0 0 2px var(--sr-accent); }
+.bi-runner__rumour-dealt { display: flex; flex-direction: column; gap: 4px; margin: 0; padding-left: 20px; }
+.bi-runner__rumour { color: var(--sr-text); line-height: 1.4; }
+.bi-runner__rumour-mark {
+  margin-right: 6px;
+  font-family: var(--bi-font-condensed);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.bi-runner__rumour[data-true="true"] .bi-runner__rumour-mark { color: var(--sr-good); }
+.bi-runner__rumour[data-true="false"] .bi-runner__rumour-mark { color: var(--bi-vermilion); }
+.bi-runner__rumour-hint { display: block; color: var(--sr-text-dim); }
+
+/* The regulars. */
+.bi-runner__regulars { border-top: 1px solid var(--sr-border); }
+.bi-runner__haunt-every { margin: 0 0 6px; color: var(--sr-text-dim); line-height: 1.45; }
+.bi-runner__regular-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.bi-runner__regular { padding: 6px 8px; border-radius: var(--sr-radius, 4px); background: var(--sr-bg-sunken); }
+.bi-runner__regular-head { display: flex; align-items: center; gap: 8px; }
+.bi-runner__regular-head button { flex: none; width: 26px; height: 22px; padding: 0; line-height: 1; }
+.bi-runner__regular-name { font-weight: 700; color: var(--sr-text); }
+.bi-runner__regular-role { min-width: 0; overflow: hidden; color: var(--sr-text-dim); white-space: nowrap; text-overflow: ellipsis; }
+.bi-runner__regular-attitude {
+  margin-left: auto;
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sr-text);
+}
+.bi-runner__regular[data-attitude="hostile"] .bi-runner__regular-attitude { color: var(--bi-vermilion); }
+.bi-runner__regular[data-attitude="unfriendly"] .bi-runner__regular-attitude { color: var(--bi-amber); }
+.bi-runner__regular[data-attitude="friendly"] .bi-runner__regular-attitude,
+.bi-runner__regular[data-attitude="helpful"] .bi-runner__regular-attitude { color: var(--sr-good); }
+.bi-runner__regular-line { margin: 4px 0 0; color: var(--sr-text); line-height: 1.4; }
+.bi-runner__regular-faction { margin: 2px 0 0; color: var(--sr-text-dim); font-size: 12px; }
+.bi-runner__doors { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
+.bi-runner__door { font-size: 12px; line-height: 1.35; color: var(--sr-text-dim); }
+.bi-runner__door[data-kind="opens"][data-active="true"] { color: var(--sr-good); }
+.bi-runner__door[data-kind="closes"][data-active="true"] { color: var(--bi-vermilion); }
+.bi-runner__door[data-active="false"] { opacity: 0.55; text-decoration: line-through; }
+
+.bi-runner__condition { border-top: 1px solid var(--sr-border); display: flex; flex-direction: column; gap: 8px; }
+.bi-runner__condition-item { padding: 6px 8px; border-radius: var(--sr-radius, 4px); background: var(--sr-bg-sunken); border-left: 3px solid var(--sr-border); }
+.bi-runner__condition-item[data-active="true"] { border-left-color: var(--sr-good); }
+.bi-runner__condition-item--setback[data-active="true"] { border-left-color: var(--bi-vermilion); }
+.bi-runner__condition-item button { width: auto; background: none; border: 0; padding: 0; font-weight: 700; color: var(--sr-text); cursor: pointer; }
+.bi-runner__condition-item button small { margin-left: 6px; font-weight: 400; color: var(--sr-text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.bi-runner__condition-text { margin: 4px 0 0; color: var(--sr-text); line-height: 1.4; }
+.bi-runner__condition-how { margin: 2px 0 0; color: var(--sr-text-dim); font-size: 12px; }
+
+.bi-runner__event-fight { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; }
+.bi-runner__event-fight dt { color: var(--sr-text-dim); font-family: var(--bi-font-condensed); text-transform: uppercase; letter-spacing: 0.05em; }
+.bi-runner__event-fight dd { margin: 0; color: var(--sr-text); }
 
 /* ------------------------------------------------------------------ */
 /*  Location Editor (design/location-editor.md) -- a GM utility panel,  */

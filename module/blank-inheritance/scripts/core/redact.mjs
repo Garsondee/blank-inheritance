@@ -5,15 +5,23 @@
  * ----------------------------------
  * Redacted text is REMOVED, not hidden. There is no CSS trick here, no
  * `color: transparent`, no `visibility: hidden`, no client-side decryption.
- * The words a player is not cleared for never reach that player's browser at
- * all, so "view source", "disable CSS", "select all and copy", devtools, the
- * accessibility tree, Foundry's own journal source editor, and Ctrl+F all
- * find exactly nothing — because there is nothing there to find.
+ * A page rendered for a tier holds none of the words that tier is not cleared
+ * for, so "view source", "disable CSS", "select all and copy", the
+ * accessibility tree, Foundry's own journal source editor, and Ctrl+F on THAT
+ * PAGE all find exactly nothing — because there is nothing there to find.
  *
  * That is the only redaction design that survives contact with a curious
- * player, and it is cheap: we already generate journal pages per document,
- * so we generate one per clearance tier and let Foundry's own ownership
- * permissions decide who can open which.
+ * player looking at the page, and it is cheap: we already generate journal
+ * pages per document, so we generate one per clearance tier and let Foundry's
+ * own ownership permissions decide who can open which.
+ *
+ * WHAT OWNERSHIP DOES NOT DO (verified live 2026-09-29, GH #212): it decides
+ * who may OPEN a page, not what their browser is SENT. A Player-role client
+ * held every document it had no permission on, in full (other players' private
+ * handouts, the GM-only vaults), and a higher tier's version is a document like
+ * any other. So a higher tier's words are out of reach of the interface and of
+ * casual inspection, not of a player who reads the world's documents in the
+ * browser's developer tools. This module never claims more than that.
  *
  * WHAT THIS DELIBERATELY DOES NOT PROTECT AGAINST
  * A player who is *granted* a higher-clearance page can read it. That is the

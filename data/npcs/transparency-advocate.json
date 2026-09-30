@@ -28,7 +28,7 @@
       },
       {
         "id": "asked-three-times-and-was-refused",
-        "text": "They have asked three times to see the unredacted founding charter and been told each time that the original is not held here. They will say so plainly, and it is the one subject that makes them short.",
+        "text": "They have asked three times to see the inventory of what the Directorate keeps in its deep storage vaults, and been told each time that it is held above their clearance. They will say so plainly, and it is the one subject that makes them short.",
         "revealTrigger": {
           "skill": "diplomacy",
           "dc": 15

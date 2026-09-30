@@ -120,9 +120,11 @@ Stated directly by Ingram, 2026-09-24, while shaping The Road In:
 > - **Second Impact**, the name for the rupture in Kurose, **is the campaign's great crisis, about three-quarters of
 >   the way through (Chapter 15)**, and it is **unavoidable**. The gods foretold it (LEDGER #25). Nobody knows when,
 >   because *the conditions are not yet right*, which is why augury returns nothing. **The players and the
->   antagonists will bring the right mix of things together.** The exact cause stays flexible: Cicada's worst member
->   detonating stolen ship fuel on purpose, an accident, or a tragic misunderstanding. The fuel is the **search
->   ship's**, under the city.
+>   antagonists will bring the right mix of things together.** **The cause (LEDGER #40, superseding #26's three
+>   candidates): a weapon the Watcher builds from exotic matter**, without understanding that it could destroy
+>   itself, the city, Golarion and a chunk of space around it. It learns how much the matter matters by watching the
+>   Directorate recover it from the search ship and guard it. What sets the weapon off can still vary. **Nobody
+>   knows the Watcher exists until the party uncovers it** (LEDGER #40).
 > - **The Watcher has to be solved at the same time.** It is an unbound nanotech swarm that normal technology and
 >   magic can't bind, and by then its own children are making Sap: the runaway. **If Manako is dead by then (the
 >   players' choice, and the wrong one), nothing is steering it at all.**
@@ -139,6 +141,9 @@ Stated directly by Ingram, 2026-09-24, while shaping The Road In:
 >   (LEDGER #33).
 > - **There are two ships.** The generation ship lies at Kortos (First Impact happened there, on its cargo deck). The
 >   search ship lies under Kurose, and it is **why** the gods named Kurose (`ideas/story/dossier-first-impact.md` §1a).
+>   The dig that reaches the whole ship is a journey from the city, off the city map, and it is the first of **a few
+>   expeditions**: places off the city map, each drawn as its own real-data map, for a specific event or problem
+>   (LEDGER #42).
 >   **The Directorate was born to guard the opened generation ship** (LEDGER #32): Kortos's organisations banded
 >   together to keep the site secure, prevent another rupture, and stop the technology disrupting the world. It leaked
 >   anyway.
@@ -311,7 +316,7 @@ does not know who it is either, and it is not doing him any favours.
 By the last scene of Episode Two the same unfamiliar hand has chalked the party's six
 names up again under tomorrow's date, in a hangar with nobody in it.
 
-**Answered (LEDGER #34 — Claude's answer at Ingram's request, awaiting her read): the hand is Rand, Shucks's detached right hand**, signing as a Medical officer who doesn't exist, in Shucks's own handwriting from before it came off. Ingram named it: *"Right hand... Rand."* It is a conspiracy theorist whose theory is right, and it put the six on the machines because it thinks the city will need pilots soon. No roll reveals it in Episode Two; the routes are in `ideas/story/bible/characters/rand.md`.
+**Answered (LEDGER #34 — Claude's answer at Ingram's request, accepted in LEDGER #46): the hand is Rand, Shucks's detached right hand**, signing as a Medical officer who doesn't exist, in Shucks's own handwriting from before it came off. Ingram named it: *"Right hand... Rand."* It is a conspiracy theorist whose theory is right, and it put the six on the machines because it thinks the city will need pilots soon. No roll reveals it in Episode Two; the routes are in `ideas/story/bible/characters/rand.md`.
 
 **Canonical home:** `arc-the-countersignature`, in
 `ideas/story/bible/characters/the-section-officer.md`.
@@ -359,14 +364,14 @@ Already tracked as `mystery-ledger-6` and now reachable in four places across th
 episodes, including under the growth on a sea wall. Siting is the rule that makes it
 legible: always a wall a crowd stands in front of, always facing away from any road.
 
-### The charter with a paragraph painted out
+### The charter's signatures
 
-Reachable in three scenes, and the strongest of them is the Transparency Advocate — an
-officer of this institution whose actual job is openness — saying plainly that they
-have asked three times to see the unredacted original and been told each time that it
-is not held here. They do not know what it says. Nobody they have asked knows.
+**Cut as a mystery, 2026-09-27 (LEDGER #41):** nothing on the founding charter is painted out any more.
+*(Proposal)* What a close look finds instead is its four signatures: Shucks's old hand (the hand Rand writes in),
+HYUCK in capitals, and a line of mitflit script, Anabala's. The Transparency Advocate's refusal is now the inventory
+of the deep storage vaults (LEDGER #40).
 
-**Canonical home:** `mystery-ledger-5`. The charter itself is under review (LEDGER #36), so build nothing on what the bar hides.
+**Canonical home:** `mystery-ledger-5` (resolved: cut).
 
 ### What the party said about the officer on the net
 
@@ -468,7 +473,7 @@ Worth stating because it governs what Chapter Two can do:
 history.** Nobody the party meets is lying to them. The history teacher believes his
 book. The civil defence instructor has applied four times to have her drill reinstated
 and been refused on cost by people who are not wrong that nothing has ever happened.
-The Transparency Advocate cannot get an unredacted charter. The Deputy Director tells
+The Transparency Advocate cannot see what is in the vaults. The Deputy Director tells
 them they were wrong, that he would give the same order again, and that he is glad they
 are alive, and means all three.
 

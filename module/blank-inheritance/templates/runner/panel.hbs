@@ -67,6 +67,17 @@
                     <i class="fa-solid fa-flag-checkered"></i> {{localize "BLANKINHERITANCE.Runner.CloseScene"}}
                 </button>
                 {{/if}}
+                {{!-- Edit: the scene as text boxes (design/scene-edits.md).
+                      Ingram rewrites scenes here, on the server, and nothing
+                      a deploy sends can overwrite what she writes. The count
+                      is her edits not yet in the repo. --}}
+                {{#if title}}
+                <button type="button" class="bi-runner__tier1-btn bi-runner__edit-toggle{{#if editing}} bi-runner__edit-toggle--on{{/if}}" data-action="toggleEdit"
+                    aria-pressed="{{editing}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.ToggleHint'}}">
+                    <i class="fa-solid fa-pen-to-square"></i> {{#if editing}}{{localize "BLANKINHERITANCE.Runner.Edit.Stop"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Edit.Toggle"}}{{/if}}
+                    {{#if editPending}}<span class="bi-runner__edit-count" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.PendingHint'}}">{{editPending}}</span>{{/if}}
+                </button>
+                {{/if}}
                 <button type="button" class="bi-runner__tier1-btn" data-action="jumpToSummon" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.SummonHint'}}">
                     <i class="fa-solid fa-masks-theater"></i> {{localize "BLANKINHERITANCE.Runner.Summon.Title"}}
                 </button>
@@ -91,6 +102,24 @@
                 </button>
             </div>
         </div>
+
+        {{!-- WHERE THIS SCENE SITS between story and downtime (D050):
+              a band of colour the width of the panel, its name, and one
+              line on how that band is run. --}}
+        {{#if title}}
+        <div class="bi-runner__spectrum" data-spectrum="{{spectrum.id}}" data-tooltip="{{localize spectrum.hintKey}}">
+            <i class="{{spectrum.icon}}"></i>
+            <span class="bi-runner__spectrum-label">{{localize spectrum.labelKey}}{{#if haunt}} · {{localize "BLANKINHERITANCE.Runner.Haunt.Label"}}{{/if}}</span>
+            <span class="bi-runner__spectrum-hint">{{localize spectrum.hintKey}}</span>
+        </div>
+        {{!-- D051: an event on the table that is more than it seems, or can
+              turn violent. The players are never told; the GM always is. --}}
+        {{#if deck.alert}}
+        <div class="bi-runner__alert" data-alert="{{deck.alert}}">
+            {{#if (eq deck.alert "danger")}}<i class="fa-solid fa-triangle-exclamation"></i> {{localize "BLANKINHERITANCE.Runner.Alert.danger"}}{{else}}<i class="fa-solid fa-eye"></i> {{localize "BLANKINHERITANCE.Runner.Alert.plot"}}{{/if}}
+        </div>
+        {{/if}}
+        {{/if}}
 
         <div class="bi-runner__head-main">
             <h2 class="bi-runner__title">{{#if title}}{{title}}{{else}}{{localize "BLANKINHERITANCE.Runner.PickScene"}}{{/if}}</h2>
@@ -169,6 +198,13 @@
         {{/if}}
     </header>
 
+    {{!-- Editing: the sheet takes the whole width below the header; the
+          people and the kit are for running a scene, not for rewriting it. --}}
+    {{#if editing}}
+    <div class="bi-runner__cols bi-runner__cols--editing">
+        {{> "modules/blank-inheritance/templates/runner/edit.hbs" edit}}
+    </div>
+    {{else}}
     <div class="bi-runner__cols">
         {{!-- THE SCRIPT: the scene in the order it is run. --}}
         <div class="bi-runner__script">
@@ -196,6 +232,172 @@
                 <p class="bi-runner__goal">{{goal}}</p>
                 {{#if summary}}<p class="bi-runner__summary">{{summary}}</p>{{/if}}
                 {{#if howToPlayHtml}}<p class="bi-runner__howto">{{{howToPlayHtml}}}</p>{{/if}}
+            </section>
+            {{/if}}
+
+            {{!-- THE REST (D050): how much this night restores, whose
+                  characters it covers, and one press to apply it. --}}
+            {{#if rest}}
+            <section class="bi-runner__section bi-runner__rest">
+                <h3 class="bi-runner__section-title"><i class="fa-solid fa-bed"></i> {{localize "BLANKINHERITANCE.Runner.Rest.Title"}} · {{localize rest.labelKey}}</h3>
+                {{#if rest.buff}}<p class="bi-runner__rest-buff">{{rest.buff}}</p>{{/if}}
+                <ul class="bi-runner__rest-who">
+                    {{#each rest.who}}<li><span class="bi-runner__party-name">{{name}}</span> <span class="bi-runner__rest-hp">{{value}} / {{max}}</span></li>{{/each}}
+                </ul>
+                <button type="button" class="bi-runner__rest-apply" data-action="applyRest"><i class="fa-solid fa-heart-pulse"></i> {{localize "BLANKINHERITANCE.Runner.Rest.Apply"}}</button>
+            </section>
+            {{/if}}
+
+            {{!-- THE REGULARS (D051): who is always here, how they feel about
+                  the group now, and how they behave at that. ▲▼ by hand. --}}
+            {{#if regulars}}
+            <section class="bi-runner__section bi-runner__regulars">
+                <h3 class="bi-runner__section-title"><i class="fa-solid fa-user-group"></i> {{localize "BLANKINHERITANCE.Runner.Regulars.Title"}}</h3>
+                {{#if haunt.everyVisit}}<p class="bi-runner__haunt-every">{{haunt.everyVisit}}</p>{{/if}}
+                <ul class="bi-runner__regular-list">
+                    {{#each regulars.regulars}}
+                    <li class="bi-runner__regular" data-attitude="{{attitude}}">
+                        <div class="bi-runner__regular-head">
+                            <span class="bi-runner__regular-name">{{name}}</span>
+                            {{#if role}}<span class="bi-runner__regular-role">{{role}}</span>{{/if}}
+                            <span class="bi-runner__regular-attitude">{{attitude}}</span>
+                            <button type="button" data-action="shiftRegular" data-regular="{{id}}" data-change="-1" {{#if atBottom}}disabled{{/if}} aria-label="{{localize 'BLANKINHERITANCE.Runner.Regulars.Down'}}">▼</button>
+                            <button type="button" data-action="shiftRegular" data-regular="{{id}}" data-change="1" {{#if atTop}}disabled{{/if}} aria-label="{{localize 'BLANKINHERITANCE.Runner.Regulars.Up'}}">▲</button>
+                        </div>
+                        {{#if line}}<p class="bi-runner__regular-line">{{line}}</p>{{/if}}
+                        {{#if faction}}<p class="bi-runner__regular-faction"><i class="fa-solid fa-people-group"></i> {{faction}}{{#if loweredByFaction}} <small>({{localize "BLANKINHERITANCE.Runner.Regulars.LoweredByFaction"}} {{personal}})</small>{{/if}}</p>{{/if}}
+                        {{#if doors.length}}
+                        <ul class="bi-runner__doors">
+                            {{#each doors}}<li class="bi-runner__door" data-kind="{{kind}}" data-active="{{active}}"><i class="fa-solid {{#if (eq kind "opens")}}fa-door-open{{else}}fa-door-closed{{/if}}"></i> {{text}}</li>{{/each}}
+                        </ul>
+                        {{/if}}
+                    </li>
+                    {{/each}}
+                </ul>
+            </section>
+            {{/if}}
+
+            {{!-- UPGRADES AND SETBACKS (D052): a repeat location can get
+                  better with use, or worse for a while or for good. Toggled
+                  by hand as the story earns or costs them. --}}
+            {{#if condition}}
+            <section class="bi-runner__section bi-runner__condition">
+                <h3 class="bi-runner__section-title"><i class="fa-solid fa-arrow-trend-up"></i> {{localize "BLANKINHERITANCE.Runner.Condition.Title"}}</h3>
+                {{#each condition.upgrades}}
+                <div class="bi-runner__condition-item" data-active="{{unlocked}}">
+                    <button type="button" data-action="toggleUpgrade" data-upgrade-id="{{id}}">{{#if unlocked}}✓{{else}}○{{/if}} {{title}}</button>
+                    <p class="bi-runner__condition-text">{{text}}</p>
+                    {{#if how}}<p class="bi-runner__condition-how"><i class="fa-solid fa-key"></i> {{how}}</p>{{/if}}
+                </div>
+                {{/each}}
+                {{#each condition.setbacks}}
+                <div class="bi-runner__condition-item bi-runner__condition-item--setback" data-active="{{active}}">
+                    <button type="button" data-action="toggleSetback" data-setback-id="{{id}}">{{#if active}}✓{{else}}○{{/if}} {{title}} <small>{{lasting}}</small></button>
+                    <p class="bi-runner__condition-text">{{text}}</p>
+                </div>
+                {{/each}}
+            </section>
+            {{/if}}
+
+            {{!-- THE EVENT DECK (D050): draw one; played ones never come
+                  back, ones nobody saw go back in for another time. --}}
+            {{#if deck}}
+            <section class="bi-runner__section bi-runner__deck">
+                <h3 class="bi-runner__section-title"><i class="fa-solid fa-layer-group"></i> {{localize "BLANKINHERITANCE.Runner.Deck.Title"}}
+                    <span class="bi-runner__deck-count">{{deck.remaining}} / {{deck.total}}</span></h3>
+                {{#each deck.drawn}}
+                <article class="bi-runner__event" data-kind="{{kind}}">
+                    <h4 class="bi-runner__event-title"><span class="bi-runner__event-kind">{{kind}}</span> {{title}}</h4>
+                    <p class="bi-runner__event-text">{{text}}</p>
+                    {{#if prompt}}<p class="bi-runner__event-prompt">“{{prompt}}”</p>{{/if}}
+                    {{#if check}}<p class="bi-runner__event-check"><i class="fa-solid fa-dice-d20"></i> {{check}}</p>{{/if}}
+                    {{#if outcomes.length}}
+                    <dl class="bi-runner__event-outcomes">
+                        {{#each outcomes}}<dt data-degree="{{degree}}">{{degree}}</dt><dd>{{text}}</dd>{{/each}}
+                    </dl>
+                    {{/if}}
+                    {{#if note}}<p class="bi-runner__event-note">{{note}}</p>{{/if}}
+                    {{#if fight}}
+                    {{!-- D052: theatre of the mind. The players decide press or retreat; some foes surrender. --}}
+                    <dl class="bi-runner__event-fight">
+                        {{#if fight.foe}}<dt>{{localize "BLANKINHERITANCE.Runner.Deck.Fight.Foe"}}</dt><dd>{{fight.foe}}</dd>{{/if}}
+                        {{#if fight.press}}<dt>{{localize "BLANKINHERITANCE.Runner.Deck.Fight.Press"}}</dt><dd>{{fight.press}}</dd>{{/if}}
+                        {{#if fight.retreat}}<dt>{{localize "BLANKINHERITANCE.Runner.Deck.Fight.Retreat"}}</dt><dd>{{fight.retreat}}</dd>{{/if}}
+                        {{#if fight.surrender}}<dt>{{localize "BLANKINHERITANCE.Runner.Deck.Fight.Surrender"}}</dt><dd>{{fight.surrender}}</dd>{{/if}}
+                    </dl>
+                    {{/if}}
+                    {{#if shifts.length}}
+                    <div class="bi-runner__event-shifts">
+                        {{#each shifts}}
+                        <button type="button" data-action="shiftRegular" data-regular="{{regular}}" data-change="{{change}}" data-event-id="{{../id}}" data-tooltip="{{when}}">
+                            {{name}} {{#if (gt change 0)}}▲{{else}}▼{{/if}}{{#unless (eq when "any")}} <small>{{when}}</small>{{/unless}}
+                        </button>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                    <div class="bi-runner__event-actions">
+                        <button type="button" data-action="witnessEvent" data-event-id="{{id}}"><i class="fa-solid fa-eye"></i> {{localize "BLANKINHERITANCE.Runner.Deck.Witnessed"}}</button>
+                        <button type="button" data-action="returnEvent" data-event-id="{{id}}"><i class="fa-solid fa-rotate-left"></i> {{localize "BLANKINHERITANCE.Runner.Deck.PutBack"}}</button>
+                    </div>
+                </article>
+                {{/each}}
+                <button type="button" class="bi-runner__deck-draw" data-action="drawEvent" {{#unless deck.remaining}}disabled{{/unless}}><i class="fa-solid fa-shuffle"></i> {{localize "BLANKINHERITANCE.Runner.Deck.Draw"}}</button>
+            </section>
+            {{/if}}
+
+            {{!-- THE RUMOUR MILL (D051): three sets an episode. A player names
+                  a skill and rolls blind; press the degree they got and deal
+                  their three. Only the GM sees which are true. --}}
+            {{#if rumours}}
+            <section class="bi-runner__section bi-runner__rumours">
+                <h3 class="bi-runner__section-title"><i class="fa-solid fa-comments"></i> {{localize "BLANKINHERITANCE.Runner.Rumours.Title"}}</h3>
+                <div class="bi-runner__rumour-sets">
+                    {{#each rumours.sets}}
+                    <button type="button" class="bi-runner__rumour-set{{#if current}} is-current{{/if}}" data-action="rumourSet" data-set-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Rumours.Set"}} {{n}} <small>{{used}}/{{size}}</small></button>
+                    {{/each}}
+                </div>
+                <div class="bi-runner__rumour-degrees">
+                    <button type="button" data-action="dealRumours" data-degree="criticalFailure">{{localize "BLANKINHERITANCE.Runner.Rumours.criticalFailure"}}</button>
+                    <button type="button" data-action="dealRumours" data-degree="failure">{{localize "BLANKINHERITANCE.Runner.Rumours.failure"}}</button>
+                    <button type="button" data-action="dealRumours" data-degree="success">{{localize "BLANKINHERITANCE.Runner.Rumours.success"}}</button>
+                    <button type="button" data-action="dealRumours" data-degree="criticalSuccess">{{localize "BLANKINHERITANCE.Runner.Rumours.criticalSuccess"}}</button>
+                </div>
+                {{#if rumours.last}}
+                <ol class="bi-runner__rumour-dealt">
+                    {{#each rumours.last.statements}}
+                    <li class="bi-runner__rumour" data-true="{{isTrue}}"><span class="bi-runner__rumour-mark">{{#if isTrue}}{{localize "BLANKINHERITANCE.Runner.Rumours.True"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Rumours.False"}}{{/if}}{{#if plot}} · {{localize "BLANKINHERITANCE.Runner.Rumours.Plot"}}{{/if}}</span> {{text}}{{#if hint}}<small class="bi-runner__rumour-hint">{{hint}}</small>{{/if}}</li>
+                    {{/each}}
+                </ol>
+                {{/if}}
+            </section>
+            {{/if}}
+
+            {{!-- THE PARTY. Only while a departure on The City has split the
+                  party and the groups are being run, one at a time
+                  (design/world-map-destinations.md §7): who is in each group,
+                  which one is on, and every player's destination, which the
+                  GM can still change after Go. --}}
+            {{#if party}}
+            <section class="bi-runner__section bi-runner__party">
+                <h3 class="bi-runner__section-title"><i class="fa-solid fa-map-location-dot"></i> {{localize "BLANKINHERITANCE.City.Runner.Title"}}</h3>
+                <ol class="bi-runner__party-queue">
+                    {{#each party.queue}}
+                    <li class="bi-runner__party-group{{#if done}} is-done{{/if}}{{#if isNow}} is-now{{/if}}">
+                        {{#if isNow}}<span class="bi-runner__now">{{localize "BLANKINHERITANCE.Runner.Now"}}</span>{{/if}}
+                        <b>{{label}}</b> <span>{{names}}</span>
+                    </li>
+                    {{/each}}
+                </ol>
+                <ul class="bi-runner__party-players">
+                    {{#each party.players}}
+                    <li>
+                        <span class="bi-runner__party-name">{{name}}</span>
+                        <select data-bi-reassign data-user-id="{{userId}}" aria-label="{{localize 'BLANKINHERITANCE.City.Runner.Move'}} {{name}}">
+                            {{#each options}}<option value="{{id}}"{{#if selected}} selected{{/if}}>{{label}}</option>{{/each}}
+                        </select>
+                    </li>
+                    {{/each}}
+                </ul>
             </section>
             {{/if}}
 
@@ -451,6 +653,7 @@
                         </ul>
                         {{/if}}
                         <div class="bi-runner__actions">
+                            {{#if filed}}<span class="bi-runner__held">{{localize "BLANKINHERITANCE.Runner.InPapers"}}</span>{{/if}}
                             <button type="button" class="bi-runner__stamp" data-action="revealHandout"
                                 data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Reveal"}}</button>
                             <button type="button" class="bi-runner__stamp" data-action="revealHandoutSolo"
@@ -535,13 +738,14 @@
             </div>
         </aside>
     </div>
+    {{/if}}
 
     {{!-- The note bar. Doctrine §10.3: capture during a scene has to cost
           nothing, so this is one field, always at the foot, Enter to save,
           and it says up front which beat the line will attach itself to.
           The tag keys are the log's own accelerators (core/log-entry.mjs),
           offered rather than remembered -- never required. --}}
-    {{#if title}}
+    {{#if title}}{{#unless editing}}
     <footer class="bi-runner__notebar">
         <i class="fa-solid fa-pen bi-runner__note-glyph" aria-hidden="true"></i>
         <input type="text" class="bi-runner__note-input" autocomplete="off"
@@ -557,7 +761,7 @@
             <button type="button" class="bi-runner__note-tag" data-action="noteTag" data-tag="npc">npc</button>
         </span>
     </footer>
-    {{/if}}
+    {{/unless}}{{/if}}
 
     {{!-- Drag to make the drawer wider or narrower; double-click to go back
           to the default. --}}

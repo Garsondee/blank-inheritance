@@ -42,6 +42,22 @@
       "raisedAt": "2026-09-22T00:00:00Z",
       "resolvedAt": "2026-09-22T00:00:00Z",
       "resolution": "the-outer-sea-wall (E3.07, The Long Sheds, point) -- adopted at scene depth. Sited on the island's own north-east seaward side, NOT the mainland shore."
+    },
+    {
+      "id": "req-5",
+      "what": "Manako's tea house, in a particular district of the city where he has a lot of influence.",
+      "why": "Blocks The Errand (episode-c1e1--the-errand), where the party meets Manako. Ingram, 2026-09-27 (LEDGER #46): \"Manako's tea house and the technical workshop both need placing and I don't know that I'm 100% confident where either of them are. These both need to be placed / review in the gazetteer before they are considered done. Manako's tea house needs to be a particular district in town, somewhere he has a lot of influence.\" The scene currently points at the-tea-house-420, which is up for review.",
+      "hint": "A district of the city (not the Directorate's island) where an old man can be quietly important: locals and the tea house's staff defer to him without making a show of it. Review the-tea-house-420 and move or replace it.",
+      "status": "open",
+      "raisedAt": "2026-09-27T00:00:00Z"
+    },
+    {
+      "id": "req-6",
+      "what": "A technical workshop, an instrument makers', a few streets from Manako's tea house: the first place The Errand's docket sends the party.",
+      "why": "Blocks The Errand. Ingram, 2026-09-27 (LEDGER #45, #46): the party goes first to a more technical workshop whose people can't help and send them on to Manako; it must be \"closer than 600m, ideally just a few streets away\" from the tea house. Claude's first pick, the Instrument Shop on the works, was about 600 m away and is withdrawn.",
+      "hint": "Place it after req-5, a few streets from wherever the tea house lands. A small workshop with long benches and a counter; it makes gauges and spirit levels.",
+      "status": "open",
+      "raisedAt": "2026-09-27T00:00:00Z"
     }
   ]
 }

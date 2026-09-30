@@ -56,7 +56,7 @@ test("summoning any real Actor is available inside the Scene Runner panel, uncon
 test("the runner's own summonActor/dismissActor actions reach the same real write as the brief's own stagePerson action", () => {
   assert.match(src, /summonActor:\s*SceneRunner\.#onSummonActor/, "the summonActor action is no longer wired");
   assert.match(src, /dismissActor:\s*SceneRunner\.#onDismissActor/, "the dismissActor action is no longer wired");
-  assert.match(src, /import\s*\{\s*removeFromStage,\s*summonToStage\s*\}\s*from\s*"\.\/stage\.mjs"/, "no longer imports both stage.mjs writes the summon actions need");
+  assert.match(src, /import\s*\{[^}]*\bremoveFromStage\b[^}]*\bsummonToStage\b[^}]*\}\s*from\s*"\.\/stage\.mjs"/, "no longer imports both stage.mjs writes the summon actions need");
   const summonFn = src.match(/static async #onSummonActor\([\s\S]*?\n {2}\}/);
   assert.ok(summonFn);
   assert.match(summonFn[0], /summonToStage\(canvas\.scene,/);

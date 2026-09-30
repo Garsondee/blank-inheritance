@@ -5,60 +5,183 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "from-up-here",
   "title": "From Up Here",
-  "summary": "Scene 0. Before anybody speaks as their character, the GM talks for five or six minutes over one picture: the world from the edge of the sky, then down through the cloud to Kurose. It tells the table the history everybody in this city grew up with, what the Directorate is for, how the city feels about it, and what sort of time this is -- and then hands straight into The Road In.",
-  "goal": "Every player has heard the common-knowledge history of the world and the city before their character exists on screen: the rift at Kortos, the four who stopped it, the prophecy that named Kurose, the Directorate that came to keep the promise and built the city, and the city's mixed feelings about it.",
-  "howToPlay": "A single continuous speech over one picture, read like the opening narration of a long television series. **No questions to the table and no pauses for them** -- the players' turn is next scene, and it is a long one. Warm, a little grand, and funny where it says so. Move the camera down the picture as you go if the scene is set up for it: sky first, then the coast, then the city.",
-  "runsAbout": "6 minutes",
+  "summary": "Scene 0. The GM speaks for about nine minutes over one picture: the world from the edge of the sky, then down through the cloud to Kurose and out to the Directorate's gate. It tells the table what everyone in Kurose grew up knowing, and leaves the biggest questions open.",
+  "goal": "Before anyone speaks as their character, every player has heard what everyone in Kurose knows: what kind of world this is, the rift at Kortos and the four people standing in front of it at the end, the Directorate and the open question of why it came here, how a fishing village became a great city and who it left behind, what a Frame is, and the gate their characters are heading for.",
+  "howToPlay": "One continuous speech over one picture, moving down from the edge of the sky to the gate.",
+  "runsAbout": "9 minutes",
   "mode": "social",
   "intro": {
     "where": "Nowhere yet. High above the world, looking down.",
-    "firstThing": "The picture: the curve of the world, cumulus, a long bay with a beach, a city on the coast with a river through it, mountains behind, and the late sun on the sea.",
+    "firstThing": "The picture: the curve of the world, cumulus, a long bay with a beach, a city along the coast with a river through it, hills behind, and the early sun on the sea.",
     "readAloud": null,
     "carriesIn": [
       {
         "when": "This is the campaign's first played scene",
-        "then": "Nothing carries in. Character sheets already exist from Induction, but nobody has spoken as their character yet and nobody should until The Road In."
+        "then": "Nothing carries in."
       }
     ],
-    "holdInReserve": "If anybody asks a question after the speech rather than during it, answer it plainly from the speech and its notes below. Anything the speech does not say is not common knowledge, and the answer is \"your character has never heard\".",
     "position": {
       "locationRef": null,
       "state": "scattered",
-      "note": "OFF-MAP, DELIBERATELY. This is narration over the whole city from very high up, before any character is anywhere. Positions begin at The Road In's close, exactly as before."
+      "note": "Off the map: narration over the whole city from very high up."
     },
-    "landmark": "The long bay. The camera follows its curve all the way down to the city."
+    "landmark": "The long bay, which the speech follows down to the city."
   },
   "cast": [],
   "beats": [
     {
       "id": "the-edge-of-the-sky",
       "kind": "action",
-      "text": "Start high. The world, the rift at Kortos two hundred years ago, the four who stopped it, and the prophecy.",
+      "text": "Start high: Golarion, and the age it's in.",
       "mandatory": true,
       "delivery": "table",
-      "readAloud": "Start high. High enough to see the world curve.\n\nThis is Golarion. Two hundred years ago, far to the west of here, past the edge of what you can see, something opened in the air above the island of Kortos and would not close. It ate. The more it ate, the faster it grew. It swallowed the mages who were sent to stop it, and it cut a jagged road across the island towards Absalom, the greatest city in the world. Every nation with magic sent help. At the last, four people stood in front of it -- Hyuck, Rupiah, Anabala and Shucks Mordant -- and it stopped, inside the city walls, in Pharasma's temple.\n\nThen Rupiah asked the gods the only question worth asking. Will it happen again?\n\nAnd the gods said yes. Not soon, and not there.\n\nHere.",
-      "direction": "Read it straight through. Slow down on the four names -- the table will hear one of them again inside the next half hour.",
-      "note": "EVERY SENTENCE HERE IS TRUE, and it is also the approved version. What it leaves out is what the approved version leaves out: how the rift began. GM-ONLY: the four opened it themselves, by accident (`ideas/story/dossier-first-impact.md` §3). Never add that, and never hint at it.\n\nTHE FOUR NAMES ARE A SETUP. Shucks Mordant is the skeleton who does their medical next scene, and his badge says MORDANT. That reveal is deliberate and early (LEDGER #28). The other three are revealed slowly -- say nothing here about any of them being alive.\n\nSOURCES: `ideas/story/bible/LEDGER.md` #24-#28; `dossier-first-impact.md` §3a and §10a."
+      "readAloud": "Start high, high enough to see the world curve.\n\nThis is Golarion, and a great deal has changed here in the last two hundred years. Magic is still part of everyday life, small and cheap and everywhere, but the great works of this age are built with engines. Steam and oil came first, and then electricity. Railways run across whole continents now, steamships cross the oceans without waiting for the wind, and wires strung from pole to pole carry voices from one city to the next.",
+      "facts": [
+        "era.two-hundred-years",
+        "era.engines"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "the-rift",
+      "kind": "action",
+      "text": "The rift at Kortos two hundred years ago, and the four people standing in front of it at the end.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "Two hundred years ago, on the far side of the world, on the island of Kortos near the great city of Absalom, something opened in the air and would not close. The people who saw it described a violet light with a black heart.\n\nAt first it grew slowly. Then it grew faster, and the speed of its growing kept on climbing, in fits and starts that made it deadly to study. It swallowed the clerics, wizards and sorcerers who went to stop it. It carved a jagged road across the island, changing direction without warning, and the road it carved led towards Absalom.\n\nAdventurers and magic-users came to fight it, first from all over the island and then from all over the region, and the finest from every neighbouring nation were among them. At the very end, four people were standing in front of it. It was forced back and crushed down into a small space, and then it was either destroyed or turned into something else. Nobody who was there has ever said for certain which.\n\nNobody agrees on what it was, either, or on why it happened. Every history of the world tells this story, and every one of them starts in the middle: first there is nothing, and then there is a catastrophe.",
+      "facts": [
+        "rift.opened",
+        "rift.looked",
+        "rift.grew",
+        "rift.swallowed",
+        "rift.path",
+        "rift.converged",
+        "rift.four-at-the-end",
+        "rift.uncertain-ending",
+        "rift.nobody-knows-how",
+        "rift.histories-skip-the-start"
+      ],
+      "gmFacts": [
+        "rift.cause",
+        "rift.entered-absalom",
+        "rift.how-it-was-closed",
+        "founders.names"
+      ]
+    },
+    {
+      "id": "the-directorate",
+      "kind": "action",
+      "text": "Four of them found the Directorate, and it crosses the world. Why, it has never said.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "About five years afterwards, four of the people who had stood in front of it founded the Directorate. They promised that if anything like it ever happened again, the world would be ready, and would answer it faster and more decisively than anyone had managed on Kortos.\n\nThen, about a hundred and fifty years ago, the Directorate packed up everything it had, crossed the whole world, and settled in a tiny fishing village on the other side of it. Why it believes there will ever be a next time, and why it went so far to wait for one, it has never said.",
+      "facts": [
+        "founders.four",
+        "founders.promise",
+        "directorate.founded-after",
+        "directorate.came-to-kurose",
+        "directorate.why-kurose-unexplained"
+      ],
+      "gmFacts": [
+        "prophecy.asked",
+        "prophecy.answer",
+        "search-ship.hull"
+      ]
     },
     {
       "id": "come-east",
       "kind": "action",
-      "text": "Down through the cloud to Kurose. The Directorate built it. The Frames, and the city's favourite joke.",
+      "text": "Down to Kurose, in Minkai: a fishing village that became a great city, and the people it brought.",
       "mandatory": true,
       "delivery": "table",
-      "readAloud": "Come east. Across the sea, over the curve of the world, down through this cloud. That coast. That long bay. That city.\n\nKurose.\n\nA hundred and fifty years ago it was a fishing town with one road in. Then the four arrived, with a promise and a great deal of money, and built a harbour you could park a mountain in. What they built was called the Directorate, and everything you can see from here grew up around it: the old town on the cliffs, the smokestacks along the waterfront, the causeway out to the sea-fort in the channel, and the tram lines following the river inland.\n\nLower. Now you can see the Frames: machines taller than the warehouses, patched and riveted and loud, working the docks in the early light. One is unloading a freighter. One is trying to step over a tram and not quite managing it. Every child in Kurose can tell you the Directorate was built to save the world, and every child in Kurose has watched a Frame lift a crate of cabbages. It's the city's favourite joke: built to save the world, mostly moves cargo.",
-      "direction": "Let the tram land as a joke. It is one.",
-      "note": "THE FRAMES HERE ARE GEN 1 RUST BUCKETS, and this is now the table's first sight of one, so it carries the baseline The Road In used to have to place by hand (see that scene's `a-frame-at-a-distance`). Clanky, loud, visibly hard work. NEVER describe one moving gracefully or carefully -- that register belongs to Gen 2 (Mystery Ledger #11). Do not mention Gen 2, or generations at all.\n\nGM-ONLY: the Directorate came for the prophecy and found a buried ship under the city by digging. It is the search ship, a second ship that came looking for the one at Kortos, and its fuel is why the gods named Kurose (`ideas/story/dossier-first-impact.md` §1a). The speech says none of this."
+      "readAloud": "Come east, then, across the sea and over the curve of the world, and down through this cloud to the coast below: a long bay with a beach, and a city spread along it with a river running through the middle.\n\nThis is Kurose, in Minkai (Golarion's Japan). A hundred and fifty years ago it was a tiny fishing village with one road in. Then the Directorate arrived with a vast amount of money, and within a few generations the village had become a great city. The Directorate dredged a harbour deep enough for anything that floats, and everything you can see grew up around it: the factories and smokestacks along the shore, the tram lines following the river inland, and the streets climbing into the hills. The old town is still down on the waterfront, where the village used to be, and the families who were there first still live in it.\n\nThey are not the only ones any more. Hundreds of people came from all over Golarion to be part of the Directorate: engineers, clerks, scholars and pilots, and after them the people who fed them, housed them and sold them things. The newcomers built streets and temples of their own. Some of the families who were there first did very well out of all this. Some sold their land too cheaply and have never forgiven anybody. The two sides have still not settled their differences.",
+      "facts": [
+        "kurose.name",
+        "kurose.minkai",
+        "kurose.far-east",
+        "kurose.fishing-village",
+        "kurose.grew-fast",
+        "kurose.shape",
+        "kurose.old-town",
+        "kurose.first-families-stayed",
+        "directorate.newcomers",
+        "directorate.newcomers-built",
+        "kurose.winners-and-losers",
+        "kurose.locals-and-newcomers"
+      ],
+      "gmFacts": []
     },
     {
-      "id": "a-promise-not-yet-due",
+      "id": "the-frames",
       "kind": "action",
-      "text": "The gods did not say when. How the city feels about that, what sort of time this is, Cicada -- and down to the gate. It sent for you.",
+      "text": "What a Frame is, and what anyone has ever seen one do.",
       "mandatory": true,
       "delivery": "table",
-      "readAloud": "The gods said Kurose. They didn't say when.\n\nSo this is a city built around a promise that hasn't come due, and it has feelings about that. On Founding Day there is a painting of the four in every shop window, and Rupiah still cuts the ribbon. He was cutting it when your grandparents were children, and the city finds this faintly embarrassing. The kingdom has its own army and its own navy, and they didn't build this city and don't answer to the people who did. Every year they grumble about a foreign base in their harbour, playing soldiers for a war nobody has scheduled.\n\nIt's a good time to be alive. The trams run on time and there's a radio in every kitchen. Magic is thinning out of the world and engines are filling the gap, and most people think that's fine. Anyone who looks too unusual for the neighbours tends to wear a fey glamour in public. Some call that good manners. Some say it's a city asking people to hide.\n\nAnd this spring there's a new name in the papers. A movement that calls itself Cicada. It says there's something the city needs to see.\n\nLower still. The base. The fence. The gate.\n\nA promise made two hundred years ago, by four people who could never have known your names, and somebody is going to have to keep it.\n\nEvery year the Directorate sends for new trainees. This year, it sent for you.",
-      "direction": "The Cicada line gets no weight and no pause. Then go straight on down to the gate. Stop after the last line and go straight into The Road In's letter. Do not ask the table anything yet.",
-      "note": "COMMON KNOWLEDGE ONLY. The city knows the four are long-lived and still about the base, and doesn't make a fuss of it (LEDGER #28); Rupiah at Founding Day is the one piece of that the speech spends. What each founder actually does now -- Rupiah in the administration, Shucks head of medical, Hyuck a test pilot of the worst Frame concepts, Anabala a free agent -- is revealed slowly and is NOT in this speech.\n\nTWO SERVICES (LEDGER #26): the kingdom's own army and navy are what everybody's parents did; the Directorate recruits separately and sits outside the kingdom's lines, which is where the grumbling comes from.\n\nCICADA IS PUBLIC. They name themselves and say what they want -- to be seen (`ideas/story/dossier-cicada.md` §2). Nothing else about them is common knowledge: not the founder, not the chemical, not the Envoy fifteen years ago, not the crime lords. Never connect this line to the violet mark in The Road In; the mark is a separate plant (`mystery-ledger-6`) and must be found, not handed over.\n\nTHE GLAMOUR LINE is what the whole party is doing, disguised as terrestrial from the first minute (the Induction design: every character arrives disguised as terrestrial). It is deliberately said as a fact about the city, not about them.\n\nTHIS IS THE HEART OF THE CAMPAIGN, SAID ONCE. The promise will come due in their time. GM-ONLY and never to be said to the table: the second rift is caused by the players and the antagonists about three-quarters of the way through, and the last quarter is a starship campaign (`design/campaign-arc.md`, LEDGER #26). \"Somebody is going to have to keep it\" is as far as the speech goes."
+      "readAloud": "Come lower, and you can see the Frames working on the docks.\n\nA Frame is a walking machine, built roughly in the shape of a person and taller than the warehouses it works beside, with a pilot sitting inside it to work its arms and legs. The Directorate builds the Frames, crews them and keeps them running. They are patched and riveted and loud, and they are hard work to drive. In the early light, one of them is unloading a freighter, and another is trying to step over a tram and not quite managing it.\n\nEvery child in Kurose can tell you the Directorate was built to save the world, but the only thing anyone has ever seen a Frame do is lift girders at a building site or help lift a crate of cabbage. It's the oldest joke in the city, and people are still telling it.",
+      "facts": [
+        "frames.what-a-frame-is",
+        "frames.look",
+        "frames.directorate-runs-them",
+        "frames.mechanical",
+        "frames.clumsy",
+        "frames.what-people-see",
+        "directorate.public-view"
+      ],
+      "gmFacts": [
+        "frames.golarion-made",
+        "frames.gen-2"
+      ]
+    },
+    {
+      "id": "the-city-now",
+      "kind": "action",
+      "text": "Kurose now: fast change, Founding Day, Minkai's pride, unrest and the gangs, and glamour.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "The city has changed faster than anyone could keep up with. Kurose has electric light in most of its streets, a radio in most of its kitchens, trams that run on time and factories that work through the night. It all came so quickly that it left people behind: for everyone who got rich, somebody else lost a trade, or a boat, or the street they grew up in.\n\nOn Founding Day there is a painting of the four founders in the shop windows of some of its supporters, and at least one of the founders might turn up to cut the ribbon at a major event. Not everyone trusts the Directorate, but few people can argue with the wealth and the technology it has brought to Kurose in so little time.\n\nMinkai has its own army and its own navy, and it feels it can more than defend itself. Every year its generals and admirals complain in the newspapers that a foreign institution keeps a private base in their harbour, answers to nobody in Minkai, and drills for a disaster that may never come. Some people call the Directorate intruders, or even warmongers, and others call it their protector. The country's pride is wounded, and there are groups in Kurose who see the Directorate as a foreign thorn in their country's side and want it gone. There is plenty of unrest in the city, and organised crime is a serious problem: the gangs do very well in a city that grows this fast.\n\nPeople in Kurose have also learned to be careful about how they look. Aliens are treated as outsiders here. Magic that makes someone look ordinary is cheap and everywhere, and you can buy glamoured clothes on the high street, so anyone who looks too unusual for the neighbours tends to wear a glamour in public. Some call that good manners. Some say it's a city asking people to hide. And some people, aliens especially, refuse to wear one at all, and put up with the stares.",
+      "facts": [
+        "kurose.modern",
+        "kurose.everyday",
+        "kurose.left-behind",
+        "founders.painting",
+        "founders.ribbon",
+        "directorate.brought-wealth",
+        "minkai.own-forces",
+        "minkai.can-defend-itself",
+        "minkai.grumbles",
+        "directorate.answers-to-itself",
+        "directorate.warmongers",
+        "directorate.protectors",
+        "minkai.wounded-pride",
+        "kurose.isolationists",
+        "kurose.organised-crime",
+        "glamour.aliens-outsiders",
+        "glamour.cheap",
+        "glamour.debate",
+        "glamour.refusers"
+      ],
+      "gmFacts": [
+        "founders.names",
+        "founders.alive",
+        "cicada.quietly"
+      ]
+    },
+    {
+      "id": "the-gate",
+      "kind": "action",
+      "text": "Out to the Directorate's island and its gate. It sent for you.",
+      "mandatory": true,
+      "delivery": "table",
+      "readAloud": "Now look out into the harbour. At the end of a long causeway, with a railway line running beside it, is the Directorate's own island. It is man-made, built up around a rock, and at its southern end stands a flat grey fortress with no windows anywhere on it. Around the fortress are hangars, workshops, offices and barracks, and a high fence runs all the way around the island. At the land end of the causeway there is a gate: a red-and-white barrier across the road, a booth not much bigger than a telephone box, and a guard with a ledger.\n\nEvery year the Directorate sends for new trainees. Most people think of being a trainee as a faff and a bother: drills and forms and being shouted at, a duty you get through, and once it's done, it's done. Some people volunteer. Some are encouraged into it by a teacher or a parent. Some are pushed.\n\nThis year, it sent for you.",
+      "facts": [
+        "directorate.base",
+        "directorate.gate",
+        "directorate.sends-for-trainees",
+        "directorate.trainee-expectations",
+        "directorate.how-trainees-come",
+        "directorate.who-joins"
+      ],
+      "gmFacts": []
     }
   ],
   "artefacts": [],
@@ -66,22 +189,20 @@
   "gmModifiers": [],
   "offers": [],
   "outro": {
-    "endsWhen": "The last line of the speech. Stop there.",
+    "endsWhen": "The last line of the speech.",
     "artefactRefs": [],
     "tracks": [],
     "transition": {
       "mechanism": "scheduled",
-      "line": "\"This year, it sent for you.\" Then straight into the letter.",
+      "line": "\"This year, it sent for you.\"",
       "scatterRisk": false
     },
-    "onwards": "Straight into The Road In, which opens on the acceptance letter and then goes round the table.",
-    "writeDown": [
-      "Any question a player asks once the speech is over, and what you answered. Whatever you told them is now true at this table."
-    ],
+    "onwards": "The Road In.",
+    "writeDown": [],
     "position": {
       "locationRef": null,
       "state": "scattered",
-      "note": "Unchanged: nobody is anywhere yet. The Road In's intro takes it from here."
+      "note": "Unchanged: nobody is anywhere yet."
     }
   },
   "carryForward": [],
@@ -89,16 +210,12 @@
   "reactionPrompts": [
     {
       "id": "held-the-room",
-      "text": "The speech holding the table's attention all the way through, without anyone reaching for their phone."
+      "text": "The speech holding the table all the way through."
     },
     {
-      "id": "the-cargo-joke",
-      "text": "\"Built to save the world, mostly moves cargo\" landing as a joke."
-    },
-    {
-      "id": "the-four-names",
-      "text": "Anyone connecting Shucks Mordant in the speech with the doctor's badge next scene."
+      "id": "the-cabbage-joke",
+      "text": "The Frame and the crate of cabbage getting a laugh."
     }
   ],
-  "notes": "WHY THIS SCENE EXISTS. Ingram asked for this: the GM should \"speak for a good while at first\" to set the world, the city, the era and the atmosphere, and to \"inspire the players to understand what the heart of the campaign is heading towards\" -- then ask each player about their road in. This is that speech; The Road In is the asking.\n\nTHE PICTURE. `artwork/scenes/episode-c1e1--from-up-here.png` (registered in `data/campaign/asset-registry.json`): an extreme high-altitude view -- the curve of the world, cumulus, the long bay and the city. The speech is written as one continuous camera descent through it.\n\nTHE RULES THIS SPEECH IS WRITTEN TO (read before changing a word): no outside references -- nothing from the real world, no named works, no decades; and never mention a thing in order to deny it. Everything said is common knowledge in Kurose and true. Nothing GM-only is in it: not the cause of the rift, not what the four looked like, not the hull, not the Watcher, not the final act.\n\nPLACES ARE NAMED ON PURPOSE (Ingram: \"Name places.\"): Golarion, Kortos, Absalom, Pharasma's temple, Kurose.\n\nNO CAST, NO ROLLS, NO CHOICES, AND THAT IS CORRECT AS WRITTEN. There is no optional beat, no temptation and no track on the strategy layer here, deliberately: it is six minutes of narration, and the agency in this stretch of the session all lives in The Road In, which follows immediately and is long."
+  "notes": "THE PICTURE. `artwork/scenes/episode-c1e1--from-up-here.png`: the world from very high up at golden hour, with the curve of the world, cumulus, the long bay and the city. The speech goes lower than the picture does, down to the docks, the island and the gate.\n\nHELD BACK FOR LATER. The founders' names, where the rift stopped, why the Directorate chose Kurose, and Cicada. Each comes out later, in play."
 }

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Handout Preview</title>
+<!-- A review surface for paper handouts, outside Foundry: the module's real
+     stylesheets, the real renderer (core/handouts.mjs), and a scene brief's
+     real handout, seated in the same journal-page wrapper the bridge styles.
+     Served by design/ui/serve.py (the "ui-prototypes" launch config):
+       /design/ui/handout-preview.html?brief=episode-c1e1--the-road-in&handout=acceptance-letter&name=Hanae%20Kesse
+     Leave `name` off to see the copy a player with no character gets. -->
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-fonts.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-tokens.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-components.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-papers.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-foundry-bridge.css">
+<style>
+  html, body { margin: 0; min-height: 100%; background: #111513; }
+  .preview-bar { font: 13px/1.4 system-ui, sans-serif; color: #c8c2b0; padding: 10px 16px; }
+  .preview-bar code { color: #e6c98d; }
+  .journal-entry-page { max-width: 820px; margin: 0 auto; }
+  .preview-error { color: #ff8b73; font: 14px/1.5 ui-monospace, monospace; white-space: pre-wrap; padding: 16px; }
+</style>
+</head>
+<body class="bi-theme">
+  <div class="preview-bar" id="bar">Loading…</div>
+  <article class="journal-entry-page text">
+    <section class="journal-page-content" id="page"></section>
+  </article>
+<script type="module">
+  import { renderHandoutBody } from "../../module/blank-inheritance/scripts/core/handouts.mjs";
+
+  const params = new URLSearchParams(location.search);
+  const briefId = params.get("brief") ?? "episode-c1e1--the-road-in";
+  const handoutId = params.get("handout") ?? "acceptance-letter";
+  const name = params.get("name");
+  const bar = document.getElementById("bar");
+  const page = document.getElementById("page");
+
+  try {
+    const response = await fetch(`../../data/scene-briefs/${briefId}.json`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`No brief "${briefId}" (${response.status})`);
+    const brief = await response.json();
+    const handout = (brief.handouts ?? []).find((h) => h.id === handoutId);
+    if (!handout) throw new Error(`"${briefId}" has no handout "${handoutId}"`);
+    // Module-relative image paths, as Foundry serves them, re-pointed at the repo.
+    const html = renderHandoutBody(handout.body ?? "", { fields: { character: name ?? "" }, salt: `${handout.id}:preview` })
+      .replaceAll('src="modules/blank-inheritance/', 'src="../../module/blank-inheritance/');
+    page.innerHTML = html;
+    bar.innerHTML = `<code>${briefId}</code> · <code>${handoutId}</code> · ${handout.personal ? "personal copy for" : "shared"} <code>${name ?? "(no character: fallback)"}</code>`;
+    window.__handoutReady = true;
+  } catch (err) {
+    bar.textContent = "Could not render the handout.";
+    page.innerHTML = `<div class="preview-error"></div>`;
+    page.firstChild.textContent = String(err?.stack ?? err);
+    window.__handoutReady = false;
+  }
+</script>
+</body>
+</html>

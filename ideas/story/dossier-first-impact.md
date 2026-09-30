@@ -31,7 +31,8 @@ in a hidden jungle valley, took it at first for an overgrown temple, and, **on i
 fuel for the mitflits who lived there, **dropped a container of it**. The fuel opened a **subspace rupture**: **First
 Impact**. It tore the ship's **navigation and sensor system** into the swarm now called **the Watcher**, **opened the
 ship's inner layers to the sky**, carved its way across Kortos into Absalom, and was stopped at Pharasma's temple with
-the four standing in front of it.
+the four standing in front of it. They closed it with a way Sarenrae sent back with them from Nirvana, and it worked
+because it was one dropped container (LEDGER #40).
 
 Rupiah asked the gods whether it would ever happen again. **Yes: in Kurose, many hundreds of years from now.** The
 Directorate was born first to **guard the ruined ship** at Kortos, and later moved to Kurose to keep the promise.
@@ -144,6 +145,11 @@ Ingram, 2026-09-24 (LEDGER #25), authoritative:
   matter in its wake. Kortos's neighbouring states **sent many of their finest magic-users.**
 - **Where it stopped.** It was stopped **having already partly entered Absalom, after it cut through a temple to
   Pharasma**, with the four standing in front of it at the last.
+- **How it was closed** *(LEDGER #40, 2026-09-27)*. Sarenrae sent the four back from Nirvana with a way to close it,
+  and they closed it at Pharasma's temple. It worked because Kortos was one dropped container. Second Impact is far
+  bigger (a weapon the Watcher builds from exotic matter), so it can't be closed the same way: only the fuel's makers
+  know how to stop that much, which is why both crises need the mitflit home world. It also ties off the old
+  campaign, which ended in Nirvana. What exactly Sarenrae sent them back with is open.
 
 ---
 
@@ -213,7 +219,8 @@ More exotic matter was found in the ship, and so was **Inert 12** (§9).
 ## 7. Two ships, two places
 
 The generation ship's ruin (the Directorate's first site) is at **Kortos, near Absalom.** The **search ship** is
-under **Kurose**, on the other side of the world. They are **two different ships**, a thousand years apart.
+under **Kurose**, on the other side of the world *(LEDGER #42: under Kurose's ground; the city sits on the first dig, and the
+second excavation, which reaches the whole ship, is a journey from the city, off the city map)*. They are **two different ships**, a thousand years apart.
 
 The Directorate went to Kurose about a hundred and fifty years ago **for the prophecy**, when it was a fishing town,
 and found the search ship's hull by digging. What guarding and studying the Kortos site had taught them told them
@@ -275,14 +282,8 @@ The Directorate (特別対策本部, Tokubetsu Taisaku Honbu) was born about 195
 organisations guarding the ruined ship** (§6), with the four at its heart. It had two jobs: keep the promise in
 §10a, and make sure the response would be faster next time.
 
-**UNDER REVIEW (LEDGER #36, 2026-09-25).** Ingram on the answer below: it "belongs to much older generated ideas and
-notes that don't really feel sane any more". Don't build on it until `open-questions.json#founding-charter-rethink` is
-settled.
-
-Confronted with what they had nearly unleashed, and frightened by early hands-on work with the recovered technology,
-the four wrote a private diagnosis of themselves (***children with guns***) and buried it. It is the blacked-out
-paragraph of the charter that hangs in the lobby. **Two centuries later the institution puts real children into real
-machines.** The founders diagnosed themselves accurately on day one, and spent two hundred years proving it.
+**Cut 2026-09-27 (LEDGER #41).** A passage here rested on the founding charter's painted-out paragraph, which no longer
+exists. The charter stays, with nothing painted out.
 
 ---
 
@@ -334,7 +335,7 @@ slowly** (LEDGER #28). **Their old enemy is alive too** (§2, GM-only).
 | Same event | The four are flung to Nirvana; the rupture grows; they return and stop it at Pharasma's temple in Absalom |
 | Same event | The navigation and sensor system is ground into the swarm; the ship's inner layers lie open; Rupiah asks the gods |
 | Straight after | Scientists, mages and adventurers descend on the open ship; it becomes deadly; Kortos's organisations band together |
-| About 195 years ago | The Directorate is born to guard the site; *children with guns* is written and buried (under review, §10); ship technology leaks outwards anyway |
+| About 195 years ago | The Directorate is born to guard the site; ship technology leaks outwards anyway |
 | About 150 years ago | The Directorate moves to Kurose, a fishing town, for the prophecy, and digs up the search ship's hull; the first Gen 1 Frames |
 | About 120 years ago | Inert 12 (Sap) catalogued at the Kortos site; shelved |
 | Decades before the present | Anabala builds Gen 2 for the Directorate from the generation ship's technology, her price for access to it (LEDGER #34); almost nobody can fly it; mothballed |
@@ -358,8 +359,7 @@ Genuine open questions, not gaps to fill unilaterally:
 - ~~**What the Gen 2 core is** (§8).~~ Answered 2026-09-24, LEDGER #34: biomechanical mitflit technology, not a living
   mitflit (§8).
 - **How the founders have lived two hundred years.** Shucks is undead; Rupiah is an elf; Anabala has Abraxas; Hyuck is
-  a gnoll and his longevity is still open (`ideas/entries/hyuck-origin-and-directorate-fate.json` holds Steve's
-  undecided pitch). **Baldwin's longevity** is open too (`open-questions.json#baldwin-longevity`).
+  a gnoll, alive through the Carrying (LEDGER #41; `ideas/story/bible/characters/hyuck.md`). **Baldwin's longevity** is open too (`open-questions.json#baldwin-longevity`).
 - **The old campaign's "Kortos Cataclysm"**, an Inicrium explosion about a thousand years before its year of play,
   is unplaced (`open-questions.json#kortos-cataclysm-placement`).
 - ~~**The deep-buried machine.**~~ Withdrawn: there is no bisected specimen (LEDGER #32).

@@ -3,5 +3,18 @@
   "id": "audio-review",
   "type": "audio-review",
   "description": "Human decisions about the audio library, keyed by asset id: what each file actually is, what it is called, and which moments inside it a cue can fire on. The pipeline READS this and never writes it, so re-running the pipeline can never overwrite a decision. An asset with no entry here is unreviewed: still playable and auditionable, just flagged. Nothing has been reviewed yet — the classifier's proposals stand until someone listens.",
-  "decisions": {}
+  "decisions": {
+    "eva-3-15": {
+      "status": "rejected",
+      "note": "Corrupted source: a brief full-scale digital static burst at ~1:59 (measured source true peak +5.0 dBTP, vs. this batch's normal ceiling of about +0.6 dBTP). Reported by ear by Ingram 2026-09-27. Not repairable; source stays in audio/in-tray/music/mystery/ untouched, but excluded from every pool and will never be (re)processed."
+    },
+    "eva-3-17": {
+      "status": "rejected",
+      "note": "Corrupted source: a brief full-scale digital static burst at ~1:33 (measured source true peak +4.1 dBTP). Reported by ear by Ingram 2026-09-27, who deleted the in-tray original — audio/library/music/eva-3-17.ogg was the last surviving copy and has now been deleted too, so no copy of this track remains anywhere in the project. Not repairable."
+    },
+    "eva-3-18": {
+      "status": "rejected",
+      "note": "Same corruption signature as eva-3-15 and eva-3-17: a brief full-scale digital static burst at ~1:13 (measured source true peak +3.0 dBTP). Not reported by ear — found 2026-09-27 by comparing measured true peak across the whole eva-3-* batch and the full library; no other track (in the batch or the other 378 library assets) shows this signature. Not repairable; source stays in audio/in-tray/music/mystery/ untouched, but excluded from every pool and will never be (re)processed."
+    }
+  }
 }

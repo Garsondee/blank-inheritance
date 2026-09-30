@@ -65,8 +65,11 @@ test("#onFireTrigger dispatches every kind to the SAME existing function its non
 
   assert.match(body, /case "npc-enter":/);
   assert.match(body, /castFor\(brief, trigger\.npcRef\)/, "npc-enter no longer resolves the cast member through the shared castFor helper");
-  assert.match(body, /await summonToStage\(scene, \{/, "npc-enter no longer calls the real summonToStage");
-  assert.match(body, /sting:\s*trigger\.arrival \|\| member\.arrival \|\| undefined/, "a trigger-level arrival override no longer takes precedence over the cast member's own default");
+  assert.match(body, /await summonToStage\(scene, summonDescriptorFor\(member, /, "npc-enter no longer calls the real summonToStage through the shared descriptor");
+  assert.match(body, /summonDescriptorFor\(member, trigger\.arrival \|\| member\.arrival\)/, "a trigger-level arrival override no longer takes precedence over the cast member's own default");
+
+  assert.match(body, /case "reveal-name":/);
+  assert.match(body, /await revealName\(rawStageId\(member\), \{ announce: Boolean\(trigger\.announce\) \}\)/, "reveal-name no longer calls the real revealName");
 
   assert.match(body, /case "npc-exit":/);
   assert.match(body, /await removeFromStage\(scene, portraitIdFor\(member\)\)/, "npc-exit no longer calls the real removeFromStage");

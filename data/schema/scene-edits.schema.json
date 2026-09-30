@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scene-edits.schema.json",
+  "title": "Scene edits ledger",
+  "description": "Which of Ingram's Scene Runner edits have reached the repo (design/scene-edits.md). The edits themselves are immutable records she writes into the module's storage/ on the server; tools/scene-edits pulls them into harvest/scene-edits/ and merges them into data/. This ledger is the only thing that says what happened to each one. It is deployed with the campaign data so the Runner knows which edits are merged, and therefore which to stop laying over the deployed files.",
+  "$comment": "OWNER: tools/scene-edits (edits.mjs, via merge.mjs). No other tool, generator or hand edit writes this file. A record with no entry here is waiting: the Runner shows it over whatever is deployed, and the next pull tries to merge it.",
+  "type": "object",
+  "required": ["id", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "scene-edits" },
+    "description": { "type": "string" },
+    "entries": {
+      "description": "By record id (e.g. 20260927T155217978Z-Lqwcmr), which sorts by time.",
+      "type": "object",
+      "propertyNames": { "pattern": "^\\d{8}T\\d{9}Z-[A-Za-z0-9]{4,16}$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["state", "at"],
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "description": "merged: in the repo, word for word (or settled in her favour after a clash). superseded: replaced by a later decision, never overlaid or guarded again. done: a note that has been acted on. withdrawn: a note she took back.",
+            "enum": ["merged", "superseded", "done", "withdrawn"]
+          },
+          "at": { "type": "string", "description": "When this entry was written." },
+          "replaced": {
+            "description": "What the field held before a merge that was not a clean one (a clash settled in her favour). The reversion guard counts it as an older version the repo must never go back to. Absent for a clean merge, where it would only repeat the record's own `before`."
+          },
+          "resolved": { "enum": ["hers"], "description": "Set when a clash was settled in her favour." },
+          "reason": { "type": "string", "description": "Why an edit was superseded." },
+          "reply": { "type": "string", "description": "What was done about a note. The Runner shows it on her note." },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

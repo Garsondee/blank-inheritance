@@ -133,9 +133,9 @@ search of information and they end up causing the demon to emerge unexpectedly a
 
 - **The trigger is the party**, not a schedule: a break-in to the Directorate's **deepest vaults** in search of
   information.
-- *(Proposal, LEDGER #31)* **The deepest vault holds the unredacted charter**, the last black bar in the
-  redacted-document chain (`ideas/entries/redacted-document-chain.json`). The party wants the information, and so does
-  the demon. *(On hold: the founding charter is under review, LEDGER #36, `open-questions.json#founding-charter-rethink`.)*
+- ~~*(Proposal, LEDGER #31)* The deepest vault holds an unredacted charter.~~ **Cut with the charter's black bar
+  (LEDGER #41).** *(Proposal)* What the party goes in for is the vault inventory the Transparency Advocate is refused,
+  and what the Chapter 8 convoy brought in (LEDGER #40). The party wants the information, and so does the demon.
 - **Anabala must be there** (LEDGER #32 item 14). Ingram: *"Anabala must be there for it to happen... Anabala could be
   there at the right time and place easily enough."* Whether the emergence is her loss or her choice is not decided.
   *(Corrected 2026-09-24: this said whether Anabala is there was not decided.)*
@@ -188,8 +188,9 @@ technology."*
 2. ~~**Whether she is present when Abraxas emerges**~~ She must be (LEDGER #32 item 14). **What it costs her** is still
    open; there is a proposal above (LEDGER #33).
 3. ~~**Abraxas's pronoun**~~ Female (LEDGER #32 item 10).
-4. **What she knows about the Watcher**, the ship's navigation system her ancestors called the Observer, and what she
-   has chosen not to say.
+4. ~~**What she knows about the Watcher**~~ **Nothing (LEDGER #40).** Like the other founders, she doesn't know the
+   Watcher exists and doesn't suspect it. She knows what the ship's eyes were; she doesn't know they survived. Like any
+   mitflit, she may feel something in the air, as a comforting, godlike presence.
 5. **Whether Pippa keeps playing her in the new campaign, as one of the students** (LEDGER #32 item 14;
    `open-questions.json#anabala-as-student`). Either way, Abraxas can still emerge from her, and Anabala stays Pippa's
    (LEDGER #33).

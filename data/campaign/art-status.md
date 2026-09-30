@@ -95,6 +95,17 @@ prompts went back, in priority order. Keep this list in sync with what arrives.
    and its doors open, the dock wall and cranes on one side, low buildings on
    the other, wet road throwing the light back, 1950s, wide cinematic.
 
+## Requests sent to Ingram, 2026-09-27
+
+1. `episode-c1e1--the-errand` (the instrument makers' workshop, The Errand's new first
+   stop, LEDGER #45 and #46) — hand-painted anime background art matte painting gouache,
+   a small instrument makers' workshop in a 1950s city, long wooden workbenches under tall
+   north-facing windows, rows of brass gauges and spirit levels in open wooden boxes, glass
+   vials in racks, a front counter with a bell and a docket spike, calm dusty afternoon
+   light, quiet and orderly, wide cinematic --ar 16:9 --no text. The Foundry scene
+   (`data/campaign/scene-set.json`, `e1-the-errand`) still uses the General Store's picture
+   and location until the workshop and the tea house are sited in the gazetteer.
+
 ## The three things still to draw
 
 1. **A harbour sea wall at low tide.** Slack Water is Episode Two's long

@@ -1,0 +1,47 @@
+{{!--
+    The notebook's index: every page the table has written, grouped by kind,
+    with a search box, filter chips and the one button that starts an article.
+
+    A separate part from the editor on purpose. Somebody else saving a page
+    re-renders THIS part (foundry/notebook.mjs#refreshNotebook), and the editor
+    must never be rebuilt underneath a player who is typing in it.
+
+    Must render exactly ONE top-level element (ApplicationV2's #parsePartHTML
+    throws otherwise; tier0-architecture enforces it).
+--}}
+<nav class="bi-notebook__index" aria-label="{{localize 'BLANKINHERITANCE.Notebook.Index'}}">
+    <div class="bi-notebook__tools">
+        <input type="search" name="query" class="bi-notebook__search" value="{{index.query}}" autocomplete="off"
+            placeholder="{{localize 'BLANKINHERITANCE.Notebook.Search'}}" aria-label="{{localize 'BLANKINHERITANCE.Notebook.Search'}}">
+        <button type="button" class="bi-notebook__new" data-action="newArticle" {{#unless ready}}disabled{{/unless}}>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.Notebook.NewArticle"}}
+        </button>
+    </div>
+    <div class="bi-notebook__chips" role="group" aria-label="{{localize 'BLANKINHERITANCE.Notebook.Filters'}}">
+        {{#each chips}}
+        <button type="button" class="bi-notebook__chip" data-action="setFilter" data-filter="{{this.id}}" aria-pressed="{{this.on}}"
+            data-tooltip="{{this.label}}" aria-label="{{this.label}}">
+            <i class="{{this.icon}}" aria-hidden="true"></i><b>{{this.count}}</b>
+        </button>
+        {{/each}}
+    </div>
+    <div class="bi-notebook__list">
+        {{#each index.groups}}
+        <section class="bi-notebook__group" data-kind="{{this.kind}}">
+            <h3 class="bi-notebook__group-title"><i class="{{this.icon}}" aria-hidden="true"></i> {{localize this.labelKey}} <span>{{this.count}}</span></h3>
+            {{#each this.items}}
+            <button type="button" class="bi-notebook__item{{#if this.selected}} is-selected{{/if}}" data-action="select" data-page-id="{{this.id}}">
+                {{#if this.img}}<img class="bi-notebook__item-face" src="{{this.img}}" alt="">{{else}}<i class="{{this.icon}} bi-notebook__item-icon" aria-hidden="true"></i>{{/if}}
+                <span class="bi-notebook__item-text">
+                    <span class="bi-notebook__item-name">{{this.name}}</span>
+                    {{#if this.excerpt}}<span class="bi-notebook__item-excerpt">{{this.excerpt}}</span>{{/if}}
+                </span>
+            </button>
+            {{/each}}
+        </section>
+        {{/each}}
+        {{#unless ready}}<p class="bi-notebook__hint">{{localize "BLANKINHERITANCE.Notebook.NotOpen"}}</p>{{/unless}}
+        {{#if index.empty}}{{#if ready}}<p class="bi-notebook__hint">{{localize "BLANKINHERITANCE.Notebook.Empty"}}</p>{{/if}}{{/if}}
+        {{#if index.noMatches}}<p class="bi-notebook__hint">{{localize "BLANKINHERITANCE.Notebook.NoMatches"}}</p>{{/if}}
+    </div>
+</nav>

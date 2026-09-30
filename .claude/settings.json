@@ -14,6 +14,36 @@
             "command": "node tools/scene-signoff/console.mjs --line",
             "timeout": 30,
             "statusMessage": "Checking the Sign-Off board…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/module-sync/deploy-status.mjs",
+            "timeout": 30,
+            "statusMessage": "Checking whether the Foundry server is behind…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/scene-edits/session-start.mjs",
+            "timeout": 40,
+            "statusMessage": "Bringing Ingram's scene edits home from the server…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/haunts/pull.mjs --line",
+            "timeout": 30,
+            "statusMessage": "Bringing the haunts' regulars home from the server…"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node tools/scene-edits/pre-edit.mjs",
+            "timeout": 30
           }
         ]
       }

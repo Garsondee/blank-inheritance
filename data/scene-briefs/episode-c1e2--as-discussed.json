@@ -169,7 +169,7 @@
         "condition": "if a player tries to see who signed above him"
       },
       "direction": "Give them the name flatly and move on. Do not weight it, do not pause on it, and do not let anyone in the scene react to it.",
-      "note": "⚠ PLANT. A name the party should be carrying in their notes long before it means anything. On a success it is **Rand**; on a critical success they also get the department, **Medical**, which has no business countersigning a stores requisition.\n\nGM-ONLY ANSWER (LEDGER #34, Claude's answer at Ingram's request, awaiting her read): Rand is Shucks's detached right hand (`ideas/story/bible/characters/rand.md`). Nobody called Rand works on the base, and the handwriting is Shucks's own from before the hand came off. No roll here reveals who Rand is: the routes are on `arc-the-countersignature`."
+      "note": "⚠ PLANT. A name the party should be carrying in their notes long before it means anything. On a success it is **Rand**; on a critical success they also get the department, **Medical**, which has no business countersigning a stores requisition.\n\nGM-ONLY ANSWER. Rand is Shucks's detached right hand. Nobody called Rand works on the base, and the handwriting is Shucks's own from before the hand came off. Finding out who Rand is takes the routes on `arc-the-countersignature`, later in the campaign."
     }
   ],
   "artefacts": [],

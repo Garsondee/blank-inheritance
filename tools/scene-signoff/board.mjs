@@ -72,7 +72,17 @@ export function buildBoard(corpus) {
       staleAgainst: newChecks.map((c) => c.id),
       locationRef: bundle.setEntry?.locationRef ?? null,
       locationName: corpus.locations[bundle.setEntry?.locationRef ?? ""]?.name ?? null,
-      sited: Boolean(bundle.setEntry?.locationRef && corpus.locations[bundle.setEntry.locationRef]),
+      // "Sited" also covers a scene whose missing location was a recorded
+      // choice, not an oversight -- P1 (hasLocation) waived on the review
+      // record, Ingram's own decision at an actual Place pass. Found live
+      // 2026-09-28: this used to check locationRef truthiness alone, so a
+      // deliberate, reasoned "no" (e.g. a note explaining a city-wide view
+      // has nowhere to stand) still counted the same as a scene nobody had
+      // looked at yet. A note by itself is still not enough -- see P1's own
+      // NOTE_EXEMPTIONS absence in checklist.mjs -- only a real waiver is.
+      sited: Boolean(bundle.setEntry?.locationRef && corpus.locations[bundle.setEntry.locationRef]) ||
+        results.find((r) => r.id === "P1")?.state === "waived",
+      locationWaived: results.find((r) => r.id === "P1")?.state === "waived",
       radar: horizonsOf(bundle),
       checks,
       results

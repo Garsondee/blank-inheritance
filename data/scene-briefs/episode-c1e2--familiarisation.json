@@ -13,9 +13,9 @@
   "intro": {
     "where": "Hangar Two, 0700, doors open at both ends because they always are.",
     "firstThing": "Hydraulic fluid, cold metal and the particular diesel-and-rust smell of a shed full of machines that are all older than everybody standing in it.",
-    "readAloud": "Hangar Two is four hundred feet long and most of it is full.\n\nThere are twelve machines under the lights, and not one of them was built for fighting: excavators with their buckets swapped for manipulators, a crane rig folded down like a sleeping bird, two army trucks with their unit markings painted over, and -- inexplicably, at the end of the row, under a sheet -- something low and red.\n\nSomebody has chalked the day's names on a board by the door, one to a machine.",
+    "readAloud": "Hangar Two is four hundred feet long and most of it is full.\n\nThere are twelve machines under the lights, and not one of them was built for fighting: excavators with their buckets swapped for manipulators, a crane rig folded down like a sleeping bird, two army trucks with their unit markings painted over, and -- inexplicably, at the end of the row, under a sheet -- something low and red.\n\nSomebody has chalked the day's names on a board by the door, one to a machine. Under the six, in older chalk that was never quite rubbed out, a seventh name has been struck through.\n\nAt the far end, the shutter through to Hangar Four stands a yard open. Beyond it, something the size of a Frame stands under a tarp, and nobody on this floor looks at it.",
     "landmark": "the chalked board by the personnel door, names down one side and machines down the other",
-    "holdInReserve": "The helicopter. It is at the far end behind a screen, it is not on the chalk board, and nobody has mentioned it.",
+    "holdInReserve": "The helicopter. It is at the far end behind a screen, it is not on the chalk board, and nobody has mentioned it.\n\nThe seventh name on the board is Nozomi, the pilot who stopped answering after a Cicada show (plant 2). The shape under the tarp in Hangar Four is a Gen 2 prototype, offered in Chapter 4 (plant 3). If anyone asks about either, the crew say it isn't theirs and isn't today's, and change the subject (LEDGER #44).",
     "carriesIn": [
       {
         "when": "Anybody worked the late crew in The Night Off",

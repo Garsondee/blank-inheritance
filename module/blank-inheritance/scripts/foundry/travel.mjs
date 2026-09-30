@@ -130,6 +130,27 @@ async function locationCentroid(locationRef) {
 }
 
 /**
+ * Where a place sits on the hub, in the hub Scene's own coordinates -- the same
+ * transform a travelling token and a destination marker use, so a marker, a
+ * dashed pick line and the pawn that walks to it all meet at one point
+ * (foundry/city-layer.mjs, design/world-map-destinations.md). Null when the
+ * hub or the place cannot be resolved.
+ */
+const pointCache = new Map();
+export async function scenePointFor(locationRef) {
+  if (!locationRef) return null;
+  if (pointCache.has(locationRef)) return pointCache.get(locationRef);
+  const hub = await hubScene();
+  const centroid = await locationCentroid(locationRef);
+  if (!hub || !centroid) return null;
+  const imageWidth = await campaignMapImageWidth();
+  const calibration = sceneCalibration(hub.tiles?.contents ?? [], hub.width, imageWidth ?? hub.width);
+  const point = toScenePoint(centroid, calibration);
+  pointCache.set(locationRef, point);
+  return point;
+}
+
+/**
  * The hub scene, found the same way scene-build.mjs itself now finds it —
  * by `sourceId` flag first, not only by the deterministic id. Found live
  * 2026-09-18, against a full local copy of the real remote world: the real
@@ -347,9 +368,14 @@ export async function convergeTokensOnHub(moves) {
   }
   if (planned.length === 0) return;
 
-  const { cueScene } = await import("./director-panel.mjs");
-  await cueScene(hub.id, { transitionType: "fade", transitionDuration: FADE_MS });
-  await wait(FADE_MS);
+  // Already on the map (a departure is played there: design/world-map-destinations.md)?
+  // Then the table is watching already, and a ten-second fade into the scene it
+  // is looking at would only be ten seconds of nothing after the GM pressed Go.
+  if (game.scenes.active?.id !== hub.id) {
+    const { cueScene } = await import("./director-panel.mjs");
+    await cueScene(hub.id, { transitionType: "fade", transitionDuration: FADE_MS });
+    await wait(FADE_MS);
+  }
 
   // Same "announce the whole journey once, before anything moves" contract
   // as animateOnHub above — foundry/travel-camera.mjs's own smooth curve

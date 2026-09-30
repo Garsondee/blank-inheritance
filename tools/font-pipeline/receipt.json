@@ -187,6 +187,65 @@
       ],
       "profile": "latin",
       "role": "Condensed poster. Marquee headlines, alert banners."
+    },
+    {
+      "name": "TT2020",
+      "weights": [
+        400
+      ],
+      "profile": "typewriter",
+      "role": "Typewriter for paper handouts: everything typed on a document. TT2020 Style E by Fredrick R. Brennan, OFL 1.1, from GitHub (not Google Fonts). Ten versions of every glyph, cycled by its own calt, so no two letters strike alike.",
+      "source": {
+        "url": "https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleE-Regular.ttf",
+        "license": "OFL-1.1",
+        "unicodes": "U+0020-007E,U+00A0-00FF,U+2010-2027,U+2030-203A",
+        "layoutFeatures": "calt"
+      }
+    },
+    {
+      "name": "TT2020 Fault 1",
+      "weights": [
+        400
+      ],
+      "profile": "typewriter",
+      "role": "One fixed damaged version of every lower-case letter, from TT2020 Style F (misstruck, faint, part-missing), for a typewriter whose typebar for that letter is broken. Three families so the renderer can vary the damage.",
+      "source": {
+        "url": "https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleF-Regular-ASCII.ttf",
+        "license": "OFL-1.1",
+        "unicodes": "U+0020,U+0061-007A",
+        "letters": "abcdefghijklmnopqrstuvwxyz",
+        "alternate": 3
+      }
+    },
+    {
+      "name": "TT2020 Fault 2",
+      "weights": [
+        400
+      ],
+      "profile": "typewriter",
+      "role": "One fixed damaged version of every lower-case letter, from TT2020 Style F (misstruck, faint, part-missing), for a typewriter whose typebar for that letter is broken. Three families so the renderer can vary the damage.",
+      "source": {
+        "url": "https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleF-Regular-ASCII.ttf",
+        "license": "OFL-1.1",
+        "unicodes": "U+0020,U+0061-007A",
+        "letters": "abcdefghijklmnopqrstuvwxyz",
+        "alternate": 5
+      }
+    },
+    {
+      "name": "TT2020 Fault 3",
+      "weights": [
+        400
+      ],
+      "profile": "typewriter",
+      "role": "One fixed damaged version of every lower-case letter, from TT2020 Style F (misstruck, faint, part-missing), for a typewriter whose typebar for that letter is broken. Three families so the renderer can vary the damage.",
+      "source": {
+        "url": "https://raw.githubusercontent.com/ctrlcctrlv/TT2020/master/dist/TT2020StyleF-Regular-ASCII.ttf",
+        "license": "OFL-1.1",
+        "unicodes": "U+0020,U+0061-007A",
+        "letters": "abcdefghijklmnopqrstuvwxyz",
+        "alternate": 7
+      }
     }
   ],
   "built": [
@@ -460,6 +519,38 @@
       "profile": "latin",
       "file": "antonio-700.woff2",
       "bytes": 9696,
+      "present": true
+    },
+    {
+      "family": "TT2020",
+      "weight": 400,
+      "profile": "typewriter",
+      "file": "tt2020-400.woff2",
+      "bytes": 439696,
+      "present": true
+    },
+    {
+      "family": "TT2020 Fault 1",
+      "weight": 400,
+      "profile": "typewriter",
+      "file": "tt2020-fault-1-400.woff2",
+      "bytes": 130372,
+      "present": true
+    },
+    {
+      "family": "TT2020 Fault 2",
+      "weight": 400,
+      "profile": "typewriter",
+      "file": "tt2020-fault-2-400.woff2",
+      "bytes": 131344,
+      "present": true
+    },
+    {
+      "family": "TT2020 Fault 3",
+      "weight": 400,
+      "profile": "typewriter",
+      "file": "tt2020-fault-3-400.woff2",
+      "bytes": 124060,
       "present": true
     }
   ]

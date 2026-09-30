@@ -24,9 +24,15 @@ export async function fetchModuleText(relativePath) {
   return response.text();
 }
 
-export async function fetchModuleJson(relativePath) {
+/**
+ * A module file as JSON. `fresh` bypasses the browser's HTTP cache, for the
+ * few files whose URL stays the same while their contents change under a
+ * running page: the scene-edits ledger a deploy rewrites, and the edit
+ * records the Runner lists out of storage/ (foundry/scene-edits.mjs).
+ */
+export async function fetchModuleJson(relativePath, { fresh = false } = {}) {
   const url = foundry.utils.getRoute(`modules/${MODULE_ID}/${relativePath}`);
-  const response = await fetch(url);
+  const response = fresh ? await fetch(url, { cache: "no-store" }) : await fetch(url);
   if (!response.ok) {
     throw new Error(
       `Could not fetch "${relativePath}" (HTTP ${response.status}). ` +
@@ -199,6 +205,33 @@ export async function writeStorageFile(dirName, filename, blob, mimeType) {
     );
   }
   return result.path;
+}
+
+/**
+ * A copy of one image (`sourcePath` is a Foundry data path such as
+ * `modules/<id>/assets/stage/x.webp`) under a different name, in the module's
+ * persistent storage, and the path to it.
+ *
+ * Exists so a picture can be shown to players under a name that says nothing
+ * about who it is: `assets/stage/manako.webp` becomes
+ * `storage/stage-art-p1a2b3c.webp`. Idempotent (an existing copy is reused,
+ * so summoning the same person twice uploads once) and written straight into
+ * storage/ rather than a subfolder, because createDirectory is unreliable on
+ * this Foundry build (see writeStorageFile above).
+ */
+export async function ensureStorageImageCopy(sourcePath, filename) {
+  const filePicker = foundry.applications.apps.FilePicker.implementation;
+  try {
+    const listing = await filePicker.browse("data", `modules/${MODULE_ID}/storage`);
+    const existing = (listing?.files ?? []).find((f) => decodeURIComponent(f.split("/").pop()) === filename);
+    if (existing) return existing;
+  } catch (err) {
+    console.log(`Blank Inheritance | Could not list storage for ${filename} (${err?.message ?? err}); uploading anyway`);
+  }
+  const response = await fetch(foundry.utils.getRoute(sourcePath));
+  if (!response.ok) throw new Error(`Could not fetch "${sourcePath}" (HTTP ${response.status}).`);
+  const blob = await response.blob();
+  return writeStorageFile("", filename, blob, blob.type || "image/webp");
 }
 
 export async function writeReportFile(report) {

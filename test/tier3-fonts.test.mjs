@@ -129,15 +129,36 @@ test("the bundle stays within a sane size budget", () => {
   const fullFamilies = new Set(
     manifest.families.filter((f) => f.profile === "full").map((f) => slug(f.name))
   );
+  // `typewriter` families (TT2020, built from GitHub rather than Google) carry
+  // ten versions of every glyph on purpose, so they get a higher, still-fixed cap.
+  const typewriterFamilies = new Set(
+    manifest.families.filter((f) => f.profile === "typewriter").map((f) => slug(f.name))
+  );
   for (const file of files) {
     const size = statSync(path.join(fontsDir, file)).size;
     if (size <= 400_000) continue;
     const stem = file.replace(/-\d+\.woff2$/, "");
+    if (typewriterFamilies.has(stem)) {
+      assert.ok(size <= 600_000, `${file} is ${(size / 1024).toFixed(0)}KB, over the 600KB typewriter cap`);
+      continue;
+    }
     assert.ok(
       fullFamilies.has(stem),
       `${file} is ${(size / 1048576).toFixed(1)}MB but its family is not declared ` +
         `profile "full" — it is almost certainly carrying CJK glyphs it does not need.`
     );
+  }
+});
+
+test("every externally sourced family is openly licensed and says where it came from", () => {
+  // Google Fonts families are OFL by construction; a `source` family is not, so
+  // its licence is recorded in the manifest and it must appear in CREDITS.md.
+  const credits = readFileSync(path.join(repoRoot, "CREDITS.md"), "utf8");
+  for (const family of manifest.families.filter((f) => f.source)) {
+    assert.match(family.source.url, /^https:\/\//, `${family.name} has no source URL`);
+    assert.match(family.source.license, /^(OFL-1\.1|Apache-2\.0)$/, `${family.name} is not under a licence that allows bundling`);
+    assert.ok(credits.includes(family.name.split(" ")[0]), `${family.name} is bundled but not credited in CREDITS.md`);
+    if ("alternate" in family.source) assert.match(family.source.letters, /^[a-z]+$/, `${family.name} names no letters to damage`);
   }
 });
 

@@ -1,9 +1,10 @@
 /**
  * Building the campaign's real Scene set into a live world.
  *
- * Reads data/campaign/scene-set.json, resolves every pin against the gazetteer
- * locations it names, and creates the scenes, the folders they sit in, the
- * campaign map's pins and the player-facing journal behind those pins.
+ * Reads data/campaign/scene-set.json and the gazetteer locations it names, and
+ * creates the scenes, the folders they sit in and the player-facing Scenes
+ * journal. (The campaign map's Note pins were retired 2026-09-28; a rebuild
+ * deletes any it made. Departures draw their own markers: foundry/city-layer.mjs.)
  *
  * IDEMPOTENT, and deliberately gentler than stage-demo.mjs was. That generator
  * deleted and recreated each scene wholesale, which is fine for a demo and
@@ -15,17 +16,24 @@
  * half that talks to Foundry.
  */
 
-import { hubPinPlan, pinJournalPage, sceneSetPlan, validateSceneSet } from "../core/generators/scene-set.mjs";
+import { pinJournalPage, sceneSetPlan, validateSceneSet } from "../core/generators/scene-set.mjs";
 import { sceneCalibration } from "../core/travel-animation.mjs";
 import { campaignMapImageWidth } from "./travel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { DIAGNOSTIC_NAME_PATTERN } from "../core/diagnostic-content.mjs";
+import { isDisposableDuplicateScene } from "../core/world-sync.mjs";
 import { fetchModuleJson } from "./io.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
+import { readKnownNames } from "./stage-store.mjs";
+import { isNameProtected, stageAlias } from "../core/stage-names.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const MANIFEST_PATH = "data/campaign/campaign/scene-set.json";
 const LOCATION_PATH = (id) => `data/campaign/locations/${id}.json`;
+
+// Foundry's own silhouette, shown on a hidden reference token while the person's
+// name is held back: their real portrait path names them.
+const ANONYMOUS_TOKEN_IMAGE = "icons/svg/mystery-man.svg";
 
 const flagFor = (payload) => ({ [MODULE_ID]: { generated: true, ...payload } });
 const isGenerated = (doc) => doc?.getFlag?.(MODULE_ID, "generated") === true;
@@ -68,7 +76,7 @@ async function ensureFolder(group) {
 }
 
 /**
- * The single player-facing journal the map's pins open.
+ * The single player-facing journal of places (the map's pins used to open it).
  *
  * One entry with a page per place rather than an entry per place: a pin can
  * point at a page (Note#pageId), and twenty loose journal entries in a
@@ -128,6 +136,151 @@ async function ensurePinJournal(plans, locations) {
   return existing;
 }
 
+// Pixel spacing between hidden reference tokens laid along one edge of a
+// scene. Position is arbitrary -- these are never composed for a player to
+// look at, ever (Token#hidden, enforced server-side, same mechanism
+// design/theatre-of-the-mind-staging.md §4 already named as the right way to
+// keep something off a player's client) -- this only needs to keep multiple
+// NPCs in one scene from stacking exactly on top of each other so the GM can
+// tell them apart by hovering.
+const REFERENCE_TOKEN_SPACING = 140;
+
+/**
+ * Place a hidden, actor-linked Token for every named cast NPC in a scene
+ * brief, so the GM can click straight into an NPC's sheet during Theatre of
+ * Mind play instead of hunting for it (Ingram, 2026-09-29). Reconciles
+ * rather than replaces, same idiom as ensurePinJournal above: create what's
+ * missing, update what points at a different actor now, delete what's no
+ * longer cast.
+ *
+ * Never called for an ADOPTED scene (see buildSceneSet's own "HANDS OFF ITS
+ * CONTENT" comment) -- a hand-built scene's placeables are a human's, not
+ * ours to add to. Silently does nothing if no scene brief is pushed for this
+ * scene yet, or it has no cast, or a cast npcRef doesn't resolve to a real
+ * Actor (most likely because the npc content sync hasn't run yet this pass
+ * -- see world-sync.mjs's call order, which already runs it first).
+ */
+/**
+ * Every distinct npcRef a scene brief's cast actually names, in cast order,
+ * de-duplicated -- a walk-on with no npcRef (most of a cast array, by
+ * design: see scene-brief.schema.json's own doc comment) contributes
+ * nothing here, since there is no npc file to build a reference Actor from.
+ * Pure, no Foundry -- separated out so "which ids does this brief want" is
+ * testable without a mock Scene at all.
+ */
+export function castNpcRefs(brief) {
+  return [...new Set((brief?.cast ?? []).map((c) => c.npcRef).filter(Boolean))];
+}
+
+/**
+ * Decide what create/update/delete Foundry actually needs to reconcile a
+ * scene's hidden reference tokens against its current cast -- same
+ * create/update/delete-by-diff idiom as ensurePinJournal above, but kept
+ * PURE and exported so the reconciliation logic itself has real test
+ * coverage: this project's mock Foundry deliberately doesn't model Scene's
+ * embedded Token collection (see this file's own header on why), so nothing
+ * downstream of a real Scene call can be exercised in a unit test -- but the
+ * DECIDING can, and that's where a real bug (wrong id kept, a stale actorId
+ * left un-updated, the wrong entry deleted) would actually live.
+ *
+ * @param {Map<string,string>} wantedActorIdByNpcId  npcRef -> Foundry Actor id,
+ *   already filtered to ids with a real, existing Actor (a cast npcRef with
+ *   no synced Actor yet is simply absent here, not an error -- see
+ *   syncCastReferenceTokens's own doc comment).
+ * @param {Array<{id:string, actorId:string, hidden:boolean, npcRef:string|null}>} existingTokens
+ *   every token on the scene already carrying this pipeline's own
+ *   `referenceToken` flag, as plain data (never a real TokenDocument --
+ *   the caller reads `.getFlag`/`.id`/`.actorId`/`.hidden` into this shape).
+ * @param {(name:string)=>string|undefined} [actorNameFor]  looks up an
+ *   Actor's display name for a newly-created token's own `name` field;
+ *   falls back to the npcRef itself when omitted (nameless in test data).
+ */
+export function planReferenceTokens(wantedActorIdByNpcId, existingTokens, actorNameFor = () => undefined, publicFor = () => null) {
+  const haveByNpcId = new Map(existingTokens.map((t) => [t.npcRef, t]));
+
+  const toDelete = existingTokens.filter((t) => !wantedActorIdByNpcId.has(t.npcRef)).map((t) => t.id);
+
+  const toCreate = [];
+  const toUpdate = [];
+  let index = 0;
+  for (const [npcId, actorId] of wantedActorIdByNpcId) {
+    const existingToken = haveByNpcId.get(npcId);
+    const x = REFERENCE_TOKEN_SPACING * (1 + index);
+    const y = REFERENCE_TOKEN_SPACING;
+    index += 1;
+    // A hidden Token is still part of the Scene document, and a Scene reaches
+    // every client, so its name and picture are as public as the stage's.
+    // `publicFor` returns what to show INSTEAD while a person's real name is
+    // being held back ({ name, img }), or null when nothing is held back.
+    const held = publicFor(npcId, actorId);
+    const wantedName = held?.name ?? actorNameFor(actorId) ?? npcId;
+    if (existingToken) {
+      const stale = {};
+      // Only a token that reports a name is checked; one that does not is
+      // left alone rather than renamed on a guess.
+      if (existingToken.name !== undefined && existingToken.name !== wantedName) stale.name = wantedName;
+      if (held?.img && existingToken.img !== undefined && existingToken.img !== held.img) stale["texture.src"] = held.img;
+      if (existingToken.actorId !== actorId || !existingToken.hidden) {
+        toUpdate.push({ _id: existingToken.id, actorId, hidden: true, ...stale });
+      } else if (Object.keys(stale).length) {
+        toUpdate.push({ _id: existingToken.id, ...stale });
+      }
+    } else {
+      toCreate.push({
+        actorId,
+        hidden: true,
+        actorLink: true,
+        x,
+        y,
+        name: wantedName,
+        ...(held?.img ? { texture: { src: held.img } } : {}),
+        flags: flagFor({ referenceToken: true, npcRef: npcId })
+      });
+    }
+  }
+
+  return { toCreate, toUpdate, toDelete };
+}
+
+async function syncCastReferenceTokens(scene, briefRef) {
+  let brief;
+  try {
+    brief = await fetchModuleJson(`data/campaign/scene-briefs/${briefRef}.json`);
+  } catch {
+    return;
+  }
+
+  // The token's own flag is player-readable, so it is keyed by the anonymous
+  // alias, never the npc id (core/stage-names.mjs#stageAlias). The plan below
+  // does not care what its keys are; this is the only place that knows.
+  const wantedActorIdByAlias = new Map();
+  const npcIdByAlias = new Map();
+  for (const npcId of castNpcRefs(brief)) {
+    const actorId = await deriveFoundryId(npcId);
+    if (!game.actors.get(actorId)) continue;
+    wantedActorIdByAlias.set(stageAlias(npcId), actorId);
+    npcIdByAlias.set(stageAlias(npcId), npcId);
+  }
+
+  const existingTokens = scene.tokens
+    .filter((t) => t.getFlag(MODULE_ID, "referenceToken"))
+    .map((t) => ({ id: t.id, actorId: t.actorId, hidden: t.hidden, name: t.name, img: t.texture?.src, npcRef: t.getFlag(MODULE_ID, "npcRef") }));
+
+  const namesTold = await readKnownNames();
+  const publicFor = (alias) => {
+    const npcId = npcIdByAlias.get(alias);
+    const member = (brief.cast ?? []).find((c) => c.npcRef === npcId && isNameProtected(c));
+    if (!member || namesTold.has(npcId)) return null;
+    return { name: member.called, img: ANONYMOUS_TOKEN_IMAGE };
+  };
+
+  const { toCreate, toUpdate, toDelete } = planReferenceTokens(wantedActorIdByAlias, existingTokens, (actorId) => game.actors.get(actorId)?.name, publicFor);
+
+  if (toDelete.length) await scene.deleteEmbeddedDocuments("Token", toDelete);
+  if (toUpdate.length) await scene.updateEmbeddedDocuments("Token", toUpdate);
+  if (toCreate.length) await scene.createEmbeddedDocuments("Token", toCreate);
+}
+
 /**
  * Delete Notes from a scene that is not the one on screen.
  *
@@ -169,7 +322,7 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
   if (!game.user.isGM) return { problems: ["only a GM can build scenes"], created: [], updated: [] };
 
   const { manifest, locations, problems } = await loadSceneSet();
-  const report = { created: [], updated: [], pins: 0, bound: 0, problems: [...problems] };
+  const report = { created: [], updated: [], pinsRetired: 0, bound: 0, problems: [...problems] };
 
   // Which briefs actually have a soundscape authored for them. Best-effort:
   // a world with no audio pushed yet must still build all its scenes.
@@ -190,8 +343,8 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
 
   // Which REAL Foundry scene id ended up representing each manifest entry --
   // almost always idFor's own deterministic one, except for a scene ADOPTED
-  // below (see the main loop). The hub-pin pass after the loop must use this,
-  // not idFor directly, or an adopted hub's pins would silently go nowhere.
+  // below (see the main loop). The hub pass after the loop must use this,
+  // not idFor directly, or an adopted hub would be skipped.
   const realIdFor = new Map();
 
   const journal = await ensurePinJournal(
@@ -240,6 +393,16 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
         // every scene this pipeline actually builds.
         const adoptedOriginalName = adopted.name;
         if (adoptedOriginalName !== plan.data.name) await adopted.update({ name: plan.data.name });
+        // The SECOND exception, the hub only (2026-09-28, design/world-map-
+        // destinations.md): every player reads the whole map to choose where
+        // to go, and each character's pawn is a real token they own. With
+        // token vision or fog exploration on, a player with no pawn yet sees
+        // a black screen, and one with a pawn sees a circle round it. Vision
+        // is not geometry or content; nothing else here is touched.
+        if (plan.kind === "hub" && (adopted.tokenVision || adopted.fog?.exploration)) {
+          await adopted.update({ tokenVision: false, "fog.exploration": false });
+          report.problems.push(`"${plan.data.name}": token vision and fog were on; turned off so players can read the whole map`);
+        }
         report.updated.push(plan.data.name);
         report.adopted = [...(report.adopted ?? []), `"${plan.data.name}" is the real, existing "${adoptedOriginalName}" (${adopted.id})`];
       } else if (byId) {
@@ -264,6 +427,17 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
       // this, we can always recreate it" only true on the `else` branch above.
       await scene.setFlag(MODULE_ID, "adopted", Boolean(adopted));
 
+      // Hidden GM-reference tokens for this scene's cast -- never on an
+      // adopted (hand-built) scene, same "hands off its content" rule as the
+      // adoption branch above.
+      if (!adopted && plan.briefRef) {
+        try {
+          await syncCastReferenceTokens(scene, plan.briefRef);
+        } catch (err) {
+          report.problems.push(`could not place reference tokens on "${plan.data.name}": ${err.message}`);
+        }
+      }
+
       // A scene and its soundscape are keyed by the same scene-brief id, so
       // bind them here rather than making a GM press "Bind to scene" sixteen
       // times for a correspondence the data already states. Activating the
@@ -279,43 +453,18 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
     }
   }
 
-  // The map's pins, last -- they reference the scenes above by id.
+  // The map's old Note pins, retired 2026-09-28 (design/world-map-destinations.md):
+  // departures draw their own markers now. Only ever remove pins WE made -- a
+  // GM's own note on the map survives.
   for (const hub of (manifest.scenes ?? []).filter((s) => s.kind === "hub")) {
     const scene = game.scenes.get(realIdFor.get(hub.id) ?? idFor.get(hub.id));
     if (!scene) continue;
     try {
-      // The hub's REAL calibration -- derived from its actual Tiles, exactly
-      // the way travel.mjs derives it for the travel marker on this same
-      // scene. NEVER the manifest's own `mapScale`/`width`/`height`: those
-      // describe how the hub was authored, not how it was actually built,
-      // and a hand-rebuilt hub (four full-resolution Tiles replacing one
-      // half-scale background, 2026-09-22) is exactly the case where they
-      // silently stopped matching reality -- found live when every pin came
-      // out roughly (sceneX, sceneY) short of where it belonged.
-      const imageWidth = await campaignMapImageWidth();
-      const calibration = sceneCalibration(scene.tiles.contents, scene.width, imageWidth ?? scene.width);
-      const pins = hubPinPlan(hub, manifest, {
-        locations,
-        calibration,
-        journalFor: (sourceId) => ({ entryId: journal.id, pageId: pageIdFor.get(sourceId) ?? null })
-      });
-
-      // Only ever remove pins WE made. A GM's own note on the map survives.
       const ours = scene.notes.filter((n) => isGenerated(n)).map((n) => n.id);
       if (ours.length) await deleteNotesOffCanvas(scene, ours);
-      await scene.createEmbeddedDocuments(
-        "Note",
-        pins.map((pin) => ({
-          ...pin.data,
-          // realIdFor first: a pin targeting a scene that was ITSELF adopted
-          // must open the adopted scene's own real id, not the deterministic
-          // one nothing was ever created at.
-          flags: flagFor({ kind: "map-pin", sceneRef: pin.sceneRef, targetSceneId: realIdFor.get(pin.sceneRef) ?? idFor.get(pin.sceneRef) ?? null })
-        }))
-      );
-      report.pins += pins.length;
+      report.pinsRetired += ours.length;
     } catch (err) {
-      report.problems.push(`could not pin the map: ${err.message}`);
+      report.problems.push(`could not clear the old map pins: ${err.message}`);
     }
   }
 
@@ -327,7 +476,7 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
 
   if (notify) {
     ui.notifications.info(
-      game.i18n.format("BLANKINHERITANCE.Scenes.Built", { created: report.created.length, updated: report.updated.length, pins: report.pins })
+      game.i18n.format("BLANKINHERITANCE.Scenes.Built", { created: report.created.length, updated: report.updated.length })
     );
     for (const adoption of report.adopted ?? []) ui.notifications.info(`Adopted an existing hand-built scene: ${adoption}`);
     for (const problem of report.problems) ui.notifications.warn(problem);
@@ -513,18 +662,53 @@ export async function quarantineStrayScenes({ notify = true } = {}) {
   return { moved, kept };
 }
 
-/** A macro, so building the set is a click rather than a console incantation. */
-export async function createSceneSetMacroIfMissing() {
-  const macroId = await deriveFoundryId("scene-set-macro");
-  if (game.macros.get(macroId)) return;
-  await Macro.create(
-    {
-      _id: macroId,
-      name: game.i18n.localize("BLANKINHERITANCE.Scenes.MacroName"),
-      type: "script",
-      img: "icons/svg/direction.svg",
-      command: `await game.modules.get("${MODULE_ID}").api.buildSceneSet();`
-    },
-    { keepId: true }
-  );
+/**
+ * How many things are placed on a scene: every embedded collection except its
+ * levels (Foundry v14 gives every scene a default level, so a level alone is
+ * not content). Read from the Scene class's own metadata rather than a
+ * hand-kept list, so a collection a later Foundry adds is counted too.
+ */
+export function placeableCount(scene) {
+  const collections = Object.values(scene?.constructor?.metadata?.embedded ?? {}).filter((name) => name !== "levels");
+  if (!collections.length) return null; // unknown shape: never read as "empty"
+  return collections.reduce((total, name) => total + (scene[name]?.size ?? 0), 0);
+}
+
+/**
+ * Delete an EMPTY copy of a scene the scene set builds -- one not built by
+ * this pipeline, carrying a managed scene's exact name, with nothing placed on
+ * it (core/world-sync.mjs#isDisposableDuplicateScene). quarantineStrayScenes
+ * below could only set these aside, not being sure what they were; the
+ * known one on the live world is the old "Directorate HQ — Lobby" the first
+ * landing-scene code made (2026-09-17), sitting in "Diagnostics & Fixtures"
+ * with a stale picture and nothing on it. Ingram, 2026-09-27: "get rid of
+ * scenes which aren't useful". Empty is the whole test for safety -- a copy
+ * with anything on it stays set aside for a person to look at.
+ */
+export async function retireDuplicateScenes({ notify = true } = {}) {
+  if (!game.user.isGM) return { removed: [], kept: [] };
+  const { manifest } = await loadSceneSet();
+  const knownSourceIds = new Set((manifest.scenes ?? []).map((s) => s.id));
+  const knownCleanNames = new Set((manifest.scenes ?? []).map((s) => s.name).filter(Boolean));
+  const removed = [];
+  const kept = [];
+
+  for (const scene of [...game.scenes]) {
+    const summary = { name: scene.name, sourceId: scene.getFlag(MODULE_ID, "sourceId") ?? null, placeables: placeableCount(scene) };
+    if (!isDisposableDuplicateScene(summary, { knownSourceIds, knownCleanNames })) continue;
+    try {
+      // Same rescue as the other retirements: never delete from under the table.
+      if (scene.active) {
+        const landing = game.scenes.find((s) => s.getFlag(MODULE_ID, "kind") === "landing" && s.id !== scene.id);
+        if (landing) await landing.activate();
+      }
+      await scene.delete();
+      removed.push(scene.name);
+    } catch (err) {
+      kept.push(`${scene.name} — could not delete: ${err.message}`);
+    }
+  }
+
+  if (notify && removed.length) ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Scenes.DuplicatesRetired", { count: removed.length }));
+  return { removed, kept };
 }

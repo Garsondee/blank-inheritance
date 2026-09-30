@@ -12,7 +12,7 @@ import "./setup.mjs";
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -24,6 +24,7 @@ import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/bla
 // function bodies, never at module-evaluation time, so it's fine to import
 // once here and call its exports after installMockFoundry() runs per-test.
 import { runDiagnosticTestSync, runRealContentSync, isPushable } from "../module/blank-inheritance/scripts/foundry/sync.mjs";
+import { FALLBACK_EPISODE_PATHS } from "../module/blank-inheritance/scripts/core/world-sync.mjs";
 import { PROMOTABLE_STATUSES, BASELINE_STATUSES } from "../module/blank-inheritance/scripts/core/promote.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -50,15 +51,31 @@ function loadFixtureModuleFiles() {
  * it identically to how it reads the test fixtures above.
  */
 /**
- * `promoteToSound`: issue #166 backfilled every real npc/episode/scene file
- * with `authoring.status: "drafted"` (nothing has actually been through the
- * Desk yet), and issue #168 makes sync genuinely withhold anything below
- * sound/final. Most of the tests below exist to prove the CREATE/UPDATE
- * mechanics work correctly, not to re-prove the withholding gate (that has
- * its own dedicated tests further down) -- so they simulate "as if this had
- * already been promoted" in the in-memory copy handed to the mock. This never
- * touches the real files on disk; promoting Shucks/Nobu/the clerk/Episode One
- * for real is Ingram's own call, made through the Desk once it exists.
+ * Every real file in data/npcs/, as ids -- the same directory
+ * `listModuleJsonIds(NPC_DIR)` discovers inside sync.mjs now. Read once and
+ * reused by every test below rather than hardcoded, so this suite notices
+ * when a new npc file is added to the repo instead of silently under-testing
+ * it (this project's own established idiom -- see the real-episode
+ * scene-count assertion further down, which does the same thing for scenes).
+ */
+function realNpcIds() {
+  return readdirSync(path.join(repoRoot, "data", "npcs"))
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(/\.json$/, ""))
+    .sort();
+}
+
+/**
+ * `promoteToSound`: issue #166 backfilled every real episode/scene file with
+ * `authoring.status: "drafted"` (nothing has actually been through the Desk
+ * yet), and issue #168 makes journal-page sync genuinely withhold anything
+ * below sound/final. This still matters for episodes -- a scene is the
+ * Desk's real grading unit (see the withheld-episode-page tests in
+ * test/tier1-generators.test.mjs) -- but NOT for npcs any more: 2026-09-29,
+ * at Ingram's direct request that every npc get a real Actor and a GM-only
+ * reference token regardless of how far its own content has been reviewed
+ * (sync.mjs's own comment, where REAL_NPC_PATHS used to live, has the full
+ * reasoning). So this only ever touches episode/scene authoring status now.
  */
 function loadRealCampaignModuleFiles({ promoteToSound = false } = {}) {
   const dataRoot = path.join(repoRoot, "data");
@@ -67,17 +84,16 @@ function loadRealCampaignModuleFiles({ promoteToSound = false } = {}) {
   // data/antagonists/claimants/contact-unclassified.json (the real Claimant). That file, and the
   // whole frame-scale battle-simulator it was also the single source of truth for, were deleted --
   // unapproved, stale content. No real Claimant exists to load right now; restore this once one does
-  // (same shape as REAL_NPC_PATHS below, kept in step with sync.mjs's own REAL_CLAIMANT_PATH note).
-  // Keep this list in step with REAL_NPC_PATHS in scripts/foundry/sync.mjs.
-  for (const id of ["shucks-mordant", "nobu", "intake-medicals-clerk"]) {
-    const npc = JSON.parse(readFileSync(path.join(dataRoot, "npcs", `${id}.json`), "utf8"));
-    if (promoteToSound) npc.authoring = { ...npc.authoring, status: "sound" };
-    moduleFiles[`data/campaign/npcs/${id}.json`] = npc;
+  // (via runRealCreatureCase, still isPushable-gated -- see sync.mjs's own REAL_CLAIMANT_PATH note).
+  for (const id of realNpcIds()) {
+    moduleFiles[`data/campaign/npcs/${id}.json`] = JSON.parse(readFileSync(path.join(dataRoot, "npcs", `${id}.json`), "utf8"));
   }
-  // Episode One is the only episode left in the repo -- every other drafted beat
-  // beyond Session 0/1 was deleted 2026-09-13. Keep this list in step with
-  // REAL_EPISODE_PATHS in scripts/foundry/sync.mjs.
-  for (const name of ["episode-c1e1-mothers-maiden-name.json"]) {
+  // Every episode sync.mjs syncs by default -- read from the SAME list it uses
+  // (core/world-sync.mjs's FALLBACK_EPISODE_PATHS), so the two cannot drift.
+  // They did: until 2026-09-27 this test and sync.mjs both named Episode One
+  // alone, a fortnight after Episode Two existed, and its journal never
+  // reached a world.
+  for (const name of FALLBACK_EPISODE_PATHS.map((p) => p.replace(/^episodes\//, ""))) {
     const episode = JSON.parse(readFileSync(path.join(dataRoot, "episodes", name), "utf8"));
     if (promoteToSound) {
       episode.authoring = { ...episode.authoring, status: "sound" };
@@ -399,30 +415,28 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other three 
   }
 });
 
-test("runRealContentSync: Episode One and the established NPCs sync cleanly against actual campaign data", async (t) => {
+test("runRealContentSync: Episode One and every real npc sync cleanly against actual campaign data", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
   }
   // promoteToSound: true -- this test proves the CREATE/UPDATE mechanics work
-  // (issue #168 would otherwise withhold all of this, since none of it has
-  // really been through the Desk yet; see the dedicated withheld-content
-  // tests below for that).
+  // for episode journals (issue #168 would otherwise withhold their pages,
+  // since none has really been through the Desk yet). Npc Actors are no
+  // longer gated at all -- see loadRealCampaignModuleFiles's own comment.
   const realCampaignModuleFiles = loadRealCampaignModuleFiles({ promoteToSound: true });
-  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: realCampaignModuleFiles, templateJson });
+  const npcIds = realNpcIds();
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: realCampaignModuleFiles, templateJson, browse: true });
   try {
     const report = await runRealContentSync();
 
     assert.equal(report.fatalError, null);
-    // REDUCED 2026-09-19 from 5 to 4 (was "1 claimant + 3 npcs + 1 episode"): the real Claimant was
-    // removed at Ingram's direct instruction, unapproved and stale, along with the rest of the
-    // frame-scale battle simulator it was the single source of truth for. Restore to 5 once a new,
-    // approved Claimant exists and REAL_CLAIMANT_PATH is restored in sync.mjs.
-    assert.equal(report.results.length, 4, "3 npcs (Shucks Mordant, Nobu, the Intake Medicals clerk) + 1 episode (Episode One is the only one left)");
+    assert.equal(report.results.length, npcIds.length + FALLBACK_EPISODE_PATHS.length, `one result per real npc file (${npcIds.length}) + one per episode`);
     for (const result of report.results) {
       const failed = result.checks.filter((c) => !c.pass);
       assert.deepEqual(failed, [], `expected all checks to pass for ${result.sourceId}: ${JSON.stringify(failed)}`);
       assert.equal(result.skipped, false, "first-ever run must create, not skip");
+      assert.equal(result.withheld, undefined, `an npc/episode result must never be withheld any more, got: ${result.sourceId}`);
     }
 
     const shucksId = await deriveFoundryId("shucks-mordant");
@@ -441,6 +455,13 @@ test("runRealContentSync: Episode One and the established NPCs sync cleanly agai
     assert.ok(clerk, "the Intake Medicals clerk's Actor must actually exist in the mock world");
     assert.equal(clerk.system.attributes.hp.value, 1, "a statblock-less NPC gets the 1-HP non-combat default, not 0");
 
+    // The point of this change (Ingram, 2026-09-29): an npc that was never on
+    // the old REAL_NPC_PATHS shortlist -- a still-"placeholder" Directorate
+    // pole is a real, on-disk example -- now syncs too, without anyone
+    // having to remember to add its name to a list.
+    const commanderId = await deriveFoundryId("commander");
+    assert.ok(world.actors.get(commanderId), "a previously-excluded placeholder npc (the Commander) must now sync as well");
+
     const sessionOneId = await deriveFoundryId("episode-c1e1-mothers-maiden-name");
     const sessionOneJournal = world.journal.get(sessionOneId);
     assert.ok(sessionOneJournal, "Episode One's JournalEntry must exist");
@@ -453,8 +474,9 @@ test("runRealContentSync: Episode One and the established NPCs sync cleanly agai
     assert.equal(sessionOneJournal.pages.length, 1 + realSceneCount, `1 overview page + ${realSceneCount} authored scenes`);
 
     // Real content must not touch the diagnostic path's documents or vice versa.
-    assert.equal(world.actors.size, 3, "the three established/voiced NPCs -- no test-fixture actors from this run, no claimant until a new one is approved");
-    assert.equal(world.journal.size, 1, "one JournalEntry per real episode file");
+    assert.equal(world.actors.size, npcIds.length, "every real npc file, and nothing from the diagnostic test-fixture path");
+    assert.equal(world.journal.size, FALLBACK_EPISODE_PATHS.length, "one JournalEntry per real episode file");
+    assert.ok(world.journal.get(await deriveFoundryId("episode-c1e2-scheduled-exercise")), "Episode Two's JournalEntry must exist too");
   } finally {
     uninstall();
   }
@@ -465,7 +487,7 @@ test("runRealContentSync: a second run against unchanged real data skips everyth
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
   }
-  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles({ promoteToSound: true }), templateJson });
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles({ promoteToSound: true }), templateJson, browse: true });
   try {
     await runRealContentSync();
     const shucksId = await deriveFoundryId("shucks-mordant");
@@ -481,27 +503,66 @@ test("runRealContentSync: a second run against unchanged real data skips everyth
   }
 });
 
-test("runRealContentSync: still does not touch the six kids/Frames or the three still-placeholder Directorate poles -- Shucks/Nobu/the clerk are the only NPCs real enough to sync", async (t) => {
+test("runRealContentSync: still does not touch the six kids/Frames, but every real npc file syncs -- not a hand-picked shortlist any more", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
   }
-  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles({ promoteToSound: true }), templateJson });
+  const npcIds = realNpcIds();
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles({ promoteToSound: true }), templateJson, browse: true });
   try {
     await runRealContentSync();
     // No draft kid/Frame characters, which would also be type "character"
-    // Actors if this pipeline ever created them.
+    // Actors if this pipeline ever created them. This boundary is untouched
+    // by the 2026-09-29 change: runRealContentSync has never called
+    // buildCharacterActorData at all -- it only knows about npcs and
+    // episodes -- so kids/Frames stay excluded structurally, not by a list.
     const characterActors = [...world.actors.values()].filter((a) => a.type === "character");
     assert.deepEqual(characterActors, [], "no draft kid/Frame character should be synced without explicit confirmation");
-    // Exactly 3 npc-type Actors (the 3 established NPCs -- no claimant until a
-    // new, approved one exists, see the "syncs cleanly" test above) -- see
-    // that same test for the precise identity/count assertions. Combined with
-    // the character-type assertion above, this pins down that REAL_NPC_PATHS
-    // still deliberately excludes the Commander/Caretaker/Transparency
-    // Advocate placeholders (loadRealCampaignModuleFiles above doesn't even
-    // provide mock data for them, so sync.mjs asking for them would surface
-    // here as a failed/thrown case, not a silently-passing one).
-    assert.equal(world.actors.size, 3);
+    // Every real npc file, not the old REAL_NPC_PATHS shortlist of 3 -- see
+    // the "syncs cleanly" test above for identity-level assertions on
+    // specific NPCs, including a previously-excluded placeholder.
+    assert.equal(world.actors.size, npcIds.length);
+  } finally {
+    uninstall();
+  }
+});
+
+// The automatic world sync (foundry/world-sync.mjs, 2026-09-27) runs this by
+// itself at every GM login where the content changed. It must never
+// overwrite whatever the GM last copied, and it reports once for everything
+// it did -- so in quiet mode the content sync posts nothing of its own.
+test("runRealContentSync({ quiet: true }): creates the same documents, writes the report file, and touches neither the clipboard nor the chat", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const npcIds = realNpcIds();
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles({ promoteToSound: true }), templateJson, browse: true });
+  try {
+    const report = await runRealContentSync({ quiet: true });
+    assert.equal(report.fatalError, null);
+    assert.equal(report.results.length, npcIds.length + FALLBACK_EPISODE_PATHS.length);
+    assert.equal(world.clipboardText, null, "quiet mode must never write the clipboard");
+    assert.equal(world.chatMessages.length, 0, "quiet mode posts no chat card of its own");
+    assert.equal(world.notifications.length, 0, "quiet mode shows no toasts of its own");
+    assert.equal(report.reportFileWritten, true, "the report file is still written, for the record");
+    assert.equal(world.actors.size, npcIds.length);
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: an explicit episode list is synced instead of the default", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles({ promoteToSound: true }), templateJson, browse: true });
+  try {
+    const report = await runRealContentSync({ quiet: true, episodePaths: ["data/campaign/episodes/episode-c1e2-scheduled-exercise.json"] });
+    assert.deepEqual(report.results.filter((r) => String(r.sourceId).startsWith("episode-")).map((r) => r.sourceId), ["episode-c1e2-scheduled-exercise"]);
+    assert.equal(world.journal.size, 1);
   } finally {
     uninstall();
   }
@@ -520,66 +581,38 @@ test("runRealContentSync: a non-GM user does not create anything", async () => {
   }
 });
 
-test("runRealContentSync: issue #168 -- real content is genuinely still drafted today, so the NPC gate actually withholds it rather than pushing it", async (t) => {
+test("runRealContentSync: 2026-09-29 -- an npc syncs regardless of authoring.status, unlike an episode's pages", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
   }
   // Deliberately NOT promoted -- this is what the real, on-disk data actually
   // says today (issue #166's backfill: nothing has been through the Desk
-  // yet). Proves the gate is real, not just unit-tested in isolation.
-  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  // yet). Until 2026-09-29 this withheld every npc (issue #168); it no
+  // longer does, at Ingram's direct request -- see the comment where
+  // REAL_NPC_PATHS used to live in sync.mjs for the reasoning. isPushable()
+  // itself is unchanged (see the dedicated unit tests below) -- runRealNpcCase
+  // simply no longer calls it.
+  const npcIds = realNpcIds();
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson, browse: true });
   try {
     const report = await runRealContentSync();
     assert.equal(report.fatalError, null);
 
-    const npcResults = report.results.filter((r) => r.sourceId !== "episode-c1e1-mothers-maiden-name");
-    assert.equal(npcResults.length, 3, "Shucks Mordant, Nobu, and the Intake Medicals clerk");
+    const npcResults = report.results.filter((r) => !String(r.sourceId).startsWith("episode-"));
+    assert.equal(npcResults.length, npcIds.length);
     for (const result of npcResults) {
-      assert.equal(result.withheld, true, `expected ${result.sourceId} to be withheld -- it is still "drafted"`);
-      assert.match(result.withheldReason, /authoring\.status is "drafted"/);
-      assert.deepEqual(result.checks, []);
+      assert.equal(result.withheld, undefined, `expected ${result.sourceId} to sync despite being "drafted" -- npcs are no longer gated on authoring.status`);
     }
+    assert.equal(world.actors.size, npcIds.length, "every real npc, drafted or not, must have been created");
 
-    assert.equal(world.actors.size, 0, "nothing drafted should have been created");
-    // The episode's JournalEntry is NOT withheld at the sync.mjs level (issue
-    // #168's design choice: a scene is the Desk's real grading unit, so
-    // journal.mjs withholds page-by-page instead -- see
-    // test/tier1-generators.test.mjs's own withheld-content tests for that).
+    // The episode's JournalEntry is a different story -- still withheld
+    // page-by-page (issue #168's design choice: a scene is the Desk's real
+    // grading unit) -- see test/tier1-generators.test.mjs's own
+    // withheld-content tests for that half.
     const episodeResult = report.results.find((r) => r.sourceId === "episode-c1e1-mothers-maiden-name");
-    assert.equal(episodeResult.withheld, undefined, "the episode case is not gated at this level");
-    assert.equal(world.journal.size, 1, "the journal still gets created -- with withheld placeholder pages, not withheld entirely");
-  } finally {
-    uninstall();
-  }
-});
-
-test("runRealContentSync: a withheld NPC that was already live from before the gate existed is left exactly as it was, not deleted", async (t) => {
-  if (!templateJson) {
-    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
-    return;
-  }
-  // First run: promoted, so it actually gets created (simulating content
-  // that predates this gate). Second run: the SAME content, but now
-  // reporting as drafted (simulating the gate turning on under already-live
-  // content) -- the existing Actor must survive untouched.
-  const moduleFiles = loadRealCampaignModuleFiles({ promoteToSound: true });
-  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles, templateJson });
-  try {
-    await runRealContentSync();
-    const shucksId = await deriveFoundryId("shucks-mordant");
-    const shucksRef = world.actors.get(shucksId);
-    assert.ok(shucksRef, "sanity: Shucks Mordant was actually created on the first, promoted run");
-
-    // Mutate the SAME object the mock's fetchModuleJson reads from, in
-    // place -- simulating "the gate turned on under content that was
-    // already live," not a fresh world.
-    Object.assign(moduleFiles, loadRealCampaignModuleFiles());
-    const report = await runRealContentSync();
-    const shucksResult = report.results.find((r) => r.sourceId === "shucks-mordant");
-    assert.equal(shucksResult.withheld, true);
-    assert.equal(shucksResult.actualId, shucksRef.id, "the withheld result still names the Actor that's actually live");
-    assert.strictEqual(world.actors.get(shucksId), shucksRef, "the pre-existing Actor must be left exactly as it was, never deleted just because the gate turned on");
+    assert.equal(episodeResult.withheld, undefined, "the episode case itself is not gated at this level either");
+    assert.equal(world.journal.size, FALLBACK_EPISODE_PATHS.length, "each episode's journal still gets created -- with withheld placeholder pages, not withheld entirely");
   } finally {
     uninstall();
   }

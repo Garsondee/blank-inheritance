@@ -32,7 +32,11 @@ carried quietly, not a reason to make him cagey now — see the guardrail below,
   loose as the Watcher (LEDGER #31). The Directorate was founded ~195 years ago to keep that site secure
   and prevent another rupture (LEDGER #32). *(`blank-inheritance-master-timeline.md`)* *(Corrected
   2026-09-25: this ran the Baldwin Manor rescue and First Impact together as one event, and restated the
-  founding charter's black-bar answer, which is under review, LEDGER #36.)*
+  founding charter's black-bar answer, since cut, LEDGER #41.)*
+- **Behind the Deputy Director's door, end of Episode Two** (LEDGER #43): he tells the Deputy Director that all six
+  carry the marker, and asks that they be kept together and flying. He doesn't say what the marker is for.
+  *(Accepted, LEDGER #46: he has recognised his own old handwriting on the override order, knows his detached hand wrote it,
+  and takes responsibility for it. `bible/characters/rand.md`.)*
 - **On Manako's revenge list**, alongside Nobu: "SHUCKS MORDANT — the institutional author of his
   ruin. Supervised the disgrace personally." This places him as a direct participant in Manako's fall
   (§3 of the Cicada dossier), roughly 45 years ago — meaning he was already ancient when it happened.
@@ -59,7 +63,7 @@ carried quietly, not a reason to make him cagey now — see the guardrail below,
   once hungry, the way a stroppy cat does. He is genuinely unworried about the whole arrangement.
   **Its name is Rand** (Ingram, LEDGER #34: *"Right hand... Rand... Get it?"*). **It writes**, in Shucks's own
   handwriting from before it came off; he writes with his left hand now. It is who countersigned Section Nine's roster
-  (`arc-the-countersignature`; Claude's answer at Ingram's request, awaiting her read). Full file: `rand.md`.
+  (`arc-the-countersignature`; Claude's answer at Ingram's request, accepted in LEDGER #46). Full file: `rand.md`.
 
 ### The Hand — a sub-character in its own right
 
@@ -114,7 +118,7 @@ prosthetic, and noticing it is a real Perception or Medicine check rather than G
   candidate for its own file if it becomes a recurring presence." [chosen — `rand.md`, LEDGER #34]
 **Constraint:** it is unable to talk normally (Ingram, directly) — any resolution keeps it nonverbal;
 how else it might communicate (gesture, writing, tapping a code) is itself still open, not assumed. *(LEDGER #34,
-Claude's answer at Ingram's request, awaiting her read: it writes, in Shucks's old handwriting. It is still nonverbal.)*
+Claude's answer at Ingram's request, accepted in LEDGER #46: it writes, in Shucks's old handwriting. It is still nonverbal.)*
 **Referenced by:** *(generated — see `data/generated/node-index.json`, do not hand-edit this line)*
 
 ### `arc-what-shucks-said` — what he says behind the Deputy Director's door, and why he has the standing to say it

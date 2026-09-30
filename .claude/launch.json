@@ -31,6 +31,17 @@
         "--headless"
       ],
       "port": 30000
+    },
+    {
+      "name": "foundry-blank-inheritance",
+      "runtimeExecutable": "foundryvtt/Foundry Virtual Tabletop/Foundry Virtual Tabletop.exe",
+      "runtimeArgs": [
+        "--dataPath=C:/Users/HiveDisco/AppData/Local/FoundryVTT",
+        "--port=30000",
+        "--noupnp",
+        "--world=blank-inheritance-kuuhaku-souzoku"
+      ],
+      "port": 30000
     }
   ]
 }

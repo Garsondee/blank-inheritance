@@ -13,7 +13,7 @@
 
 **The Directorate is not a conspiracy. It is an institution that has never been tested, cannot admit it, and is slowly killing the city it was built to protect — mostly by doing its job exactly as written.**
 
-A century and a half of Frames, a charter, a chain of command, an anthem, a maintenance budget and a conscription statute, and no war. It is a rite of passage, mildly boring, faintly prestigious, and entirely untested. *(Clarified 2026-09-24, `open-questions.json#directorate-extraterritorial-vs-national-service`: there are **two services**. The **kingdom's own national service**, army and navy, is the one everyone's parents did. **The Directorate recruits separately**: candidates apply, or are streamed to it, and it sits outside the kingdom's lines, which is where the rivalry with the army and navy comes from.)*
+A century and a half of Frames, a charter, a chain of command, an anthem, and a maintenance budget, and no war. It is a rite of passage, mildly boring, faintly prestigious, and entirely untested. *(Clarified 2026-09-24, `open-questions.json#directorate-extraterritorial-vs-national-service`: there are **two services**. The **kingdom's own national service**, army and navy, is the one everyone's parents did. **The Directorate recruits separately**: candidates apply, or are streamed to it, and it sits outside the kingdom's lines, which is where the rivalry with the army and navy comes from.)*
 
 **Where it came from** *(corrected 2026-09-24, LEDGER #32 item 6, which is canon)*. **It was born on Kortos, about 195 years ago.** First Impact opened up the inner layers of the generation ship. Scientists and magic-users descended on the site, terrified of another rupture; adventurers came for valuables; it became a very dangerous place. **The organisations around Kortos banded together, and the Directorate was born out of the need to keep the site secure, prevent a future rupture, and stop the uncovered technology disrupting the world.** About 150 years ago it moved to Kurose for the prophecy (§1a), and found the search ship there (§2.1). **The technology leaked outwards anyway:** the phones, and anything else too advanced for the era, are ship technology that got out of the Kortos site (§2.7). The full account is in `dossier-first-impact.md`.
 
@@ -62,23 +62,19 @@ Resolved 2026-09-24 as **two services**: see the note in §1.
 
 **The hull under Kurose is not the ship the Watcher came from.** It is a second ship — **the search ship**, which arrived about a thousand years after the generation ship to find out what had happened to it, and crashed and was buried in its turn (LEDGER #31 item 1, canon). The Watcher's home is at Kortos: it was the generation ship's navigation and sensor system.
 
-*(Canon since LEDGER #32 item 8; it was a #31 proposal:)* **the search ship's buried systems are still calling for the generation ship, and the Watcher — that ship's navigation system — is drawn to the call.** It crossed the world and fetched up over the one place on the planet that is not noise: the ship that came looking for it. **It cannot get in. There is a city on top and the city is screaming.**
+*(Canon since LEDGER #32 item 8; it was a #31 proposal:)* **the search ship's buried systems are still calling for the generation ship, and the Watcher — that ship's navigation system — is drawn to the call.** It crossed the world and fetched up over the one place on the planet that is not noise: the ship that came looking for it. **It cannot get in. There is a city on top and the city is screaming. *(LEDGER #42: the city sits on the first dig, which found the hull; the second excavation, which reaches the whole ship, is a journey from the city, off the city map.)***
 
 **And the excavation is answering it.** Digging wakes the search ship, and every metre the Directorate digs strengthens the pull. They have been calling it, all campaign and for decades before it, and calling it louder every year.
 
-*(And the ship carries more than a voice. LEDGER #26 with `design/campaign-arc.md`: the exotic-matter fuel that could make Second Impact is the search ship's, under the same city, and one of Ingram's three open candidates for the cause is "Cicada's worst member detonating stolen mitflit spaceship fuel on purpose" — the others are an accident and a tragic misunderstanding. A reading, not decided: whichever it is, the dig is what brings the fuel within reach.)*
+*(And the ship carries more than a voice. The exotic matter the founders fumbled at Kortos may be aboard it, and the Directorate knows it (LEDGER #40). Second Impact is a weapon the Watcher builds from exotic matter, without understanding what it can do (LEDGER #40, which replaced #26's three candidate causes). A reading: the dig is what brings the exotic matter within the Watcher's reach.)*
+
+**Answered 2026-09-27 (LEDGER #40, canon): why they dig, and what they don't know.** The Directorate is Golarion's foremost gatherer of alien technology in this era. It digs to find technology and lock it in deep storage vaults, so that it can't cause disasters or, at worst, another First Impact. It knows the exotic matter the founders fumbled at Kortos could be aboard the search ship. Any it finds is the most cautiously stored material imaginable: an armoured, heavily guarded convoy into a base in full lockdown, which the players witness and nobody explains (the Casebook places it in Chapter 8). **It knows nothing about the Watcher and doesn't suspect it exists; the party must be the ones to uncover it.** So this fault stays invisible to the institution: the digging it does to keep the world safe is what calls the Watcher.
 
 This is the single largest fault and the one the party is least equipped to see, because the digging is not secret — it is a public works programme with a budget line.
 
-### 2.2 They conscript children, and they wrote down that they knew
+### 2.2 (Cut)
 
-**UNDER REVIEW (LEDGER #36, 2026-09-25).** Ingram on this answer: "it belongs to much older generated ideas and notes that don't really feel sane any more." It also doesn't hold up: the charter predates every Frame and the prophecy, its authors are alive, and the party are volunteers of any age. See `open-questions.json#founding-charter-rethink`.
-
-The founding charter is framed in the lobby with **one paragraph blacked out**, and it has been blacked out since before anyone alive was born. The paragraph is the founders' own honest self-diagnosis: *children with guns.*
-
-They named the problem, in writing, at the founding — and then painted over it and built two centuries of institutional life on top. **The Directorate diagnosed itself and buried the diagnosis, and then became it.**
-
-*(Where the unredacted copy is kept: §8, GM only.)*
+**Cut 2026-09-27 (LEDGER #41).** This fault rested on the founding charter's painted-out paragraph. Ingram: *"the charter is a useful document and good lore, but publicly censoring part of it is odd - a secret that is flaunted, hints of 1984 and it makes the Directorate seem evil instead of just very secretive."* The charter stays, with nothing painted out, and the old answer is withdrawn. The Directorate is very secretive, not evil: what it hides, it hides in deep storage (§2.1, LEDGER #40).
 
 ### 2.3 They screen the children for something, and tell them not to worry
 
@@ -130,7 +126,7 @@ Nobody is spying on anybody. A clerk is doing a filing job under a policy writte
 |---|---|---|
 | The buried moment | Panicked in a lab, knocked over a burner, and was ruined | Panicked at Kortos, and a gnoll threw a container an elf failed to catch |
 | What they built on it | A religion | A state |
-| The admission | He has spent forty years arranging his life so the question cannot be asked | They wrote it down and painted over it *(§2.2, under review)* |
+| What they hide | He has spent forty years arranging his life so the question cannot be asked | Whatever it digs up goes into deep storage and is never spoken of again (§2.1, LEDGER #40) |
 | What they do to the young | Tells them what they are for | Tells them what they are for |
 | Are they right about the other? | Yes | Yes |
 | Can either see itself? | No | No |
@@ -152,13 +148,13 @@ The party stands between them and is lied to by both.
 
 ## 5. Manako's warning, and why it works
 
-At the first meeting (`data/scene-briefs/episode-c1e1--the-errand.json`, beat `what-he-thinks-of-your-employer`), an old man in a tea house tells six brand-new trainees one true thing about their employer: that the Directorate wrote down what it was doing to children and then painted over it.
+At the first meeting (`data/scene-briefs/episode-c1e1--the-errand.json`, beat `what-he-thinks-of-your-employer`), an old man in a tea house tells six brand-new trainees one true thing about their employer: that whatever the Directorate digs up goes into a vault and is never spoken of again (rewritten 2026-09-27, LEDGER #41).
 
-**He is right.** He does not know about §2.1, §2.4 or §2.7, and he is right about §2.2 anyway. *(This rests on §2.2, which is under review, LEDGER #36; if the charter changes, his line changes with it.)*
+**He is right.** He knows nothing of what the digging calls (§2.1), or of §2.4 or §2.7, and he is right about the vaults anyway. *(Rewritten 2026-09-27: his line used to rest on §2.2, which is cut, LEDGER #41.)*
 
-Because he says it before a single attack has happened anywhere in the city, it lands as an old man's opinion rather than a manifesto — and it is the first brick in the party's eventual, correct distrust of the institution feeding them.
+Because he says it before a single attack has happened anywhere in the city, it lands as an old man's opinion rather than a manifesto — and it is the first brick in the party's understanding that the institution feeding them keeps secrets.
 
-**The players may start to believe the Directorate are the actual villains of this story. They will be half right, and they should be allowed to think so for a long time.**
+**The players may start to wonder what the Directorate is hiding. They'll be right that it hides things. It is very secretive, not evil (LEDGER #41).**
 
 ---
 
@@ -174,9 +170,9 @@ Because he says it before a single attack has happened anywhere in the city, it 
 
 ## 7. Open questions
 
-1. **What the blacked-out paragraph actually says, word for word.** "Children with guns" was the established sense of it, and is under review (§2.2, LEDGER #36); the text itself is unwritten. (Where the unredacted copy is kept, and what going for it may wake: §8, GM only.)
+1. ~~**What the blacked-out paragraph actually says.**~~ **Cut (LEDGER #41):** nothing on the charter is painted out any more.
 2. **What the blood screen is testing for**, and who decided the children should not be told.
-3. **Whether anyone inside the Directorate knows about §2.1** — that the hull under the city is a second ship, that it is calling, and that the digging is what is drawing the Watcher — or whether that is genuinely nobody's conclusion yet.
+3. **Whether anyone inside the Directorate knows about §2.1** — that the hull under the city is a second ship, that it is calling, and that the digging is what is drawing the Watcher — or whether that is genuinely nobody's conclusion yet. **Answered 2026-09-27 (LEDGER #40): nobody.** The Directorate isn't aware of the Watcher at all, and doesn't suspect it; the party must be the ones to uncover it.
 4. **Who wrote the monitoring policy**, how old it is, and whether anyone has read it this century.
 5. ~~Does a day-one records search find Manako?~~ **Answered 2026-09-13 (LEDGER #17): no. The Directorate has never identified Cicada's founder**, and before the adventure properly starts it barely looks: the cult is largely peaceful and largely a non-issue, a thin file on a fringe group (LEDGER #34). It may even know Manako by name, as the scientist it employed and disgraced, and suspect that he now runs a tea house, which salves its conscience; it has no link between him and the cult. *(Rewritten 2026-09-24, LEDGER #34: this said the institution had been fighting an organisation for decades, with a cabinet of detained believers. It hasn't. If this is a fault at all, it is indifference, not a failed hunt.)*
 6. **Added 2026-09-24 (LEDGER #32).** Is the leak (§1) a fault in its own right? The Directorate was founded to stop the ship's technology disrupting the world, and every trainee carries a phone built from it. Add it to §2 if it starts behaving like one.
@@ -193,7 +189,7 @@ Because he says it before a single attack has happened anywhere in the city, it 
 
 **Canon:** the demon may emerge from Anabala, unexpectedly, when the party breaks into **the Directorate's deepest vaults** in search of information — and that becomes a new problem. **Anabala must be there for it to happen** (LEDGER #32 item 14). How is open, to solve later: Pippa may choose to keep playing Anabala in this campaign, as one of the students, and either way Anabala can be at the right place at the right time easily enough. *(LEDGER #33: the two don't conflict. Abraxas can emerge from Anabala, and Anabala stays Pippa's to play.)* **Abraxas and the Watcher are a naturally dangerous, aligned pair**: one feeds on information, the other exists to keep observing. Remember it whenever either is on the table.
 
-**Proposal (LEDGER #31):** the deepest vault is where the **unredacted charter** is kept — the paragraph under the paint (§2.2). The chain of redacted documents ends there, so the break-in comes when the party goes for the last black bar. *(On hold with §2.2: the charter is under review, LEDGER #36.)*
+~~**Proposal (LEDGER #31):** the deepest vault keeps an unredacted charter.~~ **Cut with §2.2 (LEDGER #41).** The party still breaks into the deepest vault in search of information (LEDGER #32). *(Proposal)* What they go in for is the vault inventory the Transparency Advocate is refused, and what the Chapter 8 convoy brought in (LEDGER #40).
 
 **Running rule.** The vaults themselves can be mentioned; the redacted-document chain points at them. What must not surface in play, for a long time, is anything about the demon.
 

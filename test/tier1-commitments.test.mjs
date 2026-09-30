@@ -168,21 +168,12 @@ test("LAW 11: another player's private mission is ABSENT from the projection, no
   assert.ok(!serialized.includes("investigation"), "even the activity id leaks what they are doing");
 });
 
-test("what survives redaction is occupancy and nothing else", () => {
-  // A teammate being busy IS a shared game fact and is not the secret — the
-  // board would be useless if a taken quarter looked free. The test is that
-  // the row carries the fact and no payload.
+test("nothing survives redaction: another player's private commitment leaves no trace, not even that the quarter is taken", () => {
+  // Ingram, 2026-09-28, on showing a taken quarter without saying what: "Well that sounds like nonsense to me.
+  // Use some common sense please." design/ux-doctrine.md §7a: it "disappears entirely".
   const projected = projectForUser(COMMITMENTS, { userId: "u1" });
-  const theirs = projected.find((c) => c.userId === "u5");
-  assert.deepEqual(theirs, {
-    userId: "u5",
-    userName: "Mika",
-    momentKey: HERE,
-    activityId: OPAQUE_ACTIVITY,
-    visibility: VISIBILITY.PRIVATE,
-    note: null,
-    own: false
-  });
+  assert.equal(projected.find((c) => c.userId === "u5"), undefined);
+  assert.equal(projected.length, COMMITMENTS.length - 1);
 });
 
 test("a field added to a private commitment later cannot ride through the boundary", () => {
@@ -218,16 +209,18 @@ test("segmentState answers what is left, what is on offer, and who took what", (
   assert.equal(state.offers.find((o) => o.id === "rest").takenByMe, false);
 });
 
-test("a private commitment counts on the board but is not attributed to an offer", () => {
+test("a private commitment is not on anybody else's board at all", () => {
   const state = segmentState({ moment: MOMENT, offers: OFFERS, commitments: COMMITMENTS, userId: "u1" });
-  assert.equal(state.offers.find((o) => o.id === "investigation").takers, 0, "an opaque row must not credit an offer");
-  assert.ok(state.board.some((row) => row.opaque), "the spoken-for slice vanished from the board entirely");
+  assert.equal(state.offers.find((o) => o.id === "investigation").takers, 0);
+  assert.equal(state.board.some((row) => row.opaque), false, "no \"someone is busy\" row either");
+  assert.equal(state.board.some((row) => row.participants.some((p) => p.userId === "u5")), false);
 });
 
 test("segmentState only ever shows the quarter we are standing in", () => {
   const other = [...COMMITMENTS, { userId: "u9", momentKey: momentKey({ day: 8, quarter: "morning" }), activityId: "rest" }];
   const state = segmentState({ moment: MOMENT, offers: OFFERS, commitments: other, userId: "u1" });
-  assert.equal(state.board.reduce((n, row) => n + row.participants.length, 0), COMMITMENTS.length);
+  // Everyone at this moment except u5, whose private commitment u1 never sees.
+  assert.equal(state.board.reduce((n, row) => n + row.participants.length, 0), COMMITMENTS.length - 1);
 });
 
 test("LAW 11 holds through segmentState too, not only through projectForUser", () => {

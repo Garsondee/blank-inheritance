@@ -44,6 +44,7 @@
                 {{#if isSolo}}<span class="bi-runner__tag bi-runner__tag--solo">{{localize "BLANKINHERITANCE.Runner.Solo"}}</span>{{/if}}
                 {{#if isPassive}}<span class="bi-runner__tag bi-runner__tag--passive">{{localize "BLANKINHERITANCE.Runner.Passive"}}</span>{{/if}}
                 {{#if isInsight}}<span class="bi-runner__tag bi-runner__tag--insight">{{localize "BLANKINHERITANCE.Runner.Insight"}}</span>{{/if}}
+                {{#if forNamesText}}<span class="bi-runner__tag bi-runner__tag--for" data-tooltip="{{localize 'BLANKINHERITANCE.City.Runner.ForHint'}}"><i class="fa-solid fa-location-dot"></i> {{forNamesText}}</span>{{/if}}
                 {{{decoratedText}}}
             </p>
         </div>
@@ -179,10 +180,18 @@
         </div>
         {{/if}}
 
+        {{!-- A solo beat's button must call the solo action. It used to share
+              revealHandout and only change its LABEL, so "Show one player"
+              handed the document to the whole table (found 2026-09-26). --}}
         {{#if handout}}
         <div class="bi-runner__actions">
+            {{#if isSolo}}
+            <button type="button" class="bi-runner__stamp" data-action="revealHandoutSolo"
+                data-beat-id="{{id}}" data-handout-id="{{handout.id}}">{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}</button>
+            {{else}}
             <button type="button" class="bi-runner__stamp" data-action="revealHandout"
-                data-beat-id="{{id}}" data-handout-id="{{handout.id}}">{{#if isSolo}}{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Reveal"}}{{/if}}</button>
+                data-beat-id="{{id}}" data-handout-id="{{handout.id}}">{{localize "BLANKINHERITANCE.Runner.Reveal"}}</button>
+            {{/if}}
         </div>
         {{/if}}
 

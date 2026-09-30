@@ -33,7 +33,7 @@ test("the schema declares triggers[] on both intro and outro, same item shape as
     assert.deepEqual(new Set(field.items.required), new Set(["id", "kind"]));
     assert.deepEqual(
       new Set(field.items.properties.kind.enum),
-      new Set(["npc-enter", "npc-exit", "reveal-handout", "gm-tool", "post-check", "note"])
+      new Set(["npc-enter", "npc-exit", "reveal-name", "reveal-handout", "gm-tool", "post-check", "note"])
     );
   }
 });

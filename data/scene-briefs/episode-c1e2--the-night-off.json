@@ -124,6 +124,9 @@
       "mandatory": false,
       "delivery": "table",
       "text": "Getting off the base unofficially. However they want to do it.",
+      "forDestination": [
+        "go-out"
+      ],
       "challengeRef": "c1e2-the-night-off",
       "checkRef": "over-the-wire",
       "when": {
@@ -139,6 +142,9 @@
       "mandatory": false,
       "delivery": "table",
       "text": "What the ones who went out do with the evening.",
+      "forDestination": [
+        "go-out"
+      ],
       "challengeRef": "c1e2-the-night-off",
       "checkRef": "the-city-after-dark",
       "npcRef": "night-stand-cook",
@@ -155,6 +161,9 @@
       "mandatory": false,
       "delivery": "table",
       "text": "What the ones who stayed in do with the evening. The hangar lights are on and the personnel door is not locked.",
+      "forDestination": [
+        "stay-in"
+      ],
       "challengeRef": "c1e2-the-night-off",
       "checkRef": "the-late-crew",
       "npcRef": "shop-boss",
@@ -171,6 +180,9 @@
       "mandatory": false,
       "delivery": "table",
       "text": "The hard half. Back over the wire, late, tired, and possibly carrying noodles.",
+      "forDestination": [
+        "go-out"
+      ],
       "challengeRef": "c1e2-the-night-off",
       "checkRef": "getting-back-in",
       "when": {
@@ -186,6 +198,9 @@
       "mandatory": false,
       "delivery": "table",
       "text": "If somebody is caught coming back in, it costs very little the first time.",
+      "forDestination": [
+        "go-out"
+      ],
       "when": {
         "condition": "on a failure at getting-back-in"
       },
@@ -260,5 +275,5 @@
       "text": "If anybody was caught -- whether the consequence landed as cheap and funny rather than as a punishment that soured the night."
     }
   ],
-  "notes": "THE DESIGNED BREATHER. Every session needs one beat whose entire job is relax, authored as deliberately as the climax. This is Episode Two's, and it is placed immediately before the turn -- the night before the Frames, the morning before the thing on the board.\n\nTHE TWO HALVES ARE EQUAL BY CONSTRUCTION. Going out returns the world and its gossip. Staying in returns early access to the machines and the woman who maintains them. Neither is the safe boring one. If the table starts treating one as obviously correct, say out loud what the other half is getting -- that is not spoiling anything, it is keeping a menu honest.\n\nWHO WENT OUT IS CHARACTERISATION, NOT A CHARGE SHEET. Write it down because it tells you who these people are, not because a reckoning is coming. There is no scheduled consequence for having gone over the wire and none should be invented as a gotcha. If it ever matters, it will be because somebody decides it should and writes it down first.\n\nMANAKO IS NOT AVAILABLE TONIGHT. The tea house is shut. He is a daylight relationship and a deliberate one -- keep the party's route to him as the thing they were given in Episode One rather than something they can reach at will."
+  "notes": "THE DESIGNED BREATHER. Every session needs one beat whose entire job is relax, authored as deliberately as the climax. This is Episode Two's, and it is placed immediately before the turn -- the night before the Frames, the morning before the thing on the board.\n\nTHE TWO HALVES ARE EQUAL BY CONSTRUCTION. Going out returns the world and its gossip. Staying in returns early access to the machines and the woman who maintains them. Neither is the safe boring one. If the table starts treating one as obviously correct, say out loud what the other half is getting -- that is not spoiling anything, it is keeping a menu honest.\n\nWHO WENT OUT IS CHARACTERISATION, NOT A CHARGE SHEET. Write it down because it tells you who these people are, not because a reckoning is coming. There is no scheduled consequence for having gone over the wire and none should be invented as a gotcha. If it ever matters, it will be because somebody decides it should and writes it down first.\n\nMANAKO IS NOT AVAILABLE TONIGHT. The tea house is shut. He is a daylight relationship and a deliberate one -- keep the party's route to him as the thing they were given in Episode One (the tea house by day, and his number if one of them earned it) rather than something they can reach at will. A message sent tonight is answered in the morning."
 }

@@ -129,5 +129,5 @@ test("blank-inheritance.mjs mounts the demo runner, creates its macro, and expos
   assert.match(entry, /import\s*\{\s*createDemoMacroIfMissing,\s*mountDemoRunner,\s*toggleDemoRunner\s*\}\s*from\s*"\.\/foundry\/demo-runner\.mjs"/);
   assert.match(entry, /mountDemoRunner\(\);/);
   assert.match(entry, /await createDemoMacroIfMissing\(\);/);
-  assert.match(entry, /toggleDemoRunner\s*\n?\s*\};/, "toggleDemoRunner no longer sits on mod.api");
+  assert.match(entry, /^\s*toggleDemoRunner,?\s*$/m, "toggleDemoRunner no longer sits on mod.api");
 });

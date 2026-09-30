@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "propaganda-manga",
+  "type": "idea",
+  "title": "Propaganda manga: the Directorate's own recruitment comic, in Japanese and English",
+  "status": "in-progress",
+  "domains": [
+    "narrative",
+    "worldbuilding",
+    "handouts",
+    "tooling",
+    "artwork"
+  ],
+  "summary": "An in-world artefact: a short black-and-white manga (a front cover and at most four manga-sized pages) published by the Directorate, following a bubbly, fun young woman recruit. It fills gaps in the history and shows what the job is supposed to be, while letting a careful reader see that the advertised fantasy is no longer true and that the publication itself serves the Directorate. Ingram makes the art in Midjourney; Claude crops, lays out, borders, letters, adds sound effects, and produces a native Japanese edition and an English one.",
+  "description": "Ingram, 2026-09-26, verbatim:\n\n\"Propaganda! I want you to help me create a new in game in universe artefact to lift this campaign even further. The goal is simple and hopefully fully managable.\n\nI noticed how good you were at putting together the video... incredible work! And that made me wonder how well you might be able to do a much simpler (hopefully) task and what we could achieve as a result.\n\nIf I asked you to become a manga publisher how would you feel about that? I use midjourney to generate the contents, you use your skills to take those images, crop them, lay them out on a page, put nice borders around them, add speech bubbles and kanji for the sounds and things like that. Bonus points for having an English translated version and a native kanji version.\n\nThe idea is that we follow the story of a recruit to the Directorate and it'll be of course completely different to the experience that the players get. We are trying to do two things, we're going to use it to fill in gaps in the history and inform the players about what the job is, but we're also going to use it as a way of showing that the full truth and reality isn't what is advertised, that the fantasy of the Directorate is no longer true and that even this publication was made with the aims of the Directorate in mind.\n\nI imagine the art style being black and white manga and the full contents of this first one being at most 4 pages of manga sized pages with a front cover. We need a 'recruit' and she can be a bubbly fun person.\n\nWhat do you think? If I asked you to produce manga what tools would you build to do so?\n\nStart by doing a deep research dive into the subject and then provide me with the results.\"\n\n**Division of labour, as the opening titles established it (design/opening-titles.md §3.1):** Ingram runs the Midjourney prompts and drops the results into an in-tray named by prompt code; Claude writes the prompts, processes the art, lays out the pages, letters both editions and renders drafts; the two walk forward one step at a time.\n\n**\"This first one\"** implies a series: later issues are possible, so the tool and the data format are built for more than one issue.\n\nThe research dive and the tool proposal are in design/propaganda-manga.md, with the detailed reference material in design/research/manga/.",
+  "capturedDate": "2026-09-26",
+  "lastTouchedDate": "2026-09-26",
+  "sourceContext": "Ingram's message of 2026-09-26, the day after the opening titles were finished from the art in hand. Research phase first, at her instruction.",
+  "openSubQuestions": [
+    "When the table first gets it, which decides what it may contain (no scene contamination, LEDGER #34). Default in use: nothing in it goes beyond common knowledge, so it is safe from The Road In onward.",
+    "Who the recruit is in the world: an invented mascot, or a real person the players could meet. Default in use: written so either works.",
+    "How old the issue is in the fiction: printed this year, or an old issue still being handed out. Default in use: nothing in the pages dates it.",
+    "How period-authentic it looks: the first art settled on a clean modern ink style with retro designs, which every panel shares; still Ingram’s call if she wants it older.",
+    "The names and the title, all Claude proposals awaiting Ingram: Emi Hanamura (花村エミ) the recruit, Chief Instructor Kumagai (熊谷教官), and the title 「エミのやくそく」 / Emi’s Promise.",
+    "Which truths a careful reader can find in it, and by which routes (omission, the art contradicting the words, the founders’ approved faces, fine print): proposals in design/propaganda-manga.md §3.2.",
+    "How it is handed over: through the handouts system’s Papers folder in Foundry, as a PDF, as a printed booklet, or all three."
+  ],
+  "relatedRefs": [
+    "design/propaganda-manga.md",
+    "design/propaganda-manga-prompts.md",
+    "design/research/manga/README.md",
+    "test/manga-research.test.mjs",
+    "design/opening-titles.md",
+    "redacted-document-chain",
+    "module/blank-inheritance/scripts/core/handouts.mjs",
+    "ideas/story/dossier-the-directorate.md",
+    "ideas/story/bible/LEDGER.md#27",
+    "ideas/story/bible/LEDGER.md#36",
+    "tools/manga/README.md",
+    "data/manga/issue-01.json",
+    "data/schema/manga-issue.schema.json",
+    "test/manga/"
+  ],
+  "resolution": "Research done 2026-09-26 (six strands on design/research/manga/, three working spikes). The same day: the cast design sheets and page 1 written (design/propaganda-manga-prompts.md); Ingram’s first art arrived (five sheets, five panels); the first slice of the renderer built (tools/manga/, 71 tests in test/manga/, npm run test:manga); and page 1 lettered and rendered in both editions from data/manga/issue-01.json (schema data/schema/manga-issue.schema.json), with the words rewritten where the art came back different. One panel (K2) is requested again with more sky. Next: the centre spread.",
+  "resolvedSubQuestions": [
+    "Midjourney parameters (Ingram, 2026-09-26): --ar, --no and similar modifiers are welcome in the prompts; no Niji, never a guessed version number, and no reference parameters in the prompt text, because she attaches references by hand.",
+    "Order of work (Ingram, 2026-09-26): go straight to the cast design sheets and the first page of panel descriptions, rather than a mock page or the four questions."
+  ]
+}

@@ -42,6 +42,8 @@
           "title": { "type": "string" },
           "description": { "type": "string" },
           "briefRef": { "type": ["string", "null"], "description": "id of a scene-brief.schema.json instance in data/scene-briefs/ — the GM-facing running material for this scene (cast briefs, beats, handouts). Absent means the scene has an outline but no authored script yet, which is the honest state for most scenes." },
+          "day": { "type": "integer", "minimum": 0, "description": "The campaign day this scene happens on (design/ux-doctrine.md §3/§7a's day ring). Written by `node tools/story/story.mjs quarters` from canon/plan/chapter-NN.md's day column — edit the plan, not this field. Absent for a scene with no fixed place in continuity (Scene 0's narration)." },
+          "quarter": { "type": ["string", "null"], "enum": ["morning", "afternoon", "evening", "night", null], "description": "The day ring's quarter this scene happens in, matching module/blank-inheritance/scripts/core/day-ring.mjs's QUARTER_IDS exactly. foundry/scene-runner.mjs#advanceAfterClose reads this to move the campaign clock automatically when the table closes one authored scene and opens the next. Written the same way as `day`; null for a scene with no fixed time (the plan's `flexible`/`unknown`)." },
           "encounterRef": { "type": ["string", "null"], "description": "id of an encounter.schema.json instance backing this scene, if it's a fight." },
           "challengeRefs": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in this scene." },
           "subsystemRef": { "type": ["string", "null"], "description": "id of a subsystem.schema.json instance, if this scene runs as a victory-point-style sequence." }

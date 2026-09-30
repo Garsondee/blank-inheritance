@@ -30,7 +30,7 @@ Three jobs, and he is the cheapest way to do all three.
 
 It was done to Manako, forty years ago, in a Directorate lab. It was done to the Section Officer. He does it to the party.
 
-Three people, the same institutional shrug. **One of them it broke.** The difference between the Section Officer and Manako is not character — it is that nobody handed the Section Officer a two-century-old sample and then blamed him for what happened.
+Three people, the same institutional shrug. **One of them it broke.** The difference between the Section Officer and Manako is not character — it is that nobody handed the Section Officer a century-old sample and then blamed him for what happened.
 
 And the same shrug scales: the hand that gives a new kid a fool's errand is the hand that gave a junior nobody a shelved sample *because nobody senior considered it worth their time*. **The party experiences the origin of the campaign as a prank.**
 
@@ -113,7 +113,7 @@ And the same shrug scales: the hand that gives a new kid a fool's errand is the 
 ## Open questions
 
 1. **His name** — `data/campaign/open-questions.json#section-officer-name` (merged from `naming-placeholders.json` 2026-09-19). Should sound like a middling rank on a duty roster, not a villain.
-2. **What actually happens when the vial requisition lands.** Episode Two's business; undecided.
+2. ~~**What actually happens when the vial requisition lands.**~~ **Answered by the built Episode Two** (`data/scene-briefs/episode-c1e2--as-discussed.json`): the vial arrives, correctly issued and useless, and sits on his desk; he never mentions it, tells them yesterday was an initiative assessment they passed, and hands them a fortnight of legitimate, miserable work.
 3. **Does he appear at all after Stage V**, or does the party simply stop seeing him?
 4. **Was he ever in a Frame?** Whether his pettiness is disappointed ambition or was always this changes how he plays.
 
@@ -124,7 +124,7 @@ And the same shrug scales: the hand that gives a new kid a fool's errand is the 
 *Nodes for open narrative threads on this character — see `design/node-registry.md`.*
 
 ### `arc-the-countersignature` — who is signing above his head, and why they are interested in Section Nine
-**Status:** resolved · **Last touched:** 2026-09-24 (LEDGER #34: Rand, Shucks's detached right hand. Claude's answer at Ingram's request, awaiting her read.)
+**Status:** resolved · **Last touched:** 2026-09-27 (LEDGER #34: Rand, Shucks's detached right hand. Claude's answer at Ingram's request; accepted with its reason, LEDGER #43 and #46.)
 **Setup:** The fortnight of punishment duty he hands Section Nine is entirely within regulation, which
 means it needed a countersignature from somebody senior to him. It has one. Somebody well above his
 level spent four minutes of an afternoon on a single trainee section's duty roster, and then, a day
@@ -136,14 +136,14 @@ party can reach the name if they pull on it and neither hands it over:
 - `data/scene-briefs/episode-c1e2--as-discussed.json` — the roster and its countersignature.
 - `data/scene-briefs/episode-c1e2--the-override.json` — the same signature, overriding him.
 
-**Answer (LEDGER #34 — Claude's answer at Ingram's request, awaiting her read).** **Rand**, Shucks's detached right hand (`rand.md`), and no senior officer at all. It countersigned the party's vial requisition in Episode One, then this roster, then wrote the override, and chalked *"Same six. Tomorrow."* on Hangar Two's board.
+**Answer (LEDGER #34 — Claude's answer at Ingram's request, accepted in LEDGER #46).** **Rand**, Shucks's detached right hand (`rand.md`), and no senior officer at all. It countersigned the party's vial requisition in Episode One, then this roster, then wrote the override, and chalked *"Same six. Tomorrow."* on Hangar Two's board.
 - **What the party reads:** the signature says **Rand**, with no rank and no first name, over the **Medical** department's stamp, borrowed from Shucks's desk. Nobody called Rand works in Medical, or anywhere else on the base.
 - **The handwriting** is Shucks's own, from before the hand came off. He writes with his left hand now, so nobody alive recognises it; anything the four founders signed two hundred years ago shows it, the founding charter's signature page included.
 - **Why:** Rand is a conspiracy theorist, and its theory about the city is right. The vial requisition was exactly its kind of joke, so it signed it. Then it looked the six up in Shucks's intake files, found the marker, and put them together and onto the machines, because its theory says the city will need pilots soon.
 - **Can a roll reveal it?** Not in Episode Two. The checks give the name (Rand) on a success and the department (Medical) on a critical success. Who Rand is takes one of four routes: the prosthetic at Intake Medicals plus the name; the handwriting against a founder's signature; catching it at work in Hangar Two at night; or asking Shucks, who will look at the signature and say "That's my hand", and mean it literally.
 
 **Candidates:**
-- **Rand, Shucks's detached right hand** (LEDGER #34), signing as a Medical officer who doesn't exist. [chosen — Claude's answer at Ingram's request, awaiting her read]
+- **Rand, Shucks's detached right hand** (LEDGER #34), signing as a Medical officer who doesn't exist. [chosen — Claude's answer at Ingram's request, accepted in LEDGER #46]
 - **The Deputy Director**, which would retroactively explain why Shucks can walk into his office and
   be heard in ten seconds (`data/scene-briefs/episode-c1e2--the-hammer.json`). [retired]
 - **Shucks**, acting through somebody, which is the same answer one step further back. [retired — the answer is part of Shucks that isn't Shucks]

@@ -99,6 +99,14 @@ belonging to the day ring (stage 4), not to a person standing in a room.
 
 ### The frame is a button
 
+> **Changed 2026-09-29 (Ingram: "a shared note taking app which can be summoned by clicking on a
+> portrait").** Clicking the portrait now opens the **party notebook** on that person's page
+> ([`notebook.md`](notebook.md)): the whole table's notes about them, with every player able to write in it
+> at once. The Character Card is still one press away, on the frame's own Card key (the last key in the
+> row) and from a button in the notebook page's header. A concealed frame (the Director's ghost) is refused,
+> because a notebook page's title is visible to every player. What the paragraphs below say the click does
+> now belongs to the Card key.
+
 The whole card is the control. Clicking it should do the obvious thing, and what is obvious differs
 by seat:
 
@@ -520,6 +528,15 @@ worked scenes — one per arrangement. What that pass actually established, beyo
    added after live review of the first pass. The portrait stays monochrome always; the faction
    accent lives entirely in the type and the seal, not on the art (also corrected after the first
    pass tried tinting the photo). See §5's own text above, revised to match.
+**Related but distinct, added 2026-09-29 — not a step of this build order.** `foundry/scene-build.mjs`
+now places a real, embedded `hidden: true` Token for every named cast NPC in every scene it builds,
+purely so the GM can click straight into an NPC's sheet during Theatre of Mind play (Ingram's own
+request, unconnected to this document's reveal mechanics). It uses exactly the native mechanism §4
+above named as the right one — `Token#hidden`, enforced server-side — but this is NOT the stage's own
+reveal/conceal system migrating onto it: `foundry/stage.mjs` still publishes the authored cast through
+a GM-only JournalEntry, as §9 step 1 and §12.1 both describe, and that is untouched. Read this as
+proof the mechanism works and is already in the module, not as §4 having been rebuilt.
+
 8. **Custom scene transitions** (§6). 🟡 Partly built (2026-09-07): `stage-demo.schema.json`'s scene
    entries now accept an optional `transition` object in Foundry's own native shape (not a shape we
    invented), and `buildStageSceneData` passes it straight through into Scene creation data — proven
@@ -550,7 +567,8 @@ Genuine ones — not rhetorical, and not for me to settle alone.
    arguably should not be told who just walked into a room they are not in.
 5. **Is `concealed` per-character or per-player?** One character hidden from the whole table is the
    common case; hidden from *one* player is a real Blank Inheritance situation (a private meeting)
-   and a much larger permissions problem.
+   and a much larger permissions problem. **Decided 2026-09-29: both.** Ingram: *"Yes, useful
+   functionality. Private reveals, good."* Planned in §12.3.
 6. **~~Does a PC ever get a splash?~~ SETTLED, 2026-09-07: no, never** — Ingram's own words when
    asked directly: *"We only do this for NPCs, not for PCs ever."* Enforced in two independent
    places (the frame template never renders the key for a PC frame; `core/splash.mjs#splashArrivals`
@@ -560,6 +578,8 @@ Genuine ones — not rhetorical, and not for me to settle alone.
 7. **Does a departure ever deserve the loud tier?** §5 says departures are quieter than arrivals,
    which is right for someone walking out of a room and wrong for a death or a betrayal. Either
    there is a fourth kind of sting for an exit that matters, or those moments are simply not stings.
+   **Answered in part, 2026-09-29:** every character gets an exit of their own (§12.5). Whether a
+   death or a betrayal gets something louder still is left open.
 8. **What does a splash do to audio?** A full-screen takeover with the scene's playlist continuing
    underneath at full level is the version that feels cheap. Ducking, a one-shot cue, or nothing at
    all are all defensible. **Corrected 2026-09-19, this line was stale:** this used to say the audio
@@ -646,6 +666,332 @@ both fire within the same moment, which §6 already says not to do for stings vs
 the same "don't fire together" rule plausibly applies to a title card vs. the episode's first scene).
 **Settled by the same decision, 2026-09-26:** suppressed. The scene changes with no transition of its
 own, hidden under the player, and the player's 1.5-second fade is the only transition the table sees.
+
+---
+
+## 12. The next round (2026-09-29)
+
+Ingram picked the next features from a menu of seventeen on 2026-09-29 and asked for a plan. Her words,
+verbatim (the numbers are the menu's; the bracketed names are the menu's own titles):
+
+> *"2.) [the nameplate that learns] Is fun and important so it gets to be in the first batch. It's part
+> visual style but also covers good mystery protection work so consider that a high priority. Ideally
+> the scene runner would give me a button to reveal character's names or their names would be revealed
+> automatically during the scene or something like that. We need the option to show NPCs but refuse to
+> show their names. I believe (might be wrong) but Foundry supports having two names, one public and
+> one private for NPCs tokens which we could work alongside."*
+>
+> *"10.) [roll call] A fun animation like this before the group are sent into the sewers near the end
+> of day one could be fun."*
+>
+> *"11.) [voice on the line] This is important too, we build the idea that messages can come from NPCs
+> but not from them being in the room. We need a way to use the same portrait (if the character is
+> known to the group) but make it visually clear by completely changing the frame that they are phoning
+> in, using a computer or using magic or whatever to communicate and not there in person."*
+>
+> *"12.) I think a more manageable version of this is that we promise to update portraits if the
+> attitude shifts a lot, so if an NPC becomes hostile we make them look hostile. More of something to
+> remember than act upon immediately."*
+>
+> *"13.) Yes, a 'raise your hand' button that lets players indicate their character would like to say
+> something."*
+>
+> *"14.) [only you can see her] Yes, useful functionality. Private reveals, good."*
+>
+> *"15.) [the background remembers] Agreed, the artwork changes but you could also actually implement
+> Foundry VTT darkness / scene environment recoloration as long as you use it correctly based on the
+> time of day."*
+>
+> *"The one thing I'd love for you to add personally is lots of 'personality' in entrance and exits
+> when characters are revealed. Different characters would be associated with different entrance
+> effects or animations. Think about entrances and exits of these character frames and try to work out
+> what you could do with the standard Foundry VTT graphics stuff you have access to."*
+
+Menu item 12 was "two faces" (a PC's disguise and true form, behind a key only that player holds). Her
+answer reads as a reply to "expressions" (item 4), so it is planned as the attitude-portrait promise in
+§12.4, and the disguise idea is not in this round.
+
+**Settled by these answers:** §10 question 5 (concealment can be per-player: private reveals) and, in
+part, question 7 (every character gets an exit of their own) and question 3 (a player's own frame
+carries one control of theirs: the raised hand).
+
+### 12.1 What was found before planning
+
+- **A revealed person's real name reaches every player's computer three ways.** Law 11 keeps a
+  *concealed* person off the wire, but a revealed one is published with the name as the plate `label`,
+  with their npc id inside `portraitId` (`summon-<npcRef>`, e.g. `summon-manako`), and with a portrait
+  file named after that id (`assets/stage/<npcRef>.webp`; the token-ring images the same way).
+- **Foundry's two names are real, and SF2E hides one on screen only.** An Actor's name and each Token's
+  own name can differ. SF2E's `metagame_tokenSetsNameVisibility` setting uses a token's nameplate mode
+  (`playersCanSeeName`, `gamesystems/sf2e/sf2e.mjs:27609`) to replace the name in chat and the combat
+  tracker, but the token's name still travels to every client inside the Scene. The way to use the
+  pair: the token's name *is* the public name, and the real name lives on the Actor. **Corrected the
+  same day by the live check below: the Actor is not withheld from a player's computer either, so this
+  keeps the name off every screen, not out of a determined player's reach.**
+- **Trusted players can browse the module's files.** `FILES_BROWSE` defaults to the Trusted role
+  (`common/constants.mjs:1321`), and `assets/stage/` holds every portrait in the campaign.
+- **VERIFIED LIVE 2026-09-29, logged in as a Player (Liam, role 1) in the local copy of the real
+  world: Foundry sends a player every document, whatever its ownership.**
+  - A **hidden Token** arrived in full: name, picture path and module flags.
+  - Every **Actor with ownership NONE** arrived in full, real names included (the UI just refuses to
+    open its sheet).
+  - The **"GM-only" JournalEntry vaults** arrived with their flags: the stage's authored casts
+    (concealed people and real names), the private downtime record, and the Character Card's authored
+    Facts. Other players' private handouts arrived too: the page text of "The acceptance letter"
+    belonging to characters this player does not own.
+  - The **campaign's static data files** (`modules/blank-inheritance/data/campaign/npcs/*.json`,
+    `scene-briefs/*.json`) answer a plain URL request from a player with HTTP 200.
+  - So `ownership.default: NONE` is a boundary against the interface and against casual inspection,
+    **not against a player who opens the browser's developer tools**, and the header comments that said
+    otherwise (`stage.mjs`, `social-store.mjs`, `campaign-state.mjs`) were wrong and are corrected.
+    This is how the whole module has always worked; it is not something this round changed.
+  - What Foundry does enforce on the server, and could be used for real secrecy: compendium permissions
+    (a pack whose player permission is None refuses the request). Not built; see §12.7.
+- **Staged scenes cannot get dark.** `core/generators/stage-scene.mjs:78-81` turns on bright global
+  light, which #195's research found stops darkness from ever showing.
+- **SF2E already syncs darkness to the world clock** (`Scene#darknessSyncedToTime`, per #195's research),
+  so darkness is not ours to rebuild. Only warmth (an evening gold) is missing.
+- **Foundry v14.367's graphics toolbox, checked in the local source:** 23 animated light types plus 4
+  darkness types (`CONFIG.Canvas.lightAnimations`, `client/config.mjs:830`, siren, torch, fog,
+  smokepatch, ghost, starlight and fairy among them); `ParticleEffect`
+  (`client/canvas/containers/elements/particles/particle-effect.mjs`); weather (`config.mjs:1437`); a
+  darkness animation that runs on one screen and writes nothing to the Scene
+  (`canvas.effects.animateDarkness`, `client/canvas/groups/effects.mjs:510`); light sources that are
+  added and destroyed by id with no document behind them (`client/canvas/sources/base-effect-source.mjs`);
+  and Foundry's own door sounds (`sounds/doors/…`, `config.mjs:2559-2719`).
+
+### 12.2 Batch 1: names (first, and a high priority)
+
+**What the table sees.** Everyone the stage can show has two names: the real one, which only the GM's
+computer ever holds, and what the table calls them until they learn it (`called`: "the attendant",
+"the man in the grey coat"). Until the name is revealed, the plate, the arrival banner, the splash and a
+player's Character Card all show the `called` name. Once revealed, it is known for the rest of the
+campaign, everywhere that person appears, the way the Character Card's Facts already work.
+
+**Three ways a name is revealed:**
+1. A **Name** key beside each person in the Scene Runner's people column: any time, one press.
+2. **Written into the scene:** a `reveal-name` trigger chip at the line where they give their name,
+   pressed as it is read (the same inline chips as `npc-enter`).
+3. **On arrival,** for someone who would plainly be introduced (a teacher at the front of the class, a
+   name badge), set per person in the scene's cast.
+
+**The reveal is a moment:** the `called` plate is struck through and the real name stamped over it on
+every screen; shift-press drops a banner as well. A splash for someone unnamed shows their `called`
+name; splash them after the reveal and the real name lands.
+
+**How:**
+- The stage publishes `called` until the name is known, and never the real one. Unnamed people get an
+  opaque `portraitId` and opaque image file names, so neither the stage data nor an image address says
+  who they are.
+- Foundry's two names, used the safe way: the generator writes `called` as the prototype token's name
+  and keeps the real name on the Actor, and a reveal renames the tokens. SF2E's name-visibility setting
+  goes on as a backstop for chat cards and the combat tracker.
+- **First, a live check, logged in as a player** in the local test world, of what a player's computer
+  actually holds. Done: see §12.1. It confirmed that `foundry/scene-build.mjs` (same day, separate
+  work), which places a hidden token carrying the real name for every named cast NPC in every scene it
+  builds, was sending those names to every client, so that is closed here (the token is held anonymous
+  while the name is).
+- The player's Character Card is built from published data only.
+- Knowledge is kept GM-side and, for now, per table rather than per character (a private reveal, §12.3,
+  is what will need it per character; the store is keyed by person so that can be added).
+- The GM is warned, once per login, when any non-GM player can browse files.
+- **Canon (a proposal for Ingram's tree):** a person's name becomes a fact like any other
+  (`<person>.name`, with `told`), so `story check` refuses a scene that shows a name before the table
+  has heard it, and the beat that tells it gets its `reveal-name` chip when the scene is built.
+  `called` lives on the person's world file, or on the cast entry for someone in only one scene. Old
+  drafts keep today's behaviour until they are rebuilt.
+- **Guard:** a test fails if any published stage data or image path carries an unrevealed person's
+  real name or id.
+
+**Content:** a `called` line and a name timing for every person in a scene, drafted by Claude as each
+scene is rebuilt in canon and graded with the rest of that scene.
+
+**AS BUILT, 2026-09-29.** Everything above except the canon proposal and the per-character knowledge is
+built, tested, and was driven live in the local Foundry (as GM and as a Player). What exists:
+
+- **Who is protected:** a scene-brief cast entry with a `called` line (`cast[].called`). An entry
+  without one behaves exactly as before, so nothing in the current campaign changes until `called`
+  lines are authored. `cast[].nameOnArrival: true` introduces someone by name as they are staged.
+- **What is published** (`core/stage-names.mjs`, `core/stage-layout.mjs#publishedCast`): the plate is the
+  `called` line until the name is told; the stage id is an opaque alias (`p` plus twelve hex digits, not
+  the npc id); the portrait is copied to `storage/stage-art-<alias>.webp` and published from there
+  (`foundry/io.mjs#ensureStorageImageCopy`); if the copy fails the frame shows its silhouette rather than
+  the real path. The Director's stage shows what the table sees, with the real name in the frame's tooltip
+  and a dashed vermilion outline while the person is still unnamed.
+- **Telling the table:** a **Name** key on each protected person in the Runner's people column (Shift
+  also drops the banner); a `reveal-name` inline trigger (`announce: true` for the banner); or
+  `nameOnArrival`. All three end in `foundry/stage.mjs#revealName`, which files the name as known (in
+  the vault, `foundry/stage-store.mjs`), republishes every scene that has that person on its stage, and
+  gives their hidden reference tokens their real name back.
+- **The moment:** the old plate is struck through in vermilion, holds, fades, and the real name stamps in.
+  Frames were stepped through at 450ms, 1100ms and 1700ms and match. It is data-driven (`nameSeq`), so
+  every screen plays it from the same update, and it is off under `prefers-reduced-motion`. The
+  banner reads "the attendant is Kazue Tsurumi."
+- **Hidden reference tokens** (`foundry/scene-build.mjs`): keyed by the alias, created under the
+  `called` name with Foundry's silhouette while the name is held back.
+- **Reset:** the admin panel's reset clears which names have been told; its snapshot and undo carry them.
+- **Guards:** `leaksNames` (a test fails if published stage data carries an unrevealed name, id or
+  file path), a contract test pinning the wiring (`tier3-stage-names-contract.test.mjs`), and a
+  file-browsing warning for the GM (`core/file-exposure.mjs`).
+
+**What it does not do, plainly.** Everything above stops the name reaching any *screen* and any casual
+look (a tooltip, an element inspector, an image's address, the token list). It does not stop a player who
+opens the browser's developer tools and reads the documents Foundry sends them (§12.1). Whether that
+matters for this table, and what a real fix would cost, is §12.7 question 5.
+
+**Not done:** name knowledge per character rather than per table, and the canon fact (`<person>.name`
+with `told`). Both are in §12.7.
+
+### 12.3 Batch 2: who is there, and who can see them
+
+**On a channel, not in the room (item 11).** A cast member is either `here` (the brass frame) or on a
+channel, and each channel has a completely different frame:
+
+| Channel | For | The frame | In | Out |
+|---|---|---|---|---|
+| **Line** | telephone, radio, intercom | a bakelite panel, the portrait behind a round speaker grille, a signal lamp that flickers while they talk | it rings (two small shakes and a bell), then connects | a click, and the line goes dead |
+| **Screen** | a terminal, a television set, a video link | a curved CRT, phosphor-tinted, with rolling scanlines | a bright line opens into the picture | the picture collapses to a line, then a dot |
+| **Sending** | magic | no frame at all: a glowing apparition with a shimmering edge, in its own colour (never the Claimant violet) | shimmers into being | breaks up into motes |
+
+Channel frames hang apart from the people in the room, high in a corner rather than standing on the
+stage floor. The portrait shows if the group has already met that person face to face (recorded the
+first time they are revealed in person, and overridable). Otherwise the channel's faceless version
+shows (a voice trace on the line, snow on the screen, a silhouette in the sending) under their `called`
+name. The channel is set on the scene's cast or switched live from the Runner.
+
+**Private reveals (item 14).** Reveal someone to one or several chosen players, using the Runner's
+player picker from solo handouts, extended to take more than one. **Corrected 2026-09-29: this used to
+say the private cast would go into a per-player document that only those players' computers receive.
+§12.1's live check showed Foundry sends every document to every player whatever its ownership, so that
+would not be private.** The mechanism to prove instead is a targeted push: the GM's client calls
+`User#query` on each chosen player (the same `CONFIG.queries` channel the City board already uses, in
+the other direction), the player's client holds the frame in memory only, and the GM's client re-sends
+it if that player reloads. Nothing about a private frame is then in any document, so nothing reaches
+anyone else. To be proven live before it is built. The player sees a small mark saying only they can see
+this frame; the Director sees who can see each frame. A name learned in private is known only to those
+characters, and a call can be private too.
+
+**Raise a hand (item 13).** A hand key on each player's screen, plus a keyboard shortcut. Their hand
+goes up on everyone's stage (on their frame if they are on it, otherwise at the stage's edge), numbered
+in the order hands went up. The GM hears a soft chime and sees the queue in the Runner, and clicking a
+hand lowers it. Players can lower their own. It travels by Foundry's query system, as picks on The City
+do, and is kept on the Scene so a reload keeps the queue.
+
+### 12.4 Batch 3: light and art
+
+**Time of day (item 15; finishes #195's parts 1 and 2).**
+- The clock gains an hour. The canon plan's rough times map to representative hours (early morning
+  0600, morning 0830, late morning 1100, midday 1230, afternoon 1500, evening 1830, night 2130), a
+  scene can pin an exact one, and the quarter is derived from the hour rather than set beside it
+  (#195's ownership note).
+- Darkness follows the hour through SF2E's own world-clock darkness, not a rebuild of it, and
+  Foundry's own blue night tint comes with it. The one addition is warmth (evening gold), about thirty
+  lines on Foundry's environment animation.
+- Each scene says what light it has: `outdoor` (the full cycle), `windowed` (softened, and lamp-lit at
+  night rather than moonlit) or `interior` (its own fixed lighting, like the sewers). The change
+  animates on every screen together when the clock moves.
+- Portraits stay fully lit; only the background art darkens.
+- **Needs Ingram's call:** staged scenes lose their bright global light, since nothing can get dark
+  while it is on.
+
+**Haunt art (item 15).** A haunt's background can name a changed version for each upgrade and setback,
+and a night version. Switching an upgrade on swaps the art with a fade. The art is Ingram's Midjourney;
+Claude writes the prompts.
+
+**The attitude-portrait promise (item 12).** Each portrait records the attitude it shows. When someone
+moves two or more steps from it, or reaches Hostile or Helpful, they go on an owed-portraits list that
+Claude's start-up hook prints beside the haunts report, so it is remembered rather than acted on
+mid-session. When the new portrait arrives it is registered to that attitude, and the stage and the
+Character Card use it automatically whenever that person is at that attitude. Both attitude records
+count: the Character Card's (an Actor flag) and the haunt regulars' (`hauntAttitudes`).
+
+### 12.5 Batch 4: personality
+
+§5's four entrances stay as the grammar for *situations* (Directorate business, a hostile arrival, a
+Claimant). This adds a **signature** per character: their own entrance and their own exit, played
+automatically whenever they are revealed or leave, so it costs nothing mid-scene. A signature stays the
+same for that character, which is what keeps it a language rather than noise (§5, rule 3): the table
+learns what the Section Officer's arrival looks and sounds like.
+
+**Three layers, all played on each screen from the same stage update,** so the table stays in step and
+nothing is saved that would need cleaning up after a reload:
+1. **The frame** (in the browser): CSS and SVG motion on the frame itself (wipes, stamps, dissolves,
+   ripples, typing).
+2. **The room** (Foundry's canvas, on that screen only): a darkness dip and return, a temporary animated
+   light beneath their frame (any of the 23), a burst of particles, a flurry of weather, a small shake.
+3. **A sound:** Foundry's own door sounds (industrial, sliding metal, hydraulic, jail, magic door,
+   creaking wood) and the audio library through the cue system, plus an optional sound of the
+   character's own (the bathhouse attendant's whistle).
+
+| Signature | In | Out | Suits |
+|---|---|---|---|
+| **Servo** (today's Engage) | rises on a hydraulic ease, the plate stamping a beat behind | the lamp goes off, then it retracts | the default |
+| **Bulkhead** | a steel shutter slides up to reveal them; a heavy sliding-metal door; a small landing shake | the shutter drops and the door shuts | officers, security, the Frame bay |
+| **Rubber stamp** | slams down with an ink splash behind it and a thud | filed: slides sideways as if into a drawer | clerks, the admissions office |
+| **Typewriter** | the portrait prints in line by line while the plate types itself; a bell | carriage return: whips off left with a ding | typists, record-keepers |
+| **Darkroom** | develops out of white paper under a red safelight | overexposes to white | photographers, archivists, someone from an old photograph |
+| **Spotlight** | the room dims and a follow-spot finds them; a drumroll | the spot snaps off and the lights come back | performers, the Magic Show, a grand villain |
+| **Smoke** | forms out of drifting smoke | dissolves back into it | mysterious people, fixers |
+| **Sparks** | lands in a shower of welding sparks with an industrial clank; the lamp flickers on like a work light | powers down: the lamp dies and the frame sags | fitters, mechanics, the night shift |
+| **Siren** | one sweep of a rotating red light and a two-tone blip | the siren winds down | military police, emergencies |
+| **March** | steps up in two stamps, each with a boot-fall and a small shake | about-face: turns to show the frame's brass back and marches off | senior officers |
+| **Lean-in** | slides in from the edge and tilts, as if leaning round a door | ducks back out | gossips, cheeky friends, comic relief |
+| **Kaboom** | a puff of smoke and a flash; lands sooty and wobbling | another puff, and gone | mad inventors, test pilots |
+| **Tide** | rises out of a ripple, with gulls and lapping water | sinks back under | sailors, dockworkers, the bathhouse attendant |
+| **Petals** | cherry blossom drifts across; a soft glow | the petals carry them off | gentle people, the shrine |
+| **Ghost** | flickers in twice before it settles; the room cools | flickers out mid-sentence | someone who should not be there |
+
+**Rules:**
+- Which entrance plays: one written into the scene, then the situation (Alert for a hostile arrival,
+  Signal for a Claimant), then the character's signature, then the faction's (Shutter for the
+  Directorate), then Servo.
+- An exit is its own recipe, quieter and shorter than the entrance, never the entrance reversed (§5).
+- One at a time, through the existing queue.
+- Every signature has a calm version (a plain fade, with no shake and no flash) for a player who chose
+  the reduced-motion opening or whose computer asks for reduced motion. Full versions stay under three
+  flashes a second.
+- The room always returns to its own light (the time of day), never to full bright.
+- Claude drafts a signature for every current NPC, for Ingram to grade.
+
+**Roll call (item 10).** A Roll Call key in the Runner, and a `roll-call` trigger a scene can carry: the
+party's frames slam in left to right, a beat apart, each plate stamping as it lands, over a bell or a
+klaxon. Frames only, so the no-PC-splash rule holds. It goes into the opening of Flood Tunnel
+Clearance, just before they are sent down, when that scene is rebuilt in canon (it is an old draft
+today).
+
+**A spike comes first:** prove the three screen-only room effects live in the local Foundry (a light
+with no saved document, a particle burst, a local darkness dip) before building the catalogue on them.
+
+### 12.6 How each batch ships
+
+- Pure rules in `scripts/core/`, with tests in the same commit: who is named for whom, who can see what,
+  which entrance and exit play.
+- Contract tests that every light animation, door sound and setting named here exists in the local
+  Foundry v14 and SF2E trees.
+- Batch 1's leak test keeps running for good.
+- Checked live in the local Foundry test world, with screenshots for Ingram's notes, and `npm run
+  deploy` at the end of each batch.
+- Anything that changes scene text goes through the canon re-read.
+
+### 12.7 Waiting on Ingram
+
+1. **The order:** names, then who is there, then light, then personality. Personality comes after light
+   because its darkness dips need staged scenes that can get dark; its spike can start earlier.
+2. **Staged scenes lose their bright global light** (batch 3, and needed for batch 4's dips).
+3. **Names in canon:** a person's name as a fact with `told`, so the check guards it and builds the
+   reveal chip; a rebuilt scene must settle each person's name, while old drafts keep showing names
+   until they are rebuilt.
+4. **Name knowledge per character**, not per party, so a private reveal can teach one character.
+   Batch 1 ships per table (one press tells everyone), keyed by person so per-character can be added
+   with batch 2's private reveals.
+5. **Do real secrets matter enough to build for?** Ingram, 2026-09-29: names are "actually important".
+   §12.1 shows the module's GM-only material is only hidden from the interface. Options: (a) accept it,
+   because the players are people at her table and the protection stops every on-screen leak (the
+   likeliest kind); (b) move the few things that truly must stay secret (unrevealed names, the authored
+   cast, other players' private handouts) into a compendium pack with player permission None, which
+   Foundry does enforce on the server, at the cost of reading and writing through the pack API; (c) (b)
+   plus keeping campaign data that names a secret out of the publicly fetchable module folder, which is
+   an architecture change touching the whole data pipeline. Not started; her call.
 
 ---
 

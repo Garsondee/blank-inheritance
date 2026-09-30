@@ -129,7 +129,7 @@
       "role": "Arrives partway through, asks for a private word, and gets it instantly.",
       "arrival": "announced",
       "brief": {
-        "wants": "Not stated, not guessable from this scene, and not available to the party. He is entirely unhurried about getting it.",
+        "wants": "Not stated, not guessable from this scene, and not available to the party. He is entirely unhurried about getting it.\n\nGM-ONLY (LEDGER #43): he tells the Deputy Director that all six carry the marker, and asks that they be kept together and flying. He doesn't say what the marker is for. (Accepted with the Rand answer, LEDGER #46: he has seen his own old handwriting on the override, knows his hand wrote it, and is taking responsibility for it.)",
         "opensWith": "A knock that is not a request, and the door opening before anybody answers it.",
         "willDiscuss": [
           {
@@ -222,7 +222,7 @@
       "delivery": "table",
       "text": "A knock. Shucks Mordant comes in without waiting, apologises to the room, and asks for a private word.",
       "npcRef": "shucks-mordant",
-      "readAloud": "The knock is not a request and the door opens before anybody answers it.\n\n\"Sorry. -- No, don't get up.\" He nods at the six of you the way he did across a desk a fortnight ago, and then, to the man behind the desk: \"A word. It won't take long and it won't wait.\"\n\n\"...Yes. Send them out.\"",
+      "readAloud": "The knock is not a request and the door opens before anybody answers it.\n\n\"Sorry. -- No, don't get up.\" He nods at the six of you the way he did across a desk two days ago, and then, to the man behind the desk: \"A word. It won't take long and it won't wait.\"\n\n\"...Yes. Send them out.\"",
       "direction": "**Play the speed of it.** A doctor walks into the second-most-senior office in the Directorate without an appointment and is granted a private audience inside ten seconds, and nobody in the room finds that strange except the party.\n\nHe is exactly as warm as he was at the medical. He greets them, asks one of them about something he treated, tells them they look like they have had a week.\n\nThen the party is put back out in the corridor, and the door closes.\n\n**If a player speaks to him, let him answer.** He is not a cutscene and he is not in a hurry to get past them -- he says hello, he tells them they look tired, and he does not explain anything. His voice samples are for exactly that, because his scripted line is only nine words long.",
       "note": "HOW TO PLAY IT. **This is the turn and it works entirely on what is not shown.** The party gets a closed door and a wait. Do not narrate anything through it, do not allow an eavesdropping roll to succeed, and do not hint at the content.\n\nWhat they are given instead is far better: the knowledge that the skeleton who took their blood has standing in this building that nobody has ever mentioned.\n\nGM-ONLY: Shucks has known what their screens mean since the morning he ran them. He is not protecting them out of sentiment and he is not their patron. What he is actually doing, and what he tells the Deputy Director, is not decided in this episode and should not be improvised at the table -- if it gets invented, it becomes canon and belongs on a Node first.\n\nWHAT IT DOES NOT MEAN: he is not their guardian angel, this is not a favour he will do twice, and the party has not acquired a protector.",
       "nodeRefs": [

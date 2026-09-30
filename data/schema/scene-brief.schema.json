@@ -61,6 +61,171 @@
       ],
       "description": "Which SF2E shape this scene resolves in. The strategy layer decides which scenes happen and what is at stake; SF2E decides how they resolve (design/strategy-layer.md). `exploration` means the real exploration rules, with attrition and resting."
     },
+    "spectrum": {
+      "enum": [
+        "story",
+        "mixed",
+        "downtime"
+      ],
+      "description": "Where this scene sits between story and downtime (canon/decisions/D050.md): story = plot beats run as written; mixed = a story frame with events drawn from its deck; downtime = relaxed and low stakes, role-play, rest and events from the deck. The Scene Runner shows it as a coloured banner. Absent means story."
+    },
+    "rest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hp"
+      ],
+      "description": "This scene is a night's rest (D050). The Scene Runner offers one press to heal the characters of the players who came here.",
+      "properties": {
+        "hp": {
+          "enum": [
+            "quarter",
+            "half",
+            "three-quarters",
+            "full"
+          ],
+          "description": "How much of each character's maximum HP the rest restores. Only the hospital restores all of it."
+        },
+        "buff": {
+          "type": "string",
+          "description": "What else the rest gives, in the words the GM reads: an automatic buff, or what a roll can earn."
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "The scene's event deck (D050): things that could happen, drawn at random in the Scene Runner. A drawn event the table witnessed never comes up again; one nobody saw goes back into the deck.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string",
+            "description": "What happens, as the GM would run it."
+          },
+          "check": {
+            "type": "string",
+            "description": "The roll it offers, if any, e.g. \"Society DC 15 to follow the argument\"."
+          },
+          "note": {
+            "type": "string",
+            "description": "GM-only: what it plants or pays off, and what it must not give away."
+          },
+          "kind": {
+            "enum": [
+              "roll",
+              "buff",
+              "roleplay",
+              "dilemma",
+              "informant",
+              "plot",
+              "danger"
+            ],
+            "description": "What sort of event (D051). roll: a skill roll that produces a result. buff: something good happens to them. roleplay: a prompt to narrate in character. dilemma: a choice with a cost either way. informant: someone met by chance shares an unconsidered line of information. plot: more than it seems; the Runner alerts the GM and the scene falls back to ordinary running. danger: violence can happen; the players are never warned. Absent means roleplay."
+          },
+          "prompt": {
+            "type": "string",
+            "description": "What to ask the player or players, word for word, when the event asks them to narrate or decide."
+          },
+          "outcomes": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "What each degree of success on the check gives.",
+            "properties": {
+              "criticalSuccess": {
+                "type": "string"
+              },
+              "success": {
+                "type": "string"
+              },
+              "failure": {
+                "type": "string"
+              },
+              "criticalFailure": {
+                "type": "string"
+              }
+            }
+          },
+          "episodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The episodes this event can come up in. Absent means any."
+          },
+          "shifts": {
+            "type": "array",
+            "description": "What this event does to how the regulars feel about the group (D051): one-press buttons on the drawn event.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "regular",
+                "change"
+              ],
+              "properties": {
+                "regular": {
+                  "type": "string",
+                  "description": "A cast id."
+                },
+                "change": {
+                  "type": "integer",
+                  "minimum": -2,
+                  "maximum": 2
+                },
+                "when": {
+                  "enum": [
+                    "any",
+                    "criticalSuccess",
+                    "success",
+                    "failure",
+                    "criticalFailure"
+                  ]
+                }
+              }
+            }
+          },
+          "fight": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "D052: a \"danger\" event's theatre-of-the-mind shape. The players decide press or retreat; nothing here is rolled automatically, the GM narrates it.",
+            "properties": {
+              "foe": {
+                "type": "string",
+                "description": "Who or what it is, in a phrase."
+              },
+              "press": {
+                "type": "string",
+                "description": "What happens if the characters press the attack: they need to get the foe down, and how the scene changes once that happens."
+              },
+              "retreat": {
+                "type": "string",
+                "description": "How it runs if they run instead."
+              },
+              "surrender": {
+                "type": "string",
+                "description": "When and how this foe gives up rather than die, if it does."
+              }
+            }
+          }
+        }
+      }
+    },
+    "deckRef": {
+      "type": "string",
+      "description": "Draw from a deck shared with other scenes (by that deck's id) instead of this brief's own, so what was witnessed in one scene is gone from the others."
+    },
     "accomplishment": {
       "type": [
         "object",
@@ -158,6 +323,7 @@
                 "enum": [
                   "npc-enter",
                   "npc-exit",
+                  "reveal-name",
                   "reveal-handout",
                   "gm-tool",
                   "post-check",
@@ -169,6 +335,10 @@
                   "string",
                   "null"
                 ]
+              },
+              "announce": {
+                "type": "boolean",
+                "description": "reveal-name only. true also drops the banner (\"the attendant is Kazue Tsurumi\") when the name is told; false or absent just stamps the plate. There is no Shift key on an inline chip, so this is how a scene asks for the louder version."
               },
               "arrival": {
                 "enum": [
@@ -371,6 +541,176 @@
           ],
           "additionalProperties": false
         },
+        "departure": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "WHERE THE PARTY GOES NEXT, and who decides (design/world-map-destinations.md). Absent means sent to the next scene in the episode's order, exactly as before this existed. Ingram, 2026-09-28: \"sometimes players will get to choose where to go next and sometimes they won't be given a choice, sometimes players will be allowed to split off from the main group and sometimes the players will be forced to recombine into a group.\" Played on The City: players pick by clicking markers, the GM presses Go, each character's pawn walks, and the groups become a queue the Scene Runner runs one at a time.",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "sent",
+                "together",
+                "free",
+                "muster",
+                "arrive"
+              ],
+              "description": "sent: the story decides, one destination. together: the players pick one destination as a group. free: each player picks; the same pick is the same group, so the party may split. muster: everyone to one place. arrive: each player picks how they come into the city, their pawn starts there, then `then` gathers them."
+            },
+            "question": {
+              "type": "string",
+              "description": "Put to the players across the top of The City. Plain words."
+            },
+            "placeRef": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "For sent or muster written without destinations: the one place."
+            },
+            "briefRef": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "For sent or muster written without destinations: the one scene."
+            },
+            "label": {
+              "type": "string",
+              "description": "For sent or muster written without destinations: what the one marker says."
+            },
+            "destinations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]+$",
+                    "description": "Stable within this departure. Beats name it in forDestination."
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Said to the players, on the marker and its card. Plain words."
+                  },
+                  "blurb": {
+                    "type": "string",
+                    "description": "One or two lines on the card: what is there and what it gives. Player-facing."
+                  },
+                  "placeRef": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "data/locations/ id: where the marker stands, and where the pawn walks. For an arrive departure, where the player comes in from."
+                  },
+                  "briefRef": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The scene brief this destination leads to. Several destinations may share one (a rotation scene like The Long Afternoon)."
+                  },
+                  "image": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "A picture for the card. Normally left out: the thumbnail comes from the scene set's own art for this place, or for the scene it leads to (core/departures.mjs#thumbnailFor)."
+                  },
+                  "mystery": {
+                    "type": "boolean",
+                    "description": "Blur and grey the thumbnail: the players know there is somewhere to go, not what it looks like."
+                  },
+                  "mustGo": {
+                    "type": "boolean",
+                    "description": "Law 21: mandatory, unmistakable on the map, and it takes everyone it is open to whatever they picked."
+                  },
+                  "costsSlice": {
+                    "type": "boolean",
+                    "description": "Law 20: shown on the marker. Decided separately from mustGo."
+                  },
+                  "roomFor": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "How many can pick it. A full destination stays on the map, marked full."
+                  },
+                  "pickedIn": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Only players whose pick in the previous departure was one of these destination ids may take this one ('whoever went out has to get back in')."
+                  },
+                  "private": {
+                    "type": "boolean",
+                    "description": "Seen only by the players it is open to, and the GM. A private pick never reaches the shared record."
+                  },
+                  "needs": {
+                    "type": "string",
+                    "description": "A condition said on the card, not enforced: 'a signed pass'."
+                  },
+                  "mode": {
+                    "enum": [
+                      "train",
+                      "ferry",
+                      "bus",
+                      "road",
+                      "tram",
+                      "bicycle",
+                      "foot",
+                      "teleport"
+                    ],
+                    "description": "Arrive departures only: how they come in. Picks the card's emblem."
+                  }
+                }
+              }
+            },
+            "then": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "What follows once every group has been run: usually a muster that brings them back together.",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "muster",
+                    "sent"
+                  ]
+                },
+                "placeRef": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "briefRef": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "question": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
         "writeDown": {
           "type": "array",
           "items": {
@@ -396,6 +736,7 @@
                 "enum": [
                   "npc-enter",
                   "npc-exit",
+                  "reveal-name",
                   "reveal-handout",
                   "gm-tool",
                   "post-check",
@@ -407,6 +748,10 @@
                   "string",
                   "null"
                 ]
+              },
+              "announce": {
+                "type": "boolean",
+                "description": "reveal-name only. true also drops the banner (\"the attendant is Kazue Tsurumi\") when the name is told; false or absent just stamps the plate. There is no Shift key on an inline chip, so this is how a scene asks for the louder version."
               },
               "arrival": {
                 "enum": [
@@ -618,6 +963,14 @@
             ],
             "description": "One line of who they are to this scene — \"works foreman\", \"the Directorate's information officer\"."
           },
+          "called": {
+            "type": ["string", "null"],
+            "description": "What the TABLE calls this person until they learn the real name: \"the attendant\", \"the man in the grey coat\". Present means their name is held back (core/stage-names.mjs): the stage plate, arrival banner and splash show this line until the name is told, and their stage id and portrait file name stay anonymous. Absent means shown by name as always. The real name is label (or the NPC file). Keep it a description, never a name or a hint at one."
+          },
+          "nameOnArrival": {
+            "type": "boolean",
+            "description": "Only meaningful with called. true means this person is introduced by name the moment they arrive (a name badge, a teacher at the front of the class), so the table is told their name as they are staged. Without it the name waits for a Name key press or a reveal-name trigger."
+          },
           "arrival": {
             "enum": [
               "quiet",
@@ -742,6 +1095,102 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "attitude": {
+                "enum": [
+                  "hostile",
+                  "unfriendly",
+                  "indifferent",
+                  "friendly",
+                  "helpful"
+                ],
+                "description": "SF2E attitude toward the party on a first meeting."
+              },
+              "questions": {
+                "type": "array",
+                "description": "Questions the group are likely to ask, answered in their voice.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "q",
+                    "a"
+                  ],
+                  "properties": {
+                    "q": {
+                      "type": "string"
+                    },
+                    "a": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "statblock": {
+                "type": "string",
+                "description": "Until the NPC generator exists: the proposed level and archetype, for making the stat block with Ingram."
+              },
+              "byAttitude": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "How they behave toward the group at each attitude (D051). The Scene Runner shows the line for their attitude now, so the scene reads differently as the group rises or falls in their eyes.",
+                "properties": {
+                  "hostile": {
+                    "type": "string"
+                  },
+                  "unfriendly": {
+                    "type": "string"
+                  },
+                  "indifferent": {
+                    "type": "string"
+                  },
+                  "friendly": {
+                    "type": "string"
+                  },
+                  "helpful": {
+                    "type": "string"
+                  }
+                }
+              },
+              "faction": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+                "description": "D052: a kebab-case id of the group this regular really belongs to, shared by every regular who is the same group wherever they appear (e.g. two haunts' dock workers both writing \"the-dock-crews\"). Shifting one member's attitude shifts the whole faction's, kept globally rather than per place -- fall out with one gang member and the whole gang hates the group. A regular's attitude as played is the worse of their own and their faction's. Omit when there is no real group."
+              },
+              "doors": {
+                "type": "array",
+                "description": "D052: this regular's own decision tree of what their attitude opens and closes -- the promise that a worse attitude makes the group's lives harder next time, made concrete and playable rather than left as a number.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "at",
+                    "text"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "opens",
+                        "closes"
+                      ],
+                      "description": "opens = available while at this attitude or better. closes = shut while at this attitude or worse."
+                    },
+                    "at": {
+                      "enum": [
+                        "hostile",
+                        "unfriendly",
+                        "indifferent",
+                        "friendly",
+                        "helpful"
+                      ]
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "The concrete, playable consequence -- a better seat, a tab, backstage access; or a refusal, a raised DC, a report to the office."
+                    }
+                  }
+                }
               }
             },
             "additionalProperties": false
@@ -916,6 +1365,13 @@
             },
             "additionalProperties": false
           },
+          "forDestination": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The departure destinations this beat belongs to (outro.departure of the scene the party left). The Scene Runner shows the beat with the names of the players there, and hides it when nobody went -- the structured form of a 'for players who chose X' condition (design/world-map-destinations.md §7)."
+          },
           "choicePoint": {
             "type": [
               "object",
@@ -968,6 +1424,22 @@
             ],
             "description": "Anything else worth having to hand — a payoff this plants, a callback it pays off."
           },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$"
+            },
+            "description": "Canon facts this beat tells the table, by id (canon/world). The checker makes sure the players may know each one by this scene. See design/story-data-refactor.md."
+          },
+          "gmFacts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$"
+            },
+            "description": "Canon facts this beat relies on for the GM, by id. Never said to the table."
+          },
           "triggers": {
             "type": "array",
             "description": "Added 2026-09-20 (design/scene-triggers-and-depth.md §2) — buttons a GM presses INLINE, mid-sentence, at the exact word in `text`/`readAloud` where an author placed a `<trig id=\"...\"/>` token. Each entry here is one recognised id; a token in the prose with no matching entry renders as a visible `⚠ trig:unknown-id` error rather than silently doing nothing (core/inline-triggers.mjs). Every kind is a thin dispatch to a function that already exists elsewhere in the module (summonToStage, removeFromStage, the handout reveal, the GM_TOOLS registry, the sf2e check enricher) — nothing here recomputes anything, and every press calls the existing recordLogEntry with a timestamp, matching doctrine Law 12/15.",
@@ -987,19 +1459,24 @@
                   "enum": [
                     "npc-enter",
                     "npc-exit",
+                    "reveal-name",
                     "reveal-handout",
                     "gm-tool",
                     "post-check",
                     "note"
                   ],
-                  "description": "npc-enter/npc-exit call the existing stage functions with this cast member's id. reveal-handout calls the existing handout reveal. gm-tool calls the existing GM_TOOLS registry by toolId — not a second registry. post-check posts the existing sf2e @Check enricher for checkRef. note writes a plain log line with no other side effect, for a moment worth marking with nothing mechanical attached."
+                  "description": "npc-enter/npc-exit call the existing stage functions with this cast member's id. reveal-name tells the table that cast member's real name (they need a `called` line, or there is nothing to tell). reveal-handout calls the existing handout reveal. gm-tool calls the existing GM_TOOLS registry by toolId — not a second registry. post-check posts the existing sf2e @Check enricher for checkRef. note writes a plain log line with no other side effect, for a moment worth marking with nothing mechanical attached."
                 },
                 "npcRef": {
                   "type": [
                     "string",
                     "null"
                   ],
-                  "description": "id of a `cast[]` entry above. Required for npc-enter/npc-exit."
+                  "description": "id of a `cast[]` entry above. Required for npc-enter/npc-exit/reveal-name."
+                },
+                "announce": {
+                  "type": "boolean",
+                  "description": "reveal-name only. true also drops the banner (\"the attendant is Kazue Tsurumi\") when the name is told; false or absent just stamps the plate. There is no Shift key on an inline chip, so this is how a scene asks for the louder version."
                 },
                 "arrival": {
                   "enum": [
@@ -1049,7 +1526,7 @@
     },
     "handouts": {
       "type": "array",
-      "description": "Documents and images this scene can put in front of players. Staged here so revealing one is a single deliberate click at the right moment; never automatic (doctrine Law 17 — confirm anything the players will see).",
+      "description": "Documents and images this scene can put in front of players. Staged here so revealing one is a single deliberate click at the right moment; never automatic (doctrine Law 17 — confirm anything the players will see). Revealing one also FILES it (Ingram, 2026-09-26): it opens on their screens and stays in their Papers journal folder for the rest of the campaign, readable and never editable, so a reveal is never transient (module/blank-inheritance/scripts/core/handouts.mjs plans it, foundry/handouts.mjs carries it out).",
       "items": {
         "type": "object",
         "required": [
@@ -1084,7 +1561,11 @@
               "string",
               "null"
             ],
-            "description": "The document itself, authored inline, as HTML. The adapter creates or updates a journal page from it on demand, so a handout that exists only for this scene needs no separate file and no sync run to change. Supports the redaction pipeline's own `<redact c=\"n\">` tags and sf2e's inline `@Check[...]` syntax — both survive into the pushed page."
+            "description": "The document itself, authored inline, as HTML. The adapter creates or updates a journal page from it on demand, so a handout that exists only for this scene needs no separate file and no sync run to change. Paper documents use the classes in module/blank-inheritance/styles/bi-papers.css (`bi-paper`, a letterhead, stamps, a tear-off slip). Two campaign tags are rendered to plain HTML before anything reaches Foundry, whose sanitiser would otherwise strip them and publish their contents bare: the redaction pipeline's `<redact c=\"n\">` (removed below the reader's clearance), and `<typed>…</typed>` for words struck on a typewriter, with `machine=\"…\"` naming a typewriter whose fault it carries (core/handouts.mjs TYPEWRITERS) and the self-closing `<typed field=\"character\" fallback=\"…\"/>` for the reader's own character's name. An unprocessed tag is a hard error, never a silent leak. sf2e's inline `@Check[...]` survives into the pushed page."
+          },
+          "personal": {
+            "type": "boolean",
+            "description": "One private copy per player instead of one shared page: each player's copy has their own character's name typed into any `<typed field=\"character\"/>` gap, and only they can read it. For a document every character received separately, like the acceptance letter. Default false."
           },
           "imagePath": {
             "type": [
@@ -1268,7 +1749,167 @@
     },
     "notes": {
       "type": "string"
+    },
+    "rumours": {
+      "type": "array",
+      "description": "The rumour mill (D051): three sets per episode. A player names any skill they can justify and rolls blind. Critical failure: three lies. Failure: two lies and one truth. Success: two truths and one lie. Critical success: three truths. At most one rumour in a set touches the plot.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "episode",
+          "set",
+          "truths",
+          "lies"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "episode": {
+            "type": "string"
+          },
+          "set": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "truths": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/rumour"
+            }
+          },
+          "lies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/rumour"
+            }
+          }
+        }
+      }
+    },
+    "haunt": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "This scene is a haunt (D051): a place the group often comes back to, run as a menu rather than a script. Its regulars are its cast; its events are its deck.",
+      "required": [
+        "everyVisit"
+      ],
+      "properties": {
+        "everyVisit": {
+          "type": "string",
+          "description": "What is always true here, read or described on every arrival."
+        },
+        "changes": {
+          "type": "string",
+          "description": "How the place can change over the campaign, as the city changes."
+        },
+        "discovery": {
+          "type": "boolean",
+          "description": "D052: offered through \"somewhere new\" rather than picked by name -- the players don't know what they'll get or where they'll go. Discovered places carry riskier and more powerful buffs, debuffs and encounters than the ordinary rests."
+        },
+        "oneTime": {
+          "type": "boolean",
+          "description": "D052: this discovery plays once, not as a repeatable haunt -- e.g. the first night's Magic Show."
+        },
+        "upgrades": {
+          "type": "array",
+          "description": "D052: how this repeat location gets better for the group with use. Unlocked by hand in the Scene Runner once the story earns it.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "title",
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "description": "What the upgrade actually gives."
+              },
+              "how": {
+                "type": "string",
+                "description": "How the group earns it in play."
+              },
+              "rest": {
+                "$ref": "#/properties/rest",
+                "description": "If unlocking it changes the rest itself, the new values; otherwise the scene's own rest stands."
+              }
+            }
+          }
+        },
+        "setbacks": {
+          "type": "array",
+          "description": "D052: how a story event can make this location less effective, for a while or for good. Triggered by hand in the Scene Runner.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "title",
+              "text",
+              "lasting"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "lasting": {
+                "enum": [
+                  "temporary",
+                  "permanent"
+                ]
+              },
+              "rest": {
+                "$ref": "#/properties/rest"
+              }
+            }
+          }
+        }
+      }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$defs": {
+    "rumour": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "One short sentence, as the rumour is told."
+        },
+        "plot": {
+          "type": "boolean",
+          "description": "Touches the actual plot, to reveal or mislead. At most one per set."
+        },
+        "hint": {
+          "type": "string",
+          "description": "GM-only: what else this invites a guess at, or what it points to."
+        },
+        "fact": {
+          "type": "string",
+          "description": "GM-only: the canon fact a plot rumour reveals or misleads about."
+        }
+      }
+    }
+  }
 }

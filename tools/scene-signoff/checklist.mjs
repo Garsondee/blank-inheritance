@@ -688,8 +688,16 @@ export function runAutoChecks(bundle, corpus, { allScenes = [], only = null, inc
     }
     if (check.dependsOnCheck) {
       const prereq = results.find((r) => r.id === check.dependsOnCheck);
-      if (prereq && prereq.state === "fail") {
-        results.push({ ...check, state: "n/a", detail: `unanswerable until ${prereq.id} passes` });
+      // A waived prereq is exactly as unanswerable as a failed one: P1 waived
+      // (Ingram: "this scene deliberately has no location, and here is why")
+      // means P2/P4/P6's own questions ("is the location approximate", "does
+      // it have lore") have no location to be asked about. Found live
+      // 2026-09-28 -- waiving P1 alone still failed P2/P4/P6 separately,
+      // which is the exact "chosen exception, not default" boundary this
+      // dependency exists to protect: a real waiver, once recorded, has to
+      // actually clear the checks it makes unanswerable.
+      if (prereq && (prereq.state === "fail" || prereq.state === "waived")) {
+        results.push({ ...check, state: "n/a", detail: `unanswerable: ${prereq.id} is ${prereq.state} (${prereq.detail})` });
         continue;
       }
     }

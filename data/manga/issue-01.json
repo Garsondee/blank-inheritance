@@ -1,0 +1,416 @@
+{
+  "$schema": "../schema/manga-issue.schema.json",
+  "id": "issue-01",
+  "type": "manga-issue",
+  "authoring": {
+    "status": "drafted",
+    "note": "Claude's proposals throughout (design/propaganda-manga.md §6): the names, the title, every line. Page 1 only so far, rebuilt around the art Ingram generated on 2026-09-26."
+  },
+  "title": {
+    "ja": "エミのやくそく",
+    "en": "EMI'S PROMISE"
+  },
+  "note": "Booklet page 3 is manga page 1 (a left-hand page; the spine is on its right). Layouts are drawn on A5, the size two folded A4 sheets make, which is B6's shape.",
+  "format": {
+    "trim_mm": [
+      148,
+      210
+    ],
+    "bleed_mm": 3,
+    "binding": "right",
+    "inner_mm": {
+      "top": 15,
+      "bottom": 15,
+      "outer": 13,
+      "spine": 13
+    },
+    "gutter_mm": {
+      "side": 2.5,
+      "tier": 5
+    },
+    "frame_mm": 0.55
+  },
+  "lettering": {
+    "ja_em_mm": 3.2,
+    "en_size_mm": 2.9,
+    "line_mm": 0.25,
+    "pad_em": 0.45
+  },
+  "artDir": "artwork/manga/issue-01/art",
+  "pages": [
+    {
+      "id": "p1",
+      "number": 3,
+      "mangaPage": 1,
+      "hashira": {
+        "ja": "★{本部|ほんぶ}では、きみのような{新人隊員|しんじんたいいん}をぼしゅうしています！",
+        "en": "THE DIRECTORATE IS LOOKING FOR NEW RECRUITS JUST LIKE YOU!"
+      },
+      "gm": "Arrival. Everything on this page is common knowledge (Scene 0) or the idealised welcome, so it is safe to hand over from The Road In onward.",
+      "tiers": [
+        {
+          "height_mm": 75,
+          "panels": [
+            {
+              "id": "K1",
+              "width_mm": 122
+            }
+          ]
+        },
+        {
+          "height_mm": 46,
+          "panels": [
+            {
+              "id": "K2",
+              "width_mm": 63.5
+            },
+            {
+              "id": "K3",
+              "width_mm": 56
+            }
+          ]
+        },
+        {
+          "height_mm": 49,
+          "panels": [
+            {
+              "id": "K4",
+              "width_mm": 79.5
+            },
+            {
+              "id": "K5",
+              "width_mm": 40
+            }
+          ]
+        }
+      ],
+      "panels": {
+        "K1": {
+          "art": "M1-P1-K1.png",
+          "focus": [
+            0.5,
+            0.5
+          ],
+          "gm": "Kurose spotless and sunny, and the Frame on the docks freshly painted, with no patches. The real ones are patched and loud, and the one in Scene 0 is trying to step over a tram and not quite managing it.",
+          "items": [
+            {
+              "kind": "title",
+              "at": [
+                0.74,
+                0.13
+              ],
+              "text": {
+                "ja": "エミのやくそく",
+                "en": "EMI'S PROMISE"
+              },
+              "size_mm": 8
+            },
+            {
+              "kind": "aori",
+              "at": [
+                0.74,
+                0.27
+              ],
+              "text": {
+                "ja": "元気いっぱい！新人隊員エミの、はじめての一日！",
+                "en": "Full of pep! Recruit Emi's very first day!"
+              },
+              "size_mm": 2.4
+            },
+            {
+              "kind": "caption",
+              "at": [
+                0.94,
+                0.56
+              ],
+              "text": {
+                "ja": "{港町|みなとまち}・{黒瀬|くろせ}。",
+                "en": "Kurose, a harbour city."
+              },
+              "en": {
+                "at": [
+                  0.85,
+                  0.5
+                ]
+              }
+            },
+            {
+              "kind": "balloon",
+              "shape": "burst",
+              "at": [
+                0.32,
+                0.16
+              ],
+              "tail": [
+                0.17,
+                0.17
+              ],
+              "text": {
+                "ja": "いま{行|い}く/よーっ！！",
+                "en": "Here I/come!!"
+              }
+            },
+            {
+              "kind": "sfx",
+              "at": [
+                0.09,
+                0.86
+              ],
+              "text": "タッタッタッ",
+              "sub": "TAP TAP TAP",
+              "sub_at": [
+                0.1,
+                0.96
+              ],
+              "size_mm": 4.2,
+              "step": [
+                0.82,
+                -0.18
+              ],
+              "angle": -10,
+              "grow": 0.04
+            }
+          ]
+        },
+        "K2": {
+          "art": "M1-P1-K2.png",
+          "focus": [
+            0.56,
+            0.5
+          ],
+          "gm": "Everyone in the queue is cheerful, and everyone is an ordinary-looking human: nobody unusual-looking anywhere in the service. That is the glamour policy (Scene 0: some call it good manners, some say it's a city asking people to hide), and it is the everyone's-joining pitch.",
+          "items": [
+            {
+              "kind": "balloon",
+              "shape": "oval",
+              "at": [
+                0.86,
+                0.29
+              ],
+              "tail": [
+                0.6,
+                0.15
+              ],
+              "text": {
+                "ja": "{花村|はなむら}エミ、/{入隊|にゅうたい}します！！",
+                "en": "Emi Hanamura, reporting for duty!!"
+              },
+              "en": {
+                "at": [
+                  0.855,
+                  0.24
+                ],
+                "scale": 0.85,
+                "text": {
+                  "en": "Emi/Hanamura,/reporting/for duty!!"
+                }
+              },
+              "scale": 0.9
+            },
+            {
+              "kind": "sfx",
+              "at": [
+                0.36,
+                0.12
+              ],
+              "text": "ビシッ",
+              "sub": "SNAP!",
+              "sub_at": [
+                0.36,
+                0.3
+              ],
+              "size_mm": 4.4,
+              "step": [
+                0.8,
+                0.12
+              ],
+              "angle": -14,
+              "grow": 0.1
+            }
+          ]
+        },
+        "K3": {
+          "art": "M1-P1-K3.png",
+          "focus": [
+            0.47,
+            0.5
+          ],
+          "gm": "The joke is on Emi, and only ever on Emi. The instructor, the machines and the institution are never the punchline anywhere in the comic, which a careful reader can notice (design/research/manga/propaganda-and-unreliable-documents.md: real institutions allow jokes only while they are not the butt).",
+          "items": [
+            {
+              "kind": "balloon",
+              "shape": "oval",
+              "at": [
+                0.85,
+                0.28
+              ],
+              "tail": [
+                0.7,
+                0.16
+              ],
+              "stop": 0.5,
+              "text": {
+                "ja": "……/{聞|き}こえる。",
+                "en": "…I can hear you."
+              }
+            },
+            {
+              "kind": "balloon",
+              "shape": "wobbly",
+              "at": [
+                0.2,
+                0.18
+              ],
+              "tail": [
+                0.28,
+                0.6
+              ],
+              "stop": 0.35,
+              "text": {
+                "ja": "あっ、/はい！",
+                "en": "Oh! Yes, sir!"
+              }
+            }
+          ]
+        },
+        "K4": {
+          "art": "M1-P1-K4.png",
+          "focus": [
+            0.47,
+            0.5
+          ],
+          "gm": "Kumagai's line is the Deputy Director's own (\"the Directorate exists to keep this city standing\", Assembly), said with pride. The loudspeaker speaks in the angular balloon Japanese lettering keeps for cold, bureaucratic voices. The banner is the dig as proud public works; it pays off in Chapter 8. Cut the banner if the comic should not touch the dig yet. Nothing here goes beyond common knowledge: the Assembly speech says the dig came first, and that it is on the municipal seal.",
+          "items": [
+            {
+              "kind": "balloon",
+              "shape": "oval",
+              "at": [
+                0.61,
+                0.25
+              ],
+              "tail": [
+                0.75,
+                0.11
+              ],
+              "text": {
+                "ja": "ここが/{本部|ほんぶ}だ。",
+                "en": "This is/HQ."
+              },
+              "en": {
+                "at": [
+                  0.665,
+                  0.2
+                ]
+              }
+            },
+            {
+              "kind": "balloon",
+              "shape": "oval",
+              "at": [
+                0.26,
+                0.19
+              ],
+              "tail": [
+                0.4,
+                0.26
+              ],
+              "text": {
+                "ja": "すごい/……！",
+                "en": "Wow…!"
+              }
+            },
+            {
+              "kind": "balloon",
+              "shape": "angular",
+              "at": [
+                0.13,
+                0.7
+              ],
+              "tail": [
+                0.04,
+                0.43
+              ],
+              "scale": 0.85,
+              "text": {
+                "ja": "{第三|だいさん}{作業班|さぎょうはん}、/{七番|ななばん}{埠頭|ふとう}へ。",
+                "en": "Work crew three to pier seven."
+              }
+            },
+            {
+              "kind": "sign",
+              "at": [
+                0.965,
+                0.28
+              ],
+              "text": "掘削工事中",
+              "size_mm": 1.9,
+              "sub": "EXCAVATION WORKS",
+              "sub_at": [
+                0.965,
+                0.6
+              ],
+              "sub_angle": -90
+            }
+          ]
+        },
+        "K5": {
+          "art": "M1-P1-K5.png",
+          "focus": [
+            0.5,
+            0
+          ],
+          "gm": "The hook. The hangar has no number: never Hangar Four, where the tarp is. The page turn lands on the centre spread, where the Frame is revealed across the fold.",
+          "items": [
+            {
+              "kind": "balloon",
+              "shape": "oval",
+              "at": [
+                0.72,
+                0.19
+              ],
+              "tail": [
+                0.3,
+                0.36
+              ],
+              "stop": 0.55,
+              "text": {
+                "ja": "きみの/{相棒|あいぼう}だ。",
+                "en": "Meet your/partner."
+              }
+            },
+            {
+              "kind": "mark",
+              "at": [
+                0.6,
+                0.45
+              ],
+              "text": "？",
+              "size_mm": 4.5,
+              "angle": -10
+            },
+            {
+              "kind": "sfx",
+              "at": [
+                0.46,
+                0.76
+              ],
+              "text": "ギギギ",
+              "sub": "CREAAK",
+              "sub_at": [
+                0.46,
+                0.95
+              ],
+              "size_mm": 4,
+              "step": [
+                0.08,
+                0.92
+              ],
+              "angle": 0,
+              "grow": 0.06
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

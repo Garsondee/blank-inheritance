@@ -11,7 +11,7 @@
   "checks": [
     {
       "id": "ask-around",
-      "name": "Find somebody who can read the docket",
+      "name": "Get the instrument makers to say who could help",
       "skillOptions": [
         "diplomacy",
         "deception"
@@ -22,10 +22,10 @@
         "adjustment": "none"
       },
       "outcomes": {
-        "criticalSuccess": "Third person they ask points straight across the street -- and says it warmly: \"Old fella in the tea house. He used to be something, I think. Nice to whoever's nice to him.\" That warmth is real width: whichever PC gets it can open the actual conversation already halfway trusted, not from a cold start.",
-        "success": "A few wrong turns, then somebody mentions the tea house.",
-        "failure": "Nobody in the quarter knows, and several are cheerfully certain the docket is a misprint. They find him anyway -- he is sitting where he always sits, and he has been watching six lost trainees for ten minutes with open interest.",
-        "criticalFailure": "As failure, and one of the people they asked will remember six Directorate trainees asking odd questions. Nothing comes of it tonight."
+        "criticalSuccess": "One of them walks them to the door and says it warmly: \"Manako. Tea house, a few streets over, corner table. Used to know the old catalogue backwards. Nice to whoever's nice to him.\" That warmth is real width: whichever PC gets it opens the conversation already halfway trusted.",
+        "success": "A shrug, a conversation across the bench, then a name: Manako, at the tea house a few streets over.",
+        "failure": "Nobody on the bench wants to know, until the oldest of them, without looking up, says: \"Ask Manako. Tea house, few streets over.\"",
+        "criticalFailure": "As failure, and one of the makers will remember six trainees asking odd questions. Nothing comes of it tonight."
       },
       "repeatable": false
     },
@@ -82,7 +82,7 @@
     },
     {
       "id": "the-storekeeper",
-      "name": "Get anything at all out of the storekeeper",
+      "name": "Get anything at all out of the instrument makers",
       "skillOptions": [
         "diplomacy",
         "deception",
@@ -94,16 +94,37 @@
         "adjustment": "none"
       },
       "outcomes": {
-        "criticalSuccess": "She finds the item in under a minute once she knows what it actually is, throws in something small she can't sell, and tells them which of the three chandlers on this stretch waters their primer.",
-        "success": "Cheerful, unhurried, and completely unable to help until somebody tells her what the docket means.",
-        "failure": "She has a queue, they are six teenagers in brand-new uniforms, and the docket is somebody else's problem.",
+        "criticalSuccess": "She warms to them, and tells them straight: the docket's a joke, and the one person she knows who'd enjoy beating it is Manako, at his tea house a few streets away. She says it like a recommendation.",
+        "success": "Cheerful, unhurried, and completely unable to help: nobody on this bench knows what to do with the docket.",
+        "failure": "She has work on the bench, they are six teenagers in brand-new uniforms, and the docket is somebody else's problem.",
         "criticalFailure": "As failure, and she calls them 'the Directorate' for the rest of the scene, in the tone you'd use for a utility company."
       },
       "bySkill": {
         "diplomacy": "She warms to them specifically -- kindness answered with kindness. If anyone asks her something later in the scene, she remembers being asked nicely now.",
-        "deception": "Nineteen years behind this counter means she has heard every version of 'we definitely know what we're doing' there is, and isn't fooled for a second -- it costs nothing, but SHE gets to be the one who's in on the joke, not just the one explaining it.",
-        "intimidation": "It works about as well as intimidating someone with nineteen years and a queue behind them ever does -- she gets flatter, not more helpful. Play it as comic deflation, never a real cost; the DC and the outcome table are identical to any other skill here.",
+        "deception": "Nineteen years at this bench means she has heard every version of 'we definitely know what we're doing' there is, and isn't fooled for a second -- it costs nothing, but SHE gets to be the one who's in on the joke, not just the one explaining it.",
+        "intimidation": "It works about as well as intimidating someone with nineteen years at a bench ever does -- she gets flatter, not more helpful. Play it as comic deflation, never a real cost; the DC and the outcome table are identical to any other skill here.",
         "society": "She clocks that they actually understand how a stores request is supposed to work, and treats them as competent rather than lost -- a small, real difference in how much she volunteers without being asked."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "heard-the-name",
+      "name": "Have I heard that name?",
+      "skillOptions": [
+        "society",
+        "academia-lore"
+      ],
+      "dc": {
+        "value": 20,
+        "basis": "level 1 DC 15, very hard (+5): it was decades ago, and it was only ever the Directorate's gossip",
+        "adjustment": "very-hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "They have heard of him: Manako, the Directorate scientist who had a mental breakdown at a science conference, caused a huge fuss, and was expelled. Nothing about why.",
+        "success": "The name rings a faint bell: a chemist, disgraced, a long time ago.",
+        "failure": "Nothing. It's just a name.",
+        "criticalFailure": "They're sure they've heard it somewhere, and can't place it."
       },
       "repeatable": false
     }
@@ -117,5 +138,5 @@
     "episode-c1e1--the-errand",
     "c1e1-the-road-in"
   ],
-  "notes": "NONE OF THESE REACH MANAKO, DELIBERATELY. The docket's obsolete catalogue name is not decodable by a level-1 character at any DC -- it is a dead naming convention, not a hard knowledge check, so there is no roll that lets the party skip the old man. read-the-old-man is the only check that touches him at all, and what it buys is warmth, not information.\n\nThe contact route he offers at the end of the scene is NOT gated on a check either. It is earned by talking to him like a person. A table that rolls badly and is kind still gets it; a table that rolls well and treats him as a vending machine does not. That is the whole design of the scene and it should not be turned into a skill gate.\n\nHOW FAR CAN A GREAT ROLL GO HERE. A natural 20 on a social check needs an answer ready before it happens, and for this scene the answer is that these four checks are deliberately capped at warmth, speed and texture, never information about Manako himself or the campaign's larger mysteries -- that is a design choice rather than caution by omission, because the scene's real width-of-action lever is the choicePoint at the-vial's follow-up beat (how they file the requisition) and the split-party search structure, not crit-success revelation. A genuinely new approach that is not one of these four should still be priced on the standard ladder (13/15/17/20) per this project's usual rule -- it just won't unlock Manako's identity or anything past what read-the-old-man already caps at, because nothing in this scene is built to give that up yet."
+  "notes": "NONE OF THESE REACH MANAKO, DELIBERATELY. The docket's obsolete catalogue name is not decodable by a level-1 character at any DC -- it is a dead naming convention, not a hard knowledge check, so there is no roll that lets the party skip the old man. read-the-old-man and heard-the-name are the only checks that touch him. The first buys warmth; the second, on a very hard roll, what the Directorate's old gossip remembers of him (a breakdown, a fuss, an expulsion), never the Watcher and never why (LEDGER #45).\n\nThe contact route he offers at the end of the scene is NOT gated on a check either. It is earned by talking to him like a person. A table that rolls badly and is kind still gets it; a table that rolls well and treats him as a vending machine does not. That is the whole design of the scene and it should not be turned into a skill gate.\n\nHOW FAR CAN A GREAT ROLL GO HERE. A natural 20 on a social check needs an answer ready before it happens, and for this scene the answer is that these four checks are deliberately capped at warmth, speed and texture, never information about Manako himself or the campaign's larger mysteries -- that is a design choice rather than caution by omission, because the scene's real width-of-action lever is the choicePoint at the-vial's follow-up beat (how they file the requisition) and the split-party search structure, not crit-success revelation. A genuinely new approach that is not one of these four should still be priced on the standard ladder (13/15/17/20) per this project's usual rule -- it just won't unlock Manako's identity or anything past what read-the-old-man already caps at, because nothing in this scene is built to give that up yet."
 }

@@ -38,6 +38,7 @@ import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { toggleSoundDesk } from "./sound-desk.mjs";
 import { toggleSceneRunner } from "./scene-runner.mjs";
 import { togglePhone } from "./phone.mjs";
+import { toggleNotebook } from "./notebook.mjs";
 import { openConsoleTab, toggleConsoleWindow } from "./console-window.mjs";
 import { toggleDemoRunner } from "./demo-runner.mjs";
 import { openApprovalsDesk } from "./approvals-desk.mjs";
@@ -48,6 +49,8 @@ import { playOpeningForTable } from "./opening-titles.mjs";
 import { currentMode } from "./command-bar.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
 import { applySoundscape, playMusicPool, runCue, stopAllAudio } from "./audio-director.mjs";
+import { openAdminPanel } from "./admin-panel.mjs";
+import { openLocationEditor } from "./location-editor.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -355,7 +358,11 @@ function selectedCommands() {
 function revealCommands() {
   const LIMITED = CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED;
   return game.journal.contents
-    .filter((j) => (j.ownership?.default ?? 0) >= LIMITED)
+    // The party notebook is open to everyone by design (default OWNER), so it
+    // passes the test above; but popping Foundry's plain journal window up on
+    // every screen is not how it is meant to be opened (the Notebook command,
+    // the N key and any portrait are).
+    .filter((j) => (j.ownership?.default ?? 0) >= LIMITED && !j.getFlag(MODULE_ID, "notebook"))
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((entry, i) => ({
       id: `reveal.journal.${entry.id}`,
@@ -520,11 +527,16 @@ function panelCommands() {
     { id: "panel.console", group: "panel", order: 2, title: "Console", hint: "the whole sheet, party, hub and log", icon: "fa-solid fa-terminal", keywords: ["dossier", "tabs", "sheet"], run: () => toggleConsoleWindow() },
     { id: "panel.party", group: "panel", order: 3, title: "Console: Party", hint: "every PC's HP, AC and conditions", icon: "fa-solid fa-people-group", keywords: ["party", "players", "hp", "overview"], run: () => openConsoleTab("party") },
     { id: "panel.hub", group: "panel", order: 4, title: "Console: Hub", hint: "every GM panel as a tile", icon: "fa-solid fa-grip", keywords: ["hub", "launcher", "panels"], run: () => openConsoleTab("hub") },
+    // The Director's deck is full (a seventh key pushed the last one off its row), so the GM reaches the
+    // notebook here, from the N key, and by clicking any portrait.
+    { id: "panel.notebook", group: "panel", order: 5, title: "Notebook", hint: "the party's shared notes (N)", icon: "fa-solid fa-book-open", keywords: ["notes", "notebook", "journal", "people", "write", "articles"], run: () => toggleNotebook() },
     { id: "panel.director", group: "panel", order: 6, title: "Director's Panel", hint: "cue a scene with its transition", icon: "fa-solid fa-clapperboard", keywords: ["director", "cue", "scenes", "transition"], run: () => openDirectorPanel() },
     { id: "panel.approvals", group: "panel", order: 7, title: "Approvals Desk", hint: "grade drafted content", icon: "fa-solid fa-stamp", keywords: ["approve", "grade", "review", "desk", "drafted"], run: () => openApprovalsDesk() },
     { id: "panel.equipment", group: "panel", order: 8, title: "Equipment Locker", hint: "Kit Issue's inventory", icon: "fa-solid fa-toolbox", keywords: ["equipment", "kit", "gear", "locker", "items"], run: () => openEquipmentPanel() },
     { id: "panel.induction", group: "panel", order: 9, title: "Induction Terminal", hint: "character creation", icon: "fa-solid fa-id-card", keywords: ["induction", "chargen", "character creation", "new character"], run: () => openInductionTerminal() },
     { id: "panel.demo", group: "panel", order: 10, title: "Demo walkthroughs", hint: "scripted runs against the real world", icon: "fa-solid fa-circle-play", keywords: ["demo", "walkthrough", "test", "tour"], run: () => toggleDemoRunner() },
+    { id: "panel.admin", group: "panel", order: 11, title: "Admin", hint: "reset to the start, stand-in players, jump anywhere", icon: "fa-solid fa-screwdriver-wrench", keywords: ["admin", "reset", "restart", "autopilot", "test", "debug", "jump"], run: () => openAdminPanel() },
+    { id: "panel.locations", group: "panel", order: 12, title: "Location Editor", hint: "draw and author data/locations on the Campaign Map", icon: "fa-solid fa-map-location-dot", keywords: ["gazetteer", "location", "region", "building", "map", "draw"], run: () => openLocationEditor() },
 
     { id: "table.pause", group: "table", order: 0, title: () => (game.paused ? "Unpause the game" : "Pause the game"), icon: "fa-solid fa-pause", keywords: ["pause", "break", "stop"], run: () => game.togglePause(!game.paused, { broadcast: true }) },
     { id: "table.segment", group: "table", order: 1, title: "Advance the day ring one segment", hint: "morning → afternoon → evening → night", icon: "fa-solid fa-clock", keywords: ["time", "segment", "day", "advance"], run: () => advanceSegment(1) },

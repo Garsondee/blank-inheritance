@@ -1,0 +1,97 @@
+{{!--
+    The edit sheet: the whole scene as text boxes, in the order it is run.
+    design/scene-edits.md. Model: core/scene-edit-sheet.mjs#editSheet.
+
+    Ingram, 2026-09-27: "I want to start reading scenes in the scene runner and
+    if I see something wrong I don't want to have to describe it I just want to
+    edit it", and "Ideally I would go into Scene 0 'From Up Here' and edit the
+    whole scene to fit what I want to say."
+
+    Every box holds the words exactly as the file stores them -- `**bold**` and
+    the `<trig id="..."/>` markers that make a line's buttons included -- and
+    saves itself the moment focus leaves it (foundry/scene-runner.mjs
+    #commitField), straight into storage/ on the server, where no deploy can
+    touch it. There is no Save button: nothing here can be lost by forgetting
+    to press one. Esc puts back the box being typed in.
+--}}
+<div class="bi-edit" data-brief-id="{{briefId}}">
+    <header class="bi-edit__head">
+        <p class="bi-edit__lede">{{localize "BLANKINHERITANCE.Runner.Edit.Lede"}}</p>
+        <p class="bi-edit__status">
+            {{#if counts.pending}}
+            <span class="bi-edit__badge bi-edit__badge--pending" data-edit-count>{{localize "BLANKINHERITANCE.Runner.Edit.PendingCount" n=counts.pending}}</span>
+            {{else}}
+            <span class="bi-edit__badge bi-edit__badge--done" data-edit-count>{{localize "BLANKINHERITANCE.Runner.Edit.AllIn"}}</span>
+            {{/if}}
+            {{#if counts.clash}}<span class="bi-edit__badge bi-edit__badge--clash">{{localize "BLANKINHERITANCE.Runner.Edit.ClashCount" n=counts.clash}}</span>{{/if}}
+            {{#if counts.behind}}<span class="bi-edit__badge bi-edit__badge--behind">{{localize "BLANKINHERITANCE.Runner.Edit.BehindCount" n=counts.behind}}</span>{{/if}}
+            {{#if counts.notes}}<span class="bi-edit__badge">{{localize "BLANKINHERITANCE.Runner.Edit.NotesCount" n=counts.notes}}</span>{{/if}}
+            <span class="bi-edit__saving" data-edit-saving hidden>{{localize "BLANKINHERITANCE.Runner.Edit.Saving"}}</span>
+        </p>
+        {{#if error}}<p class="bi-edit__error" role="alert">{{error}}</p>{{/if}}
+        {{#if listError}}<p class="bi-edit__error" role="alert">{{localize "BLANKINHERITANCE.Runner.Edit.ListError"}}</p>{{/if}}
+        {{#each problems}}<p class="bi-edit__error" role="alert">{{localize "BLANKINHERITANCE.Runner.Edit.Unplaceable"}} {{this.path}} — {{this.reason}}</p>{{/each}}
+    </header>
+
+    {{#each sections}}
+    <section class="bi-edit__section" data-section="{{id}}">
+        <h3 class="bi-edit__section-title">{{localize title}}</h3>
+
+        {{#if isBeats}}
+        {{!-- The running order. A slot between every two beats adds one
+              there; each card moves up or down one place, or comes out.
+              A removed beat keeps a "put it back" line until it is merged. --}}
+        <div class="bi-edit__slot">
+            <button type="button" class="bi-edit__slot-btn" data-action="editAddBeat" data-after-id="">{{localize "BLANKINHERITANCE.Runner.Edit.AddBeatTop"}}</button>
+        </div>
+        {{#each blocks}}
+        <article class="bi-edit__beat{{#if isNew}} bi-edit__beat--new{{/if}}" data-beat-id="{{beatId}}">
+            <header class="bi-edit__beat-head">
+                <span class="bi-edit__beat-order">{{order}}</span>
+                <span class="bi-edit__beat-kind">{{localize kindLabel}}</span>
+                {{#if npcName}}<span class="bi-edit__beat-npc">{{npcName}}</span>{{/if}}
+                {{#if isNew}}<span class="bi-edit__tag">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.New"}}</span>{{/if}}
+                {{#if isMoved}}<span class="bi-edit__tag">{{localize "BLANKINHERITANCE.Runner.Edit.Mark.Moved"}}</span>{{/if}}
+                <span class="bi-edit__beat-tools">
+                    {{#if canUp}}<button type="button" class="bi-edit__tool" data-action="editMoveBeat" data-beat-id="{{beatId}}" data-after-id="{{upAfterId}}"
+                        data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.MoveUp'}}" aria-label="{{localize 'BLANKINHERITANCE.Runner.Edit.MoveUp'}}"><i class="fa-solid fa-arrow-up"></i></button>{{/if}}
+                    {{#if canDown}}<button type="button" class="bi-edit__tool" data-action="editMoveBeat" data-beat-id="{{beatId}}" data-after-id="{{downAfterId}}"
+                        data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.MoveDown'}}" aria-label="{{localize 'BLANKINHERITANCE.Runner.Edit.MoveDown'}}"><i class="fa-solid fa-arrow-down"></i></button>{{/if}}
+                    <button type="button" class="bi-edit__tool bi-edit__tool--remove" data-action="editRemoveBeat" data-beat-id="{{beatId}}">{{localize "BLANKINHERITANCE.Runner.Edit.RemoveBeat"}}</button>
+                </span>
+            </header>
+            <div class="bi-edit__settings">
+                {{#each settings}}{{> "modules/blank-inheritance/templates/runner/edit-field.hbs"}}{{/each}}
+            </div>
+            {{#each fields}}{{> "modules/blank-inheritance/templates/runner/edit-field.hbs"}}{{/each}}
+            {{#if check}}
+            <div class="bi-edit__check">
+                <p class="bi-edit__subhead">{{localize "BLANKINHERITANCE.Runner.Edit.CheckFile"}} <b>{{check.name}}</b></p>
+                {{#if check.sharedWith}}<p class="bi-edit__hint">{{localize "BLANKINHERITANCE.Runner.Edit.CheckShared"}} {{check.sharedWith}}</p>{{/if}}
+                {{#each check.fields}}{{> "modules/blank-inheritance/templates/runner/edit-field.hbs"}}{{/each}}
+            </div>
+            {{/if}}
+            {{#if choice}}
+            <div class="bi-edit__check">
+                <p class="bi-edit__subhead">{{localize "BLANKINHERITANCE.Runner.Edit.Choice"}}</p>
+                {{#each choice.fields}}{{> "modules/blank-inheritance/templates/runner/edit-field.hbs"}}{{/each}}
+            </div>
+            {{/if}}
+            {{> "modules/blank-inheritance/templates/runner/edit-notes.hbs"}}
+        </article>
+        <div class="bi-edit__slot">
+            <button type="button" class="bi-edit__slot-btn" data-action="editAddBeat" data-after-id="{{beatId}}">{{localize "BLANKINHERITANCE.Runner.Edit.AddBeat"}}</button>
+        </div>
+        {{/each}}
+        {{#each removed}}
+        <p class="bi-edit__removed">
+            <span>{{localize "BLANKINHERITANCE.Runner.Edit.Removed"}} <b>{{this.text}}</b></span>
+            <button type="button" class="bi-runner__linkbtn" data-action="editUndoRemove" data-record-id="{{this.recordId}}">{{localize "BLANKINHERITANCE.Runner.Edit.PutBack"}}</button>
+        </p>
+        {{/each}}
+        {{else}}
+        {{#each blocks}}{{> "modules/blank-inheritance/templates/runner/edit-block.hbs"}}{{/each}}
+        {{/if}}
+    </section>
+    {{/each}}
+</div>

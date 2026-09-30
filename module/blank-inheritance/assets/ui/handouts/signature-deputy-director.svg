@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" width="240" height="72">
+  <!-- The Deputy Director's printed facsimile signature, as it appears on
+       every acceptance letter (The Road In's handout). Deliberately
+       unreadable: his name is still a placeholder
+       (open-questions.json#deputy-director-name), and a legible scrawl would
+       decide it. Hand-drawn, not generated; the ink is the paper-ink colour
+       token from bi-tokens.css. (No double hyphens anywhere in an XML
+       comment: browsers reject the whole file.) -->
+  <g fill="none" stroke="#241f16" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 50 C8 30 22 8 36 16 C50 24 40 50 28 54 C18 57 16 46 28 42
+             C38 38 46 30 50 38 C53 45 55 47 58 40 C61 33 64 32 66 40
+             C68 47 72 46 75 38 C78 30 82 30 84 38 C86 46 90 46 94 36
+             C100 20 104 8 110 10 C116 12 110 34 104 46 C100 54 104 54 110 46
+             C116 38 120 36 124 42 C128 48 132 44 136 38 C140 32 146 34 150 40
+             C154 46 160 44 170 36 C180 28 196 30 210 26"/>
+    <path d="M26 64 C70 58 130 60 196 54 C206 53 214 50 220 46" stroke-width="1.7"/>
+  </g>
+  <circle cx="60" cy="24" r="1.7" fill="#241f16"/>
+</svg>

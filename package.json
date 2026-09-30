@@ -6,7 +6,7 @@
   "description": "Blank Inheritance campaign data and Foundry VTT module — test suite. Not a published package.",
   "scripts": {
     "test": "node --test test/",
-    "test:fast": "node --test test/tier0-architecture.test.mjs test/tier1-generators.test.mjs test/tier1-redaction.test.mjs test/tier1-promote.test.mjs test/tier1-writer-audit.test.mjs test/tier1-play-sequence.test.mjs test/tier1-approvals-desk.test.mjs test/tier1-bounce.test.mjs test/tier2-data-corpus.test.mjs test/tier2-authoring-lifecycle.test.mjs test/tier1-signoff.test.mjs test/tier2-signoff-board.test.mjs test/tier1-tile-resilience.test.mjs test/tier3-tile-resilience-contract.test.mjs test/tier1-travel-legs.test.mjs test/tier3-runner-footer-close-contract.test.mjs test/tier3-contract.test.mjs test/tier3-roll-contract.test.mjs test/tier3-theme-contract.test.mjs test/tier3-fonts.test.mjs test/tier4-mocked-adapter.test.mjs test/character-builder/ test/city-map-editor/ test/map-generator/ test/module-sync/",
+    "test:fast": "node --test test/tier0-architecture.test.mjs test/tier1-generators.test.mjs test/tier1-redaction.test.mjs test/tier1-promote.test.mjs test/tier1-writer-audit.test.mjs test/tier1-play-sequence.test.mjs test/tier1-approvals-desk.test.mjs test/tier1-bounce.test.mjs test/tier2-data-corpus.test.mjs test/tier2-authoring-lifecycle.test.mjs test/tier1-signoff.test.mjs test/tier2-signoff-board.test.mjs test/tier1-tile-resilience.test.mjs test/tier3-tile-resilience-contract.test.mjs test/tier1-travel-legs.test.mjs test/tier3-runner-footer-close-contract.test.mjs test/tier3-contract.test.mjs test/tier3-roll-contract.test.mjs test/tier3-theme-contract.test.mjs test/tier3-fonts.test.mjs test/tier1-scene-edits.test.mjs test/tier2-scene-edits-corpus.test.mjs test/tier4-mocked-adapter.test.mjs test/character-builder/ test/city-map-editor/ test/map-generator/ test/module-sync/",
     "test:ui": "node test/support/run-tier-tests.mjs",
     "test:module": "node --test test/tier3-roll-contract.test.mjs test/tier1-generators.test.mjs test/tier1-promote.test.mjs test/tier1-writer-audit.test.mjs test/tier1-play-sequence.test.mjs test/tier1-approvals-desk.test.mjs test/tier1-bounce.test.mjs test/tier2-data-corpus.test.mjs test/tier2-authoring-lifecycle.test.mjs test/tier1-signoff.test.mjs test/tier2-signoff-board.test.mjs test/tier1-tile-resilience.test.mjs test/tier3-tile-resilience-contract.test.mjs test/tier1-travel-legs.test.mjs test/tier3-runner-footer-close-contract.test.mjs test/tier3-contract.test.mjs test/tier4-mocked-adapter.test.mjs",
     "test:battle-sim": "node --test test/battle-simulator/",
@@ -16,7 +16,17 @@
     "test:city-map-editor": "node --test test/city-map-editor/",
     "test:city-map": "python -m unittest discover -s test/city-map -t test/city-map",
     "test:stage-assets": "python -m unittest discover -s test/stage-assets -t test/stage-assets",
-    "test:token-ring": "python -m unittest discover -s test/token-ring -t test/token-ring"
+    "test:token-ring": "python -m unittest discover -s test/token-ring -t test/token-ring",
+    "test:handouts": "python -m unittest discover -s test/handouts -t test/handouts",
+    "test:manga": "python -m unittest discover -s test/manga -t test/manga",
+    "test:location-sync-py": "python -m unittest discover -s test/location-sync -t test/location-sync",
+    "deploy": "node tools/module-sync/deploy.mjs",
+    "deploy:check": "node tools/module-sync/deploy.mjs --dry-run",
+    "edits": "node tools/scene-edits/edits.mjs",
+    "test:scene-edits": "node --test test/tier1-scene-edits.test.mjs test/tier1-scene-edit-sheet.test.mjs test/tier1-foundry-edits.test.mjs test/tier2-scene-edits-corpus.test.mjs test/tier3-scene-edit-sheet-contract.test.mjs test/tier4-scene-edits-adapter.test.mjs test/tier4-kept-journal.test.mjs test/tier4-handouts.test.mjs test/scene-edits/",
+    "haunts": "node tools/haunts/pull.mjs",
+    "locations": "node tools/location-sync/sync.mjs",
+    "test:location-sync": "node --test test/tier1-location-editor.test.mjs test/location-sync/"
   },
   "devDependencies": {
     "ajv": "^8.17.1"

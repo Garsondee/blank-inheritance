@@ -437,7 +437,7 @@ before the drain fight.
   own resolution as a second data point.
 - Three of four `danglingThreads` carry no explicit ownership/timing note beyond prose context (the
   blacked-out charter paragraph has neither a Ledger number nor a stated chapter, unlike the cicada
-  mark). Low urgency, but worth the same one-line discipline once it's touched again. Unaffected by the
+  mark). Low urgency, but worth the same one-line discipline once it's touched again. *(The charter paragraph has since been cut, LEDGER #41.)* Unaffected by the
   flood-tunnel correction above — not re-checked as part of it.
 
 **I. What this needs — corrected 2026-09-19.** The session's only real test of *mechanical* ensemble

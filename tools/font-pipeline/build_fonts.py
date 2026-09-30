@@ -121,6 +121,53 @@ def subset(src: Path, dest: Path, profile: str, ui_kanji: str) -> None:
         raise RuntimeError(f"subset failed for {src.name}:\n{result.stderr[-800:]}")
 
 
+def external_source(family: dict, weight: int, cache: Path, out_path: Path) -> None:
+    """Build a family that is not on Google Fonts, from its manifest `source`.
+
+    Used for TT2020 (OFL 1.1, github.com/ctrlcctrlv/TT2020), the typewriter face
+    paper handouts are typed in. Its point is that every glyph has ten versions
+    and the font's own `calt` cycles through them, so no two letters strike
+    alike; `layoutFeatures` keeps that. A `source.alternate` of n instead
+    re-points each listed letter at its nth version and drops the cycling: that
+    is how a machine's damaged letters are cut from the heavily worn Style F,
+    one fixed variant per family, so the renderer can vary them by choosing a
+    family (module/blank-inheritance/scripts/core/handouts.mjs).
+    """
+    from fontTools.ttLib import TTFont  # the subsetter's own dependency
+
+    source = family["source"]
+    raw = cache / source["url"].rsplit("/", 1)[-1]
+    if not raw.exists():
+        print(f"  -> {source['url']}")
+        raw.write_bytes(fetch(source["url"], ua="Mozilla/5.0"))
+
+    subset_input = raw
+    if "alternate" in source:
+        font = TTFont(str(raw))
+        # Format-0 cmaps hold one-byte glyph ids and cannot point past glyph 255.
+        font["cmap"].tables = [t for t in font["cmap"].tables if t.format != 0]
+        letters = source["letters"]
+        for table in font["cmap"].tables:
+            for letter in letters:
+                if ord(letter) in table.cmap:
+                    table.cmap[ord(letter)] = f"{letter}.{source['alternate']}"
+        subset_input = cache / f"{slug(family['name'])}-{weight}.remapped.ttf"
+        font.save(str(subset_input))
+
+    cmd = [
+        sys.executable, "-m", "fontTools.subset", str(subset_input),
+        f"--output-file={out_path}",
+        "--flavor=woff2",
+        f"--unicodes={source['unicodes']}",
+        f"--layout-features={source.get('layoutFeatures', '')}",
+        "--no-hinting",
+        "--desubroutinize",
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"subset failed for {family['name']}:\n{result.stderr[-800:]}")
+
+
 def build(check_only: bool = False) -> dict:
     manifest = json.loads((HERE / "fonts.json").read_text(encoding="utf-8"))
     ui_kanji = manifest["uiKanji"]
@@ -146,6 +193,9 @@ def build(check_only: bool = False) -> dict:
 
             if out_path.exists():
                 print(f"  .. {out_name} (already built)")
+            elif "source" in family:
+                external_source(family, weight, cache, out_path)
+                print(f"  OK {out_name}  {out_path.stat().st_size:,} bytes")
             else:
                 ttf_cache = cache / f"{slug(name)}-{weight}.ttf"
                 if not ttf_cache.exists():

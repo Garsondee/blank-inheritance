@@ -59,8 +59,9 @@ export class CharacterCard extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const { attitude, revealedIds } = readSocial(actor);
 
-    // The authored side is only ever readable by a GM — authoredProfileFor
-    // returns null on a player's client because the vault is not sent to them.
+    // The authored side is only trusted to a GM's view: a player's client does
+    // hold the vault (verified live 2026-09-29), so buildCard's redaction, not
+    // the vault's absence, is what keeps unrevealed Facts off a player's card.
     const authored = authoredProfileFor(actor.id);
     const profile = { ...(authored ?? {}), attitude };
 

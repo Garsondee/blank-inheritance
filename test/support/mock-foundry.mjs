@@ -85,6 +85,29 @@ function makeDocumentClass(collection, counter, { validateOnCreate, documentName
 function makeMockFilePicker(world) {
   return {
     implementation: {
+      /**
+       * Opt-in (installMockFoundry({ browse: true })): every other test has
+       * always run with no browse at all, which callers see as a listing that
+       * failed (io.mjs#tryListModuleJsonIds returns null), and must keep doing
+       * so. When on, it lists the files directly inside `target`: the module's
+       * own files (moduleFiles, keyed module-relative) plus anything uploaded
+       * into its storage/ during the test -- the same flat shape Foundry's
+       * real FilePicker.browse returns, `{ dirs, files }` of full paths.
+       */
+      async browse(source, target) {
+        if (!world.browseEnabled) throw new Error("FilePicker.browse is not mocked in this test");
+        const prefix = `${String(target).replace(/\/+$/, "")}/`;
+        const files = new Set();
+        for (const relative of Object.keys(world.moduleFiles ?? {})) {
+          const full = `modules/${world.moduleId ?? "blank-inheritance"}/${relative}`;
+          if (full.startsWith(prefix) && !full.slice(prefix.length).includes("/")) files.add(full);
+        }
+        for (const full of world.uploadedFiles.keys()) {
+          const normal = full.replace(/\/{2,}/g, "/");
+          if (normal.startsWith(prefix) && !normal.slice(prefix.length).includes("/")) files.add(normal);
+        }
+        return { target, dirs: [], files: [...files].sort() };
+      },
       async createDirectory(source, dirPath) {
         const segments = dirPath.split("/");
         const parent = segments.slice(0, -1).join("/");
@@ -242,11 +265,13 @@ function makeMockWindow() {
   };
 }
 
-export function installMockFoundry({ moduleFiles = {}, templateJson = null, moduleManifest = null } = {}) {
+export function installMockFoundry({ moduleFiles = {}, templateJson = null, moduleManifest = null, browse = false } = {}) {
   if (!globalThis.crypto) globalThis.crypto = webcrypto;
   if (!globalThis.File) globalThis.File = NodeFile;
 
   const world = {
+    browseEnabled: browse,
+    moduleFiles,
     actors: new Map(),
     scenes: new Map(),
     macros: new Map(),

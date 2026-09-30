@@ -9,7 +9,7 @@
  * document into what the panel actually renders.
  */
 
-import { PROMOTABLE_STATUSES } from "./promote.mjs";
+import { CLEARED_STATUSES } from "./promote.mjs";
 
 /**
  * The 13 real transition types TextureTransitionFilter supports
@@ -86,10 +86,15 @@ export function findSceneAuthoring(episodes, briefRef) {
  * allows too: a hard block would mean Ingram being away for a week stops the
  * GM from ever showing the group anything, the same worse-failure reasoning
  * promote()'s own escape hatch is built on.
+ *
+ * Cleared is core/promote.mjs's CLEARED_STATUSES, the same list the opening
+ * titles' confirm window reads. A scene's only cleared rung is `live`, the
+ * Sign-Off's seal, so a gate that knew only the Desk's grades asked "still
+ * drafted?" about every sealed scene.
  */
 export function cueGateDecision(authoring, { override = false } = {}) {
   if (override) return { allowed: true, status: authoring?.status ?? null, gated: false };
   if (!authoring) return { allowed: true, status: null, gated: false };
-  if (PROMOTABLE_STATUSES.includes(authoring.status)) return { allowed: true, status: authoring.status, gated: false };
+  if (CLEARED_STATUSES.includes(authoring.status)) return { allowed: true, status: authoring.status, gated: false };
   return { allowed: false, status: authoring.status ?? "drafted", gated: true };
 }

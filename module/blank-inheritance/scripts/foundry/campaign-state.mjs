@@ -14,13 +14,15 @@
  *
  *   PRIVATE COMMITMENTS are a GM-only JournalEntry (`ownership.default: NONE`),
  *   because ANY client can read ANY world setting. Putting a private mission in
- *   a setting and not rendering it would be a CSS lie: the string would still
- *   have crossed the socket into every player's browser. Doctrine Law 11 is
- *   removal, not hiding. Same boundary, same reasoning as foundry/social-store.mjs.
+ *   a setting and not rendering it would be a CSS lie: the string would sit in
+ *   the one place every player-facing screen already reads. A GM-only journal
+ *   is read by none of them. Doctrine Law 11 is removal, not hiding. Same
+ *   boundary, same reasoning as foundry/social-store.mjs, and the same limit
+ *   (see the note on the container below): the document is still sent.
  *
  *   A PLAYER'S OWN private commitments reach them over the module socket, sent
- *   individually rather than broadcast, so the only client that receives a
- *   secret is the one entitled to it.
+ *   individually rather than broadcast, so no other client is handed that
+ *   message.
  *
  * Every decision about what any of it MEANS lives in core/commitments.mjs and
  * core/day-ring.mjs. This file only reads, writes, and routes.
@@ -132,10 +134,15 @@ export async function writePublicCommitment({ userId, userName, activityId, mome
 /* ---------------------------------------------------------------- */
 
 /**
- * The GM-only container. `ownership.default: NONE` is the whole security
- * property: Foundry only sends a document to clients with permission on it, so
- * this genuinely never reaches a player's browser. Everything else here
- * depends on that one field being right.
+ * The GM-only container. `ownership.default: NONE` keeps it out of every
+ * player's sidebar and UI; everything else here depends on that one field
+ * being right.
+ *
+ * VERIFIED LIVE 2026-09-29 (design/theatre-of-the-mind-staging.md §12.1): ownership does NOT
+ * stop a document being sent. A Player-role client held every NONE-ownership Actor and
+ * JournalEntry in full, including this kind of vault and other players' private handouts.
+ * So this is a boundary against the UI and against casual inspection, not against a player
+ * who opens the browser's developer tools. Nothing here is cryptographic secrecy.
  */
 export async function ensureDowntimeVault() {
   if (!game.user.isGM) return null;
@@ -178,30 +185,24 @@ export async function writePrivateCommitment({ userId, userName, activityId, not
     : kept;
   await vault.setFlag(MODULE_ID, "private", next);
 
-  // The marker, not the mission. The table learns that this quarter is spoken
-  // for — a shared game fact they can plan around — and learns nothing else.
-  await writeOccupancyMarker({ userId, userName, occupied: Boolean(activityId), moment });
+  // No marker in the shared store: a private commitment leaves no trace for
+  // anyone else (Ingram, 2026-09-28). Clearing any marker an older version
+  // wrote keeps a world that already has one from leaking it.
+  await clearOccupancyMarker({ userId, moment });
   pushPrivateTo(userId, next.filter((c) => c.userId === userId));
   return next;
 }
 
 /**
- * What a private commitment looks like to everyone else: an occupied slot with
- * no payload at all.
- *
- * Constructed field by field rather than derived from the private row, so no
- * field added to a private commitment later can ride along into public state.
- * This is the same discipline as core/commitments.mjs#projectForUser and for
- * the same reason — a spread here would be a silent leak the next time
- * somebody adds `targetNpcId`.
+ * Remove the "this quarter is taken" marker older versions wrote into the
+ * shared store for a private commitment. A private commitment now leaves no
+ * trace there at all (core/commitments.mjs, VISIBILITY).
  */
-async function writeOccupancyMarker({ userId, userName, occupied, moment }) {
+async function clearOccupancyMarker({ userId, moment }) {
   const here = momentKey(moment);
-  const kept = publicCommitments().filter((c) => !(c.userId === userId && c.momentKey === here));
-  const next = occupied
-    ? [...kept, { userId, userName: userName ?? null, momentKey: here, activityId: null, visibility: VISIBILITY.PRIVATE }]
-    : kept;
-  await game.settings.set(MODULE_ID, SETTING_COMMITMENTS, next);
+  const current = publicCommitments();
+  const next = current.filter((c) => !(c.userId === userId && c.momentKey === here && c.visibility === VISIBILITY.PRIVATE));
+  if (next.length !== current.length) await game.settings.set(MODULE_ID, SETTING_COMMITMENTS, next);
   return next;
 }
 
@@ -327,10 +328,10 @@ export async function segmentContext() {
   const offers = await loadOffers();
   const priv = isGM ? await readPrivateCommitments() : myPrivate;
 
-  // The public store already carries an opaque marker for every private
-  // commitment, so a viewer's own private rows have to REPLACE their markers
-  // rather than sit beside them — otherwise a player sees their own secret
-  // mission twice, once named and once as "someone is busy".
+  // An older world's public store may still carry an opaque marker for a
+  // private commitment, so a viewer's own private rows REPLACE any marker of
+  // theirs rather than sit beside it, and core/commitments.mjs#projectForUser
+  // drops everybody else's.
   const mine = new Set(priv.map((c) => `${c.userId}|${c.momentKey}`));
   const commitments = [
     ...publicCommitments().filter((c) => !mine.has(`${c.userId}|${c.momentKey}`)),

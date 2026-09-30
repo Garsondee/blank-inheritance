@@ -6,7 +6,7 @@
    module/blank-inheritance/assets/fonts/ and are referenced relative to
    this stylesheet, so they resolve identically on disk and on the server.
 
-   34 files, 6.9 MB total.
+   38 files, 7.7 MB total.
 
    font-display: swap — a player should read the document in a fallback
    face rather than stare at nothing while 2.8MB of Mincho arrives. */
@@ -248,4 +248,32 @@
   font-weight: 700;
   font-display: swap;
   src: url("../assets/fonts/antonio-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "TT2020";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/tt2020-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "TT2020 Fault 1";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/tt2020-fault-1-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "TT2020 Fault 2";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/tt2020-fault-2-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "TT2020 Fault 3";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/tt2020-fault-3-400.woff2") format("woff2");
 }

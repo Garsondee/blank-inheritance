@@ -376,6 +376,28 @@ test("evaluators: a waiver reports as waived, carrying its reason, and never as 
   assert.equal(summariseChecks([result]).requiredPass, 0, "a waiver is not a pass -- it stays visible as a decision");
 });
 
+test("evaluators: waiving P1 (no location, on purpose) also clears P2/P4/P6, not just P1 -- found live 2026-09-28", () => {
+  // Before this fix, waiving P1 still left P2/P4/P6 failing independently
+  // ("no location to judge"), so a recorded, deliberate exception still read
+  // as three faults instead of zero -- a chosen absence must not cost more
+  // than an accidental one, or nobody will ever record the choice.
+  const noPlace = fixtureScene({
+    setEntry: { locationRef: null },
+    scene: {
+      authoring: {
+        status: "drafted",
+        review: { checklistVersion: 1, passes: {}, waived: [{ check: "P1", why: "a view from the whole sky, not a place anyone stands" }] }
+      }
+    }
+  });
+  const results = runAutoChecks(noPlace, fixtureCorpus(), { only: "place" });
+  assert.equal(results.find((r) => r.id === "P1").state, "waived");
+  for (const id of ["P2", "P4", "P6"]) {
+    assert.equal(results.find((r) => r.id === id).state, "n/a", `${id} should be unanswerable once P1 is waived, not independently failing`);
+  }
+  assert.equal(summariseChecks(results).requiredFail, 0, "a recorded, deliberate no-location costs nothing further");
+});
+
 test("evaluators: refsResolve catches a dangling npcRef", () => {
   const dangling = fixtureScene({ brief: { cast: [{ id: "x", npcRef: "nobody", brief: {} }] } });
   const out = EVALUATORS.refsResolve(dangling, fixtureCorpus());

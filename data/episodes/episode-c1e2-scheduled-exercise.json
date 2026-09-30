@@ -27,7 +27,9 @@
       "briefRef": "episode-c1e2--as-discussed",
       "challengeRefs": [
         "c1e2-as-discussed"
-      ]
+      ],
+      "day": 2,
+      "quarter": "morning"
     },
     {
       "order": 2,
@@ -40,7 +42,9 @@
       "briefRef": "episode-c1e2--the-board",
       "challengeRefs": [
         "c1e2-the-board"
-      ]
+      ],
+      "day": 2,
+      "quarter": "morning"
     },
     {
       "order": 3,
@@ -53,7 +57,9 @@
       "briefRef": "episode-c1e2--school-period-one",
       "challengeRefs": [
         "c1e2-school-period-one"
-      ]
+      ],
+      "day": 2,
+      "quarter": "morning"
     },
     {
       "order": 4,
@@ -66,7 +72,9 @@
       "briefRef": "episode-c1e2--slack-water",
       "challengeRefs": [
         "c1e2-slack-water"
-      ]
+      ],
+      "day": 2,
+      "quarter": "afternoon"
     },
     {
       "order": 5,
@@ -75,11 +83,13 @@
         "status": "drafted"
       },
       "title": "School: Period Two",
-      "description": "Afternoon lessons, attended by six people covered in sea-wall paint. Field medicine, taught by the skeleton who took their blood a fortnight ago, or civics, taught by the one officer in the building whose job is openness, from a charter with a paragraph painted out of it. Same terms as the morning. Both rooms pay off before the end of the episode and neither of them says so.",
+      "description": "Afternoon lessons, attended by six people covered in sea-wall paint. Field medicine, taught by the skeleton who took their blood yesterday, or civics, taught by the one officer in the building whose job is openness, from the founding charter. Same terms as the morning. Both rooms pay off before the end of the episode and neither of them says so.",
       "briefRef": "episode-c1e2--school-period-two",
       "challengeRefs": [
         "c1e2-school-period-two"
-      ]
+      ],
+      "day": 2,
+      "quarter": "afternoon"
     },
     {
       "order": 6,
@@ -92,7 +102,9 @@
       "briefRef": "episode-c1e2--the-long-afternoon",
       "challengeRefs": [
         "c1e2-the-long-afternoon"
-      ]
+      ],
+      "day": 2,
+      "quarter": "afternoon"
     },
     {
       "order": 7,
@@ -105,7 +117,9 @@
       "briefRef": "episode-c1e2--the-override",
       "challengeRefs": [
         "c1e2-the-override"
-      ]
+      ],
+      "day": 2,
+      "quarter": "evening"
     },
     {
       "order": 8,
@@ -118,7 +132,9 @@
       "briefRef": "episode-c1e2--the-night-off",
       "challengeRefs": [
         "c1e2-the-night-off"
-      ]
+      ],
+      "day": 2,
+      "quarter": "night"
     },
     {
       "order": 9,
@@ -131,7 +147,9 @@
       "briefRef": "episode-c1e2--zero-six-hundred",
       "challengeRefs": [
         "c1e2-zero-six-hundred"
-      ]
+      ],
+      "day": 3,
+      "quarter": "morning"
     },
     {
       "order": 10,
@@ -144,7 +162,9 @@
       "briefRef": "episode-c1e2--familiarisation",
       "challengeRefs": [
         "c1e2-familiarisation"
-      ]
+      ],
+      "day": 3,
+      "quarter": "morning"
     },
     {
       "order": 11,
@@ -157,7 +177,9 @@
       "briefRef": "episode-c1e2--the-exercise",
       "challengeRefs": [
         "c1e2-the-exercise"
-      ]
+      ],
+      "day": 3,
+      "quarter": "morning"
     },
     {
       "order": 12,
@@ -170,7 +192,9 @@
       "briefRef": "episode-c1e2--unidentified-contact",
       "challengeRefs": [
         "c1e2-unidentified-contact"
-      ]
+      ],
+      "day": 3,
+      "quarter": "morning"
     },
     {
       "order": 13,
@@ -184,7 +208,9 @@
       "challengeRefs": [
         "c1e2-first-contact"
       ],
-      "encounterRef": "c1e2-first-contact"
+      "encounterRef": "c1e2-first-contact",
+      "day": 3,
+      "quarter": "morning"
     },
     {
       "order": 14,
@@ -197,7 +223,9 @@
       "briefRef": "episode-c1e2--the-hammer",
       "challengeRefs": [
         "c1e2-the-hammer"
-      ]
+      ],
+      "day": 3,
+      "quarter": "evening"
     },
     {
       "order": 15,
@@ -207,7 +235,9 @@
       },
       "title": "The Names Are Still Up",
       "description": "Hangar Two after dark, an hour after the Deputy Director's office, and the only room in two episodes with no adult in it. The chalk board from that morning still has their names on it, one to a machine. The party is alone with three facts and no answers, and somebody has added a second line to the board in a hand none of them recognise.",
-      "briefRef": "episode-c1e2--the-names-are-still-up"
+      "briefRef": "episode-c1e2--the-names-are-still-up",
+      "day": 3,
+      "quarter": "night"
     }
   ],
   "requiredBeats": [
@@ -227,7 +257,7 @@
     "deputy-director-name"
   ],
   "danglingThreads": [
-    "Whose name is on the countersignature, and why a senior officer spent four minutes of an afternoon on Section Nine. (GM-only answer, LEDGER #34, Claude's answer at Ingram's request, awaiting her read: Rand, Shucks's detached right hand. No senior officer was involved.)",
+    "Whose name is on the countersignature, and why a senior officer spent four minutes of an afternoon on Section Nine. (GM-only answer, LEDGER #34, Claude's answer at Ingram's request, accepted in LEDGER #46: Rand, Shucks's detached right hand. No senior officer was involved.)",
     "What Shucks said to the Deputy Director, and why it worked.",
     "Why three contacts appeared on a plotting board without ever having travelled anywhere.",
     "The stencilled cicada on the sea wall, and the same mark somewhere in the city.",

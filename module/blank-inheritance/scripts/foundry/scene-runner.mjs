@@ -63,22 +63,47 @@ import {
 import { decorateInlineTriggers, escapeHtml } from "../core/inline-triggers.mjs";
 import { renderProse } from "../core/emphasis.mjs";
 import { checkLabel, checkSkills, enrichersFor } from "../core/roll-intent.mjs";
-import { deriveFoundryId } from "../core/ids.mjs";
 import { needsTravel } from "../core/travel-trigger.mjs";
 import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
 import { currentEntries, recordLogEntry } from "./session-log.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
-import { removeFromStage, summonToStage } from "./stage.mjs";
+import { readKnownNames, removeFromStage, revealName, summonToStage } from "./stage.mjs";
+import { isNameProtected, knownSet, rawStageId, stageIdFor } from "../core/stage-names.mjs";
 import { runTravelSequence } from "./travel.mjs";
 import { applySoundscape, fireEvent } from "./audio-director.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
 import { openEquipmentPanel } from "./equipment-panel.mjs";
+import { fileHandout, handoutStates } from "./handouts.mjs";
 import { equipmentGrantsForScene } from "./equipment-state.mjs";
 import { loadRulesIndex } from "./rules-index.mjs";
 import { searchRules } from "../core/rules-search.mjs";
 import { registerRunnerThemeSetting, currentRunnerTheme, setRunnerTheme } from "./runner-theme.mjs";
 import { isDiagnosticName } from "../core/diagnostic-content.mjs";
+import { editSheet } from "../core/scene-edit-sheet.mjs";
+import { fieldKey, newItemId, normalizeText, parseFieldKey, resolvePath, sameValue } from "../core/scene-edits.mjs";
+import { loadSceneEdits, overlayScene, resetSceneEditsCache, saveSceneEdit, sceneEditsState } from "./scene-edits.mjs";
+import { currentMoment, setMoment } from "./campaign-state.mjs";
+import { QUARTER_IDS, normalizeMoment, quarterIndex } from "../core/day-ring.mjs";
+import { cityRoster, cityState, hasPawns, onCitySceneClosed, participantsFor, reassignCityPlayer, sendPartyTo } from "./city-state.mjs";
+import { spectrumOf } from "../core/scene-spectrum.mjs";
+import {
+  applyRest,
+  chooseRumourSet,
+  conditionContext,
+  deckContext,
+  dealRumoursFor,
+  drawFor,
+  putBackFor,
+  registerDeckSettings,
+  regularsContext,
+  restContext,
+  rumourContext,
+  shiftRegularFor,
+  toggleSetbackFor,
+  toggleUpgradeFor,
+  witnessFor
+} from "./runner-rest-deck.mjs";
 
 /**
  * A beat's `gmTool.id` (#176) resolves through here, never through a free
@@ -131,6 +156,8 @@ export function registerSceneRunnerSettings() {
   game.settings.register(MODULE_ID, SETTING_EPISODE, { scope: "world", config: false, type: String, default: "" });
   game.settings.register(MODULE_ID, SETTING_BRIEF, { scope: "world", config: false, type: String, default: "" });
   game.settings.register(MODULE_ID, SETTING_RUNS, { scope: "world", config: false, type: Object, default: {} });
+  // Each event deck's drawn and witnessed events (core/event-deck.mjs, D050).
+  registerDeckSettings(() => refreshSceneRunner());
   // Which sections this GM keeps open. CLIENT scope, unlike the run state
   // beside it: how one person likes their script laid out is not a fact about
   // the campaign, and a second GM must not inherit it.
@@ -246,9 +273,14 @@ async function loadJson(dir, id) {
   }
 }
 
-/** Drops every cached file. The seam for re-reading after a content push. */
+/**
+ * Drops every cached file. The seam for re-reading after a content push --
+ * which is also when the scene-edits ledger may have changed (a deploy that
+ * carried merged edits), so her edits are re-listed too.
+ */
 export function resetSceneRunnerCache() {
   cache.clear();
+  resetSceneEditsCache();
 }
 
 /**
@@ -315,7 +347,20 @@ async function loadScene(briefId) {
     (await Promise.all(encounterIds.map(async (id) => [id, await loadJson("encounters", id)]))).filter(([, e]) => e)
   );
 
-  return { brief, episode, subsystem, challenges, encounters };
+  // Ingram's edits, laid over the deployed files (design/scene-edits.md).
+  // Always, not only while editing: running a scene she has rewritten means
+  // running her words, and an old deploy must never put the old ones back.
+  // A beat she added may use a check file the deployed brief never named,
+  // so the check files are gathered again from the overlaid beats.
+  await loadSceneEdits().catch((err) => console.error("Blank Inheritance | Could not load scene edits:", err));
+  let shown = overlayScene({ brief, challenges });
+  const extraIds = [...new Set((shown.brief?.beats ?? []).map((b) => b.challengeRef).filter((id) => id && !(id in challenges)))];
+  if (extraIds.length) {
+    for (const [id, doc] of await Promise.all(extraIds.map(async (id) => [id, await loadJson("challenges", id)]))) if (doc) challenges[id] = doc;
+    shown = overlayScene({ brief, challenges });
+  }
+
+  return { brief: shown.brief, deployedBrief: brief, episode, subsystem, challenges: shown.challenges, encounters, edits: shown };
 }
 
 /** The part of an encounter file worth a line on the beat that starts it. */
@@ -388,6 +433,16 @@ async function markClosed(briefId) {
  */
 async function advanceAfterClose(closedBriefId) {
   if (!closedBriefId || !game.user?.isGM) return;
+  // The City decides first (design/world-map-destinations.md): the next group's
+  // turn after a split, the muster once every group is done, or this scene's own
+  // departure -- a choice on the map instead of the next scene in order. When it
+  // handles the move, the episode's running order below does not run.
+  try {
+    const closedBrief = await loadJson("scene-briefs", closedBriefId);
+    if (await onCitySceneClosed(closedBriefId, closedBrief)) return;
+  } catch (err) {
+    console.error("Blank Inheritance | The City could not take this scene's departure; following the running order instead:", err);
+  }
   const episode = await loadJson("episodes", currentEpisodeId());
   const scenes = (episode?.scenes ?? [])
     .filter((s) => s.briefRef)
@@ -397,18 +452,87 @@ async function advanceAfterClose(closedBriefId) {
   const next = closedIndex >= 0 ? scenes[closedIndex + 1] : null;
   if (!next) return; // last scene in the episode -- nothing authored to advance to
 
+  await advanceMomentTo(next);
+
   const targetSceneId = backdropsFor(next.briefRef)[0]?.id;
   if (!targetSceneId) return; // the next scene has no built Scene document yet
 
   const fromRef = game.scenes.active?.getFlag(MODULE_ID, "locationRef") ?? null;
   const toRef = game.scenes.get(targetSceneId)?.getFlag(MODULE_ID, "locationRef") ?? null;
 
-  if (needsTravel(fromRef, toRef)) {
+  // Once the characters have pawns on The City, a sent departure walks them --
+  // each from wherever they stand -- instead of the old single party marker.
+  if (hasPawns() && toRef) {
+    await sendPartyTo(toRef, targetSceneId);
+  } else if (needsTravel(fromRef, toRef)) {
     await runTravelSequence(fromRef, toRef, targetSceneId);
   } else {
     const { cueScene } = await import("./director-panel.mjs");
     await cueScene(targetSceneId);
   }
+}
+
+/**
+ * The day ring follows the authored story, not only the downtime scheduling game -- design/ux-doctrine.md §7a's own
+ * ruling: "the ring is the fiction's time of day." Ingram, 2026-09-28: closing a scene should move the clock to
+ * match the next one automatically, rather than a GM remembering to click "advance" by hand.
+ *
+ * `next.day`/`next.quarter` come from data/episodes/*.json's own scene entries (written by
+ * `node tools/story/story.mjs quarters` from canon/plan/chapter-NN.md); a scene with neither -- Scene 0's
+ * narration, or one the plan marks flexible/unknown -- never forces the clock, so this is a no-op for it.
+ *
+ * Guarded on an actual change, not left to `setMoment` to no-op silently: `registerCampaignSettings`'s `onChange`
+ * (blank-inheritance.mjs) fires the segment-advance sound cue and refreshes the command bar on every client for
+ * ANY write to this setting, so calling it on the seven-in-eleven Episode One transitions that don't cross a
+ * quarter boundary would mean the ceremony firing on scenes that never asked for it.
+ */
+async function advanceMomentTo(next) {
+  if (!Number.isInteger(next?.day) || !next?.quarter || !game.user?.isGM) return;
+  const before = currentMoment();
+  if (before.day === next.day && before.quarter === next.quarter) return;
+  // Forward only. The clock is now also moved when any scene is cut to (a group's
+  // turn after a split, a muster, a cue from the palette), and a GM stepping back
+  // into an earlier scene must never wind the day backwards.
+  const absolute = (m) => (normalizeMoment(m).day - 1) * QUARTER_IDS.length + quarterIndex(normalizeMoment(m).quarter);
+  if (absolute(next) <= absolute(before)) return;
+  await setMoment({ day: next.day, quarter: next.quarter });
+}
+
+/**
+ * The Party block's content, once a departure has split the party and the
+ * groups are being run: the queue (who is in each group, which one is on now)
+ * and every player's destination, changeable. Null otherwise -- the block is
+ * only there while it has something to say.
+ */
+function partyContext(briefId) {
+  const state = cityState();
+  const departure = state.departure;
+  if (!departure || !state.queue?.length) return null;
+  const labels = new Map(departure.destinations.map((d) => [d.id, d.label]));
+  const roster = cityRoster();
+  const names = new Map(roster.map((m) => [m.userId, m.characterName || m.name]));
+  return {
+    question: departure.question ?? null,
+    queue: state.queue.map((entry) => ({
+      label: entry.destinationIds.map((id) => labels.get(id) ?? id).join(" · "),
+      names: entry.userIds.map((uid) => names.get(uid)).filter(Boolean).join(", "),
+      done: entry.done,
+      isNow: entry.key === state.currentKey,
+      isHere: entry.briefRef === briefId
+    })),
+    players: roster.map((m) => ({
+      userId: m.userId,
+      name: names.get(m.userId),
+      options: departure.destinations.map((d) => ({ id: d.id, label: d.label, selected: state.assignment?.[m.userId] === d.id }))
+    }))
+  };
+}
+
+/** A scene was cut to: move the clock to that scene's own day and quarter, if it has one (forward only). */
+async function advanceMomentToBrief(briefRef) {
+  const episode = await loadJson("episodes", currentEpisodeId());
+  const entry = (episode?.scenes ?? []).find((s) => s.briefRef === briefRef);
+  if (entry) await advanceMomentTo(entry);
 }
 
 /**
@@ -419,8 +543,38 @@ async function advanceAfterClose(closedBriefId) {
  * -- one namespace on the stage means "is this person already up?" is a single
  * lookup wherever they came from.
  */
-function stageIdFor(member) {
-  return String(member?.npcRef ?? member?.id ?? member?.displayName ?? "unknown");
+// stageIdFor lives in core/stage-names.mjs so the stage and this panel cannot
+// disagree: a protected person is filed under an opaque alias, everyone else
+// under their plain id. `rawStageId` is the plain id, for looking up art.
+
+/**
+ * The plain-data description of a brief's cast member that `summonToStage`
+ * takes. One place, so the Cast fold's Stage key and the `npc-enter` trigger
+ * cannot drift apart on what a protected person is summoned with.
+ */
+function summonDescriptorFor(member, sting) {
+  const descriptor = {
+    id: stageIdFor(member),
+    // The real name, GM-side only: the stage publishes `called` in its place
+    // until the table is told (core/stage-names.mjs#tableLabel). It is
+    // core's own displayName, not a second fallback chain: it is what the
+    // panel's heading uses, and a stage that labels someone differently from
+    // the script beside it is worse than either label alone.
+    name: displayName(member),
+    img: member.img ?? stagePortraitFor(rawStageId(member)),
+    isPc: false,
+    // The brief's own authored arrival tier (scene-brief.schema.json's
+    // `arrival`) fires Announced/Splash automatically on the beats that
+    // called for it; castMemberFromDescriptor falls back to "quiet" for
+    // null/undefined, same as a plain summon.
+    sting: sting || undefined
+  };
+  if (isNameProtected(member)) {
+    descriptor.called = member.called;
+    descriptor.nameKey = rawStageId(member);
+    descriptor.nameOnArrival = Boolean(member.nameOnArrival);
+  }
+  return descriptor;
 }
 
 /**
@@ -640,8 +794,21 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       openPalette: SceneRunner.#onOpenPalette,
       toggleTheme: SceneRunner.#onToggleTheme,
       stagePerson: SceneRunner.#onStagePerson,
+      revealName: SceneRunner.#onRevealName,
       closeScene: SceneRunner.#onCloseScene,
       postCheck: SceneRunner.#onPostCheck,
+      // D050: a relaxed scene's event deck, and a rest's healing.
+      drawEvent: SceneRunner.#onDrawEvent,
+      witnessEvent: SceneRunner.#onWitnessEvent,
+      returnEvent: SceneRunner.#onReturnEvent,
+      applyRest: SceneRunner.#onApplyRest,
+      // D051: the rumour mill's sets and deals.
+      rumourSet: SceneRunner.#onRumourSet,
+      dealRumours: SceneRunner.#onDealRumours,
+      shiftRegular: SceneRunner.#onShiftRegular,
+      // D052: a haunt's own upgrades/setbacks, toggled by hand.
+      toggleUpgrade: SceneRunner.#onToggleUpgrade,
+      toggleSetback: SceneRunner.#onToggleSetback,
       postTopicCheck: SceneRunner.#onPostTopicCheck,
       recordTopicOutcome: SceneRunner.#onRecordTopicOutcome,
       revealHandout: SceneRunner.#onRevealHandout,
@@ -661,7 +828,18 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       useRoll: SceneRunner.#onUseRoll,
       focusRules: SceneRunner.#onFocusRules,
       noteTag: SceneRunner.#onNoteTag,
-      nudgeClock: SceneRunner.#onNudgeClock
+      nudgeClock: SceneRunner.#onNudgeClock,
+      // The edit sheet (design/scene-edits.md). Typing is saved by the
+      // fields' own listeners (#bindEditSheet); these are its buttons.
+      toggleEdit: SceneRunner.#onToggleEdit,
+      editAddBeat: SceneRunner.#onEditAddBeat,
+      editRemoveBeat: SceneRunner.#onEditRemoveBeat,
+      editMoveBeat: SceneRunner.#onEditMoveBeat,
+      editUndoRemove: SceneRunner.#onEditUndoRemove,
+      editAddItem: SceneRunner.#onEditAddItem,
+      editRemoveItem: SceneRunner.#onEditRemoveItem,
+      editSaveNote: SceneRunner.#onEditSaveNote,
+      editWithdrawNote: SceneRunner.#onEditWithdrawNote
     }
   };
 
@@ -675,7 +853,16 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = {
     panel: {
       template: `${TEMPLATE_ROOT}/panel.hbs`,
-      templates: [`${TEMPLATE_ROOT}/person.hbs`, `${TEMPLATE_ROOT}/beat.hbs`, `${TEMPLATE_ROOT}/summon-row.hbs`],
+      templates: [
+        `${TEMPLATE_ROOT}/person.hbs`,
+        `${TEMPLATE_ROOT}/beat.hbs`,
+        `${TEMPLATE_ROOT}/summon-row.hbs`,
+        `${TEMPLATE_ROOT}/edit.hbs`,
+        `${TEMPLATE_ROOT}/edit-field.hbs`,
+        `${TEMPLATE_ROOT}/edit-block.hbs`,
+        `${TEMPLATE_ROOT}/edit-list.hbs`,
+        `${TEMPLATE_ROOT}/edit-notes.hbs`
+      ],
       scrollable: [".bi-runner__cols", ".bi-runner__script", ".bi-runner__side", ".bi-runner__people", ".bi-runner__kit"]
     }
   };
@@ -698,6 +885,16 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender?.(context, options);
     fitDeck();
+    // The Party block: move a player to another destination after Go, for a
+    // player who changes their mind or a scene that calls for it (Ingram,
+    // 2026-09-28). One change, no confirm; the pawn steps across on the map.
+    for (const select of this.element.querySelectorAll("[data-bi-reassign]")) {
+      select.addEventListener("change", () => {
+        reassignCityPlayer(select.dataset.userId, select.value)
+          .then(() => this.render())
+          .catch((err) => console.error("Blank Inheritance | Could not move that player:", err));
+      });
+    }
     // The first paint is when the drawer's width first becomes real, so the
     // rail and a staged camera are fitted to it here once, and after that
     // only when the drawer opens, shuts or is dragged (#onToggle, the grip).
@@ -754,6 +951,44 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     grip?.addEventListener("dblclick", () => game.settings.set(MODULE_ID, SETTING_WIDTH, 0).catch(() => {}));
 
     this.#startTimer();
+    if (this.#editing) this.#bindEditSheet();
+  }
+
+  /**
+   * @override
+   * Foundry's own re-render already keeps the focus on a field it can find by
+   * name, and the scroll position. It does not keep what was TYPED into that
+   * field and not yet saved, nor where the caret was: a roll arriving or the
+   * stage changing re-renders this panel at any moment, and without this her
+   * half-written sentence would snap back to the saved one under her fingers.
+   */
+  _preSyncPartState(partId, newElement, priorElement, state) {
+    super._preSyncPartState(partId, newElement, priorElement, state);
+    const typing = priorElement.querySelector(".bi-edit textarea:focus, .bi-edit input:focus");
+    if (typing?.name) {
+      state.biTyping = { name: typing.name, value: typing.value, start: typing.selectionStart ?? null, end: typing.selectionEnd ?? null };
+    }
+  }
+
+  /** @override — the other half of _preSyncPartState: put her words and her caret back. */
+  _syncPartState(partId, newElement, priorElement, state) {
+    super._syncPartState(partId, newElement, priorElement, state);
+    const typing = state.biTyping;
+    if (!typing) return;
+    const field = [...newElement.querySelectorAll(".bi-edit textarea, .bi-edit input")].find((el) => el.name === typing.name);
+    if (!field || field.type === "checkbox") return;
+    if (field.value !== typing.value) {
+      field.value = typing.value;
+      field.closest(".bi-edit__field")?.classList.add("bi-edit__field--draft");
+    }
+    field.focus();
+    if (typing.start !== null && typeof field.setSelectionRange === "function") {
+      try {
+        field.setSelectionRange(typing.start, typing.end ?? typing.start);
+      } catch {
+        /* a number box has no caret to put back */
+      }
+    }
   }
 
   /** @override — the running clock must not outlive the panel it writes into. */
@@ -857,6 +1092,252 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   #rulesResults = [];
 
   /**
+   * Whether the script is showing the edit sheet (design/scene-edits.md).
+   * Instance memory: a reload comes back to running the scene, the safe
+   * default for a panel used mostly at the table. Nothing typed is lost by
+   * that -- every box saves itself when she leaves it.
+   */
+  #editing = false;
+
+  /** What went wrong with her last save, said at the top of the sheet until a save works. */
+  #editError = null;
+
+  /** Saves reach the server one at a time, in the order she made them. */
+  #saveChain = Promise.resolve(true);
+
+  /** A field to put the caret in after the next render: the line of a beat just added. */
+  #focusAfterRender = null;
+
+  /**
+   * Everything the edit sheet draws: core/scene-edit-sheet.mjs's model for
+   * this scene as the Runner shows it, plus what the sheet must say about
+   * saving and about edits it could not place.
+   */
+  #editContext(loaded, state) {
+    const npcNames = Object.fromEntries((state.cast ?? []).map((member) => [member.id, member.displayName ?? displayName(member)]));
+    const sheet = editSheet({
+      brief: loaded.brief,
+      challenges: loaded.challenges,
+      marks: loaded.edits?.marks ?? {},
+      notes: loaded.edits?.notes ?? [],
+      removed: loaded.edits?.removed ?? [],
+      npcNames
+    });
+    if (!sheet) return null;
+    return { ...sheet, error: this.#editError, listError: Boolean(sceneEditsState().listError), problems: loaded.edits?.problems ?? [] };
+  }
+
+  /** The document a field key names, as the Runner shows it now (her edits included). */
+  #docFor(file) {
+    const scene = this._scene;
+    if (!scene?.brief) return null;
+    if (file === `scene-briefs/${scene.brief.id}`) return scene.brief;
+    if (file.startsWith("challenges/")) return scene.challenges?.[file.slice("challenges/".length)] ?? null;
+    return null;
+  }
+
+  /**
+   * Save one edit to the server, then show the scene with it. Queued behind
+   * any save still in flight, so records carry the order she made them in.
+   * `makeSpec` is a function building the record's spec from the scene as it
+   * stands when its turn comes (or null: nothing to save). Resolves true when
+   * the server has it, null when there was nothing to save; on failure, says
+   * so at the top of the sheet and resolves false -- the words stay in their
+   * box either way.
+   */
+  #saveEdit(makeSpec, field = null) {
+    const briefId = currentBriefId();
+    const run = async () => {
+      // The spec is built HERE, once every earlier save has landed and the
+      // scene has been reloaded with it -- so `before` is what she now sees,
+      // her own previous edit included. Built at the moment she left the box,
+      // a quick second edit to the same line (or a reworded beat removed at
+      // once) would record her own words as a clash with themselves.
+      const spec = typeof makeSpec === "function" ? makeSpec() : makeSpec;
+      if (!spec) return null;
+      this.#showSaving(true);
+      try {
+        await saveSceneEdit({ ...spec, briefId });
+        this.#editError = null;
+        forgetDraft(field?.dataset?.editKey);
+        this._scene = await loadScene(briefId);
+        return true;
+      } catch (err) {
+        console.error("Blank Inheritance | Could not save that edit to the server:", err);
+        this.#editError = game.i18n.format("BLANKINHERITANCE.Runner.Edit.SaveFailed", { reason: err?.message ?? String(err) });
+        field?.closest(".bi-edit__field")?.classList.add("bi-edit__field--failed");
+        this.render({});
+        return false;
+      } finally {
+        this.#showSaving(false);
+      }
+    };
+    this.#saveChain = this.#saveChain.then(run, run);
+    return this.#saveChain;
+  }
+
+  /** The small "Saving…" at the top of the sheet, shown while a save is in flight. */
+  #showSaving(on) {
+    const flag = this.element?.querySelector("[data-edit-saving]");
+    if (flag) flag.hidden = !on;
+  }
+
+  /**
+   * One field's box has lost focus (or a checkbox or list changed): save it if
+   * it now says something the scene does not. `before` is what the Runner
+   * showed -- her own last edit included -- so a second edit to the same line
+   * chains onto the first rather than clashing with it.
+   */
+  async #commitField(input) {
+    if (input.dataset.cancelled) {
+      delete input.dataset.cancelled;
+      forgetDraft(input.dataset.editKey);
+      return;
+    }
+    let target;
+    try {
+      target = parseFieldKey(input.dataset.editKey);
+    } catch {
+      return;
+    }
+    // What she wrote is read now, from the box; what she saw is read when the
+    // save's turn comes (#saveEdit).
+    const kind = input.dataset.editKind;
+    let after;
+    if (kind === "flag") after = input.checked;
+    else if (kind === "choice") after = input.value;
+    else if (kind === "number") {
+      // A DC is always a number in the check files' schema, so an emptied box
+      // is refused rather than saved as nothing.
+      const text = input.value.trim();
+      if (text === "" || !Number.isFinite(Number(text))) {
+        this.#editError = game.i18n.localize("BLANKINHERITANCE.Runner.Edit.BadNumber");
+        this.render({});
+        return;
+      }
+      after = Math.round(Number(text));
+    } else after = normalizeText(input.value);
+
+    let gone = null;
+    const saved = await this.#saveEdit(() => {
+      const doc = this.#docFor(target.file);
+      if (!doc) return null;
+      const found = resolvePath(doc, target.path);
+      if (!found.ok) {
+        gone = found.reason;
+        return null;
+      }
+      const before = found.value ?? null;
+      return sameValue(before, after) ? null : { op: "set", file: target.file, path: target.path, before, after };
+    }, input);
+    if (gone) {
+      this.#editError = game.i18n.format("BLANKINHERITANCE.Runner.Edit.Gone", { reason: gone });
+      this.render({});
+      return;
+    }
+    if (saved === null) {
+      forgetDraft(input.dataset.editKey);
+      input.closest(".bi-edit__field")?.classList.remove("bi-edit__field--draft");
+      return;
+    }
+    if (!saved) return;
+    // Marked in place rather than re-rendered: a re-render here would take
+    // the box she has just clicked into away from her mid-thought.
+    const wrap = input.closest(".bi-edit__field");
+    wrap?.classList.remove("bi-edit__field--draft", "bi-edit__field--failed");
+    wrap?.classList.add("bi-edit__field--pending");
+    const count = this.element?.querySelector("[data-edit-count]");
+    const pending = this._scene?.edits?.pendingCount ?? 0;
+    if (count && pending) {
+      count.textContent = game.i18n.format("BLANKINHERITANCE.Runner.Edit.PendingCount", { n: pending });
+      count.classList.remove("bi-edit__badge--done");
+      count.classList.add("bi-edit__badge--pending");
+    }
+  }
+
+  /**
+   * Listeners the edit sheet's boxes need beyond ApplicationV2's click
+   * actions: grow as she types, keep a draft in case the page goes away,
+   * Esc to put a box back, Ctrl+Enter to save it, and saving when a box is
+   * left (a checkbox or a list the moment it changes).
+   */
+  #bindEditSheet() {
+    const sheet = this.element.querySelector(".bi-edit");
+    if (!sheet) return;
+    const briefId = currentBriefId();
+    const draft = readDraft(briefId);
+
+    for (const input of sheet.querySelectorAll("[data-edit-key]")) {
+      const kind = input.dataset.editKind;
+      if (input.tagName === "TEXTAREA") {
+        if (draft?.key === input.dataset.editKey && draft.value !== input.value && document.activeElement !== input) {
+          input.value = draft.value;
+          input.closest(".bi-edit__field")?.classList.add("bi-edit__field--draft");
+        }
+        growToFit(input);
+        input.addEventListener("input", () => {
+          growToFit(input);
+          rememberDraft(briefId, input);
+          input.closest(".bi-edit__field")?.classList.add("bi-edit__field--draft");
+        });
+      }
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          const target = (() => {
+            try {
+              return parseFieldKey(input.dataset.editKey);
+            } catch {
+              return null;
+            }
+          })();
+          const doc = target ? this.#docFor(target.file) : null;
+          const found = doc ? resolvePath(doc, target.path) : null;
+          if (found?.ok && kind !== "flag") input.value = found.value ?? "";
+          input.dataset.cancelled = "1";
+          input.closest(".bi-edit__field")?.classList.remove("bi-edit__field--draft");
+          if (input.tagName === "TEXTAREA") growToFit(input);
+          input.blur();
+        } else if (event.key === "Enter" && (event.ctrlKey || event.metaKey || kind === "line" || kind === "number")) {
+          // A line is one line: Enter finishes it. Longer text takes Ctrl+Enter.
+          event.preventDefault();
+          input.blur();
+        }
+      });
+      if (kind === "flag" || kind === "choice") input.addEventListener("change", () => this.#commitField(input));
+      else input.addEventListener("blur", () => this.#commitField(input));
+    }
+
+    // The boxes that add a line or send a note: Ctrl+Enter presses their key.
+    for (const box of sheet.querySelectorAll(".bi-edit__add-input, .bi-edit__note-input")) {
+      growToFit(box);
+      box.addEventListener("input", () => growToFit(box));
+      box.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.stopPropagation();
+          box.value = "";
+          growToFit(box);
+          box.blur();
+        } else if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+          event.preventDefault();
+          box.parentElement?.querySelector("button[data-action]")?.click();
+        }
+      });
+    }
+
+    if (this.#focusAfterRender) {
+      const wanted = this.#focusAfterRender;
+      this.#focusAfterRender = null;
+      const field = [...sheet.querySelectorAll("[data-edit-key]")].find((el) => el.dataset.editKey === wanted);
+      if (field) {
+        field.scrollIntoView({ block: "center" });
+        field.focus();
+      }
+    }
+  }
+
+  /**
    * How this GM has the CURRENT scene laid out: which beat they said they are
    * on, which rows and people they opened or shut by hand, and whether they
    * overrode the opening/ending sections' own phase. Instance memory rather
@@ -930,7 +1411,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
         carryForward: [],
         spends: [],
         backdrops: [],
-        sections
+        sections,
+        editing: false,
+        editPending: 0,
+        edit: null
       };
     }
 
@@ -942,6 +1426,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     // scene without a Kit-Issue-shaped equipment moment gets an empty array
     // back and renders nothing extra, no per-scene special-casing needed.
     const equipmentGrants = state.outro ? await equipmentGrantsForScene(canvas?.scene?.name ?? null) : [];
+    // Whose real names the table has been told, for the Name key on each person.
+    const namesTold = knownSet(await readKnownNames());
 
     // Where the GM is: the beat they are on, which rows are open, and which
     // part of the scene (opening / running / ending) the table is in.
@@ -961,7 +1447,17 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     if (view.focusId && view.focusId !== nowId) view.focusId = null;
     const phase = runnerPhase(state.progress, runState);
     const rolls = resultsByKey(tableRollResults(briefId));
-    const beats = state.beats.map((beat) => this.#withView(this.#decorateBeat(beat, brief, challenges, entries), { nowId, view, sections, runState, rolls }));
+    const decorated = state.beats.map((beat) => this.#withView(this.#decorateBeat(beat, brief, challenges, entries), { nowId, view, sections, runState, rolls }));
+    // The City (design/world-map-destinations.md §7): who went where on the way
+    // into this scene. A beat tagged for destinations shows the players who are
+    // there; a beat for a destination nobody chose is not shown at all.
+    const whoWent = participantsFor(briefId);
+    const beats = Object.keys(whoWent).length
+      ? decorated
+          .filter((beat) => !beat.forDestination?.length || beat.forDestination.some((id) => whoWent[id]?.length))
+          .map((beat) => (beat.forDestination?.length ? { ...beat, forNamesText: [...new Set(beat.forDestination.flatMap((id) => whoWent[id] ?? []))].join(", ") } : beat))
+      : decorated;
+    const cityParty = partyContext(briefId);
     const nowBeat = beats.find((beat) => beat.isNow) ?? null;
     const startedAt = sceneStartedAt(runState);
 
@@ -975,6 +1471,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       ? { sceneName: activeScene.name, targetId: backdrops[0].id }
       : null;
     const position = steps.findIndex((step) => step.isCurrent);
+    // Whether each handout is already in the players' Papers, read off the
+    // journal itself (foundry/handouts.mjs), so the button can say "show
+    // again" rather than implying it has never been handed over.
+    const filed = await handoutStates(state.handouts);
 
     return {
       ...state,
@@ -1010,6 +1510,15 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // not silently be shadowed by it.
       episodeTitle: episode?.title ?? null,
       beats,
+      party: cityParty,
+      // Where this scene sits between story and downtime: the banner (D050).
+      spectrum: spectrumOf(brief),
+      deck: deckContext(brief, currentEpisodeId()),
+      rest: restContext(brief),
+      rumours: rumourContext(brief, currentEpisodeId()),
+      haunt: brief.haunt ?? null,
+      regulars: regularsContext(brief),
+      condition: conditionContext(brief),
       // A scene's own opening narration is often the first place an NPC is
       // glimpsed (design/scene-triggers-and-depth.md §2 extended to intro/
       // outro after finding Shucks's own intro needed exactly this) -- same
@@ -1061,15 +1570,30 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           onStage: stagedPortraitIds().has(portraitId),
           inBeat,
           isOpen: view.people[member.id] ?? inBeat,
-          portrait: member.img ?? stagePortraitFor(stageIdFor(member)) ?? null,
+          portrait: member.img ?? stagePortraitFor(rawStageId(member)) ?? null,
+          // The Name key: only someone whose cast entry carries a `called`
+          // line has a name to hold back, and the key reads "named" once told.
+          nameProtected: isNameProtected(member),
+          nameKnown: isNameProtected(member) ? namesTold.has(rawStageId(member)) : true,
           initial: String(member.displayName ?? "?").trim().charAt(0).toUpperCase() || "?"
         };
       }),
       onStageNow: onStageNow(),
+      handouts: state.handouts.map((handout) => {
+        const status = filed[handout.id] ?? { filed: false, table: false, userIds: [] };
+        return { ...handout, filed: status.filed, filedToTable: status.table, filedCount: status.userIds.length };
+      }),
       scenes,
       steps,
       summon,
-      open: this.#open
+      open: this.#open,
+      // The edit sheet (design/scene-edits.md): whether it is showing, how
+      // many of her edits have not reached the repo yet (on the Edit key
+      // either way), and the sheet itself.
+      ...(() => {
+        const edit = this.#editing ? this.#editContext(loaded, state) : null;
+        return { editing: Boolean(edit), editPending: loaded.edits?.pendingCount ?? 0, edit };
+      })()
     };
   }
 
@@ -1624,13 +2148,25 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
         // The exact call #onStagePerson already makes by hand, just fired
         // from inline prose instead of a Cast-fold click -- see its own
         // comments above for why each field is shaped the way it is.
-        await summonToStage(scene, {
-          id: stageIdFor(member),
-          name: displayName(member),
-          img: member.img ?? stagePortraitFor(stageIdFor(member)),
-          isPc: false,
-          sting: trigger.arrival || member.arrival || undefined
-        });
+        await summonToStage(scene, summonDescriptorFor(member, trigger.arrival || member.arrival));
+        await logFired();
+        this.render({});
+        return;
+      }
+      case "reveal-name": {
+        // The table is told someone's real name, from the exact line where
+        // they give it. Shift is not available on an inline chip, so an
+        // authored `announce` is what asks for the banner.
+        const member = castFor(brief, trigger.npcRef);
+        if (!member) {
+          console.error(`Blank Inheritance | Trigger "${triggerId}" names npcRef "${trigger.npcRef}", which isn't in this brief's cast.`);
+          return;
+        }
+        if (!isNameProtected(member)) {
+          ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.NameNotHidden", { name: displayName(member) }));
+          return;
+        }
+        await revealName(rawStageId(member), { announce: Boolean(trigger.announce) });
         await logFired();
         this.render({});
         return;
@@ -1779,22 +2315,25 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!scene) return ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.Runner.NoSceneToStage"));
     const member = (this._scene?.brief?.cast ?? []).find((m) => portraitIdFor(m) === target.dataset.portraitId);
     if (!member) return;
-    await summonToStage(scene, {
-      id: stageIdFor(member),
-      // core's own displayName, not a second fallback chain: it is what the
-      // panel's heading uses, and a stage that labels someone differently from
-      // the script beside it is worse than either label alone. It also keeps
-      // the naming-placeholder rule (an unnamed NPC shows their role).
-      name: displayName(member),
-      img: member.img ?? stagePortraitFor(stageIdFor(member)),
-      isPc: false,
-      // The brief's own authored arrival tier (scene-brief.schema.json's
-      // `arrival`) fires Announced/Splash automatically on the beats that
-      // called for it, rather than depending on the Director remembering to
-      // click it live — castMemberFromDescriptor falls back to "quiet" for
-      // null/undefined, same as a plain summon.
-      sting: member.arrival || undefined
-    });
+    await summonToStage(scene, summonDescriptorFor(member, member.arrival));
+    this.render({});
+  }
+
+  /**
+   * Tell the table one person's real name. One press, known for the rest of
+   * the campaign wherever they appear (foundry/stage.mjs#revealName). Shift
+   * also drops the banner, the same modifier a reveal uses.
+   */
+  static async #onRevealName(event, target) {
+    const member = (this._scene?.brief?.cast ?? []).find((m) => m.id === target.dataset.castId);
+    if (!member || !isNameProtected(member)) return;
+    await revealName(rawStageId(member), { announce: Boolean(event?.shiftKey) });
+    await recordLogEntry({
+      text: game.i18n.format("BLANKINHERITANCE.Runner.NameToldLog", { called: member.called, name: displayName(member) }),
+      nowIso: new Date().toISOString(),
+      scene: canvas?.scene?.name ?? null,
+      subject: `name:${rawStageId(member)}`
+    }).catch((err) => console.error("Blank Inheritance | Could not log that name being told:", err));
     this.render({});
   }
 
@@ -1972,6 +2511,86 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * one real inline check per skill, joined by "or", so whichever character
    * actually has Society rolls Society.
    */
+  /** Draw one event from this scene's deck (core/event-deck.mjs). */
+  static async #onDrawEvent() {
+    const brief = this._scene?.brief;
+    if (!brief) return;
+    const drawn = await drawFor(brief, currentEpisodeId());
+    if (!drawn) ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.Runner.Deck.Empty"));
+    this.render();
+  }
+
+  /** The table saw it: it never comes up again. */
+  static async #onWitnessEvent(event, target) {
+    const brief = this._scene?.brief;
+    if (!brief || !target.dataset.eventId) return;
+    await witnessFor(brief, target.dataset.eventId);
+    this.render();
+  }
+
+  /** Nobody saw it: back into the deck for another time. */
+  static async #onReturnEvent(event, target) {
+    const brief = this._scene?.brief;
+    if (!brief || !target.dataset.eventId) return;
+    await putBackFor(brief, target.dataset.eventId);
+    this.render();
+  }
+
+  /**
+   * Move a regular's attitude a step (D051): the ▲▼ beside each regular, or a
+   * drawn event's own button, which carries its reason (the event's title).
+   */
+  static async #onShiftRegular(event, target) {
+    const brief = this._scene?.brief;
+    const change = Number(target.dataset.change);
+    if (!brief || !target.dataset.regular || !Number.isInteger(change)) return;
+    const why = target.dataset.eventId ? (brief.events ?? []).find((e) => e.id === target.dataset.eventId)?.title ?? null : game.i18n.localize("BLANKINHERITANCE.Runner.Regulars.ByHand");
+    await shiftRegularFor(brief, target.dataset.regular, change, why);
+    this.render();
+  }
+
+  /** Unlock (or re-lock) a haunt's upgrade by hand (D052). */
+  static async #onToggleUpgrade(event, target) {
+    const brief = this._scene?.brief;
+    if (!brief || !target.dataset.upgradeId) return;
+    await toggleUpgradeFor(brief, target.dataset.upgradeId);
+    this.render();
+  }
+
+  /** Trigger (or clear) a haunt's setback by hand (D052). */
+  static async #onToggleSetback(event, target) {
+    const brief = this._scene?.brief;
+    if (!brief || !target.dataset.setbackId) return;
+    await toggleSetbackFor(brief, target.dataset.setbackId);
+    this.render();
+  }
+
+  /** Switch the rumour mill to another of this episode's sets. */
+  static async #onRumourSet(event, target) {
+    const brief = this._scene?.brief;
+    if (!brief || !target.dataset.setId) return;
+    await chooseRumourSet(brief, target.dataset.setId);
+    this.render();
+  }
+
+  /** Deal one player's three rumours for the degree they rolled (core/rumours.mjs). */
+  static async #onDealRumours(event, target) {
+    const brief = this._scene?.brief;
+    if (!brief || !target.dataset.degree) return;
+    await dealRumoursFor(brief, target.dataset.degree, currentEpisodeId());
+    this.render();
+  }
+
+  /** Heal everyone this rest covers, by its fraction of their maximum HP (core/rest.mjs). */
+  static async #onApplyRest() {
+    const brief = this._scene?.brief;
+    if (!brief) return;
+    const results = await applyRest(brief);
+    const text = results.map((r) => `${r.name} ${r.from}→${r.to}`).join(", ");
+    ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.Rest.Applied", { who: text || "—" }));
+    this.render();
+  }
+
   static async #onPostCheck(event, target) {
     const beat = this.#beat(target.dataset.beatId);
     const check = beat ? checkFor(beat, this._scene?.challenges ?? {}) : null;
@@ -2063,12 +2682,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   /**
    * Hand something over for keeps.
    *
-   * Different in kind from revealing a handout, and the difference is the whole
-   * point. A handout is SHOWN — Foundry opens it with temporary ownership that
-   * reverts the moment the player closes the window. An artefact is GIVEN: its
-   * ownership is written to the database, it appears in their own journal
-   * directory, and it is still there in Chapter 7 when somebody re-reads it and
-   * notices the thing they walked past in Chapter 1.
+   * Since 2026-09-26 this is the same act as revealing a handout: both file
+   * the document in the players' Papers and open it on their screens
+   * (foundry/handouts.mjs). What an artefact adds is the record that the
+   * party HOLDS it -- the "Held by the party" state and the run log -- and its
+   * own confirm, which says it is permanent in so many words.
    *
    * One-way on purpose. There is no ungrant here and there is none in
    * core/scene-brief.mjs either — un-showing something six people have already
@@ -2088,39 +2706,29 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     }).catch(() => false);
     if (!confirmed) return;
 
-    try {
-      const page = await ensureHandoutPage(artefact);
-      if (!page) return;
+    const handed = await fileHandout(artefact, { audience: "table", confirm: false });
+    if (!handed) return;
 
-      // The permanent half: written to the database rather than granted for the
-      // life of one window. OBSERVER, not OWNER -- they can read it and cannot
-      // edit it, which is the right grade for a document somebody else wrote.
-      await page.parent.update({ "ownership.default": CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER });
-
-      // And show it once, immediately, so the moment of getting it is a moment
-      // rather than something they find later in a directory.
-      await foundry.documents.collections.Journal.show(page, { force: true, users: [] });
-
-      const state = runStateFor(briefId);
-      if (!state.granted.includes(artefactId)) {
-        await writeRunState(briefId, { ...state, granted: [...state.granted, artefactId] });
-      }
-      ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.Granted", { title: artefact.title }));
-      this.render({});
-    } catch (err) {
-      console.error("Blank Inheritance | Could not hand over that artefact:", err);
-      ui.notifications.error(String(err?.message ?? err));
+    const state = runStateFor(briefId);
+    if (!state.granted.includes(artefactId)) {
+      await writeRunState(briefId, { ...state, granted: [...state.granted, artefactId] });
     }
+    ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.Granted", { title: artefact.title }));
+    this.render({});
   }
 
-  static #onRevealHandout(event, target) {
-    return revealHandout(target.dataset.handoutId, this._scene, null);
+  static async #onRevealHandout(event, target) {
+    const revealed = await revealHandout(target.dataset.handoutId, this._scene, null);
+    if (revealed) this.render({});
+    return revealed;
   }
 
   static async #onRevealHandoutSolo(event, target) {
     const user = await pickOnePlayer();
-    if (!user) return;
-    return revealHandout(target.dataset.handoutId, this._scene, [user]);
+    if (!user) return false;
+    const revealed = await revealHandout(target.dataset.handoutId, this._scene, [user]);
+    if (revealed) this.render({});
+    return revealed;
   }
 
   #beat(beatId) {
@@ -2144,6 +2752,198 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     // against — the deck, the rail, a staged scene's camera.
     Promise.resolve(this.render({})).then(() => relayoutAroundRunner());
   }
+
+  /* --- the edit sheet (design/scene-edits.md) ------------------- */
+
+  static async #onToggleEdit() {
+    this.#editing = !this.#editing;
+    this.#editError = null;
+    // Re-listed from the server each time the sheet opens, so an edit made in
+    // another tab, or a deploy that has merged some, shows as it is now.
+    if (this.#editing) await loadSceneEdits({ refresh: true }).catch(() => {});
+    this.render({});
+  }
+
+  // Every button below hands #saveEdit a FUNCTION, not a finished spec: the
+  // beats, lists and items it describes are read when the save's turn comes,
+  // after any save still in flight has landed (see #saveEdit).
+
+  /** A new beat, empty, where she pressed; the caret goes straight into its line. */
+  static async #onEditAddBeat(event, target) {
+    const afterId = target.dataset.afterId || null;
+    let file = null;
+    let id = null;
+    const saved = await this.#saveEdit(() => {
+      const brief = this._scene?.brief;
+      if (!brief) return null;
+      file = `scene-briefs/${brief.id}`;
+      id = newItemId("beat", (brief.beats ?? []).map((b) => b.id), foundry.utils.randomID(5));
+      return { op: "insert", file, path: ["beats"], afterId, item: { id, kind: "action", text: "", mandatory: false, delivery: "table" } };
+    });
+    if (!saved) return;
+    this.#focusAfterRender = fieldKey(file, ["beats", { id }, "text"]);
+    this.render({});
+  }
+
+  /** A beat out of the scene. The record keeps all of it, so "Put it back" restores it where it stood. */
+  static async #onEditRemoveBeat(event, target) {
+    const beatId = target.dataset.beatId;
+    const saved = await this.#saveEdit(() => {
+      const brief = this._scene?.brief;
+      const beats = brief?.beats ?? [];
+      const index = beats.findIndex((b) => b.id === beatId);
+      if (index < 0) return null;
+      return { op: "remove", file: `scene-briefs/${brief.id}`, path: ["beats"], itemId: beatId, item: beats[index], afterId: index > 0 ? beats[index - 1].id : null };
+    });
+    if (saved) this.render({});
+  }
+
+  static async #onEditMoveBeat(event, target) {
+    const { beatId, afterId } = target.dataset;
+    const saved = await this.#saveEdit(() => {
+      const brief = this._scene?.brief;
+      return brief ? { op: "move", file: `scene-briefs/${brief.id}`, path: ["beats"], itemId: beatId, afterId: afterId || null } : null;
+    });
+    if (saved) this.render({});
+  }
+
+  static async #onEditUndoRemove(event, target) {
+    const recordId = target.dataset.recordId;
+    const saved = await this.#saveEdit(() => {
+      const removal = (this._scene?.edits?.removed ?? []).find((r) => r.recordId === recordId);
+      return removal ? { op: "insert", file: removal.file, path: removal.path, afterId: removal.afterId ?? null, item: removal.item } : null;
+    });
+    if (saved) this.render({});
+  }
+
+  /** A line added to a list: plain text, or an item with an id of its own. */
+  static async #onEditAddItem(event, target) {
+    const box = target.parentElement?.querySelector("textarea");
+    const text = normalizeText(box?.value ?? "");
+    if (!text) {
+      box?.focus();
+      return;
+    }
+    let where;
+    try {
+      where = parseFieldKey(target.dataset.listKey);
+    } catch {
+      return;
+    }
+    const { plain, idPrefix, textKey } = target.dataset;
+    const saved = await this.#saveEdit(() => {
+      const doc = this.#docFor(where.file);
+      if (!doc) return null;
+      const found = resolvePath(doc, where.path);
+      const list = found.ok && Array.isArray(found.value) ? found.value : [];
+      if (plain === "true") return { op: "insert", file: where.file, path: where.path, atIndex: list.length, item: text };
+      return {
+        op: "insert",
+        file: where.file,
+        path: where.path,
+        afterId: list.at(-1)?.id ?? null,
+        item: { id: newItemId(idPrefix || "item", list.map((i) => i?.id), foundry.utils.randomID(5)), [textKey || "text"]: text }
+      };
+    });
+    if (!saved) return;
+    if (box) box.value = "";
+    this.render({});
+  }
+
+  static async #onEditRemoveItem(event, target) {
+    let where;
+    try {
+      where = parseFieldKey(target.dataset.listKey);
+    } catch {
+      return;
+    }
+    const { itemId, index: indexText } = target.dataset;
+    const saved = await this.#saveEdit(() => {
+      const doc = this.#docFor(where.file);
+      const found = doc ? resolvePath(doc, where.path) : null;
+      const list = found?.ok && Array.isArray(found.value) ? found.value : [];
+      if (itemId) {
+        const item = list.find((i) => i?.id === itemId);
+        return item ? { op: "remove", file: where.file, path: where.path, itemId, item } : null;
+      }
+      const index = Number(indexText);
+      if (!Number.isInteger(index) || index < 0 || index >= list.length) return null;
+      return { op: "remove", file: where.file, path: where.path, atIndex: index, item: list[index] };
+    });
+    if (saved) this.render({});
+  }
+
+  /** A note for Claude, pinned where she wrote it. */
+  static async #onEditSaveNote(event, target) {
+    const box = target.parentElement?.querySelector("textarea");
+    const text = normalizeText(box?.value ?? "");
+    if (!text) {
+      box?.focus();
+      return;
+    }
+    let where;
+    try {
+      where = parseFieldKey(target.dataset.noteAnchor);
+    } catch {
+      return;
+    }
+    const saved = await this.#saveEdit({ op: "note", file: where.file, path: where.path, text });
+    if (!saved) return;
+    if (box) box.value = "";
+    this.render({});
+  }
+
+  static async #onEditWithdrawNote(event, target) {
+    const note = (this._scene?.edits?.notes ?? []).find((n) => n.id === target.dataset.noteId);
+    if (!note) return;
+    const saved = await this.#saveEdit({ op: "withdraw", file: note.file, path: note.path ?? [], noteId: note.id });
+    if (saved) this.render({});
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/*  Edit-sheet helpers                                               */
+/* ---------------------------------------------------------------- */
+
+/**
+ * The words in the box being typed in, kept in this browser until the box is
+ * saved -- so a page that goes away mid-sentence (a reload after a deploy, a
+ * crash) gives them back next time the sheet opens rather than losing them.
+ * One draft at a time: only one box is ever being typed in. Storage that
+ * throws (a private window) costs only this safety net, never the edit.
+ */
+const DRAFT_STORAGE_KEY = "blank-inheritance.sceneEditDraft";
+
+function rememberDraft(briefId, input) {
+  try {
+    window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ briefId, key: input.dataset.editKey, value: input.value, at: Date.now() }));
+  } catch {
+    /* no storage: the box itself still holds the words */
+  }
+}
+
+function readDraft(briefId) {
+  try {
+    const draft = JSON.parse(window.localStorage.getItem(DRAFT_STORAGE_KEY) ?? "null");
+    return draft && draft.briefId === briefId ? draft : null;
+  } catch {
+    return null;
+  }
+}
+
+function forgetDraft(key) {
+  try {
+    const draft = JSON.parse(window.localStorage.getItem(DRAFT_STORAGE_KEY) ?? "null");
+    if (draft && (!key || draft.key === key)) window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    /* nothing to forget */
+  }
+}
+
+/** A text box exactly as tall as its words, so the sheet reads like the scene rather than a form of scrollbars. */
+function growToFit(box) {
+  box.style.height = "auto";
+  box.style.height = `${box.scrollHeight + 2}px`;
 }
 
 /* ---------------------------------------------------------------- */
@@ -2179,7 +2979,8 @@ async function pickOnePlayer() {
 }
 
 /**
- * Put a document in front of the table, or one person.
+ * Hand a document to the table, or one person: it opens on their screens
+ * now, and it stays in their Papers for the rest of the campaign.
  *
  * ALWAYS behind a confirm, never automatic — Law 17: "Confirm anything the
  * players will see... revealing a document, pushing a check." The panel does
@@ -2187,91 +2988,23 @@ async function pickOnePlayer() {
  * at the moment the GM chooses, which is the whole of "easy" without any of
  * "automatic".
  *
- * The push is transient by design: Foundry opens the journal on the target's
- * screen with temporary ownership that reverts when they close it, so
- * showing something is not the same act as filing it in their records.
- */
-/**
- * Returns whether the handout was actually shown -- `false` for a missing
- * handout, a cancelled confirm, or a thrown error, so a caller that logs a
- * trigger press (scene-triggers-and-depth.md §2.5) can tell a real reveal
- * from a GM who backed out of the confirm dialog. Existing callers below
- * ignore the return value, same as before this was added.
+ * Kept, not transient, since 2026-09-26 (Ingram: "whenever we do that we also
+ * make it so that this journal now is public to the players"). Everything
+ * about how is foundry/handouts.mjs's job; this is only the brief lookup, so
+ * every way of revealing (a beat's button, the Kit list, an inline trigger)
+ * goes through one function.
+ *
+ * Returns whether the handout was actually handed over -- `false` for a
+ * missing handout, a cancelled confirm, or a thrown error, so a caller that
+ * logs a trigger press (scene-triggers-and-depth.md §2.5) can tell a real
+ * reveal from a GM who backed out of the confirm dialog.
  */
 async function revealHandout(handoutId, scene, users) {
   const handout = (scene?.brief?.handouts ?? []).find((h) => h.id === handoutId);
   if (!handout) return false;
-
-  const who = users?.length
-    ? game.users.get(users[0])?.name ?? "?"
-    : game.i18n.localize("BLANKINHERITANCE.Runner.Everyone");
-
-  const confirmed = await foundry.applications.api.DialogV2.confirm({
-    window: { title: game.i18n.localize("BLANKINHERITANCE.Runner.Reveal") },
-    content: `<p>${game.i18n.format("BLANKINHERITANCE.Runner.RevealConfirm", { title: handout.title, who })}</p>
-              <p><em>${game.i18n.localize("BLANKINHERITANCE.Runner.RevealConfirmHint")}</em></p>`
-  }).catch(() => false);
-  if (!confirmed) return false;
-
-  try {
-    if (handout.imagePath) {
-      foundry.documents.collections.Journal.showImage(handout.imagePath, {
-        title: handout.title,
-        users: users ?? []
-      });
-    } else {
-      const page = await ensureHandoutPage(handout);
-      if (!page) return false;
-      await foundry.documents.collections.Journal.show(page, { force: true, users: users ?? [] });
-    }
-    ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.Revealed", { title: handout.title, who }));
-    return true;
-  } catch (err) {
-    console.error("Blank Inheritance | Could not reveal that handout:", err);
-    ui.notifications.error(String(err?.message ?? err));
-    return false;
-  }
-}
-
-/**
- * The Foundry page a handout shows.
- *
- * An authored `body` is materialised into a real JournalEntry on first
- * reveal, under a deterministic id — so a handout that exists only for one
- * scene needs no separate file, no sync run, and no manual setup, and
- * editing the brief and re-pushing updates it in place rather than leaving a
- * second copy behind.
- */
-async function ensureHandoutPage(handout) {
-  const entryId = await deriveFoundryId(`handout-${handout.id}`);
-  let entry = game.journal.get(entryId);
-
-  if (!entry) {
-    entry = await JournalEntry.create(
-      {
-        _id: entryId,
-        name: handout.title,
-        // GM-only until a reveal explicitly puts it in front of someone.
-        ownership: { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE },
-        flags: { [MODULE_ID]: { sourceId: handout.id } }
-      },
-      { keepId: true }
-    );
-  }
-  if (!entry) return null;
-
-  const name = handout.pageName ?? handout.title;
-  const existing = entry.pages.find((p) => p.name === name);
-  const content = handout.body ?? "";
-
-  if (existing) {
-    if (content && existing.text?.content !== content) await existing.update({ "text.content": content });
-    return existing;
-  }
-  const [created] = await entry.createEmbeddedDocuments("JournalEntryPage", [
-    { name, type: "text", text: { content, format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML } }
-  ]);
-  return created ?? null;
+  const handed = await fileHandout(handout, { audience: users?.length ? users : "table" });
+  if (!handed) return false;
+  return true;
 }
 
 /* ---------------------------------------------------------------- */
@@ -2328,6 +3061,11 @@ Hooks.on("blank-inheritance.sceneClosed", ({ briefRef, advances } = {}) => {
 Hooks.on("updateScene", (scene, changed) => {
   if (!game.user?.isGM || changed?.active !== true) return;
   const briefRef = scene.getFlag(MODULE_ID, "briefRef");
+  // Whatever cut to it -- a group's turn, a muster, the palette -- the clock
+  // follows the scene the table is now in (forward only; advanceMomentTo).
+  if (briefRef && game.users?.activeGM?.isSelf) {
+    advanceMomentToBrief(briefRef).catch((err) => console.error("Blank Inheritance | Could not move the day ring to the new scene:", err));
+  }
   if (!briefRef || briefRef === currentBriefId()) return;
   game.settings
     .set(MODULE_ID, SETTING_BRIEF, briefRef)

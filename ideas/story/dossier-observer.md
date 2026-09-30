@@ -71,8 +71,10 @@ chamber on the bridge deck. The Watcher was her eyes. **She may still be alive i
 information for the players (§17). **Maybe** (Ingram's word, LEDGER #34) a small part of her is also in every Gen 2
 Frame, the "cerebral glue" that makes the technology work; that is open (`open-questions.json#mother-in-gen2`; §10).
 
-**The crew were the mitflits' ancestors.** They still call it the Observer, flatly and without fear, the way you'd
-name any other piece of the ship.
+**The crew were the mitflits' ancestors.** "The Observer" was the crew's job title for it. Over tens of thousands of
+years it became the mitflits' name for a watching, guiding presence they feel, something godlike that has always kept
+them going the right way; they don't know it's real, and don't perceive it as the Watcher (LEDGER #40; the reconciliation
+is Claude's, marked). *(Rewritten 2026-09-27: this said they call it the Observer "flatly and without fear".)*
 
 ---
 
@@ -97,7 +99,8 @@ that its dust kept working and lost all coherence.
 way across the world.")*
 
 **The search ship is calling for it.** A thousand years after the generation ship fell, a second ship came to find
-out what had happened to it, and crashed too. Its hull lies under what is now Kurose (`dossier-first-impact.md`).
+out what had happened to it, and crashed too. Its hull lies under what is now Kurose (`dossier-first-impact.md`); the working dig that reaches the whole ship is a
+journey from the city, off the city map (LEDGER #42).
 Its buried systems are still doing the one thing they were sent to do: calling for the ship they came to find.
 
 The swarm drifted across the world to **the one voice calling for it**. It can't get in. There is a city on top, and
@@ -154,9 +157,21 @@ Written as it would put it. Claude plays the Watcher to these, and to nothing it
    opens with the Watcher unseen and unwitnessed, and why it shows itself only when showing itself no longer costs
    it anything.
 
+*(LEDGER #40, 2026-09-27, canon:)* **It isn't evil; it is escalating.** It observes, adapts and responds, and escalates
+without understanding why. Once it kept a ship full of people on course. So long without a guiding framework, it has
+shifted from doing helpful, good things to being an accidental antagonist. **Nobody knows it exists**: not the
+Directorate, not the founders (Anabala included), and not the party at the start. The party must be the ones to
+uncover it. The mitflits may feel something in the air, but not as the Watcher: it feels to them almost like a
+comforting religious experience, being watched by something godlike that has always kept mitflits going the right
+way.
+
 ---
 
 ## 8. The Envoy, and the lesson
+
+*(LEDGER #40:)* The Envoy was its **first real appearance in public**. Before it there were only two: Manako's lab
+spill (private; Nobu saw it too), which Manako went on to prove to himself privately, and the canister at the science
+convention.
 
 *The most important single event in its existence, and the inciting incident of the whole campaign.*
 
@@ -245,7 +260,7 @@ trick per generation so the table can learn it:
 | Gen | Chapters | What it has learned | What it makes |
 |---|---|---|---|
 | G0 Proto-Claimants | 1–2 | Nothing yet. It copies shapes it has seen | Strange, inefficient things that fight a statue, then a reflection |
-| G1 Sorters | 2–3 | What moves is alive | Gatherers that can't tell a crowd from a Frame, and set people down courteously |
+| G1 *(to rethink)* | 2–3 | What moves is alive | *Cut 2026-09-27 (LEDGER #46): the old Sorters were badly misaligned with the tone. A new first generation is still to design.* |
 | G2 Breakers | 3–4 | Frames matter | Prying things that go for the same weak points on every Gen 1 Frame (joints, boilers): it has learned how they break |
 | G3 Seekers | 5–6 | Frames have pilots | Hatch-openers, drawn hard to the Gen 2 Frames: the living ones, built from its makers' technology |
 | G4 Hand-sized | 6–8 | Pilots have people | Personnel-scale things at the people named in the party's messages |
@@ -322,6 +337,10 @@ it builds, and his mood says how it behaves.
 ---
 
 ## 14. The tell
+
+*(LEDGER #43:)* **Animals sense it.** Dogs, birds and other creatures sense its nanoparticles in some deep-down way,
+perhaps as a high-frequency buzzing that upsets them, so they keep away from wherever it is thick. The mitflits feel
+the same presence as comfort (LEDGER #40); animals feel it as a buzz they want to get away from.
 
 **It goes for loud places**: festivals, markets, the harbour at shift change, school at break. That reads as
 monstrous, deliberate, civilian-targeting evil. It is choosing volume, and choosing where there is most to observe.
@@ -425,14 +444,26 @@ everything, next to a swarm that sees everything, is the worst combination this 
 ## 19. The endgame
 
 - **Force alone doesn't end it.** It can't be killed while it is dispersed, and every fight teaches it.
-- **Manako alive is the only steering there is.** Captured and conscripted, he is the one person with forty years
-  of hands-on experience shaping it. Killed, he leaves it running on its objective alone.
+- **Manako alive may be the only steering there is.** He is the one person with forty years of hands-on
+  experience shaping it; killed, he leaves it running on its objective alone. *(LEDGER #42: where he is by Book V,
+  whether he's alive, and whether he helps are decided closer to the time, from how the party treated him.)*
 - **Second Impact and the Watcher arrive together**, around the campaign's three-quarter mark (Chapter 15), and
   **both need the mitflit home world**, since normal technology and magic can't bind an unbound swarm (Ingram, D2).
   What the solution is stays unique, custom and open (D7). *(LEDGER #33: perhaps the only way to undo Second Impact
   is to create **the Gap**, an event after the adventure. "Maybe." Open, `open-questions.json#the-gap-name`.)*
-- **What the swarm becomes at the end** is open: bound, contained, put back into some hull as the eyes it was built
-  to be, or something else. The Mirror decides what kind of thing it is by then.
+- **Second Impact is its weapon** *(LEDGER #40, canon)*. At some point it becomes aware how important the exotic
+  matter is. Made of its makers' own nanomachines, it can build their technology, and it builds a weapon from exotic
+  matter without understanding that it could destroy itself, the city, Golarion and a chunk of space around it.
+  *(Claude's reading, in the Casebook: it learns the matter's importance by watching the Directorate guard it, in the
+  Chapter 8 convoy; it takes it from the deepest vault in Chapter 13; the weapon forms over the dig in Chapter 14.)*
+- **What the swarm becomes at the end** is open, and gets built as the ending gets closer (LEDGER #41). Ingram's
+  possibilities: perhaps it is permanently dispersed; perhaps it survives and becomes harmless; perhaps the mitflits
+  return and scoop it out of the air to take it home. *(The older list here, bound, contained or put back into some
+  hull, stays as Claude's options.)*
+- **After Second Impact it stays over Kurose** *(LEDGER #41, canon)*: a perpetual threat. Nothing has stopped its
+  escalation, so it goes on causing chaos and probing the city's defences, without malice.
+- **Mother's fragment is the party's proof** *(LEDGER #41, canon)*: with the search ship itself, it is the only proof
+  they have on the home world that they speak for the generation ship's descendants.
 
 ---
 
@@ -450,11 +481,14 @@ everything, next to a swarm that sees everything, is the worst combination this 
 
 ## 21. Open questions
 
-1. **Is Mother in the museum piece**, what does she know, and is she what its reports should still go to?
+1. ~~**Is Mother in the museum piece**~~ Yes (LEDGER #41: the fragment is hers, and it is the party's proof on the home
+   world). What does she know, and is she what its reports should still go to?
    (`open-questions.json#mother-and-the-watcher`) **And is a small part of her in every Gen 2?** Ingram's "maybe"
    (LEDGER #34): the "cerebral glue" that makes the technology work (`open-questions.json#mother-in-gen2`; §10).
 2. **What the museum piece can say**, and whether it can be moved.
 3. **The stray** (a small broken-off piece of the Watcher): what it becomes, and whether it is the party's pet, the
-   Watcher's microphone, or both. Left open (LEDGER #32).
+   Watcher's microphone, or both. **Kept (LEDGER #42):** the players can befriend it or keep it as a mascot, while it is
+   really a piece of the thing threatening the city; whether it works at the table is still to find out. *(Claude's
+   proposal for where it comes from: after a fight in Chapter 5, the one crumb that doesn't drain home.)*
 4. **The home-world solution** (unique and custom, D7).
 5. **Its name.** It still has none (`open-questions.json#the-watcher-name`), and it doesn't give one.

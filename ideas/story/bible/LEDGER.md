@@ -1,5 +1,9 @@
 # The Ledger
 
+> **Frozen 2026-09-27.** Every entry below is now its own file in `canon/decisions/` (D001 to D046, split word for
+> word), and new decisions start at D047 there. This file stays as the historical log and is no longer edited. See
+> `canon/README.md` and `design/story-data-refactor.md`.
+
 *Every direct question ever asked about this setting, and Ingram's answer, verbatim, in order.*
 
 ---
@@ -49,7 +53,7 @@ guessing at it again.
 | 5 | 2026-09-10 | The Frame's seat = the pilot's true form | Answered |
 | 6 | 2026-09-10 | The shadow-realm generator thread | Answered |
 | 7 | 2026-09-10 | Mitflits' real origin (Ingram's further divergence) | Answered |
-| 8 | 2026-09-10 | The founders' 200-year survival, and Rupiah's ancestry | Partially answered |
+| 8 | 2026-09-10 | The founders' 200-year survival, and Rupiah's ancestry | Answered (Hyuck by #41) |
 | 9 | 2026-09-10 | Disguise before induction (The Road In) | Answered |
 | 10 | 2026-09-10 | "Nothing you cannot leave" — intended meaning | Answered |
 | 11 | 2026-09-10 | Does the party's early activation ever surface | Answered |
@@ -75,10 +79,19 @@ guessing at it again.
 | 31 | 2026-09-24 | Two ships; the Watcher is the adversary and Claude plays it; Sap is nanotech; Anabala and Abraxas; Hori; the old campaign put in order; the Baldwin line | Answered (fill-ins marked) |
 | 32 | 2026-09-24 | Baldwin is alive; the rupture opened the ship itself (Gen 1 is Golarion tech, Gen 2 is Anabala's mitflit tech); Mother in the museum piece; the shuttle; Abraxas is female; N1–N15 | Answered (fill-ins marked) |
 | 33 | 2026-09-24 | Hori learned Aoi's name in court; Abraxas can leave Anabala and Pippa keeps her; the Gap comes after the adventure; a Gen 2 is uncomfortable except in your true form; Baldwin parked (N16–N24) | Answered in part (fill-ins marked; N18, N20, N21 unanswered) |
-| 34 | 2026-09-24 | The cult is a non-issue until the adventure starts, and the Directorate may know Manako; no contamination; D8 is Rand, Shucks's right hand; the Gen 2 core is biomechanical mitflit technology; Anabala's bargain; test PCs | Answered (D8 delegated to Claude and awaiting Ingram's read; fill-ins marked) |
+| 34 | 2026-09-24 | The cult is a non-issue until the adventure starts, and the Directorate may know Manako; no contamination; D8 is Rand, Shucks's right hand; the Gen 2 core is biomechanical mitflit technology; Anabala's bargain; test PCs | Answered (D8 delegated to Claude; accepted, #46; fill-ins marked) |
 | 35 | 2026-09-24 | The police and the Directorate distrust each other; the Envoy incident's official line | Answered (fill-ins marked) |
-| 36 | 2026-09-25 | Casebook v6 notes: the founding charter needs rethinking; the horror's three steps; the dilemma; Episodes 0 to 2 are next | Answered in part (the charter and the dilemma open) |
+| 36 | 2026-09-25 | Casebook v6 notes: the founding charter needs rethinking; the horror's three steps; the dilemma; Episodes 0 to 2 are next | Answered in part (the dilemma open; the charter cut by #41) |
 | 37 | 2026-09-25 | The opening titles may flash villains and surprises, the Watcher included; the outro waits | Answered (Claude's reading of the scope marked) |
+| 38 | 2026-09-26 | The acceptance letter becomes the first handout: the brought-forward stamp, a printed slip, a private copy each; every handout is kept | Answered (Claude's additions marked) |
+| 39 | 2026-09-27 | Nobu thought the chemical made them both see things; Golarion's own peoples are PF2e's ancestries | Answered (Claude's readings marked) |
+| 40 | 2026-09-27 | Nobody knows the Watcher exists; the Directorate digs to lock alien technology away, and the convoy; Sarenrae's help closed Kortos; Second Impact is the Watcher's weapon; the mitflits feel it as comfort | Answered (Claude's readings marked) |
+| 41 | 2026-09-27 | Mother's fragment is the party's proof and the ending is open; the Watcher stays over Kurose; the charter's black bar is cut; Hyuck lives on through the Carrying | Answered (Claude's details marked) |
+| 42 | 2026-09-27 | Past Episode Two, decide later; Manako's place in Book V waits; the stray is kept; how the six come to command, and NPCs who resign; the dig is off the city map, and expeditions | Answered in part (Manako deliberately open) |
+| 43 | 2026-09-27 | The plate shows all four as they were; animals sense the swarm (the dogs' street); what Shucks says behind the door; Rand needs a convincing reason | Answered (Rand's reason accepted, #46) |
+| 44 | 2026-09-27 | Three Chapter 1 clues planted; Claude's black-bar fills accepted, and Manako's scenes need care; Hulda is a nuar, alien, and won't wear glamour; the small built-scene fixes | Answered |
+| 45 | 2026-09-27 | Manako talks freely except the Watcher, and gives his real name; the knowledge check; his key line; his phone number replaces the tea-house book; The Errand's new first stop | Answered (Claude's siting and details marked) |
+| 46 | 2026-09-27 | Rand accepted; the tea house and the workshop go to the gazetteer; an art prompt; the Sorters' drownings cut | Answered (Chapter 2's first generation to rethink) |
 
 *(Continues below as new entries are added — keep this index in sync, in order, every time.)*
 
@@ -300,6 +313,8 @@ Rupiah, ancestry-wise? The portrait reads elf-eared but nothing's confirmed."*
 **Status: PARTIALLY ANSWERED.** Only the ancestry half was addressed — the longevity question (why
 all four are still active 200 years later) was not answered either way and **remains genuinely open.**
 Do not infer an answer from silence; ask again separately if it becomes relevant.
+
+**Answered 2026-09-27 (#41):** Hyuck lives on through the Carrying (`bible/characters/hyuck.md`). With Shucks undead (#1), Anabala living through Abraxas (#31) and Rupiah an elf, all four are explained.
 
 **Filed to:** `data/campaign/asset-registry.json` (Rupiah's portrait note); `ideas/story/dossier-
 first-impact.md` §12 (Loose Threads — ancestry closed, longevity explicitly marked still open).
@@ -1630,6 +1645,8 @@ N18 (the shuttle) and N21 (Mother's voice) were not answered this round, and wer
 
 ---
 
+**Later (2026-09-27, #41):** the founding charter's black bar is cut. The dilemma is still open.
+
 ### 37 — The opening titles may flash villains and surprises, the Watcher included; the outro waits
 
 **Ingram, 2026-09-25, while commissioning the campaign's opening title sequence:** an anime-style opening that homages a famous 1995 mecha series' opening, cut to that opening's own song and cast with this campaign's characters, played at the start of every session. It is never released publicly. Authoritative over #34 and the rule that the Watcher is unseen at the start, **for that one piece of work only**.
@@ -1718,3 +1735,350 @@ N18 (the shuttle) and N21 (Mother's voice) were not answered this round, and wer
 4. **The strobe's smoke is cropped deeper,** until only billows read.
 
 *(Claude's reading, marked: Maurice Jarre is credited too. His waltz is in the music library as the Directorate's theme, found while checking the library's tags for the credit. Ingram named only the two scores.)*
+
+---
+
+### 38 — The acceptance letter becomes the first handout: the brought-forward stamp, a printed slip, a private copy each; every handout is kept
+
+**Date:** 2026-09-26
+**Asked because:** Ingram asked for the letter in The Road In to be expanded and made the campaign's first handout, and for a way to hand documents over that keeps them.
+
+**Ingram's request, verbatim:**
+
+> "In Episode 1 there is a letter that the players receive.
+>
+> 1.) I'd like you to give some very serious thought into how we'd expand it's actual story contents, work with me, what could we hint at or mention in this document that might pay off later?
+>
+> 2.) I'd like to visually enhance it and make it into our adventures first 'handout' where the GM can press a button and it appears as a journal for the group to examine it in depth and whenever we do that we also make it so that this journal now is public to the players. This is a process we'll do lots throughout the adventure, anything that players find and might want to refer to later.
+>
+> So we're hitting both angles, improving visuals, improving content and improving the actual functionality of this letter and the associated systems."
+
+**Asked (four questions, after a proposal of four hooks and five small additions):**
+
+- *"Which of the bigger hooks should go on the letter? (The small additions listed above go in unless you say otherwise.)"* Offered: the founders' letterhead (the approved picture: four tall, handsome humans captioned with the founders' names); a brought-forward stamp over the printed term date; an unsigned margin note in Rupiah's hand.
+- *"Should the letter carry a tear-off return slip?"* Offered: fillable (players type into it in Foundry); printed, blank; no slip.
+- *"How should the copies work?"* Offered: own name, private; own name, all shared; one shared copy.
+- *"If the founders' letterhead goes in, where does its picture come from?"*
+
+**Ingram's answers, verbatim:** the stamp: *"Brought-forward stamp (Recommended)"*. The slip: *"Printed, blank"*. The copies: *"Own name, private (Recommended)"*. The letterhead: *"We're not going with this idea for now."*
+
+**What this settles:**
+
+1. **The letter carries a brought-forward stamp.** The printed reporting date, "the first Monday of term", is ruled through under a vermilion 繰上 BROUGHT FORWARD stamp, and "Monday next" is typed in. It is the first place the party's early activation shows (#2, #11, #20): every candidate's letter this year carries it, and nothing on the day explains it. The overheard search at Intake Medicals is the first thing that can; Nozomi, in Chapter 2, is the second.
+2. **No founders' letterhead, for now.** Ingram's #36 idea (four portraits of handsome humans under the original party's names) is not spent on the letter. It is not ruled out anywhere else.
+3. **No margin note from Rupiah.** Nothing on the letter hints at a founder working in the administration.
+4. **The return slip is printed and left blank.** Full name, date of birth, mother's maiden name, "someone we should write to, to say you have arrived safely (if any)", and a signature, "in block capitals". Nobody fills it in. Its mother's maiden name is the first of the three times Episode One asks for it: Form 12-B asks twice more the same morning, which is the episode's title.
+5. **Each player gets their own copy, privately,** with their own character's name typed into the gap. Nobody sees anyone else's: they have not met yet.
+6. **Every handout is kept, as a standing process.** One press shows a handout and files it in a journal folder called Papers, readable for the rest of the campaign. There is no transient reveal any more. The design is `design/handouts.md`.
+7. **The small additions went in unopposed:** the Deputy Director's printed signature, unreadable, because his name is still a placeholder (`deputy-director-name`); at Assembly he says it once, and the letter is the first of the "great many documents" he means. "Travel is at the candidate's expense." Service with the Directorate is separate from national service and does not discharge it. "On arrival, report to the Candidate Gate … and show this letter." And the broken lower-case e (already in The Road In's holdInReserve) turns up again on Form 12-B.
+
+**Claude's additions while writing it, flagged so nothing changes silently — veto freely:**
+
+- Two more lines of small print: "Uniform, bedding and personal equipment are issued on enrolment" (the practical reading #10 gives "nothing you cannot carry", and it sets up Kit Issue) and "A medical examination forms part of enrolment. No preparation is required." (it sets up Intake Medicals; for a disguised character it is also a reason to worry on the road in).
+- The furniture: Form 1-A (the induction's Service Agreement is Form 1-B), "Date as postmark" instead of a date (so no calendar is fixed), the title 合格通知書 / NOTICE OF ACCEPTANCE, "Candidate Intake · Kurose" under the letterhead, and the Directorate's approved lettered seal stamped in red across the signature.
+- **Where the broken e reappears moved.** The proposal said "the Intake clerk's typewriter", but the clerk works at a screen ("It's not on my screen either"). So Form 12-B arrives with each candidate's name already typed at the top, on the same machine as their letter: the roster is ahead of the person, which is the Candidate Gate's own character.
+- **A leak fixed on the way.** A music cue's handout step broadcast a brief's raw body to every screen, skipping the renderer, so a `<redact>` in it would have shown its hidden words. It now files through the same path as the reveal button.
+
+**Second round, the same day, after seeing the letter rendered. Ingram, verbatim:**
+
+> "The handout is very good but I think we need to unify a lot of the fonts used to a typewriter font. The crossed out line make sense but if you think about it the brought forward stamp and Monday Next need to be moved to a hand written note outside the main body of the text. Think of it this way, you have to do all your typewriter text first and then you can put hand written notes around that, not inside or within it and the same goes for stamps.
+>
+> "Someone we should write to, to say you have arrived safely (if any)" - get rid of this line.
+>
+> The top left directorate stamp could be bigger, think about it being a preprinted letter header used for lots of things. The 'Form 1-a' would then be inside a box left blank for that purpose."
+>
+> "Could you find a 'damaged typewriter' font to use for the e and other letters when needed? That might work? So that you can have some variation when you need it without having to invent it yourself?" And, on TT2020: "TT2020 sounds perfect."
+
+**What that settles:**
+
+- **A document is made in order: printed, then typed, then pen, then stamps.** Handwriting and stamps go around the typing, never inside it. It is now a standing rule for every handout, with a contract test.
+- **The letterhead is general stationery:** a larger Directorate mark and a ruled box left blank for the form number, with "1-A" typed into it.
+- **Everything below the letterhead is typed.** "Monday next" is handwritten in the margin beside the ruled-out date, with the BROUGHT FORWARD stamp next to it.
+- **The safe-arrival line is gone.** The slip now asks for full name, date of birth, mother's maiden name and a signature.
+- **The typewriter font is TT2020** (OFL 1.1, Fredrick R. Brennan). A machine's broken letters come from TT2020's own damaged Style F, so the variation is the font's, not invented.
+
+**Claude's readings, marked:** the letter body is a duplicated typed master. The salutation, the name and the form number were typed in afterwards on the admissions machine, so the broken e shows on every copy ("Dear") without every e in the letter being broken. The Japanese document title (合格通知書) went, because a typed title on an English typewriter cannot be Japanese; the letterhead keeps 特別対策本部. The printer's footer went with it.
+
+**Filed to:** `data/scene-briefs/episode-c1e1--the-road-in.json` (the handout, the `the-letter` beat, holdInReserve, notes, a reaction prompt); `data/scene-briefs/episode-c1e1--intake-medicals.json` (Form 12-B's typed names, and the note on what the party first owns); `data/scene-briefs/episode-c1e1--assembly.json` (the signature, and a stale countersignature claim corrected to #34); `data/episodes/episode-c1e1-mothers-maiden-name.json` (a dangling thread); `data/npcs/deputy-director.json`; `data/locations/candidate-gate.json`; `ideas/story/bible/characters/nozomi.md`; `data/schema/scene-brief.schema.json` (`personal`, the tags); `design/handouts.md` (new); `design/audio-system.md` §5.4; the module (`scripts/core/handouts.mjs`, `scripts/foundry/handouts.mjs`, `styles/bi-papers.css`, the Scene Runner); this ledger.
+
+---
+
+### 39 — Nobu thought the chemical made them both see things; Golarion's own peoples are PF2e's ancestries
+
+**Date:** 2026-09-27 (the ancestry answer, 2026-09-26)
+**Asked because:** two points raised during other work. Rewriting the Casebook as version 7, Claude noted that a man disgraced for seeing something the Watcher only shows through the chemical needs a way to have seen it. And the induction terminal's ancestry list split "terrestrial" from "alien" by a five-name list.
+
+**Ingram, verbatim:**
+
+> "He was working with a chemical and accidentally spilled some and revealed the presense of a tentacle. His lab assistant refused to back him up, thinking it was the chemical that had made them both mad."
+>
+> "Your list of ancestries could be much better if you cross check PF2E ancestries with the list. If it wasn't a PF2E ancestry then it's an alien one."
+
+**What this settles:**
+
+1. **How Manako first saw it, about 44 years ago.** He spilled some of the chemical he was working with, and it showed a tentacle in the lab. This agrees with #36: the thing is never visible without the chemical.
+2. **His lab assistant, Nobu, saw it too, and refused to back him up**, because he thought the chemical had made them both see things. Manako was disgraced for something two people saw.
+3. **An ancestry is one of Golarion's own peoples exactly when it is also a PF2e ancestry.** Anything else is alien. Of the induction terminal's 51, ten are Golarion's: Human, Elf, Dwarf, Gnome, Halfling, Goblin, Orc, Leshy, Android and Ysoki.
+
+**Claude's readings, marked:**
+
+- The chemical is the shelved Inert 12 sample (Sap), as the existing account already has it (`dossier-cicada.md` §3): the spill fed a weak fragment and showed it.
+- Ysoki count as Golarion's: they are PF2e's ratfolk under their own name (Player Core 2 pg. 29). Dragonkin and Nuar stay alien. PF2e's dragonet is a different people, and a nuar is only a cousin of PF2e's minotaur.
+
+**Filed to:** `ideas/story/dossier-cicada.md` §3 (the accident; Nobu); `ideas/story/blank-inheritance-master-timeline.md` (about 44 years ago); the Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); `data/campaign/ancestry-catalogue.json` and its schema, `design/induction-terminal.md` §7, and `test/tier1-induction-ancestry.test.mjs` (the ancestry rule); this ledger.
+
+### 40 — Nobody knows the Watcher exists; the Directorate digs to lock alien technology away, and the convoy; Sarenrae's help closed Kortos; Second Impact is the Watcher's weapon; the mitflits feel it as comfort
+
+**Date:** 2026-09-27
+**Asked because:** Ingram asked Claude to act as editor on the Casebook (version 7) and ask four big lore and history questions about contradictions or things that didn't make sense. The four: why the Directorate digs out the search ship when its purpose is to stop a second rift and it knows what that fuel did at Kortos; what stopped the Kortos rift, and why the same can't stop Second Impact; how the search ship can fly in Chapter 15 if its own fuel has just breached; and what the founders know about the Watcher.
+
+**Ingram, verbatim:**
+
+> "The Directorate isn't aware of 'The Watcher' at all. This is a requirement, it must be the PCs who uncover the existence of The Watcher otherwise we're stopping our players from driving the story. They are digging and uncovering in order to find technology (the Directorate are Golarion's apex of alien technology gatherers at this point in history) and then carefully locking that technology into deep storage vaults to keep the impact of such technology from causing disasters or at worst causing another First Impact like event. They even understand that the exotic matter they originally fumbled could be in the search spaceship, during the course of the adventure they may uncover some and it'll be the most cautiously stored material imaginable, an armoured and well protected convoy moving into the base whilst the entire base is on lockdown, an event players witness but which isn't explained to them."
+>
+> "Let's assume that at some point 'The Watcher' becomes aware of the importance of this exotic matter. It's composed of nanobot machines, it's potentially capable of building the same extreme futuristic technology as the Mitflits because it was built by the spacefaring Mitflits. We have 'The Watcher' create this as a weapon without understanding that this weapon is powerful enough to destroy itself, the city, Golarion and a chunk of space around Golarion. The Watcher isn't evil either, it's just escalating without understanding why because it observes, adapts and responds and due to being so long without a proper guiding framework it's shifted from doing things helpful and good to being an accidental antagonist."
+>
+> "The Directorate, the PCs and the four founders know nothing about The Watcher and do not even suspect it's existence. The event with Aoi and Hori was the first real manifestation of The Watcher in public (the previous two times being once in the lab when Manako and his lab assistance accidentally found the chemical reveals something there, in private Manako would go on to prove privately that it existed and then the incident where Manako released the chemical at a science convention) and whilst Mitflits might be aware that there is something in the air they don't perceive it as 'The Watcher' and they almost feel it like a comforting religious experience, they are being watched by something godlike and something that traditionally keeps Mitflits going in the right direction."
+
+**On the Kortos rift, Ingram chose Claude's option "A god's help, for one container":** *"Sarenrae sent the four back from Nirvana with a way to close it, and it worked because Kortos was one dropped container. The ship under Kurose holds a whole store; only the fuel's makers know how to stop that much, hence the home world. It also ties off the old campaign, which ended in Nirvana."* (Claude's wording, chosen by Ingram. Its "the ship under Kurose holds a whole store" is overtaken by her answer on Second Impact: what opens the Kurose rift is the Watcher's weapon.)
+
+**What this settles:**
+
+1. **Nobody knows the Watcher exists.** Not the Directorate, not the four founders (Anabala included), and not the party at the start; nobody even suspects it. **It must be the party who uncover it**, or the players aren't driving the story. This is a requirement. It answers `dossier-the-directorate.md` §7 question 3 and `bible/characters/anabala.md` question 4.
+2. **Three sightings before the party.** Manako's lab spill, in private, with his assistant there; Manako then proved it to himself, privately; then the canister at the science convention. **The Envoy (Aoi and Hori) was its first real appearance in public.**
+3. **Why the Directorate digs.** It is Golarion's foremost gatherer of alien technology at this point in history. It digs to find technology and lock it into deep storage vaults, so that it can't cause disasters or, at worst, another First Impact. It knows the exotic matter the founders fumbled could be aboard the search ship.
+4. **The convoy.** Any exotic matter it recovers is the most cautiously stored material imaginable: an armoured, well-protected convoy comes into the base while the entire base is on lockdown. The players witness it; nobody explains it to them.
+5. **How Kortos was closed, and why it can't be done again.** Sarenrae sent the four back from Nirvana with a way to close it, and it worked because Kortos was one dropped container. Only the fuel's makers know how to stop something bigger, so both crises need the mitflit home world. It ties off the old campaign, which ended in Nirvana.
+6. **What causes Second Impact.** At some point the Watcher becomes aware how important the exotic matter is. It is made of nanomachines built by the spacefaring mitflits, so it can build the same technology, and it builds a weapon from exotic matter without understanding that the weapon could destroy the Watcher itself, the city, Golarion and a chunk of space around Golarion. This supersedes #26's three candidate causes (Cicada's worst member detonating stolen fuel, an accident, a tragic misunderstanding).
+7. **The Watcher isn't evil.** It observes, adapts and responds, and escalates without understanding why. So long without a proper guiding framework, it has shifted from doing helpful, good things to being an accidental antagonist.
+8. **The mitflits** may be aware of something in the air, but don't perceive it as the Watcher. It feels to them almost like a comforting religious experience: being watched by something godlike that has traditionally kept mitflits going in the right direction.
+
+**Claude's readings, marked:**
+
+- **The search ship can still lift in Chapter 15** because the weapon is built from exotic matter taken out of it; the ship's own drive is never touched.
+- **The convoy is placed in Chapter 8**, when the dig breaks into the search ship. The Watcher watches it too, and learns from the Directorate's caution that whatever is in it matters. **The deepest vault holds the convoy's exotic matter**, and the Watcher's people-shaped children take it in Chapter 13; the weapon takes shape over the dig in Chapter 14, where a lens shows a violet the founders know from Kortos. What the charter's black bar says stays open (#36).
+- **"The Observer"** (#31: the crew's word for the ship's navigation system) survives as the mitflits' name for the comforting, guiding presence they feel: over tens of thousands of years the job title became a tradition. No mitflit knows it's real. This replaces `mitflits.md`'s "a job title, said flatly and without fear".
+- **The founders know they caused the Kortos rift** (the textbooks never say how it opened, #27). They never knew anything else came out of it, so the Watcher is news to them when the party works it out (Chapter 11). Anabala knows what the ship's eyes were; she doesn't know they survived.
+- **The Directorate reads the Chapter 10 lens sightings as a hallucinogen on the glass**, as the convention decided 38 years ago.
+- **Why Kortos can't be repeated.** The Casebook's version 7 said it was because magic has drained from Golarion. That is withdrawn. The older line in the master timeline and the v4 bible, that magic is slowly draining and industry has grown into the gap, is untouched: it explains the era, not the rift.
+- **A Book IV flashback** (proposal): the founders' players play the return from Nirvana and the closing at Pharasma's temple, which is also the old campaign's unfinished ending. What exactly Sarenrae sent them back with is open.
+
+**Filed to:** `ideas/story/dossier-the-directorate.md` §2.1 and §7; `ideas/story/dossier-first-impact.md` (the summary and §3a); `ideas/story/dossier-observer.md` §7, §8 and §19; `ideas/story/bible/species/mitflits.md` (the Observer; who knows the truth); `ideas/story/bible/characters/anabala.md` (question 4); `ideas/story/blank-inheritance-master-timeline.md` (the rift's path, about 150 years ago, the Envoy, Day 1); `design/campaign-arc.md` (the whole-campaign shape box); `ideas/story/dossier-cicada.md` (the road to Second Impact, superseded); `data/campaign/open-questions.json` (`watcher-probing-cause`, a note); the Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); this ledger.
+
+### 41 — Mother's fragment is the party's proof and the ending is open; the Watcher stays over Kurose; the charter's black bar is cut; Hyuck lives on through the Carrying
+
+**Date:** 2026-09-27
+**Asked because:** the second round of Ingram's editing questions on the Casebook (version 7). The four: what could give the Watcher back the guidance it lost, given #40's "without a proper guiding framework"; where the Watcher goes when the search ship lifts in Chapter 15; what is under the founding charter's black bar, open since #36; and how Hyuck, a gnoll, is alive two hundred years later, open since #8.
+
+**Ingram, verbatim:**
+
+> "The fragment of Mother and returning with the Mitflit search spaceship is the only proof that the players have that they represent the descendants of the original Mitflit generation ship. I do not know the final fate of The Watcher, perhaps it is permanently dispersed, perhaps it survives and becomes harmless or perhaps the Mitflits return and scoop it out of the air to return it home. We don't have a plan for the very end of the campaign yet, but that's okay we can build those ideas as we approach the ending."
+>
+> "It remains as a perpetual threat to Kurose - nothing has been done to stop it's escalation and so it continues to cause chaos and probe the cities defences without malice."
+>
+> "Cut it, the charter is a useful document and good lore, but publicly censoring part of it is odd - a secret that is flaunted, hints of 1984 and it makes the Directorate seem evil instead of just very secretive. As you said this is referenced in a lot of places so we'll need to make sure this change ripples outwards effectively."
+>
+> "I have a really fun idea for this one. Hyuck was a spirit based Barbarian, an ancestor worshipping creature and one who carried around with them the skulls of important Gnolls they knew. So I propose our own interesting solution, Gnolls go in for spirit stuff in a big way but one particular thing they do is a melding of a younger gnoll body with an older gnoll spirit. Gnolls consider this process a huge honour but it also carries a risk, every transfer is combative, where the spirit will attempt to overpower the soul of the gnoll already in that body. Strong young gnolls with lots of wisdom and personality strength will end up with a wise older soul / spirit inhabiting their body but they remain in control and get a source of wisdom and knowledge to ride along with them, but strong spirits can do the opposite and they take over the original body and push the gnoll originally there into the background. With particularly important gnolls this process can continue for hundreds of years and Hyuck has never once lost in this transfer process, but Hyuck is now in a body with a multitude of other gnoll spirits which is rather maddening. Feel free to give this process a proper name and more details."
+
+**What this settles:**
+
+1. **Mother's fragment is the party's proof.** The museum fragment is a fragment of Mother. With the search ship itself, it is the only proof the party has, on the home world, that they represent the descendants of the generation ship's crew.
+2. **The end is open.** What finally becomes of the Watcher isn't planned. Perhaps it is permanently dispersed; perhaps it survives and becomes harmless; perhaps the mitflits return and scoop it out of the air to take it home. It gets built as the ending approaches.
+3. **The Watcher stays over Kurose** after Second Impact, as a perpetual threat. Nothing has stopped its escalation, so it goes on causing chaos and probing the city's defences, without malice. It doesn't follow the search ship.
+4. **The charter's black bar is cut.** The charter stays as a useful document and good lore, with nothing painted out of it: a publicly flaunted secret is odd, and makes the Directorate seem evil instead of just very secretive. The change has to ripple out everywhere it is planted. This resolves #36's charter question and `open-questions.json#founding-charter-rethink`, and resolves the `mystery-ledger-5` Node as cut.
+5. **How Hyuck is alive.** Gnolls join an older gnoll's spirit to a younger gnoll's body. It is a great honour with a risk: every transfer is a fight for the body. A strong young gnoll keeps control and gains the elder as a voice of wisdom riding along; a strong spirit takes the body and pushes its gnoll into the background. For important gnolls it goes on for hundreds of years. Hyuck has never once lost, and now shares his body with a multitude of other gnoll spirits, which is maddening. This answers #8 for Hyuck, so all four founders' long lives are now explained.
+
+**Claude's details and readings, marked:**
+
+- **The Carrying** is Claude's name for the practice, with details as proposals in `ideas/story/bible/characters/hyuck.md`: the skull holds a spirit between bodies (which is why gnolls carry their great dead's skulls); the young gnoll is the bearer; the contest is the wrestle; an elder that loses *rides*, one that wins *wears* the body; Hyuck has been carried five or six times since Kortos; his elder brother, whose skull he carried in the old campaign, probably rides with him; gnoll clans send volunteers to carry a founder, and the Directorate arranges it quietly; the harbour statue shows one of his earlier bodies.
+- **What replaces the black bar.** The charter's four signatures, studied in Intake Medicals' `the-charter` check: Rupiah's elegant hand; Shucks's old scrawl, which is the hand Rand writes in (already established in `bible/characters/rand.md`); HYUCK in capitals; and Anabala's mitflit script.
+- **The Transparency Advocate's refusal** is now the inventory of the deep storage vaults, held above their clearance (from #40's vaults), in place of an unredacted charter.
+- **Manako's one true thing in The Errand** is rewritten: whatever the Directorate digs up goes into a vault and is never spoken of again, and it gets to be a habit. The old line and its GM note, which rested on the cut paragraph, are gone.
+- **The fragment comes aboard** the search ship in Chapter 16, and the party presents it on the home world in Chapter 18.
+- **Corrections to Claude's own earlier work, found while filing this:**
+  - *#40's reading had the Watcher's children break into the deepest vault in Chapter 13.* That contradicted Ingram's preferred way in (#32): the party breaks into the deepest vaults in search of information, and Abraxas emerges there. Now both: the party breaks in, and the Watcher, which has been watching them, sends its children in through the breach they made, to take the convoy's exotic matter.
+  - *`bible/characters/rand.md` gave Rand the theory that "something is watching".* After #40 nobody on the base suspects the Watcher, so its theory is now that something in the city is wrong and getting worse.
+  - *`dossier-the-directorate.md` §5 said the players would be "half right" to think the Directorate villains.* Per this answer it is very secretive, not evil, and the line now says so.
+- **Not touched, and flagged:** `design/opening-titles.md` lists "the charter's black bar" among what the opening shows. It belongs to the concurrent opening-titles work, so it is left for Ingram to decide. `design/design-bible.md` is frozen and not edited. The module's local copy of the campaign data is refreshed only by a deploy, which has not been run.
+
+**Filed to:** the black bar, in `data/scene-briefs/episode-c1e1--intake-medicals.json`, `episode-c1e1--assembly.json`, `episode-c1e1--the-errand.json` and `episode-c1e2--school-period-two.json`; `data/challenges/c1e1-the-medical.json`, `c1e1-assembly.json` and `c1e2-school-period-two.json`; `data/episodes/` (both); `data/campaign/scene-set.json`, `asset-registry.json`, `overview.json` and `open-questions.json`; `data/locations/the-drill-hall.json`; `data/npcs/transparency-advocate.json`; `ideas/story/blank-inheritance-ch1-v2.md` (§4, §5 and the `mystery-ledger-5` Node); `ideas/story/dossier-the-directorate.md` §2.2, §3, §5, §7 and §8; `ideas/story/blank-inheritance-v4.md`; `ideas/story/dossier-first-impact.md` §10; `ideas/story/blank-inheritance-master-timeline.md`; `ideas/story/bible/species/mitflits.md`; `bible/characters/anabala.md`, `manako.md`, `shucks-mordant.md` and `rand.md`; `design/campaign-arc.md`, `worldbuilding-craft.md`, `episode-one-redesign.md`, `environmental-storytelling-and-place.md`, `scene-audit.md` and `science-fiction-and-mecha-conventions.md`. Hyuck, in the new `ideas/story/bible/characters/hyuck.md`, `bible/locations/the-gnoll-statue.md`, `ideas/entries/hyuck-origin-and-directorate-fate.json` and #8 above. Mother, the ending and the Watcher staying, in `ideas/story/dossier-observer.md` §19 and §21 and in `open-questions.json` (`mother-and-the-watcher`, `watcher-probing-cause`). The Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); `data/generated/node-index.json`, regenerated; this ledger.
+
+### 42 — Past Episode Two, decide later; Manako's place in Book V waits; the stray is kept; how the six come to command, and NPCs who resign; the dig is off the city map, and expeditions
+
+**Date:** 2026-09-27
+**Asked because:** the third round of Ingram's editing questions on the Casebook (version 7). The four: where Manako should be in Book V, now that the Watcher stays over Kurose (#41) while the Casebook still put him aboard the search ship; whether to keep the stray, a loose idea since #32; why an institution of hundreds would hand command to six young pilots in Book IV; and where the search ship lies, since a starship lifting out of a city would take something with it.
+
+**Ingram, verbatim:**
+
+> "We don't know. If the group befriends Manako or tries to turn them away from violence then perhaps they become helpful... but maybe they are already dead by this point in the plot. We'll need to work that out closer to the time. This is the risk of this sort of editing process, if you ask me about something even past Episode 2 the answer might be that we'll have to make that decision later in order to be properly responsive to the players."
+>
+> "Keep it, I think it's an interesting idea and possibility, the players encounter part of The Watcher and then they end up befriending it or it becomes like a mascot, but in fact it's a piece of the thing threatening the whole city. It's a fun idea, we'll have to see if we can make it work."
+>
+> "All three. The players must demonstrate their extraordinary abilities and judgement, the end result is promotion and freedom to decide how to respond to situations and maybe several characters choose to resign to step aside after having made failures of judgement themselves, a very Japanese solution is that our NPCs can make bad mistakes and actually take full responsibility for those blunders."
+>
+> "Off map, it'll be on a new GIS inspired map but in a location which requires a journey to get to. We'll do this a few times, allowing the players to go to new locations to do specific events and tackle specific problems."
+
+("All three" answers Claude's three options: the Deputy Director backs the six; the founders back them; the city demands them.)
+
+**What this settles:**
+
+1. **A standing rule for these editing rounds:** past Episode Two, the answer may be that the decision waits, so it can respond to what the players actually did. Don't force later chapters into shape.
+2. **Manako in Books IV and V is open on purpose.** If the party befriends him or turns him away from violence, perhaps he becomes helpful; he may already be dead. Decided closer to the time.
+3. **The stray is kept, as a possibility.** The players meet a piece of the Watcher, and befriend it or keep it as a mascot, while it is really a piece of the thing threatening the whole city. Whether it works is still to find out.
+4. **How the six come to command:** all three routes at once (the Deputy Director, the founders and the city back them), and the players must show extraordinary ability and judgement to earn it. The result is promotion and the freedom to decide how to respond. Several characters may resign and step aside after their own failures of judgement: NPCs here can make bad mistakes and take full responsibility for them.
+5. **The dig is off the city map.** The search ship's dig site is a journey from the city, drawn on a new real-data (GIS-inspired) map. **Expeditions:** this will happen a few times, taking the players to new places for specific events and problems.
+
+**Claude's readings, marked:**
+
+- **Two digs, one ship.** Episode One's Assembly already has the Deputy Director say the city "was built on top of a dig, and the dig came first". So the city sits on the first dig, which found the search ship's hull 150 years ago, and Chapter 8's *second excavation* (the chapter's own title) is the working dig a journey away, which reaches the whole ship. "Under Kurose" now means under Kurose's ground, not under the city streets; why the gods named Kurose is unchanged. The Chapter 8 image changes from filaments through the city's foundations to filaments through the rock.
+- **Where the stray comes from:** after a fight in Chapter 5, the one crumb of a beaten child that doesn't drain home. It replaces the Casebook's unexplained "lab spill". It is still also a microphone (proposal).
+- **The Commander is among those who resign** in Chapter 13, for losing the convoy's cargo; the adults stay, and follow the six's lead.
+- **The Casebook's framing** now says plainly that past Episode Two many answers wait until the table gets close, and Manako is taken off the Book V crew list.
+
+**Filed to:** the Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); `ideas/story/dossier-cicada.md` (the redemption); `ideas/story/dossier-observer.md` §5, §19 and §21; `ideas/story/dossier-the-directorate.md` §2.1; `ideas/story/dossier-first-impact.md` §7; `ideas/story/blank-inheritance-master-timeline.md` (about 150 years ago); `design/campaign-arc.md` (the whole-campaign shape box); `design/strategy-layer.md` (the Clearance rungs); `data/campaign/open-questions.json` (`the-stray`); this ledger.
+
+### 43 — The plate shows all four as they were; animals sense the swarm (the dogs' street); what Shucks says behind the door; Rand needs a convincing reason
+
+**Date:** 2026-09-27
+**Asked because:** the fourth round of Ingram's editing questions on the Casebook, aimed this time at built Episode One and Two content, per #42. The four: what the older textbook's memorial plate in School Period One shows, since it said only one founder was "not human at all"; what the street the dogs won't use (the Mystery Ledger's plant 9) really is, since no answer was written; whether Rand, Claude's answer to D8 (#34), works; and what Shucks says behind the Deputy Director's door at the end of Episode Two.
+
+**Ingram, verbatim** (the first and last are the options she chose, in Claude's wording):
+
+> The plate: "All four as they were" -- *"An elf, a very small mitflit, a skeleton, and a gnoll with a sword; every later printing swapped them for four tall humans. It's a hard-won reward: the gnoll matches the harbour statue, which is an early road to Hyuck."*
+>
+> "Dogs, birds and other creatures perhaps can sense the nano particles in some deep down way perhaps hearing a high frequency buzzing which is upsetting to dogs and upsetting to birds, causing them to go anywhere else. You could also make it Where the first three form."
+>
+> "It could work if you come up with a convincing reason WHY Shuck's right hand would do that... Do you have a good reason? One that makes sense?"
+>
+> Shucks: "Keep the six together" -- *"He tells the Deputy Director all six carry the marker, and asks that they be kept together and flying. He doesn't say what the marker is for. It's why they end Episode Two on the roster with their machines."*
+
+**What this settles:**
+
+1. **The plate shows all four founders as they were:** an elf, a very small mitflit, a skeleton, and a gnoll with a sword. Every later printing replaced it with four tall humans. It is a critical-success reward in School Period One.
+2. **Animals sense the Watcher.** Dogs, birds and other creatures sense its nanoparticles in some deep-down way, perhaps as a high-frequency buzzing that upsets them, so they go anywhere else. That is the answer to plant 9, and Ingram allowed placing it where the first three form.
+3. **What Shucks says:** all six carry the marker, and they should be kept together and flying. He doesn't say what the marker is for. It's why they end Episode Two on the roster with their machines.
+4. **Rand stays conditional.** It could work, if there is a convincing reason why Shucks's right hand would do it.
+
+**Claude's answer to the Rand challenge (a proposal, awaiting Ingram's read):** *it does what Shucks won't.* The night after Intake Medicals it read Shucks's notes, as it reads everything on his desk, and found six carriers of the marker in one intake, which it had never seen. Shucks would do nothing: a founder openly steering six trainees draws exactly the attention the marker mustn't get. The hand has no position to protect. So it countersigned their requisition in Episode One (and enjoyed making the rules bite the officer who hazed them), and when the fortnight came it stacked a Medical order on top: a fitness familiarisation, Frame and vehicle, which a medical department can order and a Section Officer can't refuse. It chalked "Same six. Tomorrow." to keep them together. It hurried because of its own paper trail: something in the city is wrong and getting worse, and Gen 2 carriers are the most valuable people on the base. That same week, three things form on the harbour road. At the end of Episode Two Shucks sees his own old handwriting on the order, knows his hand wrote it, and walks into the Deputy Director's office to make it stick, taking responsibility for an order he never wrote.
+
+**Claude's other readings, marked:**
+
+- **The dogs' street is placed** on the Errand's walk: the street that drops to the harbour road below the old town, where Cicada clashed with the police some weeks before and Sap was released, and where the three Proto-Claimants form in Episode Two. Animals keeping away is also a tell the party can learn from Chapter 4 (proposal).
+- **The override's six names** are in the order the six went through Intake Medicals, which is the order their files sit in Medical's cabinet (proposal).
+- **Shucks recognising his hand's writing** is why he walks in (proposal, part of the Rand answer).
+- **The Mystery Ledger's #9** now has its answer and payoff; its Node stays open until it pays off in play.
+
+**Filed to:** `data/challenges/c1e2-school-period-one.json` and `data/scene-briefs/episode-c1e2--school-period-one.json` (the plate); `data/scene-briefs/episode-c1e1--the-errand.json` (`into-the-city`), `ideas/story/blank-inheritance-ch1-v2.md` (§5 and the `mystery-ledger-9` Node) and `ideas/story/dossier-observer.md` §14 (the animals); `ideas/story/bible/characters/rand.md` and `data/scene-briefs/episode-c1e2--the-override.json` (Rand's reason, the names' order); `data/scene-briefs/episode-c1e2--the-hammer.json` and `ideas/story/bible/characters/shucks-mordant.md` (behind the door); the Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); `data/generated/node-index.json`, regenerated; this ledger.
+
+### 44 — Three Chapter 1 clues planted; Claude's black-bar fills accepted, and Manako's scenes need care; Hulda is a nuar, alien, and won't wear glamour; the small built-scene fixes
+
+**Date:** 2026-09-27
+**Asked because:** the fifth round of Ingram's editing questions, on built Episode One and Two content (#42). The four: which unplanted Chapter 1 clues to plant; whether Claude's fills for the cut black bar (#41) are accepted; what Hulda Brack is, since her brief said "not an alien" and #39 makes a nuar alien; and whether to fix the small built-scene errors the Casebook listed.
+
+**Ingram, verbatim:**
+
+> Plants chosen: "The girl in the news", "Nozomi on the roster", "The tarp in Hangar Four" (not the gentle Frame).
+>
+> Fills accepted: "The charter's signatures", "The Advocate's refusal", "Manako's new line", with: "We need to give Manako's scenes a lot of work given how critical he is, it's a dangerous game putting such an important character in front of the group so we better treat every scene with him in as one that needs to be carefully managed for secret leaking and premature exposition."
+>
+> "Aliens are treated as outsiders in my version of Japan in Golarion. Magic which allows people to disguise their unusual nature is so freely available that 'glamourised' clothing can be bought in the high street. Hulda says "Fuck that..." and refuses to disguise or moderate her unusual and alien appearance for anyone, part of her big personality and many other aliens live in the city and take the same approach. Hulda doesn't draw much attention on the base but she would draw a lot more stares and slack jaws if she went out into the city."
+>
+> Small fixes: "Fix them all (Recommended)".
+
+**What this settles:**
+
+1. **Three clues are planted in the built scenes.** The Canteen's read-aloud now carries a father on a phone-in whose seventeen-year-old daughter is held without charge (plant 10: Kudo and Shinobu, unnamed on air). The Hangar Two board has a seventh name in older chalk, struck through: Nozomi (plant 2). Through Hangar Four's shutter in Familiarisation, something Frame-sized stands under a tarp: the Gen 2 prototype (plant 3). The gentle Frame (plant 11) stays unplanted.
+2. **Claude's fills for the black bar are accepted:** the charter's four signatures, the Transparency Advocate's refusal (the vault inventory), and Manako's new line in The Errand.
+3. **Manako's scenes need care, as a standing rule.** Every scene with him is to be managed for secret leaks and premature exposition; they are due a dedicated pass.
+4. **Hulda Brack is a nuar, and alien.** Aliens are treated as outsiders; disguise magic is so common that glamoured clothing sells on the high street; Hulda refuses to hide or tone down what she is for anyone, as many aliens in the city do. She draws little attention on the base, and would draw stares in the city. This overrides her original brief's "not an alien" and the Casebook's minotaur call.
+5. **The small fixes are made:** Assembly no longer calls civil defence national service (the two services are separate, #26 and #38); Unidentified Contact's times agree (first plot 0841, alert 0846, which fits machines issued at seven); Inert 12 is century-old wherever its age is given (catalogued about 120 years ago); `manako.json` loses "no inquest" (the police court proceeding stands, #33) and `nobu.json` loses its "Chapter Six reveal" (now Chapters 9 and 12). The unused Episode 3 encounter file is kept.
+
+**Claude's readings, marked:** the wording of the three plants (the father "trying hard not to shout"; "older chalk that was never quite rubbed out"; "something the size of a Frame ... and nobody on this floor looks at it"), and that the crew deflect questions about the name and the tarp. The glamour fact is also written into `design/induction.md` §2, since it is how the player characters' own disguises work.
+
+**Filed to:** `data/scene-briefs/episode-c1e1--canteen.json`, `episode-c1e2--familiarisation.json` and `episode-c1e2--the-names-are-still-up.json` (the plants); `episode-c1e1--assembly.json`, `episode-c1e2--unidentified-contact.json` and `episode-c1e1--the-errand.json`, `data/npcs/manako.json` and `data/npcs/nobu.json` (the fixes); `data/npcs/shop-boss.json` and `design/induction.md` §2 (Hulda and glamour); `ideas/story/bible/characters/manako.md` (the fix, and the rule about his scenes); `ideas/story/blank-inheritance-ch1-v2.md` §5; the Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); this ledger.
+
+### 45 — Manako talks freely except the Watcher, and gives his real name; the knowledge check; his key line; his phone number replaces the tea-house book; The Errand's new first stop
+
+**Date:** 2026-09-27
+**Asked because:** the sixth round of Ingram's editing questions, a leak check on Manako's built lines after #44's rule that every Manako scene needs care. The four: whether "I was a chemist" is too early; whether to keep "They did this to me, you know. Forty years ago, near enough"; what name he gives; and what his letters in the tea-house book may let slip.
+
+**Ingram, verbatim:**
+
+> "He can tell them he's a chemist, he can talk about being hazed in the same way as the players, he's free to talk about a lot of stuff as long as he doesn't mention The Watcher. He's obviously bitter at the Directorate but has a soft spot for recruits and his fatherly nurturing is part of the reason why he makes an effective cult leader. Also he loves the idea of tweaking the nose of some horrible Section Officer by a non-violent form of disruption that ultimately doesn't hurt anyone and allows the players to be victorious.
+>
+> For the record I think the way that this should work is that the players are initially sent to a much more technical workshop like place in the city and when the people there don't know how to help one of them gives the group directions to Manako's place because they know Manako is knowledgeable and helpful. So the group starts by going to the wrong place and get's no help, then has to travel further in the city to get the help they actually need from Manako's tea house."
+>
+> "Keep it and perhaps he can say that he came back empty handed and was laughed at and he's spent years thinking what he would have done differently, then offers the group his plan. Manako ruminates on his past failures often."
+>
+> "His real name, the more mysterious we make Manako look the more alerted the players will be to there being more here. Manako cannot be easily looked up by the players but we'll give the group a very hard skill check and if they get a success then we'll give them some vague hint about a disgraced chemist and if they get a crit success we'll tell them about Manako having a 'mental breakdown' which refers to the science conference and him being expelled from the organisation. We don't mention The Watcher or WHY this happened."
+>
+> "Instead of this we just let one player IF they impress him and / or if they are very nice to Manako we just have a button in the Scene Runner which adds Manako's phone contact information into the phone messaging system. That means that one player might be able to send messages in future, they might choose not to but it's nice to think that the line of communication is open."
+>
+> Mid-turn, correcting Claude's summary: "No. He tells them his real name for free... The players can use a knowledge check to have 'heard about' the scientist who had a breakdown and caused a huge fuss and then was expelled."
+
+**What this settles:**
+
+1. **Manako talks freely, except about the Watcher.** He can say he's a chemist and that the Directorate hazed him the same way. He's openly bitter about the Directorate, and fatherly to recruits, which is part of why he makes an effective cult leader. He loves tweaking a horrible officer's nose in a way that hurts nobody and lets the players win.
+2. **The Errand's shape:** the party goes first to a more technical workshop in the city, whose people can't help; one of them sends the party on to Manako, because they know he is knowledgeable and helpful; the party travels further into the city to his tea house.
+3. **His key line:** he came back empty-handed and was laughed at, and has spent years thinking what he should have done differently; then he offers the party his plan. He ruminates on his past failures often.
+4. **His real name, for free.** He can't be easily looked up. A very hard knowledge check can place it: on a success, a vague hint of a disgraced chemist; on a critical success, the scientist who had a "mental breakdown" (the conference) and was expelled. Never the Watcher, never why.
+5. **The tea-house letters are replaced.** If one player impresses him or is very nice to him, the GM presses a Scene Runner button that adds Manako's contact to that player's phone messaging. That player may message him later, or not.
+
+**Claude's details, marked:**
+
+- **The workshop is the Instrument Shop** on the works (`data/locations/the-instrument-shop.json`), where you'd send someone for a spirit-level bubble; the docket now reads "Collect from the instrument shop". The General Store's shelf clue (plant 7) moves to the Instrument Shop's stores cupboard (solvents and level fluid).
+- **The knowledge check** is `heard-the-name` in `data/challenges/c1e1-the-errand.json`: Society or Academia Lore, DC 20 (very hard at level 1), an insight check that costs nothing.
+- **The key line now opens the vial beat**, before his plan, and he writes the part number on the back of the bill in his own hand: a handwriting sample the party keeps, which replaces "his handwriting in their tea-house letters" as a Chapter 12 clue.
+- **Phone messages to Manako are read** by the Directorate (trainee messages are monitored, FORM 1-B) and by the Watcher, which reads what's typed. The Errand's "intercept" note now points at the phone.
+- **Not built, and flagged:** the Scene Runner button and the phone's messaging and contacts (recorded in `ideas/entries/phone-app-suite.json`); and `data/campaign/scene-set.json` still opens The Errand on the General Store's map and art, so it needs an Instrument Shop scene before this plays in Foundry.
+- **Also fixed:** The Long Afternoon's records-office note still said who countersigned was "not decided"; it now points at Rand (#34, #43, awaiting Ingram's read).
+
+**Filed to:** `data/scene-briefs/episode-c1e1--the-errand.json` and `data/challenges/c1e1-the-errand.json` (the reshaped scene, the knowledge check); `data/npcs/manako.json` and `ideas/story/bible/characters/manako.md`; `ideas/story/dossier-cicada.md` (the way to reach him); `data/scene-briefs/episode-c1e2--the-long-afternoon.json`; `ideas/entries/phone-app-suite.json`; the Casebook, version 7 (`ideas/story/blank-inheritance-twenty-chapters.md`); this ledger.
+
+### 46 — Rand accepted; the tea house and the workshop go to the gazetteer; an art prompt; the Sorters' drownings cut
+
+**Date:** 2026-09-27
+**Asked because:** the seventh round of Ingram's editing questions: whether Claude's reason for Rand works (#43); whether the Instrument Shop is the right first stop for The Errand (#45); how to get art for that stop; and whether people really drown in Chapter 2, where the Casebook had the Watcher's first "Sorters" set people down at the water's edge.
+
+**Ingram, verbatim:**
+
+> Rand: "It works (Recommended)".
+>
+> "Manako's tea house and the technical workshop both need placing and I don't know that I'm 100% confident where either of them are. These both need to be placed / review in the gazetteer before they are considered done. Manako's tea house needs to be a particular district in town, somewhere he has a lot of influence. The workshop needs to be close than 600m, ideally just a few streets away."
+>
+> Art: "Write me a prompt (Recommended)".
+>
+> "That sounds like it's incredibly badly aligned, it sounds like the opposite of what we want. Look for any and all references and get rid of them, then we'll need to rethink that whole section / concept. There is a lot of this stuff floating around in the earlier documents, things that LLMs got wrong."
+>
+> And to close the rounds: "No more questions for now. You've been given a vast amount of new input, but I bet there are still stale wrong sections drifting around. I think you need to spend some serious time making sure everything we've just talked about actually sticks to the data and doesn't just become a conversation that we've had that changes nothing. Once you are confident that the data is no longer wrong produce Version 8 of the Casebook based on the things we've discussed."
+
+**What this settles:**
+
+1. **Rand is accepted**, with Claude's reason (#43): the hand does what Shucks won't. D8 is closed.
+2. **Neither place in The Errand is done until Ingram sites it in the gazetteer.** Manako's tea house belongs in a particular district of the city where he has a lot of influence. The workshop is a few streets from it, well under 600 m; Claude's Instrument Shop on the works is withdrawn. Filed as gazetteer requests req-5 and req-6.
+3. **An art prompt for the workshop** (in `data/campaign/art-status.md`).
+4. **The Sorters' drownings are cut.** The Watcher's first generation gathering people and setting them down at the water's edge to drown is the opposite of the tone. Every reference goes, and Chapter 2's first generation is to be rethought.
+5. **A standing instruction:** make the decisions stick in the data, sweep for stale sections, and only then write Version 8 of the Casebook.
+
+**Claude's readings, marked:** in The Errand, the party walks into the city first (the city read-aloud is back at the top), the docket says "Collect from the instrument makers", and the tea house's regulars treat Manako with a quiet deference (his district, per this answer). The "drowning instrument" phrase for the early Watcher, overwhelmed by what it perceives, is a metaphor about the Watcher itself, not people drowning, and stays.
+
+**Filed to:** `ideas/story/bible/characters/rand.md`, `the-section-officer.md` (`arc-the-countersignature`) and `shucks-mordant.md`; `data/scene-briefs/episode-c1e2--as-discussed.json`, `--the-names-are-still-up.json`, `--the-override.json`, `--the-long-afternoon.json` and `--the-hammer.json` (Rand); `data/map/gazetteer-requests.json`, `data/scene-briefs/episode-c1e1--the-errand.json` and `data/challenges/c1e1-the-errand.json` (the two places); `data/campaign/art-status.md` (the prompt); `ideas/story/dossier-observer.md` (the generations table); the Casebook, version 8; this ledger.
+
+**The sweep, after the last round (2026-09-27).** Per item 5, Claude searched `data/`, `ideas/` and `design/` for anything #40 to #46 left stale, and fixed it before writing version 8. Every edit was a text edit (no file reformatted), and only the lines named changed:
+
+- **Rand accepted** wherever it still said "awaiting her read": the episode and deputy-director JSON, Intake Medicals, The Long Afternoon, `rand.md` (its open question 1 now closed), `shucks-mordant.md`, `the-section-officer.md`, `campaign-arc.md` and the v4 bible.
+- **Inert 12 is about a century old** in the last places that said "two-century-old": Episode One's episode file, `manako.json`, `section-officer.json`, `the-section-officer.md` and `dossier-cicada.md`.
+- **No conscription through the charter:** the charter's "conscription statute" is gone from `ch1-v2.md` and `dossier-the-directorate.md`; the v4 bible's "pilots are seventeen because the charter permits conscription" paragraph is cut with a note; `design/induction.md` §1 now says seventeen is the kingdom's own national service, separate from the Directorate; `row-e-block-6.json` says "seventeen-year-old cadets"; the intake prompt for age drops "only conscripts do"; `kid.schema.json`'s note says the same.
+- **Second Impact's old candidate causes** (#26), rewritten where they still read as current: `dossier-the-directorate.md` §2.1 and `dossier-cicada.md` §13.3. The resolved `prophecy-timing` question keeps its history with its superseded note.
+- **"The Observer"** is a comforting presence the mitflits feel, not a job title "said flatly and without fear": `mitflits.md` and `dossier-observer.md` §3.
+- **Hyuck's longevity** marked answered in `dossier-first-impact.md` and `open-questions.json`.
+- **The Watcher's own file** (`data/antagonists/the-watcher.json`): nobody knows it exists (#40); Second Impact is its weapon; it stays over Kurose and its end is open (#41); Manako may steer it if he is alive and willing (#42).
+- **Manako in Books IV and V** marked as decided closer to the time (#42): his movement V in `manako.json` and `dossier-cicada.md` §13.1, and `dossier-observer.md` §19's "captured and conscripted".
+- **Hulda:** `shop-boss.json`'s "Golarion-native rather than alien" paragraph, which contradicted its own #44 note.
+- **The Errand's reshape, carried through:** the general store became the instrument makers in `ch1-v2.md` (§5 and its Nodes), `c1e1-school-first-period.json`, `asset-registry.json` and `episode-one-redesign.md`; `scene-set.json`'s Errand blurb now describes the workshop (its map and art wait for the siting); `ideas/entries/phone-app-suite.json` records the phone number.
+- **Episode Two, from the tea-house letters:** The Long Afternoon's "on a Thursday, exactly as he said he would be" (the old message-book line) now uses his number and his usual table, and The Night Off's route to him includes the number.
+- **Episode Two's own timeline:** it happens the day after Episode One, but School Period Two (and the episode file), The Hammer and Zero Six Hundred said "a fortnight ago", and First Contact called the proving ground "yesterday" when it is the same morning. All corrected.
+- **Leftovers from #44's small fixes:** Kit Issue's "Chapter Six reveal" (now Chapters 9 and 12), and a second "no inquest" in `manako.json`.
+- **Closed or updated open questions:** `the-section-officer.md` question 2 (what happens when the vial lands, answered by the built As Discussed); `nozomi.md` (the second plant, #44); `ch1-v2.md` §5's summary of which clues are planted (Episode Two now plants #2 and #3).
+- **Left as history, on purpose:** this ledger, the frozen design bible, resolved open questions, the opening-titles files (another session's work; `design/opening-titles.md` still lists "the charter's black bar", for Ingram), the gazetteer's draft sessions, and the "drowning instrument" metaphor, which is about the Watcher itself.
+- **Also filed:** GitHub #164 (the two places and the workshop's art) and #206 (the G1 rethink).

@@ -57,6 +57,17 @@ function briefs() {
 const isAgency = (b) =>
   Boolean(b.checkRef) || Boolean(b.choicePoint) || b.mandatory === false || b.delivery === "each" || b.delivery === "solo";
 
+// A haunt (design/haunts.md) is a menu, not a script: its few beats frame the
+// night, and what the players do lives in its event deck. Every event that asks
+// something of a player -- a roll, a prompt to answer in character, a dilemma --
+// is a moment they drive, so it counts beside the beats.
+const isAgencyEvent = (e) => Boolean(e.check) || Boolean(e.prompt) || e.kind === "dilemma";
+const agencyOf = (brief) => {
+  const beats = brief.beats ?? [];
+  const events = brief.haunt ? brief.events ?? [] : [];
+  return { driven: beats.filter(isAgency).length + events.filter(isAgencyEvent).length, total: beats.length + events.length };
+};
+
 test('the schema knows about delivery: "each"', () => {
   const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
   const delivery = schema.properties.beats.items.properties.delivery;
@@ -90,11 +101,10 @@ test("a beat written as a per-player go-round is tagged as one", () => {
 test("every scene is at least 40% beats the players drive", () => {
   const thin = [];
   for (const { id, brief } of briefs()) {
-    const beats = brief.beats ?? [];
-    if (!beats.length) continue;
-    const share = beats.filter(isAgency).length / beats.length;
-    if (share < MIN_AGENCY_SHARE && !DELIBERATELY_QUIET.has(id)) {
-      thin.push(`${id} (${beats.filter(isAgency).length}/${beats.length})`);
+    if (!(brief.beats ?? []).length) continue;
+    const { driven, total } = agencyOf(brief);
+    if (driven / total < MIN_AGENCY_SHARE && !DELIBERATELY_QUIET.has(id)) {
+      thin.push(`${id} (${driven}/${total})`);
     }
   }
   assert.deepEqual(
@@ -111,4 +121,14 @@ test("the deliberately-quiet list does not rot", () => {
     assert.ok(ids.has(id), `${id} is listed as deliberately quiet but no longer exists`);
     assert.ok(reason.length > 40, `${id} needs a real reason, not a label`);
   }
+});
+
+test("a haunt's event deck counts as the players' part, and only the events that ask something of them", () => {
+  const haunt = {
+    haunt: { everyVisit: "x" },
+    beats: [{ id: "room" }, { id: "night" }],
+    events: [{ id: "a", check: "Diplomacy" }, { id: "b", prompt: "Tell us..." }, { id: "c", kind: "dilemma" }, { id: "d", kind: "plot" }]
+  };
+  assert.deepEqual(agencyOf(haunt), { driven: 3, total: 6 });
+  assert.deepEqual(agencyOf({ ...haunt, haunt: undefined }), { driven: 0, total: 2 }, "an ordinary scene's events are not counted");
 });

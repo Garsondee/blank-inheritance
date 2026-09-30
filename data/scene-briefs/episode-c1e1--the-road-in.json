@@ -19,7 +19,7 @@
         "then": "The table has just heard the whole common-knowledge history and the last line, \"This year, it sent for you.\" Go straight into the letter without recapping anything."
       }
     ],
-    "holdInReserve": "The letter is a printed form with the name typed into a gap, and the typewriter that did it has a broken lower-case e. Give this to anybody who studies the letter rather than reading it. Its letterhead is bilingual -- 特別対策本部 in small type above 'SPECIAL COUNTERMEASURES HEADQUARTERS' in English -- the same as every other Directorate form the six of them will see all year.",
+    "holdInReserve": "Everything here is on the handout they now hold; this is for whoever asks about it aloud. It is Form 1-A on the Directorate's general letterhead: 特別対策本部 in small type above 'SPECIAL COUNTERMEASURES HEADQUARTERS' in English, the same as every Directorate form the six of them will see all year. The letter itself is a duplicated typed master; the salutation, their own name and the form number were typed in afterwards, on a machine whose lower-case e strikes low and badly. The typed reporting date, 'the first Monday of term', is ruled through in pen, with 'Monday next' written in the margin beside a red 繰上 BROUGHT FORWARD stamp. What each detail is for is in the handout's GM notes.",
     "position": {
       "locationRef": null,
       "state": "scattered",
@@ -30,12 +30,13 @@
   "beats": [
     {
       "id": "the-letter",
-      "kind": "action",
+      "kind": "reveal",
       "mandatory": true,
       "delivery": "table",
-      "text": "Read the letter once, to the whole table, before anyone speaks as their character.",
+      "text": "Read the letter once, to the whole table, before anyone speaks as their character. Then hand it over: every player gets their own copy, with their own character's name typed in.",
       "readAloud": "Dear Candidate,\n\nYour application to Tokubetsu Taisaku Honbu has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n\nPlease bring nothing you cannot carry, and nothing you cannot leave.\n\nWe look forward to your service.",
-      "direction": "The same letter, six times over, weeks apart. Say nothing else about it. Let the table sit with \"nothing you cannot leave\" for a second before moving on -- it is doing real work and does not need pointing at.\n\nThe primary reading is practical, not a planted clue (ratified, LEDGER #9): pack light, this is enlistment, not moving house, the Directorate provides what is needed. The evocative phrasing is house style -- Directorate documents run to unusual, slightly poetic language throughout -- not a hidden key with one correct unlock. Don't build a future beat that treats this line as foreshadowing something specific."
+      "direction": "The same letter, six times over, weeks apart. Read the four lines aloud and say nothing else about it. Let the table sit with \"nothing you cannot leave\" for a second before moving on -- it is doing real work and does not need pointing at.\n\nThen press **Show the table**. Every player's copy opens on their screen with their character's name typed into the gap, and it stays in their Papers folder for the rest of the campaign. Nobody sees anyone else's copy: they have not met yet. Say nothing about what is on the paper. The stamp, the small print and the return slip are there for whoever reads it closely; the GM notes on the handout say what each is for, if anybody asks.\n\nThe primary reading is practical, not a planted clue (ratified, LEDGER #10): pack light, this is enlistment, not moving house, the Directorate provides what is needed. The evocative phrasing is house style -- Directorate documents run to unusual, slightly poetic language throughout -- not a hidden key with one correct unlock. Don't build a future beat that treats this line as foreshadowing something specific.",
+      "handoutRef": "acceptance-letter"
     },
     {
       "id": "your-opening",
@@ -91,7 +92,25 @@
     }
   ],
   "artefacts": [],
-  "handouts": [],
+  "handouts": [
+    {
+      "id": "acceptance-letter",
+      "title": "The acceptance letter",
+      "personal": true,
+      "body": "<div class=\"bi-paper bi-paper--letter\">\n<header class=\"bi-paper__letterhead\">\n<img class=\"bi-paper__mark\" src=\"modules/blank-inheritance/assets/ui/handouts/directorate-mark.webp\" alt=\"The Directorate's mark: a watchtower on a rock in the sea, ringed by a cog\">\n<div class=\"bi-paper__org\"><span class=\"bi-paper__org-jp\">特別対策本部</span><span class=\"bi-paper__org-en\">SPECIAL COUNTERMEASURES HEADQUARTERS</span><span class=\"bi-paper__org-sub\">Kurose</span></div>\n<div class=\"bi-paper__box\"><span class=\"bi-paper__box-label\">Form No.</span><typed machine=\"admissions\">1-A</typed></div>\n</header>\n<div class=\"bi-paper__typed\">\n<p class=\"bi-paper__dateline\"><span>CANDIDATE INTAKE</span><span>Date as postmark.</span></p>\n<p class=\"bi-paper__heading\">NOTICE OF ACCEPTANCE</p>\n<p><typed machine=\"admissions\">Dear</typed> <typed field=\"character\" fallback=\"Candidate\" machine=\"admissions\"/><typed machine=\"admissions\">,</typed></p>\n<p>Your application to Tokubetsu Taisaku Honbu has been reviewed and accepted.</p>\n<div class=\"bi-paper__annotated\">\n<p>You are asked to report to the combined campus no later than <s class=\"bi-paper__struck\">the first Monday of term</s>, where you will be issued instructions, quartered, and enrolled.</p>\n<div class=\"bi-paper__margin\"><span class=\"bi-paper__note bi-paper__note--arrow\">Monday next</span><span class=\"bi-stamp\" role=\"img\" aria-label=\"A red rubber stamp: BROUGHT FORWARD\"><span class=\"bi-stamp__kanji\">繰上</span><span class=\"bi-stamp__label\">BROUGHT FORWARD</span></span></div>\n</div>\n<p>Please bring nothing you cannot carry, and nothing you cannot leave.</p>\n<p>We look forward to your service.</p>\n<div class=\"bi-paper__sign\">\n<div class=\"bi-paper__sign-text\"><img class=\"bi-paper__signature\" src=\"modules/blank-inheritance/assets/ui/handouts/signature-deputy-director.svg\" alt=\"A printed signature, too hurried to read\"><p class=\"bi-paper__signatory\">Deputy Director<span>for Tokubetsu Taisaku Honbu</span></p></div>\n<img class=\"bi-paper__seal\" src=\"modules/blank-inheritance/assets/ui/handouts/directorate-seal.webp\" alt=\"The Directorate's seal, stamped in red\">\n</div>\n<p class=\"bi-paper__notes-head\">NOTES FOR CANDIDATES</p>\n<ol class=\"bi-paper__notes\">\n<li>On arrival, report to the Candidate Gate on the landward side of the causeway, and show this letter.</li>\n<li>Travel is at the candidate's expense.</li>\n<li>Uniform, bedding and personal equipment are issued on enrolment.</li>\n<li>A medical examination forms part of enrolment. No preparation is required.</li>\n<li>Service with Tokubetsu Taisaku Honbu is separate from national service, and does not discharge any obligation owed to the forces of the kingdom.</li>\n</ol>\n<div class=\"bi-paper__slip\">\n<p class=\"bi-paper__slip-head\">RETURN SLIP<span>Complete in block capitals. Hand in at the Candidate Gate.</span></p>\n<div class=\"bi-form-row\"><span class=\"bi-form-row__label\">Full name</span><span class=\"bi-form-row__lead\"></span></div>\n<div class=\"bi-form-row\"><span class=\"bi-form-row__label\">Date of birth</span><span class=\"bi-form-row__lead\"></span></div>\n<div class=\"bi-form-row\"><span class=\"bi-form-row__label\">Mother's maiden name</span><span class=\"bi-form-row__lead\"></span></div>\n<div class=\"bi-form-row\"><span class=\"bi-form-row__label\">Signature of candidate</span><span class=\"bi-form-row__lead\"></span></div>\n</div>\n</div>\n</div>",
+      "gmNotes": "GM-ONLY. Each player gets their own copy, with their own character's name typed into the gap, and nobody sees anyone else's; it stays in their Papers for good. What each thing on it is for, so a question at the table gets a straight answer and nothing gets pointed at. THE STAMP: the whole intake was brought forward two weeks when the pilot expected to fly first refused the draft (LEDGER #2, #11, #20). Nobody at the table can know that today. If asked, the true answer is that every candidate's letter this year carries the same stamp and nobody says why. The overheard search at Intake Medicals is the first thing that can explain it, and Nozomi in Chapter 2 is the second. THE SIGNATURE is the Deputy Director's, printed and unreadable, because his name is still a placeholder. He says it once from the platform at Assembly, and this letter is the first of the 'great many documents' he means. THE BROKEN E is the admissions typewriter's: the salutation, the name and the form number were typed in on it, over a duplicated letter. Form 12-B arrives at Intake Medicals with each candidate's name already typed on the same machine. THE SLIP asks for mother's maiden name, and Form 12-B asks for it twice more the same morning: the episode's title. TRAVEL AT THE CANDIDATE'S EXPENSE is why their journeys were the ones they could afford. SEPARATE FROM NATIONAL SERVICE: the kingdom's army and navy grumble about a foreign base in their harbour (From Up Here). Nothing more today.",
+      "catchables": [
+        "The reporting date: the typed 'the first Monday of term' is ruled through in pen, with 'Monday next' written in the margin and a red 繰上 BROUGHT FORWARD stamp beside it.",
+        "The salutation, their own name, and the form number were typed in separately, on a machine whose lower-case e strikes low and badly.",
+        "The signature is printed, not inked. It is the Deputy Director's, and nobody could read the name.",
+        "Travel is at the candidate's expense.",
+        "A medical examination forms part of enrolment. 'No preparation is required.'",
+        "Service here is separate from national service, and does not let them off it.",
+        "The return slip wants mother's maiden name, in block capitals.",
+        "It is Form 1-A, on the Directorate's general letterhead."
+      ]
+    }
+  ],
   "gmModifiers": [],
   "offers": [],
   "outro": {
@@ -102,6 +121,75 @@
       "mechanism": "scheduled",
       "line": "The letter itself already set the terms -- report by Monday, be processed. Nobody has to say a word to move them on; time simply skips to the queue.",
       "scatterRisk": false
+    },
+    "departure": {
+      "kind": "arrive",
+      "question": "How do you arrive in Kurose?",
+      "destinations": [
+        {
+          "id": "train",
+          "mode": "train",
+          "label": "By train",
+          "placeRef": "mainland-platforms",
+          "blurb": "Into Mainland Platforms, where the ordinary passenger trains stop."
+        },
+        {
+          "id": "ferry",
+          "mode": "ferry",
+          "label": "By ferry",
+          "placeRef": "old-landing",
+          "blurb": "To the ferry stages at the Old Landing, the city's oldest waterfront."
+        },
+        {
+          "id": "bus",
+          "mode": "bus",
+          "label": "By bus",
+          "placeRef": "southern-reach",
+          "blurb": "From the Southern Reach, the last stop on the line."
+        },
+        {
+          "id": "coast-road",
+          "mode": "road",
+          "label": "By the coast road",
+          "placeRef": "north-shore-town",
+          "blurb": "In from the North Shore Town, on the one road that joins it to the city."
+        },
+        {
+          "id": "tram",
+          "mode": "tram",
+          "label": "By tram",
+          "placeRef": "upper-wards",
+          "blurb": "Down from the Upper Wards, on the line they share with the city."
+        },
+        {
+          "id": "bicycle",
+          "mode": "bicycle",
+          "label": "By bicycle",
+          "placeRef": "flats",
+          "blurb": "Through the Flats, where there are more bicycles than road."
+        },
+        {
+          "id": "on-foot",
+          "mode": "foot",
+          "label": "On foot",
+          "placeRef": "far-quarter",
+          "blurb": "In from the Far Quarter, the long way round."
+        },
+        {
+          "id": "teleport",
+          "mode": "teleport",
+          "label": "By teleportation",
+          "placeRef": "landing-end",
+          "blurb": "One moment you weren't here. However it happened, you're stood at the Landing End now, same as anyone who walked."
+        }
+      ],
+      "then": {
+        "kind": "muster",
+        "placeRef": "candidate-gate",
+        "briefRef": "episode-c1e1--intake-medicals",
+        "label": "The Candidate Gate",
+        "question": "Report to the Candidate Gate by Monday."
+      }
     },
     "onwards": "Straight into Intake Medicals. Time skips a few days on its own -- that scene opens already inside the queue, and this is where the six of them actually become a group for the first time.",
     "writeDown": [
@@ -149,7 +237,12 @@
       "id": "one-spotlight-ran-long",
       "text": "If one player's spotlight ran long enough that the others felt shortchanged.",
       "scaleNote": "0 = stayed evenly paced, 10 = badly lopsided."
+    },
+    {
+      "id": "read-closely",
+      "text": "Anyone reading their own copy closely rather than only hearing it -- the stamp, the small print or the return slip coming up in conversation.",
+      "scaleNote": "0 = nobody opened it again after the reading, 10 = the stamp was being argued about before Intake Medicals."
     }
   ],
-  "notes": "NO CAST, DELIBERATELY. This scene has no NPCs and no speaking parts at all: the six spotlights are the players describing their own arrivals, and putting a guard, a conductor or a neighbour on screen would give them somebody to react to instead of something to invent. The first face in this campaign is Shucks, in the next scene, on purpose.\n\nNO SHARED BEAT AND NO ARTEFACT, DELIBERATELY. The group forming is Intake Medicals' job and this scene must not spend that moment early. Character sheets already exist from Induction, so the-small-problem has real stats to roll against from the first line.\n\nREBUILT AROUND EACH PLAYER'S OPENING, at Ingram's request. From Up Here now comes first and carries the world; this scene is the players' turn. Each player: how they look, how we first see them, a small problem on the way in, the skill they used, a roll against DC 15, and a few sentences of how it went, told by the player. The old optional flourish roll is gone -- the small problem is its replacement, and it is not optional.\n\nZERO MECHANICAL STAKES THROUGHOUT. Every check here costs nothing on every result, including critical failure. A bad roll on the-small-problem is a story the player tells, never a cost: the scene is built so that nobody's first roll with their own character can hurt them.\n\nTHE VIOLET MARK IS GUARANTEED; THE FRAME IS NOT ANY MORE. The mark is a plant (`mystery-ledger-6`): if no journey naturally ends somewhere people wait, place it at the end of a randomly chosen player's spotlight anyway. A plant that depends on a player happening to describe the right journey is not a plant. The Frame sighting was a baseline rather than a plant, and From Up Here now gives it to the whole table, so a-frame-at-a-distance only runs when an arrival naturally passes one.\n\nMITFLITS. Read `ideas/story/bible/species/mitflits.md` before writing anything anywhere that involves them. They are a species this party's world has treated badly and the bible sets hard limits on how that may be depicted.\n\nNO LANDMARK AND NO TRACK MOVEMENT, BOTH CORRECT. A landmark is the fixed thing a room orbits, and this scene is six rooms in six towns -- there is nothing shared to orbit and inventing one would flatten the six spotlights into one place. Nothing on the strategy layer moves either, because none of it exists yet: they have not met the institution, each other, or the city. A future audit flagging either of these should read this note and move on."
+  "notes": "NO CAST, DELIBERATELY. This scene has no NPCs and no speaking parts at all: the six spotlights are the players describing their own arrivals, and putting a guard, a conductor or a neighbour on screen would give them somebody to react to instead of something to invent. The first face in this campaign is Shucks, in the next scene, on purpose.\n\nNO SHARED BEAT AND NO ARTEFACT, DELIBERATELY. The group forming is Intake Medicals' job and this scene must not spend that moment early. The letter is a HANDOUT, not a shared beat: every player gets their own private copy (`acceptance-letter`, personal), so nobody learns another's name before the waiting room, and it stays in their Papers. Character sheets already exist from Induction, so the-small-problem has real stats to roll against from the first line.\n\nREBUILT AROUND EACH PLAYER'S OPENING, at Ingram's request. From Up Here now comes first and carries the world; this scene is the players' turn. Each player: how they look, how we first see them, a small problem on the way in, the skill they used, a roll against DC 15, and a few sentences of how it went, told by the player. The old optional flourish roll is gone -- the small problem is its replacement, and it is not optional.\n\nZERO MECHANICAL STAKES THROUGHOUT. Every check here costs nothing on every result, including critical failure. A bad roll on the-small-problem is a story the player tells, never a cost: the scene is built so that nobody's first roll with their own character can hurt them.\n\nTHE VIOLET MARK IS GUARANTEED; THE FRAME IS NOT ANY MORE. The mark is a plant (`mystery-ledger-6`): if no journey naturally ends somewhere people wait, place it at the end of a randomly chosen player's spotlight anyway. A plant that depends on a player happening to describe the right journey is not a plant. The Frame sighting was a baseline rather than a plant, and From Up Here now gives it to the whole table, so a-frame-at-a-distance only runs when an arrival naturally passes one.\n\nMITFLITS. Read `ideas/story/bible/species/mitflits.md` before writing anything anywhere that involves them. They are a species this party's world has treated badly and the bible sets hard limits on how that may be depicted.\n\nNO LANDMARK AND NO TRACK MOVEMENT, BOTH CORRECT. A landmark is the fixed thing a room orbits, and this scene is six rooms in six towns -- there is nothing shared to orbit and inventing one would flatten the six spotlights into one place. Nothing on the strategy layer moves either, because none of it exists yet: they have not met the institution, each other, or the city. A future audit flagging either of these should read this note and move on."
 }

@@ -28,8 +28,18 @@ export const BASELINE_STATUSES = Object.freeze(["needs-lore", "drafted"]);
  */
 export const SEALABLE_STATUSES = Object.freeze(["live"]);
 
-/** Every value a writer other than promote()/seal() is forbidden to emit. */
-export const GUARDED_STATUSES = Object.freeze([...PROMOTABLE_STATUSES, ...SEALABLE_STATUSES]);
+/**
+ * Cleared: the Desk's grades or the Sign-Off's seal. The one list every
+ * reader checks when it asks whether content is cleared for the table (the
+ * cue gate, the opening titles' confirm window, the episode journal, cutItem's
+ * refusal to demote), so a new rung is added here once. Checking
+ * PROMOTABLE_STATUSES alone was a real bug: a scene is sealed, never promoted
+ * (design/scene-signoff.md §3), so a live scene read as still drafted.
+ */
+export const CLEARED_STATUSES = Object.freeze([...PROMOTABLE_STATUSES, ...SEALABLE_STATUSES]);
+
+/** Every value a writer other than promote()/seal() is forbidden to emit: the cleared ones, since emitting one clears content without a review. */
+export const GUARDED_STATUSES = CLEARED_STATUSES;
 
 /**
  * The passes, in order. A seal needs every one of them CLEAR.

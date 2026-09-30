@@ -453,6 +453,20 @@ body.bi-theme .journal-entry-page h2 {
 }
 body.bi-theme .journal-entry-page strong { color: #5c1a0e; }
 
+/* A handed-over document (styles/bi-papers.css) is a sheet lying on the
+   desk, so the page around it becomes the desk: the chassis steel, no paper
+   texture of its own, and room round the sheet for its shadow. Keyed on
+   :has() rather than on anything the handout filer sets, so a paper
+   document looks the same however its page was made. */
+body.bi-theme .journal-entry-page:has(.bi-paper),
+body.bi-theme .journal-page-content:has(.bi-paper) {
+  background: var(--bi-mat-steel);
+  color: var(--bi-paper-ink);
+}
+body.bi-theme .journal-page-content:has(.bi-paper) {
+  padding: 14px 10px 26px;
+}
+
 /* ==========================================================
    6. THE ARRIVAL STING'S BANNER LANE
    ---------------------------------------------------------

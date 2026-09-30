@@ -38,6 +38,17 @@
             <button type="button" class="bi-runner__unstage" data-action="unstagePerson" data-portrait-id="{{portraitId}}"
                 aria-label="{{localize 'BLANKINHERITANCE.Runner.TakeOff'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.TakeOff'}}">&times;</button>
             {{/if}}
+            {{!-- Only someone the table calls something else ("the attendant")
+                  has a real name to hold back. One press tells the table for
+                  the rest of the campaign; shift-press also drops the banner.
+                  Once told the key just says so. --}}
+            {{#if nameProtected}}
+            <button type="button" class="bi-runner__stage{{#if nameKnown}} bi-runner__stage--on{{/if}}"
+                data-action="revealName" data-cast-id="{{id}}" {{#if nameKnown}}disabled{{/if}}
+                data-tooltip="{{#if nameKnown}}{{localize 'BLANKINHERITANCE.Runner.NameTold'}}{{else}}{{localize 'BLANKINHERITANCE.Runner.TellName'}}{{/if}}">
+                <i class="fa-solid fa-signature"></i> {{#if nameKnown}}{{localize "BLANKINHERITANCE.Runner.Named"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Name"}}{{/if}}
+            </button>
+            {{/if}}
         </div>
     </div>
 
