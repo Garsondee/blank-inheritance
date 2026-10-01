@@ -205,6 +205,28 @@ test("computeDisplayPrefixes: a real beat sequence numbers its beats and letters
   assert.equal(prefixes.get("d"), "04");
 });
 
+test("computeDisplayPrefixes: a scene marked numbered:false takes no number and does not advance the count", () => {
+  const ordered = [
+    { id: "a", group: "g", kind: "beat" },
+    { id: "pub", group: "g", kind: "place", numbered: false },
+    { id: "b", group: "g", kind: "beat" },
+    { id: "pub-2", group: "g", kind: "place", numbered: false }
+  ];
+  const prefixes = computeDisplayPrefixes(ordered);
+  assert.equal(prefixes.has("pub"), false, "a place carries no prefix");
+  assert.equal(prefixes.has("pub-2"), false);
+  assert.equal(prefixes.get("a"), "01");
+  assert.equal(prefixes.get("b"), "02", "a place between two beats must not push the next beat's number");
+});
+
+test("sceneSetPlan: a scene in a group with numbered:false keeps its clean name, with no number in front of it", () => {
+  const plan = sceneSetPlan(
+    { groups: [{ id: "g", name: "G", numbered: false }], scenes: [{ id: "x", name: "The Bar", art: "x", group: "g", kind: "place", order: 1 }] },
+    (id) => `id-${id}`
+  );
+  assert.equal(plan[0].data.name, "The Bar");
+});
+
 test("computeDisplayPrefixes: restarts at 01 for each new group, so folders read as their own sequence", () => {
   const ordered = [
     { id: "a", group: "one", kind: "beat" },

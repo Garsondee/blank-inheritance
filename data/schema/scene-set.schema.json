@@ -57,6 +57,11 @@
               "string",
               "null"
             ]
+          },
+          "numbered": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the scenes in this folder are numbered 01, 02, ... in order. False for a group that is a menu of places rather than a sequence (the haunts)."
           }
         }
       }

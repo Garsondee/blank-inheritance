@@ -179,8 +179,11 @@ async function readRemoteMap(remote, config, channel) {
  * act on without this function re-parsing stdout for it.
  */
 export async function stageNpcArt(repoRoot, log) {
-  for (const script of ["crop_ring_subject.py", "stage_npc_portraits.py"]) {
-    const scriptPath = path.join(repoRoot, "tools", "token-ring", script);
+  // The scene stager is here too (added 2026-10-01): a new Scene's backdrop is
+  // read from the asset registry like a portrait, and without this step it only
+  // reached the server if someone remembered to run it by hand.
+  for (const script of ["token-ring/crop_ring_subject.py", "token-ring/stage_npc_portraits.py", "stage-scenes/stage_scenes.py"]) {
+    const scriptPath = path.join(repoRoot, "tools", script);
     const { stdout } = await execFileAsync("python", [scriptPath], { cwd: repoRoot });
     for (const line of stdout.trim().split("\n").filter(Boolean)) log(`  ${line}`);
   }
@@ -268,7 +271,7 @@ export async function runDeploy(
 
   // 0. Art ---------------------------------------------------------------------
   if (config.art !== false) {
-    log("=== 0. Art: staging npc/creature token-ring subjects and Actor/frame portraits ===");
+    log("=== 0. Art: staging npc/creature token-ring subjects, Actor/frame portraits and scene backdrops ===");
     try {
       await stageArt(config.repoRoot, log);
     } catch (err) {

@@ -105,6 +105,10 @@ export function computeDisplayPrefixes(ordered) {
       subIndex = 0;
     }
 
+    // A scene whose group is not a sequence (the haunts: a menu of places the
+    // group can turn up at) takes no number and does not advance the count.
+    if (scene.numbered === false) continue;
+
     if (scene.kind === "sub" && parentPrefix) {
       prefixes.set(scene.id, `${parentPrefix}${String.fromCharCode(97 + subIndex)}`);
       subIndex += 1;
@@ -140,7 +144,8 @@ export function sceneSetPlan(manifest, idFor) {
     if (ga !== gb) return ga - gb;
     return (a.order ?? 0) - (b.order ?? 0);
   });
-  const displayPrefixes = computeDisplayPrefixes(ordered);
+  const unnumbered = new Set((manifest.groups ?? []).filter((g) => g.numbered === false).map((g) => g.id));
+  const displayPrefixes = computeDisplayPrefixes(ordered.map((s) => (unnumbered.has(s.group) ? { ...s, numbered: false } : s)));
 
   return ordered.map((scene) => {
     const id = idFor(scene.id);

@@ -32,6 +32,12 @@
       "id": "the-city",
       "name": "The City",
       "colour": "#1e3a5f"
+    },
+    {
+      "id": "haunts",
+      "name": "Haunts",
+      "colour": "#a85a1e",
+      "numbered": false
     }
   ],
   "scenes": [
@@ -418,6 +424,149 @@
       "briefRef": "episode-c1e2--the-names-are-still-up",
       "locationRef": "main-mech-hangar",
       "blurb": "Hangar Two, after dark. The gantry crane silent overhead, the machines parked in rows, and the same slate board from this morning — the names on it not rubbed off yet."
+    },
+    {
+      "id": "haunt-general-hospital",
+      "name": "The General Hospital",
+      "art": "general-hospital--ward",
+      "group": "haunts",
+      "kind": "place",
+      "order": 1,
+      "navigation": false,
+      "briefRef": "rest--general-hospital",
+      "locationRef": "general-hospital",
+      "blurb": "Ward Four of the General Hospital, on the old menswear floor of a department store. The night sister keeps one lamp lit at the far end."
+    },
+    {
+      "id": "haunt-early-night",
+      "name": "An Early Night",
+      "art": "row-c-block-3--corridor",
+      "group": "haunts",
+      "kind": "place",
+      "order": 2,
+      "navigation": false,
+      "briefRef": "rest--early-night",
+      "locationRef": "row-c-block-3",
+      "blurb": "Row C, Block 3, the overflow block, where the beds were issued long before the furniture."
+    },
+    {
+      "id": "haunt-bathhouse",
+      "name": "The Bathhouse",
+      "art": "the-bathhouse-447--pool",
+      "group": "haunts",
+      "kind": "place",
+      "order": 3,
+      "navigation": false,
+      "briefRef": "rest--bathhouse",
+      "locationRef": "the-bathhouse-447",
+      "blurb": "The big public bath in the middle of the island, with its tall chimney and its blue cloth curtain."
+    },
+    {
+      "id": "haunt-shrine-gate",
+      "name": "The Shrine Gate",
+      "art": "the-shrine-gate-444--gate",
+      "group": "haunts",
+      "kind": "place",
+      "order": 4,
+      "navigation": false,
+      "briefRef": "rest--shrine-gate",
+      "locationRef": "the-shrine-gate-444",
+      "blurb": "A small shrine on a street corner, where the road bends round it as if it had been told to go carefully."
+    },
+    {
+      "id": "haunt-crew-mess",
+      "name": "The Crew Mess",
+      "art": "the-crew-mess--bar",
+      "group": "haunts",
+      "kind": "place",
+      "order": 5,
+      "navigation": false,
+      "briefRef": "rest--crew-mess",
+      "locationRef": "the-crew-mess",
+      "blurb": "The bar behind the dry dock, where the repair crews drink when a refit has finished."
+    },
+    {
+      "id": "haunt-card-game",
+      "name": "The Card Game",
+      "art": "row-f-block-5--common-room",
+      "group": "haunts",
+      "kind": "place",
+      "order": 6,
+      "navigation": false,
+      "briefRef": "rest--card-game",
+      "locationRef": "row-f-block-5",
+      "blurb": "The common room of Row F, Block 5, where a card game has been running for longer than anyone can remember."
+    },
+    {
+      "id": "haunt-rumour-mill",
+      "name": "The Rumour Mill",
+      "art": "row-b-block-8--common-room",
+      "group": "haunts",
+      "kind": "place",
+      "order": 7,
+      "navigation": false,
+      "briefRef": "rest--rumour-mill",
+      "locationRef": "row-b-block-8",
+      "blurb": "The common room of Row B, Block 8, after lights-out, when the second-termers sit up and trade theories."
+    },
+    {
+      "id": "haunt-the-roof",
+      "name": "The Roof",
+      "art": "row-e-block-9--roof",
+      "group": "haunts",
+      "kind": "place",
+      "order": 8,
+      "navigation": false,
+      "briefRef": "rest--the-roof",
+      "locationRef": "row-e-block-9",
+      "blurb": "The flat roof of Row E, Block 9, with the whole of Kurose lit up across the harbour."
+    },
+    {
+      "id": "haunt-met-office",
+      "name": "The Night Observer",
+      "art": "the-met-office--roof",
+      "group": "haunts",
+      "kind": "place",
+      "order": 9,
+      "navigation": false,
+      "briefRef": "rest--met-office",
+      "locationRef": "the-met-office",
+      "blurb": "The Met Office roof, where somebody reads the instruments every hour of the night."
+    },
+    {
+      "id": "haunt-night-shift",
+      "name": "The Night Shift",
+      "art": "no-1-machine-shop--night-hall",
+      "group": "haunts",
+      "kind": "place",
+      "order": 10,
+      "navigation": false,
+      "briefRef": "rest--night-shift",
+      "locationRef": "no-1-machine-shop",
+      "blurb": "No. 1 Machine Shop at night, where the night crew keep working."
+    },
+    {
+      "id": "haunt-the-paper-lantern",
+      "name": "The Paper Lantern",
+      "art": "the-paper-lantern",
+      "group": "haunts",
+      "kind": "place",
+      "order": 11,
+      "navigation": false,
+      "briefRef": "rest--the-paper-lantern",
+      "blurb": "A civilian izakaya down a side street in the entertainment quarter, well away from Directorate ground."
+    },
+    {
+      "id": "haunt-the-magic-show",
+      "name": "The Magic Show",
+      "art": "the-market-hall-456--after-hours",
+      "group": "haunts",
+      "kind": "place",
+      "order": 12,
+      "navigation": false,
+      "briefRef": "discovery--the-magic-show",
+      "locationRef": "the-market-hall-456",
+      "blurb": "The covered market, after the shutters are down."
     }
   ]
 }
