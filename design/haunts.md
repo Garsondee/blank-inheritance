@@ -83,6 +83,28 @@ the context new haunt material is written from.
   true.
 - **Doors, factions, upgrades and setbacks.** See below.
 
+## Where a haunt lives in Foundry: a real Scene (2026-10-01)
+
+A haunt is a **Scene**, not only a brief. Ingram, 2026-10-01: *"I don't see the haunts as actual scenes. There's a gap
+here, surely all haunts and all downtime locations should have their own scenes just like the scene runner uses for
+everything else. How else would I have the characters be able to turn up somewhere unexpected?"* She was right: the
+Runner opens a brief through the active Scene's `briefRef` flag, the Director's Palette (Ctrl+K, *Cut to: …*) cuts to
+Scenes, and The City's departures land on Scenes, so until this was fixed none of the twelve could be run, jumped to or
+chosen.
+
+- Each haunt is a `kind: "place"` entry in `data/campaign/scene-set.json`, in the **Haunts** group, with `briefRef`
+  (its brief), `locationRef` (its sited place, once it has one), `art` (a registered picture; the scene stager reads
+  the asset registry) and a short player-facing blurb.
+- The Haunts group is `numbered: false`: it is a menu of places, not a running order, so the folder does not read
+  "01, 02 ...".
+- Haunts are **not in the navigation bar** (`navigation: false`), so the Magic Show is not announced to the players. The
+  GM reaches one with **Ctrl+K, "Cut to: The Crew Mess"**, or from the Scenes directory.
+- `test/tier2-haunt-scenes.test.mjs` fails if any brief with a `haunt` block has no Scene, no registered backdrop or no
+  staged webp. A new haunt is not finished until it passes.
+- **Still to do:** The City has no departure that offers the haunts, so the players cannot yet pick one on the map
+  (D050 says each chooses their own rest there). That is a design choice for Ingram: where it opens, and whether the
+  Magic Show appears as a mystery destination.
+
 ## The attitude promise (D052)
 
 > "One of the levers we have for storytelling in any location is attitudes going up and down on the PROMISE that if
