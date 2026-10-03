@@ -75,9 +75,10 @@ export function episodePaths(dataMap) {
  * @param {object} input
  * @param {Date}   input.now
  * @param {{commit: string|null, uncommitted: number|null}} input.git
- * @param {{module: Map, data: Map, video: Map|null}} input.maps   path->hash per channel, as now on the
- *   server. `video: null` means the videos were not checked this deploy (--no-video): the previous
- *   stamp's video fingerprint is carried forward, so skipping the check never reads as "no videos".
+ * @param {{module: Map, data: Map, video: Map|null, stagecraft?: Map|null}} input.maps   path->hash per channel, as
+ *   now on the server. `video: null` means the videos were not checked this deploy (--no-video): the previous
+ *   stamp's video fingerprint is carried forward, so skipping the check never reads as "no videos". `stagecraft`
+ *   (the second module the adventure uses, all of it code) is the same: null carries the previous fingerprint.
  * @param {object} input.manifest     the parsed module.json that was pushed
  * @param {{module: string[], data: string[], video: string[]}} input.sent     paths uploaded this deploy
  * @param {string[]} [input.removed]  channel-prefixed paths pruned this deploy
@@ -89,18 +90,25 @@ export function composeStamp({ now, git, maps, manifest, sent, removed = [], war
   const video = maps.video
     ? { files: maps.video.size, hash: fingerprint(maps.video) }
     : { files: previous?.video?.files ?? 0, hash: previous?.video?.hash ?? fingerprint(new Map()) };
+  // Stagecraft is a module of its own and all code: a deploy that changes only it is still new code every open page must
+  // reload for (found 2026-10-03: a Stagecraft-only fix left the stamp, and so every open page, exactly as it was)
+  const stagecraft = maps.stagecraft
+    ? { files: maps.stagecraft.size, hash: fingerprint(maps.stagecraft) }
+    : { files: previous?.stagecraft?.files ?? 0, hash: previous?.stagecraft?.hash ?? fingerprint(new Map()) };
   const id = fingerprint(
     new Map([
       ["module", fingerprint(maps.module)],
       ["data", fingerprint(maps.data)],
-      ["video", video.hash]
+      ["video", video.hash],
+      ["stagecraft", stagecraft.hash]
     ])
   );
 
   const changed = [
     ...(sent.module ?? []).map((p) => `module:${p}`),
     ...(sent.data ?? []).map((p) => `data:${p}`),
-    ...(sent.video ?? []).map((p) => `video:${p}`)
+    ...(sent.video ?? []).map((p) => `video:${p}`),
+    ...(sent.stagecraft ?? []).map((p) => `stagecraft:${p}`)
   ].sort();
 
   const unchanged = previous?.id === id && !removed.length;
@@ -117,11 +125,13 @@ export function composeStamp({ now, git, maps, manifest, sent, removed = [], war
     git: { commit: git?.commit ?? null, uncommitted: git?.uncommitted ?? null },
     module: {
       files: maps.module.size,
-      code: fingerprint(codeMap(maps.module)),
+      // the adventure's code and Stagecraft's together: either changing means an open page holds stale code
+      code: fingerprint(new Map([["blank-inheritance", fingerprint(codeMap(maps.module))], ["stagecraft", stagecraft.hash]])),
       manifest: manifestFiles(manifest)
     },
     data: { files: maps.data.size, hash: fingerprint(maps.data) },
     video,
+    stagecraft,
     episodes: episodePaths(maps.data),
     warnings: [...warnings],
     history

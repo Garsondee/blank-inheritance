@@ -435,9 +435,9 @@ export async function runDeploy(
     git: await git(config.repoRoot),
     // null with --no-video: the stamp then carries the server's previous video
     // fingerprint forward instead of treating "not checked" as "no videos".
-    maps: { module: finalMaps.module, data: finalMaps.data, video: finalMaps.video ?? null },
+    maps: { module: finalMaps.module, data: finalMaps.data, video: finalMaps.video ?? null, stagecraft: finalMaps.stagecraft ?? null },
     manifest,
-    sent: { module: result.channels.module.sent, data: result.channels.data.sent, video: result.channels.video?.sent ?? [] },
+    sent: { module: result.channels.module.sent, data: result.channels.data.sent, video: result.channels.video?.sent ?? [], stagecraft: result.channels.stagecraft?.sent ?? [] },
     removed: result.pruned,
     warnings: result.warnings,
     previous

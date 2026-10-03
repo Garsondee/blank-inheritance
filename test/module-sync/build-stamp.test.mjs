@@ -128,6 +128,26 @@ test("composeStamp: the code fingerprint moves only when code moves, never for a
   assert.notEqual(composeStamp({ now: NOW, git: GIT, maps: maps({ module: newCode }), manifest: MANIFEST, sent: SENT }).stamp.module.code, base.module.code);
 });
 
+test("composeStamp: a deploy that changes only Stagecraft is new code: a new id and a new code fingerprint", () => {
+  // regression, 2026-10-03: Stagecraft was not in the stamp, so a fix to it alone left every open page as it was, with no
+  // prompt to reload
+  const sc = new Map([["dist/stagecraft.js", "s1"], ["lang/en.json", "s2"]]);
+  const first = composeStamp({ now: NOW, git: GIT, maps: maps({ stagecraft: sc }), manifest: MANIFEST, sent: SENT }).stamp;
+  assert.equal(first.stagecraft.files, 2);
+  const fixed = new Map(sc).set("dist/stagecraft.js", "s1-new");
+  const { stamp, unchanged } = composeStamp({
+    now: NOW, git: GIT, maps: maps({ stagecraft: fixed }), manifest: MANIFEST, sent: { module: [], data: [], video: [], stagecraft: ["dist/stagecraft.js"] }, previous: first
+  });
+  assert.equal(unchanged, false);
+  assert.notEqual(stamp.id, first.id);
+  assert.notEqual(stamp.module.code, first.module.code, "an open page is told to reload");
+  assert.deepEqual(stamp.history[0].changed, ["stagecraft:dist/stagecraft.js"]);
+  // and with Stagecraft unchecked, its last fingerprint is carried, so nothing moves
+  const carried = composeStamp({ now: NOW, git: GIT, maps: maps({ stagecraft: null }), manifest: MANIFEST, sent: { module: [], data: [], video: [] }, previous: stamp });
+  assert.equal(carried.unchanged, true);
+  assert.deepEqual(carried.stamp.stagecraft, stamp.stagecraft);
+});
+
 test("composeStamp: with the videos unchecked (--no-video) the previous video fingerprint is carried, so the id does not move", () => {
   const first = composeStamp({ now: NOW, git: GIT, maps: maps(), manifest: MANIFEST, sent: SENT }).stamp;
   const { stamp, unchanged } = composeStamp({ now: NOW, git: GIT, maps: maps({ video: null }), manifest: MANIFEST, sent: { module: [], data: [], video: [] }, previous: first });
