@@ -791,6 +791,7 @@ export class Stage {
     let at = this.focus;
     if (Array.isArray(focus)) at = this.rig.standing(focus) ?? this.focus;
     else if (typeof focus === "string" && this.cards.has(focus)) { const c = this.cards.get(focus); at = { X: c.puppet.restX, Z: c.restZ }; }
+    if (kind === "position") return this.#positionMoves(cards, at, { party, gait });
     const packed = ["huddle", "gangup", "queue"].includes(kind);
     // `size`: how wide the thing they gather round is, as a share of the painting's width where they gather
     let radius = null;
@@ -807,6 +808,31 @@ export class Stage {
       id: p.id, at: this.rig.fractionOf(p.X, p.Z).map((n) => Math.round(n * 10000) / 10000),
       yaw: away ? 180 : p.yaw, lean: away ? 0 : p.lean, pitch: away ? 0 : p.pitch, gait, still: true, packed
     }));
+  }
+
+  /**
+   * Into position: everyone chosen goes to a free place in the position (a zone of kind `area`, or any zone) at `at`, the
+   * nearest of them first, so a fight is set up with one press per side. Outside any zone it is a plain line there.
+   */
+  #positionMoves(cards, at, { party, gait }) {
+    const f = this.rig.fractionOf(at.X, at.Z);
+    const zone = zonesAt(this.zones.filter((z) => z.kind === "area"), f[0], f[1])[0] ?? zonesAt(this.zones, f[0], f[1])[0] ?? null;
+    const chosen = cards.filter((c) => party || !c.pc);
+    if (!zone) return this.formationMoves("line", { ids: chosen.map((c) => c.id), focus: f, party: true, gait });
+    const w = Math.max(...chosen.map((c) => c.w), 120);
+    const ids = new Set(chosen.map((c) => c.id));
+    // everyone else standing in the position keeps their place: theirs are taken
+    const others = [...this.cards.values()].filter((c) => !ids.has(c.id) && c.holder === null).map((c) => ({ X: c.walk ? c.walk.to.X : c.puppet.restX, Z: c.walk ? c.walk.to.Z : c.restZ }));
+    const free = zoneSlots(zone, this.rig, { w: w * 1.05, most: 40 }).filter((s) => !others.some((o) => Math.abs(o.X - s.X) < w * 0.6 && Math.abs(o.Z - s.Z) < 90));
+    const order = [...chosen].sort((a, b) => Math.hypot(a.X - at.X, a.Z - at.Z) - Math.hypot(b.X - at.X, b.Z - at.Z));
+    const moves = [];
+    for (const c of order) {
+      if (!free.length) break;
+      free.sort((p, q) => Math.hypot(p.X - c.X, (p.Z - c.Z) * 0.8) - Math.hypot(q.X - c.X, (q.Z - c.Z) * 0.8));
+      const s = free.shift();
+      moves.push({ id: c.id, at: this.rig.fractionOf(s.X, s.Z).map((n) => Math.round(n * 10000) / 10000), yaw: 0, lean: 0, pitch: 0, gait, still: true, packed: false });
+    }
+    return moves;
   }
 
   /** Where every card nobody holds stands now, as the formations want them: { id, X, Z, w, pc }. */

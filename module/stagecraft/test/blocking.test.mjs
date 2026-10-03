@@ -364,6 +364,27 @@ test("a card knocked down tips over backwards, lands with a bounce, lies still a
   assert.equal(lying.snapshot().cards[0].down, 1, "a card published as down is down from the first frame (a reload)");
 });
 
+test("into position: the chosen spread out into free places in the zone clicked, each inside it, none on another", () => {
+  const raw = structuredClone(RAW_SCENE);
+  raw.zones.push({ id: "pit", kind: "area", name: "The pit", shape: [[0.3, 0.86], [0.7, 0.86], [0.72, 0.97], [0.28, 0.97]] });
+  const d = describeScene(raw).scene;
+  const s = new Stage(d, [
+    { id: "a", name: "A", at: [0.1, 0.95] }, { id: "b", name: "B", at: [0.9, 0.95] }, { id: "c", name: "C", at: [0.15, 0.9] },
+    { id: "keeper", name: "K", at: [0.5, 0.92] }, { id: "p", name: "P", at: [0.85, 0.9], pc: true }
+  ]);
+  const moves = s.formationMoves("position", { ids: ["a", "b", "c", "p"], focus: [0.5, 0.92] });
+  assert.deepEqual(moves.map((m) => m.id).sort(), ["a", "b", "c"], "the party stays put unless asked");
+  const keeper = s.cards.get("keeper");
+  for (const m of moves) {
+    assert.ok(m.at[0] > 0.27 && m.at[0] < 0.73 && m.at[1] > 0.85 && m.at[1] < 0.98, `${m.id} is in the pit (${m.at})`);
+    const p = s.rig.standing(m.at);
+    assert.ok(Math.abs(p.X - keeper.puppet.x) > 60 || Math.abs(p.Z - keeper.Z) > 60, `${m.id} is not on the keeper's place`);
+  }
+  assert.equal(new Set(moves.map((m) => m.at.join())).size, moves.length, "nobody shares a place");
+  const outside = s.formationMoves("position", { ids: ["a", "b"], focus: [0.1, 0.95] });
+  assert.equal(outside.length, 2, "outside any zone it is a plain line");
+});
+
 test("a zone near one that is not there is a problem the author is told about", () => {
   const raw = structuredClone(RAW_SCENE);
   raw.zones.push({ id: "x", kind: "area", shape: [[0.1, 0.8], [0.2, 0.8], [0.2, 0.9]], near: ["nowhere"] });

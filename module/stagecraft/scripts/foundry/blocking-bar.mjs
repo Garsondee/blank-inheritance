@@ -20,7 +20,7 @@ import { FORMATIONS } from "../core/formations.mjs";
 import { arrange, backToPlaces, tidyUp, lifeOn, boardOn, setLife, setBoard, momentsFor } from "./blocking.mjs";
 
 const t = (key, data) => (data ? game.i18n.format(`STAGECRAFT.Blocking.${key}`, data) : game.i18n.localize(`STAGECRAFT.Blocking.${key}`));
-const KEY = { line: "Line", huddle: "Huddle", talk: "Talk", gangup: "Gangup", panel: "Panel", standoff: "Standoff", circle: "Circle", queue: "Queue", scatter: "Scatter", audience: "Audience" };
+const KEY = { line: "Line", huddle: "Huddle", talk: "Talk", gangup: "Gangup", panel: "Panel", standoff: "Standoff", circle: "Circle", queue: "Queue", scatter: "Scatter", audience: "Audience", position: "Position" };
 
 export class BlockingBar {
   constructor(host) {

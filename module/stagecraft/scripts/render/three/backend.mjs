@@ -113,7 +113,7 @@ export class ThreeBackend {
     this.world = await new World({ scene: description, rig: this.rig, tracker: this.tracker, softDot: this.softDot, settings: this.settings }).build(painting);
     this.scene.add(this.world.group);
     this.zones = new ZoneOutlines({ scene: this.scene, rig: this.rig, zones: description.zones, tracker: this.tracker });
-    this.boardLabels = new BoardLabels({ scene: this.scene, rig: this.rig, zones: description.zones, tracker: this.tracker });
+    this.boardLabels = new BoardLabels({ scene: this.scene, rig: this.rig, zones: description.zones, tracker: this.tracker, cardHeight: skin.size.h * description.cardScale });
     this.marks = new MarkDecals({ scene: this.scene, tracker: this.tracker, softDot: this.softDot });
     this.fx = new BangFx({ scene: this.scene, rig: this.rig, tracker: this.tracker, softDot: this.softDot, settings: this.settings, cardHeight: skin.size.h * description.cardScale });
     this.fx.calm = this.calm;

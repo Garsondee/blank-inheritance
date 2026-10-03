@@ -46,10 +46,11 @@ export class ZoneOutlines {
  * position's name, rules and headcount can always be read. A label is redrawn only when its headcount changes.
  */
 export class BoardLabels {
-  constructor({ scene, rig, zones, tracker }) {
+  constructor({ scene, rig, zones, tracker, cardHeight = 300 }) {
     this.T = tracker;
     this.scene = scene;
     this.rig = rig;
+    this.cardHeight = cardHeight;          // a label hangs just above head height, like a sign, so it never covers a face
     this.areas = zones.filter((z) => z.kind === "area");
     this.labels = new Map();
   }
@@ -87,7 +88,7 @@ export class BoardLabels {
       const k = f / (f - label.at.Z);
       const s = 1.45 / Math.sqrt(Math.max(0.15, k));
       label.sprite.scale.set(w * s, h * s, 1);
-      label.sprite.position.set(label.at.X, (h * s) / 2 + 6, label.at.Z);
+      label.sprite.position.set(label.at.X, this.cardHeight * 1.08 + (h * s) / 2, label.at.Z);
     }
     return label;
   }

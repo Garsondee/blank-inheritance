@@ -68,6 +68,8 @@
       "moments": {
         "the-nest-wakes": { "label": "The nest wakes", "tip": "The fight board goes up for everyone: the walkways, the flood, the compactor and the panels, and who is in each.", "board": true, "life": true },
         "break-for-the-grate": { "label": "They break for the grate", "tip": "Once half are down, the rest scurry back to the grate in the middle of the flood.", "gait": "scurry", "places": { "giant-centipede-1": { "at": [0.46,0.76], "packed": true }, "giant-centipede-2": { "at": [0.52,0.75], "packed": true }, "giant-centipede-3": { "at": [0.57,0.765], "packed": true }, "giant-centipede-4": { "at": [0.48,0.79], "packed": true }, "giant-centipede-5": { "at": [0.54,0.795], "packed": true }, "giant-centipede-6": { "at": [0.5,0.78], "packed": true }} },
+        "party-left-walkway": { "label": "Party: left walkway", "tip": "The party takes the dry high ground on the left.", "formation": { "kind": "position", "focus": [0.15, 0.73], "who": "party", "gait": "hurry" } },
+        "party-right-walkway": { "label": "Party: right walkway", "tip": "The party takes the dry high ground on the right.", "formation": { "kind": "position", "focus": [0.86, 0.72], "who": "party", "gait": "hurry" } },
         "fight-over": { "label": "The fight is over", "tip": "The fight board comes down.", "board": false }
       },
       "onTrigger": {

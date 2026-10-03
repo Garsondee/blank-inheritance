@@ -17,7 +17,11 @@
 
 import { cheatOut, yawTo, huddlePlaces, tablePlaces, standoffPlaces } from "./diorama.mjs";
 
-export const FORMATIONS = Object.freeze(["line", "huddle", "talk", "gangup", "panel", "standoff", "circle", "queue", "scatter", "audience"]);
+/**
+ * The formations. `position` is the stage's own (core/stage.mjs `formationMoves`): it needs the scene's zones, so it is
+ * not worked out here: everyone chosen spreads out into free places in the position (zone) clicked.
+ */
+export const FORMATIONS = Object.freeze(["line", "huddle", "talk", "gangup", "panel", "standoff", "circle", "queue", "scatter", "audience", "position"]);
 
 const DEG = Math.PI / 180;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));

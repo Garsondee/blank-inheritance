@@ -91,7 +91,8 @@
         "Circle": { "Label": "Circle", "Tip": "Round a table, a fire or a body on the floor, the near side left open." },
         "Queue": { "Label": "Queue", "Tip": "One behind another, going back from where you click: a counter, a door." },
         "Scatter": { "Label": "Scatter", "Tip": "Everyone to a place of their own across the floor: a fight breaking out." },
-        "Audience": { "Label": "Audience", "Tip": "Everyone in a shallow arc facing where you click: a stage, a platform, a speaker." }
+        "Audience": { "Label": "Audience", "Tip": "Everyone in a shallow arc facing where you click: a stage, a platform, a speaker." },
+        "Position": { "Label": "Position", "Tip": "Click a zone: everyone chosen spreads out into free places in it. One press per side sets up a fight." }
       },
       "Tidy": {
         "Label": "Tidy",

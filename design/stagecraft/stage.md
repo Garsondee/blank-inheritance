@@ -872,6 +872,10 @@ with a bump to lie on the floor, dimmed, going about nothing, until stood back u
 here · 2 down"). In the adventure, a character at 0 HP falls by themself, and gets up when healed (the bridge watches their
 actor's HP; their card carries their actor id, which their players can see anyway).
 
+**Into position**: the GM's Position formation (press it, click a zone) spreads everyone chosen into free places in that
+position, nearest first, so a fight is set up with one press per side; the flood tunnel has "Party: left walkway" and
+"Party: right walkway" as moments. The board's labels hang just above head height, like signs, so they never cover a face.
+
 **Docking** (§8.3, for positions): while the board is up, a card put down inside a position goes to the nearest free place
 in it (a grid over the position's floor, a card's width apart), so a fight's positions stay readable instead of piling up.
 A mark within reach still wins; with the board down a card lands where it is let go, as before.

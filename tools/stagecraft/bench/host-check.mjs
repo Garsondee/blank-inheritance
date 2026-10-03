@@ -61,7 +61,7 @@ try {
   /* the strip is the GM's */
   const strip = await gm.$$eval(".stagecraft-blocking [data-act=form]", (b) => b.length);
   const moments = await gm.$$eval(".stagecraft-blocking [data-act=moment]", (b) => b.map((x) => x.textContent));
-  check("the GM has the blocking strip, with every formation", strip === 10, `${strip} formations`);
+  check("the GM has the blocking strip, with every formation", strip === 11, `${strip} formations`);
   check("the strip offers the scene's moments", moments.length === 3, moments.join(" / "));
   check("a player has no strip at all", (await player.$(".stagecraft-blocking")) === null);
 
