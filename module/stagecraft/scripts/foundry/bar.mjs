@@ -82,8 +82,8 @@ export class StageBar {
     } else if (act === "hide") {
       await scene.update({ [`flags.${NS}.live.chalkHidden`]: !(this.#live.chalkHidden === true) });
     } else if (act === "undo") {
-      const newest = store.strokes(scene.id).at(-1);
-      if (newest) await store.remove(scene.id, [newest.id]);
+      // the newest stroke on the whole wall, whoever made it (each layer keeps what its last strokes covered)
+      await store.undo(scene.id);
     } else if (act === "wipe") {
       const yes = await foundry.applications.api.DialogV2.confirm({
         window: { title: t("Wipe.Title") },

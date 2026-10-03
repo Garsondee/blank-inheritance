@@ -212,3 +212,22 @@ and angles, fully in view and in a way that helps to tell the story."* Built the
 | L6 | Chalk must leave a visible mark | chalk.md §10.1 | bench |
 | L7 | A zone must say what it is for, or not be shown (the Rumour Mill's wall) | chalk.md §10.1, stage.md §5.8.1 | bench |
 | L8 | Keep pushing to the live server, where she tests | module.md §21 | none |
+
+## M. Her ninth message: chalk, painted (2026-10-03)
+
+*"Rethink how we do chalk. Ideally we don't use vector lines. Ideally I want it to really be a smooth art experience, with
+a 'magic chalk' which can be then changed to any colour, more precising when using the chalk, less clunky chalk lines
+(raster preferred to vector) and even a range of different tools. You will likely have to rethink how we store the
+information and how the chalk works, consider this a call to improve things across the board. Feel free to add other
+chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| M1 | Chalk painted in pixels, not drawn as vector lines | chalk.md §4.1, chalk.md §5, chalk.md §11 | bench |
+| M2 | A smooth art experience: steadied, smoothed, pressure-weighted strokes | chalk.md §5 | bench |
+| M3 | Magic chalk, which can be changed to any colour | chalk.md §5, chalk.md §9 | bench |
+| M4 | More precise chalk: a ring the true size of the tip, small sizes, straight lines | chalk.md §2, chalk.md §5 | bench |
+| M5 | Less clunky chalk lines | chalk.md §5 | bench |
+| M6 | A range of tools, and more of her own to add: pencil, brush, spray, smudge, fill, eraser | chalk.md §5 | bench |
+| M7 | Rethink how chalk is stored: a layer of tiles per painter, with the history to take strokes back | chalk.md §4.1, chalk.md §4.2 | bench |
+| M8 | Improve chalk across the board: strokes seen live on every screen, undo and redo for everyone, the plain picture too | chalk.md §11 | bench |

@@ -15,8 +15,9 @@ import { CardView } from "./cards.mjs";
 import { BangFx } from "./fx.mjs";
 import { ZoneOutlines, MarkDecals, BoardLabels } from "./overlay.mjs";
 import { Post } from "./post.mjs";
-import { ChalkWall, ChalkBox, ChalkCursor } from "./chalk.mjs";
+import { ChalkTiles, ChalkBox } from "./chalk.mjs";
 import { DEFAULT_BOX } from "../../core/chalk.mjs";
+import { samplePainting } from "../paint/wall.mjs";
 
 export class ThreeBackend {
   constructor({ images = new ImageCache(), onContextLost = null } = {}) {
@@ -107,6 +108,7 @@ export class ThreeBackend {
     const painting = await this.images.loadImage(description.painting.src);
     if (!painting) throw new Error(`the painting "${description.painting.src}" could not be loaded`);
     if (this.disposed) return;
+    this.paintingImage = painting;
 
     aimCamera(this.camera, this.rig, this.view);
     this.#environment(painting);
@@ -117,10 +119,9 @@ export class ThreeBackend {
     this.marks = new MarkDecals({ scene: this.scene, tracker: this.tracker, softDot: this.softDot });
     this.fx = new BangFx({ scene: this.scene, rig: this.rig, tracker: this.tracker, softDot: this.softDot, settings: this.settings, cardHeight: skin.size.h * description.cardScale });
     this.fx.calm = this.calm;
-    this.chalkWall = new ChalkWall({ scene: this.scene, rig: this.rig, tracker: this.tracker });
+    this.chalkTiles = new ChalkTiles({ scene: this.scene, rig: this.rig });
     this.chalkBox = new ChalkBox({ scene: this.scene, rig: this.rig, at: description.chalk.box ?? DEFAULT_BOX, tracker: this.tracker });
     this.chalkBox.setVisible(false);
-    this.chalkCursor = new ChalkCursor({ scene: this.scene, tracker: this.tracker });
     await Promise.all(people.map((p) => this.addCard(p)));
     if (this.settings.post) {
       this.post = new Post(this.renderer, this.scene, this.camera, { width: Math.round(this.width * this.ratio), height: Math.round(this.height * this.ratio), samples: this.settings.msaa });
@@ -213,7 +214,10 @@ export class ThreeBackend {
     return ray;
   }
 
-  /** What is under a viewport point: the nearest card, or a stick of chalk or the eraser, with the point it was hit at. */
+  /**
+   * What is under a viewport point: the nearest card, or something in the box of chalk (a stick of one colour, the magic
+   * stick, the eraser), with the point it was hit at.
+   */
   pick(x, y) {
     if (!this.ready) return null;
     const meshes = [];
@@ -224,6 +228,7 @@ export class ThreeBackend {
     if (!hit) return null;
     const point = { x: hit.point.x, y: hit.point.y, z: hit.point.z };
     if (hit.object.userData.chalk) return { kind: "chalk", colour: hit.object.userData.chalk, point };
+    if (hit.object.userData.magic) return { kind: "magic", point };
     if (hit.object.userData.eraser) return { kind: "eraser", point };
     return { kind: "card", id: hit.object.userData.cardId, point };
   }
@@ -256,25 +261,15 @@ export class ThreeBackend {
 
   /* ---------------------------------------------------------------- chalk */
 
-  setChalkStrokes(strokes) { this.chalkWall?.set(strokes); }
-  addChalkStroke(stroke) { this.chalkWall?.add(stroke); }
-  removeChalkStrokes(ids) { this.chalkWall?.remove(ids); }
-  setChalkPreview(points, colour, size) { this.chalkWall?.setPreview(points, colour, size); }
-  setChalkHidden(hidden) { this.chalkWall?.setHidden(hidden); }
+  /** The chalk wall's tiles that changed (render/paint/wall.mjs), or (`full`) all of them. */
+  setChalkTiles(wall, keys, full = false) { this.chalkTiles?.update(wall, keys, full); }
+  setChalkHidden(hidden) { this.chalkTiles?.setHidden(hidden); }
   setChalkBox(visible) { this.chalkBox?.setVisible(visible); }
+  /** Stand the box of chalk at another point of the floor (fractions of the painting). */
+  setChalkBoxAt(at) { if (this.rig) this.chalkBox?.moveTo(this.rig, at); }
 
-  /**
-   * Show the stick of chalk (or the eraser) at a viewport point; `tool` is a colour name or "rub"; null puts it away.
-   * `blocked`: the chalk would leave no mark here (the stick is drawn faded and tipped back).
-   */
-  setChalkCursor(point, tool, drawing = false, blocked = false) {
-    if (!this.chalkCursor) return;
-    if (!point) { this.chalkCursor.set(null); return; }
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 200);       // z = -200, among the cards
-    const out = new THREE.Vector3();
-    if (!this.#ray(point.x, point.y).ray.intersectPlane(plane, out)) { this.chalkCursor.set(null); return; }
-    this.chalkCursor.set(out, tool, drawing, blocked);
-  }
+  /** The painting's own colour at a point of it (fractions), as "#rrggbb": what the colour picker takes where there is no chalk. */
+  paintingColour(fx, fy) { return samplePainting(this.paintingImage, fx, fy); }
 
   async capture() {
     if (this.post) this.post.render(0); else this.renderer.render(this.scene, this.camera);
@@ -296,6 +291,7 @@ export class ThreeBackend {
     this.disposed = true;
     for (const v of this.views.values()) v.dispose();
     this.views.clear();
+    this.chalkTiles?.dispose();
     this.post?.dispose();
     this.tracker?.disposeAll();
     this.scene?.environment?.dispose?.();

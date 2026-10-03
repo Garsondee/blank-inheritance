@@ -1,50 +1,90 @@
 /**
- * The box of chalk, at a table (chalk.md). It joins four things: the rules (core/chalk.mjs: where chalk may be used),
- * the memory (chalk-store.mjs: strokes kept in the world), the picture (the backend's wall, box and cursor) and the
- * pointer. A player takes a stick from the box, draws on the painting, and puts it back; the GM can open, close, lock
- * and wipe the wall.
+ * The box of chalk, at a table (chalk.md). It joins the rules (core/chalk.mjs: where chalk may be used), the brush
+ * (core/brush.mjs: how a hand becomes paint), the wall's pixels (render/paint/wall.mjs), the memory (chalk-store.mjs:
+ * every painter's layer kept in the world), the tools (chalk-kit.mjs) and the pointer.
  *
- * A stroke shows the moment it is drawn and is saved a moment later. Until the save lands it is `pending`, and a
- * rubbed stroke is `rubbed` until its removal lands, so another person's chalk arriving in between never makes your
- * own line flicker out and back.
+ * Paint shows the moment it is put down. When a stroke ends, the tiles it touched are kept in the world with the step
+ * that takes them back. Everyone else sees the stroke as it is being painted, sent across live; when the kept tiles
+ * reach them, the live copy gives way to them. Nothing waits on anything: a slow save never holds up a hand.
  */
 
 import { NS } from "./scene-data.mjs";
-import { LIMITS, effectivePolicy, allowedAt, boxVisible, clipPath, makeStroke, eraseAlong, strokeBounds, trimToCaps } from "../core/chalk.mjs";
+import { effectivePolicy, allowedAt, boxVisible, paintMask, wallGrid, toWall, PALETTE, stepId } from "../core/chalk.mjs";
+import { TOOLS, STEADY, Stroke, Feel, lineDabs, dabBounds, hashSeed, cleanHex } from "../core/brush.mjs";
 import { pointInPolygon } from "../core/zones.mjs";
+import { RasterWall, encodeTile } from "../render/paint/wall.mjs";
 
-const SIZE = "medium";
-const MIN_GAP = 0.0018;              // fractions of the painting between recorded points while drawing
-const RUB_RADIUS = 0.018;
+const SEND_EVERY = 45;               // milliseconds between the live sends of a stroke's samples
+const LIVE_TIMEOUT = 5000;           // a live stroke whose kept paint never comes is let go after this long
+const PREFS = "stagecraft.chalk.prefs";
 
-const newId = () => `${game.user.id.slice(0, 6)}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+const newId = () => `${(game.user?.id ?? "x").slice(0, 6)}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+/** This player's choices, kept on this machine: the colour, each tool's size, steady hand, magic chalk's tricks. */
+function loadPrefs() {
+  try { return JSON.parse(globalThis.localStorage?.getItem(PREFS) ?? "null") ?? {}; } catch { return {}; }
+}
+function savePrefs(prefs) {
+  try { globalThis.localStorage?.setItem(PREFS, JSON.stringify(prefs)); } catch { /* a private window keeps nothing */ }
+}
 
 export class ChalkController {
-  constructor({ host, store }) {
+  /**
+   * `makeWall(options)` makes the wall's pixels (render/paint/wall.mjs `RasterWall`) and `encode(canvas)` turns a tile
+   * into a picture to keep; a test passes stand-ins. `send(message)` puts a message on the stage's channel, for the live
+   * copy of a stroke on other screens.
+   */
+  constructor({ host, store, makeWall = (options) => new RasterWall(options), encode = encodeTile, send = () => {} }) {
     this.host = host;
     this.store = store;
     this.sceneId = host.scene.id;
-    this.known = new Map();          // stroke id -> stroke, what the wall is showing
-    this.pending = new Map();        // drawn here, not yet saved
-    this.rubbed = new Set();         // rubbed out here, not yet removed from the store
-    this.inHand = null;              // a colour name, or "rub"
-    this.drawing = null;             // { points }
-    this.unsubscribe = store.onChange((sceneId) => {
-      if (sceneId === null) { this.refresh(); this.sync(); }       // the journal itself arrived or changed
-      else if (sceneId === this.sceneId) this.sync();
+    this.send = send;
+    this.encode = encode;
+    this.pointerListeners = new Set();
+    this.grid = wallGrid(host.description.painting);
+    this.wall = makeWall({ grid: this.grid, onChange: (keys) => this.host.backend?.setChalkTiles?.(this.wall, keys) });
+    const prefs = loadPrefs();
+    this.colour = cleanHex(prefs.colour) ?? PALETTE.white;
+    this.recent = (prefs.recent ?? []).map(cleanHex).filter(Boolean).slice(0, 10);
+    this.sizes = { ...Object.fromEntries(Object.entries(TOOLS).map(([k, t]) => [k, t.size.initial])), ...(prefs.sizes ?? {}) };
+    this.steady = Number.isInteger(prefs.steady) ? Math.max(0, Math.min(STEADY.length - 1, prefs.steady)) : 1;
+    this.magic = { rainbow: false, glow: true, sparkle: false, ...(prefs.magic ?? {}) };
+    this.tool = null;                // the tool in hand, or null when the chalk is in its box
+    this.drawing = null;
+    this.lastEnd = null;             // where this hand's last stroke ended, for a straight line (Shift-click)
+    this.redoSteps = [];
+    this.remote = new Map();         // live strokes of other painters: id -> { by, stroke, ended, layers, timer }
+    this.loading = new Map();        // painter -> their layer's pictures being put on the wall
+    this.listeners = new Set();      // the kit, told when the hand changes
+    this.unsubscribe = store.onChange((sceneId, by) => {
+      if (sceneId === null) { this.refresh(); this.sync(); }                  // the journal itself arrived or changed
+      else if (sceneId === this.sceneId) this.#layerChanged(by);
     });
   }
 
   stop() {
     this.unsubscribe?.();
     this.putAway();
+    for (const r of this.remote.values()) clearTimeout(r.timer);
+    this.remote.clear();
+    this.listeners.clear();
+    this.pointerListeners.clear();
+    clearTimeout(this.flashTimer);
   }
 
-  /** The backend was rebuilt and its wall is empty: forget what it was showing so that sync() draws it all again. */
+  /** Be told where the pointer is while chalk is in hand (window px, or null): for the tip drawn round it. */
+  onPointer(fn) { this.pointerListeners.add(fn); return () => this.pointerListeners.delete(fn); }
+  #tellPointer(p) { for (const fn of this.pointerListeners) fn(p); }
+
+  /** The backend was rebuilt: show the whole wall again. */
   reset() {
-    this.known = new Map();
     this.putAway();
+    this.host.backend?.setChalkTiles?.(this.wall, new Set(this.wall.keys()), true);
   }
+
+  /** Be told when the hand changes (the tool, the colour, the size): `fn()`. Returns an unsubscribe. */
+  onHand(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
+  #tellHand() { for (const fn of this.listeners) fn(); }
 
   /* ---------------------------------------------------------------- the rules */
 
@@ -54,64 +94,19 @@ export class ChalkController {
     return effectivePolicy(this.host.description.chalk, live);
   }
 
-  /** Show or hide the box and the wall to match the rules; put the chalk away if it may no longer be used. */
-  refresh() {
-    const policy = this.policy();
-    const usable = this.store.ready && boxVisible(policy, this.host.description.zones);
-    this.host.backend.setChalkBox(usable);
-    if (!usable || policy.locked) this.putAway();
-    this.host.backend.setChalkHidden(this.host.scene.flags?.[NS]?.live?.chalkHidden === true);
-    return policy;
-  }
-
-  /* ---------------------------------------------------------------- the wall */
-
-  /** Make the wall show what the store holds: add what is new, take away what is gone. */
-  sync() {
-    const now = new Map();
-    for (const s of this.store.strokes(this.sceneId)) if (!this.rubbed.has(s.id)) now.set(s.id, s);
-    for (const [id, s] of this.pending) now.set(id, s);
-    const gone = [...this.known.keys()].filter((id) => !now.has(id));
-    if (gone.length) this.host.backend.removeChalkStrokes(gone);
-    for (const [id, s] of now) if (!this.known.has(id)) this.host.backend.addChalkStroke(s);
-    this.known = now;
-  }
-
-  /* ---------------------------------------------------------------- the hand */
-
   get usable() {
     return this.store.ready && boxVisible(this.policy(), this.host.description.zones);
   }
 
-  take(tool) {
-    if (!this.usable) return;
-    if (this.inHand === tool) { this.putAway(); return; }
-    this.inHand = tool;
-    this.host.root.classList.add("stagecraft-chalk");
-  }
-
-  putAway() {
-    this.inHand = null;
-    this.drawing = null;
-    this.cursorZone = null;
-    this.blocked = false;
-    this.host?.root?.classList.remove("stagecraft-chalk");
-    this.host?.backend?.setChalkCursor(null);
-    this.host?.backend?.setChalkPreview(null);
-    this.#hint(null);
-  }
-
-  /** The pointer moved with chalk in hand (viewport px). */
-  hover(p) {
-    if (!this.inHand) return;
-    if (!p) { this.host.backend.setChalkCursor(null); this.#hint(null); return; }
-    const at = this.host.backend.paintingAt(p.x, p.y);
-    // where the chalk would take: the stick shows it, and in a "zones only" scene the zone under it lights up
-    this.cursorZone = at ? (this.chalkZones().find((z) => pointInPolygon(z.shape, at.x, at.y))?.id ?? null) : null;
-    this.blocked = this.inHand !== "rub" && !(at && allowedAt(this.policy(), this.host.description.zones, at.x, at.y));
-    this.host.backend.setChalkCursor(p, this.inHand, !!this.drawing, this.blocked);
-    this.#hint(this.blocked ? p : null);
-    if (this.drawing) this.#extend(p);
+  /** Show or hide the box and the wall to match the rules; put the chalk away if it may no longer be used. */
+  refresh() {
+    const policy = this.policy();
+    const usable = this.usable;
+    this.host.backend.setChalkBox(usable);
+    if (!usable || policy.locked) this.putAway();
+    this.host.backend.setChalkHidden(this.host.scene.flags?.[NS]?.live?.chalkHidden === true);
+    this.wall.setMask(paintMask(policy, this.host.description.zones));
+    return policy;
   }
 
   /** The chalk zones of the scene, when the rules say chalk goes only on them (else none: it goes anywhere, or nowhere). */
@@ -119,104 +114,402 @@ export class ChalkController {
     return this.policy().mode === "zones" ? this.host.description.zones.filter((z) => z.kind === "chalk") : [];
   }
 
+  /* ---------------------------------------------------------------- the wall and the world */
+
+  /** Make the wall show what the world keeps: every painter's layer, every tile. */
+  sync() {
+    const layers = this.store.layers(this.sceneId);
+    this.#setLayers(layers);
+    for (const layer of layers) this.#loadLayer(layer);
+  }
+
+  /** The wall's layers as the world keeps them, and this painter's own even before the world has a page for it. */
+  #setLayers(layers) {
+    const list = layers.map((l) => ({ by: l.by, since: l.since }));
+    const mine = this.wall.layers.get(game.user.id);
+    if (mine && !list.some((l) => l.by === game.user.id)) list.push({ by: mine.by, since: mine.since });
+    this.wall.setLayers(list);
+  }
+
+  /** Show a layer's tiles as the world keeps them; when its pictures are all on the wall, live strokes kept in it give way. */
+  #loadLayer(layer) {
+    const known = this.wall.layers.get(layer.by);
+    const keys = new Set([...Object.keys(layer.tiles), ...(known ? [...known.sources.keys()] : [])]);
+    const jobs = [];
+    for (const key of keys) {
+      const want = layer.tiles[key] ?? null;
+      if (this.wall.sourceOf(layer.by, key) === want) continue;
+      jobs.push(this.wall.setTile(layer.by, key, want).catch((err) => console.warn(`${NS} | a tile of chalk could not be shown`, err)));
+    }
+    const job = Promise.all(jobs);
+    this.loading.set(layer.by, job);
+    job.then(() => {
+      if (this.loading.get(layer.by) === job) this.loading.delete(layer.by);
+      this.#settle();
+    });
+    return job;
+  }
+
+  #layerChanged(by) {
+    const layers = this.store.layers(this.sceneId);
+    const layer = layers.find((l) => l.by === by);
+    if (!layer) { this.sync(); return; }
+    if (!this.wall.layers.has(by) || this.wall.layers.get(by).since !== layer.since) this.#setLayers(layers);
+    this.#loadLayer(layer);
+  }
+
+  /**
+   * Someone else's live strokes give way to their kept paint once it is on this wall: a stroke is kept when every layer it
+   * changed has its step (the step's id ends in the stroke's) and that layer's pictures have all been shown.
+   */
+  #settle() {
+    if (!this.remote.size) return;
+    const layers = new Map(this.store.layers(this.sceneId).map((l) => [l.by, l]));
+    for (const [id, r] of this.remote) {
+      if (!r.ended) continue;
+      const kept = r.layers.every((by) => !this.loading.has(by) && Object.keys(layers.get(by)?.history ?? {}).some((k) => k.endsWith(`-${id}`)));
+      if (kept) this.#dropRemote(id);
+    }
+  }
+
+  /* ---------------------------------------------------------------- the hand */
+
+  /** The tool in hand (null when the chalk is in its box). */
+  get inHand() { return this.tool; }
+
+  /** Take something from the box: a stick of chalk (a colour's name), the magic stick, or the eraser ("rub"). */
+  take(item) {
+    if (!this.usable) return;
+    if (item === "rub") return this.choose(this.tool === "eraser" ? null : "eraser");
+    if (item === "magic") return this.choose(this.tool === "magic" ? null : "magic");
+    const hex = PALETTE[item];
+    if (!hex) return;
+    if (this.tool === "chalk" && this.colour === hex) return this.putAway();
+    this.setColour(hex);
+    this.choose("chalk");
+  }
+
+  /** Change tools (from the kit), or put the chalk away (null). */
+  choose(tool) {
+    if (!tool) return this.putAway();
+    if (!TOOLS[tool] || !this.usable) return;
+    if (this.drawing) this.cancel();
+    this.tool = tool;
+    this.host.root?.classList.add("stagecraft-chalk");
+    this.#tellHand();
+  }
+
+  putAway() {
+    if (this.drawing) this.cancel();
+    this.tool = null;
+    this.cursorZone = null;
+    this.blocked = false;
+    this.pointer = null;
+    this.host?.root?.classList.remove("stagecraft-chalk");
+    this.#hint(null);
+    this.#tellPointer(null);
+    this.#tellHand();
+  }
+
+  /** The colour in hand. `remember: false` while a picker is being dragged: only where it stops joins the recent colours. */
+  setColour(hex, { remember = true } = {}) {
+    const c = cleanHex(hex);
+    if (!c) return;
+    this.colour = c;
+    if (remember) this.recent = [c, ...this.recent.filter((r) => r !== c)].slice(0, 10);
+    this.#keep();
+    this.#tellHand();
+  }
+
+  setSize(size, tool = this.tool) {
+    const def = TOOLS[tool];
+    if (!def || def.kind === "fill") return;
+    this.sizes[tool] = Math.round(Math.max(def.size.min, Math.min(def.size.max, size)) * 10) / 10;
+    this.#keep();
+    this.#tellHand();
+  }
+
+  /** A size a step up or down ([ and ]): bigger steps for bigger tips. */
+  nudgeSize(direction) {
+    const s = this.sizes[this.tool];
+    if (!Number.isFinite(s)) return;
+    this.setSize(s + direction * Math.max(1, s * 0.15));
+  }
+
+  setSteady(level) {
+    this.steady = Math.max(0, Math.min(STEADY.length - 1, level));
+    this.#keep();
+    this.#tellHand();
+  }
+
+  setMagic(changes) {
+    this.magic = { ...this.magic, ...changes };
+    this.#keep();
+    this.#tellHand();
+  }
+
+  #keep() {
+    savePrefs({ colour: this.colour, recent: this.recent, sizes: this.sizes, steady: this.steady, magic: this.magic });
+  }
+
+  /** Wall pixels per window pixel here, for drawing the tip's true size round the pointer. */
+  scale(p) {
+    const a = this.host.backend.paintingAt(p.x, p.y);
+    const b = this.host.backend.paintingAt(p.x + 40, p.y);
+    if (!a || !b) return null;
+    const wall = Math.hypot((b.x - a.x) * this.grid.w, (b.y - a.y) * this.grid.h);
+    return wall > 0 ? 40 / wall : null;
+  }
+
+  /* ---------------------------------------------------------------- the pointer */
+
+  /** The pointer moved with chalk in hand (window px). */
+  hover(p) {
+    if (!this.tool) return;
+    this.pointer = p;
+    if (!p) { this.#hint(null); this.#tellPointer(null); return; }
+    const at = this.host.backend.paintingAt(p.x, p.y);
+    this.cursorZone = at ? (this.chalkZones().find((z) => pointInPolygon(z.shape, at.x, at.y))?.id ?? null) : null;
+    this.blocked = TOOLS[this.tool].kind !== "erase" && !(at && allowedAt(this.policy(), this.host.description.zones, at.x, at.y));
+    if (!this.flashTimer) this.#hint(this.blocked && !this.drawing ? p : null);
+    this.#tellPointer(p);
+  }
+
   /** A small line by the pointer, while the chalk would leave no mark there: where it does go. */
-  #hint(p) {
+  #hint(p, text = null) {
     const root = this.host?.root;
     if (typeof root?.querySelector !== "function" || typeof document === "undefined") return;
     let el = root.querySelector(".stagecraft-chalk-hint");
     if (!p) { if (el) el.hidden = true; return; }
     if (!el) { el = document.createElement("div"); el.className = "stagecraft-chalk-hint"; root.append(el); }
     const names = this.chalkZones().map((z) => z.name).filter(Boolean);
-    el.textContent = names.length
+    el.textContent = text ?? (names.length
       ? game.i18n.format("STAGECRAFT.Chalk.OnlyOn", { where: names.join(", ") })
-      : game.i18n.localize("STAGECRAFT.Chalk.NotHere");
+      : game.i18n.localize("STAGECRAFT.Chalk.NotHere"));
     el.style.left = `${Math.round(p.x + 22)}px`;
     el.style.top = `${Math.round(p.y + 18)}px`;
     el.hidden = false;
   }
 
-  begin(p) {
-    if (!this.inHand) return false;
-    const at = this.host.backend.paintingAt(p.x, p.y);
+  /** A note by the pointer for a moment: a fill that found no shape, a colour picked. */
+  flash(p, text) {
+    this.#hint(p, text);
+    clearTimeout(this.flashTimer);
+    this.flashTimer = setTimeout(() => { this.flashTimer = null; this.#hint(null); }, 1800);
+  }
+
+  #wallPoint(sample) {
+    const at = this.host.backend.paintingAt(sample.x, sample.y);
+    return at ? toWall(this.grid, at.x, at.y) : null;
+  }
+
+  /**
+   * The pointer went down with chalk in hand. `sample` is { x, y (window px), pressure, pointerType, t, shift, alt, flip }.
+   * Alt picks a colour; Shift draws a straight line from where the last stroke ended; the fill fills at once; a pen turned
+   * round (`flip`, its eraser end) rubs out. Returns true when the stage should keep the pointer.
+   */
+  begin(sample) {
+    if (!this.tool || !this.usable || this.policy().locked || this.drawing) return false;
+    const at = this.#wallPoint(sample);
     if (!at) return false;
-    this.drawing = { points: [[at.x, at.y]] };
-    this.#preview();
+    if (sample.alt) { this.pickColour(sample); return false; }
+    const tool = sample.flip ? "eraser" : this.tool;
+    const def = TOOLS[tool];
+    if (def.kind === "fill") { this.#fill(at, sample); return false; }
+    if (sample.shift && this.lastEnd) { this.#straight(this.lastEnd, at, tool); return false; }
+    const id = newId();
+    const seed = hashSeed(id);
+    const size = this.sizes[tool];
+    const opts = { tool, size, steady: STEADY[this.steady], seed };
+    const everyone = def.kind === "erase" && game.user.isGM === true;
+    const magic = def.magic ? { ...this.magic } : null;
+    this.wall.begin({ id, by: game.user.id, tool, colour: this.colour, magic, everyone });
+    this.drawing = { id, stroke: new Stroke(opts), feel: new Feel(), opts, everyone, unsent: [], timer: null, at };
+    this.send({ type: "chalk", op: "begin", scene: this.sceneId, id, tool, colour: this.colour, magic, everyone, size, steady: opts.steady, seed });
+    this.extend(sample);
     return true;
   }
 
-  #extend(p) {
-    const at = this.host.backend.paintingAt(p.x, p.y);
+  /** One more sample of the pointer while painting (every coalesced event, for the smoothest line). */
+  extend(sample) {
+    const d = this.drawing;
+    if (!d) return;
+    const at = this.#wallPoint(sample);
     if (!at) return;
-    const last = this.drawing.points[this.drawing.points.length - 1];
-    if (Math.hypot(at.x - last[0], at.y - last[1]) < MIN_GAP) return;
-    this.drawing.points.push([at.x, at.y]);
-    this.#preview();
+    const p = d.feel.pressure({ x: at.x, y: at.y, t: sample.t ?? performance.now(), pressure: sample.pressure, pointerType: sample.pointerType });
+    const s = { x: Math.round(at.x * 10) / 10, y: Math.round(at.y * 10) / 10, p: Math.round(p * 100) / 100 };
+    d.at = at;
+    this.wall.paint(d.id, d.stroke.add(s));
+    d.unsent.push(s);
+    d.timer ??= setTimeout(() => this.#sendLive(), SEND_EVERY);
   }
 
-  #preview() {
-    if (this.inHand === "rub") return;
-    const runs = clipPath(this.drawing.points, this.policy(), this.host.description.zones);
-    this.host.backend.setChalkPreview(runs.flat(), this.inHand, SIZE);
+  #sendLive() {
+    const d = this.drawing;
+    if (!d) return;
+    d.timer = null;
+    if (!d.unsent.length) return;
+    this.send({ type: "chalk", op: "more", scene: this.sceneId, id: d.id, s: d.unsent.flatMap((x) => [x.x, x.y, x.p]) });
+    d.unsent = [];
   }
 
-  /** The pointer came up: the line becomes strokes (or the rubbing takes effect). */
+  /** The pointer came up: the stroke becomes paint in this painter's layer, and is kept. */
   async end() {
-    const drawing = this.drawing;
+    const d = this.drawing;
+    if (!d) return;
+    this.wall.paint(d.id, d.stroke.finish());
+    clearTimeout(d.timer);
+    this.#sendLive();
     this.drawing = null;
-    this.host.backend.setChalkPreview(null);
-    if (!drawing || !this.store.ready) return;
-    if (this.inHand === "rub") return this.#rub(drawing.points);
-    const made = [];
-    for (const run of clipPath(drawing.points, this.policy(), this.host.description.zones)) {
-      const r = makeStroke({ id: newId(), scene: this.sceneId, by: game.user.id, at: Date.now(), colour: this.inHand, size: SIZE, points: run });
-      if (r.ok) made.push(r.stroke);
-    }
-    for (const stroke of made) {
-      this.pending.set(stroke.id, stroke);
-      this.known.set(stroke.id, stroke);
-      this.host.backend.addChalkStroke(stroke);          // seen at once; the store catches up
-      Hooks.callAll("stagecraft.chalk", { type: "chalk", stroke, bounds: strokeBounds(stroke), by: game.user.id });
-    }
-    for (const stroke of made) {
-      try { await this.store.append(this.sceneId, stroke); }
-      catch (err) { console.warn(`${NS} | could not keep a chalk stroke`, err); }
-      finally { this.pending.delete(stroke.id); }
-    }
-    this.sync();
-    await this.#trim();
+    this.lastEnd = d.at;
+    const box = dabBounds(this.wall.strokes.get(d.id)?.dabs ?? []);
+    const changed = this.wall.commit(d.id);
+    // the others are told which layers to wait for before their live copy gives way to what is kept
+    this.send({ type: "chalk", op: "end", scene: this.sceneId, id: d.id, layers: [...changed.keys()] });
+    await this.#keepChanges(changed, d.id, box, d.opts.tool);
   }
 
-  async #rub(path) {
-    const mine = (s) => game.user.isGM || s.by === game.user.id;
-    const { removed, added } = eraseAlong([...this.known.values()], path, RUB_RADIUS, mine);
-    if (!removed.length) return;
-    for (const id of removed) { this.rubbed.add(id); this.pending.delete(id); this.known.delete(id); }
-    this.host.backend.removeChalkStrokes(removed);
-    for (const s of added) { this.pending.set(s.id, s); this.known.set(s.id, s); this.host.backend.addChalkStroke(s); }
-    try {
-      await this.store.remove(this.sceneId, removed);
-      for (const s of added) await this.store.append(this.sceneId, s);
-    } catch (err) {
-      console.warn(`${NS} | could not rub out chalk`, err);
-    } finally {
-      for (const id of removed) this.rubbed.delete(id);
-      for (const s of added) this.pending.delete(s.id);
-      this.sync();
+  /** Escape in the middle of a stroke: it is thrown away. */
+  cancel() {
+    const d = this.drawing;
+    if (!d) return;
+    clearTimeout(d.timer);
+    this.drawing = null;
+    this.send({ type: "chalk", op: "cancel", scene: this.sceneId, id: d.id });
+    const keys = this.wall.strokes.get(d.id)?.touched ?? new Set();
+    this.wall.drop(d.id);
+    if (TOOLS[d.opts.tool].kind === "smudge") this.wall.revert(game.user.id, keys).catch(() => {});
+  }
+
+  /**
+   * Keep what a stroke changed: each painter's tiles it touched, with the step that takes them back. `box` is where the
+   * stroke lay, in wall pixels, for the `stagecraft.chalk` hook ("Taka squints at the doodle").
+   */
+  async #keepChanges(changed, strokeId, box = null, tool = this.tool) {
+    if (!changed.size) return;
+    const now = Date.now();
+    const step = { id: stepId(now, strokeId), at: now };
+    this.redoSteps = [];
+    for (const [by, tiles] of changed) {
+      const pictures = {};
+      const before = {};
+      for (const [key, canvas] of tiles) {
+        before[key] = this.wall.sourceOf(by, key);
+        pictures[key] = this.encode(canvas);
+        this.wall.noteSource(by, key, pictures[key]);
+      }
+      try {
+        await this.store.save(this.sceneId, { by, tiles: pictures, step, grid: this.grid });
+      } catch (err) {
+        console.warn(`${NS} | chalk could not be kept`, err);
+        for (const [key, source] of Object.entries(before)) this.wall.noteSource(by, key, source);
+        await this.wall.revert(by, Object.keys(before));
+      }
+    }
+    const g = this.grid;
+    const bounds = box ? { x0: Math.max(0, box.x0 / g.w), y0: Math.max(0, box.y0 / g.h), x1: Math.min(1, box.x1 / g.w), y1: Math.min(1, box.y1 / g.h) } : null;
+    Hooks.callAll("stagecraft.chalk", { type: "chalk", scene: this.sceneId, by: game.user.id, tool, colour: this.colour, bounds });
+  }
+
+  /** A straight line from `from` to `to` (wall px), in one go: Shift-click from where the last stroke ended. */
+  #straight(from, to, tool = this.tool) {
+    const def = TOOLS[tool];
+    if (def.kind === "smudge") return null;
+    const id = newId();
+    const opts = { tool, size: this.sizes[tool], seed: hashSeed(id) };
+    const dabs = lineDabs({ ...from, p: 0.8 }, { ...to, p: 0.8 }, opts);
+    this.wall.begin({ id, by: game.user.id, tool, colour: this.colour, magic: def.magic ? { ...this.magic } : null, everyone: def.kind === "erase" && game.user.isGM === true });
+    this.wall.paint(id, dabs);
+    this.lastEnd = to;
+    const box = dabBounds(dabs);
+    this.#keepChanges(this.wall.commit(id), id, box, tool).catch((err) => console.warn(`${NS} | a straight line could not be kept`, err));
+    return box;
+  }
+
+  #fill(at, sample) {
+    const r = this.wall.fill({ x: at.x, y: at.y, by: game.user.id, colour: this.colour });
+    if (!r.ok) {
+      this.flash(sample, game.i18n.localize(r.reason === "open" ? "STAGECRAFT.Chalk.FillOpen" : "STAGECRAFT.Chalk.FillOnPaint"));
+      return;
+    }
+    this.#keepChanges(new Map([[game.user.id, r.changed]]), newId(), { x0: at.x - 1, y0: at.y - 1, x1: at.x + 1, y1: at.y + 1 }).catch((err) => console.warn(`${NS} | a fill could not be kept`, err));
+  }
+
+  /** Take the colour under the pointer: from the chalk on the wall, or, where there is none, from the painting. */
+  pickColour(sample) {
+    const at = this.host.backend.paintingAt(sample.x, sample.y);
+    if (!at) return null;
+    const w = toWall(this.grid, at.x, at.y);
+    const hex = this.wall.pick(w.x, w.y) ?? this.host.backend.paintingColour?.(at.x, at.y) ?? null;
+    if (hex) { this.setColour(hex); this.flash(sample, game.i18n.format("STAGECRAFT.Chalk.Picked", { colour: hex })); }
+    return hex;
+  }
+
+  /* ---------------------------------------------------------------- taking back */
+
+  /** Take back this painter's own newest stroke (Ctrl+Z), wherever it went (a GM's rubbing out went on others' layers). */
+  async undo() {
+    if (this.drawing) this.cancel();
+    const done = await this.store.undo(this.sceneId, { by: game.user.id });
+    if (!done) return false;
+    this.redoSteps.push(done.layers);
+    return true;
+  }
+
+  /** Put back what the last undo took away (Ctrl+Shift+Z or Ctrl+Y). */
+  async redo() {
+    const layers = this.redoSteps.pop();
+    if (!layers) return false;
+    const now = Date.now();
+    const step = { id: stepId(now, newId()), at: now };
+    for (const [by, tiles] of Object.entries(layers)) await this.store.save(this.sceneId, { by, tiles, step, grid: this.grid });
+    return true;
+  }
+
+  /* ---------------------------------------------------------------- other painters, live */
+
+  /** A message about someone else's stroke, from the stage's channel. */
+  receive(message, from) {
+    if (!message || message.scene !== this.sceneId || from === game.user.id) return;
+    if (message.op === "begin") {
+      if (!TOOLS[message.tool] || TOOLS[message.tool].kind === "smudge" || TOOLS[message.tool].kind === "fill") return;
+      if (this.remote.has(message.id) || typeof message.id !== "string") return;
+      const by = from;                                     // a live stroke is always on its sender's own layer
+      // a GM's eraser may rub out everyone's; anyone else's only their own
+      const everyone = message.everyone === true && game.users?.get(from)?.isGM === true;
+      this.wall.begin({ id: message.id, by, tool: message.tool, colour: cleanHex(message.colour) ?? PALETTE.white, magic: message.magic ?? null, everyone, live: true });
+      const stroke = new Stroke({ tool: message.tool, size: Number(message.size) || undefined, steady: Number(message.steady) || 0, seed: Number(message.seed) >>> 0 });
+      this.remote.set(message.id, { by, stroke, ended: false, layers: [], timer: setTimeout(() => this.#dropRemote(message.id), 60000) });
+    } else if (message.op === "more") {
+      const r = this.remote.get(message.id);
+      if (!r || r.ended || !Array.isArray(message.s)) return;
+      const dabs = [];
+      for (let i = 0; i + 2 < message.s.length; i += 3) dabs.push(...r.stroke.add({ x: Number(message.s[i]), y: Number(message.s[i + 1]), p: Number(message.s[i + 2]) }));
+      this.wall.paint(message.id, dabs);
+    } else if (message.op === "end") {
+      const r = this.remote.get(message.id);
+      if (!r || r.ended) return;
+      this.wall.paint(message.id, r.stroke.finish());
+      r.ended = true;
+      r.layers = (Array.isArray(message.layers) ? message.layers : [r.by]).filter((by) => typeof by === "string");
+      clearTimeout(r.timer);
+      // the live copy goes when their kept paint is on this wall (perhaps already), or after a while if it never comes
+      r.timer = setTimeout(() => this.#dropRemote(message.id), LIVE_TIMEOUT);
+      this.#settle();
+    } else if (message.op === "cancel") {
+      this.#dropRemote(message.id);
     }
   }
 
-  /** A full wall forgets its oldest strokes (chalk.md §4.3), so a long campaign never grows it without bound. */
-  async #trim() {
-    const { overflow } = trimToCaps([...this.known.values()], LIMITS.strokesPerScene);
-    if (!overflow.length) return;
-    const ids = overflow.map((s) => s.id);
-    for (const id of ids) this.rubbed.add(id);
-    try { await this.store.remove(this.sceneId, ids); }
-    catch (err) { console.warn(`${NS} | could not trim the chalk wall`, err); }
-    finally { for (const id of ids) this.rubbed.delete(id); this.sync(); }
+  #dropRemote(id) {
+    const r = this.remote.get(id);
+    if (!r) return;
+    clearTimeout(r.timer);
+    this.remote.delete(id);
+    this.wall.drop(id);
   }
 
-  /** May chalk be used at this point? (for the cursor to show a stop sign, later) */
+  /** May chalk be used at this point of the painting? */
   allowedAt(at) {
     return allowedAt(this.policy(), this.host.description.zones, at.x, at.y);
   }

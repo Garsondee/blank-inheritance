@@ -8,7 +8,7 @@ import { assertBackend } from "../scripts/render/contract.mjs";
 import { FlatBackend } from "../scripts/render/flat/backend.mjs";
 import { Stage, STEP } from "../scripts/core/stage.mjs";
 import { describeScene } from "../scripts/core/scene.mjs";
-import { makeStroke } from "../scripts/core/chalk.mjs";
+import { wallGrid } from "../scripts/core/chalk.mjs";
 import { paper } from "../scripts/skins/paper.mjs";
 import { installFakeDom, fakeElement, calls } from "./fake-canvas.mjs";
 import { RAW_SCENE, PEOPLE } from "./fixture.mjs";
@@ -176,32 +176,56 @@ test("the window maps onto the floor and the painting, and a point on the floor 
   t.dom.restore();
 });
 
-test("chalk: a stroke is drawn on the wall, drawn again from the store after a rub, hidden when hidden, and the line being drawn has its own layer", async () => {
+/** A stand-in for the painted wall (render/paint/wall.mjs): its grid and the tiles that have paint, as canvases. */
+function paintedWall(keys) {
+  const grid = wallGrid(scene.painting);
+  return { grid, composite: new Map(keys.map((k) => [k, document.createElement("canvas")])) };
+}
+
+test("chalk: the wall's tiles are laid on the painting where they belong, and hidden when the GM hides the wall", async () => {
   const t = await table();
-  const stroke = (id, y) => makeStroke({ id, scene: "sc", by: "u1", at: 1, colour: "yellow", size: "medium", points: [[0.1, y], [0.4, y + 0.1]] }).stroke;
-  t.backend.addChalkStroke(stroke("a", 0.2));
-  t.backend.addChalkStroke(stroke("a", 0.2));               // the same stroke twice is one stroke
-  const kept = t.backend.keptLayer.ctx;
-  assert.ok(calls(kept, "stroke").length > 0, "drawn on the kept layer");
-  const once = calls(kept, "stroke").length;
-  t.backend.addChalkStroke(stroke("b", 0.5));
-  assert.ok(calls(kept, "stroke").length > once);
-  const before = calls(kept, "clearRect").length;
-  t.backend.removeChalkStrokes(["a"]);
-  assert.equal(calls(kept, "clearRect").length, before + 1, "a rub redraws what is left");
-  assert.equal(t.backend.strokes.size, 1);
-  t.backend.setChalkPreview([[0.2, 0.2], [0.3, 0.3]], "pink", "medium");
-  assert.ok(calls(t.backend.liveLayer.ctx, "stroke").length > 0, "the line in progress is on the live layer");
-  t.backend.setChalkPreview(null);
+  const wall = paintedWall(["c2r1", "c11r5"]);
+  t.backend.setChalkTiles(wall, new Set(wall.composite.keys()), true);
   t.backend.draw(t.snapshot());
   const backdrop = () => t.backend.backdrop.ctx;
-  const blitted = () => calls(backdrop(), "drawImage").filter((e) => e.args[0] === t.backend.keptLayer.canvas).length;
-  assert.equal(blitted(), 1, "the wall is on the painting");
+  const laid = (tile) => calls(backdrop(), "drawImage").filter((e) => e.args[0] === tile);
+  const [first] = laid(wall.composite.get("c2r1"));
+  assert.ok(first, "the tile is on the painting");
+  // c2r1 is pixels 480..720 x 240..480 of a 2880 x 1440 wall: a twelfth of the painting across, a sixth down
+  const map = t.backend.rig.map;
+  const [iw, ih] = t.backend.rig.size;
+  const [, x, y, w, h] = first.args;
+  assert.ok(Math.abs(x - (map.ox + (iw * map.s) * (480 / 2880))) < 1e-6 && Math.abs(y - (map.oy + (ih * map.s) * (240 / 1440))) < 1e-6, "in its place");
+  assert.ok(Math.abs(w - (iw * map.s) / 12) < 1e-6 && Math.abs(h - (ih * map.s) / 6) < 1e-6, "at its size");
+  assert.equal(laid(wall.composite.get("c11r5")).length, 1, "the last tile too");
   backdrop().log.length = 0;
   t.backend.setChalkHidden(true);
   t.backend.draw(t.snapshot());
-  assert.equal(blitted(), 0, "and gone when the GM hides it");
+  assert.equal(laid(wall.composite.get("c2r1")).length, 0, "and gone when the GM hides it");
   assert.ok(calls(backdrop(), "drawImage").length > 0, "the rest of the backdrop was drawn again without it");
+  t.dom.restore();
+});
+
+test("chalk being painted redraws only the places of the tiles that changed, never the whole backdrop", async () => {
+  const t = await table();
+  const wall = paintedWall(["c2r1"]);
+  t.backend.setChalkTiles(wall, new Set(["c2r1"]), true);
+  t.backend.draw(t.snapshot());
+  const backdrop = () => t.backend.backdrop.ctx;
+  const painted = () => calls(backdrop(), "drawImage").filter((e) => e.args[0] === t.backend.painting).length;
+  const whole = painted();
+  wall.composite.set("c3r1", document.createElement("canvas"));
+  t.backend.setChalkTiles(wall, new Set(["c3r1"]));
+  backdrop().log.length = 0;
+  t.backend.draw(t.snapshot());
+  assert.equal(calls(backdrop(), "clip").length, 1, "one place, clipped");
+  assert.equal(painted(), 1, "the painting is drawn again only there");
+  assert.ok(calls(backdrop(), "drawImage").some((e) => e.args[0] === wall.composite.get("c3r1")), "with the new paint");
+  assert.ok(calls(backdrop(), "drawImage").some((e) => e.args[0] === wall.composite.get("c2r1")), "and its neighbour's, so no edge is left behind");
+  backdrop().log.length = 0;
+  t.backend.draw(t.snapshot());
+  assert.equal(calls(backdrop(), "drawImage").length, 0, "nothing changed: nothing drawn");
+  assert.ok(whole >= 1);
   t.dom.restore();
 });
 
@@ -219,25 +243,11 @@ test("the box of chalk is there to pick only while it is shown", async () => {
   assert.equal(hit.colour, stick.colour);
   const e = layout.eraser.hit;
   assert.equal(t.backend.pick((e.x0 + e.x1) / 2, (e.y0 + e.y1) / 2)?.kind, "eraser");
+  const m = layout.magic.hit;
+  assert.equal(t.backend.pick((m.x0 + m.x1) / 2, (m.y0 + m.y1) / 2)?.kind, "magic");
   t.backend.setChalkBox(false);
   t.backend.draw(t.snapshot());
   assert.equal(t.backend.pick((stick.hit.x0 + stick.hit.x1) / 2, (stick.hit.y0 + stick.hit.y1) / 2), null, "put away");
-  t.dom.restore();
-});
-
-test("the stick of chalk in the hand follows the pointer, and the eraser is a different thing", async () => {
-  const t = await table();
-  t.backend.setChalkCursor({ x: 400, y: 300 }, "blue", false);
-  t.backend.draw(t.snapshot());
-  assert.ok(calls(t.screen(), "fillRect").some((e) => e.with.fillStyle === "#8fc0e0"), "a blue stick");
-  t.screen().log.length = 0;
-  t.backend.setChalkCursor({ x: 400, y: 300 }, "rub", false);
-  t.backend.draw(t.snapshot());
-  assert.ok(calls(t.screen(), "fillRect").some((e) => e.with.fillStyle === "#5b6670"), "a felt eraser");
-  t.screen().log.length = 0;
-  t.backend.setChalkCursor(null);
-  t.backend.draw(t.snapshot());
-  assert.equal(calls(t.screen(), "fillRect").some((e) => e.with.fillStyle === "#5b6670" && e.args[2] === 50 * 0.93 * t.backend.view.s), false, "put away");
   t.dom.restore();
 });
 
@@ -330,9 +340,10 @@ test("the still backdrop (painting, zones, chalk) is drawn once and copied every
   assert.equal(painted(), first, "five more frames do not draw the painting again");
   const copies = () => calls(t.screen(), "drawImage").filter((e) => e.args[0] === t.backend.backdrop.canvas).length;
   assert.equal(copies(), 6, "but each of the six frames copies the backdrop");
-  t.backend.addChalkStroke(makeStroke({ id: "q", scene: "sc", by: "u1", at: 1, colour: "white", size: "thin", points: [[0.1, 0.1], [0.2, 0.2]] }).stroke);
+  const wall = paintedWall(["c1r1"]);
+  t.backend.setChalkTiles(wall, new Set(["c1r1"]), true);
   t.backend.draw(t.snapshot());
-  assert.equal(painted(), first * 2, "a new line of chalk redraws it");
+  assert.equal(painted(), first * 2, "a wall shown afresh redraws it");
   t.backend.resize(1920, 1080, 1);
   t.backend.draw(t.snapshot());
   assert.equal(t.backend.backdrop.canvas.width, 1920, "a new window size makes a new backdrop at that size");

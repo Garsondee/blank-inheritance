@@ -77,16 +77,18 @@ export { BACKDROP_DEPTH };
 /**
  * A plane that covers exactly the painting, at a depth just in front of it (`inFront` units nearer to the viewer), so
  * anything drawn on its texture in painting fractions lands on the painting at any size. The painting itself, the zone
- * outlines and the chalk are all such planes.
+ * outlines and the chalk are all such planes. `part` ({ x0, y0, x1, y1 }, fractions) covers only that rectangle of the
+ * painting instead (a tile of the chalk wall); `geometry` lets many planes share one.
  */
-export function paintingPlane(rig, material, inFront = 0) {
+export function paintingPlane(rig, material, inFront = 0, part = null, geometry = null) {
   const [iw, ih] = rig.size;
   const w = iw * rig.map.s;
   const h = ih * rig.map.s;
+  const { x0, y0, x1, y1 } = part ?? { x0: 0, y0: 0, x1: 1, y1: 1 };
   const Z = -BACKDROP_DEPTH + inFront;
   const k = (rig.cam.f - Z) / rig.cam.f;
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
-  mesh.position.copy(atDepth(rig, rig.map.ox + w / 2, rig.map.oy + h / 2, Z));
-  mesh.scale.set(w * k, h * k, 1);
+  const mesh = new THREE.Mesh(geometry ?? new THREE.PlaneGeometry(1, 1), material);
+  mesh.position.copy(atDepth(rig, rig.map.ox + w * (x0 + x1) / 2, rig.map.oy + h * (y0 + y1) / 2, Z));
+  mesh.scale.set(w * (x1 - x0) * k, h * (y1 - y0) * k, 1);
   return mesh;
 }

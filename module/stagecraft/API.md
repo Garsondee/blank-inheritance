@@ -3,9 +3,11 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.4.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.5.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
-published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`.
+published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
+0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
+`api.chalkTools` lists the tools.
 
 ## api
 
@@ -34,6 +36,7 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.stage()` | The stage on screen now as `{ stage, backend }`, or `null` |
 | `api.zoneKinds` | The zone kinds the module knows. Any other kind is treated as a trigger |
 | `api.chalkModes` | `off`, `zones`, `anywhere` |
+| `api.chalkTools` | The tools in the chalk kit: `chalk`, `magic`, `pencil`, `brush`, `spray`, `smudge`, `eraser`, `fill` |
 
 ## Hooks
 
@@ -53,7 +56,7 @@ Raised with `Hooks.callAll`. The first argument is the event; the second is the 
 | `stagecraft.walk` | A card set off somewhere without a hand (a formation, a move): `{ card, to: { X, Z }, mark, t }` |
 | `stagecraft.arrive` | A card that was sent somewhere got there: `{ card, mark, t }` |
 | `stagecraft.fall` | A card was knocked down or stood back up: `{ card, down, t }` |
-| `stagecraft.chalk` | A player left a line of chalk on this screen: `{ type, stroke, bounds, by }`. A stroke is `{ id, scene, by, at, colour, size, p }`, with `p` the points as thousandths of the painting |
+| `stagecraft.chalk` | Someone on this screen painted on the wall, and it is kept: `{ type: "chalk", scene, by, tool, colour, bounds }`. `tool` is one of `api.chalkTools`, `colour` is `"#rrggbb"`, and `bounds` is where the stroke lay, `{ x0, y0, x1, y1 }` in fractions of the painting. Raised once per stroke, on the painter's own screen |
 | `stagecraft.settingsChanged` | A player changed one of their Stagecraft settings; the argument is its name |
 
 ## A stage scene
@@ -94,5 +97,9 @@ only inside zones of kind `chalk`; `lock` keeps the wall and takes the chalk awa
 (fractions of the painting). A GM can override the mode and the lock from the strip along the top of the stage, which
 writes `flags.stagecraft.live.chalk = { mode, locked }`; `flags.stagecraft.live.chalkHidden` hides the wall.
 
-Strokes are kept in one world journal entry, `Stagecraft chalk`, which every player owns, with a page for each scene and
-drawer. Nothing else is stored, so deleting the journal entry clears every wall.
+Chalk is painted in pixels. Paint is kept in one world journal entry, `Stagecraft chalk`, which every player owns, with a
+page for each scene and painter: that painter's layer of the wall, as square tiles of pixels (small WebP pictures; the wall
+is 1440 pixels high and as wide as the painting's shape makes it, in tiles of 240) and the last eight strokes' history, so
+each can be taken back. A painter writes only their own page (a GM may write any), so two people painting at once never
+overwrite each other. Strokes being painted travel between screens on the module's socket and are never kept until they
+end. Nothing else is stored, so deleting the journal entry clears every wall.

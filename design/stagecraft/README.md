@@ -21,6 +21,9 @@ headcounts and range bands. The bench (`tools/stagecraft/bench/`) shows any of i
 again, the party in the wings, nobody hidden more than 15% by anything (tested for every scene, moment and routine), and
 every Episode One scene and haunt staged, 28 in all (From Up Here and The Road In need no cards). Chalk leaves its mark
 and says where it may go; zones say what they are for.
+**And then chalk was painted** (`chalk.md` §11, `module.md` §22): pixels instead of lines, a kit of eight tools (chalk,
+magic chalk in any colour, pencil, brush, spray, smudge, fill, eraser), steadied strokes that follow a pen's pressure,
+strokes seen live on every screen, and Ctrl+Z for everyone.
 **An end goal, recorded and not built:** [the Draft](draft.md), cards the GM draws in action scenes for the players to pick.
 The decisions that are Ingram's are collected in [§ Calls waiting](#calls-waiting-for-ingram).
 
@@ -34,7 +37,7 @@ The decisions that are Ingram's are collected in [§ Calls waiting](#calls-waiti
 | **[diorama.md](diorama.md)** | **How it looks.** The painting becomes a stage with a floor, a camera, light, air and emotes, and every system of `stage.md` is drawn on it | 2026-10-01 |
 | **[renderer.md](renderer.md)** | **How it is drawn.** The Stage Renderer: taking over Foundry's scene rendering with three.js. What it buys, what it costs, how it is built, what was measured | 2026-10-01 |
 | **[feel.md](feel.md)** | **What must never be lost.** The stick, the furious wiggle and the bang, as measurable requirements | 2026-10-01 |
-| **[chalk.md](chalk.md)** | **The box of chalk.** Players draw graffiti on the scene; off in serious scenes, a GM override, and it persists between sessions | 2026-10-01 |
+| **[chalk.md](chalk.md)** | **The box of chalk.** Players paint graffiti on the scene with a kit of tools; off in serious scenes, a GM override, and it persists between sessions | 2026-10-01, painted 2026-10-03 |
 | **[draft.md](draft.md)** | **The Draft, an end goal (recorded only).** A row of draft cards for the GM in action scenes: draw a series, the players pick a face-down one, the group takes the result | 2026-10-01 |
 | **[module.md](module.md)** | **How it becomes a module of its own.** The boundary with the adventure, the layout, the interface, skins, packaging, and (§17) what is built | 2026-10-01 |
 | [`module/stagecraft/`](../../module/stagecraft/README.md) | **The module itself**, with its own tests, build and API contract (`API.md`) | 2026-10-01 |
@@ -127,6 +130,7 @@ Whatever else in these documents is argued with, these hold:
 | 2026-10-01 | The takeover works inside the real Foundry (phase 0b of `renderer.md` §10 is done), so the three.js route stands | Evidence in `renderer.md` §10 and `module.md` §17; the adoption itself is still hers to confirm |
 | 2026-10-01 | Chalk is kept in one world journal entry (a page per scene and drawer), hidden from players' Journal lists; the GM's override stays until set back | Mine, built and proved live; hers to keep or change (`chalk.md` §9) |
 | 2026-10-01 | Chalk is tighter and less fuzzy, and 35% smaller by default: a solid core, slightly fuzzy outside | Ingram (`chalk.md` §5) |
+| 2026-10-03 | Chalk is painted in pixels, not drawn as vector lines: a smooth art experience, magic chalk in any colour, more precise, less clunky, a range of tools, stored afresh | Ingram (`chalk.md` §11; built the same day) |
 | 2026-10-01 | No need to worry about spoofing or strong security measures: a relaxed game with friends, and an attack that complicated is an accepted risk, not a concern | Ingram (`module.md` §18) |
 | 2026-10-01 | Build the sensible things first, the fun features after | Ingram |
 | 2026-10-01 | **The Draft** is an end goal: the GM draws a series of draft cards face up or face down in action scenes, the players pick a face-down one, and the group takes the result. Recorded only | Ingram (`draft.md`) |

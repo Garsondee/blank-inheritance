@@ -191,7 +191,9 @@ const entry = readFileSync(path.join(moduleRoot, "blank-inheritance.mjs"), "utf8
 test("runAutomaticSync and its canvasReady hook are gone, replaced by the world sync -- not kept as a shim", () => {
   assert.doesNotMatch(entry, /async function runAutomaticSync\(/, "runAutomaticSync still exists beside the world sync -- two automatic syncs would race");
   assert.doesNotMatch(entry, /runAutomaticSync\(\)/, "something still calls runAutomaticSync");
-  assert.match(entry, /startWorldSync\(\{ beforeApply: \(\) => resetSceneRunnerCache\(\) \}\)/, "the ready hook no longer starts the world sync");
+  assert.match(entry, /startWorldSync\(\{\s*beforeApply: async \(\) => \{\s*resetSceneRunnerCache\(\);/, "the ready hook no longer starts the world sync, resetting the Scene Runner's cache before it applies");
+  // a deploy also changes the Stagecraft stages: the bridge reads them afresh before the sync applies (2026-10-03)
+  assert.match(entry, /beforeApply: async \(\) => \{[\s\S]{0,120}?await reloadStages\(\)/, "the world sync no longer reloads the stages before it applies");
 });
 
 test("the world sync is exposed on mod.api, so a GM can force it from the console without reloading", () => {

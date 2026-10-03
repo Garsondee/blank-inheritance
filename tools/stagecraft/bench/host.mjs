@@ -68,23 +68,81 @@ class Scene {
 wire.onmessage = ({ data }) => {
   if (data.kind === "socket") for (const [fn, channel] of socketListeners) if (channel === data.channel) fn(data.message, data.from);
   if (data.kind === "scene") scene.update(data.changes, { remote: true });
+  if (data.kind === "chalk-store") window.benchChalkStore?.receive(data);        // once this tab's store is made
 };
 
+const { newestStep, overflowSteps, HISTORY } = await import("/module/stagecraft/scripts/core/chalk.mjs");
+
 /**
- * Where chalk is kept, in memory: the same shape as the module's ChalkStore (a world journal there), so the real chalk
- * controller draws and keeps strokes here exactly as it does in Foundry. Nothing outlives the page.
+ * Where chalk is kept, in memory: the same layers, tiles and history as the module's ChalkStore (a world journal there),
+ * so the real chalk controller paints and keeps chalk here exactly as it does in Foundry. Each write is sent to this
+ * page's other tabs, as Foundry sends a page's update to every screen. Nothing outlives the page.
  */
 class MemoryChalkStore {
-  constructor() { this.byScene = new Map(); this.listeners = new Set(); }
+  constructor() { this.pages = new Map(); this.listeners = new Set(); }
   get ready() { return true; }
-  strokes(sceneId) { return [...(this.byScene.get(sceneId) ?? [])]; }
-  strokesBy(sceneId, userId) { return this.strokes(sceneId).filter((s) => s.by === userId); }
-  async append(sceneId, stroke) { this.byScene.set(sceneId, [...this.strokes(sceneId), stroke]); this.#tell(sceneId); }
-  async remove(sceneId, ids) { const gone = new Set(ids); this.byScene.set(sceneId, this.strokes(sceneId).filter((s) => !gone.has(s.id))); this.#tell(sceneId); }
-  async wipe(sceneId) { this.byScene.set(sceneId, []); this.#tell(sceneId); }
+  #key(sceneId, by) { return `${sceneId}|${by}`; }
+  layers(sceneId) {
+    return [...this.pages.entries()].filter(([k]) => k.startsWith(`${sceneId}|`))
+      .map(([, p]) => ({ by: p.by, since: p.since, tiles: { ...p.tiles }, history: { ...p.history } }));
+  }
+  async save(sceneId, { by = game.user.id, tiles, step = null }) {
+    await new Promise((r) => setTimeout(r, 20));                     // a write lands a moment later, as Foundry's do
+    const keys = Object.keys(tiles ?? {});
+    if (!keys.length) return false;
+    let page = this.pages.get(this.#key(sceneId, by));
+    if (!page) {
+      if (by !== game.user.id && !game.user.isGM) return false;
+      page = { by, since: step?.at ?? Date.now(), tiles: {}, history: {} };
+      this.pages.set(this.#key(sceneId, by), page);
+    }
+    if (step) page.history[step.id] = { at: step.at, who: game.user.id, tiles: Object.fromEntries(keys.map((k) => [k, page.tiles[k] ?? null])) };
+    for (const k of keys) { if (tiles[k]) page.tiles[k] = tiles[k]; else delete page.tiles[k]; }
+    for (const old of overflowSteps(page.history, HISTORY)) delete page.history[old];
+    this.#publish(sceneId, by);
+    return true;
+  }
+  async undo(sceneId, { by = null } = {}) {
+    await new Promise((r) => setTimeout(r, 20));
+    const layers = this.layers(sceneId).map((l) => ({ ...l, history: by ? Object.fromEntries(Object.entries(l.history).filter(([, s]) => s.who === by)) : l.history }));
+    const newest = newestStep(layers);
+    if (!newest) return null;
+    const undone = {};
+    for (const layer of layers) {
+      const step = layer.history[newest.id];
+      if (!step) continue;
+      const page = this.pages.get(this.#key(sceneId, layer.by));
+      const held = {};
+      for (const [k, before] of Object.entries(step.tiles)) { held[k] = page.tiles[k] ?? null; if (before) page.tiles[k] = before; else delete page.tiles[k]; }
+      delete page.history[newest.id];
+      undone[layer.by] = held;
+      this.#publish(sceneId, layer.by);
+    }
+    return { id: newest.id, layers: undone };
+  }
+  async wipe(sceneId, { by = null } = {}) {
+    for (const layer of this.layers(sceneId)) {
+      if (by && layer.by !== by) continue;
+      const page = this.pages.get(this.#key(sceneId, layer.by));
+      page.tiles = {};
+      page.history = {};
+      this.#publish(sceneId, layer.by);
+    }
+  }
+  painters(sceneId) { return this.layers(sceneId).filter((l) => Object.keys(l.tiles).length).map((l) => l.by); }
   onChange(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
-  #tell(sceneId) { for (const fn of this.listeners) fn(sceneId); }
+  receive({ sceneId, by, page }) {
+    if (page) this.pages.set(this.#key(sceneId, by), page); else this.pages.delete(this.#key(sceneId, by));
+    this.#tell(sceneId, by);
+  }
+  #publish(sceneId, by) {
+    wire.postMessage({ kind: "chalk-store", sceneId, by, page: this.pages.get(this.#key(sceneId, by)) ?? null });
+    this.#tell(sceneId, by);
+  }
+  #tell(sceneId, by) { for (const fn of this.listeners) fn(sceneId, by); }
 }
+const chalkStore = new MemoryChalkStore();
+window.benchChalkStore = chalkStore;
 
 /* ---------------------------------------------------------------- the stage */
 
@@ -133,7 +191,7 @@ registerMoments((s) => momentsOf(entry).map((m) => ({
 
 const skins = new SkinRegistry();
 skins.register(brass);
-const host = new StageHost({ scene, skins, anchor: document.getElementById("board"), services: { chalkStore: new MemoryChalkStore() } });
+const host = new StageHost({ scene, skins, anchor: document.getElementById("board"), services: { chalkStore } });
 window.host = host;
 const starting = host.start();
 if (params.get("midbuild")) {

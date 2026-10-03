@@ -15,9 +15,11 @@ import { NS, readStage, readCast, canHold, handsOff, actingGM } from "./scene-da
 import { openChannel } from "./socket.mjs";
 import { chosenTier, tierSetting, isCalm, zoneSetting } from "./settings.mjs";
 import { ChalkController } from "./chalk.mjs";
+import { ChalkKit } from "./chalk-kit.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
+import { boxSpot, DEFAULT_BOX } from "../core/chalk.mjs";
 
 export class StageHost {
   constructor({ scene, skins, anchor, services = {}, onFatal = null }) {
@@ -75,7 +77,11 @@ export class StageHost {
       onLost: (id) => this.#grabLost(id),
       onDrop: (result) => this.#dropped(result)
     });
-    this.channel = openChannel((message, sender) => this.sync.receive(message, sender));
+    // one channel for both: cards in hand (core/sync.mjs) and strokes of chalk being painted (chalk.mjs)
+    this.channel = openChannel((message, sender) => {
+      if (message?.type === "chalk") this.chalk?.receive(message, sender);
+      else this.sync.receive(message, sender);
+    });
 
     this.root = document.createElement("div");
     this.root.id = "stagecraft-stage";
@@ -83,9 +89,13 @@ export class StageHost {
     this.anchor.after(this.root);
 
     await this.#buildBackend();
-    this.chalk = this.services.chalkStore ? new ChalkController({ host: this, store: this.services.chalkStore }) : null;
-    this.chalk?.sync();
-    this.chalk?.refresh();
+    if (this.services.chalkStore) {
+      this.chalk = new ChalkController({ host: this, store: this.services.chalkStore, send: (message) => this.channel?.send(message) });
+      this.kit = new ChalkKit(this, this.chalk);
+      this.chalk.sync();
+      this.chalk.refresh();
+      this.#placeBox();
+    }
     if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.#gmToggle(); }
     this.#boardKey();
 
@@ -174,11 +184,13 @@ export class StageHost {
     this.channel?.close();
     this.channel = null;
     this.chalk?.stop();
+    this.kit?.dispose();
+    this.chalk?.wall?.clear();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
     this.root?.remove();
-    this.chalk = this.bar = this.blocking = this.backend = this.root = null;
+    this.chalk = this.kit = this.bar = this.blocking = this.backend = this.root = null;
   }
 
   /* ---------------------------------------------------------------- the loop */
@@ -200,6 +212,8 @@ export class StageHost {
       if (this.chalk?.inHand) for (const z of this.chalk.chalkZones()) snap.zones[z.id] = this.chalk.cursorZone === z.id ? "target" : "near";
       this.backend.draw(snap);
       this.frames++;
+      // what covers the stage can change without the window changing (the deck folded away): the box keeps clear of it
+      if (this.frames % 60 === 0) this.#placeBox();
       for (const e of this.stage.drain()) {
         if (e.type === "visit") this.#visitCaption(e);
         Hooks.callAll(`stagecraft.${e.type}`, e, this);
@@ -246,12 +260,22 @@ export class StageHost {
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   }
 
+  /**
+   * A pointer event as chalk wants it: where (stage px), how hard (a pen's pressure), what kind of pointer, when, the keys
+   * held, and whether a pen is being used by its eraser end (`flip`).
+   */
+  #sample(e, r = this.root.getBoundingClientRect()) {
+    const flip = e.pointerType === "pen" && (e.button === 5 || (e.buttons & 32) !== 0);
+    return { x: e.clientX - r.left, y: e.clientY - r.top, pressure: e.pressure, pointerType: e.pointerType, t: e.timeStamp, shift: e.shiftKey, alt: e.altKey, flip };
+  }
+
   #watchPointer() {
     const canvas = this.backend.canvas;
     this.#on(canvas, "pointerdown", (e) => {
       if (e.button === 2 && this.chalk?.inHand) { this.chalk.putAway(); return; }
       if (e.button === 2 && this.blocking?.disarm()) return;
-      if (e.button !== 0) return;
+      // a pen's eraser end (button 5) rubs out while chalk is in hand
+      if (e.button !== 0 && !(e.button === 5 && e.pointerType === "pen" && this.chalk?.inHand)) return;
       const p = this.#local(e);
       const hit = this.backend.pick(p.x, p.y);
       // the GM's blocking: a formation waiting for where to go, or shift-click to choose who it moves
@@ -284,11 +308,19 @@ export class StageHost {
           return;
         }
       }
-      // the box of chalk: take a stick, or put it back
-      if (hit?.kind === "chalk" || hit?.kind === "eraser") { this.chalk?.take(hit.kind === "eraser" ? "rub" : hit.colour); this.chalk?.hover(p); e.preventDefault(); return; }
-      // chalk in hand: draw, wherever the pointer is
+      // the box of chalk: take a stick, the magic stick or the eraser, or put it back
+      if (hit?.kind === "chalk" || hit?.kind === "magic" || hit?.kind === "eraser") {
+        this.chalk?.take(hit.kind === "eraser" ? "rub" : hit.kind === "magic" ? "magic" : hit.colour);
+        this.chalk?.hover(p);
+        e.preventDefault();
+        return;
+      }
+      // chalk in hand: paint, wherever the pointer is (or, with the kit's dropper or Alt, take a colour)
       if (this.chalk?.inHand) {
-        if (this.chalk.begin(p)) { canvas.setPointerCapture(e.pointerId); this.chalk.hover(p); e.preventDefault(); }
+        e.preventDefault();
+        const sample = this.#sample(e);
+        if (this.kit?.takesPick()) { this.chalk.pickColour(sample); return; }
+        if (this.chalk.begin(sample)) { canvas.setPointerCapture(e.pointerId); this.chalk.hover(p); }
         return;
       }
       if (hit?.kind !== "card") return;
@@ -303,6 +335,12 @@ export class StageHost {
     });
     this.#on(canvas, "pointermove", (e) => {
       const p = this.#local(e);
+      if (this.chalk?.drawing) {
+        // every sample the browser gathered since the last event, for the smoothest line a hand can make
+        const r = this.root.getBoundingClientRect();
+        const all = e.getCoalescedEvents?.() ?? [];
+        for (const ev of all.length ? all : [e]) this.chalk.extend(this.#sample(ev, r));
+      }
       if (this.chalk?.inHand) { this.chalk.hover(p); canvas.style.cursor = "none"; return; }
       if (!this.dragging) { const h = this.backend.pick(p.x, p.y); canvas.style.cursor = h ? "grab" : "default"; return; }
       const at = this.backend.floorAt(p.x, p.y, this.dragging.height);
@@ -310,7 +348,8 @@ export class StageHost {
     });
     const release = (e) => {
       if (this.chalk?.drawing) {
-        this.chalk.end().catch((err) => console.warn(`${NS} | chalk stroke failed`, err));
+        if (e.type === "pointercancel") this.chalk.cancel();
+        else this.chalk.end().catch((err) => console.warn(`${NS} | chalk stroke failed`, err));
         this.chalk.hover(this.#local(e));
         return;
       }
@@ -321,11 +360,14 @@ export class StageHost {
     };
     this.#on(canvas, "pointerup", release);
     this.#on(canvas, "pointercancel", release);
-    // Escape puts the chalk back in the box. It is taken before Foundry sees it (capture phase), or the same press would
-    // also open Foundry's game menu over the stage.
+    // the ring round the pointer goes when the pointer leaves the stage
+    this.#on(canvas, "pointerleave", () => { if (this.chalk?.inHand && !this.chalk.drawing) this.chalk.hover(null); });
+    // Escape throws away a stroke being painted, or puts the chalk back in the box. It is taken before Foundry sees it
+    // (capture phase), or the same press would also open Foundry's game menu over the stage.
     this.#on(window, "keydown", (e) => {
       if (e.code !== "Escape") return;
-      if (this.chalk?.inHand) this.chalk.putAway();
+      if (this.chalk?.drawing) this.chalk.cancel();
+      else if (this.chalk?.inHand) this.chalk.putAway();
       else if (this.blocking?.disarm()) { /* the waiting formation is put away */ }
       else if (this.selected.size) { this.selected.clear(); this.blocking?.selectionChanged(); }
       else return;
@@ -473,10 +515,39 @@ export class StageHost {
 
   /* ---------------------------------------------------------------- the page and the scene */
 
+  /**
+   * Stand the box of chalk where the scene put it, or, if the screen's furniture covers it there (the adventure's deck,
+   * Foundry's macro bar), at the nearest place on the floor where nothing does (core/chalk.mjs `boxSpot`).
+   */
+  #placeBox() {
+    const backend = this.backend;
+    if (!this.chalk || !this.root || !backend?.setChalkBoxAt || !backend.view || !this.stage?.rig) return;
+    const rect = this.root.getBoundingClientRect();
+    const view = backend.view;
+    const cover = coverOnPage([...coverShapes(), ...this.#foundryBars()], rect, view);
+    const screen = { x0: view.ox, y0: view.oy, x1: view.ox + view.visW, y1: view.oy + view.visH };
+    const spot = boxSpot(this.stage.rig, this.description.chalk?.box ?? DEFAULT_BOX, cover, screen);
+    if (this.boxAt && spot[0] === this.boxAt[0] && spot[1] === this.boxAt[1]) return;
+    this.boxAt = spot;
+    backend.setChalkBoxAt(spot);
+  }
+
+  /** Foundry's own bars that float over the bottom of the stage: the box of chalk keeps clear of them. */
+  #foundryBars() {
+    const out = [];
+    for (const id of ["hotbar"]) {
+      const el = document.getElementById(id);
+      const r = el?.getBoundingClientRect?.();
+      if (r && r.width > 0 && r.height > 0) out.push({ rect: [r.left, r.top, r.right, r.bottom] });
+    }
+    return out;
+  }
+
   #watchSize() {
     const fit = () => {
       if (!this.backend || !this.root) return;
       this.backend.resize(this.root.clientWidth, this.root.clientHeight, window.devicePixelRatio);
+      this.#placeBox();
     };
     this.resizeObserver = new ResizeObserver(fit);
     this.resizeObserver.observe(this.root);
@@ -543,6 +614,8 @@ export class StageHost {
     this.chalk?.reset();                    // the new wall is empty; draw it all again from the store
     this.chalk?.sync();
     this.chalk?.refresh();
+    this.boxAt = null;                      // the new picture's box stands where the scene put it until it is placed again
+    this.#placeBox();
     this.#watchPointer();
   }
 }

@@ -1,83 +1,11 @@
 /**
- * Pictures drawn on a plain 2D canvas, shared by both backends so that a line of chalk, a zone outline or a bang looks
- * the same whichever one is drawing: three.js lays these canvases on the painting as textures, the flat backend lays them
- * on the page directly. Nothing here knows about three.js, Foundry or the stage: it is given a context and numbers.
+ * Pictures drawn on a plain 2D canvas, shared by both backends so that a zone outline, a mark or a bang looks the same
+ * whichever one is drawing: three.js lays these canvases on the painting as textures, the flat backend lays them on the
+ * page directly. Nothing here knows about three.js, Foundry or the stage: it is given a context and numbers. (Chalk is
+ * painted in pixels of its own, render/paint/wall.mjs, since 2026-10-03.)
  */
 
-import { SIZES, LOOK } from "../core/chalk.mjs";
 import { outlineStrength } from "../core/zones.mjs";
-
-/* ------------------------------------------------------------------ chalk */
-
-export const CHALK_HEX = Object.freeze({ white: "#f2ecdc", yellow: "#eed46c", pink: "#eba0b8", blue: "#8fc0e0", green: "#97d09c", orange: "#eea060" });
-export const chalkHex = (name) => CHALK_HEX[name] ?? CHALK_HEX.white;
-
-/** A colour moved part of the way to white, for the bright line down the middle. */
-export function lighter(hex, amount) {
-  const n = parseInt(hex.slice(1), 16);
-  const mix = (c) => Math.round(c + (255 - c) * amount);
-  return `rgb(${mix((n >> 16) & 255)},${mix((n >> 8) & 255)},${mix(n & 255)})`;
-}
-
-/** A small seeded generator, so the grain of a stroke is the same every time it is drawn, on every screen. */
-export function seeded(id) {
-  let h = 2166136261;
-  for (let i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return () => { h = (h + 0x6d2b79f5) | 0; let t = Math.imul(h ^ (h >>> 15), 1 | h); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-}
-
-/**
- * A line of chalk on a canvas `cw` x `ch` pixels, from `pts` (fractions of the painting), built from `LOOK`: a solid core
- * with a slight fuzz outside it (a soft edge and a faint dusting), a brighter line down the middle, then short streaks
- * bitten out of the edge along the way the chalk was dragged, so the wall shows through the fuzz and never through the core.
- * `rnd` is a seeded generator (`seeded(id)`).
- */
-export function drawChalkLine(ctx, cw, ch, pts, colour, size, rnd) {
-  if (pts.length < 2) return;
-  const px = pts.map(([x, y]) => [x * cw, y * ch]);
-  const width = Math.max(LOOK.floor, SIZES[size] * cw);
-  const hex = chalkHex(colour);
-  const { bites } = LOOK;
-  const between = ([lo, hi]) => lo + rnd() * (hi - lo);
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  const path = () => { ctx.beginPath(); px.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); };
-  ctx.strokeStyle = hex;
-  for (const { scale, alpha } of LOOK.layers) { ctx.globalAlpha = alpha; ctx.lineWidth = width * scale; path(); ctx.stroke(); }
-  ctx.strokeStyle = lighter(hex, LOOK.highlight.lighten);
-  ctx.globalAlpha = LOOK.highlight.alpha; ctx.lineWidth = width * LOOK.highlight.scale; path(); ctx.stroke();
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.fillStyle = "#000";
-  for (let i = 0; i + 1 < px.length; i++) {
-    const [ax, ay] = px[i];
-    const [bx, by] = px[i + 1];
-    const dx = bx - ax;
-    const dy = by - ay;
-    const len = Math.hypot(dx, dy);
-    if (len < 0.01) continue;
-    const ux = dx / len; const uy = dy / len;       // along the line
-    const vx = -uy; const vy = ux;                  // across it
-    const n = Math.max(1, Math.round(len / bites.every));
-    for (let k = 0; k < n; k++) {
-      const u = (k + rnd()) / n;
-      const across = (rnd() < 0.5 ? -1 : 1) * between([bites.from, bites.to]) * width;   // only ever at the edge: the core stays whole
-      const cx = ax + dx * u + vx * across;
-      const cy = ay + dy * u + vy * across;
-      const l = between(bites.long);                // half a streak, along
-      const h = between(bites.thick);               // half a streak, across
-      ctx.globalAlpha = between(bites.alpha);
-      ctx.beginPath();
-      ctx.moveTo(cx - ux * l - vx * h, cy - uy * l - vy * h);
-      ctx.lineTo(cx + ux * l - vx * h, cy + uy * l - vy * h);
-      ctx.lineTo(cx + ux * l + vx * h, cy + uy * l + vy * h);
-      ctx.lineTo(cx - ux * l + vx * h, cy - uy * l + vy * h);
-      ctx.closePath();
-      ctx.fill();
-    }
-  }
-  ctx.restore();
-}
 
 /* ------------------------------------------------------------------ zones */
 

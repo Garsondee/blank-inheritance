@@ -18,9 +18,10 @@ const view = viewFor(1920, 1080);
 const AT = [0.77, 0.91];
 const mid = (r) => ({ x: (r.x0 + r.x1) / 2, y: (r.y0 + r.y1) / 2 });
 
-test("there is a stick for each colour, in order, and an eraser, and the box is as deep in the room as the place it stands", () => {
+test("there is a stick for each colour, in order, the magic stick and an eraser, and the box is as deep in the room as the place it stands", () => {
   const layout = boxLayout(rig, view, AT);
   assert.deepEqual(layout.sticks.map((s) => s.colour), [...COLOURS]);
+  assert.ok(layout.magic.hit && layout.magic.width > 0);
   assert.ok(layout.eraser.hit);
   const place = rig.standing(AT);
   assert.equal(layout.z, place.Z);
@@ -32,14 +33,17 @@ test("a box with nowhere to stand (above the horizon) is not laid out at all", (
   assert.equal(hitBox(null, 100, 100), null);
 });
 
-test("a click in the middle of each stick, and of the eraser, lands on it", () => {
+test("a click in the middle of each stick, of the magic stick, and of the eraser, lands on it", () => {
   const layout = boxLayout(rig, view, AT);
   for (const s of layout.sticks) {
     const c = mid(s.hit);
     assert.deepEqual(hitBox(layout, c.x, c.y), { kind: "chalk", colour: s.colour });
   }
+  const m = mid(layout.magic.hit);
+  assert.deepEqual(hitBox(layout, m.x, m.y), { kind: "magic" });
   const e = mid(layout.eraser.hit);
   assert.deepEqual(hitBox(layout, e.x, e.y), { kind: "eraser" });
+  assert.ok(layout.sticks.at(-1).hit.x1 < layout.magic.hit.x0 && layout.magic.hit.x1 < e.x - (layout.eraser.hit.x1 - layout.eraser.hit.x0) / 2, "none of them overlap");
 });
 
 test("a click a hand's width to either side still lands on the stick, and well above or beside the box lands on nothing", () => {
@@ -72,16 +76,19 @@ test("the flat box is the three.js box: each stick's middle is at the same place
     return { x: ((p.x + 1) / 2) * view.vw, y: ((1 - p.y) / 2) * view.vh };
   };
   const targets = box.pickables;
-  assert.equal(targets.length, layout.sticks.length + 1);
+  assert.equal(targets.length, layout.sticks.length + 2);
   layout.sticks.forEach((s, i) => {
     const t = window3(targets[i]);
     const c = mid(s.hit);
     assert.ok(Math.abs(t.x - c.x) < 2, `${s.colour}: x ${t.x} against ${c.x}`);
     assert.ok(t.y >= s.hit.y0 && t.y <= s.hit.y1, `${s.colour}: y ${t.y} is inside ${s.hit.y0}..${s.hit.y1}`);
   });
-  const eraser = window3(targets[targets.length - 1]);
+  const magic = window3(targets.find((t) => t.userData.magic));
+  const m = layout.magic.hit;
+  assert.ok(Math.abs(magic.x - mid(m).x) < 2 && magic.y >= m.y0 && magic.y <= m.y1, "the magic stick too");
+  const eraser = window3(targets.find((t) => t.userData.eraser));
   const e = layout.eraser.hit;
-  assert.ok(eraser.x >= e.x0 && eraser.x <= e.x1 && eraser.y >= e.y0 && eraser.y <= e.y1, "the eraser too");
+  assert.ok(eraser.x >= e.x0 && eraser.x <= e.x1 && eraser.y >= e.y0 && eraser.y <= e.y1, "and the eraser");
 });
 
 test("the box's measures are the shared ones, and where it stands by default is on the painting", () => {

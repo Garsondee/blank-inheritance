@@ -1,98 +1,86 @@
 /**
- * Chalk, drawn (chalk.md §5): the wall of strokes on the painting, the box of chalk on the stage, and the stick in the
- * hand. The wall is two canvases laid just in front of the painting and behind every card, so graffiti never covers a
- * face: one holds the strokes that are kept (a new stroke is added on top without redrawing the rest), the other holds
- * only the line being drawn right now, so a full wall costs nothing extra while someone is drawing.
+ * Chalk, in the 3D picture (chalk.md §5): the painted wall laid over the painting, and the box of chalk on the stage. The
+ * wall's pixels are painted elsewhere (render/paint/wall.mjs); here each tile of it that has paint is a small plane just in
+ * front of the painting and behind every card, so graffiti never covers a face, and only the tiles that changed are sent
+ * to the graphics card again.
  */
 
 import * as THREE from "three";
-import { pointsOf, COLOURS, BOX } from "../../core/chalk.mjs";
-import { chalkHex, seeded, drawChalkLine } from "../canvas-art.mjs";
+import { BOX, PALETTE, tileRect } from "../../core/chalk.mjs";
 import { canvasTexture, paintingPlane, DEG } from "./support.mjs";
 
-export { chalkHex };
+const IN_FRONT = 10;                 // how far in front of the painting the wall's paint lies
+const ORDER = 2.5;                   // drawn after the painting and the zone outlines, before anything that stands
 
-/** One canvas laid over the painting. */
-class Layer {
-  constructor({ scene, rig, tracker, order }) {
-    const [iw, ih] = rig.size;
-    this.cw = Math.min(2048, iw);
-    this.ch = Math.round((this.cw * ih) / iw);
-    this.canvas = document.createElement("canvas");
-    this.canvas.width = this.cw;
-    this.canvas.height = this.ch;
-    this.ctx = this.canvas.getContext("2d");
-    this.tex = tracker.add(canvasTexture(this.canvas, { anisotropy: 4 }));
-    // a little under full white: chalk on a dim wall is not a lamp
-    this.mesh = tracker.mesh(paintingPlane(rig, new THREE.MeshBasicMaterial({ map: this.tex, transparent: true, depthWrite: false, color: 0xd0d0d0 }), 10));
-    this.mesh.renderOrder = order;
-    scene.add(this.mesh);
+/** A stick with every colour climbing round it in a spiral, coloured at its corners (no picture needed). */
+function rainbowCylinder(radius, height) {
+  const geometry = new THREE.CylinderGeometry(radius, radius, height, 24, 8);
+  const position = geometry.getAttribute("position");
+  const colours = new Float32Array(position.count * 3);
+  const c = new THREE.Color();
+  for (let i = 0; i < position.count; i++) {
+    const turn = (Math.atan2(position.getZ(i), position.getX(i)) / (Math.PI * 2) + 1) % 1;
+    const up = position.getY(i) / height + 0.5;
+    c.setHSL((turn + up * 0.75) % 1, 0.7, 0.68, THREE.SRGBColorSpace);
+    colours.set([c.r, c.g, c.b], i * 3);
   }
-  clear() { this.ctx.clearRect(0, 0, this.cw, this.ch); }
-  touch() { this.tex.needsUpdate = true; }
+  geometry.setAttribute("color", new THREE.BufferAttribute(colours, 3));
+  return geometry;
 }
 
-export class ChalkWall {
-  constructor({ scene, rig, tracker }) {
-    this.kept = new Layer({ scene, rig, tracker, order: 2.5 });
-    this.live = new Layer({ scene, rig, tracker, order: 2.6 });
-    this.strokes = new Map();
-    this.hidden = false;
-    this.preview = null;
+export class ChalkTiles {
+  constructor({ scene, rig }) {
+    this.rig = rig;
+    this.group = new THREE.Group();
+    scene.add(this.group);
+    this.geometry = new THREE.PlaneGeometry(1, 1);
+    this.tiles = new Map();          // key -> { mesh, texture, material, canvas }
   }
 
-  /** Replace the whole wall. */
-  set(strokes) {
-    this.strokes = new Map(strokes.map((s) => [s.id, s]));
-    this.#redraw();
+  /** Show what changed on the wall: the tiles `keys`, or (`full`) every tile, as a wall drawn afresh. */
+  update(wall, keys, full = false) {
+    const grid = wall.grid;
+    const todo = full ? new Set([...keys, ...this.tiles.keys(), ...wall.composite.keys()]) : keys;
+    for (const key of todo) {
+      const canvas = wall.composite.get(key) ?? null;
+      const have = this.tiles.get(key);
+      if (have && have.canvas === canvas) { have.texture.needsUpdate = true; continue; }
+      if (have) this.#remove(key);
+      if (!canvas) continue;
+      const r = tileRect(grid, key);
+      const texture = canvasTexture(canvas, { anisotropy: 4 });
+      // a little under full white: chalk on a lit wall is not a lamp
+      const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, color: 0xeeeeee });
+      const mesh = paintingPlane(this.rig, material, IN_FRONT, { x0: r.x / grid.w, y0: r.y / grid.h, x1: (r.x + r.w) / grid.w, y1: (r.y + r.h) / grid.h }, this.geometry);
+      mesh.renderOrder = ORDER;
+      this.group.add(mesh);
+      this.tiles.set(key, { mesh, texture, material, canvas });
+    }
   }
 
-  add(stroke) {
-    if (this.strokes.has(stroke.id)) return;
-    this.strokes.set(stroke.id, stroke);
-    this.#draw(this.kept, stroke);
-    this.kept.touch();
+  #remove(key) {
+    const t = this.tiles.get(key);
+    if (!t) return;
+    this.group.remove(t.mesh);
+    t.texture.dispose();
+    t.material.dispose();
+    this.tiles.delete(key);
   }
 
-  remove(ids) {
-    let any = false;
-    for (const id of ids) any = this.strokes.delete(id) || any;
-    if (any) this.#redraw();
-  }
+  setHidden(hidden) { this.group.visible = !hidden; }
 
-  setHidden(hidden) {
-    this.hidden = hidden;
-    this.kept.mesh.visible = !hidden;
-    this.live.mesh.visible = !hidden;
-  }
-
-  /** The line being drawn right now, before it is a stroke: shown on its own layer and gone when it is saved. */
-  setPreview(points, colour, size) {
-    this.preview = points && points.length ? { points, colour, size } : null;
-    this.live.clear();
-    if (this.preview) this.#line(this.live, this.preview.points, colour, size, seeded("preview"));
-    this.live.touch();
-  }
-
-  #redraw() {
-    this.kept.clear();
-    for (const s of this.strokes.values()) this.#draw(this.kept, s);
-    this.kept.touch();
-  }
-
-  #draw(layer, stroke) {
-    this.#line(layer, pointsOf(stroke), stroke.colour, stroke.size, seeded(stroke.id));
-  }
-
-  #line({ ctx, cw, ch }, pts, colour, size, rnd) {
-    drawChalkLine(ctx, cw, ch, pts, colour, size, rnd);
+  dispose() {
+    for (const key of [...this.tiles.keys()]) this.#remove(key);
+    this.geometry.dispose();
+    this.group.removeFromParent();
   }
 }
 
 /**
- * The box of chalk: a low wooden tray with a stick of each colour standing in it like pencils, and a felt eraser. Click a
- * stick to take it. Sticks are small and a stage is deep, so each one (and the eraser) has an invisible, much larger
- * shape round it that a click can hit; the picture shows the chalk, the pointer feels the generous shape.
+ * The box of chalk: a low wooden tray with a stick of each colour standing in it like pencils, the magic stick (bands of
+ * every colour, a star on its tip: any colour at all) and a felt eraser. Click one to take it. Sticks are small and a stage
+ * is deep, so each has an invisible, much larger shape round it that a click can hit; the picture shows the chalk, the
+ * pointer feels the generous shape.
  */
 export { BOX };
 
@@ -104,7 +92,7 @@ export class ChalkBox {
     if (!place) { this.group.visible = false; scene.add(this.group); this.hidden = true; return; }
     this.group.position.set(place.X, 0, place.Z);
     this.group.rotation.y = -10 * DEG;
-    const { width: W, depth: D, wall: H, stick, hit } = BOX;
+    const { width: W, depth: D, wall: H, stick, hit, magic, eraser: E } = BOX;
     const wood = tracker.add(new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.6 }));
     const dark = tracker.add(new THREE.MeshStandardMaterial({ color: 0x3a2412, roughness: 0.8 }));
     const base = tracker.mesh(new THREE.Mesh(new THREE.BoxGeometry(W, 8, D), dark));
@@ -119,10 +107,17 @@ export class ChalkBox {
     // the shape a click can hit: never drawn (it is not visible) but always tested
     const hitMaterial = tracker.add(new THREE.MeshBasicMaterial({ visible: false }));
     const hitCylinder = tracker.add(new THREE.CylinderGeometry(hit.radius, hit.radius, hit.height, 8));
+    const target = (x, data) => {
+      const t = tracker.mesh(new THREE.Mesh(hitCylinder, hitMaterial));
+      t.position.set(x, 4 + hit.height / 2 - 14, 0);
+      Object.assign(t.userData, data);
+      this.group.add(t);
+      this.sticks.push(t);
+    };
     // a stick of each colour, standing a little askew
-    COLOURS.forEach((name, i) => {
+    Object.entries(PALETTE).forEach(([name, hex], i) => {
       const x = stick.first + i * stick.spacing;
-      const colour = new THREE.Color(chalkHex(name));
+      const colour = new THREE.Color(hex);
       const mat = tracker.add(new THREE.MeshStandardMaterial({ color: colour, roughness: 0.95, emissive: colour.clone().multiplyScalar(0.18) }));
       const body = tracker.mesh(new THREE.Mesh(new THREE.CylinderGeometry(stick.radius, stick.radius, stick.height, 14), mat));
       body.position.set(x, 4 + stick.height / 2 - 6, ((i % 2) - 0.5) * 6);
@@ -130,64 +125,43 @@ export class ChalkBox {
       body.rotation.x = ((i + 1) % 3 - 1) * 0.05;
       body.castShadow = true;
       this.group.add(body);
-      const target = tracker.mesh(new THREE.Mesh(hitCylinder, hitMaterial));
-      target.position.set(x, 4 + hit.height / 2 - 14, 0);
-      target.userData.chalk = name;
-      this.group.add(target);
-      this.sticks.push(target);
+      target(x, { chalk: name });
     });
+    // the magic stick: taller, with every colour climbing round it, a little light of its own, and a gold star on its tip
+    const rainbow = tracker.add(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, emissive: 0x2a2a2a }));
+    const wand = tracker.mesh(new THREE.Mesh(rainbowCylinder(magic.radius, magic.height), rainbow));
+    wand.position.set(magic.x, 4 + magic.height / 2 - 6, 2);
+    wand.rotation.z = 0.06;
+    wand.castShadow = true;
+    this.group.add(wand);
+    const gold = tracker.add(new THREE.MeshStandardMaterial({ color: 0xffd36a, roughness: 0.3, metalness: 0.6, emissive: 0xffb830, emissiveIntensity: 0.55 }));
+    const star = tracker.mesh(new THREE.Mesh(new THREE.OctahedronGeometry(magic.radius * 1.15, 0), gold));
+    star.position.set(magic.x - Math.sin(0.06) * (magic.height / 2), 4 + magic.height - 2, 2);
+    star.scale.set(1, 1.3, 0.55);
+    this.group.add(star);
+    target(magic.x, { magic: true });
     // the felt eraser
     const felt = tracker.add(new THREE.MeshStandardMaterial({ color: 0x5b6670, roughness: 1 }));
-    const eraser = tracker.mesh(new THREE.Mesh(new THREE.BoxGeometry(50, 32, 30), felt));
-    eraser.position.set(W / 2 - 34, 20, 4);
-    eraser.rotation.y = 0.12;
-    eraser.castShadow = true;
-    this.group.add(eraser);
-    const target = tracker.mesh(new THREE.Mesh(tracker.add(new THREE.BoxGeometry(58, 60, 50)), hitMaterial));
-    target.position.set(W / 2 - 34, 30, 4);
-    target.userData.eraser = true;
-    this.group.add(target);
-    this.sticks.push(target);
+    const pad = tracker.mesh(new THREE.Mesh(new THREE.BoxGeometry(50, 32, 30), felt));
+    pad.position.set(E.x, 20, 4);
+    pad.rotation.y = 0.12;
+    pad.castShadow = true;
+    this.group.add(pad);
+    const rub = tracker.mesh(new THREE.Mesh(tracker.add(new THREE.BoxGeometry(58, 60, 50)), hitMaterial));
+    rub.position.set(E.x, 30, 4);
+    rub.userData.eraser = true;
+    this.group.add(rub);
+    this.sticks.push(rub);
     scene.add(this.group);
   }
 
   setVisible(on) { if (!this.hidden) this.group.visible = on; }
   get pickables() { return this.sticks; }
-}
 
-/** The stick of chalk (or the eraser) that follows the pointer while one is in hand, leaning like everything else here. */
-export class ChalkCursor {
-  constructor({ scene, tracker }) {
-    this.mat = tracker.add(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, emissive: 0x333333 }));
-    this.chalk = tracker.mesh(new THREE.Mesh(new THREE.CylinderGeometry(BOX.stick.radius, BOX.stick.radius, BOX.stick.height, 14), this.mat));
-    this.eraser = tracker.mesh(new THREE.Mesh(new THREE.BoxGeometry(50, 32, 30), tracker.add(new THREE.MeshStandardMaterial({ color: 0x5b6670, roughness: 1 }))));
-    this.group = new THREE.Group();
-    this.group.add(this.chalk, this.eraser);
-    this.group.visible = false;
-    this.group.renderOrder = 70;
-    this.group.traverse((o) => { o.renderOrder = 70; if (o.material) o.material.depthTest = false; });
-    scene.add(this.group);
-    this.last = null;
-  }
-
-  /**
-   * `at` is a world point (or null to put it away); `tool` is a colour name or "rub"; `blocked` means the chalk would leave
-   * no mark here: the stick fades and tips back, held off the wall.
-   */
-  set(at, tool, drawing, blocked = false, dt = 1 / 60) {
-    if (!at) { this.group.visible = false; this.last = null; return; }
-    this.group.visible = true;
-    const rub = tool === "rub";
-    this.chalk.visible = !rub;
-    this.eraser.visible = rub;
-    if (!rub) this.mat.color.set(blocked ? 0x6f6a62 : chalkHex(tool));
-    this.mat.transparent = true;
-    this.mat.opacity = blocked ? 0.55 : 1;
-    const vx = this.last ? (at.x - this.last.x) / Math.max(dt, 1e-3) : 0;
-    this.last = at;
-    this.group.position.set(at.x, at.y, at.z);
-    // held like a pencil: leaning away from the way it moves, down a little when it is drawing, tipped back when it cannot
-    this.group.rotation.set(0, 0, (rub ? 0 : blocked ? 0.35 : -0.6) - Math.max(-0.5, Math.min(0.5, vx / 4000)));
-    this.group.position.y += drawing ? 10 : 36;
+  /** Stand the box somewhere else on the floor (core/chalk.mjs `boxSpot`: clear of what covers the stage). */
+  moveTo(rig, at) {
+    if (this.hidden) return;
+    const place = rig.standing(at);
+    if (place) this.group.position.set(place.X, 0, place.Z);
   }
 }

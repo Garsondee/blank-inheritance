@@ -474,8 +474,9 @@ same contract as three.js (§8.1), so the engine, the pointer and the chalk cann
 - **One geometry.** Where a card stands, which card is under a click, where a point of the screen is on the floor or the
   painting all come from `flat/geometry.mjs` and `flat/box.mjs`: pure, no canvas. A test puts the same floor point through
   three.js's own camera and the flat maths and requires the same answer; another does the same for every stick of the box.
-- **Shared pictures.** A line of chalk, a zone outline, the impact lines and a mark are drawn by `render/canvas-art.mjs`, which
-  both backends use, so the chalk looks the same whichever draws it.
+- **Shared pictures.** A zone outline, the impact lines and a mark are drawn by `render/canvas-art.mjs`, which both backends
+  use. Chalk is painted once, in pixels, by `render/paint/wall.mjs` (since 2026-10-03, `chalk.md` §11), and both backends lay
+  the same tiles of it on the painting, so the chalk is the same whichever draws it.
 - **Cheap on purpose.** The pixel ratio is capped at one, the zone outlines are redrawn only when something changed, and
   nothing is asked of the graphics card, so there is no context to lose.
 - **When it is used** (`render/choose.mjs`): the player chose "Flat" in the module's settings; the browser cannot make a WebGL

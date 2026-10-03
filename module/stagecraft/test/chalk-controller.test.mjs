@@ -1,41 +1,46 @@
-// The box of chalk at a table: the controller joins the rules, the journal-backed store, the wall the backend draws and
-// the pointer. Run here against the real store on a stand-in journal and a recording backend; the real pointer, the
-// real wall and the real server are exercised by tools/stagecraft/foundry-check.mjs.
+// The box of chalk at a table: the controller joins the rules, the brush, the journal-backed store, the wall's pixels and
+// the pointer. Run here against the real store on a stand-in journal, the real brush, and a stand-in wall whose "pictures"
+// are the names of the strokes that painted them (fake-wall.mjs); the real pixels, the real pointer and two real browsers
+// are exercised by tools/stagecraft/bench/chalk-check.mjs and tools/stagecraft/foundry-check.mjs.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { installFoundry, settle, OWNER } from "./fake-foundry.mjs";
+import { FakeWall, fakeEncode } from "./fake-wall.mjs";
 import { RAW_SCENE } from "./fixture.mjs";
 
 const { ChalkStore, ENTRY_NAME } = await import("../scripts/foundry/chalk-store.mjs");
 const { ChalkController } = await import("../scripts/foundry/chalk.mjs");
 const { describeScene } = await import("../scripts/core/scene.mjs");
-const { makeStroke, LIMITS } = await import("../scripts/core/chalk.mjs");
+const { PALETTE, stepId } = await import("../scripts/core/chalk.mjs");
+const { TOOLS } = await import("../scripts/core/brush.mjs");
 
-// the stage is 1000 x 500 px; the back wall (the only chalk zone) is x 0.05..0.45, y 0.2..0.62 of the painting
-const px = (x, y) => ({ x: x * 1000, y: y * 500 });
+// the stage is 1000 x 500 px and shows the whole painting; the back wall (the only chalk zone) is x 0.05..0.45, y 0.2..0.62.
+// The wall is 2880 x 1440 pixels in tiles of 240: 12 columns, 6 rows.
+let clock = 0;
+const at = (x, y, extra = {}) => ({ x: x * 1000, y: y * 500, pressure: 0.5, pointerType: "mouse", t: (clock += 16), ...extra });
 
 function recordingBackend() {
   const b = {
-    wall: new Map(), calls: [], box: null, hidden: null, cursor: null, preview: null,
+    box: null, hidden: null, shown: [], fulls: 0,
     setChalkBox(on) { b.box = on; },
     setChalkHidden(on) { b.hidden = on; },
-    setChalkCursor(p, tool, drawing) { b.cursor = p ? { p, tool, drawing } : null; },
-    setChalkPreview(points, colour, size) { b.preview = points?.length ? { points, colour, size } : null; },
-    addChalkStroke(s) { b.wall.set(s.id, s); b.calls.push(["add", s.id]); },
-    removeChalkStrokes(ids) { for (const id of ids) b.wall.delete(id); b.calls.push(["remove", ...ids]); },
-    paintingAt(x, y) { return { x: x / 1000, y: y / 500 }; }
+    setChalkTiles(wall, keys, full = false) { b.shown.push([...keys]); if (full) b.fulls++; },
+    paintingAt(x, y) { return x >= 0 && x <= 1000 && y >= 0 && y <= 500 ? { x: x / 1000, y: y / 500 } : null; },
+    paintingColour: () => "#405060"
   };
   return b;
 }
 
 let world;
 let hookLog;
+let sent;
 
 /** A fresh world, journal and stage for each table (never two alive at once: the globals are the latest one's). */
-async function table({ chalk = { mode: "zones" }, live = null, journal = true } = {}) {
-  world = installFoundry();
+async function table({ chalk = { mode: "zones" }, live = null, journal = true, gm = false } = {}) {
+  world = installFoundry({ user: { id: "me", name: "Me", isGM: gm } });
   hookLog = [];
+  sent = [];
   world.hooks.on("stagecraft.chalk", (e) => hookLog.push(e));
   const { scene: description } = describeScene({ ...RAW_SCENE, chalk });
   const store = new ChalkStore();
@@ -47,21 +52,22 @@ async function table({ chalk = { mode: "zones" }, live = null, journal = true } 
     backend: recordingBackend(),
     root: { classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) } }
   };
-  const controller = new ChalkController({ host, store });
+  const controller = new ChalkController({ host, store, makeWall: (o) => new FakeWall(o), encode: fakeEncode, send: (m) => sent.push(structuredClone(m)) });
   controller.sync();
   controller.refresh();
-  return { controller, store, entry, host, classes };
+  return { controller, store, entry, host, classes, wall: controller.wall };
 }
 
-/** Draw a line with the pointer: down at the first point, move through the rest, up at the last. */
-async function draw(controller, points) {
+/** Paint with the pointer: down at the first point, through the rest, up at the last. */
+async function paint(controller, points, extra = {}) {
   const [first, ...rest] = points;
-  assert.equal(controller.begin(px(...first)), true, "the chalk begins");
-  for (const p of rest) controller.hover(px(...p));
+  assert.equal(controller.begin(at(...first, extra)), true, "the paint begins");
+  for (const p of rest) controller.extend(at(...p, extra));
   await controller.end();
   await settle();
 }
 const across = (x0, x1, y, n = 24) => Array.from({ length: n }, (_, i) => [x0 + ((x1 - x0) * i) / (n - 1), y]);
+const mine = (t) => t.store.layers("sc").find((l) => l.by === "me");
 
 test("the box shows only where chalk may be used: a chalk zone, anywhere, never when off or frozen, never without the journal", async () => {
   assert.equal((await table({ chalk: { mode: "zones" } })).host.backend.box, true);
@@ -71,198 +77,312 @@ test("the box shows only where chalk may be used: a chalk zone, anywhere, never 
   assert.equal((await table({ journal: false })).host.backend.box, false, "no journal yet (a GM has not logged in): nothing to keep chalk in");
 });
 
-test("the GM's live override opens a closed scene and closes an open one, at once", async () => {
+test("taking from the box: a stick is chalk of its colour, the magic stick is magic chalk, the felt is the eraser; the same again puts it back", async () => {
+  const t = await table();
+  t.controller.take("yellow");
+  assert.equal(t.controller.inHand, "chalk");
+  assert.equal(t.controller.colour, PALETTE.yellow);
+  assert.ok(t.classes.has("stagecraft-chalk"), "the stage knows chalk is in hand");
+  t.controller.take("yellow");
+  assert.equal(t.controller.inHand, null, "the same stick again puts it back");
+  assert.ok(!t.classes.has("stagecraft-chalk"));
+  t.controller.take("blue");
+  t.controller.take("pink");
+  assert.deepEqual([t.controller.inHand, t.controller.colour], ["chalk", PALETTE.pink], "another stick changes the colour, one press");
+  t.controller.take("magic");
+  assert.equal(t.controller.inHand, "magic");
+  assert.equal(t.controller.colour, PALETTE.pink, "magic chalk keeps the colour in hand, which can be any colour at all");
+  t.controller.take("rub");
+  assert.equal(t.controller.inHand, "eraser");
+  t.controller.choose("spray");
+  assert.equal(t.controller.inHand, "spray", "the kit changes tools");
+  t.controller.choose("no such tool");
+  assert.equal(t.controller.inHand, "spray");
+  t.controller.putAway();
+  assert.equal(t.controller.inHand, null);
+
+  const closed = await table({ chalk: { mode: "off" } });
+  closed.controller.take("white");
+  assert.equal(closed.controller.inHand, null, "a closed box gives nothing");
+});
+
+test("the GM's live override opens a closed scene and closes an open one, putting the chalk in hand away", async () => {
   const t = await table({ chalk: { mode: "off" } });
-  assert.equal(t.host.backend.box, false);
   t.host.scene.flags = { stagecraft: { live: { chalk: { mode: "anywhere" } } } };
   t.controller.refresh();
   assert.equal(t.host.backend.box, true, "opened");
   t.controller.take("pink");
-  assert.equal(t.controller.inHand, "pink");
   t.host.scene.flags = { stagecraft: { live: { chalk: { mode: "off" } } } };
   t.controller.refresh();
   assert.equal(t.host.backend.box, false, "closed again");
   assert.equal(t.controller.inHand, null, "and the chalk in hand is put back");
-  assert.equal(t.host.backend.cursor, null);
 });
 
-test("freezing keeps the wall and takes the chalk away; the wall can also be hidden without losing it", async () => {
-  const t = await table({ chalk: { mode: "anywhere" } });
-  t.controller.take("white");
-  await draw(t.controller, across(0.2, 0.3, 0.3));
-  assert.equal(t.host.backend.wall.size, 1);
-  t.host.scene.flags = { stagecraft: { live: { chalk: { locked: true } } } };
-  t.controller.refresh();
-  assert.equal(t.host.backend.box, false);
-  assert.equal(t.host.backend.wall.size, 1, "what was drawn is still on the wall");
-  t.host.scene.flags = { stagecraft: { live: { chalk: { locked: true }, chalkHidden: true } } };
-  t.controller.refresh();
-  assert.equal(t.host.backend.hidden, true);
-  assert.equal(t.store.strokes("sc").length, 1, "hidden is not gone");
-});
-
-test("taking and putting away: a stick is taken from the box, the same stick again puts it back, and a closed box gives nothing", async () => {
-  const t = await table();
-  t.controller.take("yellow");
-  assert.equal(t.controller.inHand, "yellow");
-  assert.ok(t.classes.has("stagecraft-chalk"), "the stage knows chalk is in hand");
-  t.controller.take("yellow");
-  assert.equal(t.controller.inHand, null);
-  assert.ok(!t.classes.has("stagecraft-chalk"));
-  t.controller.take("blue");
-  t.controller.take("rub");
-  assert.equal(t.controller.inHand, "rub", "switching tools is one press");
-  t.controller.putAway();
-  assert.equal(t.host.backend.cursor, null);
-
-  const closed = await table({ chalk: { mode: "off" } });
-  closed.controller.take("white");
-  assert.equal(closed.controller.inHand, null);
-});
-
-test("a line drawn with chalk in hand is on the wall at once and in the journal a moment later, with who drew it", async () => {
+test("a stroke is on the wall the moment it is painted, and kept a moment later as tiles with the step that takes it back", async () => {
   const t = await table({ chalk: { mode: "anywhere" } });
   t.controller.take("yellow");
-  assert.equal(t.controller.begin(px(0.2, 0.3)), true);
-  assert.ok(t.host.backend.preview, "the line being drawn shows before it is a stroke");
-  t.controller.hover(px(0.25, 0.32));
-  t.controller.hover(px(0.3, 0.3));
-  assert.equal(t.host.backend.cursor.drawing, true);
+  assert.equal(t.controller.begin(at(0.2, 0.3)), true);
+  for (const [x, y] of across(0.2, 0.3, 0.3).slice(1)) t.controller.extend(at(x, y));
+  const [live] = [...t.wall.strokes.values()];
+  assert.ok(live && live.touched.size > 0, "paint shows while the hand is still down");
+  assert.ok(t.host.backend.shown.length > 0, "and the picture was told which tiles changed");
   const finishing = t.controller.end();
-  assert.equal(t.host.backend.preview, null, "the preview goes the moment the pointer comes up");
-  assert.equal(t.host.backend.wall.size, 1, "the stroke is already on the wall, before the journal has it");
-  assert.equal(t.store.strokes("sc").length, 0);
+  assert.equal(t.wall.strokes.size, 0, "the stroke is in the layer the moment the pointer comes up");
+  assert.ok(Object.keys(t.wall.tilesOf("me")).length > 0);
   await finishing;
   await settle();
 
-  const [saved] = t.store.strokes("sc");
-  assert.ok(saved, "kept in the journal");
-  assert.deepEqual([saved.by, saved.scene, saved.colour], ["me", "sc", "yellow"]);
-  assert.equal(t.host.backend.wall.size, 1, "and still exactly one on the wall");
-  assert.equal(t.controller.pending.size, 0, "nothing left waiting");
+  const layer = mine(t);
+  assert.ok(layer, "my layer is kept in the journal");
+  assert.deepEqual(Object.keys(layer.tiles).sort(), Object.keys(t.wall.tilesOf("me")).sort(), "the tiles it touched, exactly");
+  // the wall at y 0.3 is pixel 432: row 1; x 0.2..0.3 is pixels 576..864: columns 2 and 3
+  assert.deepEqual(Object.keys(layer.tiles).sort(), ["c2r1", "c3r1"]);
+  const steps = Object.entries(layer.history);
+  assert.equal(steps.length, 1);
+  assert.equal(steps[0][1].who, "me");
+  assert.deepEqual(steps[0][1].tiles, { c2r1: null, c3r1: null }, "before the stroke those tiles were bare");
+  assert.ok(steps[0][0].endsWith(`-${live.id}`), "the step is named after the stroke, so other screens know it is kept");
+
   assert.equal(hookLog.length, 1, "the adventure is told, once");
-  assert.equal(hookLog[0].stroke.id, saved.id);
-  assert.equal(hookLog[0].by, "me");
+  const e = hookLog[0];
+  assert.deepEqual([e.type, e.scene, e.by, e.tool, e.colour], ["chalk", "sc", "me", "chalk", PALETTE.yellow]);
+  assert.ok(e.bounds.x0 > 0.18 && e.bounds.x1 < 0.32 && e.bounds.y0 > 0.27 && e.bounds.y1 < 0.33, `where it lies, in fractions: ${JSON.stringify(e.bounds)}`);
+
+  const ops = sent.map((m) => m.op);
+  assert.equal(ops[0], "begin");
+  assert.ok(ops.includes("more"), "the samples go across while it is painted");
+  assert.equal(ops.at(-1), "end");
+  assert.deepEqual(sent.at(-1).layers, ["me"], "and the end says which layers to wait for");
+  assert.equal(sent[0].tool, "chalk");
+  assert.ok(!("by" in sent[0]), "who sent it is the server's word, never the message's");
+  t.controller.stop();
 });
 
-test("in zones mode a line that leaves the chalk zone stops at its edge; anywhere does not stop it", async () => {
+test("in zones only, paint is held to the chalk zones by the wall's mask; a stroke may start outside and still mark inside", async () => {
   const zones = await table({ chalk: { mode: "zones" } });
+  assert.deepEqual(zones.wall.mask, [RAW_SCENE.zones[0].shape], "the back wall is the mask");
   zones.controller.take("white");
-  await draw(zones.controller, across(0.3, 0.7, 0.4, 40));         // the back wall ends at x 0.45
-  const strokes = zones.store.strokes("sc");
-  assert.equal(strokes.length, 1);
-  const xs = strokes[0].p.filter((_, i) => i % 2 === 0);
-  assert.ok(Math.max(...xs) <= 450 + 1, `the stroke ends at the zone edge (to a thousandth): ${Math.max(...xs)}`);
-
-  const outside = await table({ chalk: { mode: "zones" } });
-  outside.controller.take("white");
-  await draw(outside.controller, across(0.6, 0.9, 0.4));
-  assert.equal(outside.store.strokes("sc").length, 0, "nothing outside the zone is kept");
-
+  zones.controller.hover(at(0.7, 0.3));
+  assert.equal(zones.controller.blocked, true, "outside the zone the chalk shows it would leave no mark");
+  zones.controller.hover(at(0.3, 0.3));
+  assert.equal(zones.controller.blocked, false);
+  zones.controller.choose("eraser");
+  zones.controller.hover(at(0.7, 0.3));
+  assert.equal(zones.controller.blocked, false, "an eraser goes anywhere");
   const free = await table({ chalk: { mode: "anywhere" } });
-  free.controller.take("white");
-  await draw(free.controller, across(0.3, 0.7, 0.4, 40));
-  const xsFree = free.store.strokes("sc")[0].p.filter((_, i) => i % 2 === 0);
-  assert.ok(Math.max(...xsFree) >= 699, "anywhere is anywhere");
+  assert.equal(free.wall.mask, null, "anywhere is anywhere");
 });
 
-test("chalk drawn by someone else shows up on the wall, and goes when they rub it out or the GM wipes it", async () => {
+test("taking back and putting back: Ctrl+Z takes back my newest stroke, Ctrl+Shift+Z puts it back, a new stroke ends the redo", async () => {
   const t = await table({ chalk: { mode: "anywhere" } });
-  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { scene: "sc", by: "ana", strokes: [makeStroke({ id: "a1", scene: "sc", by: "ana", at: 5, colour: "blue", size: "medium", points: [[0.1, 0.1], [0.3, 0.3]] }).stroke] } } } });
-  world.hooks.callAll("createJournalEntryPage", t.entry.pages[0]);
-  assert.deepEqual([...t.host.backend.wall.keys()], ["a1"]);
-  t.entry.pages[0].flags.stagecraft.chalk.strokes = [];
-  world.hooks.callAll("updateJournalEntryPage", t.entry.pages[0]);
-  assert.equal(t.host.backend.wall.size, 0);
-});
-
-test("another person's chalk arriving while mine is still being saved does not make mine flicker out", async () => {
-  const t = await table({ chalk: { mode: "anywhere" } });
-  t.controller.take("pink");
-  t.controller.begin(px(0.2, 0.3));
-  t.controller.hover(px(0.3, 0.35));
-  const saving = t.controller.end();                  // the save is under way
-  const mine = [...t.host.backend.wall.keys()];
-  assert.equal(mine.length, 1);
-
-  // meanwhile someone else's page changes, which makes everyone re-read the wall
-  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { scene: "sc", by: "ana", strokes: [makeStroke({ id: "a1", scene: "sc", by: "ana", at: 5, colour: "blue", size: "medium", points: [[0.5, 0.5], [0.6, 0.6]] }).stroke] } } } });
-  world.hooks.callAll("createJournalEntryPage", t.entry.pages.at(-1));
-  assert.ok(t.host.backend.wall.has(mine[0]), "my line is still there");
-  assert.ok(t.host.backend.wall.has("a1"), "and theirs arrived");
-  assert.ok(!t.host.backend.calls.some((c) => c[0] === "remove" && c.includes(mine[0])), "mine was never taken off and put back");
-
-  await saving;
-  await settle();
-  assert.deepEqual([...t.host.backend.wall.keys()].sort(), [mine[0], "a1"].sort());
-});
-
-test("rubbing out: a player takes away only their own chalk; a line is cut where the eraser passed", async () => {
-  const t = await table({ chalk: { mode: "anywhere" } });
-  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { scene: "sc", by: "ana", strokes: [makeStroke({ id: "a1", scene: "sc", by: "ana", at: 5, colour: "blue", size: "medium", points: across(0.1, 0.5, 0.32) }).stroke] } } } });
-  t.controller.sync();
   t.controller.take("white");
-  await draw(t.controller, across(0.1, 0.5, 0.3));            // mine, 0.02 above theirs
-  const mineId = t.store.strokes("sc").find((s) => s.by === "me").id;
-  assert.equal(t.host.backend.wall.size, 2);
+  await paint(t.controller, across(0.2, 0.22, 0.3));
+  const first = { ...mine(t).tiles };
+  await paint(t.controller, across(0.2, 0.22, 0.3));
+  const both = { ...mine(t).tiles };
+  assert.notDeepEqual(both, first);
+  assert.equal(await t.controller.undo(), true);
+  await settle();
+  assert.deepEqual(mine(t).tiles, first, "the second stroke is gone");
+  assert.deepEqual(t.wall.tilesOf("me"), first, "and gone from the wall too");
+  assert.equal(await t.controller.redo(), true);
+  await settle();
+  assert.deepEqual(mine(t).tiles, both, "and back");
+  assert.equal(await t.controller.undo(), true);
+  await paint(t.controller, across(0.6, 0.62, 0.6));
+  assert.equal(await t.controller.redo(), false, "a new stroke ends what could be put back");
+  await t.controller.undo();
+  await t.controller.undo();
+  await settle();
+  assert.deepEqual(mine(t).tiles, {}, "back to a bare wall");
+  assert.equal(await t.controller.undo(), false, "and nothing more to take back");
+  t.controller.stop();
+});
 
+test("someone else's stroke shows live as they paint it, and gives way to their kept paint when it arrives", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "ana1", tool: "chalk", colour: "#ff0000", size: 9, steady: 5, seed: 7 }, "ana");
+  t.controller.receive({ type: "chalk", op: "more", scene: "sc", id: "ana1", s: [600, 500, 0.7, 700, 500, 0.7, 800, 520, 0.7] }, "ana");
+  const live = t.wall.strokes.get("ana1");
+  assert.ok(live, "it is on my wall");
+  assert.deepEqual([live.by, live.live, live.colour], ["ana", true, "#ff0000"], "on Ana's layer, as she sent it");
+  t.controller.receive({ type: "chalk", op: "end", scene: "sc", id: "ana1", layers: ["ana"] }, "ana");
+  assert.ok(t.wall.strokes.has("ana1"), "it stays until her paint is here");
+  // her page arrives with the tiles and the step named after her stroke
+  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { v: 2, scene: "sc", by: "ana", since: 5, tiles: { c2r2: "ana1", c3r2: "ana1" }, history: { [stepId(5, "ana1")]: { at: 5, who: "ana", tiles: { c2r2: null, c3r2: null } } } } } } });
+  world.hooks.callAll("createJournalEntryPage", t.entry.pages.at(-1));
+  await settle();
+  assert.equal(t.wall.strokes.has("ana1"), false, "the live copy is gone");
+  assert.deepEqual(t.wall.tilesOf("ana"), { c2r2: "ana1", c3r2: "ana1" }, "and her kept paint shows");
+
+  // messages for another scene, or that claim to be mine, are not painted
+  t.controller.receive({ type: "chalk", op: "begin", scene: "elsewhere", id: "x", tool: "chalk" }, "ana");
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "y", tool: "chalk" }, "me");
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "z", tool: "smudge" }, "ana");
+  assert.equal(t.wall.strokes.size, 0);
+  t.controller.stop();
+});
+
+test("a live stroke whose paint arrives before its end still gives way, and one whose paint never comes goes after a while", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "bo1", tool: "pencil", colour: "#00ff00", size: 3, steady: 0, seed: 1 }, "bo");
+  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { v: 2, scene: "sc", by: "bo", since: 5, tiles: { c0r0: "bo1" }, history: { [stepId(5, "bo1")]: { at: 5, who: "bo", tiles: { c0r0: null } } } } } } });
+  world.hooks.callAll("createJournalEntryPage", t.entry.pages.at(-1));
+  await settle();
+  assert.ok(t.wall.strokes.has("bo1"), "not ended yet: kept");
+  t.controller.receive({ type: "chalk", op: "end", scene: "sc", id: "bo1", layers: ["bo"] }, "bo");
+  assert.equal(t.wall.strokes.has("bo1"), false, "ended, and already kept: gone at once");
+
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "cy1", tool: "chalk", colour: "#0000ff", size: 7, steady: 0, seed: 2 }, "cy");
+  t.controller.receive({ type: "chalk", op: "cancel", scene: "sc", id: "cy1" }, "cy");
+  assert.equal(t.wall.strokes.has("cy1"), false, "a stroke thrown away (Escape) goes at once");
+  t.controller.stop();
+});
+
+test("only a GM's eraser rubs out everyone's: a player's message saying otherwise is not believed", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  world.others.gm1 = { id: "gm1", isGM: true };
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "e1", tool: "eraser", everyone: true, size: 20 }, "ana");
+  assert.equal(t.wall.strokes.get("e1").everyone, false);
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "e2", tool: "eraser", everyone: true, size: 20 }, "gm1");
+  assert.equal(t.wall.strokes.get("e2").everyone, true);
+  t.controller.stop();
+});
+
+test("rubbing out: a player's eraser takes away only their own paint; a GM's takes anyone's, and the step is kept on each layer", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { v: 2, scene: "sc", by: "ana", since: 1, tiles: { c2r1: "ana-old" }, history: {} } } } });
+  t.controller.sync();
+  await settle();
+  t.controller.take("white");
+  await paint(t.controller, across(0.2, 0.22, 0.3));
+  assert.ok(mine(t).tiles.c2r1, "mine is there, on the same tile as hers");
   t.controller.take("rub");
-  await draw(t.controller, [[0.3, 0.2], [0.3, 0.45]]);         // a vertical swipe through both
-  const left = t.store.strokes("sc");
-  assert.ok(!left.some((s) => s.id === mineId), "my line is cut");
-  assert.ok(left.some((s) => s.id === "a1"), "hers is not mine to rub");
-  assert.equal(left.filter((s) => s.id.startsWith(`${mineId}.`)).length, 2, "mine is left as two pieces either side of the swipe");
-  assert.deepEqual([...t.host.backend.wall.keys()].sort(), left.map((s) => s.id).sort(), "the wall shows exactly what is kept");
+  await paint(t.controller, across(0.2, 0.22, 0.3));
+  assert.equal(mine(t).tiles.c2r1, undefined, "mine is rubbed out");
+  assert.equal(t.store.layers("sc").find((l) => l.by === "ana").tiles.c2r1, "ana-old", "hers is not mine to rub");
 
   world.user.isGM = true;                                       // the eraser is still in hand
-  await draw(t.controller, [[0.3, 0.2], [0.3, 0.45]]);
-  assert.ok(!t.store.strokes("sc").some((s) => s.id === "a1"), "a GM can rub out anyone's");
+  await paint(t.controller, across(0.2, 0.22, 0.3));
+  const ana = t.store.layers("sc").find((l) => l.by === "ana");
+  assert.equal(ana.tiles.c2r1, undefined, "a GM can rub out anyone's");
+  const [id, step] = Object.entries(ana.history)[0];
+  assert.equal(step.who, "me", "the step on her layer says who did it");
+  assert.equal(await t.controller.undo(), true, "and the GM can take it back");
+  await settle();
+  assert.equal(t.store.layers("sc").find((l) => l.by === "ana").tiles.c2r1, "ana-old");
+  assert.ok(id.length > 0);
+  t.controller.stop();
 });
 
-test("a save that fails takes the line off the wall again rather than showing chalk that is not kept", async () => {
+test("a pen turned round (its eraser end) rubs out for that stroke only", async () => {
   const t = await table({ chalk: { mode: "anywhere" } });
-  t.store.append = async () => { throw new Error("the server said no"); };
+  t.controller.take("white");
+  await paint(t.controller, across(0.2, 0.22, 0.3), { pointerType: "pen", pressure: 0.6 });
+  assert.ok(mine(t).tiles.c2r1);
+  await paint(t.controller, across(0.2, 0.22, 0.3), { pointerType: "pen", pressure: 0.6, flip: true });
+  assert.equal(mine(t).tiles.c2r1, undefined, "rubbed out");
+  assert.equal(t.controller.inHand, "chalk", "and the chalk is still in hand");
+  t.controller.stop();
+});
+
+test("Shift-click draws a straight line from where the last stroke ended", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  t.controller.take("white");
+  t.controller.choose("pencil");
+  await paint(t.controller, across(0.1, 0.12, 0.1));
+  assert.equal(t.controller.begin(at(0.9, 0.1, { shift: true })), false, "nothing to hold: it is drawn in one go");
+  await settle();
+  const tiles = Object.keys(mine(t).tiles);
+  assert.ok(tiles.includes("c10r0") && tiles.includes("c5r0"), `the line reaches across the wall: ${tiles}`);
+  assert.equal(Object.keys(mine(t).history).length, 2, "and is one step, taken back in one go");
+  t.controller.stop();
+});
+
+test("the fill fills a closed shape, and says so when it cannot", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  t.controller.take("green");
+  t.controller.choose("fill");
+  t.wall.fillAnswer = { ok: true, changed: new Map([["c4r2", { content: "filled" }]]), area: 900 };
+  assert.equal(t.controller.begin(at(0.4, 0.4)), false, "a fill is one click");
+  await settle();
+  assert.equal(t.wall.fills[0].colour, PALETTE.green);
+  assert.equal(mine(t).tiles.c4r2, "filled", "kept like any stroke");
+  t.wall.fillAnswer = { ok: false, reason: "open", changed: new Map() };
+  t.controller.begin(at(0.6, 0.4));
+  await settle();
+  assert.equal(Object.keys(mine(t).history).length, 1, "a fill that found no shape keeps nothing");
+  t.controller.stop();
+});
+
+test("Alt-click takes a colour: from the chalk on the wall, else from the painting", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  t.controller.take("white");
+  t.wall.pickAnswer = "#123456";
+  assert.equal(t.controller.begin(at(0.3, 0.3, { alt: true })), false);
+  assert.equal(t.controller.colour, "#123456");
+  t.wall.pickAnswer = null;
+  t.controller.pickColour(at(0.3, 0.3));
+  assert.equal(t.controller.colour, "#405060", "the painting's own colour where there is no chalk");
+  assert.equal(t.controller.recent[0], "#405060", "and it is among the recent colours");
+  t.controller.stop();
+});
+
+test("the hand is this player's own and remembered on this machine: colour, recent colours, each tool's size, steady hand", async () => {
+  const kept = new Map();
+  globalThis.localStorage = { getItem: (k) => kept.get(k) ?? null, setItem: (k, v) => kept.set(k, String(v)) };
+  try {
+    const t = await table({ chalk: { mode: "anywhere" } });
+    t.controller.take("white");
+    t.controller.setColour("#aa00aa", { remember: false });
+    assert.notEqual(t.controller.recent[0], "#aa00aa", "a colour passed over while dragging the picker is not remembered");
+    t.controller.setColour("#bb11bb");
+    t.controller.setSize(999);
+    assert.equal(t.controller.sizes.chalk, TOOLS.chalk.size.max, "a size is held to the tool's own range");
+    t.controller.setSize(10);
+    t.controller.nudgeSize(1);
+    assert.ok(t.controller.sizes.chalk > 10);
+    t.controller.setSteady(3);
+    t.controller.stop();
+
+    const again = await table({ chalk: { mode: "anywhere" } });
+    assert.equal(again.controller.colour, "#bb11bb");
+    assert.equal(again.controller.recent[0], "#bb11bb");
+    assert.ok(again.controller.sizes.chalk > 10);
+    assert.equal(again.controller.steady, 3);
+    again.controller.stop();
+  } finally {
+    delete globalThis.localStorage;
+  }
+});
+
+test("a save that fails takes the paint off the wall again rather than showing chalk that is not kept", async () => {
+  const t = await table({ chalk: { mode: "anywhere" } });
+  t.store.save = async () => { throw new Error("the server said no"); };
   const warnings = [];
   const warn = console.warn;
   console.warn = (...a) => warnings.push(a.join(" "));
   try {
     t.controller.take("green");
-    await draw(t.controller, across(0.2, 0.4, 0.3));
+    await paint(t.controller, across(0.2, 0.4, 0.3));
   } finally { console.warn = warn; }
-  assert.equal(t.host.backend.wall.size, 0);
-  assert.equal(t.controller.pending.size, 0);
-  assert.ok(warnings.some((w) => /could not keep a chalk stroke/.test(w)), "and it says so in the console");
+  assert.deepEqual(t.wall.tilesOf("me"), {});
+  assert.ok(warnings.some((w) => /chalk could not be kept/.test(w)), "and it says so in the console");
+  t.controller.stop();
 });
 
-test("a full wall forgets its oldest line when a new one is drawn", async () => {
-  const t = await table({ chalk: { mode: "anywhere" } });
-  const make = (i) => makeStroke({ id: `old${String(i).padStart(4, "0")}`, scene: "sc", by: "ana", at: i, colour: "white", size: "thin", points: [[0.1, 0.1 + (i % 50) / 100], [0.2, 0.15 + (i % 50) / 100]] }).stroke;
-  const all = Array.from({ length: LIMITS.strokesPerScene }, (_, i) => make(i));
-  for (let i = 0; i < all.length; i += 40) world.page(t.entry, { name: `p${i}`, flags: { stagecraft: { chalk: { scene: "sc", by: "ana", n: i / 40, strokes: all.slice(i, i + 40) } } } });
-  t.controller.sync();
-  assert.equal(t.host.backend.wall.size, LIMITS.strokesPerScene);
-
-  t.controller.take("white");
-  await draw(t.controller, across(0.6, 0.8, 0.8));
-  const kept = t.store.strokes("sc");
-  assert.equal(kept.length, LIMITS.strokesPerScene, "still at the cap, not over it");
-  assert.ok(!kept.some((s) => s.id === "old0000"), "the oldest went");
-  assert.ok(kept.some((s) => s.by === "me"), "the new one stayed");
-  assert.equal(t.host.backend.wall.size, LIMITS.strokesPerScene);
-});
-
-test("when the picture is rebuilt, the wall is drawn again from what is kept", async () => {
+test("when the picture is rebuilt, the whole wall is shown again, from what the wall already holds", async () => {
   const t = await table({ chalk: { mode: "anywhere" } });
   t.controller.take("orange");
-  await draw(t.controller, across(0.2, 0.4, 0.3));
-  await draw(t.controller, across(0.2, 0.4, 0.5));
-  assert.equal(t.host.backend.wall.size, 2);
-  t.host.backend = recordingBackend();                 // a new picture with an empty wall
+  await paint(t.controller, across(0.2, 0.4, 0.3));
+  t.host.backend = recordingBackend();                 // a new picture with nothing on it
   t.controller.reset();
   t.controller.sync();
   t.controller.refresh();
-  assert.equal(t.host.backend.wall.size, 2);
+  assert.equal(t.host.backend.fulls, 1, "told to show everything");
+  assert.ok(t.host.backend.shown[0].length >= 2);
   assert.equal(t.host.backend.box, true);
+  t.controller.stop();
 });
 
 test("the journal arriving after the stage (a GM logging in late) turns the box on by itself", async () => {
@@ -270,15 +390,17 @@ test("the journal arriving after the stage (a GM logging in late) turns the box 
   assert.equal(t.host.backend.box, false);
   await JournalEntry.create({ name: ENTRY_NAME, flags: { stagecraft: { chalk: true } }, ownership: { default: OWNER } });
   assert.equal(t.host.backend.box, true);
+  t.controller.stop();
 });
 
-test("stopping unsubscribes, so a scene that has gone never redraws", async () => {
+test("stopping unsubscribes, so a scene that has gone never paints again", async () => {
   const t = await table({ chalk: { mode: "anywhere" } });
   t.controller.take("white");
   t.controller.stop();
   assert.equal(t.controller.inHand, null);
-  const before = t.host.backend.calls.length;
-  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { scene: "sc", by: "ana", strokes: [makeStroke({ id: "a1", scene: "sc", by: "ana", at: 5, colour: "blue", size: "medium", points: [[0.1, 0.1], [0.3, 0.3]] }).stroke] } } } });
+  const before = t.host.backend.shown.length;
+  world.page(t.entry, { name: "p", flags: { stagecraft: { chalk: { v: 2, scene: "sc", by: "ana", since: 1, tiles: { c0r0: "a" }, history: {} } } } });
   world.hooks.callAll("createJournalEntryPage", t.entry.pages[0]);
-  assert.equal(t.host.backend.calls.length, before);
+  await settle();
+  assert.equal(t.host.backend.shown.length, before);
 });

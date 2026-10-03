@@ -6,12 +6,21 @@
 export const OWNER = 3;
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
+/** Foundry 14's ForcedDeletion, as `_del`: a value that takes its key away in an update. */
+export const DEL = Object.freeze({ forcedDeletion: true });
+
+/** Set a dotted path; the value `_del`, or a last key written "-=name" (the older form), deletes it, as Foundry's updates do. */
 function setByPath(object, path, value) {
   const keys = path.split(".");
   let at = object;
   for (const key of keys.slice(0, -1)) at = at[key] ??= {};
-  at[keys.at(-1)] = value;
+  const last = keys.at(-1);
+  if (last.startsWith("-=")) delete at[last.slice(2)];
+  else if (value === DEL) delete at[last];
+  else at[last] = value;
 }
+
+const copy = (value) => (value === DEL ? DEL : structuredClone(value));
 
 class FakeHooks {
   #map = new Map();
@@ -37,9 +46,10 @@ export class FakePage {
   async update(changes) {
     if (!this.isOwner) throw new Error("this user does not own that page");
     await tick();
-    for (const [path, value] of Object.entries(changes)) setByPath(this, path, structuredClone(value));
+    for (const [path, value] of Object.entries(changes)) setByPath(this, path, copy(value));
     this.world.updates++;
-    this.world.hooks.callAll("updateJournalEntryPage", this);
+    this.world.lastUpdate = changes;
+    this.world.hooks.callAll("updateJournalEntryPage", this, changes);
   }
 }
 
@@ -78,8 +88,12 @@ export class FakeEntry {
   }
 }
 
-/** Install a fake Foundry on globalThis and return it. `user` is who is playing on this client. */
-export function installFoundry({ user = { id: "me", name: "Me", isGM: false } } = {}) {
+/**
+ * Install a fake Foundry on globalThis and return it. `user` is who is playing on this client. `del: false` is a Foundry
+ * older than 14, with no `_del` (updates delete with "-=key").
+ */
+export function installFoundry({ user = { id: "me", name: "Me", isGM: false }, del = true } = {}) {
+  if (del) globalThis._del = DEL; else delete globalThis._del;
   const world = {
     user,
     hooks: new FakeHooks(),
@@ -87,11 +101,17 @@ export function installFoundry({ user = { id: "me", name: "Me", isGM: false } } 
     scenes: [],
     updates: 0,
     creates: 0,
-    canWrite(page) { return page.ownedBy ? page.ownedBy.includes(this.user.id) || this.user.isGM : true; }
+    canWrite(page) { return page.ownedBy ? page.ownedBy.includes(this.user.id) || this.user.isGM : true; },
+    others: {}                                           // the other users of the world, by id: { id, isGM }
   };
   globalThis.Hooks = world.hooks;
   globalThis.CONST = { DOCUMENT_OWNERSHIP_LEVELS: { NONE: 0, LIMITED: 1, OBSERVER: 2, OWNER: OWNER } };
-  globalThis.game = { user, journal: world.entries, scenes: world.scenes };
+  globalThis.game = {
+    user, journal: world.entries, scenes: world.scenes,
+    users: { get: (id) => (id === world.user.id ? world.user : world.others[id] ?? null) },
+    // words come back as their keys, with what was filled in after them, so a test can see what would have been said
+    i18n: { localize: (key) => key, format: (key, data) => `${key} ${JSON.stringify(data)}` }
+  };
   globalThis.JournalEntry = {
     async create(data) {
       await tick();

@@ -1,14 +1,14 @@
 /**
- * The box of chalk, flat: where its parts fall on the screen, and which of them a click lands on. The same tray, sticks and
- * eraser as the three.js box (`BOX` in core/chalk.mjs gives both their measures), laid out with the same perspective.
- * Pure: it returns polygons and rectangles in window pixels, and the backend draws them.
+ * The box of chalk, flat: where its parts fall on the screen, and which of them a click lands on. The same tray, sticks,
+ * magic stick and eraser as the three.js box (`BOX` in core/chalk.mjs gives both their measures), laid out with the same
+ * perspective. Pure: it returns polygons and rectangles in window pixels, and the backend draws them.
  */
 
 import { BOX, COLOURS } from "../../core/chalk.mjs";
 import { DEG, project } from "./geometry.mjs";
 
 const YAW = -10 * DEG;                               // the box is set down a little askew, as in three.js
-const ERASER = Object.freeze({ at: [BOX.width / 2 - 34, 20, 4], size: [50, 32, 30], hit: { y0: 0, y1: 60, half: 29 } });
+const ERASER = Object.freeze({ at: [BOX.eraser.x, 20, 4], size: [50, 32, 30], hit: { y0: 0, y1: 60, half: 29 } });
 
 /**
  * Lay the box out. `at` is where it stands, as a point of the painting (fractions). Returns null when that is above the
@@ -17,6 +17,7 @@ const ERASER = Object.freeze({ at: [BOX.width / 2 - 34, 20, 4], size: [50, 32, 3
  *   z        its depth, so it can be drawn among the cards
  *   floor, back, left, right, front   the tray, as polygons of window points
  *   sticks   one per colour: { colour, base, top, width, tilt, hit }, with the generous rectangle a click can land in
+ *   magic    the magic stick: { base, top, width, hit }
  *   eraser   { front, top, hit }
  */
 export function boxLayout(rig, view, at) {
@@ -46,6 +47,13 @@ export function boxLayout(rig, view, at) {
     };
   });
 
+  const m = BOX.magic;
+  const mBase = P(m.x, -2, 2);
+  const mTip = P(m.x - Math.sin(0.06) * m.height, -2 + Math.cos(0.06) * m.height, 2);
+  const mLow = P(m.x, 4 + hit.height / 2 - 14 - hit.height / 2, 0);
+  const mHigh = P(m.x, 4 + hit.height / 2 - 14 + hit.height / 2, 0);
+  const mHalf = hit.radius * mLow.k * view.s;
+
   const [ex, ey, ez] = ERASER.at;
   const [ew, eh, ed] = ERASER.size;
   const eLow = P(ex, ERASER.hit.y0, ez);
@@ -60,6 +68,11 @@ export function boxLayout(rig, view, at) {
     right: poly([[W / 2, 4, -D / 2], [W / 2, 4, D / 2], [W / 2, top, D / 2], [W / 2, top, -D / 2]]),
     front: poly([[-W / 2, 4, D / 2], [W / 2, 4, D / 2], [W / 2, top, D / 2], [-W / 2, top, D / 2]]),
     sticks,
+    magic: {
+      base: { x: mBase.x, y: mBase.y }, top: { x: mTip.x, y: mTip.y },
+      width: 2 * m.radius * mBase.k * view.s,
+      hit: { x0: mLow.x - mHalf, x1: mLow.x + mHalf, y0: mHigh.y, y1: mLow.y }
+    },
     eraser: {
       front: poly([[ex - ew / 2, ey - eh / 2, ez + ed / 2], [ex + ew / 2, ey - eh / 2, ez + ed / 2], [ex + ew / 2, ey + eh / 2, ez + ed / 2], [ex - ew / 2, ey + eh / 2, ez + ed / 2]]),
       top: poly([[ex - ew / 2, ey + eh / 2, ez - ed / 2], [ex + ew / 2, ey + eh / 2, ez - ed / 2], [ex + ew / 2, ey + eh / 2, ez + ed / 2], [ex - ew / 2, ey + eh / 2, ez + ed / 2]]),
@@ -70,10 +83,11 @@ export function boxLayout(rig, view, at) {
 
 const inside = (r, x, y) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1;
 
-/** What a click at a window point lands on: { kind: "chalk", colour }, { kind: "eraser" }, or null. */
+/** What a click at a window point lands on: { kind: "chalk", colour }, { kind: "magic" }, { kind: "eraser" }, or null. */
 export function hitBox(layout, x, y) {
   if (!layout) return null;
   if (inside(layout.eraser.hit, x, y)) return { kind: "eraser" };
+  if (inside(layout.magic.hit, x, y)) return { kind: "magic" };
   for (const st of layout.sticks) if (inside(st.hit, x, y)) return { kind: "chalk", colour: st.colour };
   return null;
 }

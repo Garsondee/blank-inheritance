@@ -16,6 +16,14 @@
  *   stats()                   { calls, triangles, textures, geometries } for the tests and the HUD
  *   dispose()                 free everything this backend made
  *   capabilities              what it can do, by name; features ask this and never the backend's name
+ *
+ * A backend with the `chalk` capability also shows the painted wall and the box of chalk (chalk.md §5):
+ *
+ *   setChalkTiles(wall, keys, full)   these tiles of the wall (render/paint/wall.mjs) changed; `full`: show it all afresh
+ *   setChalkHidden(hidden) / setChalkBox(visible) / setChalkBoxAt([fx, fy])   (the box moves clear of what covers it)
+ *   paintingAt(x, y)          the point of the painting under a viewport point (fractions), or null
+ *   paintingColour(fx, fy)    the painting's own colour there, "#rrggbb", for the colour picker
+ *   pick(x, y) also answers { kind: "chalk", colour } (a stick), { kind: "magic" } and { kind: "eraser" }
  */
 
 export const TIERS = Object.freeze(["high", "low", "flat"]);

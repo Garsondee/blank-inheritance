@@ -1,76 +1,117 @@
+// The rules of chalk (core/chalk.mjs): where it may be used, how the wall is cut into tiles of pixels, and how layers and
+// their history are kept in order. Pixels themselves are tested in the browser (tools/stagecraft/bench/chalk-check.mjs).
+
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  LIMITS, COLOURS, SIZES, LOOK, quantise, dequantise, simplify, densify, makeStroke, pointsOf, strokeBounds,
-  effectivePolicy, allowedAt, boxVisible, clipPath, mergePages, eraseAlong, trimToCaps
+  PALETTE, COLOURS, WALL, HISTORY, wallGrid, tileKey, parseTileKey, validTileKey, tileRect, tilesFor, toWall, toFraction,
+  layerOrder, newestStep, overflowSteps, stepId, effectivePolicy, allowedAt, boxVisible, paintMask, nextOverride,
+  boxOnPage, boxSpot
 } from "../scripts/core/chalk.mjs";
 import { describeScene } from "../scripts/core/scene.mjs";
+import { makeRig, viewFor } from "../scripts/core/rigspace.mjs";
 import { RAW_SCENE } from "./fixture.mjs";
 
 const { scene } = describeScene(RAW_SCENE);
 const zones = scene.zones;           // the back wall is the only chalk zone: x 0.05 to 0.45, y 0.2 to 0.62
-const line = (x0, y0, x1, y1, n = 20) => Array.from({ length: n }, (_, i) => [x0 + ((x1 - x0) * i) / (n - 1), y0 + ((y1 - y0) * i) / (n - 1)]);
-const base = { id: "s1", scene: "sc", by: "u1", at: 100, colour: "white", size: "medium" };
+const grid = wallGrid({ size: [1920, 960] });
 
-test("points quantise to a thousandth of the painting and come back within half of that", () => {
-  const pts = [[0.1234, 0.5678], [1, 0], [0.0004, 0.9996]];
-  const flat = quantise(pts);
-  assert.ok(flat.every(Number.isInteger));
-  const back = dequantise(flat);
-  back.forEach(([x, y], i) => { assert.ok(Math.abs(x - pts[i][0]) <= 0.0005 + 1e-12); assert.ok(Math.abs(y - pts[i][1]) <= 0.0005 + 1e-12); });
+test("the box finds a clear place: where the scene put it, unless the screen's furniture covers it there", () => {
+  const rig = makeRig(scene.painting, scene.rig);
+  const view = viewFor(2560, 1271);                          // the GM's screen where this was found
+  const screen = { x0: view.ox, y0: view.oy, x1: view.ox + view.visW, y1: view.oy + view.visH };
+  const at = [0.405, 0.978];
+  const home = boxOnPage(rig, at);
+  assert.ok(home && home.x1 > home.x0 && home.y1 > home.y0, "the box has an outline on the page");
+  assert.deepEqual(boxSpot(rig, at), at, "nothing covers it: it stays where the scene put it");
+  const onScreen = boxOnPage(rig, boxSpot(rig, at, [], screen));
+  assert.ok(onScreen.y1 + 8 <= screen.y1 && onScreen.y0 >= screen.y0, "and it is always wholly on the screen, with a little room to spare");
+  // a deck along the bottom of the screen, over the box, and a bar of buttons just above the deck
+  const deck = { rect: [view.ox, home.y0 + (home.y1 - home.y0) * 0.5, view.ox + view.visW, view.oy + view.visH] };
+  const bar = { rect: [home.x0 - 200, home.y0 - 60, home.x1 + 200, home.y0 + 10] };
+  const spot = boxSpot(rig, at, [deck, bar], screen);
+  assert.notDeepEqual(spot, at, "covered: it moves");
+  const there = boxOnPage(rig, spot);
+  const overlaps = (s, r) => !(s.rect[2] < r.x0 || s.rect[0] > r.x1 || s.rect[3] < r.y0 || s.rect[1] > r.y1);
+  assert.ok(!overlaps(deck, there) && !overlaps(bar, there), `and nothing covers it where it went: ${spot}`);
+  assert.ok(there.y1 <= screen.y1 && there.y0 >= screen.y0 && there.x0 >= screen.x0 && there.x1 <= screen.x1, "wholly on the screen");
+  assert.ok(Math.abs(spot[0] - at[0]) <= 0.2 && at[1] - spot[1] <= 0.3, "and near where the scene put it");
+  // a round dial in the way is avoided too
+  const dial = { circle: [(home.x0 + home.x1) / 2, (home.y0 + home.y1) / 2, 120] };
+  const round = boxOnPage(rig, boxSpot(rig, at, [dial], screen));
+  const nx = Math.max(round.x0, Math.min(dial.circle[0], round.x1));
+  const ny = Math.max(round.y0, Math.min(dial.circle[1], round.y1));
+  assert.ok(Math.hypot(nx - dial.circle[0], ny - dial.circle[1]) > 120);
+  // covered everywhere: it stays where the scene put it rather than wandering off
+  assert.deepEqual(boxSpot(rig, at, [{ rect: [-1e5, -1e5, 1e5, 1e5] }], screen), at);
 });
 
-test("simplify drops the middle of a straight run and keeps a corner", () => {
-  const straight = line(0.1, 0.1, 0.5, 0.1, 50);
-  assert.deepEqual(simplify(straight), [straight[0], straight[49]]);
-  const bent = [...line(0.1, 0.1, 0.5, 0.1, 25), ...line(0.5, 0.1, 0.5, 0.5, 25).slice(1)];
-  const s = simplify(bent);
-  assert.equal(s.length, 3, "two ends and the corner");
-  assert.ok(Math.abs(s[1][0] - 0.5) < 1e-9 && Math.abs(s[1][1] - 0.1) < 1e-9, `the corner is kept: ${s[1]}`);
-  assert.deepEqual(simplify([[0, 0]]), [[0, 0]]);
+test("the wall is as tall as the reference page and as wide as the painting's shape, cut into tiles of 240", () => {
+  assert.deepEqual(grid, { w: 2880, h: 1440, tile: 240, cols: 12, rows: 6 });
+  const square = wallGrid({ size: [1000, 1000] });
+  assert.deepEqual([square.w, square.h, square.cols, square.rows], [1440, 1440, 6, 6]);
+  const odd = wallGrid({ size: [1700, 1000] });
+  assert.equal(odd.w, 2448);
+  assert.equal(odd.cols, 11, "a part tile at the end is still a tile");
+  assert.equal(tileRect(odd, tileKey(10, 0)).w, 48, "and it is only as wide as what is left");
+  assert.ok(wallGrid({ size: [10000, 100] }).w <= WALL.maxWidth, "a very wide painting is capped");
 });
 
-test("densify leaves no gap longer than asked", () => {
-  const d = densify([[0, 0], [0.5, 0]], 0.1);
-  for (let i = 1; i < d.length; i++) assert.ok(d[i][0] - d[i - 1][0] <= 0.1 + 1e-12);
-  assert.equal(d[0][0], 0);
-  assert.equal(d[d.length - 1][0], 0.5);
+test("tile keys say where a tile is, and nothing else is a key", () => {
+  assert.equal(tileKey(3, 2), "c3r2");
+  assert.deepEqual(parseTileKey("c11r5"), { c: 11, r: 5 });
+  for (const bad of ["c3", "r2c3", "c3r2x", "c-1r2", "", null, "c1234r1"]) assert.equal(parseTileKey(bad), null, String(bad));
+  assert.equal(validTileKey(grid, "c11r5"), true);
+  assert.equal(validTileKey(grid, "c12r5"), false, "off the end of the wall");
+  assert.deepEqual(tileRect(grid, "c1r1"), { x: 240, y: 240, w: 240, h: 240 });
 });
 
-test("a stroke is small: a long squiggle becomes a few dozen integers, and it never exceeds the caps", () => {
-  const squiggle = Array.from({ length: 2000 }, (_, i) => [0.2 + 0.2 * Math.sin(i / 40) * (i / 2000), 0.2 + (0.3 * i) / 2000 + 0.01 * Math.sin(i / 5)]);
-  const r = makeStroke({ ...base, points: squiggle });
-  assert.equal(r.ok, true, r.problems.join(";"));
-  assert.ok(r.stroke.p.length / 2 <= LIMITS.pointsPerStroke);
-  assert.ok(JSON.stringify(r.stroke).length < 4000, `a stroke is ${JSON.stringify(r.stroke).length} bytes`);
-  assert.deepEqual(Object.keys(r.stroke).sort(), ["at", "by", "colour", "id", "p", "scene", "size"], "a stroke carries exactly these fields and nothing hidden");
-  const bounds = strokeBounds(r.stroke);
-  assert.ok(bounds.x0 >= 0 && bounds.x1 <= 1 && bounds.y0 >= 0 && bounds.y1 <= 1);
+test("a rectangle of the wall touches the tiles under it, and only those, never off the wall", () => {
+  assert.deepEqual(tilesFor(grid, { x0: 10, y0: 10, x1: 20, y1: 20 }), ["c0r0"]);
+  assert.deepEqual(tilesFor(grid, { x0: 230, y0: 230, x1: 250, y1: 250 }), ["c0r0", "c1r0", "c0r1", "c1r1"]);
+  assert.deepEqual(tilesFor(grid, { x0: -50, y0: -50, x1: 5, y1: 5 }), ["c0r0"]);
+  assert.equal(tilesFor(grid, { x0: 0, y0: 0, x1: 99999, y1: 99999 }).length, 72);
+  const p = toWall(grid, 0.5, 0.25);
+  assert.deepEqual(p, { x: 1440, y: 360 });
+  assert.deepEqual(toFraction(grid, p.x, p.y), { x: 0.5, y: 0.25 });
 });
 
-test("a tap with the chalk leaves a dot, and a stroke with nothing in it is refused", () => {
-  const dot = makeStroke({ ...base, points: [[0.3, 0.3]] });
-  assert.equal(dot.ok, true);
-  assert.equal(pointsOf(dot.stroke).length, 2);
-  assert.equal(makeStroke({ ...base, points: [] }).ok, false);
+test("layers are drawn in the order their painters first painted, whoever's browser lists them first", () => {
+  const a = { by: "u2", since: 20 };
+  const b = { by: "u1", since: 10 };
+  const c = { by: "u0", since: 20 };
+  assert.deepEqual(layerOrder([a, b, c]).map((l) => l.by), ["u1", "u0", "u2"]);
+  assert.deepEqual(layerOrder([c, a, b]).map((l) => l.by), ["u1", "u0", "u2"]);
 });
 
-test("a stroke is validated: who, where, which chalk, which size, real numbers", () => {
-  assert.equal(makeStroke({ ...base, id: "", points: line(0.1, 0.1, 0.2, 0.2) }).ok, false);
-  assert.equal(makeStroke({ ...base, by: "", points: line(0.1, 0.1, 0.2, 0.2) }).ok, false);
-  assert.equal(makeStroke({ ...base, colour: "mauve", points: line(0.1, 0.1, 0.2, 0.2) }).ok, false);
-  assert.equal(makeStroke({ ...base, size: "huge", points: line(0.1, 0.1, 0.2, 0.2) }).ok, false);
-  assert.equal(makeStroke({ ...base, points: [[0.1, NaN], [0.2, 0.2]] }).ok, false);
-  assert.ok(COLOURS.includes("white") && "thin" in SIZES);
+test("the newest step on the wall, or in one painter's layer, is the one undo takes back", () => {
+  const layers = [
+    { by: "u1", history: { [stepId(100, "a")]: { at: 100 }, [stepId(300, "b")]: { at: 300 } } },
+    { by: "u2", history: { [stepId(200, "c")]: { at: 200 } } },
+    { by: "u3", history: {} }
+  ];
+  assert.equal(newestStep(layers).id, stepId(300, "b"));
+  assert.equal(newestStep(layers).layer.by, "u1");
+  assert.equal(newestStep(layers, { by: "u2" }).id, stepId(200, "c"));
+  assert.equal(newestStep(layers, { by: "u3" }), null);
+  assert.equal(newestStep([]), null);
 });
 
-test("points outside the painting are pulled back onto it", () => {
-  const s = makeStroke({ ...base, points: [[-0.5, 0.5], [1.5, 0.5]] }).stroke;
-  const b = strokeBounds(s);
-  assert.deepEqual([b.x0, b.x1], [0, 1]);
+test("a history keeps only its newest steps", () => {
+  const history = Object.fromEntries(Array.from({ length: HISTORY + 3 }, (_, i) => [stepId(i * 10, "x"), { at: i * 10 }]));
+  const drop = overflowSteps(history);
+  assert.equal(drop.length, 3);
+  assert.deepEqual(drop, [stepId(0, "x"), stepId(10, "x"), stepId(20, "x")], "the oldest go");
+  assert.deepEqual(overflowSteps({}), []);
+  assert.ok(stepId(5, "z") < stepId(40, "a"), "step ids sort by time as text");
 });
 
-test("policy: off means no box and no drawing; anywhere means everywhere; zones means only the chalk zones", () => {
+test("the box's chalk comes in six colours, each a real colour", () => {
+  assert.deepEqual(COLOURS, ["white", "yellow", "pink", "blue", "green", "orange"]);
+  for (const hex of Object.values(PALETTE)) assert.match(hex, /^#[0-9a-f]{6}$/);
+});
+
+test("policy: off means no box and no painting; anywhere means everywhere; zones means only the chalk zones", () => {
   const off = effectivePolicy({ mode: "off" });
   const zonesOnly = effectivePolicy({ mode: "zones" });
   const anywhere = effectivePolicy({ mode: "anywhere" });
@@ -85,106 +126,27 @@ test("policy: off means no box and no drawing; anywhere means everywhere; zones 
   assert.equal(boxVisible(zonesOnly, zones.filter((z) => z.kind !== "chalk")), false, "no chalk zone, no box");
 });
 
-test("the GM's override replaces the authored mode, and returns to it when lifted", () => {
+test("in zones only, paint is kept inside the chalk zones' shapes; anywhere, nothing holds it in", () => {
+  const mask = paintMask(effectivePolicy({ mode: "zones" }), zones);
+  assert.equal(mask.length, 1);
+  assert.deepEqual(mask[0], zones.find((z) => z.kind === "chalk").shape);
+  assert.equal(paintMask(effectivePolicy({ mode: "anywhere" }), zones), null);
+});
+
+test("the GM's override replaces the authored mode, goes round, and returns to it when lifted", () => {
   const authored = { mode: "off" };
   assert.equal(effectivePolicy(authored, { mode: "anywhere" }).mode, "anywhere");
   assert.equal(effectivePolicy(authored, { mode: "zones" }).mode, "zones");
   assert.equal(effectivePolicy({ mode: "anywhere" }, { mode: "off" }).mode, "off");
   assert.equal(effectivePolicy({ mode: "anywhere" }, null).mode, "anywhere");
   assert.equal(effectivePolicy({ mode: "anywhere" }, { mode: "bogus" }).mode, "anywhere", "a bad override is ignored");
+  assert.deepEqual([null, "off", "zones", "anywhere"].map(nextOverride), ["off", "zones", "anywhere", null]);
 });
 
-test("a locked wall freezes drawing whatever the mode, by the scene or by the GM's live lock", () => {
+test("a locked wall freezes painting whatever the mode, by the scene or by the GM's live lock", () => {
   assert.equal(effectivePolicy({ mode: "anywhere", lock: true }).locked, true);
   assert.equal(allowedAt(effectivePolicy({ mode: "anywhere", lock: true }), zones, 0.2, 0.4), false);
   assert.equal(effectivePolicy({ mode: "anywhere", lock: true }, { locked: false }).locked, false, "the GM can lift a scene's lock");
   assert.equal(effectivePolicy({ mode: "anywhere" }, { locked: true }).locked, true);
   assert.equal(boxVisible(effectivePolicy({ mode: "anywhere", lock: true }), zones), false);
-});
-
-test("a line drawn across a zone's edge stops cleanly at the edge", () => {
-  const zonesOnly = effectivePolicy({ mode: "zones" });
-  const across = line(0.3, 0.4, 0.7, 0.4, 40);              // starts inside the back wall (x to 0.45), ends outside
-  const runs = clipPath(across, zonesOnly, zones);
-  assert.equal(runs.length, 1);
-  const last = runs[0][runs[0].length - 1];
-  assert.ok(last[0] <= 0.45 + 1e-9 && last[0] > 0.43, `the line stops at the edge: ${last[0]}`);
-  assert.deepEqual(clipPath(line(0.6, 0.4, 0.9, 0.4), zonesOnly, zones), []);
-  assert.deepEqual(clipPath(across, effectivePolicy({ mode: "off" }), zones), []);
-  assert.equal(clipPath(across, effectivePolicy({ mode: "anywhere" }), zones)[0].length, 40);
-  const out = clipPath([...line(0.1, 0.4, 0.4, 0.4, 10), ...line(0.5, 0.4, 0.55, 0.4, 3), ...line(0.2, 0.3, 0.3, 0.3, 5)], zonesOnly, zones);
-  assert.equal(out.length >= 2, true, "leaving and coming back makes two lines");
-});
-
-test("several hands, one wall: pages merge in time order, a duplicate collapses, a later copy wins", () => {
-  const mk = (id, at, by) => makeStroke({ ...base, id, at, by, points: line(0.1, 0.1, 0.4, 0.4) }).stroke;
-  const pageA = { by: "a", strokes: [mk("a2", 30, "a"), mk("a1", 10, "a")] };
-  const pageB = { by: "b", strokes: [mk("b1", 20, "b"), { ...mk("a1", 10, "a"), colour: "pink" }] };
-  const merged = mergePages([pageA, pageB]);
-  assert.deepEqual(merged.map((s) => s.id), ["a1", "b1", "a2"]);
-  assert.equal(merged[0].colour, "pink");
-  assert.deepEqual(mergePages([pageB, pageA]).map((s) => s.id), merged.map((s) => s.id), "the order does not depend on which page came first");
-  assert.deepEqual(mergePages([[mk("z", 1, "a")]]).map((s) => s.id), ["z"], "a bare list works too");
-});
-
-test("rubbing out removes the part under the eraser and splits what is left", () => {
-  const s = makeStroke({ ...base, id: "wall", points: line(0.1, 0.3, 0.4, 0.3, 60) }).stroke;
-  const { removed, added } = eraseAlong([s], [[0.25, 0.28], [0.25, 0.32]], 0.02);
-  assert.deepEqual(removed, ["wall"]);
-  assert.equal(added.length, 2, "cut in two");
-  assert.deepEqual(added.map((a) => a.id), ["wall.1", "wall.2"]);
-  assert.ok(strokeBounds(added[0]).x1 < 0.25 && strokeBounds(added[1]).x0 > 0.25);
-  for (const a of added) assert.deepEqual([a.by, a.scene, a.colour, a.at], ["u1", "sc", "white", 100], "the pieces keep who drew them");
-  const miss = eraseAlong([s], [[0.25, 0.6], [0.3, 0.6]], 0.02);
-  assert.deepEqual([miss.removed, miss.added], [[], []]);
-  const whole = eraseAlong([s], [[0.05, 0.3], [0.45, 0.3]], 0.02);
-  assert.deepEqual([whole.removed, whole.added.length], [["wall"], 0], "rubbing along the whole line removes it");
-});
-
-test("a hand may rub out only what it is allowed to", () => {
-  const mine = makeStroke({ ...base, id: "mine", by: "me", points: line(0.1, 0.3, 0.4, 0.3, 30) }).stroke;
-  const yours = makeStroke({ ...base, id: "yours", by: "you", points: line(0.1, 0.32, 0.4, 0.32, 30) }).stroke;
-  const path = [[0.05, 0.31], [0.45, 0.31]];
-  const own = eraseAlong([mine, yours], path, 0.03, (s) => s.by === "me");
-  assert.deepEqual(own.removed, ["mine"]);
-  const anyone = eraseAlong([mine, yours], path, 0.03, () => true);
-  assert.deepEqual(anyone.removed.sort(), ["mine", "yours"]);
-});
-
-test("a full wall forgets its oldest strokes, and keeps the newest", () => {
-  const strokes = Array.from({ length: 12 }, (_, i) => makeStroke({ ...base, id: `s${String(i).padStart(2, "0")}`, at: i, points: line(0.1, 0.1, 0.4, 0.4) }).stroke);
-  const { keep, overflow } = trimToCaps(strokes, 10);
-  assert.deepEqual(overflow.map((s) => s.id), ["s00", "s01"]);
-  assert.equal(keep.length, 10);
-  assert.equal(trimToCaps(strokes, 20).overflow.length, 0);
-});
-
-test("a stroke can carry nothing it was not given: it has only the fields above", () => {
-  const r = makeStroke({ ...base, points: line(0.1, 0.1, 0.2, 0.2), secret: "x", extra: { y: 1 } });
-  assert.equal(r.ok, true);
-  assert.equal("secret" in r.stroke, false);
-  assert.equal("extra" in r.stroke, false);
-});
-
-test("chalk is 35% smaller than it first was, in every width, and the sizes keep their order", () => {
-  const first = { thin: 0.0016, medium: 0.003, thick: 0.0055 };
-  for (const [name, was] of Object.entries(first)) assert.ok(Math.abs(SIZES[name] / was - 0.65) < 0.005, `${name}: ${SIZES[name]} is not 65% of ${was}`);
-  assert.ok(SIZES.thin < SIZES.medium && SIZES.medium < SIZES.thick);
-  assert.ok(SIZES.medium * 2048 < 4.1, "on a full size wall a medium line is about four pixels, not six");
-});
-
-test("the look is a solid core with only a slight fuzz outside it, and the bites never reach the core", () => {
-  const layers = LOOK.layers;
-  const core = layers[layers.length - 1];
-  assert.equal(core.scale, 1, "the innermost layer is the line's own width");
-  assert.ok(core.alpha >= 0.95, `the core is solid: ${core.alpha}`);
-  for (let i = 1; i < layers.length; i++) {
-    assert.ok(layers[i].scale < layers[i - 1].scale, "layers narrow towards the middle");
-    assert.ok(layers[i].alpha > layers[i - 1].alpha, "and get more solid towards the middle");
-  }
-  assert.ok(layers[0].scale <= 1.6, "the whole fuzz stays within a little over the line's own width");
-  assert.ok(layers[0].alpha <= 0.1 && layers[1].alpha <= 0.4, "the fuzz is faint");
-  assert.ok(LOOK.bites.from >= core.scale / 2, "a bite is centred outside the core's own edge");
-  assert.ok(LOOK.bites.to <= layers[1].scale / 2 + 0.2, "and still within the soft edge");
-  assert.ok(LOOK.floor <= 2, "a thin line on a small wall is still smaller than it used to be");
 });

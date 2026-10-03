@@ -628,3 +628,45 @@ the bench could not show:
    0.4.0), the adventure's `deckCover`, and the middle of every stage staged a step further back.
 
 Tests: 278 in the module, 33 in the bridge's.
+
+## 22. Chalk, painted (2026-10-03, last)
+
+Her ninth message asked for chalk to be rethought: no vector lines, a smooth art experience, magic chalk in any colour,
+more precise and less clunky, a range of tools, and the storage rethought (`chalk.md` §11 has her words and what each
+became). What changed in the module:
+
+- **`core/brush.mjs`** (new, pure): the tools (`TOOLS`: chalk, magic, pencil, brush, spray, smudge, eraser, fill, each a
+  kind, a tip, sizes, spacing, flow, opacity, grain, scatter, jitter, pressure and taper), the tips' shapes (`tipAlpha`),
+  steady hand (`Steady`, `STEADY`), pressure from a pen or from a mouse's speed (`Feel`), a stroke as dabs along a smooth
+  curve (`Stroke`, seeded, so every screen paints the same stroke), straight lines (`lineDabs`) and colours (`hexToHsv`,
+  `hsvToHex`, `rainbowAt`, `cleanHex`).
+- **`core/chalk.mjs`** (rewritten): the wall's grid (`wallGrid`, `WALL`), tiles (`tileKey`, `tileRect`, `tilesFor`),
+  layers and their history (`layerOrder`, `newestStep`, `overflowSteps`, `HISTORY`, `stepId`), the box's measures with
+  the magic stick, and the policy with `paintMask`. The first edition's strokes are gone from it.
+- **`render/paint/wall.mjs`** (new): `RasterWall`, every painter's layer as tile canvases, strokes painted into buffers
+  (grain fixed to the wall, the zones mask), erasing, the smudge, magic chalk's glow, sparkle and rainbow, the fill
+  (`fill`), the dropper (`pick`), the whole wall laid together tile by tile (`composite`); `encodeTile` (WebP) and
+  `samplePainting`.
+- **`foundry/chalk-store.mjs`** (rewritten): a page per scene and painter holding the layer's tiles and history, each key
+  written and taken away on its own (`_del` on Foundry 14), `layers`, `save`, `undo` (own steps, or the whole wall's),
+  `wipe`, `painters`; it removes the first edition's pages.
+- **`foundry/chalk.mjs`** (rewritten): the controller, the hand (tool, colour, recent colours, sizes, steady hand, magic's
+  tricks, kept on the player's machine), strokes from pointer samples, the live messages on the stage's channel and their
+  settling, keeping, undo and redo, Shift-click, the fill, the dropper and a pen's eraser end.
+- **`foundry/chalk-kit.mjs`** (new): the kit of tools beside the stage, with its colour picker, size, steady hand, dropper,
+  undo, redo and close, the keys ([, ], Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y, Alt) and the ring round the pointer. Draggable;
+  where it was left is kept on the machine.
+- **The pictures**: the 3D picture shows the wall as one plane per painted tile (`ChalkTiles`, with `paintingPlane` now
+  able to cover part of the painting) and the box has the magic stick (coloured at its corners, so no picture is needed);
+  the plain picture draws the tiles into its backdrop and redraws only their places while someone paints; both answer
+  `paintingColour`. The held stick in the pointer's place is gone: the kit's ring replaces it.
+- **The host**: every coalesced pointer sample with its pressure and kind, Alt and Shift, a pen's eraser end, Escape that
+  throws away a stroke before it puts the chalk away, the ring going when the pointer leaves, and the channel carrying
+  chalk as well as cards.
+- **The interface (0.5.0)**: the `stagecraft.chalk` hook says `{ type, scene, by, tool, colour, bounds }`, and
+  `api.chalkTools` lists the tools.
+- **The bench**: its in-memory store keeps layers like the real one and shares them between the page's tabs;
+  `chalk-check.mjs` reads the wall's own pixels after real strokes, clicks and keys (39 checks).
+
+Tests: 287 in the module (new: `brush.test.mjs`, `fake-wall.mjs`; rewritten: the chalk, store, controller, box and plain
+picture tests).

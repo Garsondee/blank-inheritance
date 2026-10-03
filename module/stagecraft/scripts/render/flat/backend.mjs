@@ -11,8 +11,9 @@
 
 import { EMOTES } from "../../core/emotes.mjs";
 import { makeRig, viewFor } from "../../core/rigspace.mjs";
-import { DEFAULT_BOX, pointsOf } from "../../core/chalk.mjs";
-import { chalkHex, seeded, drawChalkLine, zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
+import { DEFAULT_BOX, PALETTE, tileRect, tilesFor } from "../../core/chalk.mjs";
+import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
+import { samplePainting } from "../paint/wall.mjs";
 import { cardPlacement, hitCard, floorAt, paintingAt, project, byDepth, toWindow, FOOT } from "./geometry.mjs";
 import { boxLayout, hitBox } from "./box.mjs";
 
@@ -25,7 +26,7 @@ const PIXEL_RATIO_CAP = 1;                  // the whole point of this backend i
 
 const hex = (n, fallback = "#80512d") => (typeof n === "number" ? `#${n.toString(16).padStart(6, "0")}` : fallback);
 
-/** A canvas the size of the painting (at most 2048 wide), for things drawn in fractions of it: zones and chalk. */
+/** A canvas the size of the painting (at most 2048 wide), for things drawn in fractions of it: the zone outlines. */
 function layer(iw, ih) {
   const cw = Math.min(2048, iw);
   const ch = Math.round((cw * ih) / iw);
@@ -52,12 +53,11 @@ export class FlatBackend {
     this.order = [];                         // last frame's drawables, front to back, for picking
     this.flashes = [];
     this.zoneKey = "";
-    this.revision = 0;                        // counts changes to the chalk, so the backdrop knows when to be redrawn
-    this.strokes = new Map();
+    this.revision = 0;                        // counts wholesale changes to the chalk: the backdrop is drawn again
+    this.chalkWall = null;                    // the painted wall (render/paint/wall.mjs), once there is one
+    this.chalkDirty = new Set();              // its tiles that changed since the backdrop was drawn: only they are drawn again
     this.hidden = false;
     this.boxShown = false;
-    this.cursor = null;
-    this.preview = null;
     this.draws = 0;
   }
 
@@ -107,8 +107,6 @@ export class FlatBackend {
     this.painting = painting;
     const [iw, ih] = this.rig.size;
     this.zoneLayer = layer(iw, ih);
-    this.keptLayer = layer(iw, ih);
-    this.liveLayer = layer(iw, ih);
     this.impact = impactCanvas();
     this.markImage = markCanvas();
     this.labelImages = new Map();
@@ -177,7 +175,7 @@ export class FlatBackend {
 
   #box() {
     if (!this.boxShown) return null;
-    this.boxCache ??= { layout: boxLayout(this.rig, this.view, this.description.chalk?.box ?? DEFAULT_BOX) };
+    this.boxCache ??= { layout: boxLayout(this.rig, this.view, this.boxAt ?? this.description.chalk?.box ?? DEFAULT_BOX) };
     return this.boxCache.layout;
   }
 
@@ -192,8 +190,13 @@ export class FlatBackend {
     const board = snapshot.board ?? null;
     const zones = this.description.zones.length ? zoneKey(this.description.zones, snapshot.zones, this.zoneSetting, t, board) : "";
     const key = `${this.canvas.width}x${this.canvas.height}|${zones}|${this.revision}|${this.hidden ? 1 : 0}`;
-    if (this.backdrop && key === this.backdropKey) return;
+    if (this.backdrop && key === this.backdropKey) {
+      // only some tiles of chalk changed (someone is painting): those places are drawn again, nothing else
+      if (this.chalkDirty.size) this.#backdropTiles();
+      return;
+    }
     this.backdropKey = key;
+    this.chalkDirty.clear();
     if (!this.backdrop) {
       const canvas = document.createElement("canvas");
       canvas.width = this.canvas.width;
@@ -227,12 +230,57 @@ export class FlatBackend {
       if (zones !== this.zoneKey) { this.zoneKey = zones; drawZoneOutlines(this.zoneLayer.ctx, this.zoneLayer.cw, this.zoneLayer.ch, this.description.zones, snapshot.zones, this.zoneSetting, t, board); }
       ctx.drawImage(this.zoneLayer.canvas, map.ox, map.oy, pw, ph);
     }
-    if (!this.hidden) {
-      ctx.globalAlpha = 0.82;                     // a little under full white: chalk on a dim wall is not a lamp
-      ctx.drawImage(this.keptLayer.canvas, map.ox, map.oy, pw, ph);
-      ctx.drawImage(this.liveLayer.canvas, map.ox, map.oy, pw, ph);
-      ctx.globalAlpha = 1;
+    if (!this.hidden && this.chalkWall) for (const key of this.chalkWall.composite.keys()) this.#chalkTile(ctx, key);
+  }
+
+  /** One tile of the chalk wall, where it lies on the painting (the backdrop's context, in reference-page pixels). */
+  #chalkTile(ctx, key) {
+    const tile = this.chalkWall.composite.get(key);
+    if (!tile) return;
+    const grid = this.chalkWall.grid;
+    const r = tileRect(grid, key);
+    const map = this.rig.map;
+    const [iw, ih] = this.rig.size;
+    const pw = iw * map.s;
+    const ph = ih * map.s;
+    ctx.drawImage(tile, map.ox + (r.x / grid.w) * pw, map.oy + (r.y / grid.h) * ph, (r.w / grid.w) * pw, (r.h / grid.h) * ph);
+  }
+
+  /**
+   * The places of the tiles of chalk that changed, drawn again in the backdrop: the painting, the zone outlines and the
+   * chalk, clipped to each place (and a pixel round it, with the tiles next to it, so no trace of old paint stays at an edge).
+   */
+  #backdropTiles() {
+    const { rig, view, ratio } = this;
+    const ctx = this.backdrop.ctx;
+    const grid = this.chalkWall?.grid;
+    const map = rig.map;
+    const [iw, ih] = rig.size;
+    const pw = iw * map.s;
+    const ph = ih * map.s;
+    const e = 1.5 / (view.s * ratio);
+    ctx.setTransform(view.s * ratio, 0, 0, view.s * ratio, -view.ox * view.s * ratio, -view.oy * view.s * ratio);
+    ctx.globalAlpha = 1;
+    ctx.imageSmoothingQuality = "high";
+    for (const key of this.chalkDirty) {
+      const r = grid ? tileRect(grid, key) : null;
+      if (!r) continue;
+      const x0 = Math.max(map.ox, map.ox + (r.x / grid.w) * pw - e);
+      const y0 = Math.max(map.oy, map.oy + (r.y / grid.h) * ph - e);
+      const x1 = Math.min(map.ox + pw, map.ox + ((r.x + r.w) / grid.w) * pw + e);
+      const y1 = Math.min(map.oy + ph, map.oy + ((r.y + r.h) / grid.h) * ph + e);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x0, y0, x1 - x0, y1 - y0);
+      ctx.clip();
+      ctx.fillStyle = "#0c0a08";
+      ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.drawImage(this.painting, map.ox, map.oy, pw, ph);
+      if (this.zoneLayer && this.description.zones.length) ctx.drawImage(this.zoneLayer.canvas, map.ox, map.oy, pw, ph);
+      if (!this.hidden) for (const k of tilesFor(grid, { x0: r.x - 2, y0: r.y - 2, x1: r.x + r.w + 2, y1: r.y + r.h + 2 })) this.#chalkTile(ctx, k);
+      ctx.restore();
     }
+    this.chalkDirty.clear();
   }
 
   /** Draw one moment. `snapshot` is Stage#snapshot(). */
@@ -272,7 +320,6 @@ export class FlatBackend {
 
     this.#ghostAndEmotes(snapshot);
     this.#bangs(snapshot, t);
-    this.#cursor();
   }
 
   /** A card's shadow stays on the floor while the card is lifted. */
@@ -426,12 +473,29 @@ export class FlatBackend {
     this.#set([1, 0, 0, 1, 0, 0]);
     fill(layout.floor, "#3a2412");
     fill(layout.back, "#6a4628");
+    ctx.lineCap = "round";
     for (const st of layout.sticks) {
-      ctx.lineCap = "round";
-      ctx.strokeStyle = chalkHex(st.colour);
+      ctx.strokeStyle = PALETTE[st.colour] ?? PALETTE.white;
       ctx.lineWidth = st.width;
       ctx.beginPath(); ctx.moveTo(st.base.x, st.base.y); ctx.lineTo(st.top.x, st.top.y); ctx.stroke();
     }
+    // the magic stick: every colour along it, and a gold star on its tip
+    const m = layout.magic;
+    const bands = ctx.createLinearGradient(m.base.x, m.base.y, m.top.x, m.top.y);
+    for (let i = 0; i <= 6; i++) bands.addColorStop(i / 6, `hsl(${i * 60},70%,72%)`);
+    ctx.strokeStyle = bands;
+    ctx.lineWidth = m.width;
+    ctx.beginPath(); ctx.moveTo(m.base.x, m.base.y); ctx.lineTo(m.top.x, m.top.y); ctx.stroke();
+    const r = m.width * 1.1;
+    ctx.fillStyle = "#ffd36a";
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+      const rr = i % 2 ? r * 0.42 : r;
+      ctx.lineTo(m.top.x + Math.cos(a) * rr, m.top.y + Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
     fill(layout.left, "#7a5230");
     fill(layout.right, "#7a5230");
     fill(layout.front, "#8a5e38");
@@ -539,34 +603,9 @@ export class FlatBackend {
     return true;
   }
 
-  /** The stick of chalk (or the eraser) in the pointer's hand, leaning away from the way it moves. */
-  #cursor() {
-    const cur = this.cursor;
-    if (!cur) return;
-    const { ctx, view } = this;
-    const k = 0.93 * view.s;
-    const rub = cur.tool === "rub";
-    this.#set([1, 0, 0, 1, 0, 0]);
-    ctx.save();
-    ctx.translate(cur.x, cur.y - (cur.drawing ? 10 : 36) * k);
-    // a stick that would leave no mark here is faded and tipped back, held off the wall
-    ctx.rotate(rub ? 0 : (cur.blocked ? -0.35 : 0.6) + Math.max(-0.5, Math.min(0.5, cur.vx / 4000)));
-    if (cur.blocked && !rub) ctx.globalAlpha = 0.55;
-    if (rub) {
-      ctx.fillStyle = "#5b6670";
-      ctx.fillRect(-25 * k, -16 * k, 50 * k, 32 * k);
-    } else {
-      ctx.fillStyle = cur.blocked ? "#6f6a62" : chalkHex(cur.tool);
-      ctx.fillRect(-8 * k, -31 * k, 16 * k, 62 * k);
-      ctx.fillStyle = "rgba(255,255,255,0.35)";
-      ctx.fillRect(-8 * k, 25 * k, 16 * k, 6 * k);
-    }
-    ctx.restore();
-  }
-
   /* ---------------------------------------------------------------- questions */
 
-  /** What is under a window point: the nearest card, or a stick of chalk or the eraser. */
+  /** What is under a window point: the nearest card, or something in the box of chalk (a stick, the magic stick, the eraser). */
   pick(x, y) {
     if (!this.ready) return null;
     for (let i = this.order.length - 1; i >= 0; i--) {
@@ -588,52 +627,21 @@ export class FlatBackend {
 
   /* ---------------------------------------------------------------- chalk */
 
-  #stroke(layerOf, stroke) {
-    drawChalkLine(layerOf.ctx, layerOf.cw, layerOf.ch, pointsOf(stroke), stroke.colour, stroke.size, seeded(stroke.id));
-  }
-
-  #redrawKept() {
-    const l = this.keptLayer;
-    if (!l) return;
-    l.ctx.clearRect(0, 0, l.cw, l.ch);
-    for (const s of this.strokes.values()) this.#stroke(l, s);
-  }
-
-  setChalkStrokes(strokes) { this.strokes = new Map(strokes.map((s) => [s.id, s])); this.#redrawKept(); this.revision++; }
-
-  addChalkStroke(stroke) {
-    if (this.strokes.has(stroke.id)) return;
-    this.strokes.set(stroke.id, stroke);
-    if (this.keptLayer) this.#stroke(this.keptLayer, stroke);
-    this.revision++;
-  }
-
-  removeChalkStrokes(ids) {
-    let any = false;
-    for (const id of ids) any = this.strokes.delete(id) || any;
-    if (any) { this.#redrawKept(); this.revision++; }
-  }
-
-  setChalkPreview(points, colour, size) {
-    const l = this.liveLayer;
-    if (!l) return;
-    l.ctx.clearRect(0, 0, l.cw, l.ch);
-    this.revision++;
-    this.preview = points && points.length ? { points, colour, size } : null;
-    if (this.preview) drawChalkLine(l.ctx, l.cw, l.ch, points, colour, size, seeded("preview"));
+  /** The chalk wall's tiles that changed (render/paint/wall.mjs), or (`full`) the whole wall afresh. */
+  setChalkTiles(wall, keys, full = false) {
+    const fresh = wall !== this.chalkWall;
+    this.chalkWall = wall;
+    if (full || fresh) { this.revision++; return; }
+    for (const key of keys) this.chalkDirty.add(key);
   }
 
   setChalkHidden(hidden) { this.hidden = !!hidden; }
   setChalkBox(visible) { this.boxShown = !!visible; }
+  /** Stand the box of chalk at another point of the floor (fractions of the painting). */
+  setChalkBoxAt(at) { this.boxAt = [at[0], at[1]]; this.boxCache = null; }
 
-  /** Show the stick of chalk (or the eraser) at a window point; `tool` is a colour name or "rub"; null puts it away. */
-  setChalkCursor(point, tool, drawing = false, blocked = false) {
-    if (!point) { this.cursor = null; return; }
-    const now = performance.now();
-    const last = this.cursor;
-    const vx = last ? ((point.x - last.x) / Math.max(now - last.at, 1)) * 1000 : 0;
-    this.cursor = { x: point.x, y: point.y, tool, drawing, vx, at: now, blocked };
-  }
+  /** The painting's own colour at a point of it (fractions), as "#rrggbb": what the colour picker takes where there is no chalk. */
+  paintingColour(fx, fy) { return samplePainting(this.painting, fx, fy); }
 
   /* ---------------------------------------------------------------- the rest of the contract */
 

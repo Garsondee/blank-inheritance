@@ -10,8 +10,9 @@ import { FORMATIONS } from "./core/formations.mjs";
 import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
 import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
+import { TOOL_NAMES } from "./core/brush.mjs";
 
-export const API_VERSION = "0.4.0";
+export const API_VERSION = "0.5.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -64,6 +65,8 @@ export function createApi({ skins, current }) {
     stage: () => (current.host ? { stage: current.host.stage, backend: current.host.backend } : null),
 
     zoneKinds: [...ZONE_KINDS],
-    chalkModes: [...CHALK_MODES]
+    chalkModes: [...CHALK_MODES],
+    /** The tools in the chalk kit (chalk.md §5): what the `stagecraft.chalk` hook's `tool` can be. */
+    chalkTools: [...TOOL_NAMES]
   };
 }

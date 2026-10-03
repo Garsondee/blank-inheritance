@@ -112,7 +112,50 @@
     },
     "Chalk": {
       "OnlyOn": "Chalk goes on: {where}",
-      "NotHere": "Chalk leaves no mark here"
+      "NotHere": "Chalk leaves no mark here",
+      "FillOpen": "That shape is open: close it up, then fill it",
+      "FillOnPaint": "Click inside a shape, not on its lines",
+      "Picked": "Colour {colour}"
+    },
+    "Kit": {
+      "Label": "Chalk tools",
+      "Move": "Drag to move the tools",
+      "Colour": "Colour: any colour at all",
+      "Hex": "Colour, as #rrggbb",
+      "Size": "Size ([ and ] change it, or scroll here)",
+      "SizePx": "{n} px",
+      "Steady": "Steady hand: {level}. Smooths a shaky line; click to change.",
+      "SteadyLevel": {
+        "0": "off",
+        "1": "light",
+        "2": "medium",
+        "3": "strong"
+      },
+      "Pick": "Take a colour from the wall or the painting (or hold Alt and click)",
+      "Rainbow": "Rainbow: the colour runs through every colour as you paint",
+      "Glow": "Glow: a soft light round the line",
+      "Sparkle": "Sparkle: little stars along the line",
+      "Undo": "Take back your last stroke (Ctrl+Z)",
+      "Redo": "Put it back (Ctrl+Shift+Z)",
+      "Close": "Put the chalk away (Esc, or right-click)",
+      "Tool": {
+        "chalk": "Chalk: a grainy stick, in any colour",
+        "magic": "Magic chalk: any colour, and it can glow, sparkle or run through the rainbow",
+        "pencil": "Pencil: fine, crisp lines for writing and detail",
+        "brush": "Brush: soft, smooth paint",
+        "spray": "Spray: a cloud of fine specks",
+        "smudge": "Smudge: drag the paint that is there with a fingertip",
+        "fill": "Fill: click inside a closed shape to fill it",
+        "eraser": "Eraser: rub out your own chalk (a GM rubs out anyone's)"
+      },
+      "Colours": {
+        "white": "White",
+        "yellow": "Yellow",
+        "pink": "Pink",
+        "blue": "Blue",
+        "green": "Green",
+        "orange": "Orange"
+      }
     },
     "Board": {
       "Title": "Positions",

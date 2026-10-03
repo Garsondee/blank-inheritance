@@ -1,6 +1,7 @@
 // The box of chalk is a prop in a deep room, so its sticks are small on the screen. A click has to find them anyway.
-// Each stick (and the eraser) carries an invisible, much larger shape that is tested but never drawn; these tests
-// cast rays at the real geometry with real three.js (no browser needed) and check what a click would pick.
+// Each stick (a stick of each colour, the magic stick, the eraser) carries an invisible, much larger shape that is tested
+// but never drawn; these tests cast rays at the real geometry with real three.js (no browser needed) and check what a
+// click would pick.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -25,13 +26,25 @@ function pickAt(box, point) {
   return ray.intersectObjects(box.pickables, false)[0]?.object ?? null;
 }
 const centreOf = (target) => target.parent.localToWorld(target.position.clone());
-const name = (object) => (object ? object.userData.chalk ?? (object.userData.eraser ? "the eraser" : "something else") : "nothing");   // never print a three.js object: it is circular
+// never print a three.js object: it is circular
+const name = (object) => (object ? object.userData.chalk ?? (object.userData.magic ? "the magic stick" : object.userData.eraser ? "the eraser" : "something else") : "nothing");
 
-test("there is one thing to pick for each colour, and one for the eraser, and nothing else", () => {
+test("there is one thing to pick for each colour, one for the magic stick, one for the eraser, and nothing else", () => {
   const { box } = build();
-  assert.equal(box.pickables.length, COLOURS.length + 1);
+  assert.equal(box.pickables.length, COLOURS.length + 2);
   assert.deepEqual(box.pickables.filter((p) => p.userData.chalk).map((p) => p.userData.chalk), [...COLOURS]);
+  assert.equal(box.pickables.filter((p) => p.userData.magic).length, 1);
   assert.equal(box.pickables.filter((p) => p.userData.eraser).length, 1);
+});
+
+test("the magic stick stands clear of the last stick of colour and of the eraser, so a click never takes the wrong one", () => {
+  const last = BOX.stick.first + (COLOURS.length - 1) * BOX.stick.spacing;
+  assert.ok(BOX.magic.x - BOX.hit.radius > last + BOX.hit.radius, "clear of the last colour");
+  assert.ok(BOX.magic.x + BOX.hit.radius < BOX.eraser.x - 29, "clear of the eraser's hit box");
+  assert.ok(BOX.eraser.x + 29 < BOX.width / 2, "and the eraser is inside the tray");
+  const { box } = build();
+  const magic = box.pickables.find((p) => p.userData.magic);
+  assert.equal(name(pickAt(box, centreOf(magic))), "the magic stick");
 });
 
 test("a click on the middle of each stick, and of the eraser, picks that one", () => {
@@ -63,7 +76,7 @@ test("the hit shapes are never drawn", () => {
   assert.ok(box.pickables.every((p) => p.material.visible === false), "invisible to the camera, solid to a click");
   const drawn = [];
   box.group.traverse((o) => { if (o.isMesh && o.material.visible !== false) drawn.push(o); });
-  assert.ok(drawn.length >= 4 + 1 + COLOURS.length + 1, `the tray, the sticks and the eraser are drawn (${drawn.length} meshes)`);
+  assert.ok(drawn.length >= 4 + 1 + COLOURS.length + 2 + 1, `the tray, the sticks, the magic stick and its star, and the eraser are drawn (${drawn.length} meshes)`);
 });
 
 test("each hit shape is wider than the stick it belongs to, so it is easy to hit", () => {

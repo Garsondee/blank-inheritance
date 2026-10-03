@@ -1,9 +1,11 @@
 # The box of chalk
 
-*Drafted 2026-10-01 at Ingram's request and **built the same day** in [`module/stagecraft/`](../../module/stagecraft/):
-§10 says what exists, what was proved and what is still a plan. Part of [Stagecraft: Puppet Show](README.md). Zones, which
-decide where chalk may be used, are in [`stage.md`](stage.md) §8; how it is drawn is in [`renderer.md`](renderer.md) §5; the
-module that holds it is in [`module.md`](module.md). The calls in §9 are still hers.*
+*Drafted 2026-10-01 at Ingram's request and **built the same day** in [`module/stagecraft/`](../../module/stagecraft/).
+**Rebuilt 2026-10-03 as the second edition: chalk is painted in pixels, with a kit of tools and magic chalk in any colour**
+(her words and what changed are §11; §10 is the first edition, lines of points, kept as history). Part of
+[Stagecraft: Puppet Show](README.md). Zones, which decide where chalk may be used, are in [`stage.md`](stage.md) §8; the
+pictures are in [`renderer.md`](renderer.md) §5; the module that holds it is in [`module.md`](module.md). The calls in §9
+are still hers.*
 
 *Words. A **card** is a person on the stage, a **stick** the handle that appears when a card is picked up, a **zone** a
 named area of the picture, and a **mark** a resting place on the floor (`stage.md` §8.10). The **wall** is the painting
@@ -17,17 +19,19 @@ itself, which is what chalk is drawn on. A **stick of chalk** is a different thi
 > are serious (and/or give the GM a button to override it) but I love the idea of players graffitiing the scenes. We
 > need this graffiti to persist between sessions.
 
-- **What it is.** A small wooden box of chalk stands on the floor of the stage. A player clicks a stick of chalk (or the
-  felt eraser) and draws on the painting with it. Whatever they draw stays there, for everyone, in this session and the
-  next.
+- **What it is.** A small wooden box of chalk stands on the floor of the stage: six sticks, a magic stick banded with every
+  colour, and a felt eraser. A player clicks one and paints on the painting with it; a kit of tools comes out beside the
+  stage (chalk, magic chalk, pencil, brush, spray, smudge, fill, eraser), with any colour at all. Whatever they paint stays
+  there, for everyone, in this session and the next.
 - **Where it works.** Not everywhere. Every scene says whether chalk is **off**, allowed only in **zones** (a chalk wall,
   a pavement, a shutter), or allowed **anywhere**. Serious story scenes are off, and then there is no box at all. The GM
   can override any of it live with one button.
-- **What it leaves.** Strokes, saved with who drew them and when, so the GM can see whose they are, undo them, or wipe
-  the wall. They are kept in the world, not in anyone's browser, so they survive a reload, a session and a server
-  restart.
-- **What it feels like.** A stick of chalk on the pointer, a fine line with a solid core and a slightly rough, slightly
-  fuzzy edge, in six colours. A small thing that is fun to do and fun to find.
+- **What it leaves.** Paint, in pixels: each painter's own layer of the wall, kept with the last few strokes' history so
+  each can be taken back. It is kept in the world, not in anyone's browser, so it survives a reload, a session and a
+  server restart, and everyone else sees a stroke as it is being painted.
+- **What it feels like.** A painting program: the line is smoothed and steadied as it is drawn, follows a pen's pressure
+  (or the speed of a mouse), and a ring the size of the tip shows exactly where paint will go. Chalk keeps its look: a
+  solid core, slightly fuzzy outside. A small thing that is fun to do and fun to find.
 
 ---
 
@@ -46,20 +50,28 @@ it is fun.
 ## 2. What a player does
 
 1. **See the box.** In a scene where chalk is allowed, a low wooden tray stands on the floor with a stick of each colour
-   upright in it, like pencils, and a felt eraser at one end. In a scene where it is not, there is no box. Nothing about
-   the box is drawn in a serious scene, so nothing needs hiding. Its place is the scene's `chalk.box` (a spot on the
-   painting); it must be somewhere a click can reach: in front of any counter that would hide it, clear of the cards and
-   of the interface (§10, "Findings").
-2. **Take a stick.** Click a stick (or the eraser). The pointer becomes that stick, leaning like everything else on the
-   stage, and the box can be left alone. Click another stick to change, click the same one again to put it back.
-3. **Draw.** Press and drag on the painting. A chalk line follows. Where chalk is allowed only in a zone, the line stops
-   cleanly at the zone's edge rather than being refused with a message. A tap leaves a dot.
-4. **Rub out.** The felt eraser removes the strokes under it. A player rubs out **their own** chalk; a GM rubs out anyone's.
-   A line cut in the middle becomes two lines.
-5. **Put it back.** Escape, a right click, or the same stick again. (Letting go of the pointer does not put the chalk
-   away: a player draws several lines with one stick, which is the point.)
+   upright in it, like pencils, the magic stick (taller, every colour climbing round it, a gold star on its tip) and a
+   felt eraser at one end. In a scene where it is not, there is no box. Nothing about the box is drawn in a serious scene,
+   so nothing needs hiding. Its place is the scene's `chalk.box` (a spot on the painting); it must be somewhere a click can
+   reach: in front of any counter that would hide it, clear of the cards and of the interface (§10, "Findings").
+2. **Take a stick.** Click a stick (chalk of that colour), the magic stick (magic chalk) or the eraser. The kit of tools
+   comes out at the side of the stage, and the pointer becomes a ring the true size of the tip, with the colour beside it.
+   Click another stick to change colour, click the same one again to put it back.
+3. **Paint.** Press and drag on the painting. Paint follows, smoothed: a shaky hand still makes a clean line ("steady
+   hand", four settings, on a little by default), a pen's pressure thickens and strengthens it, and with a mouse a slow
+   hand presses harder than a quick one. A tap leaves a dot; **Shift-click** draws a straight line from where the last
+   stroke ended. Where chalk is allowed only in a zone, paint stops exactly at the zone's edge, however it was painted.
+4. **Choose.** The kit has every tool (§5), a colour well that opens a picker (any colour; the box's six and the last ten
+   used are one click away), the size (a slider, or **[** and **]**), steady hand, a dropper (or **Alt-click**) that takes a
+   colour off the wall or the painting, and magic chalk's tricks: glow, sparkle, rainbow.
+5. **Take back.** **Ctrl+Z** takes back your last stroke and **Ctrl+Shift+Z** (or Ctrl+Y) puts it back; the last eight
+   strokes of each painter can be taken back. The eraser rubs out **your own** paint (a pen's eraser end does too); a GM's
+   rubs out anyone's.
+6. **Put it back.** Escape (which first throws away a stroke being painted), a right click, the kit's ✕, or the same stick
+   again. (Letting go of the pointer does not put the chalk away: a player paints many strokes with one stick.)
 
-Everyone else sees the line appear when the drawer lets go, a moment later (§10). Nobody has to confirm anything.
+Everyone else sees a stroke as it is being painted, and the kept paint a moment after it ends (§11). Nobody has to
+confirm anything.
 
 ---
 
@@ -96,40 +108,48 @@ own default for a scene that says nothing is **off**.
 
 ## 4. What chalk leaves behind
 
-### 4.1 A stroke
+### 4.1 A layer of tiles
 
-A stroke is the smallest thing chalk leaves. It carries exactly these fields and nothing else (a test fails if it
-grows):
+*(The second edition, 2026-10-03. The first kept lines of points, "strokes"; §10 describes them.)*
 
-| Field | Meaning |
+Chalk is kept as pixels. The **wall** is a picture laid over the painting, 1440 pixels high and as wide as the painting's
+shape makes it (2880 for the usual 2:1 painting; never more than 4320), cut into square **tiles** of 240 pixels: twelve
+across and six down. Everyone who paints on a scene has a **layer** of their own, and the wall shows every layer, one over
+another, in the order their painters first painted there.
+
+A layer keeps only the tiles that have paint on them, each as a small picture (WebP, or PNG where a browser cannot make
+WebP), and a **history**: for each of its painter's last eight strokes, what the tiles it touched held before it, so that
+stroke can be taken back. A step of history records who made it (`who`), because a GM's eraser changes other people's
+layers: their own Ctrl+Z never takes back what the GM did, and the GM's does.
+
+| Field of a layer | Meaning |
 |---|---|
-| `id` | A unique id, made by the drawer's browser, so a stroke is the same stroke everywhere. A stroke cut by the eraser becomes `id.1`, `id.2` |
+| `v` | 2, the second edition |
 | `scene` | The scene it belongs to |
-| `by` | The user who drew it, for the GM and for undo. Pieces of a cut stroke keep the original drawer |
-| `at` | When (a world timestamp), for ordering and for weathering (§7) |
-| `colour` | One of white, yellow, pink, blue, green, orange |
-| `size` | A stick's width: thin, medium, thick |
-| `p` | The line, as flat integers `[x0, y0, x1, y1, ...]` in **thousandths of the painting**, so it sits on the art at any screen size and in either renderer |
+| `by` | The painter, a user's id |
+| `since` | When they first painted here: the layer's place in the stack |
+| `tiles` | `{ c3r1: picture, ... }`: column and row, and the tile's picture as a data URL |
+| `history` | `{ step: { at, who, tiles: { c3r1: what it held before, or null } } }`, the newest eight; a step's id is the time and the stroke's id, so every screen knows which stroke it was |
 
-Rubbing out is not a stroke: it removes strokes (or splits them), so the wall is always exactly the list of strokes kept.
-Points are simplified (nearly collinear points dropped) and quantised, so a long squiggle is a few dozen numbers. A
-stroke is capped at 400 points and a scene at 800 strokes.
+Nothing else is kept, and a page never grows without bound: at most 72 tiles and eight steps.
 
-### 4.2 Where strokes are kept
+### 4.2 Where paint is kept
 
-The requirement is that they persist between sessions, are shared, can be drawn by any player without a GM being the one
+The requirement is that it persists between sessions, is shared, can be painted by any player without a GM being the one
 to save, and can be moderated by the GM. The answer is the notebook's own pattern (`design/notebook.md`):
 
-> **One world journal entry, "Stagecraft chalk", default ownership Owner, with one page per scene and drawer, holding
-> that drawer's strokes for that scene.** Players write only their own pages (by convention: Foundry's ownership cannot
-> restrict a page to its author), so two people drawing at once never overwrite each other. Every client reads all the
-> pages of the scene and merges them. The GM can delete or edit any page, and deleting the entry clears every wall.
+> **One world journal entry, "Stagecraft chalk", default ownership Owner, with one page per scene and painter, holding
+> that painter's layer for that scene.** Players write only their own pages (by convention: Foundry's ownership cannot
+> restrict a page to its author), so two people painting at once never overwrite each other. Every client reads all the
+> pages of the scene and lays them over each other. The GM can write any page, and deleting the entry clears every wall.
 
 A GM's client makes the entry the first time a scene in the world allows chalk (at login, or the moment a scene is flagged
 for chalk or opened from the GM's strip), and repairs its ownership at every GM login; a world that never uses chalk never
-gets one, and a player's client never has to. **When a scene is deleted its chalk pages go with it.** A page holds at most 40 strokes, then the drawer's next stroke starts another
-page, so one update stays small. All writes by one client go through a single queue, so two strokes drawn a moment apart
-never read the same old page and lose one.
+gets one, and a player's client never has to. **When a scene is deleted its chalk pages go with it.** Every tile and every
+step of history is its own key, written and taken away on its own (with Foundry 14's `_del`, or `-=` on an older Foundry),
+so a stroke's update carries only the tiles it touched, and two strokes a moment apart never lose each other. All writes by
+one client go through a single queue. The first edition's pages (lines of points) cannot be shown any more; the acting
+GM's client removes them.
 
 The entry is **hidden from the Journal list for players** (a GM sees it): its pages are named after scenes and hold
 nothing a person can read, and the table should not meet it.
@@ -140,7 +160,7 @@ Why not the alternatives:
 |---|---|
 | Scene flags | Only a GM can write them, so a stroke could not be saved if the GM's browser were closed or busy, and every stroke would rewrite the scene document that everyone is also using |
 | Each user's own flags | Works (a player may update their own user), and has the same size problem, but spreads one scene's wall across six documents with no natural way for the GM to see or tidy it, and the strokes vanish with the user |
-| A raster image uploaded to the server | Players cannot upload by default, a GM would have to be the one to save it, and strokes could no longer be attributed or undone one at a time |
+| A raster image uploaded to the server | Players cannot upload by default, and a GM would have to be the one to save it. (The second edition keeps pixels anyway, but as small pictures in the journal, which any player may write, layer by layer, so paint is still attributed and can still be taken back) |
 | Only the live socket | Nothing persists |
 
 **Proved live (§10):** a player (not a GM) can create and edit pages in the Owner-default entry; a late joiner (and a
@@ -148,33 +168,58 @@ reload) sees everything; two drawers' lines end up on separate pages.
 
 ### 4.3 When the wall gets full
 
-Past 800 strokes in a scene the oldest are **forgotten** as the next line is saved, so a long campaign never grows a wall
-without bound. (The plan was to bake the oldest into a picture first, so the wall would look the same; that needs an
-upload and is not built. A wall that reaches the cap is a wall that has been chalked on for a very long time.)
+A layer cannot overflow: the wall has a fixed number of tiles, and painting over paint changes a tile rather than adding
+to it. A crowded wall costs no more than a painted one. (The first edition forgot its oldest lines past 800; there is no
+such cap now, and nothing to bake.)
 
 ---
 
-## 5. How it is drawn
+## 5. How it is painted
 
-- **On the wall.** Chalk is drawn on two canvases laid just in front of the painting and behind every card: one holds the
-  strokes that are kept, the other only the line being drawn right now, so a crowded wall costs nothing extra while
-  someone draws. Cards stand in front of graffiti; graffiti never covers a face.
-- **The look.** Her note, once she had seen it drawn: "Chalk should be tighter, less fuzzy and smaller by default (35%
-  smaller). Solid core, slightly fuzzy outside." So a line is a **solid core** (96% opaque, the stick's own width), a
-  **soft edge** a quarter wider and only a third as strong, and a **faint dusting** a half wider again that is barely
-  there, with a brighter line down the middle. Short streaks are bitten out along the way the chalk was dragged, but only
-  at the edge, so the wall shows through the fuzz and never through the core. All three widths are 35% under what they
-  first were (a medium line is about four pixels on a full size wall, not six). The numbers are `LOOK` and `SIZES` in
-  `core/chalk.mjs`, and a test holds them to the description above. The grain is seeded by the stroke's id, so it is the
-  same on every screen and every time it is redrawn. The layer is a little under full white: chalk on a dim wall is not a lamp.
-- **The box.** Upright sticks in a low tray, so each is a tall thin target side by side. Each stick has an invisible shape
-  two or three times its width that a click can hit (tested with real three.js, no browser needed), because the box is a
-  small prop in a deep room.
-- **Not yet.** Dust that falls from the point of the stick; chalk lit by the room's lamps (today it is flat, just dimmed);
-  the stick leaning to the pointer's speed is built, its scratch is not.
-- **The flat renderer.** The same strokes drawn on a 2D canvas over the picture. Same data, no lights. Not built (there is
-  no flat backend yet).
-- **Calm mode.** No dust, no scratch, no shimmer; the strokes are exactly the same.
+*(The second edition, 2026-10-03: painted the way a painting program paints.)*
+
+- **The brush** (`core/brush.mjs`, pure). The pointer's samples (every one the browser gathers, not only one per frame:
+  coalesced events) are **steadied** (the brush is pulled along on a short string, so small wobbles never reach the paint
+  and corners come out round; four settings, 0, 5, 12 and 26 pixels of string), joined by a smooth curve (centripetal
+  Catmull-Rom), and paint is put down as **dabs**, small stamps of the tool's tip, every so far along the curve. Each dab
+  is sized and weighted by **pressure**: a pen's own, or, for a mouse, made from speed (a slow hand presses, a quick one
+  skims). A line may grow in from a point (the pencil and brush do). The same samples and seed give the same dabs on any
+  screen, which is how other screens paint the same stroke live.
+- **The wall's pixels** (`render/paint/wall.mjs`). A stroke is painted into a buffer of its own and laid into its
+  painter's layer when it ends, so a stroke never darkens where it crosses itself, the wall's grain sits still under it
+  (chalk catches on the wall, not on the stick), and in a zones-only scene it is masked to the chalk zones exactly.
+  Rubbing out is a stroke too: a buffer of what to take away. Only tiles that changed are drawn again, and only they go
+  to the picture.
+- **The tools.**
+
+| Tool | What it does |
+|---|---|
+| **Chalk** | A grainy stick: a solid core, slightly fuzzy outside (below) |
+| **Magic chalk** | Any colour, and it can **glow** (a soft light round the line, on by default), **sparkle** (little four-pointed stars along it) and run through the **rainbow** as it goes. From the magic stick in the box |
+| **Pencil** | Fine, crisp lines for writing and detail; tapers in |
+| **Brush** | Soft, broad, smooth paint |
+| **Spray** | A cloud of fine specks, heavier the harder or slower |
+| **Smudge** | A fingertip: drags the paint that is there along, fading as it goes (on your own layer) |
+| **Fill** | One click inside a closed shape fills it, tucked a little under the lines round it. A shape that is open (more than three tenths of the wall) is refused, and says so |
+| **Eraser** | Takes paint away: your own; a GM's takes anyone's. A pen's eraser end rubs out too |
+
+- **The look of chalk.** Her note on the first edition still holds: "Chalk should be tighter, less fuzzy and smaller by
+  default (35% smaller). Solid core, slightly fuzzy outside." The chalk tip is solid (96%) out to 62% of its radius, then
+  falls away, with small bites taken out of the edge only (more of them further out), so the wall shows through the fuzz
+  and never through the core; four shapes of tip turn at random so no two dabs bite alike. A stick starts at 7 pixels of a
+  1440-pixel wall. `TIP_CORE` and `tipAlpha` in `core/brush.mjs`, and a test holds the core solid and the edge bitten.
+- **The ring.** While chalk is in hand the pointer is a ring the true size of the tip on the wall where it is (it shrinks
+  at the back of a deep painting), dashed for the eraser, a fine cross for the fill and the dropper, with the colour in a
+  dot beside it, greyed and struck through where chalk would leave no mark.
+- **On the stage.** Each tile that has paint is a small plane just in front of the painting and behind every card (in the
+  3D picture), or is drawn into the plain picture's backdrop, only its own place redrawn while someone paints. Cards stand
+  in front of graffiti; graffiti never covers a face. The 3D picture shows paint a little under full white: chalk on a lit
+  wall is not a lamp.
+- **The box.** Upright sticks in a low tray, so each is a tall thin target side by side, then the magic stick, then the
+  felt. Each has an invisible shape two or three times its width that a click can hit (tested with real three.js, no
+  browser needed), because the box is a small prop in a deep room.
+- **Not yet.** Dust that falls from the point; chalk lit by the room's lamps; a scratch while painting.
+- **Calm mode.** Nothing about painting flashes or moves on its own; magic chalk's glow and sparkle are paint, kept still.
 
 ---
 
@@ -187,13 +232,13 @@ chalk journal, which Foundry sends to everyone, so each does the same on every s
 |---|---|---|
 | **Chalk** | Goes round: as the scene says, off, zones only, anywhere (§3) | Yes |
 | **Freeze** | Keeps what is there, takes the chalk away | Yes |
-| **Undo** | Removes the newest stroke on the wall, whoever drew it | Yes |
-| **Wipe** | Asks, then removes every stroke from this scene | Yes (no undo for a minute yet) |
-| **Hide wall** | Puts the drawings out of sight for everyone (a serious beat in a scene that has some) without deleting them | Yes |
-| **Wipe a player's** | Removes everything one person drew here | Store call built (`wipe(scene, { by })`), no button |
-| **Who drew that?** | Hovering a stroke shows the drawer's name to the GM only | Not built |
+| **Undo** | Takes back the newest stroke on the wall, whoever painted it (from every layer it touched) | Yes |
+| **Wipe** | Asks, then clears every layer of this scene, and its history | Yes (no undo for a minute yet) |
+| **Hide wall** | Puts the paint out of sight for everyone (a serious beat in a scene that has some) without deleting it | Yes |
+| **Wipe a player's** | Clears one person's layer here | Store call built (`wipe(scene, { by })`), no button |
+| **Who painted that?** | Hovering paint shows whose layer it is on, to the GM only | Not built |
 
-Every stroke is attributed, and the GM can always wipe; those two together are the whole moderation story for a table of
+Every layer is one person's, and the GM can always wipe; those two together are the whole moderation story for a table of
 friends.
 
 ---
@@ -204,8 +249,9 @@ Listed so they are not forgotten; each is optional and hers to pick.
 
 - **Weathering.** Outdoors, rain washes chalk slowly; indoors it lasts. A scene sets `chalk.weather` and old strokes fade
   as in-world days pass. (The scene field is read; nothing fades yet.)
-- **Characters notice.** An NPC can react to what is on the wall. The hook `stagecraft.chalk` is raised on the drawer's
-  screen with the stroke and its bounding box, so the adventure can say "Taka squints at the doodle". **Built.**
+- **Characters notice.** An NPC can react to what is on the wall. The hook `stagecraft.chalk` is raised on the painter's
+  screen once a stroke is kept, with the tool, the colour and where it lay, so the adventure can say "Taka squints at the
+  doodle". **Built.**
 - **Dust and a scratch.** A puff of dust at the point while drawing, and a quiet scratching sound. Cheap and lovely.
 - **The wall remembers on the map.** A small chalk mark on the Campaign Map's place for a haunt, so the place looks lived in.
 - **Hopscotch.** Chalk on the floor, in perspective, so a player can draw a grid a card can then stand on. (Needs the
@@ -219,26 +265,37 @@ Listed so they are not forgotten; each is optional and hers to pick.
 
 **Pure and adapter tests**, in `module/stagecraft/test/`, run by `node --test`:
 
-- `chalk.test.mjs`: stroke simplification, quantisation and the caps; validation; merging many authors' pages in a stable
-  order; the policy (off, zones, anywhere, freeze, the GM's override) for a point inside and outside a zone; the line
-  clipped at a zone's edge; rubbing out, splitting and who may rub whose; the full wall forgetting its oldest strokes; a
-  **leak test** that a stroke carries nothing beyond its seven fields.
+- `brush.test.mjs`: steady hand keeps a shaky line smooth and still ends where the hand stopped; dabs fall evenly along
+  the curve at the tool's spacing; pressure thickens a dab and a mouse's speed thins it; the same samples and seed give the
+  same dabs (so every screen paints the same stroke); a tap leaves a dot; a straight line; the chalk tip's solid core and
+  bitten edge; colours, the rainbow, and a colour that is not one.
+- `chalk.test.mjs`: the wall's grid for any painting's shape; tile keys, rectangles and the tiles a rectangle touches;
+  layers in order; the newest step of history, all of it or one painter's; the oldest steps past eight; the policy (off,
+  zones, anywhere, freeze, the GM's override) and the mask that holds paint to the chalk zones.
 - `chalk-store.test.mjs`: the store against a stand-in for Foundry's journal. Entry made once (two asks at once make one),
   owned by everyone, by a GM only, and only where a scene allows chalk; a deleted scene's pages are cleared by a GM's client;
-  a first stroke makes the drawer's page, a full page starts the next; **writes in a moment's succession are all
-  kept**; one failed write does not stop the rest; many drawers merge in order; remove and wipe; the right listeners hear
-  the right changes; a disposed store leaves no hooks.
-- `chalk-controller.test.mjs`: the controller on that store with a recording backend. The box shows only where chalk may
-  be used; the GM's override opens and closes a scene at once; freezing; taking and putting away; a line is on the wall at
-  once and in the journal a moment later; clipping at zones; other people's chalk arrives; **another person's chalk
-  arriving while yours is being saved does not make yours flicker**; rubbing; a failed save takes the line off again; the
-  cap; a rebuilt picture redraws the wall; the journal arriving late turns the box on.
-- `chalk-box.test.mjs`: with real three.js, a ray at the middle of every stick and the eraser picks that one; a hand's
-  width either side still does; nothing else does; the hit shapes are never drawn; neighbours do not overlap.
+  a first paint makes the painter's page; **a tile is written and taken away on its own** (with `_del`, or `-=` on an older
+  Foundry); each stroke keeps what it covered, and only the newest eight; taking back puts the tiles back and says what
+  they held (to put them back again); **a painter's own Ctrl+Z never takes back what a GM did to their layer, and the GM's
+  Undo takes back the newest on the whole wall, from every layer it touched**; writes a moment apart are all kept; a failed
+  write does not stop the rest; who may write whose layer; wipes; the first edition's pages are removed.
+- `chalk-controller.test.mjs`: the controller on that store, the real brush, and a stand-in wall whose pictures name the
+  strokes that painted them (`fake-wall.mjs`). The box; the GM's override; the box's sticks, magic stick and felt, and
+  the kit's tools; **a stroke on the wall at once and kept a moment later, as the tiles it touched with the step that takes
+  it back, the hook told once, and the live messages sent**; the zones mask; Ctrl+Z and Ctrl+Shift+Z; **someone else's
+  stroke shown live and giving way to their kept paint** (whichever arrives first); a player's message claiming a GM's
+  eraser is not believed; rubbing out, mine and (as a GM) anyone's; a pen's eraser end; Shift-click; the fill; Alt-click;
+  the hand remembered on the machine; a failed save; a rebuilt picture; the journal arriving late; stopping.
+- `chalk-box.test.mjs`: with real three.js, a ray at the middle of every stick, the magic stick and the eraser picks that
+  one; a hand's width either side still does; nothing else does; the hit shapes are never drawn; neighbours do not overlap.
+- `flat-backend.test.mjs` and `flat-box.test.mjs`: the plain picture lays each tile where it belongs, redraws only the
+  places of tiles that changed while someone paints, hides the wall, and has the same box.
 - `journal-tidy.test.mjs`, `lang.test.mjs` (every word exists and the language file survives Foundry's way of reading it).
 
-**The live check**, `tools/stagecraft/foundry-check.mjs`, in the local Foundry with a real graphics card and **real mouse
-events**, as a GM and as a real second player in a separate browser (§10).
+**The bench check**, `tools/stagecraft/bench/chalk-check.mjs` (39 checks), drives the real host, kit and both pictures in
+headless Chrome with a real graphics card, real mouse strokes, real clicks on the kit and real keys, and reads the wall's
+own pixels (§11). **The live check**, `tools/stagecraft/foundry-check.mjs`, in the local Foundry with real mouse events,
+as a GM and as a real second player in a separate browser (§10).
 
 ---
 
@@ -253,12 +310,19 @@ events**, as a GM and as a real second player in a separate browser (§10).
    anonymous graffiti part of the fun?
 7. **Hopscotch and floor chalk** later, or never?
 8. **The GM's override stays until set back** (§3). Or should it end when the GM leaves the scene?
+9. **Any colour for every tool, or only for magic chalk?** Built as: the colour picker works for every tool, and magic
+   chalk is the one with glow, sparkle and rainbow. The other reading of "a magic chalk which can be then changed to any
+   colour" keeps ordinary chalk to the box's six.
+10. **How many strokes can be taken back:** eight per painter, kept in the world. More costs room in the journal.
+11. **The kit's place.** High on the left, and it can be dragged anywhere (each player's machine remembers where).
 
 ---
 
 ## 10. What exists, what was proved, what was found
 
-*Written 2026-10-01 after the first live runs.*
+*Written 2026-10-01 after the first live runs, about the first edition (lines of points). The second edition, painted,
+replaced its strokes, store format and pictures on 2026-10-03 (§11); the rules, the box, the GM's strip and what was found
+here still hold.*
 
 **Built.** The rules (`core/chalk.mjs`), the journal-backed store (`foundry/chalk-store.mjs`), the controller joining rules,
 store, wall and pointer (`foundry/chalk.mjs`), the GM's strip (`foundry/bar.mjs`), the wall, box and held stick
@@ -330,3 +394,62 @@ indicator of what it's used for."* Five causes, each found by driving the real h
 5. **Kit Issue's wall was mostly off the top of the screen**: the painting is raised to clear the deck, which cuts off the
    top sixth of it. The zone is now the wall over the bench, below that line, and a test fails if any chalk zone is mostly
    off the screen at the 2560 by 1440 reference page.
+
+---
+
+## 11. The second edition: painted chalk (2026-10-03)
+
+> Rethink how we do chalk. Ideally we don't use vector lines. Ideally I want it to really be a smooth art experience, with
+> a 'magic chalk' which can be then changed to any colour, more precising when using the chalk, less clunky chalk lines
+> (raster preferred to vector) and even a range of different tools. You will likely have to rethink how we store the
+> information and how the chalk works, consider this a call to improve things across the board. Feel free to add other
+> chalk 'tools' too.
+
+**What changed, against what she asked.**
+
+| She asked | Built |
+|---|---|
+| No vector lines; raster | The wall is pixels: each painter's layer of 240-pixel tiles (§4.1), kept as small pictures (§4.2) and painted by dabs (§5) |
+| A smooth art experience | Every pointer sample the browser gathers, steadied on a string, joined by a smooth curve, weighted by pressure (a pen's, or a mouse's speed) |
+| Magic chalk, any colour | The magic stick in the box; a colour picker (shade square, hue bar, the colour written out, the box's six, the last ten used) and a dropper; glow, sparkle and rainbow |
+| More precise | A ring the true size of the tip at the pointer; sizes from 1 pixel, on a slider or **[** and **]**; Shift-click for a straight line; steady hand |
+| Less clunky lines | Strokes never darken where they cross themselves; the chalk tip's look (J1) kept, as pixels |
+| A range of tools | Chalk, magic chalk, pencil, brush, spray, smudge, fill, eraser |
+| Rethink how it is stored | One page per scene and painter, each tile and step of history its own key (§4) |
+| Improve across the board | Strokes seen live on every screen as they are painted; Ctrl+Z / Ctrl+Shift+Z for everyone (eight strokes each); a GM's Undo over the whole wall; a pen's eraser end; the plain picture shows paint as well as the 3D one |
+
+**How a stroke travels.** The painter's screen paints it at once. While the hand moves, its samples go out on the module's
+socket every 45 ms (`begin`, `more`, `end`, `cancel`), and every other screen paints the same stroke from them with the same
+brush and seed (`receive` in `foundry/chalk.mjs`): who sent it is the server's word, never the message's, and only a GM's
+eraser may rub out everyone's. When the hand comes up the stroke is laid into the painter's layer and the tiles it touched
+are kept, with the step that takes it back (named after the stroke). The `end` message says which layers changed; each
+other screen lets its live copy go only when every one of those layers holds that step and its pictures are on the wall,
+so nothing flickers whichever arrives first. A stroke whose kept paint never comes is let go after five seconds.
+
+**What was proved on the bench** (`tools/stagecraft/bench/chalk-check.mjs`, 39 checks, all passing; the wall's own pixels
+read after real mouse strokes, real clicks on the kit and real keys):
+
+- Kit Issue, zones only: a click on the box gives a stick and the kit; outside the zone the ring is struck through and a
+  line names where chalk goes, and a stroke there leaves no pixel; on the wall over the bench a stroke leaves 3,500 pixels
+  of the stick's own white, kept, and shown by the 3D picture.
+- The Paper Lantern, anywhere: the magic stick; a colour typed into the kit (`#ff3366`) painted exactly; the pencil about
+  a fifth as wide as magic chalk; spray and brush; the eraser clears its path completely and leaves the rest; Ctrl+Z puts
+  every pixel back and Ctrl+Shift+Z takes them away again; one click fills a closed box completely, and a click where no
+  shape closes does nothing; a smudge drags paint 4,800 pixels further; Alt-click takes `#ff3366` back off the wall; **]**
+  grows the tip.
+- Two screens: a player's stroke is on the GM's screen while the player's button is still down, then gives way to the
+  kept paint; the player's Ctrl+Z takes it off the GM's screen; the player's eraser cannot touch the GM's paint.
+- The plain picture (no graphics card) shows paint where it was painted.
+
+**Found while building it.**
+
+1. **Foundry 14 deprecates `-=key`** (it still works, with a warning in the console every time; and it is refused outright
+   on the ownership field, `design/notebook.md`). The store writes `_del`, Foundry 14's ForcedDeletion, and `-=` only on an
+   older Foundry; a test holds both.
+2. **A class's own field shadowed its method**: the wall's tip cache was a field named `coloured` beside a method named
+   `coloured`, so the first dab would have thrown. Found in review before anything ran.
+3. **Shading a stroke's grain by tiles** cannot be done by drawing the grain tile by tile with `destination-in` (each draw
+   clears what the one before kept); the grain is a pattern placed so it sits still on the wall.
+
+**Not built yet.** Dust and a scratch while painting; chalk lit by the room's lamps; "who painted that?" on hover; a
+button to wipe one player's layer; weathering; floor chalk.

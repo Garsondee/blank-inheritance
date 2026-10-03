@@ -13,9 +13,241 @@
   touch-action: none;
 }
 
-/* with a stick of chalk in hand the pointer is the stick */
+/* with chalk in hand the pointer is a ring the size of the tip, drawn by the kit (chalk-kit.mjs) */
 #stagecraft-stage.stagecraft-chalk canvas {
   cursor: none;
+}
+
+/* The ring round the pointer: over the stage, under the kit, never in the way of a click. */
+#stagecraft-stage .stagecraft-chalk-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/*
+ * The chalk kit: a rail of tools that comes out with the chalk, in two columns, which can be dragged by its grip. The same
+ * dark glass and brass as the GM's strips, so it reads as part of the stage, not of Foundry.
+ */
+#stagecraft-stage .stagecraft-kit {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 6px 8px;
+  border: 1px solid rgba(230, 201, 141, 0.45);
+  border-radius: 14px;
+  background: rgba(14, 10, 6, 0.82);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  z-index: 8;
+  color: #e8dcc4;
+  font: 600 12px/1.3 system-ui, "Segoe UI", sans-serif;
+}
+
+#stagecraft-stage .stagecraft-kit[hidden],
+#stagecraft-stage .stagecraft-kit .kit-pop[hidden],
+#stagecraft-stage .stagecraft-kit .kit-group[hidden] {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-kit canvas {
+  cursor: crosshair;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-grip {
+  height: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  cursor: grab;
+  color: rgba(230, 201, 141, 0.7);
+  touch-action: none;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-grip svg {
+  width: 22px;
+  height: 22px;
+  transform: rotate(90deg);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-grip:hover {
+  background: rgba(230, 201, 141, 0.14);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-group {
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+  gap: 3px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(230, 201, 141, 0.22);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-grip + .kit-group {
+  border-top: 0;
+  padding-top: 0;
+}
+
+#stagecraft-stage .stagecraft-kit button {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 9px;
+  cursor: pointer;
+  color: #e8dcc4;
+}
+
+#stagecraft-stage .stagecraft-kit button svg {
+  width: 22px;
+  height: 22px;
+}
+
+#stagecraft-stage .stagecraft-kit button:hover:not(:disabled) {
+  background: rgba(230, 201, 141, 0.18);
+}
+
+#stagecraft-stage .stagecraft-kit button:focus-visible {
+  outline: 2px solid #f0c978;
+  outline-offset: 1px;
+}
+
+#stagecraft-stage .stagecraft-kit button.on {
+  background: #e6c98d;
+  color: #1b1208;
+}
+
+#stagecraft-stage .stagecraft-kit button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* the colour in hand, and the size of the tip, each as a dot */
+#stagecraft-stage .stagecraft-kit .kit-well span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--c, #f2ecdc);
+  box-shadow: 0 0 0 2px rgba(14, 10, 6, 0.9), 0 0 0 3px rgba(242, 236, 220, 0.75);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-size span {
+  width: var(--d, 8px);
+  height: var(--d, 8px);
+  border-radius: 50%;
+  background: #e8dcc4;
+}
+
+#stagecraft-stage .stagecraft-kit button b {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font: 700 10px/1 system-ui, "Segoe UI", sans-serif;
+}
+
+/* what a button opens, beside the rail (on the other side when the rail is on the right of the stage) */
+#stagecraft-stage .stagecraft-kit .kit-pop {
+  position: absolute;
+  left: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(230, 201, 141, 0.45);
+  border-radius: 12px;
+  background: rgba(14, 10, 6, 0.92);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+#stagecraft-stage .stagecraft-kit.kit-right .kit-pop {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-sv {
+  width: 176px;
+  height: 120px;
+  border-radius: 6px;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-hue {
+  width: 176px;
+  height: 14px;
+  border-radius: 7px;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-hex {
+  width: 92px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(230, 201, 141, 0.45);
+  background: rgba(0, 0, 0, 0.4);
+  color: #f2ecdc;
+  font: 600 13px/1.2 ui-monospace, Consolas, monospace;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-now {
+  flex: 1;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--c, #f2ecdc);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-swatches,
+#stagecraft-stage .stagecraft-kit .kit-recent {
+  display: grid;
+  grid-template-columns: repeat(5, 28px);
+  gap: 6px;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-recent:empty {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-swatch:hover {
+  background: var(--c);
+  transform: scale(1.12);
+}
+
+#stagecraft-stage .stagecraft-kit .kit-pop-size {
+  flex-direction: row;
+  align-items: center;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-range {
+  width: 160px;
+  accent-color: #e6c98d;
+}
+
+#stagecraft-stage .stagecraft-kit .kit-size-n {
+  min-width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* The GM's key: one small pill at the top of the stage that unfolds the strips below it. Folded by default. */
