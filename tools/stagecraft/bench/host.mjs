@@ -135,6 +135,18 @@ const skins = new SkinRegistry();
 skins.register(brass);
 const host = new StageHost({ scene, skins, anchor: document.getElementById("board"), services: { chalkStore: new MemoryChalkStore() } });
 window.host = host;
-const ok = await host.start();
+const starting = host.start();
+if (params.get("midbuild")) {
+  // a change that lands while the stage is still being built, before it listens (host-check.mjs): someone is sent to the
+  // front of the stage, as a deploy's new layout is written while the GM's page loads (found live 2026-10-03)
+  const list = scene.flags.stagecraft.published.cards;
+  const first = list.find((c) => !c.pc);
+  if (first) {
+    Object.assign(first, { at: [0.5, 0.95], still: true, move: { t0: Date.now() / 1000 + 0.3, gait: "walk" } });
+    Hooks.callAll("updateScene", scene, { flags: { stagecraft: { published: { cards: list } } } });
+    window.midbuild = { id: first.id, at: first.at };
+  }
+}
+const ok = await starting;
 document.getElementById("seat").textContent = `${seat === "gm" ? "Gamemaster" : "Player"} · ${which}${ok ? "" : " · could not start"}`;
 window.bench = { host, scene, ready: ok };

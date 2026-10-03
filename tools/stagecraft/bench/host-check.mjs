@@ -141,6 +141,23 @@ try {
   await gm.$eval('.stagecraft-blocking [data-act="life"]', (bt) => bt.click());
   await sleep(400);
   check("the Life switch reaches the player", await player.evaluate(() => window.bench.host.stage.lifeOn === false));
+
+  /* a change that lands while the stage is still being built */
+  const late = await browser.newPage();
+  late.on("pageerror", (e) => errors.push(`late: ${e}`));
+  await late.goto(`${url("gm")}&midbuild=1`);
+  await late.bringToFront();
+  await late.waitForFunction(() => window.bench?.ready === true, { timeout: 30000 });
+  await sleep(2500);
+  await settle(late);
+  const caught = await late.evaluate(() => {
+    const { id, at } = window.midbuild;
+    const s = window.bench.host.stage;
+    const c = s.cards.get(id);
+    const f = s.rig.fractionOf(c.walk ? c.walk.to.X : c.puppet.restX, c.walk ? c.walk.to.Z : c.restZ);
+    return { id, want: at, got: f.map((n) => +n.toFixed(3)) };
+  });
+  check("a change made while the stage was still being built is taken up once it is ready", Math.abs(caught.got[0] - caught.want[0]) < 0.01 && Math.abs(caught.got[1] - caught.want[1]) < 0.01, `${caught.id} ${caught.got} (wanted ${caught.want})`);
   check("no page threw", errors.length === 0, errors.slice(0, 2).join(" | "));
 } finally {
   await browser.close();

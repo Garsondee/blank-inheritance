@@ -94,6 +94,10 @@ export class StageHost {
     this.running = true;
     this.last = performance.now();
     this.raf = requestAnimationFrame(this.#frame);
+    // whatever the scene was given while the picture was being built is taken up now; it would otherwise wait for the
+    // scene's next change (found live 2026-10-03: a deploy's new layout, written as the GM's page loaded, landed while the
+    // painting was loading, and the stage went on showing everyone where they had been). Once this draw has finished.
+    setTimeout(() => { if (this.running) this.#sceneChanged(); }, 0);
     Hooks.callAll("stagecraft.stageReady", this);
     return true;
   }
@@ -490,24 +494,29 @@ export class StageHost {
     // a user who leaves lets go of their cards on every other screen without waiting for the silence to run out
     this.hooks.push(["userConnected", Hooks.on("userConnected", (user, connected) => { if (!connected) this.sync?.userGone(user.id); })]);
     this.hooks.push(["updateScene", Hooks.on("updateScene", (scene) => {
-      if (scene.id !== this.scene.id) return;
-      // the scene's description itself changed (a deploy: bigger cards, a new zone): the stage is drawn again from it
-      const described = JSON.stringify(this.scene.flags?.[NS]?.stage ?? null);
-      if (described !== this.described) {
-        this.described = described;
-        if (globalThis.canvas?.scene?.id === this.scene.id) globalThis.canvas.draw();
-        return;
-      }
-      this.chalk?.refresh();
-      this.bar?.refresh();
-      this.blocking?.refresh();
-      this.#syncCast();
-      // hands off: a player who is carrying a card puts it down now
-      if (handsOff(this.scene) && !game.user.isGM && this.dragging) {
-        this.sync.release(this.dragging.id);
-        this.dragging = null;
-      }
+      if (scene.id === this.scene.id) this.#sceneChanged();
     })]);
+  }
+
+  /** The scene as it is now: its description, its cast, its live switches. */
+  #sceneChanged() {
+    if (!this.running && !this.root) return;
+    // the scene's description itself changed (a deploy: bigger cards, a new zone): the stage is drawn again from it
+    const described = JSON.stringify(this.scene.flags?.[NS]?.stage ?? null);
+    if (described !== this.described) {
+      this.described = described;
+      if (globalThis.canvas?.scene?.id === this.scene.id) globalThis.canvas.draw();
+      return;
+    }
+    this.chalk?.refresh();
+    this.bar?.refresh();
+    this.blocking?.refresh();
+    this.#syncCast();
+    // hands off: a player who is carrying a card puts it down now
+    if (handsOff(this.scene) && !game.user.isGM && this.dragging) {
+      this.sync.release(this.dragging.id);
+      this.dragging = null;
+    }
   }
 
   #lost() {
