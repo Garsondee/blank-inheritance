@@ -153,7 +153,7 @@ export class Stage {
   #focus() {
     const r = this.scene.rig;
     const at = this.scene.focus ?? [r.vanish ?? 0.5, r.horizon + (r.floorFront - r.horizon) * 0.72];
-    return this.rig.standing(at) ?? { X: 0, Z: -400 };
+    return this.rig.place(at) ?? { X: 0, Z: -400 };
   }
 
   /* ---------------------------------------------------------------- cards */
@@ -168,7 +168,7 @@ export class Stage {
     let Z = 0;
     const mark = person.mark ? this.marks.find((m) => m.id === person.mark) : null;
     if (mark) { X = mark.X; Z = mark.Z; }
-    else if (person.at) { const p = this.rig.standing(person.at); if (p) { X = p.X; Z = p.Z; } }
+    else if (person.at) { const p = this.rig.place(person.at); if (p) { X = p.X; Z = p.Z; } }
     else if (Number.isFinite(person.X) && Number.isFinite(person.Z)) { X = person.X; Z = person.Z; }
     const c = {
       id: person.id, person, s, w: w * s, h: h * s, seed: hashSeed(person.id),
@@ -250,7 +250,7 @@ export class Stage {
     let dest = null;
     let mark = null;
     if (to?.mark) { mark = this.marks.find((m) => m.id === to.mark) ?? null; if (mark) dest = { X: mark.X, Z: mark.Z }; }
-    else if (Array.isArray(to?.at)) dest = this.rig.standing(to.at);
+    else if (Array.isArray(to?.at)) dest = this.rig.place(to.at);
     else if (Number.isFinite(to?.X) && Number.isFinite(to?.Z)) dest = { X: to.X, Z: to.Z };
     if (!dest) return null;
     const L = this.opts.limits;
@@ -283,7 +283,7 @@ export class Stage {
   setRoutine(id, life, home = null) {
     const c = this.cards.get(id);
     if (!c) return;
-    const given = Array.isArray(home) ? this.rig.standing(home) : null;
+    const given = Array.isArray(home) ? this.rig.place(home) : null;
     home = given ? { X: given.X, Z: given.Z } : c.routine?.home ?? { X: c.puppet.restX, Z: c.restZ };
     const routine = describeRoutine(life);
     c.routine = routine ? prepareRoutine(routine, { home, rig: this.rig, marks: this.marks, seed: c.seed }) : null;
@@ -816,7 +816,7 @@ export class Stage {
     const all = this.standing();
     const cards = ids ? all.filter((c) => ids.includes(c.id)) : all;
     let at = this.focus;
-    if (Array.isArray(focus)) at = this.rig.standing(focus) ?? this.focus;
+    if (Array.isArray(focus)) at = this.rig.place(focus) ?? this.focus;
     else if (typeof focus === "string" && this.cards.has(focus)) { const c = this.cards.get(focus); at = { X: c.puppet.restX, Z: c.restZ }; }
     // cards are drawn bigger the further back they stand, so they are spaced for the size they will be where they gather
     const g = this.grow(at.Z);

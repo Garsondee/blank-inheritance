@@ -14,7 +14,7 @@ export function resolveMarks(marks, rig) {
   const out = [];
   const dropped = [];
   for (const m of marks) {
-    const at = rig.standing(m.at);
+    const at = (rig.place ?? rig.standing)(m.at);
     if (!at) { dropped.push(m.id); continue; }
     out.push({ ...m, X: at.X, Z: at.Z });
   }

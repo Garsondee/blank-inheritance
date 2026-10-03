@@ -158,17 +158,19 @@ test("every scene with everyone in it and six in the party: no card is hidden by
   assert.deepEqual(problems, []);
 });
 
-test("every place a routine takes someone to is in view too: the waitress's rounds never go behind the party", async () => {
+test("every place a routine takes someone to is in view too, and hides nobody: the waitress's rounds never go behind the party", async () => {
+  // found 2026-10-03: Obi's rounds in the Rumour Mill stopped right in front of Hana's armchair
   const { hiddenShares, HIDDEN_AT_MOST } = await import("../module/stagecraft/scripts/core/visibility.mjs");
   const problems = [];
   for (const [id, entry] of Object.entries(stages.stages)) {
     for (const [who, life] of Object.entries(entry.life ?? {})) {
       for (const at of [...(life.spots ?? []), ...(life.path ?? [])]) {
         const { s, cards } = await sceneCards(entry, { places: { [who]: { at } } });
-        const v = hiddenShares(s.rig, cards).get(who);
-        // only whoever is on their rounds: the others are where the scene put them, and may have stepped aside
-        const byParty = v.by.filter((b) => b.startsWith("pc-"));
-        if (v.hidden > HIDDEN_AT_MOST + 0.001 && byParty.length) problems.push(`${id}: ${who} at ${at} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+        for (const [other, v] of hiddenShares(s.rig, cards)) {
+          if (v.hidden <= HIDDEN_AT_MOST + 0.001) continue;
+          if (other === who) problems.push(`${id}: ${who} at ${at} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+          else if (v.by.includes(who)) problems.push(`${id}: ${who} at ${at} hides ${other} (${Math.round(v.hidden * 100)}%)`);
+        }
       }
     }
   }
@@ -249,6 +251,7 @@ test("everything a scene places is fully on screen: its people wherever they go,
   // screen, so "chalk goes on the back wall" pointed at a wall nobody could reach; and with cards half as big again
   // (Ingram: "fully in view"), a person put 0.06 in from the painting's edge had half their card off the page
   const { Stage } = await import("../module/stagecraft/scripts/core/stage.mjs");
+  const { DEEPEST } = await import("../module/stagecraft/scripts/core/rigspace.mjs");
   const W = 2560;
   const FLOOR = 1440 - 270;                           // the deck covers about the bottom 270 pixels of the 2560 x 1440 page
   const problems = [];
@@ -257,11 +260,17 @@ test("everything a scene places is fully on screen: its people wherever they go,
     const people = Object.entries(entry.places ?? {}).map(([key, at]) => ({ id: key, name: key, at, size: entry.sizes?.[key] }));
     const s = new Stage(d, people, { card: { w: 280, h: 468 } });
     const r = s.rig;
+    // how tall a card is drawn at the front of the stage, where the party stands
+    const front = r.standing(partySlot(entry, 0));
+    const frontH = r.screenOf(0, 0, front.Z).y - r.screenOf(0, 468 * d.cardScale * s.grow(front.Z), front.Z).y;
     // the rectangle a card standing at a point of the painting fills on the page: drawn bigger at its depth, raised over any
     // cut-out in front of it, and as wide as it is face-on (a card turned away is narrower, never wider)
     const fits = (what, at, size = 1) => {
       const p = r.standing(at);
       if (!p) { problems.push(`${id}: ${what} stands above the horizon`); return; }
+      // found 2026-10-03: people put at the back of a long room stood behind the painting itself and were never drawn;
+      // and a face must stay big enough to read (a little under half its size at the front)
+      if (p.Z < DEEPEST) { problems.push(`${id}: ${what} stands behind the painting (${at})`); return; }
       const g = s.grow(p.Z);
       const w = 280 * d.cardScale * size * g;
       const h = 468 * d.cardScale * size * g;
@@ -271,6 +280,7 @@ test("everything a scene places is fully on screen: its people wherever they go,
       if (a.x < 0 || b.x > W) problems.push(`${id}: ${what} is cut off by the ${a.x < 0 ? "left" : "right"} edge (${at})`);
       if (b.y < 0) problems.push(`${id}: ${what} has their head off the top (${at})`);
       if (a.y - FLOOR > (a.y - b.y) * 0.15) problems.push(`${id}: ${what} stands behind the deck (${at})`);
+      if ((a.y - b.y) / size < frontH * 0.42) problems.push(`${id}: ${what} stands too far back to be read (${at}: ${Math.round(((a.y - b.y) / size / frontH) * 100)}% of the front)`);
     };
     const sizeOf = (who) => entry.sizes?.[who] ?? 1;
     for (const [who, at] of Object.entries(entry.places ?? {})) fits(who, at, sizeOf(who));

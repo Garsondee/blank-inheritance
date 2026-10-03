@@ -4,7 +4,7 @@
  */
 
 import * as THREE from "three";
-import { REF, viewFor } from "../../core/rigspace.mjs";
+import { REF, viewFor, BACKDROP_DEPTH } from "../../core/rigspace.mjs";
 import { softDotCanvas, impactCanvas } from "../canvas-art.mjs";
 import { ImageCache } from "../images.mjs";
 
@@ -71,7 +71,8 @@ export function atDepth(rig, sx, sy, Z) {
 /** Point sprites assume a 90 degree lens; ours is `f` pixels long, so sizes need this (renderer.md §8.4). */
 export const pointScale = (rig) => rig.cam.f / (REF.H / 2);
 
-export const BACKDROP_DEPTH = 4000;
+// how far back the painting hangs is the core's to say (rigspace.mjs), so nobody is ever put behind it
+export { BACKDROP_DEPTH };
 
 /**
  * A plane that covers exactly the painting, at a depth just in front of it (`inFront` units nearer to the viewer), so

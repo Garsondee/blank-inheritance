@@ -73,7 +73,7 @@ export function describeRoutine(raw) {
  */
 export function prepareRoutine(routine, { home, rig, marks = [], seed = 1 }) {
   if (!routine) return null;
-  const onFloor = (p) => rig.standing(p);
+  const onFloor = (p) => (rig.place ?? rig.standing)(p);
   const homeF = rig.fractionOf(home.X, home.Z);
   // a radius is a share of the painting's width, measured at the card's own depth (further back is smaller)
   const across = (share) => {

@@ -6,9 +6,7 @@
 
 import * as THREE from "three";
 import { noise1 } from "../../core/diorama.mjs";
-import { atDepth, pointScale } from "./support.mjs";
-
-const BACKDROP_DEPTH = 4000;
+import { atDepth, pointScale, BACKDROP_DEPTH } from "./support.mjs";
 const SPOT = 3.2e6;          // candela per unit of a light's authored intensity, tuned for pixel-sized worlds (renderer.md §8.4)
 
 export class World {

@@ -6,6 +6,8 @@
  * a card is held within reach of it; target, when a held card is over it.
  */
 
+import { DEEPEST } from "./rigspace.mjs";
+
 export const OUTLINE = Object.freeze({ rest: "rest", near: "near", target: "target" });
 
 /** How strong an outline is at rest, by the player's setting (stage.md §8.8). */
@@ -127,7 +129,8 @@ export function zoneSlots(zone, rig, { w = 180, deep = 160, most = 24 } = {}) {
   if (floor.length < 3) return [];
   const xs = floor.map((p) => p.X);
   const zs = floor.map((p) => p.Z);
-  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+  // never a place behind the painting's backdrop (rigspace.mjs DEEPEST), however near the horizon the zone runs
+  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.max(DEEPEST, Math.min(...zs)), Math.max(...zs)];
   const mid = rig.standing(centroid(area)) ?? { X: (x0 + x1) / 2, Z: (z0 + z1) / 2 };
   const out = [];
   for (let Z = z1 - deep / 2; Z >= z0; Z -= deep) {

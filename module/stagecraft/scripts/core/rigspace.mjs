@@ -15,18 +15,41 @@ import { coverMap, makeCamera, floorPoint, project } from "./diorama.mjs";
 
 export const REF = Object.freeze({ W: 2560, H: 1440 });
 
+/**
+ * How far behind the front of the floor the painting hangs. The three.js stage draws the painting as a backdrop this far
+ * back, and nothing standing deeper could be seen (found 2026-10-03: people put at the back of a long room vanished
+ * behind it, when it hung 4000 back). At 12000 a card is drawn at a little under half its size at the front, about as
+ * small as a face can be and still be read; the floor runs on to the horizon, but nobody is put that far away.
+ */
+export const BACKDROP_DEPTH = 12000;
+
+/** The deepest a card is ever put: in front of the backdrop, with room to lean. */
+export const DEEPEST = -(BACKDROP_DEPTH - 1500);
+
 export function makeRig(painting, rig, ref = REF) {
   const [iw, ih] = painting.size;
   const map = coverMap(iw, ih, ref.W, ref.H, 0.5, rig.lift ?? 0, 0.5);
   const cam = makeCamera(rig, map, ref.W);
   const toFraction = (sx, sy) => [(sx - map.ox) / (iw * map.s), (sy - map.oy) / (ih * map.s)];
+  const standing = (at) => {
+    const p = floorPoint(cam, at[0], at[1]);
+    return p ? { X: p.x - cam.cx, Z: p.z } : null;
+  };
   return {
     ref, map, cam, size: [iw, ih],
 
     /** A point marked on the painting (fractions) to a place on the floor, or null above the horizon. */
-    standing(at) {
-      const p = floorPoint(cam, at[0], at[1]);
-      return p ? { X: p.x - cam.cx, Z: p.z } : null;
+    standing,
+
+    /**
+     * A point of the painting as a place for a card: the floor there, but never behind the painting's backdrop. A point
+     * so near the horizon that it would be is brought forward along the line of sight, so it keeps its place across the
+     * page and only stands nearer.
+     */
+    place(at) {
+      const p = standing(at);
+      if (!p || p.Z >= DEEPEST) return p;
+      return { X: (p.X * (cam.f - DEEPEST)) / (cam.f - p.Z), Z: DEEPEST };
     },
 
     /** A place on the floor back to the point of the painting it appears at (fractions). */
