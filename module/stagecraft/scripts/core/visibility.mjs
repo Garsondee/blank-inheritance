@@ -49,6 +49,23 @@ export function hiddenShares(rig, cards, { across = 12, down = 20 } = {}) {
 }
 
 /**
+ * The share of a card's rectangle (`cardRect`) that something over the stage covers: the page furniture a game puts over
+ * the bottom of the screen (a deck of controls with a dial rising out of it). `shapes` are in reference-page pixels:
+ * `{ rect: [x0, y0, x1, y1] }` or `{ circle: [cx, cy, r] }`.
+ */
+export function coveredShare(r, shapes, { across = 12, down = 20 } = {}) {
+  if (!shapes?.length) return 0;
+  const inside = (x, y) => shapes.some((s) => (s.rect ? x >= s.rect[0] && x <= s.rect[2] && y >= s.rect[1] && y <= s.rect[3] : s.circle ? (x - s.circle[0]) ** 2 + (y - s.circle[1]) ** 2 <= s.circle[2] ** 2 : false));
+  let covered = 0;
+  for (let i = 0; i < across; i++) {
+    for (let j = 0; j < down; j++) {
+      if (inside(r.x0 + ((i + 0.5) / across) * (r.x1 - r.x0), r.y0 + ((j + 0.5) / down) * (r.y1 - r.y0))) covered++;
+    }
+  }
+  return covered / (across * down);
+}
+
+/**
  * Spread cards apart across the floor until none is hidden more than `most`: each card covered too much and whatever
  * covers it are pushed away from each other, a little at a time, so everyone keeps their order left to right and a
  * formation keeps its shape, only looser. Only the cards in `movable` (a Set of ids) move; the rest (the party, people

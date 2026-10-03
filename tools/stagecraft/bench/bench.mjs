@@ -16,7 +16,9 @@ import { Stage } from "/module/stagecraft/scripts/core/stage.mjs";
 import { FORMATIONS } from "/module/stagecraft/scripts/core/formations.mjs";
 import { ThreeBackend } from "/module/stagecraft/scripts/render/three/backend.mjs";
 import { ImageCache } from "/module/stagecraft/scripts/render/images.mjs";
-import { mirrorCards, descriptionFor, momentMoves, momentsOf, summonsForTrigger, formationRequest } from "/module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
+import { mirrorCards, descriptionFor, momentMoves, momentsOf, summonsForTrigger, formationRequest, ORB_COLLAR, DECK_MAX_SCALE } from "/module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
+import { deckFit } from "/module/blank-inheritance/scripts/core/deck-layout.mjs";
+import { coverOnPage } from "/module/stagecraft/scripts/foundry/blocking.mjs";
 import { brass } from "/module/blank-inheritance/scripts/foundry/stagecraft-brass-skin.mjs";
 
 const params = new URLSearchParams(location.search);
@@ -66,13 +68,37 @@ const keyOf = (id) => (id.startsWith("summon-") ? id.slice(7) : null);
 
 /* ---------------------------------------------------------------- the stage */
 
+// The adventure's deck along the bottom of the screen, its orb rising out of the middle, laid out as the adventure lays it
+// out (deck-layout.mjs deckFit): drawn as a dark silhouette unless ?deck=0, so a picture shows what the table sees, and
+// given to the stage as its cover, as the adventure gives it in Foundry, so formations keep clear of it.
+const showDeck = params.get("deck") !== "0";
+const deckWindow = () => {
+  const fit = deckFit({ viewportWidth: innerWidth, viewportHeight: innerHeight, rightReserve: 48, maxScale: DECK_MAX_SCALE });
+  const top = innerHeight - fit.faceplateHeight;
+  const r = (ORB_COLLAR * fit.scale) / 2;
+  return [{ rect: [fit.left, top, fit.left + fit.width, innerHeight] }, { circle: [fit.left + fit.width / 2, innerHeight - fit.crownHeight + r, r] }];
+};
+function drawDeck() {
+  document.getElementById("bench-deck")?.remove();
+  if (!showDeck) return;
+  const [plate, orb] = deckWindow();
+  const el = document.createElement("div");
+  el.id = "bench-deck";
+  el.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:5";
+  el.innerHTML = `<div style="position:absolute;left:${plate.rect[0]}px;top:${plate.rect[1]}px;width:${plate.rect[2] - plate.rect[0]}px;height:${plate.rect[3] - plate.rect[1]}px;background:rgba(18,18,20,0.92);border-top:2px solid #6d5a36;border-radius:10px 10px 0 0"></div>`
+    + `<div style="position:absolute;left:${orb.circle[0] - orb.circle[2]}px;top:${orb.circle[1] - orb.circle[2]}px;width:${orb.circle[2] * 2}px;height:${orb.circle[2] * 2}px;border-radius:50%;background:radial-gradient(circle,#c8782c 0 36%,#2a2a2e 37% 46%,#9a9aa2 47% 100%)"></div>`;
+  document.body.append(el);
+}
+
 const people = cards.map(asPerson);
-const stage = new Stage(scene, people, { card: brass.size, clock });
 const backend = new ThreeBackend({ images: new ImageCache() });
+const cover = () => (showDeck && backend.view ? coverOnPage(deckWindow(), { left: 0, top: 0 }, backend.view) : []);
+const stage = new Stage(scene, people, { card: brass.size, clock, cover });
 const host = document.getElementById("stage");
 backend.mount(host, { quality: params.get("tier") ?? "high", pixelRatio: devicePixelRatio, width: innerWidth, height: innerHeight });
 await backend.load(scene, brass, people);
-addEventListener("resize", () => backend.resize(innerWidth, innerHeight, devicePixelRatio));
+drawDeck();
+addEventListener("resize", () => { backend.resize(innerWidth, innerHeight, devicePixelRatio); drawDeck(); });
 
 const selected = new Set();
 let last = performance.now();

@@ -17,7 +17,7 @@ import { chosenTier, tierSetting, isCalm, zoneSetting } from "./settings.mjs";
 import { ChalkController } from "./chalk.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
-import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown } from "./blocking.mjs";
+import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
 
 export class StageHost {
   constructor({ scene, skins, anchor, services = {}, onFatal = null }) {
@@ -57,7 +57,9 @@ export class StageHost {
     this.described = JSON.stringify(this.scene.flags?.[NS]?.stage ?? null);
     this.people = readCast(this.scene);
     // walks, routines and entrances run on the time every screen shares, so they agree everywhere
-    this.stage = new Stage(description, this.people, { card: this.skins.get(description.skin).size, clock: sharedNow });
+    // what the screen's own furniture covers (another module's deck along the bottom), so formations keep faces clear of it
+    const cover = () => (this.root && this.backend?.view ? coverOnPage(coverShapes(), this.root.getBoundingClientRect(), this.backend.view) : []);
+    this.stage = new Stage(description, this.people, { card: this.skins.get(description.skin).size, clock: sharedNow, cover });
     this.stage.setLife(lifeOn(this.scene));
     this.stage.setBoard(boardOn(this.scene));
     this.stage.setSpeaker(speakerOf(this.scene));

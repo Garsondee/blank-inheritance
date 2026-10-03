@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { describeScene } from "../scripts/core/scene.mjs";
 import { Stage } from "../scripts/core/stage.mjs";
-import { cardRect, hiddenShares, HIDDEN_AT_MOST } from "../scripts/core/visibility.mjs";
+import { cardRect, hiddenShares, coveredShare, HIDDEN_AT_MOST } from "../scripts/core/visibility.mjs";
 import { RAW_SCENE } from "./fixture.mjs";
 
 const { scene } = describeScene(RAW_SCENE);
@@ -39,6 +39,16 @@ test("a card squarely behind another is hidden; one beside it is not; one a litt
   assert.equal(shares.get("beside").hidden, 0);
   assert.equal(shares.get("front").hidden, 0, "nothing is in front of the front card");
   assert.ok(shares.get("aside").hidden < 0.25);
+});
+
+test("what covers the bottom of the screen covers a card by the share of it that lies under a band or a dial", () => {
+  const card = { x0: 100, y0: 100, x1: 300, y1: 500 };
+  assert.equal(coveredShare(card, []), 0);
+  assert.equal(coveredShare(card, [{ rect: [0, 0, 1000, 1000] }]), 1);
+  assert.ok(Math.abs(coveredShare(card, [{ rect: [0, 400, 1000, 1000] }]) - 0.25) < 0.03, "a band over its bottom quarter");
+  const dial = coveredShare(card, [{ circle: [200, 600, 200] }]);
+  assert.ok(dial > 0.1 && dial < 0.3, `a dial rising under it covers some of its middle (${dial})`);
+  assert.equal(coveredShare(card, [{ circle: [900, 900, 100] }]), 0, "one elsewhere covers nothing");
 });
 
 test("every formation of three to six people leaves every face in view: none hidden more than the rule allows", () => {

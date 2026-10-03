@@ -610,3 +610,21 @@ changed in the module (the design as built is `stage.md` §5.8.1 and `chalk.md` 
   zone keeps everyone fully in view with six in the party.
 
 Tests: 275 in the module, 31 in `test/stagecraft-bridge.test.mjs`. Deployed to the live server the same day.
+
+**Then, checked on the live server** (the GM's page reloaded, read and photographed through the browser), four things
+the bench could not show:
+
+1. **Foundry's shared clock is the server's uptime**, not the time of day (`game.time.serverTime` was 13.6 hours: the
+   server restarts at 03:00 every night). Every screen still agrees, but after a restart each time stamped the day before
+   is hours "ahead", so a card that walked on yesterday would have waited at the side of the stage, and one that rose out
+   of the floor lain flat. A stamp more than a minute ahead of the clock is now long over (`CLOCK_SLACK`).
+2. **A change that lands while the stage is loading was lost**: the deploy's new layout was written as the GM's page
+   loaded, before the stage listened, so it showed everyone where they had been. The host takes the scene up once more
+   when it is ready; `host-check.mjs` changes a card mid-build and fails without the fix.
+3. **A Stagecraft-only deploy never reached anyone**: the build stamp fingerprinted the adventure, its data and its
+   videos but not Stagecraft, so the stamp did not change and no open page was asked to reload. Stagecraft's files are
+   now part of the stamp's id and of its code fingerprint.
+4. **The deck's orb hid whoever stood front and centre** (`stage.md` §5.8.1): `api.blocking.setCover` (interface
+   0.4.0), the adventure's `deckCover`, and the middle of every stage staged a step further back.
+
+Tests: 278 in the module, 33 in the bridge's.

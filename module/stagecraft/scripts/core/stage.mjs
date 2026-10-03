@@ -22,7 +22,7 @@ import { zonesAt, zoneChanges, outlineStates, rangeBands, zoneSlots } from "./zo
 import { planWalk, walkAt, entrancePoint, floorDistance } from "./walks.mjs";
 import { describeRoutine, prepareRoutine, lifeAt, gestureAt } from "./life.mjs";
 import { arrange } from "./formations.mjs";
-import { spreadApart } from "./visibility.mjs";
+import { spreadApart, cardRect, coveredShare, HIDDEN_AT_MOST } from "./visibility.mjs";
 
 export const STEP = 1 / 120;
 
@@ -63,7 +63,8 @@ export class Stage {
    * @param scene  a normalised description (`describeScene(...).scene`)
    * @param people the published cards: [{ id, name, portrait?, colour?, at | X,Z | mark, yaw?, size?, demeanour?, emote?,
    *               lean?, pitch?, life?, still?, packed?, enter? }]
-   * @param opts   { card: { w, h }, limits, clock }   `clock()` is the time every screen shares, in seconds
+   * @param opts   { card: { w, h }, limits, clock, cover }   `clock()` is the time every screen shares, in seconds;
+   *               `cover()` what the screen's own furniture covers of the stage (see `cover`)
    */
   constructor(scene, people = [], opts = {}) {
     this.scene = scene;
@@ -73,6 +74,7 @@ export class Stage {
       look: { ...STAGE.look, ...(opts.look ?? {}) }, magnet: { ...STAGE.magnet, ...(opts.magnet ?? {}) }
     };
     this.clock = typeof opts.clock === "function" ? opts.clock : () => this.time;
+    this.coverFn = typeof opts.cover === "function" ? opts.cover : null;
     this.rig = makeRig(scene.painting, scene.rig);
     const placed = resolveMarks(scene.marks, this.rig);
     this.marks = placed.marks;
@@ -832,9 +834,10 @@ export class Stage {
       const b = this.rig.standing([f[0] + size / 2, f[1]]);
       if (a && b) radius = Math.abs(b.X - a.X) / 2;
     }
+    const cover = this.cover();
     const arranged = arrange(kind, { cards: sized, focus: at, target, speakers, party, dir, radius, limits: { x: this.opts.limits.x, z: [this.opts.limits.z[0], 200] }, seed: this.steps % 7 })
       .filter((p) => this.cards.has(p.id))
-      .map((p) => { const c = this.cards.get(p.id); const pg = this.grow(p.Z); return { ...p, Z: this.unhidden(p.X, p.Z, c.w * pg, c.h * pg) }; });
+      .map((p) => { const c = this.cards.get(p.id); const pg = this.grow(p.Z); return this.clearOfCover({ ...p, Z: this.unhidden(p.X, p.Z, c.w * pg, c.h * pg) }, c, cover); });
     // then loosened just enough that no face is hidden behind another (visibility.mjs), the formation's own people and
     // anyone else on the stage alike; only the formation's people move
     const movers = new Set(arranged.map((p) => p.id));
@@ -849,7 +852,7 @@ export class Stage {
       const c = this.cards.get(p.id);
       const X = loose.get(p.id) ?? p.X;
       const pg = this.grow(p.Z);
-      return { ...p, X, Z: this.unhidden(X, p.Z, c.w * pg, c.h * pg) };
+      return this.clearOfCover({ ...p, X, Z: this.unhidden(X, p.Z, c.w * pg, c.h * pg) }, c, cover);
     });
     // `away`: everyone turns right round to look where the formation looks (out over the view, up at the stage), backs to the table
     return placed.map((p) => ({
@@ -871,7 +874,12 @@ export class Stage {
     const ids = new Set(chosen.map((c) => c.id));
     // everyone else standing in the position keeps their place: theirs are taken
     const others = [...this.cards.values()].filter((c) => !ids.has(c.id) && c.holder === null).map((c) => ({ X: c.walk ? c.walk.to.X : c.puppet.restX, Z: c.walk ? c.walk.to.Z : c.restZ }));
-    const free = zoneSlots(zone, this.rig, { w: w * 1.05, most: 40 }).filter((s) => !others.some((o) => Math.abs(o.X - s.X) < w * 0.6 && Math.abs(o.Z - s.Z) < 90));
+    // a place the screen's own furniture would hide (a deck's dial rising over the front of the stage) is no place
+    const cover = this.cover();
+    const typical = chosen[0] ? this.cards.get(chosen[0].id) : null;
+    const free = zoneSlots(zone, this.rig, { w: w * 1.05, most: 40 })
+      .filter((s) => !others.some((o) => Math.abs(o.X - s.X) < w * 0.6 && Math.abs(o.Z - s.Z) < 90))
+      .filter((s) => !typical || this.coveredAt(s.X, s.Z, typical, cover) <= HIDDEN_AT_MOST);
     const order = [...chosen].sort((a, b) => Math.hypot(a.X - at.X, a.Z - at.Z) - Math.hypot(b.X - at.X, b.Z - at.Z));
     const moves = [];
     for (const c of order) {
@@ -881,6 +889,39 @@ export class Stage {
       moves.push({ id: c.id, at: this.rig.fractionOf(s.X, s.Z).map((n) => Math.round(n * 10000) / 10000), yaw: 0, lean: 0, pitch: 0, gait, still: true, packed: false });
     }
     return moves;
+  }
+
+  /**
+   * What the screen's own furniture covers of the stage (a game's deck of controls along the bottom, with a dial rising out
+   * of its middle), in reference-page pixels: [{ rect: [x0, y0, x1, y1] } | { circle: [cx, cy, r] }]. The host supplies
+   * `coverFn`; nothing covers a stage that has none.
+   */
+  cover() {
+    try { return this.coverFn?.() ?? []; } catch { return []; }
+  }
+
+  /** The share of card `c` the cover would hide were it standing at X, Z (its depth's growth and riser included). */
+  coveredAt(X, Z, c, cover = this.cover()) {
+    if (!cover.length) return 0;
+    const g = this.grow(Z);
+    const w = c.w * g;
+    const h = c.h * g;
+    return coveredShare(cardRect(this.rig, { X, Z, w, h, lift: this.riserFor(X, Z, w, h) }), cover);
+  }
+
+  /**
+   * A place a formation gives a card, moved back up the stage (keeping its place across the page) by the least that leaves
+   * no more than HIDDEN_AT_MOST of the card under the cover. Found live 2026-10-03: the dial rising out of the middle of
+   * the adventure's deck hid the lower third of anyone at the front of the middle of the stage.
+   */
+  clearOfCover(p, c, cover = this.cover()) {
+    if (!cover.length || this.coveredAt(p.X, p.Z, c, cover) <= HIDDEN_AT_MOST) return p;
+    const f = this.rig.fractionOf(p.X, p.Z);
+    for (let dy = 0.0025; dy <= 0.2; dy += 0.0025) {
+      const q = this.rig.place([f[0], f[1] - dy]);
+      if (q && this.coveredAt(q.X, q.Z, c, cover) <= HIDDEN_AT_MOST - 0.01) return { ...p, X: q.X, Z: q.Z };
+    }
+    return p;
   }
 
   /** Where every card nobody holds stands now, as the formations want them: { id, X, Z, w, pc }. */

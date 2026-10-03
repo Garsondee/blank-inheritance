@@ -138,6 +138,47 @@ export function registerMoments(provider) {
   return () => providers.delete(provider);
 }
 
+/* ---------------------------------------------------------------- what the screen's own furniture covers */
+
+const covers = new Set();
+
+/**
+ * Let another module say what its own interface covers over the stage: a deck of controls along the bottom of the screen,
+ * a dial rising out of it. `provider()` returns shapes in window pixels, `{ rect: [x0, y0, x1, y1] }` or
+ * `{ circle: [cx, cy, r] }`, as they are right now; it is asked whenever a formation is placed. Formations then keep
+ * everyone clear of it, as they do of a counter: no more than the bottom 15% of a card under it. Returns a function that
+ * takes the provider away again.
+ */
+export function registerCover(provider) {
+  if (typeof provider !== "function") throw new TypeError("a cover provider must be a function");
+  covers.add(provider);
+  return () => covers.delete(provider);
+}
+
+/** Every shape the screen's furniture covers right now, in window pixels; a provider that throws covers nothing. */
+export function coverShapes() {
+  const out = [];
+  for (const provider of covers) {
+    try {
+      const list = provider();
+      if (Array.isArray(list)) out.push(...list.filter((s) => Array.isArray(s?.rect) || Array.isArray(s?.circle)));
+    } catch (err) {
+      console.warn(`${NS} | a cover provider failed`, err);
+    }
+  }
+  return out;
+}
+
+/**
+ * Window shapes as reference-page shapes, for a stage drawn into `box` (its element's rect on the window) with `view`
+ * (rigspace.mjs `viewFor`: the page covers the box).
+ */
+export function coverOnPage(shapes, box, view) {
+  const x = (px) => view.ox + (px - box.left) / view.s;
+  const y = (py) => view.oy + (py - box.top) / view.s;
+  return shapes.map((s) => (s.rect ? { rect: [x(s.rect[0]), y(s.rect[1]), x(s.rect[2]), y(s.rect[3])] } : { circle: [x(s.circle[0]), y(s.circle[1]), s.circle[2] / view.s] }));
+}
+
 /** Every moment offered for a scene, from every provider; one that throws offers nothing. */
 export function momentsFor(scene) {
   const out = [];

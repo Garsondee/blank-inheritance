@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { rawKeyOf, partySlot, partyYaw, placeFor, mirrorCards, momentMoves, sameCards, summonsForTrigger, entryFor, descriptionFor, layoutOf, STAGES_PATH } from "../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
+import { rawKeyOf, partySlot, partyYaw, placeFor, mirrorCards, momentMoves, sameCards, summonsForTrigger, entryFor, descriptionFor, layoutOf, deckCover, ORB_COLLAR, DECK_MAX_SCALE, STAGES_PATH } from "../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
 import { publishedCast, leaksConcealed } from "../module/blank-inheritance/scripts/core/stage-layout.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -128,6 +128,24 @@ test("nobody a scene places stands where a cut-out would hide them entirely, and
   assert.deepEqual(problems, []);
 });
 
+test("the deck's cover over a stage is where the deck really is: measured on the live GM window, 2026-10-03", () => {
+  // 2560 x 1271, the sidebar folded: the faceplate from x 291 to 2221, its top at y 1035; the orb's collar 374 across, its
+  // top at y 890 (window pixels). At that size one window pixel is one page pixel, and the page's top 84.5 are cut off.
+  const [plate, orb] = deckCover({ viewportWidth: 2560, viewportHeight: 1271, rightReserve: 48 });
+  const near = (a, b, what) => assert.ok(Math.abs(a - b) < 2, `${what}: ${a} is not ${b}`);
+  near(plate.rect[0], 291, "faceplate left");
+  near(plate.rect[2], 2221, "faceplate right");
+  near(plate.rect[1], 1035 + 84.5, "faceplate top");
+  near(orb.circle[2], 187, "collar radius");
+  near(orb.circle[1] - orb.circle[2], 890 + 84.5, "collar top");
+  near(orb.circle[0], 1256, "collar centre");
+  // and the numbers it is built from are the deck's own
+  const tokens = readFileSync(path.join(moduleDir, "styles", "bi-tokens.css"), "utf8");
+  assert.match(tokens, new RegExp(`--bi-orb-collar:\\s*${ORB_COLLAR}px`));
+  const deck = readFileSync(path.join(moduleDir, "scripts", "foundry", "deck.mjs"), "utf8");
+  assert.match(deck, new RegExp(`const DECK_MAX_SCALE = ${DECK_MAX_SCALE};`));
+});
+
 /** A scene's people where the entry puts them (or where a moment sends them), with a party of six in their places, as cards. */
 async function sceneCards(entry, moment = null) {
   const { Stage } = await import("../module/stagecraft/scripts/core/stage.mjs");
@@ -177,6 +195,20 @@ test("every place a routine takes someone to is in view too, and hides nobody: t
   assert.deepEqual(problems, []);
 });
 
+test("a scene's moments played one after another leave everyone in view too: nobody is sent where another was sent", async () => {
+  // found 2026-10-03: "Sanzo takes the floor" and "Tama brings a round" sent both to the middle of the floor
+  const { hiddenShares, HIDDEN_AT_MOST } = await import("../module/stagecraft/scripts/core/visibility.mjs");
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    const all = {};
+    for (const m of Object.values(entry.moments ?? {})) for (const [who, p] of Object.entries(m.places ?? {})) if (Array.isArray(p.at)) all[who] = p;
+    if (Object.keys(all).length < 2) continue;
+    const { s, cards } = await sceneCards(entry, { places: all });
+    for (const [who, v] of hiddenShares(s.rig, cards)) if (v.hidden > HIDDEN_AT_MOST + 0.001) problems.push(`${id}: with every moment played, ${who} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+  }
+  assert.deepEqual(problems, []);
+});
+
 test("every door and thing to look at can be gone to in view: a card at it is on the page and not behind the party", async () => {
   // a zone is used by putting a card down at it (stagecraft.visit); one whose floor is behind the wings, or off the page,
   // cannot be (found 2026-10-03: the examination room's door was off the left edge of the page)
@@ -191,6 +223,10 @@ test("every door and thing to look at can be gone to in view: a card at it is on
       const { s, cards } = await sceneCards(visitor);
       const v = hiddenShares(s.rig, cards.filter((c) => c.id === "a-visitor" || c.id.startsWith("pc-"))).get("a-visitor");
       if (v.hidden > HIDDEN_AT_MOST + 0.001) problems.push(`${id}: a card at ${z.id} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+      const { cardRect, coveredShare } = await import("../module/stagecraft/scripts/core/visibility.mjs");
+      const deck = deckCover({ viewportWidth: 2560, viewportHeight: 1271, rightReserve: 48 });
+      const covered = coveredShare(cardRect(s.rig, cards.find((c) => c.id === "a-visitor")), deck);
+      if (covered > 0.151) problems.push(`${id}: a card at ${z.id} is ${Math.round(covered * 100)}% behind the deck`);
       const [x0] = s.rig.fractionOfScreen(0, 0);
       const [x1] = s.rig.fractionOfScreen(2560, 0);
       if (at[0] < x0 + 0.03 || at[0] > x1 - 0.03) problems.push(`${id}: ${z.id} is off the page`);
@@ -252,8 +288,12 @@ test("everything a scene places is fully on screen: its people wherever they go,
   // (Ingram: "fully in view"), a person put 0.06 in from the painting's edge had half their card off the page
   const { Stage } = await import("../module/stagecraft/scripts/core/stage.mjs");
   const { DEEPEST } = await import("../module/stagecraft/scripts/core/rigspace.mjs");
+  const { coveredShare } = await import("../module/stagecraft/scripts/core/visibility.mjs");
   const W = 2560;
   const FLOOR = 1440 - 270;                           // the deck covers about the bottom 270 pixels of the 2560 x 1440 page
+  // the deck as it lies over the stage on the GM's own window (measured live, 2560 x 1271) and a player's 1920-wide one,
+  // the sidebar folded: nobody may be covered more than the bottom 15% by it, its rising orb included
+  const decks = [deckCover({ viewportWidth: 2560, viewportHeight: 1271, rightReserve: 48 }), deckCover({ viewportWidth: 1920, viewportHeight: 969, rightReserve: 48 })];
   const problems = [];
   for (const [id, entry] of Object.entries(stages.stages)) {
     const d = describeScene(descriptionFor(stages, entry)).scene;
@@ -279,7 +319,9 @@ test("everything a scene places is fully on screen: its people wherever they go,
       const b = r.screenOf(p.X + w / 2, lift + h, p.Z);
       if (a.x < 0 || b.x > W) problems.push(`${id}: ${what} is cut off by the ${a.x < 0 ? "left" : "right"} edge (${at})`);
       if (b.y < 0) problems.push(`${id}: ${what} has their head off the top (${at})`);
-      if (a.y - FLOOR > (a.y - b.y) * 0.15) problems.push(`${id}: ${what} stands behind the deck (${at})`);
+      const rect = { x0: a.x, x1: b.x, y0: b.y, y1: a.y };
+      const covered = Math.max(...decks.map((d) => coveredShare(rect, d)));
+      if (covered > 0.151) problems.push(`${id}: ${what} is ${Math.round(covered * 100)}% behind the deck (${at})`);
       if ((a.y - b.y) / size < frontH * 0.42) problems.push(`${id}: ${what} stands too far back to be read (${at}: ${Math.round(((a.y - b.y) / size / frontH) * 100)}% of the front)`);
     };
     const sizeOf = (who) => entry.sizes?.[who] ?? 1;

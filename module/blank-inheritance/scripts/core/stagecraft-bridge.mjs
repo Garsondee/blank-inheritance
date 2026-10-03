@@ -12,8 +12,38 @@
  * member's real id here on the GM's side and stored as plain numbers.
  */
 
+import { deckFit } from "./deck-layout.mjs";
+
 export const STAGECRAFT_ID = "stagecraft";
 export const STAGES_PATH = "modules/blank-inheritance/stagecraft/stages.json";
+
+/** The page a stage is authored on and covers the window with (Stagecraft's rigspace.mjs `REF`). */
+const STAGE_PAGE = Object.freeze({ W: 2560, H: 1440 });
+/** The orb's machined collar, which rises out of the deck (styles/bi-tokens.css `--bi-orb-collar`). */
+export const ORB_COLLAR = 310;
+/** The deck's largest scale (foundry/deck.mjs `DECK_MAX_SCALE`). */
+export const DECK_MAX_SCALE = 1.25;
+
+/**
+ * What the deck covers of a stage, in the stage's own page pixels: the faceplate across the bottom of the window and the
+ * orb's round collar rising out of its middle, laid out by the same `deckFit` the deck itself uses. Found live
+ * 2026-10-03: on a 2560 by 1271 window the collar hid the lower third of anyone standing front and centre. Returned as
+ * Stagecraft's cover shapes (`{ rect }` and `{ circle }`), so the stage can keep faces clear of it.
+ */
+export function deckCover({ viewportWidth: vw, viewportHeight: vh, leftReserve = 0, rightReserve = 0 }) {
+  const fit = deckFit({ viewportWidth: vw, viewportHeight: vh, leftReserve, rightReserve, maxScale: DECK_MAX_SCALE });
+  const s = Math.max(vw / STAGE_PAGE.W, vh / STAGE_PAGE.H);
+  const ox = (STAGE_PAGE.W - vw / s) / 2;
+  const oy = (STAGE_PAGE.H - vh / s) / 2;
+  const page = (x, y) => [x / s + ox, y / s + oy];
+  const top = vh - fit.faceplateHeight;
+  const crownTop = vh - fit.crownHeight;
+  const r = (ORB_COLLAR * fit.scale) / 2;
+  const [x0, y0] = page(fit.left, top);
+  const [x1, y1] = page(fit.left + fit.width, vh);
+  const [cx, cy] = page(fit.left + fit.width / 2, crownTop + r);
+  return [{ rect: [x0, y0, x1, y1] }, { circle: [cx, cy, r / s] }];
+}
 
 /** The id a stage entry is looked up by: a protected person's real id (never published), else the id the stage files them under. */
 export function rawKeyOf(publishedMember, authoredMember = null) {

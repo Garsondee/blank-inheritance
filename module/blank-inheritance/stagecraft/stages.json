@@ -95,7 +95,7 @@
           { "id": "back-wall", "kind": "chalk", "name": "The wall over the bench", "shape": [[0.415,0.19],[0.83,0.19],[0.83,0.262],[0.415,0.262]] }
         ],
         "marks": [
-          { "id": "counter-1", "at": [0.5,0.95], "yaw": 8, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" },
+          { "id": "counter-1", "at": [0.5,0.9], "yaw": 8, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" },
           { "id": "counter-2", "at": [0.6,0.96], "yaw": 0, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" },
           { "id": "counter-3", "at": [0.7,0.95], "yaw": -8, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" }
         ],
@@ -142,7 +142,7 @@
         ],
         "marks": [
           { "id": "table-left", "at": [0.25,0.9], "yaw": 24, "label": "at the table", "group": "table" },
-          { "id": "table-mid", "at": [0.5,0.92], "yaw": 0, "label": "at the table", "group": "table" },
+          { "id": "table-mid", "at": [0.5,0.898], "yaw": 0, "label": "at the table", "group": "table" },
           { "id": "table-right", "at": [0.75,0.9], "yaw": -24, "label": "at the table", "group": "table" },
           { "id": "hatch", "at": [0.62,0.73], "yaw": 170, "label": "at the hatch", "zone": "the-hatch" }
         ],
@@ -195,7 +195,7 @@
         ],
         "marks": [
           { "id": "bar-1", "at": [0.4,0.93], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" },
-          { "id": "bar-2", "at": [0.5,0.935], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" },
+          { "id": "bar-2", "at": [0.5,0.9], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" },
           { "id": "bar-3", "at": [0.6,0.93], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" }
         ],
         "chalk": { "mode": "anywhere", "box": [0.405,0.978] }
@@ -217,8 +217,8 @@
         "sanzo": { "kind": "wander", "radius": 0.012, "every": 13, "restless": 0.35, "faces": "kiku", "gestures": ["hop", "nod"], "gestureChance": 0.3 }
       },
       "moments": {
-        "a-round": { "label": "Tama brings a round", "tip": "Tama comes to the party's table with the tray.", "places": { "tama": { "at": [0.5,0.965], "yaw": 0, "gait": "hurry" }, "kiku": { "at": [0.6,0.78], "yaw": -14, "gait": "stroll" } }},
-        "sanzo-takes-the-floor": { "label": "Sanzo takes the floor", "tip": "Sanzo comes to the middle of the room with the shamisen; the room turns to him.", "places": { "sanzo": { "at": [0.5,0.958], "yaw": 0, "gait": "hop" }, "kiku": { "at": [0.4,0.78], "yaw": 16, "gait": "stroll" } }},
+        "a-round": { "label": "Tama brings a round", "tip": "Tama comes to the party's table with the tray.", "places": { "tama": { "at": [0.62,0.925], "yaw": -14, "gait": "hurry" } }},
+        "sanzo-takes-the-floor": { "label": "Sanzo takes the floor", "tip": "Sanzo comes to the middle of the room with the shamisen; the room turns to him.", "places": { "sanzo": { "at": [0.4,0.9], "yaw": 8, "gait": "hop" } }},
         "everyone-back": { "label": "As they were", "tip": "The regulars go back to their places and their business.", "home": true }
       }
     },
@@ -243,7 +243,7 @@
         ],
         "marks": [
           { "id": "stool-1", "at": [0.35,0.935], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
-          { "id": "stool-2", "at": [0.46,0.94], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
+          { "id": "stool-2", "at": [0.46,0.915], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
           { "id": "stool-3", "at": [0.56,0.94], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
           { "id": "stool-4", "at": [0.65,0.935], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
           { "id": "end-left", "at": [0.16,0.925], "yaw": 24, "label": "the end stool" },
@@ -264,12 +264,12 @@
       "emotes": { "petr": "music" },
       "life": {
         "tomoe": { "kind": "visit", "spots": [[0.33,0.875],[0.66,0.875],[0.58,0.87]], "every": 12, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.97], "gestures": ["nod"], "gestureChance": 0.2 },
-        "ren": { "kind": "visit", "spots": [[0.47,0.94],[0.36,0.93]], "every": 9, "restless": 0.7, "gait": "hurry" },
+        "ren": { "kind": "visit", "spots": [[0.47,0.905],[0.36,0.93]], "every": 9, "restless": 0.7, "gait": "hurry" },
         "petr": { "kind": "wander", "radius": 0.02, "every": 10, "restless": 0.45, "faces": "ren", "gestures": ["hop", "nod"], "gestureChance": 0.35 }
       },
       "moments": {
         "tomoe-at-the-slate": { "label": "Tomoe at the slate", "tip": "Tomoe turns to the slate behind the bar to chalk up the round.", "places": { "tomoe": { "at": [0.6,0.87], "yaw": 150, "gait": "stroll" } }},
-        "petr-sings": { "label": "Petr sings", "tip": "Petr gets up and sings to the room; everyone turns to him.", "places": { "petr": { "at": [0.5,0.95], "yaw": 0, "gait": "hop" } }},
+        "petr-sings": { "label": "Petr sings", "tip": "Petr gets up and sings to the room; everyone turns to him.", "places": { "petr": { "at": [0.61,0.935], "yaw": -8, "gait": "hop" } }},
         "everyone-back": { "label": "As they were", "tip": "The crews go back to their places.", "home": true }
       }
     },
@@ -314,7 +314,7 @@
         "sigrun": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "hachi", "gestures": ["nod"], "gestureChance": 0.25 }
       },
       "moments": {
-        "hachi-tells-one": { "label": "Hachi tells one", "tip": "Hachi shuffles over from bucket number four with a story; everyone gathers round.", "places": { "hachi": { "at": [0.5,0.9], "yaw": 0, "gait": "stroll" } }},
+        "hachi-tells-one": { "label": "Hachi tells one", "tip": "Hachi shuffles over from bucket number four with a story; everyone gathers round.", "places": { "hachi": { "at": [0.5,0.898], "yaw": 0, "gait": "stroll" } }},
         "kazue-calls-time": { "label": "Kazue calls time", "tip": "Kazue comes to the edge of the pool: closing time, like a ship's bell.", "places": { "kazue": { "at": [0.6,0.75], "yaw": 6, "gait": "march" } }},
         "everyone-back": { "label": "As they were", "tip": "The regulars go back to their places.", "home": true }
       }
@@ -380,7 +380,7 @@
         ],
         "zones": [],
         "marks": [
-          { "id": "by-the-bed", "at": [0.5,0.95], "yaw": 0, "label": "by the bed" },
+          { "id": "by-the-bed", "at": [0.5,0.918], "yaw": 0, "label": "by the bed" },
           { "id": "the-window", "at": [0.84,0.68], "yaw": -20, "label": "by the window" }
         ],
         "chalk": { "mode": "off" }
@@ -425,14 +425,14 @@
         "chalk": { "mode": "off" }
       },
       "partyRow": { "y": 0.975, "wings": [0.104,0.896], "step": 0.078, "back": 0.012, "of": 6, "split": 4 },
-      "npcSlots": [[0.62,0.915],[0.47,0.925]],
+      "npcSlots": [[0.62,0.915],[0.47,0.903]],
       "places": {
-        "the-storekeeper": [0.47,0.925],
+        "the-storekeeper": [0.47,0.903],
         "manako": [0.62,0.915]
       },
       "demeanours": { "the-storekeeper": "calm", "manako": "calm" },
       "life": {
-        "the-storekeeper": { "kind": "visit", "spots": [[0.47,0.925],[0.72,0.905]], "every": 13, "restless": 0.5, "gait": "stroll" }
+        "the-storekeeper": { "kind": "visit", "spots": [[0.47,0.903],[0.72,0.905]], "every": 13, "restless": 0.5, "gait": "stroll" }
       },
       "moments": {
         "storekeeper-comes-out": { "label": "The storekeeper comes out", "tip": "He steps out of the shop to meet them in the street.", "places": { "the-storekeeper": { "at": [0.55,0.955], "yaw": 0, "gait": "walk" } }},
@@ -461,7 +461,7 @@
         "zones": [],
         "marks": [
           { "id": "stool-2", "at": [0.36,0.935], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
-          { "id": "counter-3", "at": [0.48,0.94], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
+          { "id": "counter-3", "at": [0.48,0.903], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
           { "id": "counter-4", "at": [0.6,0.94], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" }
         ],
         "chalk": { "mode": "off" }
@@ -582,7 +582,7 @@
       },
       "moments": {
         "the-platform": { "label": "The platform", "tip": "The officials stand in a shallow arc facing the candidates.", "formation": { "kind": "panel", "focus": [0.5,0.875], "who": ["deputy-director", "shucks-mordant", "shop-boss", "comms-officer"], "gait": "march" } },
-        "steps-up": { "label": "The Deputy Director steps up", "tip": "One rung below the top steps forward to speak.", "places": { "deputy-director": { "at": [0.5,0.905], "yaw": 0, "gait": "march" } }},
+        "steps-up": { "label": "The Deputy Director steps up", "tip": "One rung below the top steps forward to speak.", "places": { "deputy-director": { "at": [0.5,0.893], "yaw": 0, "gait": "march" } }},
         "vetch-collects": { "label": "Vetch collects them", "tip": "Section Nine's officer comes for his section.", "places": { "section-officer": { "at": [0.66,0.95], "yaw": -20, "gait": "march" } }},
         "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
       },
@@ -612,7 +612,7 @@
         ],
         "marks": [
           { "id": "desk-2", "at": [0.4,0.91], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
-          { "id": "desk-3", "at": [0.5,0.92], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
+          { "id": "desk-3", "at": [0.5,0.895], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
           { "id": "desk-4", "at": [0.6,0.92], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
           { "id": "the-front", "at": [0.6,0.79], "yaw": 0, "label": "at the front" }
         ],
@@ -700,7 +700,7 @@
           { "id": "bedside-left", "at": [0.38,0.78], "yaw": 25, "label": "a bedside" },
           { "id": "bedside-right", "at": [0.63,0.78], "yaw": -25, "label": "a bedside" },
           { "id": "bed-eight", "at": [0.68,0.735], "yaw": -30, "label": "bed eight" },
-          { "id": "the-aisle", "at": [0.5,0.9], "yaw": 0, "label": "the aisle" }
+          { "id": "the-aisle", "at": [0.5,0.895], "yaw": 0, "label": "the aisle" }
         ],
         "chalk": { "mode": "anywhere", "box": [0.405,0.978] }
       },
@@ -725,7 +725,7 @@
         "aucourt": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "imai", "gestures": ["nod", "shake"], "gestureChance": 0.3 }
       },
       "moments": {
-        "tsubaki-comes-over": { "label": "Sister Tsubaki comes over", "tip": "The night sister comes down the aisle to see what they want.", "places": { "tsubaki": { "at": [0.53,0.94], "yaw": 0, "gait": "walk" } }},
+        "tsubaki-comes-over": { "label": "Sister Tsubaki comes over", "tip": "The night sister comes down the aisle to see what they want.", "places": { "tsubaki": { "at": [0.53,0.915], "yaw": 0, "gait": "walk" } }},
         "lights-out": { "label": "Lights out", "tip": "The ward settles: everyone stays where they are.", "life": false },
         "everyone-back": { "label": "As they were", "tip": "Everyone goes back to their places and their rounds.", "home": true, "life": true }
       }
@@ -786,12 +786,12 @@
         ],
         "occluders": [],
         "zones": [
-          { "id": "the-shrine", "kind": "spot", "name": "The shrine", "hint": "Make an offering", "shape": [[0.42,0.5],[0.57,0.5],[0.57,0.85],[0.42,0.85]], "floor": [[0.41,0.885],[0.58,0.885],[0.59,0.93],[0.4,0.93]] },
+          { "id": "the-shrine", "kind": "spot", "name": "The shrine", "hint": "Make an offering", "shape": [[0.42,0.5],[0.57,0.5],[0.57,0.85],[0.42,0.85]], "floor": [[0.42,0.862],[0.58,0.862],[0.585,0.9],[0.415,0.9]] },
           { "id": "the-bell", "kind": "trigger", "name": "The bell", "hint": "Ring it", "shape": [[0.15,0.25],[0.22,0.25],[0.22,0.42],[0.15,0.42]], "floor": [[0.13,0.67],[0.23,0.67],[0.23,0.71],[0.13,0.71]] },
           { "id": "the-basin", "kind": "spot", "name": "The basin", "hint": "Wash your hands", "quiet": true, "shape": [[0.15,0.72],[0.31,0.72],[0.31,0.86],[0.15,0.86]], "floor": [[0.2,0.66],[0.32,0.66],[0.32,0.7],[0.2,0.7]] }
         ],
         "marks": [
-          { "id": "before-the-shrine", "at": [0.5,0.905], "label": "before the shrine", "faces": { "point": [0.5,0.6] }},
+          { "id": "before-the-shrine", "at": [0.5,0.895], "label": "before the shrine", "faces": { "point": [0.5,0.6] }},
           { "id": "at-the-bell", "at": [0.18,0.69], "label": "at the bell", "faces": { "point": [0.18,0.5] }},
           { "id": "under-the-lantern", "at": [0.7,0.7], "yaw": -20, "label": "under the lantern" }
         ],
@@ -893,17 +893,17 @@
         "chalk": { "mode": "anywhere", "box": [0.405,0.978] }
       },
       "partyRow": { "y": 0.975, "wings": [0.103,0.897], "step": 0.076, "back": 0.012, "of": 6 },
-      "npcSlots": [[0.47,0.935],[0.35,0.93]],
+      "npcSlots": [[0.47,0.903],[0.35,0.93]],
       "places": {
         "hana": [0.6,0.915],
-        "obi": [0.47,0.935],
+        "obi": [0.47,0.903],
         "mrs-ueda": [0.35,0.93]
       },
       "yaws": { "hana": -10, "obi": 16, "mrs-ueda": 24 },
       "demeanours": { "hana": "calm", "obi": "bouncy", "mrs-ueda": "proud" },
       "emotes": { "obi": "question" },
       "life": {
-        "obi": { "kind": "visit", "spots": [[0.44,0.94],[0.5,0.95]], "every": 9, "restless": 0.7, "gait": "hurry", "gestures": ["hop", "shake"], "gestureChance": 0.45 },
+        "obi": { "kind": "visit", "spots": [[0.44,0.938],[0.5,0.895]], "every": 9, "restless": 0.7, "gait": "hurry", "gestures": ["hop", "shake"], "gestureChance": 0.45 },
         "mrs-ueda": { "kind": "wander", "radius": 0.012, "every": 16, "restless": 0.3, "gait": "march", "faces": "hana" },
         "hana": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "obi", "gestures": ["nod"], "gestureChance": 0.3 }
       },
@@ -958,7 +958,7 @@
       },
       "moments": {
         "look-out": { "label": "Look out over the bay", "tip": "Everyone goes to the parapet to look at the lights across the water.", "formation": { "kind": "audience", "focus": [0.5,0.75], "who": "all", "gait": "stroll", "away": true }},
-        "isamu-catches-them": { "label": "Isamu catches them", "tip": "The warden of Row E comes up the ladder and finds people on his roof.", "places": { "isamu": { "at": [0.505,0.94], "yaw": 0, "gait": "march" } }},
+        "isamu-catches-them": { "label": "Isamu catches them", "tip": "The warden of Row E comes up the ladder and finds people on his roof.", "places": { "isamu": { "at": [0.505,0.895], "yaw": 0, "gait": "march" } }},
         "everyone-back": { "label": "As they were", "tip": "Back to the stars.", "home": true }
       }
     },
@@ -1032,7 +1032,7 @@
       "partyRow": { "y": 0.975, "wings": [0.103,0.897], "step": 0.077, "back": 0.012, "of": 6 },
       "npcSlots": [[0.4,0.9],[0.6,0.9]],
       "places": {
-        "kaede": [0.5,0.9],
+        "kaede": [0.5,0.89],
         "joji": [0.36,0.885],
         "nkiru": [0.645,0.8]
       },
@@ -1045,7 +1045,7 @@
       },
       "moments": {
         "a-lift": { "label": "Nkiru sings a lift", "tip": "The crane driver steps out and sings the lift; the hall turns to listen.", "places": { "nkiru": { "at": [0.6,0.925], "yaw": 0, "gait": "hop" } }},
-        "kaede-calls-them-over": { "label": "Kaede calls them over", "tip": "The night foreman wants a word.", "places": { "kaede": { "at": [0.5,0.93], "yaw": 0, "gait": "march" } }},
+        "kaede-calls-them-over": { "label": "Kaede calls them over", "tip": "The night foreman wants a word.", "places": { "kaede": { "at": [0.5,0.89], "yaw": 0, "gait": "march" } }},
         "everyone-back": { "label": "As they were", "tip": "Back to work.", "home": true }
       },
       "yaws": { "joji": 16, "nkiru": -14, "kaede": 0 }
@@ -1136,7 +1136,7 @@
         "nobu": { "from": "right", "gait": "walk" }
       },
       "moments": {
-        "hand-it-over": { "label": "Hand over the requisition", "tip": "Nobu comes to the party for the requisition, and takes it without reading it.", "places": { "nobu": { "at": [0.5,0.92], "yaw": 0, "gait": "walk" } }},
+        "hand-it-over": { "label": "Hand over the requisition", "tip": "Nobu comes to the party for the requisition, and takes it without reading it.", "places": { "nobu": { "at": [0.5,0.918], "yaw": 0, "gait": "walk" } }},
         "everyone-back": { "label": "As they were", "tip": "Everyone back where the scene put them, the party too.", "home": true, "party": true }
       }
     },
@@ -1182,7 +1182,7 @@
         "section-officer": { "from": "right", "gait": "march" }
       },
       "moments": {
-        "taka-sits": { "label": "Taka sits with them", "tip": "Taka pulls a chair round to the party's table.", "places": { "taka": { "at": [0.5,0.925], "yaw": 0, "gait": "walk" } }},
+        "taka-sits": { "label": "Taka sits with them", "tip": "Taka pulls a chair round to the party's table.", "places": { "taka": { "at": [0.5,0.895], "yaw": 0, "gait": "walk" } }},
         "orders": { "label": "The evening's orders", "tip": "The duty officer stands to read the evening's orders; everyone turns to him.", "places": { "section-officer": { "at": [0.59,0.84], "yaw": -4, "gait": "march" } }},
         "everyone-back": { "label": "As they were", "tip": "Everyone back where the scene put them, the party too.", "home": true, "party": true }
       }

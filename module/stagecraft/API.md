@@ -3,9 +3,9 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.3.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.4.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
-published card whose `home` changes now goes about its routine round the new one.
+published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`.
 
 ## api
 
@@ -30,6 +30,7 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.blocking.setSpeaker(scene, id)` | GM only. Give someone the floor (a card's id, or `null` to take it back): a pool of light at their feet, and everyone else on the stage turns to look at them. The GM can also Alt-click a card |
 | `api.blocking.setDown(scene, id, down)` | GM only. Knock a card down (a defeated foe, a character at 0 HP: it tips over backwards and lies on the floor, dimmed, going nowhere) or stand it back up. The GM can also Ctrl-click a card |
 | `api.blocking.registerMoments(provider)` | Offer a scene's authored blocking as buttons on the GM's strip: `provider(scene)` returns `[{ id, label, tip?, run(scene) }]`. Returns a function that takes it away |
+| `api.blocking.setCover(provider)` | Say what your own interface covers over the stage (a deck of controls along the bottom, a dial rising out of it): `provider()` returns shapes in window pixels as they are now, `{ rect: [x0, y0, x1, y1] }` or `{ circle: [cx, cy, r] }`. Formations then keep everyone clear of it: no more than the bottom 15% of a card under it, a card moved back up the stage if need be. Returns a function that takes it away |
 | `api.stage()` | The stage on screen now as `{ stage, backend }`, or `null` |
 | `api.zoneKinds` | The zone kinds the module knows. Any other kind is treated as a trigger |
 | `api.chalkModes` | `off`, `zones`, `anywhere` |

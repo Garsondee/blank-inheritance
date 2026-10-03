@@ -181,6 +181,30 @@ test("after the server restarts, the clock starts again: what was stamped the da
   assert.ok(fresh.cards.get("new").walk, "a fresh entrance still walks on");
 });
 
+test("a formation keeps everyone clear of what the screen's own furniture covers: a deck along the bottom, a dial in its middle", async () => {
+  // found live 2026-10-03: the adventure's deck has a dial rising out of its middle, and it hid the lower third of anyone
+  // a formation put at the front of the middle of the stage
+  const { cardRect, coveredShare, HIDDEN_AT_MOST } = await import("../scripts/core/visibility.mjs");
+  const deck = [{ rect: [300, 1120, 2260, 1440] }, { circle: [1280, 1160, 190] }];
+  const people = [0.3, 0.4, 0.5, 0.6, 0.7].map((x, i) => ({ id: `p${i}`, name: `P${i}`, at: [x, 0.8] }));
+  const covered = (s, moves) => moves.map((m) => {
+    const p = s.rig.standing(m.at);
+    const c = s.cards.get(m.id);
+    const g = s.grow(p.Z);
+    return coveredShare(cardRect(s.rig, { X: p.X, Z: p.Z, w: c.w * g, h: c.h * g, lift: s.riserFor(p.X, p.Z, c.w * g, c.h * g) }), deck);
+  });
+  const bare = new Stage(scene, people);
+  const front = [0.5, 0.97];
+  assert.ok(Math.max(...covered(bare, bare.formationMoves("huddle", { focus: front }))) > HIDDEN_AT_MOST, "without being told, a huddle at the front stands behind the deck");
+  const told = new Stage(scene, people, { cover: () => deck });
+  const moves = told.formationMoves("huddle", { focus: front });
+  for (const [i, share] of covered(told, moves).entries()) assert.ok(share <= HIDDEN_AT_MOST + 0.001, `${moves[i].id} is ${Math.round(share * 100)}% behind the deck`);
+  const line = told.formationMoves("line", { focus: front });
+  assert.ok(Math.max(...covered(told, line)) <= HIDDEN_AT_MOST + 0.001, "and a line too");
+  const broken = new Stage(scene, people, { cover: () => { throw new Error("no deck"); } });
+  assert.equal(broken.formationMoves("huddle", { focus: front }).length, 5, "a cover that fails covers nothing");
+});
+
 test("a card put down at a door or a thing to look at has gone there: the stage says who, where, and what it is for", () => {
   // found 2026-10-03: a zone on the stage did nothing and said nothing of what it was for
   const { s, tick } = clocked([{ id: "bo", name: "Bo", X: -300, Z: -500 }]);

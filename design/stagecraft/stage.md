@@ -540,6 +540,14 @@ place them in characterful positions and angles, fully in view and in a way that
 - **A scene re-staged by a deploy re-stages itself**: the GM's side keeps a stamp of how each scene places people, and
   when a deploy changes it the people already on the stage walk to their new places (the fallen stay down); a scene whose
   description changes is drawn again.
+- **The deck is furniture too.** Seen live on the GM's own screen: the adventure's deck runs along the bottom, and the
+  orb's collar rises out of its middle, so it hid the lower third of anyone front and centre. Stagecraft is told what a
+  game's own interface covers (`api.blocking.setCover`: shapes in window pixels; the adventure reports its deck's real
+  outline from the page), and every formation keeps everyone clear of it, moving a card back up the stage if it must.
+  The adventure's own placements are tested against the deck laid out as it really is (`deckCover`, built on the deck's
+  own `deckFit`, checked against the live measurement) on the GM's 2560 by 1271 window and a 1920-wide one: the middle of
+  the stage is staged a step further back, upstage centre, where the orb hides nobody; and a scene's moments, all played
+  one after another, still leave everyone in view.
 - **Zones say what they are for.** Zone outlines are hidden at rest unless a player asks for them in their settings; carry
   a card near one and it lights up with its name and what it is for. Put a card down at a door or a thing to look at and,
   for a few seconds on every screen, a line over it says who went where ("Etsuko · The grill / Look closer"), and the

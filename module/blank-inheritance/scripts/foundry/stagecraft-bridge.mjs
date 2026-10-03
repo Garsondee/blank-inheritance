@@ -26,10 +26,23 @@ import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
 
-// The scene's authored moments become buttons on the GM's blocking strip (stage.md §7).
+// The scene's authored moments become buttons on the GM's blocking strip (stage.md §7), and the deck along the bottom of
+// every screen, with the orb rising out of its middle, is what the adventure's interface covers of a stage: formations keep
+// faces clear of it (found live 2026-10-03: the orb hid the lower third of anyone at the front of the middle).
 Hooks.once("stagecraft.ready", (api) => {
   api?.blocking?.registerMoments?.((scene) => momentButtons(scene));
+  api?.blocking?.setCover?.(() => deckOnScreen());
 });
+
+/** The deck's faceplate and its orb as they are on this screen now, in window pixels (nothing while it is not shown). */
+function deckOnScreen() {
+  const shapes = [];
+  const plate = document.querySelector("#bi-command-bar.bi-deck")?.getBoundingClientRect();
+  if (plate?.width > 0 && plate?.height > 0) shapes.push({ rect: [plate.left, plate.top, plate.right, plate.bottom] });
+  const orb = document.querySelector("#bi-command-bar .bi-orb")?.getBoundingClientRect();
+  if (orb?.width > 0 && orb?.height > 0) shapes.push({ circle: [orb.left + orb.width / 2, orb.top + orb.height / 2, orb.width / 2] });
+  return shapes;
+}
 
 const LOG = "Blank Inheritance | Stagecraft bridge";
 let stagesPromise = null;
