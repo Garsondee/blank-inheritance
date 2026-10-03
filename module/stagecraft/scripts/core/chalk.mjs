@@ -76,31 +76,39 @@ function touches(shape, r) {
 }
 
 /**
+ * Is the box, standing at `spot`, wholly on the screen and clear of every shape? `cover` is [{ rect } | { circle }] on the
+ * reference page; `screen` is the part of the page the screen shows, { x0, y0, x1, y1 } (or null: any).
+ */
+export function boxClear(rig, spot, cover = [], screen = null) {
+  const r = boxOnPage(rig, spot);
+  if (!r) return false;
+  const room = { x0: r.x0 - BOX_MARGIN, y0: r.y0 - BOX_MARGIN, x1: r.x1 + BOX_MARGIN, y1: r.y1 + BOX_MARGIN };
+  if (screen && (room.x0 < screen.x0 || room.x1 > screen.x1 || room.y0 < screen.y0 || room.y1 > screen.y1)) return false;
+  return !cover.some((shape) => touches(shape, room));
+}
+
+/**
  * Where the box of chalk stands: where the scene put it, unless something on the screen covers it there (found live
  * 2026-10-03: on the GM's screen the adventure's deck and Foundry's macro bar lay over the box, and only three of its
  * sticks could be clicked); then the nearest place on the floor, further back or a little to one side, where nothing does
- * and it is wholly on the screen. `cover` is [{ rect } | { circle }] on the reference page; `screen` is the part of the page
- * the screen shows, { x0, y0, x1, y1 }. Returns [fx, fy]: the scene's own spot when nowhere is clear.
+ * and it is wholly on the screen, and if it can, where it stands in front of nobody's card (`soft`: the cards' rectangles,
+ * which it keeps clear of when there is a place that does). Returns [fx, fy]: the scene's own spot when nowhere is clear.
  */
-export function boxSpot(rig, at, cover = [], screen = null) {
-  const clear = (spot) => {
-    const r = boxOnPage(rig, spot);
-    if (!r) return false;
-    const room = { x0: r.x0 - BOX_MARGIN, y0: r.y0 - BOX_MARGIN, x1: r.x1 + BOX_MARGIN, y1: r.y1 + BOX_MARGIN };
-    if (screen && (room.x0 < screen.x0 || room.x1 > screen.x1 || room.y0 < screen.y0 || room.y1 > screen.y1)) return false;
-    return !cover.some((shape) => touches(shape, room));
-  };
-  if (clear(at)) return [at[0], at[1]];
+export function boxSpot(rig, at, cover = [], screen = null, soft = []) {
+  if (boxClear(rig, at, cover, screen)) return [at[0], at[1]];
   const tries = [];
   for (let back = 0; back <= 30; back++) for (let side = -10; side <= 10; side++) tries.push([back / 100, side / 50]);
   // further back costs a little more than to one side, so the box stays near where the scene put it
   tries.sort((p, q) => p[0] * 1.2 + Math.abs(p[1]) - (q[0] * 1.2 + Math.abs(q[1])));
-  for (const [back, side] of tries) {
-    const spot = [Math.round((at[0] + side) * 1000) / 1000, Math.round((at[1] - back) * 1000) / 1000];
-    if (spot[0] < 0.03 || spot[0] > 0.97) continue;
-    if (clear(spot)) return spot;
-  }
-  return [at[0], at[1]];
+  const search = (shapes) => {
+    for (const [back, side] of tries) {
+      const spot = [Math.round((at[0] + side) * 1000) / 1000, Math.round((at[1] - back) * 1000) / 1000];
+      if (spot[0] < 0.03 || spot[0] > 0.97) continue;
+      if (boxClear(rig, spot, shapes, screen)) return spot;
+    }
+    return null;
+  };
+  return (soft.length ? search([...cover, ...soft]) : null) ?? search(cover) ?? [at[0], at[1]];
 }
 
 /* ---------------------------------------------------------------- the wall: tiles of pixels */

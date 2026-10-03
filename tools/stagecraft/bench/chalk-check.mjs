@@ -297,6 +297,32 @@ try {
   await gm.page.close();
   await pl.page.close();
 
+  /* ------------------------------------------------ the box keeps clear of what covers the stage */
+  // found live 2026-10-03: on the GM's screen the adventure's deck and Foundry's macro bar lay over the box, and the magic
+  // stick and the eraser could not be clicked. A deck along the bottom fifth of the screen is laid over the bench's stage.
+  const covered = await open("haunt-the-paper-lantern");
+  const C = covered.page;
+  const magicWas = await C.evaluate(() => { const b = window.bench.host.backend; const t = b.chalkBox.sticks.find((s) => s.userData.magic); const v = t.getWorldPosition(t.position.clone()); return b.project({ X: v.x, Y: v.y, Z: v.z }).y; });
+  await C.evaluate(async () => {
+    const { registerCover } = await import("/module/stagecraft/scripts/foundry/blocking.mjs");
+    const deck = document.createElement("div");
+    deck.id = "bench-deck";
+    deck.style.cssText = `position:fixed;left:0;right:0;bottom:0;height:${Math.round(innerHeight * 0.2)}px;background:rgba(20,16,12,0.92);z-index:40`;
+    document.body.append(deck);
+    registerCover(() => { const r = deck.getBoundingClientRect(); return [{ rect: [r.left, r.top, r.right, r.bottom] }]; });
+  });
+  await sleep(1500);                                                            // the box is placed again within a second
+  const placed = await C.evaluate(() => {
+    const b = window.bench.host.backend;
+    const top = document.getElementById("bench-deck").getBoundingClientRect().top;
+    return b.chalkBox.sticks.map((t) => { const v = t.getWorldPosition(t.position.clone()); const p = b.project({ X: v.x, Y: v.y, Z: v.z }); return { y: p.y, clear: p.y < top && document.elementFromPoint(p.x, p.y)?.tagName === "CANVAS" }; });
+  });
+  check("a deck laid over the box sends it back up the stage, clear of the deck", placed.every((s) => s.clear), `magic stick ${Math.round(magicWas)} -> ${Math.round(placed.find((_, i) => i === 6)?.y ?? 0)}`);
+  check("and the magic stick and the eraser can still be taken from it", (await takeFromBox(C, "magic")) === "magic" && (await takeFromBox(C, "eraser")) === "eraser");
+  check("no page threw (the covered box)", covered.errors.length === 0, covered.errors.slice(0, 2).join(" | "));
+  await C.screenshot({ path: path.join(SHOTS, "chalk-box-clear.jpg"), type: "jpeg", quality: 88 });
+  await C.close();
+
   /* ------------------------------------------------ the plain 2D picture */
   const flat = await open("haunt-the-paper-lantern", { tier: "flat" });
   check("the plain picture is the one drawing", await flat.page.evaluate(() => window.bench.host.backend.name === "flat"));

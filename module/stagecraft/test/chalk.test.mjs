@@ -36,6 +36,12 @@ test("the box finds a clear place: where the scene put it, unless the screen's f
   assert.ok(!overlaps(deck, there) && !overlaps(bar, there), `and nothing covers it where it went: ${spot}`);
   assert.ok(there.y1 <= screen.y1 && there.y0 >= screen.y0 && there.x0 >= screen.x0 && there.x1 <= screen.x1, "wholly on the screen");
   assert.ok(Math.abs(spot[0] - at[0]) <= 0.2 && at[1] - spot[1] <= 0.3, "and near where the scene put it");
+  // where it can, it stands in front of nobody's card; where it cannot, clear of the deck still wins
+  const went = boxOnPage(rig, spot);
+  const card = { rect: [went.x0 - 10, went.y0 - 300, went.x1 + 10, went.y1] };
+  const aside = boxSpot(rig, at, [deck, bar], screen, [card]);
+  assert.ok(!overlaps(card, boxOnPage(rig, aside)) && !overlaps(deck, boxOnPage(rig, aside)) && !overlaps(bar, boxOnPage(rig, aside)), `clear of the card too: ${aside}`);
+  assert.deepEqual(boxSpot(rig, at, [deck, bar], screen, [{ rect: [-1e5, -1e5, 1e5, 1e5] }]), spot);
   // a round dial in the way is avoided too
   const dial = { circle: [(home.x0 + home.x1) / 2, (home.y0 + home.y1) / 2, 120] };
   const round = boxOnPage(rig, boxSpot(rig, at, [dial], screen));

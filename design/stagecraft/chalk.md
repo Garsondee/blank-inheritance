@@ -426,7 +426,7 @@ are kept, with the step that takes it back (named after the stroke). The `end` m
 other screen lets its live copy go only when every one of those layers holds that step and its pictures are on the wall,
 so nothing flickers whichever arrives first. A stroke whose kept paint never comes is let go after five seconds.
 
-**What was proved on the bench** (`tools/stagecraft/bench/chalk-check.mjs`, 39 checks, all passing; the wall's own pixels
+**What was proved on the bench** (`tools/stagecraft/bench/chalk-check.mjs`, 42 checks, all passing; the wall's own pixels
 read after real mouse strokes, real clicks on the kit and real keys):
 
 - Kit Issue, zones only: a click on the box gives a stick and the kit; outside the zone the ring is struck through and a
@@ -440,6 +440,16 @@ read after real mouse strokes, real clicks on the kit and real keys):
 - Two screens: a player's stroke is on the GM's screen while the player's button is still down, then gives way to the
   kept paint; the player's Ctrl+Z takes it off the GM's screen; the player's eraser cannot touch the GM's paint.
 - The plain picture (no graphics card) shows paint where it was painted.
+- A deck laid over the bottom fifth of the screen sends the box back up the stage, clear of it, and the magic stick and
+  the eraser can still be taken.
+
+**Found on the live server.** On the GM's screen (2560 by 1271) the adventure's deck and Foundry's macro bar lay over the
+box at the front of the Rumour Mill: only three of its sticks could be clicked, and not the magic stick or the eraser.
+The box now finds its own place (`boxSpot` in `core/chalk.mjs`): where the scene put it, unless what covers the stage
+covers it there (the deck, through `api.blocking.setCover`, and Foundry's macro bar); then the nearest place on the floor,
+further back or a little to one side, wholly on the screen and, where it can, in front of nobody's card. It moves only
+when it must (looked at once a second, and when the window changes), so it never hops about as people walk, and goes home
+as soon as its own place is clear.
 
 **Found while building it.**
 

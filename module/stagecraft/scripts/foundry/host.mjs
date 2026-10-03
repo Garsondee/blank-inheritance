@@ -19,7 +19,7 @@ import { ChalkKit } from "./chalk-kit.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
-import { boxSpot, DEFAULT_BOX } from "../core/chalk.mjs";
+import { boxSpot, boxClear, DEFAULT_BOX } from "../core/chalk.mjs";
 
 export class StageHost {
   constructor({ scene, skins, anchor, services = {}, onFatal = null }) {
@@ -517,16 +517,23 @@ export class StageHost {
 
   /**
    * Stand the box of chalk where the scene put it, or, if the screen's furniture covers it there (the adventure's deck,
-   * Foundry's macro bar), at the nearest place on the floor where nothing does (core/chalk.mjs `boxSpot`).
+   * Foundry's macro bar), at the nearest place on the floor where nothing does and, if it can, in front of nobody's card
+   * (core/chalk.mjs `boxSpot`). It moves only when it must, so it never hops about as people walk, and goes home as soon as
+   * its own place is clear again.
    */
   #placeBox() {
     const backend = this.backend;
     if (!this.chalk || !this.root || !backend?.setChalkBoxAt || !backend.view || !this.stage?.rig) return;
+    const rig = this.stage.rig;
     const rect = this.root.getBoundingClientRect();
     const view = backend.view;
     const cover = coverOnPage([...coverShapes(), ...this.#foundryBars()], rect, view);
     const screen = { x0: view.ox, y0: view.oy, x1: view.ox + view.visW, y1: view.oy + view.visH };
-    const spot = boxSpot(this.stage.rig, this.description.chalk?.box ?? DEFAULT_BOX, cover, screen);
+    const home = this.description.chalk?.box ?? DEFAULT_BOX;
+    let spot;
+    if (boxClear(rig, home, cover, screen)) spot = [home[0], home[1]];
+    else if (this.boxAt && boxClear(rig, this.boxAt, cover, screen)) spot = this.boxAt;
+    else spot = boxSpot(rig, home, cover, screen, this.stage.cardShapes());
     if (this.boxAt && spot[0] === this.boxAt[0] && spot[1] === this.boxAt[1]) return;
     this.boxAt = spot;
     backend.setChalkBoxAt(spot);

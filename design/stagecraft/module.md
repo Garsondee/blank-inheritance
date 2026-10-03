@@ -665,8 +665,12 @@ became). What changed in the module:
   chalk as well as cards.
 - **The interface (0.5.0)**: the `stagecraft.chalk` hook says `{ type, scene, by, tool, colour, bounds }`, and
   `api.chalkTools` lists the tools.
+- **The box finds its own place** (`boxSpot`, `boxClear`, `boxOnPage` in `core/chalk.mjs`; `Stage#cardShapes`;
+  `setChalkBoxAt` in both pictures): found on the live server, where the adventure's deck and Foundry's macro bar lay
+  over it. The host places it clear of what covers the stage, once a second and when the window changes (`chalk.md` §11).
 - **The bench**: its in-memory store keeps layers like the real one and shares them between the page's tabs;
-  `chalk-check.mjs` reads the wall's own pixels after real strokes, clicks and keys (39 checks).
+  `chalk-check.mjs` reads the wall's own pixels after real strokes, clicks and keys, and lays a deck over the box (42
+  checks).
 
-Tests: 287 in the module (new: `brush.test.mjs`, `fake-wall.mjs`; rewritten: the chalk, store, controller, box and plain
+Tests: 288 in the module (new: `brush.test.mjs`, `fake-wall.mjs`; rewritten: the chalk, store, controller, box and plain
 picture tests).

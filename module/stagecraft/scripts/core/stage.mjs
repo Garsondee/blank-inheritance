@@ -904,6 +904,21 @@ export class Stage {
     try { return this.coverFn?.() ?? []; } catch { return []; }
   }
 
+  /** Where every card is on the reference page now, as the shapes it fills: [{ rect: [x0, y0, x1, y1] }]. */
+  cardShapes() {
+    const out = [];
+    for (const c of this.cards.values()) {
+      const X = c.puppet.x;
+      const Z = c.Z;
+      const g = this.grow(Z);
+      const w = c.w * g;
+      const h = c.h * g;
+      const r = cardRect(this.rig, { X, Z, w, h, lift: this.riserFor(X, Z, w, h) });
+      if ([r.x0, r.y0, r.x1, r.y1].every(Number.isFinite)) out.push({ rect: [r.x0, r.y0, r.x1, r.y1] });
+    }
+    return out;
+  }
+
   /** The share of card `c` the cover would hide were it standing at X, Z (its depth's growth and riser included). */
   coveredAt(X, Z, c, cover = this.cover()) {
     if (!cover.length) return 0;
