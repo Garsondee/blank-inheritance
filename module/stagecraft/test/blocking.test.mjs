@@ -92,6 +92,37 @@ test("people with a routine move on their own, and two screens on the same clock
   assert.ok(xs.size > 3, "she gets about");
 });
 
+test("two regulars talking turn to each other, and nod now and then, on the same beat on every screen", () => {
+  const people = [
+    { id: "kiku", name: "Kiku", X: -300, Z: -600, life: { kind: "wander", restless: 0, every: 3, faces: "sanzo", gestures: ["nod"], gestureChance: 1 } },
+    { id: "sanzo", name: "Sanzo", X: 300, Z: -600, life: { kind: "wander", restless: 0, every: 3, faces: "kiku" } }
+  ];
+  const a = clocked(people);
+  const b = clocked(people);
+  let nods = 0;
+  for (let i = 0; i < 120 * 10; i++) {
+    a.tick(1 / 120); b.tick(1 / 120);
+    if (a.s.cards.get("kiku").puppet.verbs.some((v) => v.verb === "nod" && v.t < 1 / 100)) nods++;
+  }
+  assert.ok(a.s.cards.get("kiku").yaw > 20, `Kiku turns right, to Sanzo (${a.s.cards.get("kiku").yaw.toFixed(1)})`);
+  assert.ok(a.s.cards.get("sanzo").yaw < -20, "Sanzo turns left, to Kiku");
+  assert.ok(nods >= 2 && nods <= 4, `a nod every beat or so, never twice in one (${nods} in 10 s at a 3 s beat)`);
+  near(a.s.cards.get("kiku").yaw, b.s.cards.get("kiku").yaw, 1e-6, "the same on both screens");
+  assert.equal(a.s.cards.get("kiku").gestured, b.s.cards.get("kiku").gestured, "the same beat's nod on both");
+});
+
+test("a routine given afresh (someone it talks to has arrived) keeps its home and walks on to it", () => {
+  const { s, tick } = clocked([{ id: "kiku", name: "Kiku", X: -300, Z: -600, life: { kind: "wander", restless: 0, every: 3 } }, { id: "sanzo", name: "Sanzo", X: 300, Z: -600 }]);
+  tick(1);
+  const before = s.cards.get("kiku").yaw;
+  s.setRoutine("kiku", { kind: "wander", restless: 0, every: 3, faces: "sanzo" });
+  tick(3);
+  assert.ok(s.cards.get("kiku").yaw > before + 15, "she turns to the newcomer");
+  near(s.cards.get("kiku").routine.home.X, -300, 1, "and keeps her home");
+  s.setRoutine("kiku", null);
+  assert.equal(s.cards.get("kiku").routine, null, "no routine at all is allowed");
+});
+
 test("Life off: nobody goes about their business; back on, they walk back to it rather than jump", () => {
   const { s, tick } = clocked([{ id: "tama", name: "Tama", at: [0.5, 0.9], life: { kind: "pace", width: 0.2, every: 2, restless: 1 } }]);
   tick(3);

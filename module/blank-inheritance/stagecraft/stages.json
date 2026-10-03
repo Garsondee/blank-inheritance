@@ -107,7 +107,7 @@
       "sizes": { "nobu": 1.5 },
       "demeanours": { "nobu": "calm", "section-officer": "proud" },
       "life": {
-        "nobu": { "kind": "visit", "spots": [[0.47,0.64],[0.74,0.64]], "every": 10, "restless": 0.65, "gait": "walk", "faces": [0.6,0.97] },
+        "nobu": { "kind": "visit", "spots": [[0.47,0.64],[0.74,0.64]], "every": 10, "restless": 0.65, "gait": "walk", "faces": [0.6,0.97], "gestures": ["nod"], "gestureChance": 0.2 },
         "section-officer": { "kind": "pace", "width": 0.05, "every": 5, "restless": 0.7, "gait": "march" }
       },
       "enter": {
@@ -153,8 +153,8 @@
       },
       "demeanours": { "taka": "bouncy", "section-officer": "proud", "the-young-one": "nervous" },
       "life": {
-        "taka": { "kind": "visit", "spots": [[0.62,0.74],[0.36,0.84],[0.7,0.86]], "every": 14, "restless": 0.55, "gait": "stroll" },
-        "the-young-one": { "kind": "wander", "radius": 0.015, "every": 9, "restless": 0.6 },
+        "taka": { "kind": "visit", "spots": [[0.62,0.74],[0.36,0.84],[0.7,0.86]], "every": 14, "restless": 0.55, "gait": "stroll", "gestures": ["hop", "nod"], "gestureChance": 0.3 },
+        "the-young-one": { "kind": "wander", "radius": 0.015, "every": 9, "restless": 0.6, "gestures": ["nod"], "gestureChance": 0.25 },
         "section-officer": { "kind": "pace", "width": 0.04, "every": 7, "restless": 0.6, "gait": "march" }
       },
       "enter": {
@@ -211,9 +211,9 @@
       "demeanours": { "kiku": "calm", "sanzo": "bouncy", "tama": "bouncy" },
       "emotes": { "sanzo": "music" },
       "life": {
-        "kiku": { "kind": "visit", "spots": [[0.4,0.775],[0.66,0.78]], "every": 11, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.96] },
+        "kiku": { "kind": "visit", "spots": [[0.4,0.775],[0.66,0.78]], "every": 11, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.96], "gestures": ["nod"], "gestureChance": 0.25 },
         "tama": { "kind": "visit", "spots": [[0.2,0.9],[0.52,0.91],[0.78,0.9],[0.88,0.875]], "every": 8, "restless": 0.85, "gait": "hurry" },
-        "sanzo": { "kind": "wander", "radius": 0.025, "every": 13, "restless": 0.35 }
+        "sanzo": { "kind": "wander", "radius": 0.025, "every": 13, "restless": 0.35, "gestures": ["hop", "nod"], "gestureChance": 0.3 }
       },
       "moments": {
         "a-round": { "label": "Tama brings a round", "tip": "Tama comes to the party's table with the tray.", "places": { "tama": { "at": [0.45,0.925], "yaw": 0, "gait": "hurry" } }},
@@ -262,9 +262,9 @@
       "demeanours": { "tomoe": "proud", "petr": "bouncy", "ren": "nervous" },
       "emotes": { "petr": "music" },
       "life": {
-        "tomoe": { "kind": "visit", "spots": [[0.33,0.875],[0.66,0.875],[0.58,0.87]], "every": 12, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.97] },
+        "tomoe": { "kind": "visit", "spots": [[0.33,0.875],[0.66,0.875],[0.58,0.87]], "every": 12, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.97], "gestures": ["nod"], "gestureChance": 0.2 },
         "ren": { "kind": "visit", "spots": [[0.56,0.925],[0.07,0.915],[0.94,0.915]], "every": 9, "restless": 0.7, "gait": "hurry" },
-        "petr": { "kind": "wander", "radius": 0.02, "every": 10, "restless": 0.45 }
+        "petr": { "kind": "wander", "radius": 0.02, "every": 10, "restless": 0.45, "faces": "ren", "gestures": ["hop", "nod"], "gestureChance": 0.35 }
       },
       "moments": {
         "tomoe-at-the-slate": { "label": "Tomoe at the slate", "tip": "Tomoe turns to the slate behind the bar to chalk up the round.", "places": { "tomoe": { "at": [0.6,0.87], "yaw": 150, "gait": "stroll" } }},
@@ -310,7 +310,8 @@
       "emotes": { "hachi": "laugh", "sigrun": "fume" },
       "life": {
         "kazue": { "kind": "patrol", "path": [[0.86,0.79],[0.74,0.725],[0.6,0.705]], "every": 10, "gait": "march" },
-        "hachi": { "kind": "wander", "radius": 0.02, "every": 15, "restless": 0.4 }
+        "hachi": { "kind": "wander", "radius": 0.02, "every": 15, "restless": 0.4, "faces": "sigrun", "gestures": ["nod", "shake"], "gestureChance": 0.4 },
+        "sigrun": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "hachi", "gestures": ["nod"], "gestureChance": 0.25 }
       },
       "moments": {
         "hachi-tells-one": { "label": "Hachi tells one", "tip": "Hachi shuffles over from bucket number four with a story; everyone gathers round.", "places": { "hachi": { "at": [0.5,0.9], "yaw": 0, "gait": "stroll" } }},
@@ -397,7 +398,7 @@
       "yaws": { "intake-medicals-clerk": -20 },
       "demeanours": { "shucks-mordant": "slouch", "intake-medicals-clerk": "proud" },
       "life": {
-        "shucks-mordant": { "kind": "visit", "spots": [[0.6,0.84],[0.15,0.88]], "every": 10, "restless": 0.6, "gait": "walk", "faces": [0.5,0.95] },
+        "shucks-mordant": { "kind": "visit", "spots": [[0.6,0.84],[0.15,0.88]], "every": 10, "restless": 0.6, "gait": "walk", "faces": [0.5,0.95], "gestures": ["nod", "shake"], "gestureChance": 0.25 },
         "intake-medicals-clerk": { "kind": "wander", "radius": 0.015, "every": 12, "restless": 0.4 }
       },
       "moments": {
@@ -480,7 +481,7 @@
       "yaws": { "manako": -20 },
       "demeanours": { "manako": "calm", "the-storekeeper": "calm" },
       "life": {
-        "manako": { "kind": "wander", "radius": 0.02, "every": 12, "restless": 0.4 },
+        "manako": { "kind": "wander", "radius": 0.02, "every": 12, "restless": 0.4, "faces": "the-storekeeper", "gestures": ["nod"], "gestureChance": 0.3 },
         "the-storekeeper": { "kind": "visit", "spots": [[0.3,0.885],[0.7,0.885]], "every": 12, "restless": 0.55, "gait": "stroll", "faces": [0.5,0.97] }
       },
       "moments": {
@@ -575,7 +576,9 @@
       "demeanours": { "deputy-director": "proud", "section-officer": "proud", "shucks-mordant": "slouch", "shop-boss": "calm", "comms-officer": "nervous" },
       "life": {
         "comms-officer": { "kind": "wander", "radius": 0.01, "every": 8, "restless": 0.6 },
-        "section-officer": { "kind": "pace", "width": 0.03, "every": 6, "restless": 0.5, "gait": "march" }
+        "section-officer": { "kind": "pace", "width": 0.03, "every": 6, "restless": 0.5, "gait": "march" },
+        "shucks-mordant": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "shop-boss", "gestures": ["shake"], "gestureChance": 0.2 },
+        "shop-boss": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "shucks-mordant", "gestures": ["nod"], "gestureChance": 0.2 }
       },
       "moments": {
         "the-platform": { "label": "The platform", "tip": "The officials stand in a shallow arc facing the candidates.", "formation": { "kind": "panel", "focus": [0.5,0.875], "who": ["deputy-director", "shucks-mordant", "shop-boss", "comms-officer"], "gait": "march" } },
@@ -625,7 +628,7 @@
       "yaws": { "shop-boss": -20 },
       "demeanours": { "school-history-teacher": "bouncy", "shop-boss": "proud" },
       "life": {
-        "school-history-teacher": { "kind": "patrol", "path": [[0.52,0.765],[0.82,0.775]], "every": 7, "gait": "stroll" },
+        "school-history-teacher": { "kind": "patrol", "path": [[0.52,0.765],[0.82,0.775]], "every": 7, "gait": "stroll", "gestures": ["nod", "hop"], "gestureChance": 0.3 },
         "shop-boss": { "kind": "wander", "radius": 0.01, "every": 10, "restless": 0.4 }
       },
       "moments": {
@@ -716,7 +719,9 @@
       "life": {
         "tsubaki": { "kind": "patrol", "path": [[0.54,0.77],[0.5,0.86],[0.5,0.93]], "every": 11, "gait": "walk" },
         "gennai": { "kind": "visit", "spots": [[0.44,0.76],[0.56,0.93],[0.36,0.92]], "every": 16, "restless": 0.5, "gait": "stroll" },
-        "mori": { "kind": "pace", "width": 0.06, "every": 6, "restless": 0.8, "gait": "stroll" }
+        "mori": { "kind": "pace", "width": 0.06, "every": 6, "restless": 0.8, "gait": "stroll" },
+        "imai": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "aucourt", "gestures": ["nod"], "gestureChance": 0.3 },
+        "aucourt": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "imai", "gestures": ["nod", "shake"], "gestureChance": 0.3 }
       },
       "moments": {
         "tsubaki-comes-over": { "label": "Sister Tsubaki comes over", "tip": "The night sister comes down the aisle to see what they want.", "places": { "tsubaki": { "at": [0.5,0.92], "yaw": 0, "gait": "walk" } }},
@@ -758,7 +763,8 @@
       "demeanours": { "morishita": "proud", "haru": "nervous", "grenna": "slouch" },
       "emotes": { "grenna": "sleep", "haru": "think" },
       "life": {
-        "morishita": { "kind": "patrol", "path": [[0.63,0.73],[0.6,0.85],[0.58,0.94]], "every": 10, "gait": "march" }
+        "morishita": { "kind": "patrol", "path": [[0.63,0.73],[0.6,0.85],[0.58,0.94]], "every": 10, "gait": "march" },
+        "haru": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "gestures": ["shake"], "gestureChance": 0.2 }
       },
       "moments": {
         "count-in": { "label": "Morishita counts them in", "tip": "The warden lines everyone up in the corridor and counts heads.", "places": { "morishita": { "at": [0.62,0.8], "yaw": 0, "gait": "march" } }, "formation": { "kind": "line", "focus": [0.6,0.9], "who": "party" } },
@@ -798,7 +804,8 @@
       "yaws": { "tokuji": 15, "mira": -15 },
       "demeanours": { "tokuji": "calm", "mira": "calm" },
       "life": {
-        "tokuji": { "kind": "patrol", "path": [[0.28,0.915],[0.72,0.92]], "every": 9, "gait": "stroll" }
+        "tokuji": { "kind": "patrol", "path": [[0.28,0.915],[0.72,0.92]], "every": 9, "gait": "stroll", "gestures": ["nod"], "gestureChance": 0.2 },
+        "mira": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "gestures": ["bow"], "gestureChance": 0.3 }
       },
       "enter": {
         "mira": { "from": "right", "gait": "walk" }
@@ -847,8 +854,9 @@
       "demeanours": { "michiru": "proud", "lucan": "sly", "chiyo": "nervous" },
       "emotes": { "chiyo": "sweat" },
       "life": {
-        "michiru": { "kind": "wander", "radius": 0.008, "every": 9, "restless": 0.5 },
-        "lucan": { "kind": "wander", "radius": 0.012, "every": 7, "restless": 0.6 }
+        "michiru": { "kind": "wander", "radius": 0.008, "every": 9, "restless": 0.5, "faces": "lucan", "gestures": ["nod"], "gestureChance": 0.3 },
+        "lucan": { "kind": "wander", "radius": 0.012, "every": 7, "restless": 0.6, "faces": "chiyo", "gestures": ["nod", "shake"], "gestureChance": 0.35 },
+        "chiyo": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "michiru", "gestures": ["shake", "nod"], "gestureChance": 0.4 }
       },
       "moments": {
         "deal-everyone-in": { "label": "Deal everyone in", "tip": "Everyone round the table, the party too.", "formation": { "kind": "circle", "focus": [0.495,0.84], "who": "all" } },
@@ -892,8 +900,9 @@
       "demeanours": { "hana": "calm", "obi": "bouncy", "mrs-ueda": "proud" },
       "emotes": { "obi": "question" },
       "life": {
-        "obi": { "kind": "visit", "spots": [[0.3,0.925],[0.45,0.93],[0.82,0.91]], "every": 9, "restless": 0.7, "gait": "hurry" },
-        "mrs-ueda": { "kind": "visit", "spots": [[0.06,0.91],[0.3,0.92]], "every": 20, "restless": 0.35, "gait": "march" }
+        "obi": { "kind": "visit", "spots": [[0.3,0.925],[0.45,0.93],[0.82,0.91]], "every": 9, "restless": 0.7, "gait": "hurry", "gestures": ["hop", "shake"], "gestureChance": 0.45 },
+        "mrs-ueda": { "kind": "visit", "spots": [[0.06,0.91],[0.3,0.92]], "every": 20, "restless": 0.35, "gait": "march" },
+        "hana": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "obi", "gestures": ["nod"], "gestureChance": 0.3 }
       },
       "moments": {
         "round-the-notebook": { "label": "Huddle round the notebook", "tip": "Everyone leans in over Hana's notebook.", "formation": { "kind": "huddle", "focus": [0.56,0.93], "who": "all" } },
@@ -936,7 +945,7 @@
       "demeanours": { "sayo": "calm", "faruq": "calm", "isamu": "proud" },
       "emotes": { "sayo": "sparkle", "faruq": "music" },
       "life": {
-        "sayo": { "kind": "wander", "radius": 0.01, "every": 15, "restless": 0.4 },
+        "sayo": { "kind": "wander", "radius": 0.01, "every": 15, "restless": 0.4, "faces": "faruq", "gestures": ["nod"], "gestureChance": 0.2 },
         "faruq": { "kind": "pace", "width": 0.03, "every": 12, "restless": 0.4, "gait": "stroll" }
       },
       "enter": {
@@ -981,7 +990,7 @@
       "demeanours": { "genzo": "calm", "nadi": "bouncy" },
       "life": {
         "genzo": { "kind": "visit", "marks": ["at-the-screen", "on-the-steps", "at-the-door"], "every": 14, "restless": 0.6, "gait": "walk" },
-        "nadi": { "kind": "visit", "spots": [[0.57,0.88],[0.33,0.9]], "every": 10, "restless": 0.65, "gait": "hurry" }
+        "nadi": { "kind": "visit", "spots": [[0.57,0.88],[0.33,0.9]], "every": 10, "restless": 0.65, "gait": "hurry", "gestures": ["hop"], "gestureChance": 0.25 }
       },
       "moments": {
         "the-reading": { "label": "Take the reading", "tip": "Nadi to the board with the chalk, Genzo to the screen with the torch.", "places": { "nadi": { "mark": "at-the-board", "gait": "hurry" }, "genzo": { "mark": "at-the-screen", "gait": "walk" } }},
@@ -1025,8 +1034,8 @@
       "emotes": { "nkiru": "music" },
       "life": {
         "kaede": { "kind": "patrol", "path": [[0.3,0.9],[0.7,0.905]], "every": 12, "gait": "march" },
-        "joji": { "kind": "wander", "radius": 0.015, "every": 14, "restless": 0.4 },
-        "nkiru": { "kind": "wander", "radius": 0.02, "every": 9, "restless": 0.5 }
+        "joji": { "kind": "wander", "radius": 0.015, "every": 14, "restless": 0.4, "faces": "kaede", "gestures": ["nod", "shake"], "gestureChance": 0.3 },
+        "nkiru": { "kind": "wander", "radius": 0.02, "every": 9, "restless": 0.5, "gestures": ["hop"], "gestureChance": 0.3 }
       },
       "moments": {
         "a-lift": { "label": "Nkiru sings a lift", "tip": "The crane driver steps out and sings the lift; the hall turns to listen.", "places": { "nkiru": { "at": [0.6,0.925], "yaw": 0, "gait": "hop" } }},
@@ -1073,7 +1082,8 @@
       "emotes": { "mrs-handa": "heart" },
       "life": {
         "daisuke": { "kind": "visit", "spots": [[0.62,0.84],[0.38,0.82],[0.18,0.86]], "every": 11, "restless": 0.6, "gait": "hurry" },
-        "tamsin": { "kind": "wander", "radius": 0.015, "every": 10, "restless": 0.5 }
+        "tamsin": { "kind": "wander", "radius": 0.015, "every": 10, "restless": 0.5 },
+        "mrs-handa": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "gestures": ["hop", "nod"], "gestureChance": 0.45 }
       },
       "enter": {
         "tamsin": { "from": "rise", "gait": "glide" }

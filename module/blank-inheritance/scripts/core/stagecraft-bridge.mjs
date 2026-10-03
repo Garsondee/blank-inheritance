@@ -144,6 +144,16 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
     }
     out.push(card);
   }
+  // a routine that talks to someone names them by key; on the stage they are their card. Someone not on the stage (not
+  // revealed yet) is simply not talked to, so a routine never gives away who is coming.
+  const cardOf = new Map(published.filter((m) => m?.portraitId).map((m) => [rawKeyOf(m, real.get(m.portraitId)), m.portraitId]));
+  for (const card of out) {
+    if (typeof card.life?.faces !== "string") continue;
+    const id = cardOf.get(card.life.faces);
+    card.life = { ...card.life };
+    if (id && id !== card.id) card.life.faces = id;
+    else delete card.life.faces;
+  }
   return out;
 }
 

@@ -87,6 +87,10 @@ test("every routine, moment and trigger in the stages file is one Stagecraft and
       assert.ok(describeRoutine(life), `${id}: ${who}'s routine is not one Stagecraft runs`);
       for (const m of life.marks ?? []) assert.ok(marks.has(m), `${id}: ${who} visits mark ${m}, which the scene does not have`);
       if (life.gait) assert.ok(GAITS[life.gait], `${id}: ${who} walks with an unknown gait ${life.gait}`);
+      if (typeof life.faces === "string") {
+        assert.ok(life.faces in (entry.places ?? {}), `${id}: ${who} talks to ${life.faces}, who is not in the scene`);
+        assert.notEqual(life.faces, who, `${id}: ${who} talks to themself`);
+      }
     }
     for (const [mid, m] of Object.entries(entry.moments ?? {})) {
       assert.ok(typeof m.label === "string" && m.label, `${id}: moment ${mid} has a label for the GM's button`);
@@ -140,6 +144,17 @@ test("a moment's formation names who it arranges (the party, everyone, or people
   assert.equal(gang.opts.target, "c1", "found by key, sent by card id");
   assert.equal(formationRequest({ kind: "line", who: ["nobody"] }, cards, keyOf), null, "nobody on the stage, nothing to arrange");
   assert.equal(formationRequest(null, cards, keyOf), null);
+});
+
+test("two regulars talking: the one each talks to is named by their card on the stage, and nobody not yet revealed", () => {
+  const entry = { places: { kiku: [0.4, 0.8], sanzo: [0.6, 0.8] }, life: { kiku: { kind: "wander", faces: "sanzo" }, sanzo: { kind: "wander", faces: "kiku" } } };
+  const both = mirrorCards({ published: [member("summon-kiku"), member("summon-sanzo")], def: entry });
+  assert.equal(both[0].life.faces, "summon-sanzo");
+  assert.equal(both[1].life.faces, "summon-kiku");
+  assert.equal(entry.life.kiku.faces, "sanzo", "the stage entry itself is left as it was");
+  const alone = mirrorCards({ published: [member("summon-kiku")], def: entry });
+  assert.equal(alone[0].life.faces, undefined, "Sanzo is not on the stage: Kiku talks to no one, and his name is not sent");
+  assert.equal(JSON.stringify(alone).includes("sanzo"), false);
 });
 
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {

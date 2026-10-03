@@ -499,6 +499,11 @@ scene come to life with a bit of NPC movement."* What exists now, on the diorama
   speaking bars and the Runner following the script by itself are not built.)
 - **An audience** formation (two groups with the middle left open, well forward of what they watch, so it is seen between
   them), and a formation can turn everyone's back to the table (`away`) to look out over a view.
+- **Regulars talk to each other**: a routine may face another person rather than a point (the two patients in Ward Four,
+  the dealer and the cardsharp, Hachi and Sigrun at the hot end), and make small gestures now and then while standing (a
+  nod, a bow, a shake of the head, a hop), on the same beat on every screen. The adventure names the other person by their
+  key; the bridge turns it into their card on the stage, and a person not yet revealed is not talked to (nothing about them
+  is sent). Someone revealed later is turned to from then on.
 
 The **host bench** (`tools/stagecraft/bench/host.html`) runs the module's real host and the GM's real strip against a small
 stand-in for Foundry, two pages sharing scene updates as a GM and a player; `npm run bench:stagecraft`

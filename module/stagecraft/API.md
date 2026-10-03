@@ -64,7 +64,7 @@ plus, for blocking:
 | Field | Means |
 |---|---|
 | `home` | Where the scene put them, `[fx, fy]`: where **Places** sends them back to |
-| `life` | A routine: `{ kind, every?, restless?, gait?, radius?, width?, spots?, marks?, path?, loop?, faces? }` (below) |
+| `life` | A routine: `{ kind, every?, restless?, gait?, radius?, width?, spots?, marks?, path?, loop?, faces?, gestures?, gestureChance? }` (below) |
 | `still` | The routine is set aside: the card stays where it was put (a GM's drop, a formation) |
 | `packed` | It stands close on purpose (a huddle, a gang-up): the magnets that part overlapping cards leave it be |
 | `move` | `{ t0, gait }`: a move the GM made, starting at `t0` on the shared clock (seconds). A screen walks a card when it sees a `t0` it has not walked yet |
@@ -74,7 +74,8 @@ plus, for blocking:
 things with no messages: `wander` (drifts about near home, `radius` a share of the painting's width), `visit` (goes between
 `spots` and `marks`), `patrol` (walks `path` there and back, or round if `loop`), `pace` (back and forth, `width` wide) and
 `swarm` (short quick scurries: vermin, a crowd). `every` is the beat in seconds, `restless` how often a beat moves at all,
-`faces` a point to look at when standing still.
+`faces` a point to look at when standing still, or another card's id to talk to (turned to them), and `gestures` the small
+things it does now and then while standing (`hop`, `nod`, `bow`, `shake`; `gestureChance` is how many beats bring one).
 
 A scene may also say `focus: [fx, fy]` (where formations gather by default) and `board: true` (the fight board is up when it
 opens). A zone may say `tags` (its rules as SF2E has them, shown on the board), `near` (the zones one Stride away) and

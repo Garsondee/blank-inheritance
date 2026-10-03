@@ -54,6 +54,11 @@ export function describeRoutine(raw) {
     path: Array.isArray(raw.path) ? raw.path.filter(isPoint).map((p) => [p[0], p[1]]) : [],
     loop: raw.loop === true,
     faces: isPoint(raw.faces) ? [raw.faces[0], raw.faces[1]] : null,
+    // someone to turn to while standing still: a card's id (two regulars talking to each other)
+    facesCard: typeof raw.faces === "string" && raw.faces ? raw.faces : null,
+    // small things it does now and then while standing (a nod, a bow, a hop), and how often a beat brings one
+    gestures: Array.isArray(raw.gestures) ? raw.gestures.filter((g) => ["hop", "nod", "bow", "shake"].includes(g)) : [],
+    gestureChance: Math.max(0, Math.min(1, isNum(raw.gestureChance) ? raw.gestureChance : 0.35)),
     yaw: isNum(raw.yaw) ? raw.yaw : null
   };
   if (out.kind === "visit" && out.spots.length + out.marks.length === 0) return null;
@@ -150,6 +155,21 @@ function pingPong(k, n) {
 /** The moment in beat k the card sets off, as seconds after the beat begins. */
 function departure(r, k) {
   return r.every * (0.1 + 0.4 * roll(r.seed, k, 8));
+}
+
+/**
+ * The gesture a routine makes in the beat that contains time `t`, if any, and the moment within the beat it falls:
+ * `{ beat, at, verb }` or null. The same on every screen, from the seed and the beat alone. A gesture never falls while the
+ * card is walking (it comes late in the beat, after any walk has ended).
+ */
+export function gestureAt(r, t) {
+  if (!r.gestures?.length) return null;
+  const phase = roll(r.seed, 0, 9) * r.every;
+  const k = Math.floor((t + phase) / r.every);
+  if (roll(r.seed, k, 12) >= r.gestureChance) return null;
+  const verb = r.gestures[Math.floor(roll(r.seed, k, 13) * r.gestures.length)];
+  const at = k * r.every - phase + r.every * (0.93 + 0.05 * roll(r.seed, k, 14));
+  return { beat: k, at, verb };
 }
 
 /**

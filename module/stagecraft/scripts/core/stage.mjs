@@ -20,7 +20,7 @@ import { makeRig } from "./rigspace.mjs";
 import { resolveMarks, nearestFree, visibleMarks, markPose, tidy } from "./marks.mjs";
 import { zonesAt, zoneChanges, outlineStates, rangeBands, zoneSlots } from "./zones.mjs";
 import { planWalk, walkAt, entrancePoint, floorDistance } from "./walks.mjs";
-import { describeRoutine, prepareRoutine, lifeAt } from "./life.mjs";
+import { describeRoutine, prepareRoutine, lifeAt, gestureAt } from "./life.mjs";
 import { arrange } from "./formations.mjs";
 
 export const STEP = 1 / 120;
@@ -246,6 +246,19 @@ export class Stage {
     c.living = false;
     this.events.push({ type: "walk", card: id, to: { X: dest.X, Z: dest.Z }, mark: mark?.id ?? null, t: this.time });
     return c.walk;
+  }
+
+  /**
+   * Give a card a new routine (as authored: life.mjs), keeping its home. A card whose routine changes while it is going
+   * about its business walks to wherever the new one has it, rather than jumping.
+   */
+  setRoutine(id, life) {
+    const c = this.cards.get(id);
+    if (!c) return;
+    const home = c.routine?.home ?? { X: c.puppet.restX, Z: c.restZ };
+    const routine = describeRoutine(life);
+    c.routine = routine ? prepareRoutine(routine, { home, rig: this.rig, marks: this.marks, seed: c.seed }) : null;
+    c.living = false;
   }
 
   /** Set a card's routine aside (it stays where it is) or let it go back to it. */
@@ -488,7 +501,17 @@ export class Stage {
       c.restZ = at.Z;
       c.stepLift = at.lift;
       c.stepRock = at.rock;
-      if (at.yaw !== null) c.yawTo = at.yaw;
+      if (!at.moving && c.routine.facesCard) {
+        // talking to someone: turned to them, cheated out, while standing
+        const other = this.cards.get(c.routine.facesCard);
+        if (other) c.yawTo = cheatOut(yawTo(at.X, at.Z, other.puppet.x, other.Z), { share: 0.8, max: 55 });
+      } else if (at.yaw !== null) c.yawTo = at.yaw;
+      // now and then a small gesture (a nod, a bow), on the same beat on every screen
+      const g = gestureAt(c.routine, now);
+      if (g && !at.moving && now >= g.at && now < g.at + 0.5 && c.gestured !== g.beat) {
+        c.gestured = g.beat;
+        perform(p, g.verb);
+      }
       return;
     }
     c.living = false;

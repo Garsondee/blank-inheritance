@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { describeScene } from "../scripts/core/scene.mjs";
 import { makeRig } from "../scripts/core/rigspace.mjs";
 import { resolveMarks } from "../scripts/core/marks.mjs";
-import { describeRoutine, prepareRoutine, lifeAt, placeOfBeat, ROUTINES } from "../scripts/core/life.mjs";
+import { describeRoutine, prepareRoutine, lifeAt, placeOfBeat, gestureAt, ROUTINES } from "../scripts/core/life.mjs";
 import { RAW_SCENE } from "./fixture.mjs";
 
 const { scene } = describeScene(RAW_SCENE);
@@ -82,6 +82,21 @@ test("a pacer goes back and forth across its spot, and a swarm never keeps still
   let moving = 0;
   for (let t = NOW; t < NOW + 30; t += 0.05) if (lifeAt(swarm, t).moving) moving++;
   assert.ok(moving > 60, "it scurries often");
+});
+
+test("gestures come now and then, late in a beat, the same on every screen, and only those it is given", () => {
+  const r = ready({ kind: "wander", restless: 0, every: 4, gestures: ["nod", "bow"], gestureChance: 0.5 });
+  const twin = ready({ kind: "wander", restless: 0, every: 4, gestures: ["nod", "bow"], gestureChance: 0.5 });
+  const seen = [];
+  for (let t = NOW; t < NOW + 400; t += 4) {
+    const g = gestureAt(r, t);
+    assert.deepEqual(g, gestureAt(twin, t), "two screens agree");
+    if (g) { seen.push(g.verb); assert.ok(["nod", "bow"].includes(g.verb)); }
+  }
+  assert.ok(seen.length > 20 && seen.length < 80, `about half the beats bring one (${seen.length} of 100)`);
+  assert.equal(describeRoutine({ kind: "wander", gestures: ["moonwalk"] }).gestures.length, 0, "an unknown gesture is not made");
+  assert.equal(gestureAt(ready({ kind: "wander" }), NOW), null, "no gestures, none made");
+  assert.equal(describeRoutine({ kind: "wander", faces: "sanzo" }).facesCard, "sanzo", "a routine may face another person");
 });
 
 test("a routine that faces something looks at it when it stands still", () => {

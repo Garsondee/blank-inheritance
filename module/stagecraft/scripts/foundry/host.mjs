@@ -380,6 +380,8 @@ export class StageHost {
 
   /** One card already on the stage, as the scene now says: a new move to walk, its routine set aside or taken up again. */
   #follow(c, p) {
+    // a routine that changed (a deploy, or someone it talks to was revealed) is taken up afresh
+    if (JSON.stringify(p.life ?? null) !== JSON.stringify(c.person.life ?? null)) this.stage.setRoutine(p.id, p.life);
     c.person = { ...c.person, ...p, portrait: c.person.portrait };   // who may hold it, its name; the picture stays as built
     const move = p.move;
     if (move && Number.isFinite(move.t0) && move.t0 !== c.appliedMove) {
