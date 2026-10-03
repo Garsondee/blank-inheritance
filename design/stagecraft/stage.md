@@ -867,6 +867,11 @@ anything else, far. Which positions are near is authored (`near: [...]` on a zon
 which floors touch. The engine counts who is in each and answers `bandBetween(a, b)`. The first scene that uses it is
 Flood Tunnel Clearance: the two walkways, the flood, the compactor and the panels, raised by "The nest wakes".
 
+**Down** (for a fight's readability): the GM Ctrl-clicks a card (or `api.blocking.setDown`) and it tips over backwards
+with a bump to lie on the floor, dimmed, going about nothing, until stood back up; the board counts the fallen apart ("4
+here · 2 down"). In the adventure, a character at 0 HP falls by themself, and gets up when healed (the bridge watches their
+actor's HP; their card carries their actor id, which their players can see anyway).
+
 **Docking** (§8.3, for positions): while the board is up, a card put down inside a position goes to the nearest free place
 in it (a grid over the position's floor, a card's width apart), so a fight's positions stay readable instead of piling up.
 A mark within reach still wins; with the board down a card lands where it is let go, as before.

@@ -182,7 +182,8 @@ export class Stage {
       packed: person.packed === true, // it stands close on purpose (a huddle, a gang-up): the magnets leave it be
       stepLift: 0, stepRock: 0,      // the bob and tip of a step
       look: 0, lookV: 0, attention: null,
-      riser: 0, riserTo: 0           // how far it is raised to be seen over a cut-out in front of it
+      riser: 0, riserTo: 0,          // how far it is raised to be seen over a cut-out in front of it
+      down: person.down === true ? 1 : 0, downV: 0, downTo: person.down === true ? 1 : 0   // fallen (0 standing, 1 lying flat)
     };
     c.riser = c.riserTo = this.riserFor(X, Z, c.w, c.h);
     this.cards.set(c.id, c);
@@ -291,6 +292,21 @@ export class Stage {
 
   /** The GM's fight board: zones drawn plainly with who is in each, and the range bands between them. */
   setBoard(on) { this.board = !!on; }
+
+  /**
+   * A card falls down (a foe defeated, someone knocked out) or gets back up. Down, it tips over backwards with a bump and
+   * lies on the floor, dimmed; it does not go about its routine and turns its head to nobody. Returns whether it changed.
+   */
+  setDown(id, down) {
+    const c = this.cards.get(id);
+    if (!c) return false;
+    const to = down ? 1 : 0;
+    if (c.downTo === to) return false;
+    c.downTo = to;
+    if (down && c.walk) this.#stopWalking(c);
+    this.events.push({ type: "fall", card: id, down: !!down, t: this.time });
+    return true;
+  }
 
   /** Who has the floor (a card's id, or null): they are lit, and the people on the stage turn their heads to them. */
   setSpeaker(id) { this.speaker = id && this.cards.has(id) ? id : null; }
@@ -474,8 +490,12 @@ export class Stage {
       spring(c, "lean", "leanV", c.leanTo, dt, 18, 0.8);
       spring(c, "pitch", "pitchV", c.pitchTo, dt, 18, 0.8);
       spring(c, "lift", "liftV", c.liftTo, dt, 18, 0.62);
-      spring(c, "look", "lookV", inHand ? 0 : this.#lookTo(c, held, now), dt, 7, 0.9);
+      spring(c, "look", "lookV", inHand || c.downTo ? 0 : this.#lookTo(c, held, now), dt, 7, 0.9);
       c.riser += (c.riserTo - c.riser) * Math.min(1, dt * 9);
+      // falling: a stiff spring that overshoots a little, so it lands with a bounce; getting up is slower
+      if (c.downTo) spring(c, "down", "downV", 1, dt, 9, 0.45);
+      else spring(c, "down", "downV", 0, dt, 6, 0.8);
+      if (c.down > 1.08) { c.down = 1.08; c.downV = -Math.abs(c.downV) * 0.35; }
     }
     this.#bumps(dt);
     if (this.steps % o.zoneEvery === 0) {
@@ -502,7 +522,7 @@ export class Stage {
       if (w.done) this.#arrive(c);
       return;
     }
-    const living = !!c.routine && this.lifeOn && !c.still;
+    const living = !!c.routine && this.lifeOn && !c.still && !c.downTo;
     if (living) {
       const at = lifeAt(c.routine, now);
       if (!c.living && floorDistance({ X: p.restX, Z: c.restZ }, at) > 12) {
@@ -700,10 +720,12 @@ export class Stage {
       cards.push({
         id: c.id, name: c.person.name ?? c.id, colour: c.person.colour ?? null,
         x: p.x + p.jx, z: c.Z + c.zOff,
-        lift: life.lift * (1 - g) + this.opts.holdLift * g + vp.lift + c.lift + c.stepLift + c.riser,
-        lean: p.lean + (c.lean + life.lean) * (1 - 0.85 * g) + c.stepRock,
+        lift: (life.lift * (1 - g) + c.lift + c.stepLift + c.riser) * (1 - Math.min(1, c.down)) + this.opts.holdLift * g + vp.lift,
+        lean: p.lean + (c.lean + life.lean) * (1 - 0.85 * g) * (1 - Math.min(1, c.down)) + c.stepRock,
         yaw: c.yaw + p.turn + vp.shakeY + life.yaw + c.look,
-        pitch: c.pitch + life.pitch + vp.tipX + vp.dip * 0.4,
+        // down: tipped over backwards to lie on the floor (a little short of flat, so the face still reads from the table)
+        pitch: (c.pitch + life.pitch + vp.tipX + vp.dip * 0.4) * (1 - Math.min(1, c.down)) - 78 * c.down,
+        down: Math.max(0, Math.min(1, c.down)),
         grip: g, breathe: life.breathe, squash: vp.squash * up, scale: c.s,
         held: c.holder !== null, holder: c.holder, mark: c.mark,
         walking: !!c.walk || (c.living && Math.abs(c.stepLift) > 0.2),
@@ -719,9 +741,14 @@ export class Stage {
   /** Who is in each zone, and the range bands between zones: what the fight board shows (stage.md §8.6). */
   boardState() {
     const counts = {};
-    for (const z of this.zones) counts[z.id] = 0;
-    for (const set of this.inZones.values()) for (const id of set) if (id in counts) counts[id]++;
-    return { counts, bands: this.bands };
+    const downs = {};
+    for (const z of this.zones) { counts[z.id] = 0; downs[z.id] = 0; }
+    // who is standing in each position, and, apart, who is down in it (a fallen foe still lies where it fell)
+    for (const [card, set] of this.inZones) {
+      const down = this.cards.get(card)?.downTo === 1;
+      for (const id of set) if (id in counts) (down ? downs : counts)[id]++;
+    }
+    return { counts, downs, bands: this.bands };
   }
 
   /** The range band between two zones: "engaged" (the same zone), "near" (next to each other) or "far". */

@@ -17,7 +17,7 @@ import { chosenTier, tierSetting, isCalm, zoneSetting } from "./settings.mjs";
 import { ChalkController } from "./chalk.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
-import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker } from "./blocking.mjs";
+import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown } from "./blocking.mjs";
 
 export class StageHost {
   constructor({ scene, skins, anchor, services = {}, onFatal = null }) {
@@ -231,6 +231,13 @@ export class StageHost {
           e.preventDefault();
           return;
         }
+        // Ctrl-click knocks someone down (or stands them back up): a defeated foe, a character at 0 HP
+        if ((e.ctrlKey || e.metaKey) && hit?.kind === "card") {
+          const c = this.stage.cards.get(hit.id);
+          setDown(this.scene, hit.id, !c?.downTo).catch((err) => console.warn(`${NS} | could not knock down ${hit.id}`, err));
+          e.preventDefault();
+          return;
+        }
         // Alt-click gives someone the floor (or takes it back): they are lit and everyone turns to look at them
         if (e.altKey && hit?.kind === "card") {
           setSpeaker(this.scene, this.stage.speaker === hit.id ? null : hit.id).catch((err) => console.warn(`${NS} | could not give the floor`, err));
@@ -382,6 +389,7 @@ export class StageHost {
   #follow(c, p) {
     // a routine that changed (a deploy, or someone it talks to was revealed) is taken up afresh
     if (JSON.stringify(p.life ?? null) !== JSON.stringify(c.person.life ?? null)) this.stage.setRoutine(p.id, p.life);
+    this.stage.setDown(p.id, p.down === true);
     c.person = { ...c.person, ...p, portrait: c.person.portrait };   // who may hold it, its name; the picture stays as built
     const move = p.move;
     if (move && Number.isFinite(move.t0) && move.t0 !== c.appliedMove) {

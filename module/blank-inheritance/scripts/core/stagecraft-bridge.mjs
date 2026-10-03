@@ -80,7 +80,7 @@ export function placeFor({ member, key, def, cards }) {
 }
 
 /** What Stagecraft writes on a card that the next mirror must keep: where it was put or sent, and how it stands there. */
-const KEPT = ["at", "mark", "yaw", "lean", "pitch", "still", "packed", "move", "home", "homeYaw", "enter"];
+const KEPT = ["at", "mark", "yaw", "lean", "pitch", "still", "packed", "move", "home", "homeYaw", "enter", "down"];
 
 /** An entrance as a stage entry gives it ("left", or { from, gait }), stamped with when it starts. */
 function entranceOf(spec, now) {
@@ -119,6 +119,8 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
     if (demeanour) card.demeanour = demeanour;
     if (member.kind === "pc") {
       card.pc = true;
+      // the party's own characters carry their actor (their players can see it anyway), so their HP can knock them down
+      if (member.actorId) card.actor = member.actorId;
       const owners = ownersOf(member.actorId);
       if (owners.length) card.owners = owners;
     } else if (npcOwners.length) {
@@ -201,6 +203,18 @@ export function formationRequest(formation, cards, keyOf) {
   if (Number.isFinite(formation.size)) opts.size = formation.size;
   return { kind: formation.kind, opts };
 }
+
+/**
+ * Whether a character is down by their HP (SF2E: at 0 HP they are knocked out and dying), from an actor's data as sf2e
+ * keeps it (`system.attributes.hp.value`). Null when the actor has no HP to read, so nothing is changed on a guess.
+ */
+export function downByHp(actorData) {
+  const hp = actorData?.system?.attributes?.hp?.value;
+  return Number.isFinite(hp) ? hp <= 0 : null;
+}
+
+/** The card of a party member's actor on a stage's published cast, or null. */
+export const cardOfActor = (cards, actorId) => cards.find((c) => c.pc && c.actor === actorId) ?? null;
 
 /** The moments a stage entry offers, in its own order: [{ id, label, tip, ... }]. */
 export function momentsOf(def) {

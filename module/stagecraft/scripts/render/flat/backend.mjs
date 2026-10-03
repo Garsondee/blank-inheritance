@@ -403,6 +403,11 @@ export class FlatBackend {
     ctx.fillStyle = body;                                                       // the card's edge, which shows as it turns
     ctx.fillRect(-W / 2 - edge, -H + 2, W + edge * 2, H - 2);
     ctx.drawImage(pl.back ? v.back : v.face, -W / 2, -H, W, H);
+    if (!ghost && c.down > 0.02) {
+      // down: the face dims, as it does in the 3D picture
+      ctx.fillStyle = `rgba(0,0,0,${(0.45 * c.down).toFixed(3)})`;
+      ctx.fillRect(-W / 2, -H, W, H);
+    }
     if (ghost) ctx.globalAlpha = 1;
   }
 

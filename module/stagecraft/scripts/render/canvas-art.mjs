@@ -93,7 +93,7 @@ export function zoneKey(zones, states, setting, t, board = null) {
     if (st === "target") marching = true;
     parts.push(`${z.id}:${st}:${outlineStrength(z, st, setting).toFixed(2)}`);
   }
-  if (board) parts.push(`B${Object.entries(board.counts ?? {}).map(([id, n]) => `${id}=${n}`).join(",")}`);
+  if (board) parts.push(`B${Object.entries(board.counts ?? {}).map(([id, n]) => `${id}=${n}/${board.downs?.[id] ?? 0}`).join(",")}`);
   return parts.join("|") + (marching ? `|t${Math.floor(t * 20)}` : "");
 }
 
@@ -160,7 +160,8 @@ export function drawBoard(ctx, cw, ch, zones, board, states, t, { labels = true 
     ctx.lineWidth = 7; ctx.strokeStyle = "rgba(16,10,5,0.78)"; ctx.strokeText(z.name || z.id, cx, cy);
     ctx.fillStyle = "rgba(255,240,212,1)"; ctx.fillText(z.name || z.id, cx, cy);
     const n = board.counts?.[z.id] ?? 0;
-    const chips = [...(z.tags ?? []).map((tag) => tag.toUpperCase()), n ? `${n} HERE` : null].filter(Boolean);
+    const fallen = board.downs?.[z.id] ?? 0;
+    const chips = [...(z.tags ?? []).map((tag) => tag.toUpperCase()), n ? `${n} HERE` : null, fallen ? `${fallen} DOWN` : null].filter(Boolean);
     if (chips.length) {
       ctx.font = "700 15px system-ui, sans-serif";
       const widths = chips.map((c) => ctx.measureText(c).width + 18);
@@ -179,9 +180,9 @@ export function drawBoard(ctx, cw, ch, zones, board, states, t, { labels = true 
  * A fight-board label on a canvas of its own, to stand up in front of the cards: the position's name, its tags, and how
  * many are in it. Returns { canvas, w, h }: the canvas is 2 x the size it is meant to be drawn at, for sharpness.
  */
-export function boardLabelCanvas(zone, count = 0) {
+export function boardLabelCanvas(zone, count = 0, fallen = 0) {
   const name = zone.name || zone.id;
-  const chips = [...(zone.tags ?? []).map((tag) => tag.toUpperCase()), count ? `${count} HERE` : null].filter(Boolean);
+  const chips = [...(zone.tags ?? []).map((tag) => tag.toUpperCase()), count ? `${count} HERE` : null, fallen ? `${fallen} DOWN` : null].filter(Boolean);
   const measure = makeCanvas(8, 8).getContext("2d");
   measure.font = '600 34px "Shippori Mincho", "Hiragino Mincho ProN", serif';
   const nameW = measure.measureText(name).width;
@@ -201,7 +202,8 @@ export function boardLabelCanvas(zone, count = 0) {
   let x = w / 2 - chipsW / 2;
   chips.forEach((chip, i) => {
     const here = chip.endsWith(" HERE");
-    pill(ctx, x + widths[i] / 2, 64, chip, 17, here ? "rgba(20,12,6,0.95)" : "rgba(255,236,200,0.95)", here ? "rgba(255,190,110,0.95)" : "rgba(16,10,5,0.75)");
+    const down = chip.endsWith(" DOWN");
+    pill(ctx, x + widths[i] / 2, 64, chip, 17, here || down ? "rgba(20,12,6,0.95)" : "rgba(255,236,200,0.95)", here ? "rgba(255,190,110,0.95)" : down ? "rgba(170,160,150,0.9)" : "rgba(16,10,5,0.75)");
     x += widths[i] + 7;
   });
   return { canvas: c, w, h };

@@ -27,6 +27,7 @@ without notice. `api.schema.json` lists exactly this, and a test fails if the co
 | `api.blocking.setLife(scene, on)` | GM only. Routines run (on, the default) or everyone stands where they are |
 | `api.blocking.setBoard(scene, on)` | GM only. The fight board: positions (zones of kind `area`) drawn plainly, with who is in each and the range bands. While it is up, a card put down inside a position docks in a free place in it |
 | `api.blocking.setSpeaker(scene, id)` | GM only. Give someone the floor (a card's id, or `null` to take it back): a pool of light at their feet, and everyone else on the stage turns to look at them. The GM can also Alt-click a card |
+| `api.blocking.setDown(scene, id, down)` | GM only. Knock a card down (a defeated foe, a character at 0 HP: it tips over backwards and lies on the floor, dimmed, going nowhere) or stand it back up. The GM can also Ctrl-click a card |
 | `api.blocking.registerMoments(provider)` | Offer a scene's authored blocking as buttons on the GM's strip: `provider(scene)` returns `[{ id, label, tip?, run(scene) }]`. Returns a function that takes it away |
 | `api.stage()` | The stage on screen now as `{ stage, backend }`, or `null` |
 | `api.zoneKinds` | The zone kinds the module knows. Any other kind is treated as a trigger |
@@ -48,6 +49,7 @@ Raised with `Hooks.callAll`. The first argument is the event; the second is the 
 | `stagecraft.zone` | A card entered or left a zone: `{ card, zone, entered, t }` |
 | `stagecraft.walk` | A card set off somewhere without a hand (a formation, a move): `{ card, to: { X, Z }, mark, t }` |
 | `stagecraft.arrive` | A card that was sent somewhere got there: `{ card, mark, t }` |
+| `stagecraft.fall` | A card was knocked down or stood back up: `{ card, down, t }` |
 | `stagecraft.chalk` | A player left a line of chalk on this screen: `{ type, stroke, bounds, by }`. A stroke is `{ id, scene, by, at, colour, size, p }`, with `p` the points as thousandths of the painting |
 | `stagecraft.settingsChanged` | A player changed one of their Stagecraft settings; the argument is its name |
 
@@ -68,7 +70,8 @@ plus, for blocking:
 | `still` | The routine is set aside: the card stays where it was put (a GM's drop, a formation) |
 | `packed` | It stands close on purpose (a huddle, a gang-up): the magnets that part overlapping cards leave it be |
 | `move` | `{ t0, gait }`: a move the GM made, starting at `t0` on the shared clock (seconds). A screen walks a card when it sees a `t0` it has not walked yet |
-| `enter` | `{ from: "left" \| "right" \| "back", t0, gait }`: the card walks on from that side when it first appears |
+| `enter` | `{ from: "left" \| "right" \| "back" \| "rise", t0, gait }`: the card walks on from that side, or rises out of the floor, when it first appears |
+| `down` | It is down: lying on the floor, dimmed, until the GM stands it up |
 
 **Life.** A routine is worked out from the time every screen shares, so the whole table sees the same people do the same
 things with no messages: `wander` (drifts about near home, `radius` a share of the painting's width), `visit` (goes between

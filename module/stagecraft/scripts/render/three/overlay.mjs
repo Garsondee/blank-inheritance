@@ -59,13 +59,14 @@ export class BoardLabels {
       let label = this.labels.get(z.id);
       if (!board) { if (label) label.sprite.visible = false; continue; }
       const n = board.counts?.[z.id] ?? 0;
-      if (!label || label.n !== n) label = this.#draw(z, n, label);
+      const d = board.downs?.[z.id] ?? 0;
+      if (!label || label.n !== n || label.d !== d) label = this.#draw(z, n, d, label);
       label.sprite.visible = !!label.at;
     }
   }
 
-  #draw(z, n, label) {
-    const { canvas, w, h } = boardLabelCanvas(z, n);
+  #draw(z, n, d, label) {
+    const { canvas, w, h } = boardLabelCanvas(z, n, d);
     const tex = this.T.add(canvasTexture(canvas, { anisotropy: 4 }));
     if (!label) {
       const sprite = new THREE.Sprite(this.T.add(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })));
@@ -79,6 +80,7 @@ export class BoardLabels {
       label.sprite.material.needsUpdate = true;
     }
     label.n = n;
+    label.d = d;
     if (label.at) {
       // further back is smaller, as everything is, but not as much smaller: a label at the back of a room must still be read
       const { f } = this.rig.cam;

@@ -248,6 +248,9 @@ test("the fight board counts who stands in each position, and knows which positi
   assert.equal(board.counts.left, 2);
   assert.equal(board.counts.middle, 1);
   assert.equal(board.counts.right, 0);
+  s.setDown("b", true);
+  const after = s.snapshot().board;
+  assert.deepEqual([after.counts.left, after.downs.left], [1, 1], "one standing in the left, one down there");
   assert.equal(s.bandBetween("left", "left"), "engaged");
   assert.equal(s.bandBetween("left", "middle"), "near");
   assert.equal(s.bandBetween("left", "right"), "far");
@@ -335,6 +338,30 @@ test("a formation never leaves someone where a cut-out would hide them entirely:
   const lr = low.risers[0];
   const lc = low.cards.get("a");
   assert.equal(low.unhidden((lr.x0 + lr.x1) / 2, -2200, lc.w, lc.h), -2200);
+});
+
+test("a card knocked down tips over backwards, lands with a bounce, lies still and dim, and gets back up", () => {
+  const { s, tick } = clocked([{ id: "cent", name: "C", X: 0, Z: -600, life: { kind: "swarm", every: 2, restless: 1 } }, { id: "pc", name: "P", X: 400, Z: -600 }]);
+  tick(1);
+  assert.equal(s.setDown("cent", true), true);
+  assert.equal(s.setDown("cent", true), false, "already down: nothing changes");
+  let most = 0;
+  for (let i = 0; i < 120; i++) { tick(1 / 120); most = Math.max(most, s.cards.get("cent").down); }
+  const snap = () => s.snapshot().cards.find((c) => c.id === "cent");
+  assert.ok(most > 1 && most <= 1.08, `it overshoots a little as it lands (${most.toFixed(3)})`);
+  tick(1);
+  assert.ok(snap().pitch < -70, `lying on its back (${snap().pitch.toFixed(1)})`);
+  near(snap().down, 1, 0.01, "down");
+  const x = s.cards.get("cent").puppet.x;
+  tick(4);
+  near(s.cards.get("cent").puppet.x, x, 0.5, "a card that is down goes about no routine");
+  assert.deepEqual(s.drain().filter((e) => e.type === "fall").map((e) => e.down), [true]);
+  s.setDown("cent", false);
+  tick(2);
+  assert.ok(Math.abs(snap().pitch) < 8, "back on its feet");
+  assert.equal(s.setDown("nobody", true), false);
+  const lying = new Stage(scene, [{ id: "a", name: "A", X: 0, Z: -500, down: true }]);
+  assert.equal(lying.snapshot().cards[0].down, 1, "a card published as down is down from the first frame (a reload)");
 });
 
 test("a zone near one that is not there is a problem the author is told about", () => {

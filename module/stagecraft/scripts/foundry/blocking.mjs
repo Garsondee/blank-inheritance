@@ -97,6 +97,26 @@ export function boardOn(scene) {
 export const setLife = (scene, on) => scene.update({ [`flags.${NS}.live.life`]: !!on });
 export const setBoard = (scene, on) => scene.update({ [`flags.${NS}.live.board`]: !!on });
 
+/**
+ * Knock someone down (a foe defeated, someone at 0 HP) or stand them back up: it is written on their card in the published
+ * cast, so every screen shows them fall, and a reload finds them still down.
+ */
+export function setDown(scene, id, down) {
+  if (!game.user?.isGM) return Promise.resolve(false);
+  return serially(async () => {
+    const cards = publishedCards(scene);
+    if (!cards.some((c) => c.id === id)) return false;
+    const next = cards.map((c) => {
+      if (c.id !== id) return c;
+      const card = { ...c };
+      if (down) card.down = true; else delete card.down;
+      return card;
+    });
+    await scene.update({ [`flags.${NS}.published.cards`]: next });
+    return true;
+  });
+}
+
 /** Who has the floor in a scene: a card's id, or null. */
 export const speakerOf = (scene) => scene?.flags?.[NS]?.live?.speaker ?? null;
 

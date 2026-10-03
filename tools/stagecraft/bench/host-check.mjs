@@ -107,6 +107,19 @@ try {
   check("an Alt-click gives someone the floor on both screens", floor.every((f) => f.speaker === "summon-kiku" && f.speaking), floor.map((f) => f.speaker).join(" / "));
   check("and the others turn their heads to them", floor.every((f) => Math.abs(f.look) > 3), floor.map((f) => f.look.toFixed(1)).join(" / "));
 
+  /* knocking someone down: a real Ctrl-click on their card */
+  await gm.bringToFront();
+  await settle(gm);
+  const tama = await gm.evaluate(() => { const h = window.bench.host; const c = h.stage.cards.get("summon-tama"); const p = h.backend.project({ X: c.puppet.x, Y: c.h * 0.5 + c.lift, Z: c.Z }); return { x: p.x, y: p.y }; });
+  await gm.keyboard.down("Control");
+  await gm.mouse.click(tama.x, tama.y);
+  await gm.keyboard.up("Control");
+  await sleep(700);
+  for (const p of [gm, player]) await settle(p);
+  const fallen = await Promise.all([gm, player].map((p) => p.evaluate(() => { const c = window.bench.host.stage.snapshot().cards.find((x) => x.id === "summon-tama"); return { down: c.down, pitch: c.pitch }; })));
+  check("a Ctrl-click knocks someone down on both screens", fallen.every((f) => f.down > 0.95 && f.pitch < -70), fallen.map((f) => f.pitch.toFixed(0)).join(" / "));
+  check("and the scene remembers it", await player.evaluate(() => window.bench.scene.flags.stagecraft.published.cards.find((c) => c.id === "summon-tama").down === true));
+
   /* the switches */
   await gm.$eval('.stagecraft-blocking [data-act="board"]', (bt) => bt.click());
   await sleep(400);

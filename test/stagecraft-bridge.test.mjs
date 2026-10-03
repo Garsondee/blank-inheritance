@@ -173,6 +173,23 @@ test("two regulars talking: the one each talks to is named by their card on the 
   assert.equal(JSON.stringify(alone).includes("sanzo"), false);
 });
 
+test("a character at 0 HP is down on the stage: their card carries their actor, and their HP says when", async () => {
+  const { downByHp, cardOfActor } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  const cards = mirrorCards({ published: [member("summon-pc-a", { kind: "pc", actorId: "A1" }), member("summon-nobu")], def });
+  assert.equal(cards[0].actor, "A1");
+  assert.equal(cards[1].actor, undefined, "the story's people carry no actor");
+  assert.equal(cardOfActor(cards, "A1").id, "summon-pc-a");
+  assert.equal(cardOfActor(cards, "nope"), null);
+  assert.equal(downByHp({ system: { attributes: { hp: { value: 0 } } } }), true);
+  assert.equal(downByHp({ system: { attributes: { hp: { value: -3 } } } }), true);
+  assert.equal(downByHp({ system: { attributes: { hp: { value: 7 } } } }), false);
+  assert.equal(downByHp({ system: {} }), null, "no HP to read: no guess");
+  assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("updateActor"/, "the bridge listens for HP changes");
+  // a card that is down stays down when the cast is mirrored again
+  const again = mirrorCards({ published: [member("summon-pc-a", { kind: "pc", actorId: "A1" })], existing: [{ ...cards[0], down: true }], def });
+  assert.equal(again[0].down, true);
+});
+
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {
   const { momentMoves, momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
   const cards = [{ id: "c1", home: [0.2, 0.9] }, { id: "c2", home: [0.5, 0.9] }, { id: "pc", pc: true, at: [0.5, 0.95] }];

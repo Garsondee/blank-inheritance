@@ -65,6 +65,7 @@ export class CardView {
     ));
     face.position.set(0, H / 2, skin.thickness / 2 + 0.2);
     face.receiveShadow = true;
+    this.faceMaterial = face.material;
 
     const back = T.mesh(new THREE.Mesh(
       new THREE.PlaneGeometry(W, H),
@@ -139,7 +140,10 @@ export class CardView {
     this.rod.visible = g > 0.02;
     this.rod.scale.set(1, Math.max(g, 0.001), 1);
     this.yawG.rotation.set(c.pitch * DEG, c.yaw * DEG, 0);
-    this.card.scale.set(this.s, this.s * c.breathe * c.squash, this.s);
+    this.card.scale.set(this.s, this.s * (c.down ? 1 : c.breathe) * c.squash, this.s);
+    // down: the face dims, as a fallen piece does on a board
+    const dim = 1 - 0.45 * (c.down ?? 0);
+    if (this.faceMaterial && this.lastDim !== dim) { this.faceMaterial.color.setScalar(dim); this.lastDim = dim; }
     this.blob.position.set(c.x, 0.6, c.z);
     if (c.selected) {
       // chosen by the GM for a formation: the shadow under it becomes a warm glow

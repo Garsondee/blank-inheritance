@@ -69,7 +69,7 @@
       }
     },
     "Blocking": {
-      "Label": "Blocking: where people stand. Shift-click people to choose who a formation moves; Alt-click someone to give them the floor.",
+      "Label": "Blocking: where people stand. Shift-click people to choose who a formation moves; Alt-click someone to give them the floor; Ctrl-click to knock them down or stand them up.",
       "Armed": "{name}: click the floor where they gather, or a person · Esc to cancel",
       "Selected": "{n} chosen (shift-click) · Esc to clear",
       "Life": {

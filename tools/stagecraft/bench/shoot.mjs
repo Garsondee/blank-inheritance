@@ -31,6 +31,7 @@ export const SHOTS = [
   ["lantern-huddle", "haunt-the-paper-lantern", 4, [["bench.formation('huddle')", 4200]]],
   ["lantern-speaker", "haunt-the-paper-lantern", 4, [["bench.moment('sanzo-takes-the-floor')", 3500], ["bench.stage.setSpeaker('summon-sanzo')", 2500]]],
   ["tunnel-board", "e1-flood-tunnel", 4, [["bench.trigger('nest-wakes')", 3500]]],
+  ["tunnel-down", "e1-flood-tunnel", 4, [["bench.trigger('nest-wakes')", 3000], ["bench.stage.setDown('summon-giant-centipede-2', true); bench.stage.setDown('summon-giant-centipede-4', true)", 2500]]],
   ["tunnel-grate", "e1-flood-tunnel", 4, [["bench.trigger('nest-wakes')", 2500], ["bench.moment('break-for-the-grate')", 3500]]],
   ["kit-queue", "e1-kit-issue", 5, [["bench.moment('line-up')", 4500]]],
   ["kit-nobu", "e1-kit-issue", 4, [["bench.moment('nobu-comes-round')", 4000]]],

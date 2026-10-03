@@ -82,7 +82,8 @@ export function cardPlacement(c, rig, view, { stickLen = 134 } = {}) {
   const hinge = stickLen * s * g;
   const turned = (c.yaw ?? 0) * DEG;
   const yaw = Math.cos(turned);
-  const pitch = Math.max(0.55, Math.cos((c.pitch ?? 0) * DEG));
+  // tipping is a squash in the flat picture; a card that is down may squash further, to lie on the floor
+  const pitch = Math.max(0.55 - 0.35 * (c.down ?? 0), Math.cos((c.pitch ?? 0) * DEG));
   const grip = mul(translate(at.x, at.y), mul(scale(m), rotate(lean * share)));
   const hung = mul(grip, mul(translate(0, -hinge), rotate(lean * (1 - share))));
   const sx = s * Math.max(0.03, Math.abs(yaw));

@@ -21,7 +21,7 @@ import { MODULE_ID } from "./stage-store.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest } from "../core/stagecraft-bridge.mjs";
+import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -172,6 +172,17 @@ async function onTrigger({ trigger }) {
   }
 }
 
+/** A party member's HP changed: on the stage on screen, their card falls down at 0 HP and gets up again above it. */
+async function fallByHp(actor) {
+  const scene = canvas?.scene;
+  if (!scene?.flags?.[NS]?.stage || !actingGM()) return;
+  const down = downByHp(actor);
+  if (down === null) return;
+  const card = cardOfActor(scene.flags?.[NS]?.published?.cards ?? [], actor.id);
+  if (!card || (card.down === true) === down) return;
+  await game.modules.get(NS)?.api?.blocking?.setDown?.(scene, card.id, down);
+}
+
 /* ---------------------------------------------------------------- start */
 
 /** Called once the world is ready. */
@@ -200,6 +211,11 @@ export async function startStagecraftBridge() {
     ensureParty(canvas?.scene).then(() => sync(canvas?.scene)).catch(() => {});
   });
   Hooks.on("blankInheritance.triggerFired", (event) => { onTrigger(event).catch((err) => console.warn(`${LOG} | a trigger could not call anyone`, err)); });
+  // a character at 0 HP falls down on the stage, and gets back up when healed
+  Hooks.on("updateActor", (actor, changes) => {
+    if (changes?.system?.attributes?.hp === undefined) return;
+    fallByHp(actor).catch((err) => console.warn(`${LOG} | could not knock ${actor?.name} down`, err));
+  });
   if (canvas?.scene) {
     await ensureParty(canvas.scene).catch(() => {});
     await sync(canvas.scene);
