@@ -10,12 +10,17 @@
  *   node tools/stagecraft/foundry-check.mjs --verbose      say what the chalk is doing at the awkward moments
  *
  * What it covers: the takeover and giving the canvas back; picking up a card, the wiggle, the bang and the marks; the
- * frame rate beside the real interface; a resize; a lost graphics context; the box of chalk as the GM (drawing, the
- * zone's edge, the eraser, colours, persistence across a reload); and a second, real player in a separate browser (their
- * own chalk, other people's, the GM's strip overriding the scene for everyone, freeze, hide, undo, wipe); the flat picture
- * (the same stage on a plain 2D canvas: pick up, wiggle, bang, chalk, and the fall back to it when no graphics context can
- * be made); then twenty scene switches that must leak nothing. It makes its own test scenes and a test player, and puts the world's active scene
- * back as it found it.
+ * frame rate beside the real interface; a resize; a lost graphics context; the box of chalk as the GM (the strip's key, the
+ * box and the kit clicked for real, painting, the zone's edge, the eraser, Ctrl+Z, colours and magic chalk, every stroke
+ * read back out of the world's journal, and all of it again after a reload); a second, real player in a separate browser
+ * (strokes seen as they are painted, each other's paint, erasers, Ctrl+Z, the GM's strip overriding the scene for everyone,
+ * freeze, hide, undo, wipe); the flat picture (the same stage on a plain 2D canvas: pick up, wiggle, bang, chalk, and the
+ * fall back to it when no graphics context can be made); then twenty scene switches that must leak nothing. It makes its
+ * own test scenes and a test player, and puts the world's active scene back as it found it.
+ *
+ * The chalk checks are in chalk-checks.mjs and read the stage through chalk-probe.mjs (chalk has been painted since
+ * 2026-10-03; chalk.md §11). bench/live-chalk-check.mjs runs the same chalk checks on the bench, without Foundry, so they
+ * can be kept up with the module where no licensed Foundry is to hand.
  *
  * It needs the local Foundry running with the `stagecraft` module linked into its Data/modules (see
  * module/stagecraft/README.md), and puppeteer-core installed in module/stagecraft (npm install there).
@@ -26,6 +31,9 @@ import { createRequire } from "node:module";
 import { readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { installProbe, stageHost, chalkState } from "./chalk-probe.mjs";
+import { CAST, DESCRIPTION } from "./check-stage.mjs";
+import { gmChalk, wallNow, afterRebuild, afterReload, playerArrives, twoScreens, flatChalk, clickBar } from "./chalk-checks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, "..", "..");
@@ -40,54 +48,6 @@ mkdirSync(SHOTS, { recursive: true });
 const args = new Map(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/* ------------------------------------------------------------------ the stage we draw */
-
-const PAINTING = "modules/blank-inheritance/assets/scenes/the-paper-lantern.webp";
-const STAGE_ART = "modules/blank-inheritance/assets/stage/";
-const CAST = [
-  { id: "kiku", name: "Kiku Enomoto", portrait: "kiku.webp", at: [0.548, 0.782], yaw: -8, size: 1.2, demeanour: "calm" },
-  { id: "sanzo", name: "Sanzo", portrait: "sanzo.webp", at: [0.275, 0.885], yaw: 34, demeanour: "bouncy", emote: { id: "music", t0: 0.5 } },
-  { id: "hiroshi", name: "Hiroshi", portrait: "sato-hiroshi.webp", colour: "#e3c45a", at: [0.355, 0.895], yaw: -20, demeanour: "calm", emote: { id: "laugh", t0: 2.6 } },
-  { id: "masaru", name: "Masaru", portrait: "kaneda-masaru.webp", colour: "#e06a5a", at: [0.43, 0.9], yaw: 168, demeanour: "slouch" },
-  { id: "etsuko", name: "Etsuko", portrait: "kimura-etsuko.webp", colour: "#5fb3d9", at: [0.635, 0.89], yaw: 42, demeanour: "sly", emote: { id: "whisper", t0: 1.2 } },
-  { id: "yumiko", name: "Yumiko", portrait: "watanabe-yumiko.webp", colour: "#c99be0", at: [0.695, 0.885], yaw: -24, demeanour: "calm" },
-  { id: "nren", name: "Ren", portrait: "nakamura-ren.webp", colour: "#86c76a", at: [0.1, 0.965], yaw: 34, size: 1.05, demeanour: "slouch", emote: { id: "sleep", t0: 0.2 } },
-  { id: "tama", name: "Tama", portrait: "tama.webp", at: [0.865, 0.885], yaw: -30, demeanour: "nervous", emote: { id: "bowl", t0: 3.1 } }
-].map((c) => ({ ...c, portrait: STAGE_ART + c.portrait }));
-
-const LANTERN = [255, 172, 96];
-const DESCRIPTION = {
-  painting: { src: PAINTING, size: [1920, 960] },
-  rig: { horizon: 0.56, floorFront: 0.935, depth: 1.1, vanish: 0.52, lift: 250 },   // lifted to clear the adventure's deck (about 270 reference pixels)
-  cardScale: 0.7,
-  skin: "brass",
-  lights: [
-    { at: [0.165, 0.12], below: 0.97, colour: LANTERN, intensity: 1.0, flicker: 0.06 },
-    { at: [0.31, 0.2], below: 0.88, colour: LANTERN, intensity: 0.9, flicker: 0.07 },
-    { at: [0.53, 0.29], below: 0.82, colour: LANTERN, intensity: 1.2, flicker: 0.05, pool: 380, shadow: true },
-    { at: [0.81, 0.22], below: 0.92, colour: LANTERN, intensity: 1.0, flicker: 0.06, pool: 340, shadow: true },
-    { at: [0.37, 0.56], below: 0.78, colour: [255, 120, 60], intensity: 0.8, flicker: 0.18, flickerHz: 11, shadow: true }
-  ],
-  occluders: [{ id: "counter", poly: [[0.235, 0.7], [0.728, 0.7], [0.728, 0.9], [0.235, 0.9]], base: 0.86, x: 0.48 }],
-  zones: [
-    // The chalk zone is on the right, clear of the adventure's Scene Runner: its closed drawer is an invisible 826 x 744 box
-    // in the top left that swallows every click (found 2026-10-01; it would swallow Foundry's own canvas clicks too).
-    { id: "back-wall", kind: "chalk", name: "The back wall", shape: [[0.52, 0.2], [0.88, 0.2], [0.88, 0.6], [0.52, 0.6]] },
-    { id: "kitchen", kind: "door", name: "The kitchen", hint: "Go in", shape: [[0.87, 0.35], [0.97, 0.35], [0.97, 0.75], [0.87, 0.75]], floor: [[0.87, 0.8], [0.97, 0.8], [0.97, 0.9], [0.87, 0.9]] },
-    { id: "grill", kind: "spot", name: "The grill", hint: "Look closer", shape: [[0.3, 0.5], [0.42, 0.5], [0.42, 0.6], [0.3, 0.6]], floor: [[0.3, 0.8], [0.42, 0.8], [0.42, 0.87], [0.3, 0.87]] },
-    { id: "front", kind: "podium", name: "The front", shape: [[0.6, 0.8], [0.8, 0.8], [0.8, 0.95], [0.6, 0.95]] }
-  ],
-  marks: [
-    { id: "bar-1", at: [0.3, 0.895], label: "at the bar", faces: { point: [0.548, 0.782] }, group: "bar" },
-    { id: "bar-2", at: [0.4, 0.9], label: "at the bar", faces: { point: [0.548, 0.782] }, group: "bar" },
-    { id: "bar-3", at: [0.5, 0.9], label: "at the bar", faces: { point: [0.548, 0.782] }, group: "bar" },
-    { id: "booth-a", at: [0.78, 0.885], yaw: -34, lean: 6, label: "the booth", group: "booth" },
-    { id: "booth-b", at: [0.86, 0.885], yaw: 34, lean: -6, label: "the booth", group: "booth" },
-    { id: "corner", at: [0.12, 0.955], yaw: 34, label: "the corner" }
-  ],
-  chalk: { mode: "zones", box: [0.77, 0.91] }     // in front of the counter (the counter hides things behind it), clear of cards and the deck
-};
-
 /* ------------------------------------------------------------------ the browser */
 
 const logs = [];
@@ -101,6 +61,7 @@ const browser = await puppeteer.launch({
   defaultViewport: { width: 1920, height: 1080, deviceScaleFactor: 1 }
 });
 const page = await browser.newPage();
+await installProbe(page);           // before Foundry's own scripts, so it hears the stage being built (chalk-probe.mjs)
 /** What a console message really says: an Error passed to console.error arrives as a bare handle, so ask it for its stack. */
 async function describe(m) {
   let t = m.text();
@@ -134,101 +95,10 @@ const shot = grab;
 
 /* ------------------------------------------------------------------ helpers that work on any page (the GM's, or a player's) */
 
-/** A point of the painting (fractions) as a point of the viewport, the inverse of what the chalk does with the pointer. */
-const toScreen = (p, fx, fy) => p.evaluate((fx, fy) => {
-  const { rig, view } = game.modules.get("stagecraft").api.stage().backend;
-  const rx = fx * rig.size[0] * rig.map.s + rig.map.ox;
-  const ry = fy * rig.size[1] * rig.map.s + rig.map.oy;
-  return { x: (rx - view.ox) * view.s, y: (ry - view.oy) * view.s };
-}, fx, fy);
-
-/** Everything about the chalk that can be seen from outside the module: the wall, the journal, the box, the strip. */
-const SAVED_JS = `(() => {
-  const entry = game.journal.find((e) => e.getFlag("stagecraft", "chalk") === true);
-  const scene = canvas.scene?.id;
-  return (entry?.pages ?? []).filter((pg) => pg.getFlag("stagecraft", "chalk")?.scene === scene).flatMap((pg) => pg.getFlag("stagecraft", "chalk").strokes ?? []);
-})()`;
-const wallState = (p) => p.evaluate((savedJs) => {
-  const h = game.modules.get("stagecraft").api.stage();
-  if (!h) return null;
-  const b = h.backend;
-  const saved = eval(savedJs);
-  const entry = game.journal.find((e) => e.getFlag("stagecraft", "chalk") === true);
-  const root = document.getElementById("stagecraft-stage");
-  return {
-    wall: b.chalkWall.strokes.size, wallIds: [...b.chalkWall.strokes.keys()], saved: saved.length, savedStrokes: saved,
-    box: b.chalkBox.group.visible, inHand: root.classList.contains("stagecraft-chalk"), cursor: b.chalkCursor.group.visible,
-    hidden: b.chalkWall.hidden, bar: [...root.querySelectorAll(".stagecraft-bar button")].map((x) => x.textContent),
-    journal: !!entry, ownership: entry?.ownership?.default, live: canvas.scene?.flags?.stagecraft?.live ?? null, me: game.userId
-  };
-}, SAVED_JS);
-const waitSaved = (p, test, timeout = 15000) => p.waitForFunction(`(${test})(${SAVED_JS})`, { timeout, polling: 200 });
-
-/** A point on a stick of chalk (or the eraser, "rub") where a real click reaches the stage and picks that stick. */
-const findStick = (p, tool) => p.evaluate((tool) => {
-  const b = game.modules.get("stagecraft").api.stage().backend;
-  const stick = b.chalkBox.pickables.find((s) => (tool === "rub" ? s.userData.eraser : s.userData.chalk === tool));
-  if (!stick) return null;
-  const w = stick.parent.localToWorld(stick.position.clone());
-  const c = b.project({ X: w.x, Y: w.y, Z: w.z });
-  for (const [dx, dy] of [[0, 0], [10, 0], [-10, 0], [0, 8], [0, -8], [22, 0], [-22, 0], [0, 16], [0, -16], [30, 10], [-30, -10]]) {
-    const x = c.x + dx;
-    const y = c.y + dy;
-    const hit = b.pick(x, y);
-    const want = tool === "rub" ? hit?.kind === "eraser" : hit?.kind === "chalk" && hit.colour === tool;
-    if (want && document.elementFromPoint(x, y)?.tagName === "CANVAS") return { x, y };
-  }
-  return { x: c.x, y: c.y, blocked: document.elementFromPoint(c.x, c.y)?.tagName ?? "nothing" };
-}, tool);
-
-async function takeChalk(p, tool) {
-  const at = await findStick(p, tool);
-  if (!at || at.blocked) return at;
-  await p.mouse.move(at.x, at.y);
-  await sleep(60);
-  await p.mouse.down();
-  await p.mouse.up();
-  await sleep(200);
-  return at;
-}
-
-/** Press on the first point, move through the others, and let go; chalk must already be in hand. */
-async function drawFractions(p, points, { holdForShot = null } = {}) {
-  const pts = [];
-  for (const [fx, fy] of points) pts.push(await toScreen(p, fx, fy));
-  await p.mouse.move(pts[0].x, pts[0].y);
-  await p.mouse.down();
-  let i = 0;
-  for (const q of pts.slice(1)) {
-    await p.mouse.move(q.x, q.y, { steps: 4 });
-    if (holdForShot && ++i === Math.floor(pts.length / 2)) await holdForShot();
-  }
-  await p.mouse.up();
-}
-
-/** Click one of the GM's strip buttons the way a person would, after checking that nothing covers it. */
-async function clickBar(p, act) {
-  const r = await p.evaluate((a) => {
-    const b = document.querySelector(`.stagecraft-bar button[data-act="${a}"]`);
-    if (!b) return null;
-    const box = b.getBoundingClientRect();
-    const x = box.x + box.width / 2;
-    const y = box.y + box.height / 2;
-    return { x, y, reachable: document.elementFromPoint(x, y) === b, disabled: b.disabled };
-  }, act);
-  if (!r?.reachable || r.disabled) return r;
-  await p.mouse.move(r.x, r.y);
-  await sleep(50);
-  await p.mouse.click(r.x, r.y);
-  await sleep(500);
-  return r;
-}
-
 /** With --verbose, say what the chalk is doing at this moment. */
 const trace = async (label, p = page) => {
   if (!args.get("verbose")) return;
-  const w = await wallState(p);
-  console.log(`  [${label}]`, JSON.stringify(w, (k, v) => (k === "savedStrokes" || k === "wallIds" ? undefined : v)));
+  console.log(`  [${label}]`, JSON.stringify(await chalkState(p), (k, v) => (k === "composite" || k === "tiles3d" ? v?.length : v)));
 };
 /** Is the chalk journal in this person's Journal list? (the module hides it from players) */
 const journalRow = (p) => p.evaluate(async () => {
@@ -254,7 +124,8 @@ const cardOn = (p, id) => p.evaluate((cid) => {
   return { holder: c.holder, grip: +c.grip.toFixed(2), x: Math.round(c.puppet.x), z: Math.round(c.Z), place: h.stage.placeOf(cid) };
 }, id);
 const sceneFlags = (p) => p.evaluate(() => canvas.scene?.flags?.stagecraft?.live ?? null);
-const wave = (x0, y0, n = 14, step = 0.024, amp = 0.05) => Array.from({ length: n }, (_, i) => [x0 + i * step, y0 + amp * Math.sin(i * 0.9)]);
+/** The stage's picture: its own canvas, not the chalk kit's colour picker or the ring round the pointer (canvases too). */
+const PICTURES = "#stagecraft-stage > canvas:not(.stagecraft-chalk-ring)";
 
 try {
   /* -------------------------------------------------------------- 1. the module is there and enabled */
@@ -283,7 +154,9 @@ try {
   check("a table can register its own skin through the api", await page.evaluate(() => game.modules.get("stagecraft").api.skins.list().includes("brass")));
 
   // Foundry refuses to switch scenes while a canvas is still loading, and redraws when the scene on screen is deleted, so
-  // get onto a plain scene first, then clear out the old test scenes, then make the new stage scene.
+  // get onto a plain scene first, then clear out the old test scenes, then make the new stage scene. The scenes cleared out
+  // must take their chalk pages with them: the last run's stage has its paint, and on a first run a scratch stage is given
+  // a page of its own here, so there is always something to prove.
   const ids = await page.evaluate(async (description, cast) => {
     const idle = async () => { while (canvas.loading) await new Promise((r) => setTimeout(r, 100)); };
     await idle();
@@ -294,19 +167,28 @@ try {
     const plain = olds.find((x) => x.name === "Stagecraft test: plain scene") ?? await Scene.create({ name: "Stagecraft test: plain scene" });
     await plain.view();
     await idle();
-    const chalkPagesOf = (id) => (game.journal.find((e) => e.getFlag("stagecraft", "chalk") === true)?.pages ?? []).filter((pg) => pg.getFlag("stagecraft", "chalk")?.scene === id).length;
-    const doomed = olds.filter((x) => x.id !== plain.id).map((x) => x.id);
-    const pagesBefore = doomed.reduce((n, id) => n + chalkPagesOf(id), 0);
-    for (const s of olds) if (s.id !== plain.id) await s.delete();
-    await new Promise((r) => setTimeout(r, 1500));
-    const pagesAfter = doomed.reduce((n, id) => n + chalkPagesOf(id), 0);
+    const journal = () => game.journal.find((e) => e.getFlag("stagecraft", "chalk") === true);
+    const chalkPagesOf = (id) => Array.from(journal()?.pages ?? []).filter((pg) => pg.getFlag("stagecraft", "chalk")?.scene === id).length;
+    const doomed = olds.filter((x) => x.id !== plain.id);
+    if (!doomed.some((s) => chalkPagesOf(s.id))) {
+      const scratch = await Scene.create({ name: "Stagecraft test: scratch", flags: { stagecraft: { stage: description } } });
+      // a scene that allows chalk has the GM's client make the chalk journal, if the world has none yet
+      for (let i = 0; i < 50 && !journal(); i++) await new Promise((r) => setTimeout(r, 100));
+      await journal()?.createEmbeddedDocuments("JournalEntryPage", [{ name: `chalk ${scratch.id} ${game.userId}`, type: "text", text: { content: "" }, flags: { stagecraft: { chalk: { v: 2, scene: scratch.id, by: game.userId, since: Date.now(), tiles: {}, history: {} } } } }]);
+      doomed.push(scratch);
+    }
+    const doomedIds = doomed.map((s) => s.id);
+    const pagesBefore = doomedIds.reduce((n, id) => n + chalkPagesOf(id), 0);
+    for (const s of doomed) await s.delete();
+    for (let i = 0; i < 50 && doomedIds.some((id) => chalkPagesOf(id)); i++) await new Promise((r) => setTimeout(r, 100));
+    const pagesAfter = doomedIds.reduce((n, id) => n + chalkPagesOf(id), 0);
     await idle();
     const stage = await Scene.create({ name: "Stagecraft test: Paper Lantern", flags: { stagecraft: { stage: description, published: { cards: cast, rev: 1 } } } });
     await idle();
     return { stage: stage.id, plain: plain.id, pagesBefore, pagesAfter, originalActive };
   }, DESCRIPTION, CAST);
   report.notes.push(`deleting the old test scenes: ${ids.pagesBefore} chalk pages before, ${ids.pagesAfter} after`);
-  check("deleting a scene takes its chalk pages with it", ids.pagesAfter === 0, `${ids.pagesBefore} before, ${ids.pagesAfter} after`);
+  check("deleting a scene takes its chalk pages with it", ids.pagesBefore > 0 && ids.pagesAfter === 0, `${ids.pagesBefore} before, ${ids.pagesAfter} after`);
   check("a scene with a stage description is recognised", await page.evaluate((id) => game.modules.get("stagecraft").api.scenes.isStage(game.scenes.get(id)), ids.stage));
   check("a plain scene is not", await page.evaluate((id) => !game.modules.get("stagecraft").api.scenes.isStage(game.scenes.get(id)), ids.plain));
   check("the description is understood without a complaint", await page.evaluate((id) => game.modules.get("stagecraft").api.scenes.describe(game.scenes.get(id)).problems.length === 0, ids.stage));
@@ -426,64 +308,26 @@ try {
   });
   check("the sidebar and chat are still there over the stage", ui.chat && ui.sidebar);
 
-  /* -------------------------------------------------------------- 7b. the box of chalk, on the GM's screen */
+  /* -------------------------------------------------------------- 7b. the box of chalk, on the GM's screen (chalk-checks.mjs) */
   const me = await page.evaluate(() => game.userId);
-  let w = await wallState(page);
-  check("the chalk journal exists and every player owns it", w.journal && w.ownership === 3, `ownership ${w.ownership}`);
-  check("the GM's strip is on the stage, six buttons", w.bar.length === 6, JSON.stringify(w.bar));
-  check("the box of chalk is out on the stage (this scene lets players chalk its back wall)", w.box === true);
-  await shot("foundry-9-chalk-box");
-  const first = await takeChalk(page, "yellow");
-  w = await wallState(page);
-  check("a real click on a stick of chalk picks it up and the stick follows the pointer", !!first && !first.blocked && w.inHand && w.cursor, JSON.stringify({ first, inHand: w.inHand, cursor: w.cursor }));
-
-  await drawFractions(page, wave(0.56, 0.35, 14, 0.022, 0.04));
-  await waitSaved(page, "(s) => s.length >= 1");
-  w = await wallState(page);
-  check("a line drawn with the real mouse is on the wall and kept in the world's journal", w.wall === 1 && w.saved === 1, `wall ${w.wall}, kept ${w.saved}`);
-  check("the drawer is recorded on it", w.savedStrokes[0]?.by === me && w.savedStrokes[0]?.colour === "yellow", JSON.stringify({ by: w.savedStrokes[0]?.by, colour: w.savedStrokes[0]?.colour }));
-
-  // a long line across the back wall's edge, photographed while the stick is still down
-  await drawFractions(page, [[0.7, 0.45], [0.7, 0.5], [0.7, 0.55], [0.7, 0.59], [0.7, 0.62], [0.7, 0.7], [0.7, 0.75]], { holdForShot: async () => { await shot("foundry-10-chalk-drawing"); } });
-  await waitSaved(page, "(s) => s.length >= 2");
-  w = await wallState(page);
-  const crossing = w.savedStrokes.find((s) => s !== w.savedStrokes[0]);
-  const crossingY = Math.max(...crossing.p.filter((_, i) => i % 2 === 1));
-  check("a line that runs out of the chalk zone stops at its edge", crossingY <= 601 && crossingY > 560, `the line ends at ${crossingY / 10}% down the painting; the zone ends at 60%`);
-
-  await drawFractions(page, [[0.55, 0.72], [0.65, 0.72], [0.75, 0.72]]);
-  await sleep(900);
-  w = await wallState(page);
-  check("a line drawn wholly outside the zone leaves nothing", w.saved === 2 && w.wall === 2, `kept ${w.saved}, wall ${w.wall}`);
-
-  // the eraser: swipe across the first line; it is cut in two
-  const rub = await takeChalk(page, "rub");
-  w = await wallState(page);
-  check("the felt eraser can be taken instead", w.inHand && !!rub && !rub.blocked);
-  await drawFractions(page, [[0.62, 0.25], [0.62, 0.45]]);
-  await waitSaved(page, "(s) => s.length >= 3");
-  w = await wallState(page);
-  check("rubbing across a line cuts it in two", w.saved === 3 && w.savedStrokes.filter((s) => /\.\d$/.test(s.id)).length === 2, `ids: ${w.savedStrokes.map((s) => s.id.slice(-8)).join(", ")}`);
-  check("the wall shows exactly what is kept", JSON.stringify([...w.wallIds].sort()) === JSON.stringify(w.savedStrokes.map((s) => s.id).sort()));
-  await page.keyboard.press("Escape");
-  await sleep(250);
-  w = await wallState(page);
-  check("Escape puts the chalk back in the box", !w.inHand && !w.cursor);
-
-  // a line in each colour of the box: it is a box of chalk, not one stick
-  for (const [colour, y] of [["pink", 0.5], ["blue", 0.54]]) {
-    const at = await takeChalk(page, colour);
-    await trace(`took ${colour} at ${JSON.stringify(at)}`);
-    await drawFractions(page, wave(0.56, y, 10, 0.03, 0.01));
-    await sleep(500);
-    await trace(`drew ${colour}`);
-  }
-  await page.keyboard.press("Escape");
-  await waitSaved(page, "(s) => s.length >= 5");
-  w = await wallState(page);
-  check("several colours can be used", new Set(w.savedStrokes.map((s) => s.colour)).size >= 3, [...new Set(w.savedStrokes.map((s) => s.colour))].join(", "));
-  await shot("foundry-11-chalk-wall");
-  const keptBefore = w.savedStrokes.map((s) => s.id).sort();
+  const t = {
+    check, gm: page, player: null, scene: ids.stage, gmId: me, playerId: null,
+    shot: (name, p) => grab(`foundry-${name}`, p),
+    trace,
+    /** The wipe asks first, in Foundry's own dialog: answer it with a real click. */
+    answerWipe: async (p) => {
+      try { await p.waitForSelector('dialog.application [data-action="yes"]', { timeout: 10000 }); } catch { return false; }
+      await sleep(300);
+      await grab("foundry-15-chalk-wipe-asks", p);
+      const yes = await p.evaluate(() => { const b = document.querySelector('dialog.application [data-action="yes"]'); const r = b.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+      await p.mouse.click(yes.x, yes.y);
+      return true;
+    }
+  };
+  await stageHost(page);
+  const journal = await page.evaluate(() => { const e = game.journal.find((x) => x.getFlag("stagecraft", "chalk") === true); return { made: !!e, ownership: e?.ownership?.default ?? null }; });
+  check("the chalk journal exists and every player owns it", journal.made && journal.ownership === 3, `ownership ${journal.ownership}`);
+  await gmChalk(t);
 
   /* -------------------------------------------------------------- 7b2. the picture survives a resize, a lost graphics context, and holds its frame rate */
   const fps = await page.evaluate(() => new Promise((resolve) => {
@@ -506,34 +350,34 @@ try {
   await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
   await sleep(1000);
 
-  const lostAt = await page.evaluate(() => {
+  const lostBefore = await wallNow(page);
+  await page.evaluate(() => {
     const b = game.modules.get("stagecraft").api.stage().backend;
     window.__oldBackend = b;
     const gl = b.canvas.getContext("webgl2") ?? b.canvas.getContext("webgl");
     gl.getExtension("WEBGL_lose_context").loseContext();
-    return performance.now();
   });
-  await page.waitForFunction(() => { const st = game.modules.get("stagecraft").api.stage(); return st && st.backend !== window.__oldBackend && !!st.backend.world && !!st.backend.chalkWall; }, { timeout: 30000, polling: 250 });
+  await page.waitForFunction(() => { const st = game.modules.get("stagecraft").api.stage(); return st && st.backend !== window.__oldBackend && !!st.backend.world && !!st.backend.chalkTiles; }, { timeout: 30000, polling: 250 });
   await sleep(1500);
-  const rebuilt = await page.evaluate(() => {
+  const rebuilt = await page.evaluate((pictures) => {
     const st = game.modules.get("stagecraft").api.stage();
-    return { cards: st.stage.cards.size, canvases: document.querySelectorAll("#stagecraft-stage canvas").length, calls: st.backend.stats().calls, wall: st.backend.chalkWall.strokes.size, box: st.backend.chalkBox.group.visible, lost: st.backend.contextLost === true };
-  });
+    return { cards: st.stage.cards.size, canvases: document.querySelectorAll(pictures).length, calls: st.backend.stats().calls, lost: st.backend.contextLost === true };
+  }, PICTURES);
   check("a lost graphics context is recovered: the stage is rebuilt and draws again, with its cards", rebuilt.cards === CAST.length && rebuilt.canvases === 1 && rebuilt.calls > 40 && !rebuilt.lost, JSON.stringify(rebuilt));
-  check("and its chalk comes back with it", rebuilt.wall === keptBefore.length && rebuilt.box === true, `${rebuilt.wall} lines, box ${rebuilt.box}`);
+  await afterRebuild(t, lostBefore);
   const again = await where("etsuko");
   await page.mouse.move(again.x, again.y);
   await sleep(250);
-  check("and the pointer still finds a card on the new picture", await page.evaluate(() => document.querySelector("#stagecraft-stage canvas").style.cursor === "grab"));
+  check("and the pointer still finds a card on the new picture", await page.evaluate(() => game.modules.get("stagecraft").api.stage().backend.canvas.style.cursor === "grab"));
 
   /* -------------------------------------------------------------- 7c. the graffiti is still there after a reload (it persists between sessions) */
+  const keptBefore = await wallNow(page);
   await page.reload({ waitUntil: "domcontentloaded" });
   try { await ready(); } catch { await join(args.get("user") ?? "Gamemaster"); await ready(); }
   await page.evaluate((id) => game.scenes.get(id).view(), ids.stage);
-  await page.waitForFunction(() => !!game.modules.get("stagecraft").api.stage()?.backend?.chalkWall, { timeout: 60000, polling: 250 });
+  await stageHost(page);
   await sleep(1500);
-  w = await wallState(page);
-  check("after a reload the same chalk is on the wall", JSON.stringify([...w.wallIds].sort()) === JSON.stringify(keptBefore), `${w.wall} lines, was ${keptBefore.length}`);
+  await afterReload(t, keptBefore);
   await shot("foundry-12-chalk-after-reload");
 
   /* -------------------------------------------------------------- 7d. a second person at the table: a real player, in their own browser */
@@ -547,18 +391,17 @@ try {
   const context = await browser.createBrowserContext();
   const pp = await context.newPage();
   await pp.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
+  await installProbe(pp);
   pp.on("console", async (m) => { const t = await describe(m); if (m.type() === "error" || m.type() === "warning" || /stagecraft/i.test(t)) logs.push(`[player ${m.type()}] ${t.slice(0, 500)}`); });
   pp.on("pageerror", (e) => logs.push(`[player pageerror] ${e.message}`));
   try {
     await join(playerName, pp);
     await ready(pp);
     await pp.evaluate(() => { for (const app of foundry.applications.instances.values()) app.close?.(); });
-    await pp.waitForFunction(() => !!game.modules.get("stagecraft").api.stage()?.backend?.chalkWall, { timeout: 60000, polling: 250 });
+    await stageHost(pp);
     await sleep(1500);
-    let pw = await wallState(pp);
-    check("a player lands on the stage scene and sees the GM's chalk", pw.wall === keptBefore.length, `${pw.wall} lines`);
-    check("a player has no GM strip", pw.bar.length === 0);
-    check("a player has the box of chalk", pw.box === true);
+    Object.assign(t, { player: pp, playerId: setup.userId });
+    await playerArrives(t, await wallNow(page));
     const playerRow = await journalRow(pp);
     const gmRow = await journalRow(page);
     check("a player does not meet the chalk journal in their Journal list", playerRow.entry && !playerRow.row, JSON.stringify(playerRow));
@@ -591,7 +434,7 @@ try {
     await page.bringToFront();
     await clickBar(page, "hands");
     await sleep(700);
-    check("the GM's strip can switch hands off", (await wallState(page)).bar[0] === "Hands off" && (await sceneFlags(page))?.handsOff === true, JSON.stringify(await sceneFlags(page)));
+    check("the GM's strip can switch hands off", (await chalkState(page)).strip.buttons[0] === "Hands off" && (await sceneFlags(page))?.handsOff === true, JSON.stringify(await sceneFlags(page)));
     await pp.bringToFront();
     const tamaP = await whereOn(pp, "tama");
     await pp.mouse.move(tamaP.x, tamaP.y);
@@ -668,101 +511,15 @@ try {
     await page.mouse.up();
     await sleep(1200);
 
-    await pp.bringToFront();
-    const took = await takeChalk(pp, "green");
-    pw = await wallState(pp);
-    check("a player can take a stick with a real click", !!took && !took.blocked && pw.inHand, JSON.stringify(took));
-    await drawFractions(pp, wave(0.56, 0.26, 12, 0.026, 0.02));
-    await waitSaved(page, `(s) => s.length >= ${keptBefore.length + 1}`);
-    await sleep(500);
-    const gw = await wallState(page);
-    const mine = gw.savedStrokes.filter((s) => s.by === setup.userId);
-    check("the player's line is kept in the world under the player's name", mine.length === 1 && mine[0].colour === "green", JSON.stringify(mine.map((s) => ({ by: s.by === setup.userId ? "player" : s.by, colour: s.colour }))));
-    check("and it appears on the GM's screen at once (nobody reloads)", gw.wall === keptBefore.length + 1, `${gw.wall} lines on the GM's wall`);
-    const pageOwners = await page.evaluate(() => { const e = game.journal.find((x) => x.getFlag("stagecraft", "chalk") === true); return e.pages.map((pg) => pg.getFlag("stagecraft", "chalk")?.by); });
-    check("the GM's lines and the player's are on separate pages (so two hands never overwrite each other)", new Set(pageOwners).size >= 2, `${pageOwners.length} pages, ${new Set(pageOwners).size} drawers`);
+    // ---- chalk, the two of them (chalk-checks.mjs): live strokes, each other's paint, erasers, Ctrl+Z, the GM's strip
+    await twoScreens(t);
 
-    // the other direction: the GM draws, the player sees it
-    await page.bringToFront();
-    await takeChalk(page, "orange");
-    await drawFractions(page, wave(0.56, 0.58, 8, 0.03, 0.01));
-    await page.keyboard.press("Escape");
-    await sleep(900);
-    pw = await wallState(pp);
-    check("the GM's new line appears on the player's screen without a reload", pw.wall === keptBefore.length + 2, `${pw.wall} lines on the player's wall`);
-
-    // a player cannot rub out someone else's chalk, but can rub out their own
-    const gmIds = (await wallState(page)).savedStrokes.filter((s) => s.by === me).map((s) => s.id).sort();
-    await pp.bringToFront();
-    await takeChalk(pp, "rub");
-    await drawFractions(pp, [[0.64, 0.42], [0.64, 0.6]]);                   // across three of the GM's lines
-    await sleep(900);
-    await drawFractions(pp, [[0.7, 0.2], [0.7, 0.34]]);                     // across the player's own green line, and past the GM's yellow one
-    await sleep(1200);
-    const afterRub = (await wallState(page)).savedStrokes.filter((s) => s.by === me).map((s) => s.id).sort();
-    check("a player's eraser leaves other people's chalk alone", JSON.stringify(afterRub) === JSON.stringify(gmIds), `${afterRub.length} of the GM's ${gmIds.length} lines untouched`);
-    const ownAfter = (await wallState(page)).savedStrokes.filter((s) => s.by === setup.userId);
-    check("but their own can be rubbed out", ownAfter.length === 2 && ownAfter.every((s) => /\.\d$/.test(s.id)), `ids: ${ownAfter.map((s) => s.id.slice(-8)).join(", ")}`);
-    await pp.keyboard.press("Escape");
-    await grab("foundry-13-chalk-player", pp);
-
-    // the GM closes the scene to chalk: the player's box goes and the wall stays
-    await page.bringToFront();
-    const off = await clickBar(page, "mode");
-    check("the GM's strip can be reached by a real click", !!off?.reachable, JSON.stringify(off));
-    await sleep(900);
-    pw = await wallState(pp);
-    check("closing chalk from the GM's strip takes the box away from the player at once", pw.box === false && pw.wall >= keptBefore.length + 2, `box ${pw.box}, wall ${pw.wall}`);
-    check("and the strip says so", (await wallState(page)).bar[1] === "Chalk: off", (await wallState(page)).bar[1]);
-    await clickBar(page, "mode");                                                // zones only
-    await clickBar(page, "mode");                                                // anywhere
-    await sleep(900);
-    pw = await wallState(pp);
-    check("opening it to anywhere brings the box back", pw.box === true, `box ${pw.box}`);
-    await pp.bringToFront();
-    await takeChalk(pp, "white");
-    const before = (await wallState(page)).saved;
-    await drawFractions(pp, [[0.55, 0.72], [0.65, 0.76], [0.75, 0.72]]);          // outside the back wall: only allowed because the GM opened it
-    await waitSaved(page, `(s) => s.length >= ${before + 1}`);
-    check("with chalk open anywhere a player can draw outside the zone", true);
-    await pp.keyboard.press("Escape");
-    await page.bringToFront();
-    await clickBar(page, "mode");                                                // back to as the scene says
-    check("one more press hands the decision back to the scene", (await sceneFlags(page))?.chalk?.mode === null && (await wallState(page)).bar[1] === "Chalk: zones only (scene)", JSON.stringify(await sceneFlags(page)));
-
-    // freeze, hide, undo, wipe
-    const live0 = await wallState(page);
-    await clickBar(page, "freeze");
-    await sleep(700);
-    pw = await wallState(pp);
-    check("freezing keeps the wall and takes the chalk away from everyone", pw.box === false && pw.wall === live0.wall, `box ${pw.box}, wall ${pw.wall}`);
-    await clickBar(page, "freeze");
-    await clickBar(page, "hide");
-    await sleep(700);
-    pw = await wallState(pp);
-    check("hiding the wall puts it out of sight for everyone without losing it", pw.hidden === true && pw.saved === live0.saved, `hidden ${pw.hidden}, kept ${pw.saved}`);
-    await shot("foundry-14-chalk-hidden");
-    await clickBar(page, "hide");
-    await clickBar(page, "undo");
-    await sleep(900);
-    const afterUndo = await wallState(page);
-    check("undo takes the newest line off the wall", afterUndo.saved === live0.saved - 1 && (await wallState(pp)).wall === afterUndo.saved, `${live0.saved} -> ${afterUndo.saved}`);
-    await clickBar(page, "wipe");
-    await page.waitForSelector('dialog.application [data-action="yes"]', { timeout: 10000 });
-    await sleep(300);
-    await shot("foundry-15-chalk-wipe-asks");
-    const yes = await page.evaluate(() => { const b = document.querySelector('dialog.application [data-action="yes"]'); const r = b.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
-    await page.mouse.click(yes.x, yes.y);
-    await sleep(1200);
-    const wiped = await wallState(page);
-    pw = await wallState(pp);
-    check("wipe asks first, and then clears every line for everyone", wiped.saved === 0 && wiped.wall === 0 && pw.wall === 0, `GM ${wiped.wall}, player ${pw.wall}`);
     // the card the player moved is where they left it after a reload
     await page.bringToFront();
     await page.reload({ waitUntil: "domcontentloaded" });
     try { await ready(); } catch { await join(args.get("user") ?? "Gamemaster"); await ready(); }
     await page.evaluate((id) => game.scenes.get(id).view(), ids.stage);
-    await page.waitForFunction(() => !!game.modules.get("stagecraft").api.stage()?.backend?.ready, { timeout: 60000, polling: 250 });
+    await stageHost(page);
     await sleep(1500);
     const afterReload = await cardOn(page, "yumiko");
     check("after a reload the card the player moved is still where they put it", JSON.stringify(afterReload.place.at) === JSON.stringify(droppedThere.place.at), JSON.stringify(afterReload.place));
@@ -782,15 +539,16 @@ try {
     await page.waitForFunction(() => !document.getElementById("stagecraft-stage") && canvas.ready && !canvas.loading, { timeout: 60000, polling: 250 });
     await page.evaluate((id) => game.scenes.get(id).view(), ids.stage);
     await page.waitForFunction(() => game.modules.get("stagecraft").api.stage()?.backend?.ready === true, { timeout: 60000, polling: 250 });
+    await stageHost(page);
     await sleep(1500);
   };
   await page.evaluate(() => game.settings.set("stagecraft", "tier", "flat"));
   await backToStage();
-  const flat = await page.evaluate(() => {
+  const flat = await page.evaluate((pictures) => {
     const h = game.modules.get("stagecraft").api.stage();
-    const c = document.querySelector("#stagecraft-stage canvas");
-    return { name: h.backend.name, cards: h.stage.cards.size, views: h.backend.views.size, gl: !!(c.getContext("webgl2") ?? c.getContext("webgl")), canvases: document.querySelectorAll("#stagecraft-stage canvas").length, draws: h.backend.stats().calls, hidden: canvas.app.view.style.display };
-  });
+    const c = h.backend.canvas;
+    return { name: h.backend.name, cards: h.stage.cards.size, views: h.backend.views.size, gl: !!(c.getContext("webgl2") ?? c.getContext("webgl")), canvases: document.querySelectorAll(pictures).length, draws: h.backend.stats().calls, hidden: canvas.app.view.style.display };
+  }, PICTURES);
   check("the player can ask for the flat picture: one plain canvas, no graphics context, and Foundry's own canvas still hidden", flat.name === "flat" && !flat.gl && flat.canvases === 1 && flat.hidden === "none", JSON.stringify(flat));
   check("the flat stage draws every card", flat.views === CAST.length && flat.cards === CAST.length && flat.draws > 100, JSON.stringify(flat));
   await shot("foundry-16-flat-stage");
@@ -802,7 +560,7 @@ try {
   check("a point on a card can be reached by the pointer on the flat stage", !!ren, JSON.stringify(ren));
   await page.mouse.move(ren.x, ren.y);
   await sleep(150);
-  check("the pointer turns to a grabbing hand over a card on the flat stage", await page.evaluate(() => document.querySelector("#stagecraft-stage canvas").style.cursor === "grab"));
+  check("the pointer turns to a grabbing hand over a card on the flat stage", await page.evaluate(() => game.modules.get("stagecraft").api.stage().backend.canvas.style.cursor === "grab"));
   await page.mouse.down();
   await sleep(500);
   const flatHeld = await page.evaluate(() => { const c = game.modules.get("stagecraft").api.stage().stage.cards.get("nren"); return { holder: c.holder, grip: c.grip }; });
@@ -849,37 +607,8 @@ try {
   await page.mouse.up();
   await sleep(1200);
 
-  // chalk on the flat stage: the same strokes, kept in the same journal
-  const flatStick = (tool) => page.evaluate((tool) => {
-    const b = game.modules.get("stagecraft").api.stage().backend;
-    const layout = b.order.find((d) => d.kind === "box")?.layout;
-    if (!layout) return null;
-    const r = tool === "rub" ? layout.eraser.hit : layout.sticks.find((s) => s.colour === tool)?.hit;
-    if (!r) return null;
-    const x = (r.x0 + r.x1) / 2;
-    const y = (r.y0 + r.y1) / 2;
-    const hit = b.pick(x, y);
-    return { x, y, ok: tool === "rub" ? hit?.kind === "eraser" : hit?.kind === "chalk" && hit.colour === tool, over: document.elementFromPoint(x, y)?.tagName };
-  }, tool);
-  const pink = await flatStick("pink");
-  check("the box of chalk is on the flat stage, and a click on a stick reaches it", pink?.ok === true && pink.over === "CANVAS", JSON.stringify(pink));
-  await page.mouse.move(pink.x, pink.y);
-  await sleep(60);
-  await page.mouse.down();
-  await page.mouse.up();
-  await sleep(300);
-  check("a click on a stick takes it", await page.evaluate(() => document.getElementById("stagecraft-stage").classList.contains("stagecraft-chalk")));
-  await drawFractions(page, wave(0.56, 0.35, 14));
-  await sleep(300);
-  await drawFractions(page, wave(0.56, 0.45, 14));
-  await waitSaved(page, `(s) => s.length >= 2`).catch(() => {});
-  const flatWall = await page.evaluate((savedJs) => ({ shown: game.modules.get("stagecraft").api.stage().backend.strokes.size, saved: eval(savedJs).length }), SAVED_JS);
-  check("chalk drawn on the flat stage is on its wall and kept in the world", flatWall.shown >= 2 && flatWall.saved >= 2, JSON.stringify(flatWall));
-  await page.mouse.move(pink.x - 160, pink.y - 260);
-  await sleep(200);
-  await shot("foundry-18-flat-chalk");
-  await page.keyboard.press("Escape");
-  await sleep(200);
+  // chalk on the flat stage (chalk-checks.mjs): the box clicked for real, paint in the picture, kept in the same journal
+  await flatChalk(t);
 
   // a graphics context that cannot be made at all: the 3D picture falls through to the flat one, and says so
   await page.evaluate(() => game.settings.set("stagecraft", "tier", "auto"));
@@ -892,7 +621,7 @@ try {
   await page.evaluate((id) => game.scenes.get(id).view(), ids.stage);
   await page.waitForFunction(() => game.modules.get("stagecraft").api.stage()?.backend?.ready === true, { timeout: 60000, polling: 250 });
   await sleep(1000);
-  const fallback = await page.evaluate(() => { const h = game.modules.get("stagecraft").api.stage(); return { name: h.backend.name, cards: h.stage.cards.size, canvases: document.querySelectorAll("#stagecraft-stage canvas").length }; });
+  const fallback = await page.evaluate((pictures) => { const h = game.modules.get("stagecraft").api.stage(); return { name: h.backend.name, cards: h.stage.cards.size, canvases: document.querySelectorAll(pictures).length }; }, PICTURES);
   await page.evaluate(() => { HTMLCanvasElement.prototype.getContext = window.__realGetContext; });
   check("with no graphics context to be had, the stage is drawn flat instead of not at all", fallback.name === "flat" && fallback.cards === CAST.length && fallback.canvases === 1, JSON.stringify(fallback));
   check("and the console says why", logs.some((l) => /the 3D picture could not start here; drawing the plain one/.test(l)));
@@ -923,7 +652,7 @@ try {
     check("the browser never warned about too many WebGL contexts", !logs.some((l) => /too many active webgl contexts/i.test(l)));
   }
 } catch (err) {
-  check("the run finished without an exception", false, err.message);
+  check("the run finished without an exception", false, err.stack ?? err.message);
 } finally {
   // "JournalEntryPage ... does not exist" is a second GM connection (another session on this Foundry) clearing the same deleted
   // scene's chalk a moment before this one: harmless, and Foundry logs it itself

@@ -292,10 +292,11 @@ Listed so they are not forgotten; each is optional and hers to pick.
   places of tiles that changed while someone paints, hides the wall, and has the same box.
 - `journal-tidy.test.mjs`, `lang.test.mjs` (every word exists and the language file survives Foundry's way of reading it).
 
-**The bench check**, `tools/stagecraft/bench/chalk-check.mjs` (39 checks), drives the real host, kit and both pictures in
+**The bench check**, `tools/stagecraft/bench/chalk-check.mjs` (43 checks), drives the real host, kit and both pictures in
 headless Chrome with a real graphics card, real mouse strokes, real clicks on the kit and real keys, and reads the wall's
 own pixels (§11). **The live check**, `tools/stagecraft/foundry-check.mjs`, in the local Foundry with real mouse events,
-as a GM and as a real second player in a separate browser (§10).
+as a GM and as a real second player in a separate browser (§10, §11.2); its chalk checks, `tools/stagecraft/chalk-checks.mjs`,
+also run on the bench, on the same stage, by `tools/stagecraft/bench/live-chalk-check.mjs` (53 checks).
 
 ---
 
@@ -498,3 +499,45 @@ for a weaker machine). What was slow, and what changed:
 
 `chalk-check.mjs` now also proves that a stroke, painted and kept, makes the main thread read no canvas back and encode
 none (43 checks).
+
+### 11.2 The live check, brought up to date (the same evening)
+
+The live check (`tools/stagecraft/foundry-check.mjs`) still drove the first edition: lines of points in the journal, a
+stick that followed the pointer, a line cut in two by the eraser. Its chalk is now checked the way `chalk-check.mjs` checks
+the bench, from the wall's own pixels, and the checks live in one place for Foundry and the bench:
+`tools/stagecraft/chalk-checks.mjs` (what is checked), `tools/stagecraft/chalk-probe.mjs` (how a page is seen and handled:
+the stage's host from the `stagecraft.stageReady` hook, the wall's pixels, the kit, the box, the GM's strip, the chalk
+journal; every click made only once nothing covers what it clicks) and `tools/stagecraft/check-stage.mjs` (the live
+check's own stage). What it checks in Foundry, with real pointer events and real keys:
+
+- As the GM: the strips start folded behind their key, and a click unfolds them; every stick, the magic stick and the
+  eraser can be clicked, whatever lies over the stage; a stick puts the kit out and the strips step aside; outside the
+  back wall the chalk says where it goes, and the ring stands at the pointer; a stroke leaves paint of the stick's colour,
+  the `stagecraft.chalk` hook names who, what and where, and the journal holds the painter's own page with the tiles and
+  the step that takes it back; the 3D picture shows every painted tile, and the wall shows exactly what the journal keeps;
+  a stroke stops exactly at the zone's edge, and one wholly outside keeps nothing; the eraser clears its path and leaves
+  the rest; Ctrl+Z and Ctrl+Shift+Z go through the journal; Escape opens nothing of Foundry's; each stick paints its own
+  colour; magic chalk paints in a colour typed into the kit.
+- A lost graphics context, and then a reload: the same paint comes back.
+- With a real player in another browser: on arrival they see the GM's paint and have the box but no strip; their stroke
+  shows on the GM's screen while they paint it and gives way to the kept paint, on a page of their own; the GM's paint
+  reaches them without a reload; their eraser leaves the GM's paint alone and clears their own, and their Ctrl+Z puts it
+  back on the GM's screen; the strip, each press a real click, takes their box away, opens chalk anywhere (they paint
+  outside the zone), hands the decision back to the scene, freezes (the chalk leaves their hand), hides the wall, takes
+  back the newest stroke whoever made it, and wipes after asking; a GM's eraser clears a player's paint too, kept as the
+  GM's step on their page, and the strip's Undo puts it back.
+- The plain picture: the box can be clicked, and paint shows in the picture and is kept.
+- A deleted scene takes its chalk pages with it (on a first run a scratch scene is given a page, so the check always has
+  something to prove).
+
+**`tools/stagecraft/bench/live-chalk-check.mjs`** runs the same checks on the live check's own stage on the bench (the
+module's real host, kit and wall, with the bench's store in place of the journal), as a GM and a player in two tabs: 53
+checks, all passing, both before and after §11.1. The checks can be kept up with the module where no licensed Foundry is
+to hand.
+
+**Not yet run in a real Foundry.** The local Foundry on this machine has had no licence and no world since the reinstall
+of 2026-10-03, so the live check itself still has to be run. What was found on the way, from the code, and fixed in the
+check: the GM's strips fold behind their key and step aside while chalk is in hand (every press of the strip would have
+failed); the kit's own canvases broke three "one canvas" checks, and after a rebuilt picture the stage's canvas is no
+longer the first in the stage; the wall is laid together once per frame, so a page in the background is read after laying
+it together; and the deleted-scene check proved nothing on a first run.

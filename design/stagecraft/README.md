@@ -42,6 +42,7 @@ The decisions that are Ingram's are collected in [§ Calls waiting](#calls-waiti
 | **[module.md](module.md)** | **How it becomes a module of its own.** The boundary with the adventure, the layout, the interface, skins, packaging, and (§17) what is built | 2026-10-01 |
 | [`module/stagecraft/`](../../module/stagecraft/README.md) | **The module itself**, with its own tests, build and API contract (`API.md`) | 2026-10-01 |
 | [`tools/stagecraft/foundry-check.mjs`](../../tools/stagecraft/foundry-check.mjs) | **The live check**: drives the local Foundry with real mouse and key events, as a GM and as a second player | 2026-10-01 |
+| [`tools/stagecraft/bench/live-chalk-check.mjs`](../../tools/stagecraft/bench/live-chalk-check.mjs) | **The live check's chalk checks, on the bench**: the same checks on the same stage, as a GM and a player, without a licensed Foundry ([chalk.md](chalk.md) §11.2) | 2026-10-03 |
 | [`tools/stagecraft/weak-machine.mjs`](../../tools/stagecraft/weak-machine.mjs) | **The weak-machine measure**: the stage at every tier with no graphics card and a slowed processor (`npm run weak:stagecraft`) | 2026-10-01 |
 | **[scene-standard.md](scene-standard.md)** | **What a scene must carry to be played.** Old scenes fail it and must be brought up to it | 2026-10-01 |
 | **[situation-scenes.md](situation-scenes.md)** | **How to write the third kind of scene**: neither a short scripted scene nor an open-ended one, but a situation | 2026-10-01 |
