@@ -113,7 +113,8 @@ const LOOK_BACK = 16;
  * Where a routine's card stands at the end of beat k: { X, Z, yaw }. Beat 0 and below are home.
  *
  * Each beat's place is worked out on its own, from the card's seed and the beat's number, never from a chain of earlier
- * beats: the shared clock counts from 1970, so beat numbers run to the hundreds of millions, and anything that had to
+ * beats: the shared clock may count from 1970 (the bench) or from when the server last started (Foundry), so beat
+ * numbers can run to the hundreds of millions, and anything that had to
  * walk back through them all would never finish. Two neighbouring beats are always worked out by this same function,
  * which is all the walk between them needs.
  */

@@ -160,6 +160,27 @@ test("heads turn towards a card in someone's hand, and back again when it is put
   near(s.cards.get("bo").look, 0, 1, "and back");
 });
 
+test("after the server restarts, the clock starts again: what was stamped the day before is long over, not hours away", () => {
+  // found live 2026-10-03: Foundry's shared clock is the server's uptime, so a daily restart sends it back to zero, and a
+  // card that walked on or rose up yesterday would have stood at the side of the stage, or lain flat, for hours
+  const yesterday = 48931.4;                       // 13.6 hours into the server's last run
+  const { s } = clocked([
+    { id: "walker", name: "W", at: [0.4, 0.9], enter: { from: "left", t0: yesterday, gait: "walk" } },
+    { id: "riser", name: "R", at: [0.6, 0.9], enter: { from: "rise", t0: yesterday } }
+  ], 120.5);                                       // two minutes after the restart
+  const home = s.rig.standing([0.4, 0.9]);
+  const w = s.cards.get("walker");
+  assert.equal(w.walk, null, "nobody walks on again");
+  assert.ok(Math.abs(w.puppet.x - home.X) < 1, "the card stands in its place");
+  assert.equal(s.cards.get("riser").rise ?? null, null, "and nobody lies flat waiting to rise");
+  // a move stamped before the restart starts now rather than in hours
+  s.walkTo("walker", { at: [0.5, 0.9] }, { t0: yesterday });
+  assert.ok(s.cards.get("walker").walk.t0 <= 121, "a stale move starts now");
+  // what this run stamps a moment ahead is still a moment ahead
+  const { s: fresh } = clocked([{ id: "new", name: "N", at: [0.4, 0.9], enter: { from: "left", t0: 120.9 } }], 120.5);
+  assert.ok(fresh.cards.get("new").walk, "a fresh entrance still walks on");
+});
+
 test("a card put down at a door or a thing to look at has gone there: the stage says who, where, and what it is for", () => {
   // found 2026-10-03: a zone on the stage did nothing and said nothing of what it was for
   const { s, tick } = clocked([{ id: "bo", name: "Bo", X: -300, Z: -500 }]);

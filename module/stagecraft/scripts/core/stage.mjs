@@ -204,15 +204,16 @@ export class Stage {
       c.living = true;
     }
     // walking on: it appears at the side and walks to its place, starting at the moment the scene says it did; or it rises
-    // up out of the floor where it stands (out of the water, out of a trapdoor), with a spring to it
-    const enter = person.enter;
-    if (enter && typeof enter === "object" && enter.from === "rise") {
+    // up out of the floor where it stands (out of the water, out of a trapdoor), with a spring to it. An entrance stamped
+    // before the shared clock last started again (a server restart) is long over: the card simply stands in its place.
+    const enter = person.enter && typeof person.enter === "object" && !stale(person.enter.t0, this.clock()) ? person.enter : null;
+    if (enter && enter.from === "rise") {
       const t0 = Number.isFinite(enter.t0) ? enter.t0 : this.clock();
       c.rise = { t0, dur: Number.isFinite(enter.dur) ? enter.dur : 0.7 };
     }
     // someone arriving now (not long ago, on a page loaded later) is looked at by whoever is near
     if (enter && Number.isFinite(enter.t0) && this.clock() - enter.t0 < 3) this.#glanceAt(c);
-    if (enter && typeof enter === "object" && ["left", "right", "back"].includes(enter.from)) {
+    if (enter && ["left", "right", "back"].includes(enter.from)) {
       const t0 = Number.isFinite(enter.t0) ? enter.t0 : this.clock();
       const from = entrancePoint(enter.from, { X, Z }, this.opts.limits);
       const w0 = planWalk(from, { X, Z }, { t0, gait: enter.gait ?? "walk", yaw: c.yawTo, maxDur: 8 });
@@ -266,7 +267,7 @@ export class Stage {
     if (still !== null) c.still = !!still;
     if (packed !== null) c.packed = !!packed;
     const pose = mark ? markPose(mark, this.#faceContext()) : { yaw: yaw ?? c.yawTo, lean: lean ?? 0, pitch: pitch ?? 0, lift: 0 };
-    const start = t0 ?? this.clock();
+    const start = Number.isFinite(t0) && !stale(t0, this.clock()) ? t0 : this.clock();
     c.walk = planWalk({ X: c.puppet.x, Z: c.Z }, dest, { t0: start, gait, yaw: pose.yaw });
     c.walk.pose = pose;
     c.walk.mark = mark?.id ?? null;
@@ -894,6 +895,18 @@ export class Stage {
     return [...this.cards.keys()].map((id) => this.placeOf(id));
   }
 }
+
+/**
+ * How far ahead of the shared clock a time may be and still be one it gave. Everything is stamped at most a second or so
+ * ahead (a move starts a moment from now, so every screen hears of it first). Foundry's shared clock is the server's own
+ * (`game.time.serverTime`), which counts from when the server last started (found live 2026-10-03: 13.6 hours after the
+ * daily 03:00 restart), so after a restart every stamp from the day before is hours "in the future". Such a stamp is long
+ * over, not yet to come.
+ */
+export const CLOCK_SLACK = 60;
+
+/** A time stamped before the shared clock last started again (see CLOCK_SLACK). */
+export const stale = (t0, now) => Number.isFinite(t0) && Number.isFinite(now) && t0 > now + CLOCK_SLACK;
 
 /**
  * How far a card that rises out of the floor has come up (0 flat, 1 standing), with an overshoot so it pops up rather
