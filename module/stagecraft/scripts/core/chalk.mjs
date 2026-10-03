@@ -200,6 +200,45 @@ export function overflowSteps(history, keep = HISTORY) {
   return ids.slice(0, Math.max(0, ids.length - keep));
 }
 
+/**
+ * How much of a world's room one painter's history may take (Ingram's table is seven people painting over a campaign of
+ * scenes, and Foundry sends every client the whole journal when it joins): the "before" pictures a layer keeps, in bytes
+ * of picture. The newest step is always kept, whatever its size; older ones go first. 320 KB is about seven strokes over
+ * paint that is already there (a stroke on bare wall keeps nothing but `null`s).
+ */
+export const HISTORY_BYTES = 320 * 1024;
+
+/** How long a step of history is kept: a session's work and a good deal over, so a morning's mistake can still be taken back. */
+export const HISTORY_HOURS = 12;
+
+/** What a step of history weighs in the world: its pictures, and a little for the rest. */
+export const stepBytes = (step) => 64 + Object.values(step?.tiles ?? {}).reduce((n, v) => n + (typeof v === "string" ? v.length : 0), 0);
+
+/**
+ * The ids of the steps a history should lose, oldest first: any older than `before` (a time, ms), then the oldest until
+ * no more than `keep` steps and `bytes` of pictures are left. The newest step is never dropped for size, and `protect` (the
+ * step just made) never at all.
+ */
+export function trimSteps(history, { keep = HISTORY, bytes = HISTORY_BYTES, before = null, protect = null } = {}) {
+  let live = Object.entries(history ?? {}).filter(([, s]) => s && typeof s === "object")
+    .sort(([a, x], [b, y]) => (x.at ?? 0) - (y.at ?? 0) || (a < b ? -1 : a > b ? 1 : 0));
+  const out = [];
+  if (before !== null) {
+    const old = live.filter(([id, s]) => id !== protect && (s.at ?? 0) < before);
+    out.push(...old.map(([id]) => id));
+    live = live.filter((entry) => !old.includes(entry));
+  }
+  let total = live.reduce((n, [, s]) => n + stepBytes(s), 0);
+  while (live.length > 1 && (live.length > keep || total > bytes)) {
+    const i = live.findIndex(([id], at) => id !== protect && at < live.length - 1);       // never the newest, never the protected
+    if (i < 0) break;
+    total -= stepBytes(live[i][1]);
+    out.push(live[i][0]);
+    live.splice(i, 1);
+  }
+  return out;
+}
+
 /* ---------------------------------------------------------------- where chalk may be used */
 
 /** The mode and whether the wall is frozen, from the scene's authored policy and the GM's live override. */

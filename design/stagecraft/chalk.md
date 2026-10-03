@@ -541,3 +541,24 @@ check: the GM's strips fold behind their key and step aside while chalk is in ha
 failed); the kit's own canvases broke three "one canvas" checks, and after a rebuilt picture the stage's canvas is no
 longer the first in the stage; the wall is laid together once per frame, so a page in the background is read after laying
 it together; and the deleted-scene check proved nothing on a first run.
+### 11.3 Light in the world (2026-10-04)
+
+Foundry sends every client the whole journal when it joins, so what chalk keeps in it is every player's load time. Measured:
+fifteen strokes with every tool by one painter on one scene were **2.2 MB** (about 575 KB of tiles and 1.6 MB of history,
+the "before" pictures). Seven painters over a campaign of scenes would have made the world slow to join. What changed
+(the table's rule, `HISTORY_BYTES` and `HISTORY_HOURS` in `core/chalk.mjs`):
+
+- **A budget of pictures, not only of steps.** A layer keeps its last eight strokes *and* no more than 320 KB of "before"
+  pictures (about seven strokes over paint that is already there; a stroke on a bare wall keeps nothing but `null`s and
+  costs almost nothing). The oldest steps go first; the newest always stays, however big (`trimSteps`).
+- **An age.** The acting GM's client tidies the journal eight seconds after it logs in (`ChalkStore#tidy`): steps older
+  than twelve hours are dropped (a session and a good deal over), a layer left with no paint and no history is deleted, and
+  so are pages of scenes that no longer exist and of the first edition. Paint on a wall is never touched.
+- **Lighter pictures.** Tiles are kept as lossy WebP at 0.85 (a third smaller than at 0.92) with their alpha rounded to 64
+  steps (alpha is stored without loss and soft paint is mostly alpha; a step of 4 in 255 is finer than the screen's own
+  steps over a dark wall). The same fifteen strokes' tiles went from 234 KB to about 156 KB. The paint on the painter's own
+  screen keeps its full alpha; only the kept picture is rounded, so what Ctrl+Z puts back is the kept picture, within a
+  pixel here and there at an edge.
+
+Foundry's socket takes messages up to 100 MB, so one big save is no risk; the cost was always the journal's total size.
+`chalk-check.mjs` proves the kept pictures are WebP with at most 64 alpha levels and a few KB a tile (44 checks).

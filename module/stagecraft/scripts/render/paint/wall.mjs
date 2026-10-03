@@ -946,24 +946,48 @@ function painted(canvas) {
 }
 
 /**
+ * What a kept picture of a tile costs (the whole journal goes to every client that joins: chalk.md §11.2): lossy WebP at
+ * 0.85 (a third smaller than at 0.92, and chalk is fuzzy anyway), and the picture's alpha rounded to ALPHA_LEVELS steps
+ * (alpha is stored without loss and soft paint is mostly alpha: this is a fifth of what is left, and a step of 4 in 255 is
+ * finer than the screen's own steps over a dark wall). The paint on this screen keeps its full alpha; only the kept
+ * picture is rounded.
+ */
+const TILE_QUALITY = 0.85;
+const ALPHA_LEVELS = 64;
+
+/**
+ * Round the alpha of `data` (RGBA bytes) to `levels` steps, in place. A pixel with no paint stays with none. It refers to
+ * nothing outside itself: the encoder's worker is given its text.
+ */
+export function roundAlpha(data, levels = 64) {
+  const step = 255 / (levels - 1);
+  for (let i = 3; i < data.length; i += 4) data[i] = Math.round(Math.round(data[i] / step) * step);
+  return data;
+}
+
+/**
  * The worker that turns tiles into pictures: it is given a snapshot of a tile (an ImageBitmap, which the main thread makes
- * without reading the graphics card back), reads it back itself, says whether there is any paint on it, and encodes it.
+ * without reading the graphics card back), reads it back itself, says whether there is any paint on it, rounds its alpha
+ * and encodes it.
  */
 const ENCODER = `
+const roundAlpha = ${roundAlpha.toString()};
 self.onmessage = async (e) => {
-  const { id, bitmap, sure } = e.data;
+  const { id, bitmap, sure, quality, levels } = e.data;
   try {
     const c = new OffscreenCanvas(bitmap.width, bitmap.height);
     const x = c.getContext("2d", { willReadFrequently: true });
     x.drawImage(bitmap, 0, 0);
     bitmap.close();
+    const img = x.getImageData(0, 0, c.width, c.height);
     if (!sure) {
-      const d = x.getImageData(0, 0, c.width, c.height).data;
       let any = false;
-      for (let i = 3; i < d.length; i += 4) if (d[i] > 3) { any = true; break; }
+      for (let i = 3; i < img.data.length; i += 4) if (img.data[i] > 3) { any = true; break; }
       if (!any) { self.postMessage({ id, url: null }); return; }
     }
-    let blob = await c.convertToBlob({ type: "image/webp", quality: 0.92 });
+    roundAlpha(img.data, levels);
+    x.putImageData(img, 0, 0);
+    let blob = await c.convertToBlob({ type: "image/webp", quality });
     if (blob.type !== "image/webp") blob = await c.convertToBlob({ type: "image/png" });
     self.postMessage({ id, url: new FileReaderSync().readAsDataURL(blob) });
   } catch (err) {
@@ -1007,27 +1031,39 @@ export function encodeTile(canvas, sure = false) {
   const snapshot = createImageBitmap(canvas);         // the tile as it is now, whatever is painted on it next
   return new Promise((resolve) => {
     waiting.set(id, { done: resolve, fail: () => resolve(encodeNow(canvas)) });
-    snapshot.then((bitmap) => worker.postMessage({ id, bitmap, sure }, [bitmap]))
+    snapshot.then((bitmap) => worker.postMessage({ id, bitmap, sure, quality: TILE_QUALITY, levels: ALPHA_LEVELS }, [bitmap]))
       .catch(() => { waiting.delete(id); resolve(encodeHere(canvas, sure)); });
   });
+}
+
+/** A copy of a tile with its alpha rounded, for the main thread to encode (where there is no worker). */
+function rounded(canvas) {
+  const copy = make(canvas.width, canvas.height);
+  const x = ctxOf(copy);
+  x.drawImage(canvas, 0, 0);
+  const img = x.getImageData(0, 0, copy.width, copy.height);
+  roundAlpha(img.data, ALPHA_LEVELS);
+  x.putImageData(img, 0, 0);
+  return copy;
 }
 
 /** The same on the main thread, where there is no worker to do it. */
 function encodeHere(canvas, sure) {
   if (!sure && !painted(canvas)) return Promise.resolve(null);
-  if (typeof canvas.toBlob !== "function" || typeof FileReader === "undefined") return Promise.resolve(encodeNow(canvas));
+  const flat = rounded(canvas);
+  if (typeof flat.toBlob !== "function" || typeof FileReader === "undefined") return Promise.resolve(encodeNow(flat));
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      if (!blob) { resolve(encodeNow(canvas)); return; }
+    flat.toBlob((blob) => {
+      if (!blob) { resolve(encodeNow(flat)); return; }
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => resolve(encodeNow(canvas));
+      reader.onerror = () => resolve(encodeNow(flat));
       reader.readAsDataURL(blob);
-    }, "image/webp", 0.92);
+    }, "image/webp", TILE_QUALITY);
   });
 }
 
 function encodeNow(canvas) {
-  const webp = canvas.toDataURL("image/webp", 0.92);
+  const webp = canvas.toDataURL("image/webp", TILE_QUALITY);
   return webp.startsWith("data:image/webp") ? webp : canvas.toDataURL("image/png");
 }

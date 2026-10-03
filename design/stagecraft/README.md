@@ -176,6 +176,30 @@ npm run weak:stagecraft
 
 ---
 
+## What is next, in priority order
+
+*Set 2026-10-04, after chalk was painted and made quick; Ingram's goal that evening: "Proceed through as much as possible.
+Make the rest your priority list of work to be done." The order asks, first, whether it could hurt the first real session
+with six players; then whether it saves the GM time; then whether it is only delight. Statuses are kept up to date.*
+
+| # | What | Why | Status |
+|---|---|---|---|
+| 1 | **Chalk light in the world**: a byte budget and an age for history, lighter tile pictures, a tidy at the GM's login | The whole journal goes to every client that joins; fifteen strokes were 2.2 MB | **Done 2026-10-04** (`chalk.md` §11.3) |
+| 2 | **How each screen is coping**: a per-player health report to the GM, and a start-up speed test that picks the tier | Settles "what do the six players play on?" at the table instead of by guessing | Next |
+| 3 | **Ease off when nothing moves**: respect Foundry's own limit on drawing speed, and draw slower when the stage is still | Fans and battery on players' laptops over a long session | Next |
+| 4 | **The stage at player sizes**: the kit, the box and the zones at 1366 by 768 and the like | Everything was verified on the GM's 2560 by 1271 screen | Next |
+| 5 | **A real Foundry for automated checks** (a test world, or a licence for the local one) | The live check has 53 checks and nowhere to run | Needs Ingram |
+| 6 | **A staging editor inside Foundry**: drag marks, homes, zones and the chalk box's spot; changes come home like her Scene Runner edits | The biggest time saver: scenes are staged by hand in `stages.json` today | Planned, large |
+| 7 | **A token bridge**: SF2E data drives the cards (0 HP knocks one down, conditions as badges, the turn lights a card) | Fights run themselves a little | Planned |
+| 8 | **Chalk moderation**: "who painted that?" on hover, and a button to wipe one player's layer | The store already supports the wipe | Planned, small |
+| 9 | **Stage effects waiting on her call**: footlights, the Watcher's tells, the feel extras (a trail behind a swung card, bowing, camera shake) | Look and feel | Needs Ingram |
+| 10 | **Staging features planned and unbuilt** (`stage.md`): channels, private reveals, the raised hand, time-of-day light, entrance and exit signatures, the roll call | Theatre of the mind, finer | Planned |
+| 11 | **Chalk extras**: dust and a scratch sound, lamplight on chalk, weathering, floor chalk | Delight | Planned |
+| 12 | **The accessible mirror**: keyboard and screen-reader access to the cards | Rises if any player needs it | Planned |
+| 13 | **The Draft, and releasing Stagecraft as its own module** (name, id, licence) | End goals, recorded | Recorded |
+
+---
+
 ## Calls waiting for Ingram
 
 Each document ends with its own list; these are the ones that unblock the rest.

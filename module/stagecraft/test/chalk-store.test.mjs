@@ -269,6 +269,54 @@ test("pages of the first edition (lines of points) are removed by a GM's client 
   gmStore.dispose();
 });
 
+test("a layer's history is kept to a budget of pictures: the oldest steps go first, the newest stays (chalk.md §11.2)", async () => {
+  const store = new ChalkStore();
+  const entry = await withEntry();
+  const big = (n) => `data:image/webp;base64,${String(n).repeat(100 * 1024)}`;           // 100 KB a picture
+  const ids = [];
+  for (let i = 1; i <= 6; i++) {
+    const s = step();
+    ids.push(s.id);
+    await store.save("sc", { tiles: { c0r0: big(i) }, step: s });
+  }
+  const kept = Object.keys(flags(entry.pages[0]).history);
+  assert.ok(kept.length < 6 && kept.length >= 2, `the budget holds only some: ${kept.length}`);
+  assert.deepEqual(kept.sort(), ids.slice(-kept.length), "the newest ones, in order");
+  assert.ok(kept.includes(ids.at(-1)), "the step just made is always there");
+  const weight = Object.values(flags(entry.pages[0]).history).reduce((n, s) => n + s.tiles.c0r0.length, 0);
+  assert.ok(weight <= 330 * 1024, `no more than the budget of pictures: ${Math.round(weight / 1024)} KB`);
+  store.dispose();
+});
+
+test("the acting GM's client tidies the journal: old history, layers with nothing left, pages of scenes that are gone", async () => {
+  const store = new ChalkStore();
+  const entry = await withEntry();
+  const now = 100 * 3600 * 1000;
+  const hour = 3600 * 1000;
+  world.scenes.push({ id: "sc", flags: {} });
+  // ana: paint with an old step and a fresh one; bo: nothing left but old history; cy: a scene that is gone
+  const ana = theirLayer(entry, "ana", "sc", { c0r0: pic(1) }, {
+    [stepId(now - 20 * hour, "o")]: { at: now - 20 * hour, who: "ana", tiles: { c0r0: null } },
+    [stepId(now - 1 * hour, "n")]: { at: now - 1 * hour, who: "ana", tiles: { c0r0: pic(0) } }
+  });
+  theirLayer(entry, "bo", "sc", {}, { [stepId(now - 30 * hour, "o")]: { at: now - 30 * hour, who: "bo", tiles: { c1r1: pic(5) } } });
+  theirLayer(entry, "cy", "gone", { c0r0: pic(2) });
+  const player = await store.tidy({ now });
+  assert.deepEqual(player, { steps: 0, pages: 0 }, "a player's client tidies nothing");
+  assert.equal(entry.pages.length, 3);
+  world.user.isGM = true;
+  const done = await store.tidy({ now });
+  assert.deepEqual(done, { steps: 1, pages: 2 }, "one old step dropped (ana's), two pages deleted whole (bo's, cy's)");
+  assert.deepEqual(entry.pages.map((p) => flags(p).by), ["ana"], "bo's emptied layer and cy's lost scene are gone");
+  assert.deepEqual(Object.keys(flags(ana).history), [stepId(now - 1 * hour, "n")], "ana's old step is gone, her fresh one stays");
+  assert.deepEqual(flags(ana).tiles, { c0r0: pic(1) }, "and what is painted on the wall is never touched");
+  assert.deepEqual(await store.tidy({ now }), { steps: 0, pages: 0 }, "tidy again: nothing left to do");
+  // the first edition's pages are not ours to keep either
+  world.page(entry, { name: "old", flags: { stagecraft: { chalk: { scene: "sc", by: "ana", strokes: [] } } } });
+  assert.deepEqual(await store.tidy({ now }), { steps: 0, pages: 1 });
+  store.dispose();
+});
+
 test("a disposed store leaves no hooks behind", async () => {
   const names = ["createJournalEntryPage", "updateJournalEntryPage", "deleteJournalEntryPage", "createJournalEntry", "updateJournalEntry", "deleteJournalEntry", "deleteScene"];
   const before = names.map((n) => world.hooks.count(n));

@@ -13,7 +13,7 @@
  */
 
 import { NS, rawStage, isStageScene, actingGM } from "./scene-data.mjs";
-import { effectivePolicy, newestStep, overflowSteps, validTileKey, wallGrid, HISTORY } from "../core/chalk.mjs";
+import { effectivePolicy, newestStep, trimSteps, validTileKey, wallGrid, HISTORY_HOURS } from "../core/chalk.mjs";
 
 export const ENTRY_NAME = "Stagecraft chalk";
 export const FORMAT = 2;
@@ -147,11 +147,50 @@ export class ChalkStore {
         else if (data.tiles?.[key] !== undefined) remove(update, `${root}.tiles`, key);
       }
       if (step) {
-        update[`${root}.history.${step.id}`] = { at: step.at, who: game.user.id, tiles: Object.fromEntries(keys.map((k) => [k, data.tiles?.[k] ?? null])) };
-        for (const old of overflowSteps({ ...(data.history ?? {}), [step.id]: { at: step.at } }, HISTORY)) remove(update, `${root}.history`, old);
+        const made = { at: step.at, who: game.user.id, tiles: Object.fromEntries(keys.map((k) => [k, data.tiles?.[k] ?? null])) };
+        update[`${root}.history.${step.id}`] = made;
+        // a layer keeps its last few strokes AND no more than a budget of pictures (core/chalk.mjs `trimSteps`): the whole
+        // journal goes to every client that joins, so a long campaign of graffiti must not grow without bound
+        for (const old of trimSteps({ ...(data.history ?? {}), [step.id]: made }, { protect: step.id })) remove(update, `${root}.history`, old);
       }
       await page.update(update, QUIET);
       return true;
+    });
+  }
+
+  /**
+   * The acting GM's client tidies the journal when it logs in: pages of the first edition and of scenes that are gone are
+   * removed, steps of history older than HISTORY_HOURS (and any past the budget) are dropped, and a layer with no paint and
+   * no history left is deleted. Chalk that is on a wall is never touched. Returns { steps, pages }.
+   */
+  tidy({ now = Date.now(), hours = HISTORY_HOURS } = {}) {
+    if (!actingGM() || !this.entry) return Promise.resolve({ steps: 0, pages: 0 });
+    return this.#then(async () => {
+      const entry = this.entry;
+      const before = now - hours * 3600 * 1000;
+      const sceneExists = (id) => {
+        const scenes = game.scenes;
+        if (!scenes) return true;
+        return typeof scenes.get === "function" ? !!scenes.get(id) : [...scenes].some((s) => s.id === id);
+      };
+      const root = `flags.${NS}.chalk`;
+      let steps = 0;
+      const doomed = [];
+      for (const page of [...(entry.pages ?? [])]) {
+        const d = page.getFlag(NS, "chalk");
+        if (!d) continue;                                              // not a page of ours
+        if (d.v !== FORMAT || (d.scene && !sceneExists(d.scene))) { doomed.push(page.id); continue; }
+        const old = trimSteps(d.history, { before });
+        const left = Object.keys(d.history ?? {}).length - old.length;
+        if (!Object.keys(d.tiles ?? {}).length && left <= 0) { doomed.push(page.id); continue; }
+        if (!old.length) continue;
+        const update = {};
+        for (const id of old) remove(update, `${root}.history`, id);
+        await page.update(update, QUIET);
+        steps += old.length;
+      }
+      if (doomed.length) await entry.deleteEmbeddedDocuments("JournalEntryPage", doomed, QUIET);
+      return { steps, pages: doomed.length };
     });
   }
 

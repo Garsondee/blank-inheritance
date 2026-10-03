@@ -101,6 +101,7 @@ const ink = (page, box) => page.evaluate((bx) => {
   let r = 0;
   let gg = 0;
   let b = 0;
+  let mass = 0;
   for (const [key, tile] of w.composite) {
     const m = /^c(\d+)r(\d+)$/.exec(key);
     const tx = Number(m[1]) * g.tile;
@@ -111,9 +112,10 @@ const ink = (page, box) => page.evaluate((bx) => {
     const by = Math.min(y1, ty + tile.height);
     if (bx2 <= ax || by <= ay) continue;
     const d = tile.getContext("2d").getImageData(ax - tx, ay - ty, bx2 - ax, by - ay).data;
-    for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 40) { n++; r += d[i]; gg += d[i + 1]; b += d[i + 2]; }
+    for (let i = 0; i < d.length; i += 4) { mass += d[i + 3]; if (d[i + 3] > 40) { n++; r += d[i]; gg += d[i + 1]; b += d[i + 2]; } }
   }
-  return { inked: n, mean: n ? [Math.round(r / n), Math.round(gg / n), Math.round(b / n)] : null };
+  // `mass` is all the paint there is (every pixel's alpha), which lossy storage barely moves; `inked` counts pixels past a threshold
+  return { inked: n, mass: Math.round(mass / 255), mean: n ? [Math.round(r / n), Math.round(gg / n), Math.round(b / n)] : null };
 }, box);
 
 /** Take something from the box with a real click on it: a stick by its index, "magic" or "eraser". */
@@ -227,6 +229,26 @@ try {
   const brushed = await ink(L, [0.38, 0.4, 0.6, 0.55]);
   check("the brush lays soft, broad paint", brushed.inked > 1500, JSON.stringify(brushed));
 
+  // what is kept in the world is light (chalk.md §11.2): WebP, its alpha rounded to 64 steps, a few KB a tile
+  const pictures = await L.evaluate(async () => {
+    const layer = window.bench.host.chalk.store.layers(window.bench.scene.id).find((l) => l.by === game.user.id);
+    const urls = Object.values(layer?.tiles ?? {});
+    const alphas = new Set();
+    for (const url of urls.slice(0, 6)) {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      const c = document.createElement("canvas");
+      c.width = img.width; c.height = img.height;
+      const x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      for (let i = 3; i < d.length; i += 4) alphas.add(d[i]);
+    }
+    return { n: urls.length, webp: urls.every((u) => u.startsWith("data:image/webp")), alphaLevels: alphas.size, kbPerTile: Math.round(urls.reduce((n, u) => n + u.length, 0) / Math.max(1, urls.length) / 1024) };
+  });
+  check("kept pictures are WebP with their alpha rounded to 64 steps, a few KB a tile", pictures.n > 0 && pictures.webp && pictures.alphaLevels > 8 && pictures.alphaLevels <= 66 && pictures.kbPerTile < 16, JSON.stringify(pictures));
+
   // the eraser (28 pixels across) swipes down through the stroke; along its path (20 pixels wide) the paint is gone
   const swipe = [0.2165, 0.26, 0.2235, 0.36];
   const under = await ink(L, swipe);
@@ -240,7 +262,8 @@ try {
   await L.keyboard.up("Control");
   await sleep(500);
   const back = await ink(L, swipe);
-  check("Ctrl+Z puts it back", back.inked === under.inked, `${back.inked} of ${under.inked}`);
+  // what is put back is the kept picture, which is lossy WebP: the paint is back to within a pixel here and there at its edge
+  check("Ctrl+Z puts it back", Math.abs(back.mass - under.mass) <= Math.max(3, under.mass * 0.03), `${back.mass} of ${under.mass} (${back.inked} of ${under.inked} pixels)`);
   await L.keyboard.down("Control");
   await L.keyboard.down("Shift");
   await L.keyboard.press("KeyZ");

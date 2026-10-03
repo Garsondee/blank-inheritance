@@ -71,7 +71,7 @@ wire.onmessage = ({ data }) => {
   if (data.kind === "chalk-store") window.benchChalkStore?.receive(data);        // once this tab's store is made
 };
 
-const { newestStep, overflowSteps, HISTORY } = await import("/module/stagecraft/scripts/core/chalk.mjs");
+const { newestStep, trimSteps } = await import("/module/stagecraft/scripts/core/chalk.mjs");
 
 /**
  * Where chalk is kept, in memory: the same layers, tiles and history as the module's ChalkStore (a world journal there),
@@ -96,9 +96,10 @@ class MemoryChalkStore {
       page = { by, since: step?.at ?? Date.now(), tiles: {}, history: {} };
       this.pages.set(this.#key(sceneId, by), page);
     }
-    if (step) page.history[step.id] = { at: step.at, who: game.user.id, tiles: Object.fromEntries(keys.map((k) => [k, page.tiles[k] ?? null])) };
+    const made = step ? { at: step.at, who: game.user.id, tiles: Object.fromEntries(keys.map((k) => [k, page.tiles[k] ?? null])) } : null;
+    if (made) page.history[step.id] = made;
     for (const k of keys) { if (tiles[k]) page.tiles[k] = tiles[k]; else delete page.tiles[k]; }
-    for (const old of overflowSteps(page.history, HISTORY)) delete page.history[old];
+    if (made) for (const old of trimSteps(page.history, { protect: step.id })) delete page.history[old];
     this.#publish(sceneId, by);
     return true;
   }

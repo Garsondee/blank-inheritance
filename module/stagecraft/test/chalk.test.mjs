@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import {
   PALETTE, COLOURS, WALL, HISTORY, wallGrid, tileKey, parseTileKey, validTileKey, tileRect, tilesFor, toWall, toFraction,
   layerOrder, newestStep, overflowSteps, stepId, effectivePolicy, allowedAt, boxVisible, paintMask, nextOverride,
-  boxOnPage, boxSpot
+  boxOnPage, boxSpot, trimSteps, stepBytes, HISTORY_BYTES, HISTORY_HOURS
 } from "../scripts/core/chalk.mjs";
 import { describeScene } from "../scripts/core/scene.mjs";
 import { makeRig, viewFor } from "../scripts/core/rigspace.mjs";
@@ -110,6 +110,31 @@ test("a history keeps only its newest steps", () => {
   assert.deepEqual(drop, [stepId(0, "x"), stepId(10, "x"), stepId(20, "x")], "the oldest go");
   assert.deepEqual(overflowSteps({}), []);
   assert.ok(stepId(5, "z") < stepId(40, "a"), "step ids sort by time as text");
+});
+
+test("a history keeps few steps AND a budget of pictures, the newest always, and nothing older than its age", () => {
+  const pic = (n) => `data:image/webp;base64,${"x".repeat(n)}`;
+  const step = (at, ...sizes) => ({ at, who: "me", tiles: Object.fromEntries(sizes.map((n, i) => [`c${i}r0`, n ? pic(n) : null])) });
+  // bare wall: a step that covered nothing keeps nothing but nulls, so many of them fit
+  const bare = Object.fromEntries(Array.from({ length: HISTORY }, (_, i) => [stepId(i, "b"), step(i, 0, 0)]));
+  assert.deepEqual(trimSteps(bare), [], "eight steps of nulls cost nothing");
+  // over the budget: the oldest go until it fits
+  const heavy = Object.fromEntries([1, 2, 3, 4, 5].map((i) => [stepId(i, "h"), step(i, 100 * 1024)]));
+  const dropped = trimSteps(heavy);                                              // 5 x 100 KB against 320 KB
+  assert.deepEqual(dropped, [stepId(1, "h"), stepId(2, "h")], "the oldest two");
+  assert.ok(stepBytes(heavy[stepId(3, "h")]) * 3 <= HISTORY_BYTES + 3 * 64);
+  // the newest step is kept even when it alone is over the budget, and the step just made is never dropped
+  const huge = { [stepId(1, "o")]: step(1, 50 * 1024), [stepId(2, "n")]: step(2, 900 * 1024) };
+  assert.deepEqual(trimSteps(huge), [stepId(1, "o")], "the newest stays, however big");
+  assert.deepEqual(trimSteps({ [stepId(1, "o")]: step(1, 900 * 1024), [stepId(2, "n")]: step(2, 900 * 1024) }, { protect: stepId(1, "o") }), [], "a step asked to be kept is kept, so is the newest");
+  // age: steps older than `before` go, whatever their size, the protected one aside
+  const aged = { [stepId(100, "a")]: step(100, 10), [stepId(200, "b")]: step(200, 10), [stepId(300, "c")]: step(300, 10) };
+  assert.deepEqual(trimSteps(aged, { before: 250 }), [stepId(100, "a"), stepId(200, "b")]);
+  assert.deepEqual(trimSteps(aged, { before: 1000 }), [stepId(100, "a"), stepId(200, "b"), stepId(300, "c")], "all of it, if all of it is old");
+  assert.deepEqual(trimSteps(aged, { before: 1000, protect: stepId(300, "c") }), [stepId(100, "a"), stepId(200, "b")]);
+  assert.deepEqual(trimSteps({}), []);
+  assert.deepEqual(trimSteps({ junk: null, [stepId(1, "j")]: step(1, 5) }), [], "something that is not a step is not counted");
+  assert.ok(HISTORY_HOURS >= 6 && HISTORY_BYTES >= 128 * 1024, "a session's worth, and room for a handful of strokes");
 });
 
 test("the box's chalk comes in six colours, each a real colour", () => {

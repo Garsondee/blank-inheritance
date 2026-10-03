@@ -33,4 +33,6 @@ Hooks.once("ready", async () => {
   // the chalk journal is made only where a scene allows chalk, so a world that never uses it never gets one
   try { if (ChalkStore.wanted()) await ChalkStore.ensure(); } catch (err) { console.warn("stagecraft | could not make the chalk journal", err); }
   Hooks.callAll("stagecraft.ready", module.api);
+  // the acting GM's client tidies the chalk journal a little after everything has loaded: old history out, empty layers gone
+  setTimeout(() => services.chalkStore?.tidy().catch((err) => console.warn("stagecraft | could not tidy the chalk journal", err)), 8000);
 });
