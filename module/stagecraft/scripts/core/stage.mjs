@@ -416,7 +416,11 @@ export class Stage {
     // with the fight board up, a card let go in a position docks in a free place in it
     const dock = mark ? null : this.dockFor(id, x, z);
     if (dock) return { X: dock.X, Z: dock.Z, mark: null };
-    return { X: x, Z: clamp(z, this.opts.limits.z[0], this.opts.limits.z[1]), mark: mark?.id ?? null };
+    // let go where the screen's own furniture would hide it (the deck's dial), it steps back up the stage until it is seen;
+    // the holder's screen decides, and every other screen puts it where the holder's did
+    const free = { X: x, Z: clamp(z, this.opts.limits.z[0], this.opts.limits.z[1]) };
+    const seen = mark ? free : this.clearOfCover(free, c);
+    return { X: seen.X, Z: seen.Z, mark: mark?.id ?? null };
   }
 
   /** Another hand has the card now (a grab that lost to an earlier one). No event, no landing: the card stays in the air. */

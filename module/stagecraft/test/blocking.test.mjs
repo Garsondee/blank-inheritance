@@ -203,6 +203,19 @@ test("a formation keeps everyone clear of what the screen's own furniture covers
   assert.ok(Math.max(...covered(told, line)) <= HIDDEN_AT_MOST + 0.001, "and a line too");
   const broken = new Stage(scene, people, { cover: () => { throw new Error("no deck"); } });
   assert.equal(broken.formationMoves("huddle", { focus: front }).length, 5, "a cover that fails covers nothing");
+  // a card a player lets go behind the dial steps back up the stage until it is seen; elsewhere it lands where let go
+  const spot = told.rig.standing([0.5, 0.97]);
+  told.hold("p2", "u1");
+  told.setHand("p2", { x: spot.X, z: spot.Z });
+  for (let i = 0; i < 120; i++) told.step();
+  const landing = told.landingFor("p2");
+  const c = told.cards.get("p2");
+  assert.ok(landing.Z < spot.Z - 50, `it lands further back (${Math.round(landing.Z)} against ${Math.round(spot.Z)})`);
+  assert.ok(told.coveredAt(landing.X, landing.Z, c) <= HIDDEN_AT_MOST + 0.001, "where the deck hides no more than its bottom 15%");
+  const side = told.rig.standing([0.25, 0.85]);
+  told.setHand("p2", { x: side.X, z: side.Z });
+  for (let i = 0; i < 120; i++) told.step();
+  assert.ok(Math.abs(told.landingFor("p2").Z - side.Z) < 1, "let go anywhere the deck does not reach, it lands where it was let go");
 });
 
 test("a card put down at a door or a thing to look at has gone there: the stage says who, where, and what it is for", () => {
