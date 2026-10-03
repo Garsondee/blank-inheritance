@@ -1066,6 +1066,13 @@
                         "null"
                       ],
                       "description": "id of a challenge.schema.json instance if getting it is an actual roll."
+                    },
+                    "checkRef": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "id of one check inside challengeRef. The Runner rolls this check for the topic (scene-runner.mjs#checkFor); without it, the challenge's first check."
                     }
                   },
                   "additionalProperties": false

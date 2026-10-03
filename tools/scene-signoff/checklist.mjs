@@ -465,21 +465,25 @@ export const EVALUATORS = {
   // ---- Place ------------------------------------------------------------
   hasLocation(b, corpus) {
     const id = b.setEntry?.locationRef;
+    if (!id && b.setEntry?.offMap?.reason) return ok(`off the map on purpose (${b.setEntry.offMap.reason})`);
     if (!id) return no("no locationRef in scene-set.json -- this scene happens nowhere on the map");
     const loc = corpus.locations[id];
     if (!loc) return no(`locationRef "${id}" does not resolve to a file in data/locations/`);
     return ok(`${loc.name} (${id})`);
   },
   locationNotApproximate(b) {
+    if (!b.setEntry?.locationRef && b.setEntry?.offMap?.reason) return ok("off the map on purpose");
     if (!b.setEntry?.locationRef) return no("no location to judge");
     return b.setEntry.approximate ? no("marked approximate -- a guess recorded as a fact is how a map stops being trustworthy") : ok("exact");
   },
   locationHasLore(b, corpus) {
+    if (!b.setEntry?.locationRef && b.setEntry?.offMap?.reason) return ok("off the map on purpose");
     const loc = corpus.locations[b.setEntry?.locationRef];
     if (!loc) return no("no location to judge");
     return nonEmpty(loc.lore?.summary) ? ok(`${loc.lore.summary.trim().split(/\s+/).length} words`) : no("the location has no written lore summary");
   },
   locationDepth(b, corpus) {
+    if (!b.setEntry?.locationRef && b.setEntry?.offMap?.reason) return ok("off the map on purpose");
     const loc = corpus.locations[b.setEntry?.locationRef];
     if (!loc) return no("no location to judge");
     const depth = loc.depth ?? "unset";

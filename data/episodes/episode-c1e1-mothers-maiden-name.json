@@ -10,11 +10,11 @@
     "start": 1,
     "end": 1
   },
-  "summary": "Chapter One, session one. Six volunteers -- any age, any background, all new to the city -- travel in separately, then are processed into civil defence together over one ordinary day: a medical, a kit issue, an errand into the city, a canteen, and a night shift clearing vermin out of a storm drain. Nothing that happens to them today is dangerous, and two things that happen to them today are the whole campaign.",
-  "structure": "Four quarters, many short scenes rather than four long ones. The morning is warm and administrative and is shaped like a school day -- an assembly, then two periods with a kit queue between them -- because this is a school and the mecha campaign is happening around a timetable. The afternoon takes them into the city and puts them in a room with the most important stranger in the campaign, the evening is built around one NPC who claims them before anyone else does, and the night is a completely routine SF2E first combat carrying more weight than anything in it looks like it carries.",
-  "designRequirement": "Give six strangers reasons to act as one unit before anything is at stake. Plant the DNA flag. Put the antagonist in front of them, kind and useful, and let the table draw its own conclusions. Do not explain the Frames, the Watcher, Cicada, the mitflits or the Gap.",
-  "castingNote": "Taka is built to be immediately likeable and he is doing real structural work later -- warm, funny, claims all six as his table before they can decide where to sit. Play him at full warmth. What the table makes of him is theirs.",
-  "downtime": "None. One continuous day of intake -- the four-slice economy is taught next session, when there is something worth spending a slice on.",
+  "summary": "Chapter 1, Episode One. Six newcomers arrive separately, then spend their first day as candidates together: a medical that flags all six as irregular, an assembly, two school periods round kit issue, a fool's errand that an old man in a tea house turns into a win, supper, and a night clearing a nest out of the storm drains under the old town. It ends on a signature nobody can explain, and each player choosing where to spend the night.",
+  "structure": "A school day with a mecha campaign happening round it. Morning: arrival, the medical, the assembly. Midday and afternoon: two lessons round kit issue, then the city, the episode's one outing and its most important stranger. Evening: the train back, the requisition, supper with Taka. Night: the drains, the first fight, Vetch at the top, and the night's rests.",
+  "designRequirement": "Give six strangers reasons to act as one before anything is at stake. Plant the blood-screen flag. Put the antagonist in front of them, kind and useful, and let the table draw its own conclusions. Never explain the Watcher, Cicada, the mitflits or the marker.",
+  "castingNote": "Taka is built to be liked at once, and he matters later. Play him at full warmth. Vetch is the day's engine: every job comes from him, in person.",
+  "downtime": "None. One continuous day. The night's rests at the end are each player's own choice.",
   "scenes": [
     {
       "order": 0,
@@ -23,7 +23,7 @@
         "status": "drafted"
       },
       "title": "From Up Here",
-      "description": "Scene 0. The GM's opening speech over one picture: the world two hundred years on, the rift at Kortos, the Directorate and the open question of why it came to Kurose, the fishing village that became a great city and who it left behind, what a Frame is, and the gate.",
+      "description": "Scene 0. The GM's opening speech over one picture: the world two hundred years on, the rift, the Directorate, the fishing village that became a great city, what a Frame is, and the gate.",
       "briefRef": "episode-c1e1--from-up-here",
       "challengeRefs": []
     },
@@ -31,50 +31,11 @@
       "order": 1,
       "id": "the-road-in",
       "authoring": {
-        "status": "live",
-        "review": {
-          "checklistVersion": 5,
-          "passes": {
-            "place": {
-              "verdict": "CLEAR",
-              "date": "2026-09-22",
-              "rounds": 1,
-              "note": "Ingram confirmed the Candidate Gate siting from the two-panel crop, 2026-09-22"
-            },
-            "completeness": {
-              "verdict": "CLEAR",
-              "date": "2026-09-22",
-              "rounds": 1,
-              "note": "Ingram, 2026-09-22: yes to all three recommendations; we've cleared one scene for live"
-            },
-            "comprehension": {
-              "verdict": "CLEAR",
-              "date": "2026-09-22",
-              "rounds": 1,
-              "note": "Ingram, 2026-09-22: yes to all three recommendations; we've cleared one scene for live"
-            },
-            "seam": {
-              "verdict": "CLEAR",
-              "date": "2026-09-22",
-              "rounds": 2,
-              "note": "reworked to coordinates at v5; scattered -> candidate-gate, first leg fires"
-            },
-            "quality": {
-              "verdict": "CLEAR",
-              "date": "2026-09-22",
-              "rounds": 1,
-              "note": "Ingram, 2026-09-22: yes to all three recommendations; we've cleared one scene for live"
-            }
-          },
-          "waived": [],
-          "notApplicable": [],
-          "sessionRef": "sign-off 2026-09-22"
-        },
-        "gradedAt": "2026-09-22",
-        "gradedBy": "Ingram"
+        "status": "drafted",
+        "note": "Reopened 2026-10-01: rewritten whole in the house style. The 2026-09-22 seal (checklist v5, all passes clear, the Candidate Gate siting confirmed) was for the old version."
       },
       "title": "The Road In",
-      "description": "The same acceptance letter, six separate journeys. Each player in turn says how their character looks, how we first see them, and one small problem they hit on the way into the city -- then names the skill they used, rolls it, and tells us how it went. Deliberately no shared beat -- they do not meet yet.",
+      "description": "Scene 1. The acceptance letter, then each character's first moment on screen: how they look, how we first see them, and a small problem on the way in, rolled and told by the player. A violet mark at head height on a wall. They don't meet yet.",
       "briefRef": "episode-c1e1--the-road-in",
       "challengeRefs": [
         "c1e1-the-road-in"
@@ -89,7 +50,7 @@
         "status": "drafted"
       },
       "title": "Intake Medicals",
-      "description": "A queue, a form that asks for mother's maiden name twice, and a two-hundred-year-old doctor telling each of them privately that their blood screen came back irregular and not to worry about it. This is where the six of them are a group for the first time.",
+      "description": "Scene 2. The six meet in the infirmary queue. Forms, then a private medical with Doctor Mordant, who tells each of them their screen came back irregular. They come out as Section Nine.",
       "briefRef": "episode-c1e1--intake-medicals",
       "challengeRefs": [
         "c1e1-the-medical"
@@ -104,7 +65,7 @@
         "status": "drafted"
       },
       "title": "Assembly",
-      "description": "The whole intake is gathered in the drill hall and addressed by the Deputy Director. This is the session's -- and the campaign's -- one deliberate exposition beat: what this city is, what the Directorate is for, what happened here, and what these students are actually being asked to become. It is also the roster parade: every significant adult in the campaign is on that platform or along that wall, with their rank and department legible, and the party gets one look at all of them before any of them matter. Built with real things to do rather than a monologue -- the speech carries the official version, and the checks carry what the speech leaves out.",
+      "description": "Scene 3. The whole intake in the drill hall: the anthem, the charter, and the Deputy Director's address on what the Directorate is, how their days run, and its two rules. Vetch collects Section Nine.",
       "briefRef": "episode-c1e1--assembly",
       "challengeRefs": [
         "c1e1-assembly"
@@ -119,7 +80,7 @@
         "status": "drafted"
       },
       "title": "School: First Period",
-      "description": "An hour after being told what they are, the party has double period one like anybody else. Two rooms at opposite ends of a corridor: the city on a wall map, taught by a man fond of it, or a workshop safety induction run by a woman with horns who is shouting before the last of them is through the door. One optional roll each, and the first checks in the campaign that can cost something.",
+      "description": "Scene 4. Each player picks a room: local studies, where the four founders are named, or Hulda Brack's workshop induction. What they win or lose shows tonight.",
       "briefRef": "episode-c1e1--school-first-period",
       "challengeRefs": [
         "c1e1-school-first-period"
@@ -134,7 +95,7 @@
         "status": "drafted"
       },
       "title": "Kit Issue",
-      "description": "A busy quartermaster's counter. Every player picks personnel equipment from a curated Directorate menu, and any player who works Nobu socially can earn one small, unexplained extra -- a plant, not a payoff, for much later. Personnel kit only: vehicles and Frames are Episode Two's business. The Section Officer turns up at the end in person, to inspect what they drew, find fault with it, and hand them the afternoon's errand himself. GM tool: @UUID[Macro.865e0ce3b7d302e5]{Open Equipment Locker} -- opens the real inventory UI, already showing every connected player the same catalogue and budget.",
+      "description": "Scene 5. Uniforms and a hundred and fifty credits of kit each from Nobu's counter. Then Vetch inspects them and hands Section Nine a docket for the city: COMPOUND, LEVELLING, BUBBLE, ONE.",
       "briefRef": "episode-c1e1--kit-issue",
       "challengeRefs": [
         "c1e1-kit-issue"
@@ -149,7 +110,7 @@
         "status": "drafted"
       },
       "title": "School: Second Period",
-      "description": "The last lesson before they are let off campus, and the first hour of the day where an adult is pleased to see them. A room of jars and trays holding thirty years of things caught within a mile of it, or a live telephone exchange where eleven people connect every call on the island and have never once listened to one.",
+      "description": "Scene 6. A free period: natural history, where they learn what lives in the drains, or the small-arms range. Both pay off tonight.",
       "briefRef": "episode-c1e1--school-second-period",
       "challengeRefs": [
         "c1e1-school-second-period"
@@ -164,7 +125,7 @@
         "status": "drafted"
       },
       "title": "The Errand",
-      "description": "A collection run into the city -- the session's only exterior, and the only time all six are outdoors together. The Directorate's docket lists the item under a catalogue name nobody has used in a century, so the task is unfinishable until a retired chemist in a tea house reads it in nine seconds and explains it twice, because he enjoys explaining. He is kind, he is useful, he says one true and unsettling thing about their employer, and he offers them a way to reach him again. The party gets a real, disclosed choice over how to file the win against the man who sent them. Somewhere on the route, a cicada stencil on a wall: unremarked, unexplained, worth nothing today. GM-ONLY: the old man is the campaign's primary antagonist and nothing in the scene may suggest it.",
+      "description": "Scene 7. Into the city with the docket. The instrument makers laugh and send them to Manako, who owns a tea house, was hazed the same way once, and shows them how to win: requisition the real part. A second violet mark on the way.",
       "briefRef": "episode-c1e1--the-errand",
       "challengeRefs": [
         "c1e1-the-errand"
@@ -179,7 +140,7 @@
         "status": "drafted"
       },
       "title": "The Tram Back",
-      "description": "A short, quiet connective scene -- no NPCs, no mandatory checks -- giving the six of them a few unstructured minutes between The Errand and the canteen's noise.",
+      "description": "Scene 8. The island train home at dusk, nothing asked of anyone for twenty minutes, then the requisition handed in at the stores before nineteen hundred.",
       "briefRef": "episode-c1e1--the-tram-back",
       "challengeRefs": [
         "c1e1-the-tram-back"
@@ -194,7 +155,7 @@
         "status": "drafted"
       },
       "title": "Canteen",
-      "description": "Taka claims all six of them as his table before the plates are cleared, and the wider trainee body gets its first real screen time. The room is a crowd scene and should carry at least three gatherable rumours for social checks. Ends with the Section Officer walking in personally to read Section Nine's assignment out -- last, worst, non-negotiable, storm drain clearance -- and standing there while it lands.",
+      "description": "Scene 9. Supper in the Long Hall. Taka claims the six as his table. Vetch reads the evening's orders and gives Section Nine the storm drains, Dock C at twenty-one hundred.",
       "briefRef": "episode-c1e1--canteen",
       "challengeRefs": [
         "c1e1-canteen"
@@ -209,7 +170,7 @@
         "status": "drafted"
       },
       "title": "The Walk Down",
-      "description": "The session's deliberate relax beat between the canteen's cold ending and the fight -- ten minutes, no NPCs required (Taka may see them off), kitting up and walking to Dock C with nobody else in the room.",
+      "description": "Scene 10. Waders that don't fit, Vetch's one-line briefing at Dock C, and the duty launch across the harbour to the old town.",
       "briefRef": "episode-c1e1--the-walk-down",
       "challengeRefs": [],
       "day": 1,
@@ -222,7 +183,7 @@
         "status": "drafted"
       },
       "title": "Flood Tunnel Clearance",
-      "description": "The campaign's first fight. Two quick checks to get the drainage and compactor system running, which is what wakes the six Giant Centipedes nesting in it. An optional closing-in hazard -- the compactor cycle itself -- can run alongside the fight for a harder, more tactical version. The Section Officer is waiting at the top when they come out, to take the report and to make clear what he thought of it. Ends with a long rest back at student accommodation.",
+      "description": "Scene 11. The first fight: power the line, clear the feed, and a nest of giant centipedes wakes. Vetch is waiting at the top with their requisition, countersigned by someone called Rand. Then each player picks where to spend the night.",
       "briefRef": "episode-c1e1--flood-tunnel",
       "challengeRefs": [
         "c1e1-flood-tunnel"
@@ -234,24 +195,24 @@
     }
   ],
   "requiredBeats": [
-    "Every one of the six is told privately that their screen flagged, and the party is given every opportunity to work out it was all of them.",
-    "Nobody explains what the screen tests for. Shucks is forbidden, and he thinks the rule is stupid.",
-    "An old man in a tea house solves a problem the Directorate could not, says one true thing about the Directorate, and leaves the party a way to contact him. Nothing in the scene suggests he is anything other than kind, because in that scene he is nothing other than kind.",
-    "The Section Officer is met in person, more than once, and is the one who hands them the night's job himself.",
-    "The Deputy Director addresses the intake, and the party hears -- from the top of the organisation, in public -- what the Directorate says it is for and what it says they are for.",
-    "Every significant adult in the campaign is visible at the Assembly, with rank and department legible, before any of them becomes important.",
-    "The party sits two school periods, each a free choice between two rooms, and comes out of them with something they can use or with extra work that costs them the afternoon or the night."
+    "Each of the six is told alone that their screen came back irregular, and the table can work out it was all of them.",
+    "Nobody explains what the screen tests for.",
+    "The table hears the four founders' names: Shucks's badge at the medical, then the history lesson.",
+    "Vetch is met in person: at the assembly, with the docket, with the night's order, at Dock C, and at the top of the drains.",
+    "The Deputy Director tells the intake what the Directorate says it is for, and its two rules: disobeying an order is serious, breaking curfew is not.",
+    "An old man in a tea house turns the fool's errand into a win and says one true thing about the Directorate. Nothing in the scene suggests he is anything but kind.",
+    "Each school period is a free choice of room, and what they win or lose pays off tonight.",
+    "The episode ends with each player choosing their own night's rest."
   ],
   "endOfEpisodeEffects": [],
   "openQuestionRefs": [],
   "danglingThreads": [
-    "Why every acceptance letter this year was stamped BROUGHT FORWARD over its printed date.",
-    "What a blood screen with a pre-printed IRREGULAR tick-box is actually looking for.",
-    "Whose hands signed the founding charter, and why one of them is in a script nobody here reads.",
-    "Who the old man in the tea house is, and why a retired chemist reads a century-old catalogue like sheet music.",
-    "That trainee messages are read as routine policy, and that the party agreed to it this morning without reading the form.",
-    "A cicada, stencilled on a wall in the city, that meant nothing at the time.",
-    "The name on the order that assembled them, spoken once from the platform and not explained."
+    "Why every acceptance letter this year was stamped BROUGHT FORWARD.",
+    "What the blood screen's IRREGULAR box is looking for.",
+    "Who Rand is: a countersignature in green ink, and nobody of that name in Medical.",
+    "Who the old man in the tea house really is.",
+    "Violet marks at head height, seen twice in one day.",
+    "A father on the radio, and his daughter held without charge."
   ],
-  "notes": "FOUR STANDING RULES SET BY THIS EPISODE, applied across all content from here on.\n\n1. THE SECTION OFFICER IS A REAL, PRESENT CHARACTER -- \"not a voice over a tannoy, but instead a real minor antagonist\" (Ingram). He appears in person at the end of Kit Issue to inspect and to hand out the errand, in person at the Canteen to read the storm-drain assignment out himself, and in person at the top of the drain when they come back up. He is the impetus that pushes the party to the next task and the voice that gives feedback on the last one.\n\n2. NEVER PREDICT THE TABLE'S RESPONSE. No line in any file may assert what the table will feel, decide or conclude. State what the SCENE does instead. (Earlier drafts of this episode's structure and casting notes broke this; both were rewritten.)\n\n3. CROWD SCENES CARRY RUMOURS -- at least three, gatherable by social checks. Assembly has its set authored. Canteen does not yet; see that file's meet-someone beat, where the gap is flagged.\n\n4. SESSION LENGTH IS NOT A CONSTRAINT. Sessions are units of content, not units of time. Nothing is cut or compressed to fit a clock.\n\nASSEMBLY, placed third. Ingram: \"I'd like the players to be gathered into an assembly where they will get an exposition dump from the Deputy Director and at this event we can have the players witness lots of these characters and see them for the first time, notice their rank, understand their role and get an early impression of who they are... I noticed a lack of this sort of information in the first session or chapter.\" Between Intake Medicals and Kit Issue: processed as bodies, addressed as a cohort, equipped as personnel, sent out as a unit. It is deliberately the one place in Chapter One where the world is explained out loud, and it is built so the explaining is not a monologue -- the speech carries the official version, the checks carry what it leaves out.\n\nTHE CICADA STENCIL planted on The Errand's route is the earliest seed of the cult: worth nothing at the time, and the same mark that turns up again at the Episode Two manifestation site.\n\nBuild history: design/episode-one-redesign.md and bible/LEDGER.md #20.\n\nSCHOOL. Two periods on day one, bracketing kit issue. Four rooms, none of them the same kind of room: the city on a wall map, a workshop safety induction, a natural history collection, and a live telephone exchange. Three rules govern every school period in this campaign and they are not negotiable -- not rolling is free and is a normal thing for a student to do; the risks and rewards are never announced beforehand; and failure costs something real.\n\nTHE FAILURE CURRENCY ON DAY ONE IS NOT A QUARTER. The four-quarter day is not named to players until The Board, in Episode Two. First period charges failure against the slack in the afternoon errand -- which is where the tea house, the old man and the cicada stencil all live. Second period is too late in the day for that, so it charges the evening instead and sends them into the flood tunnel Fatigued. By the time The Board explains the time economy, a player who failed here has already felt what losing free time costs, which is the better teaching order.\n\nWHAT THE FOUR ROOMS PAY OUT, NONE OF IT ANNOUNCED. Local studies pays this afternoon on The Errand. The workshop pays tonight in the tunnel and again in next episode's hangar, and its critical success is Brack using the player's name. Natural history pays tonight as a free, already-made Recall Knowledge on the centipedes. Signals pays next episode and changes a scene rather than helping a check -- a player who sat it can hear that the Comms Officer broke procedure to warn them.\n\nEMOTIONAL ARROW SEQUENCE: ~ + + ~ + + - ~ +/- ~ +\n\nMarked scene by scene against pacing-and-the-responsive-campaign.md §6 heuristic 10 -- alternate the arrows, and treat a run of consecutive downs as a fault rather than a mood. Longest run of pure downs is one. The method and what the pass found is design/scene-audit.md §9. Re-run it by hand if scenes are added, reordered or retoned; it cannot be automated, because the arrow is a judgement about what a scene does to the party rather than anything in the data."
+  "notes": "Every scene is in canon/scenes, in the house style, waiting for Ingram's read.\n\nSTANDING RULES FROM THIS EPISODE\n1. Vetch is a real, present character, never a voice over a tannoy: every job comes from him in person.\n2. Never predict the table's response. State what the scene does.\n3. Session length is not a constraint.\n\nTHE SCHOOL PERIODS. Not rolling is free; nothing is announced; failure costs something real. Every payoff lands tonight:\n- Local studies: the founders' names on any result; a failure makes them last into the stores, where the handlamps have run out.\n- Workshop: +2 circumstance on panel work in the drains.\n- Natural history: the centipedes already known (a free Recall Knowledge); on a critical success, a show of force sends one running.\n- The range: +1 circumstance on a first ranged Strike tonight.\n- Any critical failure: Fatigued tonight.\n\nTHE VIAL. Vetch's docket (Kit Issue) is the hazing. Manako's plan (The Errand) turns it: requisition the real part. It goes in at the hatch (The Tram Back), earns them the drains (Canteen), and comes back countersigned by Rand (Flood Tunnel Clearance). Rand is Shucks's detached right hand; nobody knows."
 }

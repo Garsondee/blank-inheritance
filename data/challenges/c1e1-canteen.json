@@ -5,95 +5,51 @@
   "authoring": {
     "status": "drafted"
   },
-  "name": "The Canteen -- finding out it's not just drains",
-  "description": "Three ways at the same fact, at three different costs, plus one pure-flavor social check. The assignment itself never changes on any result -- these only change what the party knows walking in. Nobody has to succeed at any of this, or even try; the scene works exactly as intended if they walk into the tunnels cold.",
+  "name": "Canteen",
+  "description": "Two optional checks at supper. Neither changes the order.",
   "levelContext": 1,
   "checks": [
     {
-      "id": "sit-with-someone",
-      "name": "Find a seat",
-      "skillOptions": [
-        "diplomacy",
-        "performance"
-      ],
-      "dc": {
-        "value": 13,
-        "basis": "level 1 DC 15, one step easy -- this is a treat, not a test",
-        "adjustment": "easy"
-      },
-      "outcomes": {
-        "criticalSuccess": "A good table, a good conversation, somebody worth remembering.",
-        "success": "It goes fine.",
-        "failure": "Politely, gently brushed off -- everyone's tired, nothing personal.",
-        "criticalFailure": "Comically awkward, entirely harmless -- wrong table, wrong conversation, no lasting damage."
-      },
-      "repeatable": true
-    },
-    {
-      "id": "know-the-drains",
-      "name": "Know what storm drains near the harbour are actually like",
-      "skillOptions": [
-        "nature",
-        "survival"
-      ],
-      "dc": {
-        "value": 17,
-        "basis": "level 1 DC 15, one step hard -- free, fast, and skips the conversation entirely",
-        "adjustment": "hard"
-      },
-      "insight": true,
-      "outcomes": {
-        "criticalSuccess": "This time of year, with the tide the way it's been, drains like that don't just need clearing -- something's usually nesting in them. This isn't maintenance. This is pest control that got called maintenance.",
-        "success": "Storm drains near the water get infestations this time of year. Nobody puts that on the assignment sheet.",
-        "failure": "Nothing they can pin down. Drains are drains.",
-        "criticalFailure": "They confidently explain it's just silt buildup, seasonal, nothing living gets in there. This is wrong, and they'll say so with total confidence if asked."
-      }
-    },
-    {
-      "id": "ask-taka",
-      "name": "Ask Taka, specifically",
-      "skillOptions": [
-        "diplomacy",
-        "perception"
-      ],
-      "dc": {
-        "value": 15,
-        "basis": "level 1 standard DC -- he'll tell you if you actually ask, not just make conversation",
-        "adjustment": "none"
-      },
-      "insight": true,
-      "outcomes": {
-        "criticalSuccess": "The nicknames stop for one second. \"Storm drains. Right.\" A beat. \"Bring a light. They don't like light.\" Then he's back to normal, already talking about something else.",
-        "success": "\"Storm drains, huh.\" A short pause, longer than anything else he's said all night. \"Wear the boots. Trust me.\" He doesn't explain further and visibly doesn't want to be asked again.",
-        "failure": "He deflects into a joke and the moment passes -- not because he's hiding anything, he just genuinely didn't hear the question over his own noise.",
-        "criticalFailure": "He gives a completely straight-faced, completely wrong answer for a laugh, and it lands as a joke, not information. No one at the table is actually misled by it -- it's too obviously a bit."
-      },
-      "bySkill": {
-        "society": "Knowing what is worth asking a person like this in a room like this, which gets further than charm does."
-      }
-    },
-    {
       "id": "read-the-announcement",
-      "name": "Read him, not just the words",
+      "name": "Read Vetch, not the order",
       "skillOptions": [
         "perception",
         "deception"
       ],
       "dc": {
         "value": 15,
-        "basis": "level 1 standard DC -- he is not hiding it well, but he is not announcing it either, and it reads as an ordinary duty list to anyone not watching for the seam",
+        "basis": "level 1, no adjustment",
         "adjustment": "none"
       },
       "insight": true,
       "outcomes": {
-        "criticalSuccess": "He looks up for Section Nine and for no other entry on the list, and he has the page held at a spot he did not need to check. He came down here to read this one out. This is personal, and it is one man, not an institution.",
-        "success": "He reads every other section without lifting his head, and looks up for theirs. Whatever this assignment is, he wanted to see it land.",
-        "failure": "An officer reading a duty list off a clipboard. It sounds like a duty list.",
-        "criticalFailure": "They decide with total confidence that it is the easiest assignment on the list, precisely because he read it so evenly. This is wrong, and it will cost them nothing except a bad night's sleep skipped."
+        "criticalSuccess": "As success, and the stores receipt for their requisition is clipped to his board. This is about the vial.",
+        "success": "He reads every other section without lifting his head, and looks up for theirs. He came to watch this one land.",
+        "failure": "It sounds like a duty list.",
+        "criticalFailure": "They decide it's the easiest job on the list, he read it so evenly."
       },
-      "bySkill": {
-        "society": "Hearing what the assignment actually is underneath what it is being called, which is a different skill from noticing how it was said."
-      }
+      "repeatable": false
+    },
+    {
+      "id": "ask-taka",
+      "name": "Ask Taka what's down there",
+      "skillOptions": [
+        "diplomacy",
+        "perception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "\"I did the drains my first month. Something nests down there every spring. Get up on the walkways and stay out of the water.\"",
+        "success": "\"Something lives down there. Keep out of the water if you can.\" He doesn't want to be asked again.",
+        "failure": "He makes a joke of it and asks about the pickles.",
+        "criticalFailure": "He laughs it off so well that they decide there's nothing down there."
+      },
+      "repeatable": false
     }
   ],
   "resolutionMode": "narrative-only",
@@ -104,5 +60,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--canteen"
   ],
-  "notes": "sit-with-someone is pure texture, same design rule as a-flourish/test-the-fit. The three investigation checks (know-the-drains, ask-taka, read-the-announcement) are the 'hard recall knowledge or verbal investigation' paths -- offer all three as genuinely separate options, not a single gated check. None of them change the assignment. All they change is whether the party walks into the flood tunnel fight (ch1-v2.md §6, Episode One Night -- not yet its own challenge file, tracked in GitHub issue #140) informed or blind.\n\nFOURTH PERSON-READ OF THE EPISODE. Intake Medicals reads Shucks, Assembly reads the staff line, The Errand reads the old man, and this reads the Section Officer. All four earn their place and none should be cut, but they are close enough together that they must not also share a route: this one is Deception rather than Medicine because what is being spotted is a performance, not a body. Do not add a fifth -- see design/scene-audit.md section 10b."
+  "notes": "Nothing here changes the order."
 }

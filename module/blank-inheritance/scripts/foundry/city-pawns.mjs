@@ -63,7 +63,8 @@ export async function ensurePawns(hub, placeOf) {
     const y = Math.round(point.y - half);
     const existing = pawnFor(hub, userId);
     if (existing) {
-      updates.push({ _id: existing.id, x, y, width: PAWN_SQUARES, height: PAWN_SQUARES, hidden: false });
+      // actorLink heals a pawn made before pawns were linked (see below).
+      updates.push({ _id: existing.id, x, y, width: PAWN_SQUARES, height: PAWN_SQUARES, hidden: false, actorLink: true });
       continue;
     }
     const base = (await actor.getTokenDocument({ x, y })).toObject();
@@ -75,6 +76,11 @@ export async function ensurePawns(hub, placeOf) {
       width: PAWN_SQUARES,
       height: PAWN_SQUARES,
       hidden: false,
+      // Linked, so the pawn's actor IS the character's own Actor. "The character's real token" was
+      // only true of a character whose prototype token happened to be linked; an unlinked pawn
+      // stands for a synthetic copy parented to the token, and that copy loops forever on any
+      // ownership entry set to INHERIT (core/ownership.mjs).
+      actorLink: true,
       ring: resolveTokenRing("character", {}),
       // The map is read whole (scene-build.mjs turns the hub's vision off); a pawn never limits what its player sees.
       sight: { ...(base.sight ?? {}), enabled: false },

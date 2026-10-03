@@ -1,0 +1,210 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--school-second-period",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "school-second-period",
+  "title": "School: Second Period",
+  "summary": "Scene 6. Their first free period, as the Deputy Director promised: a natural history lesson, or the small-arms range. Each one pays off tonight.",
+  "goal": "Each player has spent the period where they chose, and Section Nine leaves for the city with the docket.",
+  "howToPlay": "Warm and quick: the first adults who are glad to see them. Each player picks; cut between the two. Not rolling is always fine.",
+  "runsAbout": "15 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The school block and the Butts, the period after the stores.",
+    "readAloud": "The timetable has nothing against second period but two words: own choice. Down the corridor, a door is propped open on a room that smells of seawater and preserving jars. Across the yard, a long roofed range is popping with small-arms fire.",
+    "landmark": "The yard between the school block and the range.",
+    "carriesIn": [
+      {
+        "when": "After Kit Issue",
+        "then": "Someone has the docket in a pocket, and they're due in the city after this."
+      }
+    ],
+    "position": {
+      "locationRef": "main-school-complex",
+      "state": "together",
+      "note": "Between the school block and the Butts."
+    }
+  },
+  "cast": [
+    {
+      "id": "natural-history-teacher",
+      "npcRef": "school-natural-history-teacher",
+      "role": "Teaches natural history from thirty years of the city's drains and tide-line.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Anyone, at all, to be interested.",
+        "opensWith": "A jar pressed into the nearest hands: \"Hold that. Both hands. It's heavier than it looks.\"",
+        "willDiscuss": [
+          {
+            "topic": "What lives in the city's drains",
+            "note": "\"Centipedes as long as your arm, this time of year. They climb, they nest, and they bite.\""
+          },
+          {
+            "topic": "Her unlabelled jars",
+            "note": "She took the label off one eleven years ago, because the label was a guess."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What's in the unlabelled jar",
+            "why": "She won't guess twice: \"I don't know. Somebody will, one day.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Fast and delighted. Says the Latin, then the real name. Loves \"I don't know\".",
+          "samples": [
+            "\"Ask me something. Anything. I've four minutes and nobody ever asks me anything.\"",
+            "\"That one bites. It won't kill you. It'll ruin a fortnight.\"",
+            "\"I don't know. Isn't that wonderful?\""
+          ]
+        },
+        "statblock": "Proposed: level 1, a teacher, non-combat."
+      }
+    },
+    {
+      "id": "range-officer",
+      "npcRef": "range-safety-officer",
+      "role": "Runs the line at the Butts.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Nobody shot, and every round accounted for.",
+        "opensWith": "\"Line is safe. Weapons down, hands off. Who's fired one before? Don't lie to me.\"",
+        "willDiscuss": [
+          {
+            "topic": "Their weapon",
+            "note": "How it pulls, how to clean it, and how to carry it so it never points at anyone."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Frames",
+            "why": "\"Different range. Different day.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Calm. Loud when it matters, and never twice.",
+          "samples": [
+            "\"The line is hot.\"",
+            "\"Breathe out, then squeeze. No. Out.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, a range officer, can fight."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "which-room-again",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Each player picks: the natural history lesson, or the range.",
+      "choicePoint": {
+        "label": "Second period. A lesson, or the range?",
+        "options": [
+          {
+            "id": "natural-history",
+            "label": "Natural history: a room full of jars.",
+            "consequence": "A teacher very glad to see them, and what lives in the drains."
+          },
+          {
+            "id": "the-range",
+            "label": "The range: the Butts.",
+            "consequence": "Their new weapon, fired for the first time."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "note": "If someone picks the gymnasium or the library: A line or two of scene, and a roll on whatever skill fits.",
+      "facts": [
+        "directorate.free-time"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "natural-history",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "natural-history-teacher",
+      "text": "The teacher hands round the jars. If anyone engages, offer the check.",
+      "when": {
+        "condition": "someone chose natural history"
+      },
+      "note": "Plant: Three jars on the top shelf have no labels.\nSecret: Undecided, even to the GM. Nothing in this episode explains them.",
+      "challengeRef": "c1e1-school-second-period",
+      "checkRef": "what-lives-down-there",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-range",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "range-officer",
+      "text": "At the Butts, the range officer runs them through their weapons. If anyone fires, offer the check.",
+      "when": {
+        "condition": "someone chose the range"
+      },
+      "challengeRef": "c1e1-school-second-period",
+      "checkRef": "range-qualification",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "corridor-again",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The bell. Thirty seconds to compare, then a pass at the gate and the train into the city.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The bell; they leave with the docket and a pass.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "The docket says the instrument makers, in the city, back by nineteen hundred.",
+      "scatterRisk": false
+    },
+    "onwards": "The Errand, in the city.",
+    "writeDown": [
+      "Who went where, and what they rolled.",
+      "Anyone Fatigued tonight."
+    ],
+    "position": {
+      "locationRef": "main-school-complex",
+      "state": "together",
+      "note": "Leaving for the gate and the city."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-jar",
+      "text": "One jar on the top shelf has no label, and the teacher is watching to see who notices."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-choice",
+      "text": "Players enjoying a choice of their own."
+    },
+    {
+      "id": "warmth",
+      "text": "The two teachers landing as people glad to see them."
+    }
+  ],
+  "notes": "D053 promised the afternoons are theirs to choose; this is the first. What each pays tonight: natural history makes the Recall Knowledge on the centipedes in advance; the range gives +1 on a first ranged Strike. A critical failure in either sends a character into tonight's job Fatigued. The telephone exchange and civil defence are still on the timetable for another day."
+}

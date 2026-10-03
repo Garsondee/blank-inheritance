@@ -1,0 +1,1088 @@
+{
+  "$comment": "Which scenes the adventure draws with Stagecraft: Puppet Show, and how. A key is a scene-set id (data/campaign/scene-set.json). 'description' is Stagecraft's own stage description (module/stagecraft/scripts/core/scene.mjs: everything positional is a fraction of the painting); the rest is the adventure's, keyed by each person's own id: where they stand when they arrive (places), the slots anyone else takes, the row the party stands in, what they do on their own (life: a Stagecraft routine), how they arrive (enter: walk on from left, right or the back, or rise out of the floor), a habit shown over their head now and then (emotes), the scene's authored blocking (moments: buttons on the GM's strip), and what a fired trigger does (onTrigger: summon people, play a moment). Read by foundry/stagecraft-bridge.mjs; a deploy that changes an entry changes the scene.",
+  "version": 2,
+  "skin": "brass",
+  "stages": {
+    "e1-flood-tunnel": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--flood-tunnel.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.42, "floorFront": 0.93, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.15,
+        "focus": [0.5,0.75],
+        "lights": [
+          { "id": "spot-left", "at": [0.39,0.1], "below": 0.78, "colour": [120,232,216], "intensity": 1.1, "flicker": 0.03, "pool": 400, "shadow": true },
+          { "id": "spot-right", "at": [0.607,0.14], "below": 0.74, "colour": [120,232,216], "intensity": 1, "flicker": 0.04, "pool": 380, "shadow": true },
+          { "id": "lamp-left", "at": [0.1,0.34], "below": 0.7, "colour": [255,150,90], "intensity": 0.7, "flicker": 0.12, "flickerHz": 9, "pool": 260 },
+          { "id": "lamp-right", "at": [0.87,0.41], "below": 0.7, "colour": [255,168,100], "intensity": 0.7, "flicker": 0.1, "flickerHz": 8, "pool": 260 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "left-walkway", "kind": "area", "name": "The left walkway", "tags": ["high ground", "dry"], "colour": [240,186,92], "shape": [[0.04,0.665],[0.26,0.655],[0.285,0.79],[0.05,0.81]], "near": ["flood", "compactor"] },
+          { "id": "flood", "kind": "area", "name": "The flood", "tags": ["difficult terrain", "dim light"], "colour": [112,196,222], "shape": [[0.29,0.665],[0.73,0.665],[0.755,0.8],[0.7,0.875],[0.33,0.875],[0.27,0.79]], "near": ["left-walkway", "compactor", "panels", "right-walkway"] },
+          { "id": "compactor", "kind": "area", "name": "The compactor", "tags": ["hazard"], "colour": [226,118,104], "shape": [[0.3,0.6],[0.455,0.6],[0.465,0.66],[0.29,0.66]], "near": ["flood", "left-walkway"] },
+          { "id": "panels", "kind": "area", "name": "The panels", "tags": ["the controls"], "colour": [146,208,126], "shape": [[0.575,0.6],[0.735,0.6],[0.745,0.66],[0.565,0.66]], "near": ["flood", "right-walkway"] },
+          { "id": "right-walkway", "kind": "area", "name": "The right walkway", "tags": ["high ground", "dry"], "colour": [196,150,232], "shape": [[0.76,0.64],[0.95,0.63],[0.96,0.8],[0.76,0.79]], "near": ["flood", "panels"] }
+        ],
+        "marks": [
+          { "id": "walkway-left-1", "at": [0.13,0.74], "yaw": 20, "label": "the walkway", "group": "walkway-left", "zone": "left-walkway" },
+          { "id": "walkway-left-2", "at": [0.21,0.75], "yaw": 14, "label": "the walkway", "group": "walkway-left", "zone": "left-walkway" },
+          { "id": "walkway-right-1", "at": [0.87,0.75], "yaw": -20, "label": "the walkway", "group": "walkway-right", "zone": "right-walkway" },
+          { "id": "walkway-right-2", "at": [0.8,0.73], "yaw": -14, "label": "the walkway", "group": "walkway-right", "zone": "right-walkway" },
+          { "id": "panels-1", "at": [0.62,0.64], "yaw": 160, "label": "at the panels", "group": "panels", "zone": "panels" },
+          { "id": "panels-2", "at": [0.69,0.64], "yaw": 165, "label": "at the panels", "group": "panels", "zone": "panels" },
+          { "id": "compactor-1", "at": [0.38,0.64], "yaw": 170, "label": "at the compactor", "zone": "compactor" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.95, "x": [0.14,0.86], "gap": [0.4,0.6], "of": 6 },
+      "npcSlots": [[0.18,0.76],[0.5,0.7],[0.82,0.76]],
+      "places": {
+        "section-officer": [0.1,0.77],
+        "giant-centipede-1": [0.4,0.74],
+        "giant-centipede-2": [0.5,0.72],
+        "giant-centipede-3": [0.6,0.745],
+        "giant-centipede-4": [0.43,0.81],
+        "giant-centipede-5": [0.55,0.8],
+        "giant-centipede-6": [0.66,0.82]
+      },
+      "sizes": { "giant-centipede-1": 0.9, "giant-centipede-2": 0.9, "giant-centipede-3": 0.9, "giant-centipede-4": 0.95, "giant-centipede-5": 0.95, "giant-centipede-6": 0.95 },
+      "demeanours": { "giant-centipede-1": "nervous", "giant-centipede-2": "bouncy", "giant-centipede-3": "nervous", "giant-centipede-4": "bouncy", "giant-centipede-5": "nervous", "giant-centipede-6": "bouncy", "section-officer": "proud" },
+      "life": {
+        "giant-centipede-1": { "kind": "swarm", "radius": 0.05, "every": 2.4, "restless": 0.7 },
+        "giant-centipede-2": { "kind": "swarm", "radius": 0.05, "every": 2.8, "restless": 0.7 },
+        "giant-centipede-3": { "kind": "swarm", "radius": 0.05, "every": 2.2, "restless": 0.7 },
+        "giant-centipede-4": { "kind": "swarm", "radius": 0.06, "every": 2.6, "restless": 0.7 },
+        "giant-centipede-5": { "kind": "swarm", "radius": 0.06, "every": 3, "restless": 0.7 },
+        "giant-centipede-6": { "kind": "swarm", "radius": 0.06, "every": 2.5, "restless": 0.7 }
+      },
+      "enter": {
+        "giant-centipede-1": "rise",
+        "giant-centipede-2": "rise",
+        "giant-centipede-3": "rise",
+        "giant-centipede-4": "rise",
+        "giant-centipede-5": "rise",
+        "giant-centipede-6": "rise",
+        "section-officer": { "from": "left", "gait": "march" }
+      },
+      "moments": {
+        "the-nest-wakes": { "label": "The nest wakes", "tip": "The fight board goes up for everyone: the walkways, the flood, the compactor and the panels, and who is in each.", "board": true, "life": true },
+        "break-for-the-grate": { "label": "They break for the grate", "tip": "Once half are down, the rest scurry back to the grate in the middle of the flood.", "gait": "scurry", "places": { "giant-centipede-1": { "at": [0.46,0.76], "packed": true }, "giant-centipede-2": { "at": [0.52,0.75], "packed": true }, "giant-centipede-3": { "at": [0.57,0.765], "packed": true }, "giant-centipede-4": { "at": [0.48,0.79], "packed": true }, "giant-centipede-5": { "at": [0.54,0.795], "packed": true }, "giant-centipede-6": { "at": [0.5,0.78], "packed": true }} },
+        "fight-over": { "label": "The fight is over", "tip": "The fight board comes down.", "board": false }
+      },
+      "onTrigger": {
+        "nest-wakes": { "summon": [{ "id": "giant-centipede-1", "name": "Giant Centipede", "img": "modules/blank-inheritance/assets/stage/giant-centipede.webp" },{ "id": "giant-centipede-2", "name": "Giant Centipede", "img": "modules/blank-inheritance/assets/stage/giant-centipede.webp" },{ "id": "giant-centipede-3", "name": "Giant Centipede", "img": "modules/blank-inheritance/assets/stage/giant-centipede.webp" },{ "id": "giant-centipede-4", "name": "Giant Centipede", "img": "modules/blank-inheritance/assets/stage/giant-centipede.webp" },{ "id": "giant-centipede-5", "name": "Giant Centipede", "img": "modules/blank-inheritance/assets/stage/giant-centipede.webp" },{ "id": "giant-centipede-6", "name": "Giant Centipede", "img": "modules/blank-inheritance/assets/stage/giant-centipede.webp" }], "moment": "the-nest-wakes" }
+      }
+    },
+    "e1-kit-issue": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--kit-issue.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.3, "floorFront": 0.97, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.8,
+        "focus": [0.6,0.94],
+        "lights": [
+          { "id": "tube-left", "at": [0.29,0.08], "below": 0.9, "colour": [255,244,214], "intensity": 1, "flicker": 0.03, "pool": 420, "shadow": true },
+          { "id": "tube-right", "at": [0.72,0.08], "below": 0.9, "colour": [255,244,214], "intensity": 1, "flicker": 0.05, "flickerHz": 11, "pool": 420, "shadow": true }
+        ],
+        "occluders": [
+          { "id": "bench", "poly": [[0.385,0.6],[0.85,0.6],[0.85,0.87],[0.385,0.87]], "base": 0.87, "x": 0.6 }
+        ],
+        "zones": [
+          { "id": "back-wall", "kind": "chalk", "name": "The back wall", "shape": [[0.42,0.12],[0.66,0.12],[0.66,0.27],[0.42,0.27]] }
+        ],
+        "marks": [
+          { "id": "counter-1", "at": [0.5,0.95], "yaw": 8, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" },
+          { "id": "counter-2", "at": [0.6,0.96], "yaw": 0, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" },
+          { "id": "counter-3", "at": [0.7,0.95], "yaw": -8, "label": "at the counter", "faces": { "point": [0.6,0.7] }, "group": "counter" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.1,0.93] }
+      },
+      "partyRow": { "y": 0.95, "x": [0.12,0.92], "gap": [0.42,0.76], "of": 6 },
+      "npcSlots": [[0.2,0.93]],
+      "places": {
+        "nobu": [0.6,0.64],
+        "section-officer": [0.2,0.93]
+      },
+      "sizes": { "nobu": 1.5 },
+      "demeanours": { "nobu": "calm", "section-officer": "proud" },
+      "life": {
+        "nobu": { "kind": "visit", "spots": [[0.47,0.64],[0.74,0.64]], "every": 10, "restless": 0.65, "gait": "walk", "faces": [0.6,0.97] },
+        "section-officer": { "kind": "pace", "width": 0.05, "every": 5, "restless": 0.7, "gait": "march" }
+      },
+      "enter": {
+        "section-officer": { "from": "left", "gait": "march" }
+      },
+      "moments": {
+        "line-up": { "label": "Line up at the counter", "tip": "The party queues at the bench, one behind another, the way Nobu likes it.", "formation": { "kind": "queue", "focus": [0.66,0.935], "who": "party", "gait": "walk", "dir": "left" } },
+        "nobu-comes-round": { "label": "Nobu comes round the bench", "tip": "The quartermaster comes out from behind his bench to look the candidates over.", "places": { "nobu": { "at": [0.3,0.92], "yaw": 24, "gait": "walk" } }},
+        "everyone-back": { "label": "Back behind the bench", "tip": "Everyone the scene placed goes back where they were, and back to work.", "home": true }
+      }
+    },
+    "e1-canteen": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--canteen.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.55, "floorFront": 0.97, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 2.4,
+        "focus": [0.5,0.86],
+        "lights": [
+          { "id": "window-left", "at": [0.2,0.3], "below": 0.9, "colour": [255,214,160], "intensity": 0.9, "flicker": 0.02 },
+          { "id": "window-right", "at": [0.88,0.2], "below": 0.88, "colour": [255,190,130], "intensity": 1, "flicker": 0.02, "shadow": true },
+          { "id": "lamp", "at": [0.6,0.18], "below": 0.88, "colour": [255,232,190], "intensity": 0.8, "flicker": 0.03, "pool": 340 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "plaster-wall", "kind": "chalk", "name": "The plaster wall", "shape": [[0.38,0.14],[0.46,0.14],[0.46,0.58],[0.38,0.58]] },
+          { "id": "the-hatch", "kind": "spot", "name": "The serving hatch", "hint": "Look closer", "quiet": true, "shape": [[0.47,0.6],[0.78,0.6],[0.78,0.67],[0.47,0.67]], "floor": [[0.5,0.7],[0.75,0.7],[0.76,0.76],[0.49,0.76]] }
+        ],
+        "marks": [
+          { "id": "table-left", "at": [0.25,0.9], "yaw": 24, "label": "at the table", "group": "table" },
+          { "id": "table-mid", "at": [0.5,0.92], "yaw": 0, "label": "at the table", "group": "table" },
+          { "id": "table-right", "at": [0.75,0.9], "yaw": -24, "label": "at the table", "group": "table" },
+          { "id": "hatch", "at": [0.62,0.73], "yaw": 170, "label": "at the hatch", "zone": "the-hatch" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.11,0.935] }
+      },
+      "partyRow": { "y": 0.95, "x": [0.1,0.92], "gap": [0.38,0.64], "of": 6 },
+      "npcSlots": [[0.45,0.8],[0.64,0.82],[0.3,0.82]],
+      "places": {
+        "taka": [0.45,0.8],
+        "section-officer": [0.66,0.82],
+        "the-young-one": [0.28,0.82]
+      },
+      "demeanours": { "taka": "bouncy", "section-officer": "proud", "the-young-one": "nervous" },
+      "life": {
+        "taka": { "kind": "visit", "spots": [[0.62,0.74],[0.36,0.84],[0.7,0.86]], "every": 14, "restless": 0.55, "gait": "stroll" },
+        "the-young-one": { "kind": "wander", "radius": 0.015, "every": 9, "restless": 0.6 },
+        "section-officer": { "kind": "pace", "width": 0.04, "every": 7, "restless": 0.6, "gait": "march" }
+      },
+      "enter": {
+        "section-officer": { "from": "right", "gait": "march" },
+        "taka": { "from": "left", "gait": "walk" }
+      },
+      "moments": {
+        "taka-sits": { "label": "Taka sits with them", "tip": "Taka pulls up a chair at the party's table.", "places": { "taka": { "at": [0.5,0.87], "yaw": 0, "gait": "walk" } }},
+        "orders": { "label": "The evening's orders", "tip": "The duty officer comes to the middle of the room to read the orders; everyone turns to him.", "places": { "section-officer": { "at": [0.5,0.78], "yaw": 0, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "haunt-the-paper-lantern": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/the-paper-lantern.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.56, "floorFront": 0.935, "depth": 1.1, "vanish": 0.52, "lift": 250 },
+        "cardScale": 0.66,
+        "ambient": 1.6,
+        "focus": [0.5,0.91],
+        "lights": [
+          { "id": "lantern-left", "at": [0.165,0.12], "below": 0.97, "colour": [255,172,96], "intensity": 1, "flicker": 0.06 },
+          { "id": "lantern-mid", "at": [0.31,0.2], "below": 0.88, "colour": [255,172,96], "intensity": 0.9, "flicker": 0.07 },
+          { "id": "lantern-red", "at": [0.53,0.29], "below": 0.82, "colour": [255,172,96], "intensity": 1.2, "flicker": 0.05, "pool": 380, "shadow": true },
+          { "id": "lantern-right", "at": [0.81,0.22], "below": 0.92, "colour": [255,172,96], "intensity": 1, "flicker": 0.06, "pool": 340, "shadow": true },
+          { "id": "grill", "at": [0.37,0.56], "below": 0.78, "colour": [255,120,60], "intensity": 0.8, "flicker": 0.18, "flickerHz": 11, "shadow": true }
+        ],
+        "occluders": [
+          { "id": "counter", "poly": [[0.235,0.7],[0.728,0.7],[0.728,0.9],[0.235,0.9]], "base": 0.86, "x": 0.48 }
+        ],
+        "zones": [
+          { "id": "back-wall", "kind": "chalk", "name": "The back wall", "shape": [[0.52,0.2],[0.78,0.2],[0.78,0.4],[0.52,0.4]] },
+          { "id": "back-room", "kind": "door", "name": "The back room", "hint": "Kiku's say-so", "gate": "ask", "shape": [[0.805,0.4],[0.925,0.4],[0.925,0.83],[0.805,0.83]], "floor": [[0.8,0.84],[0.93,0.84],[0.94,0.92],[0.79,0.92]] },
+          { "id": "grill", "kind": "spot", "name": "The grill", "hint": "Look closer", "shape": [[0.32,0.6],[0.45,0.6],[0.45,0.66],[0.32,0.66]], "floor": [[0.3,0.86],[0.44,0.86],[0.44,0.92],[0.3,0.92]] }
+        ],
+        "marks": [
+          { "id": "bar-1", "at": [0.3,0.895], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" },
+          { "id": "bar-2", "at": [0.4,0.9], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" },
+          { "id": "bar-3", "at": [0.5,0.9], "label": "at the bar", "faces": { "point": [0.548,0.782] }, "group": "bar" },
+          { "id": "booth-a", "at": [0.78,0.885], "yaw": -34, "lean": 6, "label": "the booth", "group": "booth" },
+          { "id": "booth-b", "at": [0.86,0.885], "yaw": 34, "lean": -6, "label": "the booth", "group": "booth" },
+          { "id": "corner", "at": [0.12,0.955], "yaw": 34, "label": "the corner by the brazier" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.77,0.91] }
+      },
+      "partyRow": { "y": 0.945, "x": [0.12,0.9], "gap": [0.36,0.66], "of": 6 },
+      "npcSlots": [[0.62,0.9],[0.2,0.92]],
+      "places": {
+        "kiku": [0.548,0.782],
+        "sanzo": [0.1,0.93],
+        "tama": [0.7,0.9]
+      },
+      "yaws": { "kiku": -8, "sanzo": 30, "tama": -20 },
+      "sizes": { "kiku": 1.2 },
+      "demeanours": { "kiku": "calm", "sanzo": "bouncy", "tama": "bouncy" },
+      "emotes": { "sanzo": "music" },
+      "life": {
+        "kiku": { "kind": "visit", "spots": [[0.4,0.775],[0.66,0.78]], "every": 11, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.96] },
+        "tama": { "kind": "visit", "spots": [[0.2,0.9],[0.52,0.91],[0.78,0.9],[0.88,0.875]], "every": 8, "restless": 0.85, "gait": "hurry" },
+        "sanzo": { "kind": "wander", "radius": 0.025, "every": 13, "restless": 0.35 }
+      },
+      "moments": {
+        "a-round": { "label": "Tama brings a round", "tip": "Tama comes to the party's table with the tray.", "places": { "tama": { "at": [0.45,0.925], "yaw": 0, "gait": "hurry" } }},
+        "sanzo-takes-the-floor": { "label": "Sanzo takes the floor", "tip": "Sanzo comes to the middle of the room with the shamisen; the room turns to him.", "places": { "sanzo": { "at": [0.55,0.915], "yaw": 0, "gait": "hop" } }},
+        "everyone-back": { "label": "As they were", "tip": "The regulars go back to their places and their business.", "home": true }
+      }
+    },
+    "haunt-crew-mess": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/the-crew-mess--bar.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.5, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.64,
+        "ambient": 1.5,
+        "focus": [0.5,0.94],
+        "lights": [
+          { "id": "pendant-left", "at": [0.29,0.26], "below": 0.88, "colour": [255,170,100], "intensity": 0.9, "flicker": 0.04, "pool": 320 },
+          { "id": "pendant-mid", "at": [0.5,0.26], "below": 0.88, "colour": [255,170,100], "intensity": 1.1, "flicker": 0.03, "pool": 380, "shadow": true },
+          { "id": "pendant-right", "at": [0.71,0.26], "below": 0.88, "colour": [255,170,100], "intensity": 0.9, "flicker": 0.05, "pool": 320 },
+          { "id": "skylight", "at": [0.84,0.03], "below": 0.95, "colour": [130,200,220], "intensity": 0.5, "flicker": 0.01 }
+        ],
+        "occluders": [
+          { "id": "bar", "poly": [[0.18,0.625],[0.83,0.625],[0.83,0.905],[0.18,0.905]], "base": 0.905, "x": 0.5 }
+        ],
+        "zones": [
+          { "id": "the-slate", "kind": "chalk", "name": "The slate", "hint": "Tomoe keeps it", "shape": [[0.43,0.24],[0.695,0.24],[0.695,0.56],[0.43,0.56]] }
+        ],
+        "marks": [
+          { "id": "stool-1", "at": [0.35,0.935], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
+          { "id": "stool-2", "at": [0.46,0.94], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
+          { "id": "stool-3", "at": [0.56,0.94], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
+          { "id": "stool-4", "at": [0.65,0.935], "label": "at the bar", "faces": { "point": [0.5,0.7] }, "group": "bar" },
+          { "id": "end-left", "at": [0.16,0.925], "yaw": 24, "label": "the end stool" },
+          { "id": "end-right", "at": [0.82,0.925], "yaw": -24, "label": "the end stool" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.09,0.94] }
+      },
+      "partyRow": { "y": 0.955, "x": [0.12,0.9], "gap": [0.38,0.64], "of": 6 },
+      "npcSlots": [[0.25,0.93],[0.75,0.93]],
+      "places": {
+        "tomoe": [0.5,0.875],
+        "petr": [0.82,0.93],
+        "ren": [0.45,0.925]
+      },
+      "yaws": { "tomoe": 0, "petr": -24, "ren": 20 },
+      "sizes": { "tomoe": 1.15 },
+      "demeanours": { "tomoe": "proud", "petr": "bouncy", "ren": "nervous" },
+      "emotes": { "petr": "music" },
+      "life": {
+        "tomoe": { "kind": "visit", "spots": [[0.33,0.875],[0.66,0.875],[0.58,0.87]], "every": 12, "restless": 0.6, "gait": "stroll", "faces": [0.5,0.97] },
+        "ren": { "kind": "visit", "spots": [[0.56,0.925],[0.07,0.915],[0.94,0.915]], "every": 9, "restless": 0.7, "gait": "hurry" },
+        "petr": { "kind": "wander", "radius": 0.02, "every": 10, "restless": 0.45 }
+      },
+      "moments": {
+        "tomoe-at-the-slate": { "label": "Tomoe at the slate", "tip": "Tomoe turns to the slate behind the bar to chalk up the round.", "places": { "tomoe": { "at": [0.6,0.87], "yaw": 150, "gait": "stroll" } }},
+        "petr-sings": { "label": "Petr sings", "tip": "Petr gets up and sings to the room; everyone turns to him.", "places": { "petr": { "at": [0.5,0.945], "yaw": 0, "gait": "hop" } }},
+        "everyone-back": { "label": "As they were", "tip": "The crews go back to their places.", "home": true }
+      }
+    },
+    "haunt-bathhouse": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/the-bathhouse-447--pool.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.53, "floorFront": 0.975, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.9,
+        "focus": [0.5,0.82],
+        "lights": [
+          { "id": "window-left", "at": [0.08,0.25], "below": 0.85, "colour": [255,214,160], "intensity": 0.9, "flicker": 0.02, "shadow": true },
+          { "id": "window-right", "at": [0.86,0.2], "below": 0.85, "colour": [255,214,170], "intensity": 0.7, "flicker": 0.02 },
+          { "id": "lamp", "at": [0.21,0.15], "below": 0.8, "colour": [255,236,200], "intensity": 0.5, "flicker": 0.03 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "hot-jets", "kind": "spot", "name": "The hot jets", "hint": "Sigrun's water", "shape": [[0.36,0.66],[0.46,0.66],[0.46,0.72],[0.36,0.72]] },
+          { "id": "the-desk", "kind": "spot", "name": "The attendant's desk", "hint": "Kazue's ship", "quiet": true, "shape": [[0.82,0.6],[0.9,0.6],[0.9,0.76],[0.82,0.76]], "floor": [[0.8,0.77],[0.92,0.77],[0.93,0.83],[0.79,0.83]] }
+        ],
+        "marks": [
+          { "id": "baskets-1", "at": [0.12,0.76], "yaw": 25, "label": "by the baskets", "group": "left-deck" },
+          { "id": "baskets-2", "at": [0.21,0.78], "yaw": 20, "label": "by the baskets", "group": "left-deck" },
+          { "id": "the-hot-end", "at": [0.42,0.73], "yaw": 10, "label": "the hot end", "capacity": 2 },
+          { "id": "in-the-water", "at": [0.55,0.84], "yaw": 0, "label": "in the water", "capacity": 3 },
+          { "id": "right-deck", "at": [0.79,0.79], "yaw": -25, "label": "on the deck" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.95, "x": [0.12,0.88], "gap": [0.38,0.62], "of": 6 },
+      "npcSlots": [[0.3,0.8],[0.7,0.8]],
+      "places": {
+        "kazue": [0.86,0.79],
+        "hachi": [0.14,0.77],
+        "sigrun": [0.41,0.725]
+      },
+      "yaws": { "kazue": -20, "hachi": 25, "sigrun": 10 },
+      "demeanours": { "kazue": "proud", "hachi": "slouch", "sigrun": "calm" },
+      "emotes": { "hachi": "laugh", "sigrun": "fume" },
+      "life": {
+        "kazue": { "kind": "patrol", "path": [[0.86,0.79],[0.74,0.725],[0.6,0.705]], "every": 10, "gait": "march" },
+        "hachi": { "kind": "wander", "radius": 0.02, "every": 15, "restless": 0.4 }
+      },
+      "moments": {
+        "hachi-tells-one": { "label": "Hachi tells one", "tip": "Hachi shuffles over from bucket number four with a story; everyone gathers round.", "places": { "hachi": { "at": [0.5,0.9], "yaw": 0, "gait": "stroll" } }},
+        "kazue-calls-time": { "label": "Kazue calls time", "tip": "Kazue comes to the edge of the pool: closing time, like a ship's bell.", "places": { "kazue": { "at": [0.62,0.76], "yaw": 10, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "The regulars go back to their places.", "home": true }
+      }
+    },
+    "e1-intake-medicals": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--intake-medicals.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.52, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1.9,
+        "focus": [0.5,0.82],
+        "lights": [
+          { "id": "tube-left", "at": [0.3,0.04], "below": 0.85, "colour": [236,244,232], "intensity": 0.8, "flicker": 0.03 },
+          { "id": "tube-right", "at": [0.7,0.04], "below": 0.85, "colour": [236,244,232], "intensity": 0.8, "flicker": 0.05, "flickerHz": 12 },
+          { "id": "window", "at": [0.92,0.3], "below": 0.85, "colour": [255,226,180], "intensity": 1, "flicker": 0.03, "shadow": true }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "exam-door", "kind": "door", "name": "The examination room", "hint": "Wait to be called", "gate": "ask", "shape": [[0,0.24],[0.052,0.24],[0.052,0.8],[0,0.8]], "floor": [[0,0.81],[0.1,0.81],[0.1,0.9],[0,0.9]] },
+          { "id": "notices", "kind": "spot", "name": "The noticeboard", "hint": "Look closer", "shape": [[0.26,0.35],[0.72,0.35],[0.72,0.51],[0.26,0.51]], "floor": [[0.3,0.755],[0.7,0.755],[0.71,0.79],[0.29,0.79]] }
+        ],
+        "marks": [
+          { "id": "bench-1", "at": [0.33,0.755], "yaw": 0, "label": "on the bench", "group": "bench" },
+          { "id": "bench-2", "at": [0.42,0.755], "yaw": 0, "label": "on the bench", "group": "bench" },
+          { "id": "bench-3", "at": [0.51,0.755], "yaw": 0, "label": "on the bench", "group": "bench" },
+          { "id": "bench-4", "at": [0.6,0.755], "yaw": 0, "label": "on the bench", "group": "bench" },
+          { "id": "bench-5", "at": [0.68,0.755], "yaw": 0, "label": "on the bench", "group": "bench" },
+          { "id": "by-the-door", "at": [0.15,0.8], "yaw": 30, "label": "by the door" },
+          { "id": "by-the-window", "at": [0.88,0.79], "yaw": -25, "label": "by the window" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.95, "x": [0.12,0.9], "gap": [0.38,0.62], "of": 6 },
+      "npcSlots": [[0.2,0.86],[0.8,0.86]],
+      "places": {
+        "intake-medicals-clerk": [0.12,0.85],
+        "shucks-mordant": [0.07,0.84]
+      },
+      "yaws": { "intake-medicals-clerk": 25, "shucks-mordant": 30 },
+      "demeanours": { "intake-medicals-clerk": "proud", "shucks-mordant": "slouch" },
+      "life": {
+        "intake-medicals-clerk": { "kind": "visit", "spots": [[0.1,0.85],[0.36,0.8],[0.64,0.8]], "every": 12, "restless": 0.7, "gait": "march" },
+        "shucks-mordant": { "kind": "wander", "radius": 0.02, "every": 11, "restless": 0.5 }
+      },
+      "moments": {
+        "next-name": { "label": "The clerk calls a name", "tip": "The records clerk steps out to the benches with the clipboard.", "places": { "intake-medicals-clerk": { "at": [0.4,0.82], "yaw": 0, "gait": "march" } }},
+        "sit-and-wait": { "label": "Sit and wait", "tip": "The candidates take the benches, in a row.", "formation": { "kind": "line", "focus": [0.5,0.76], "who": "party", "gait": "walk" } },
+        "shucks-at-the-door": { "label": "Shucks at the door", "tip": "The head of medical leans out of the examination room.", "places": { "shucks-mordant": { "at": [0.1,0.83], "yaw": 35, "gait": "walk" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "e1-intake-medicals-exam": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--intake-medicals--exam-room.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.56, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1.9,
+        "focus": [0.5,0.93],
+        "lights": [
+          { "id": "tube-left", "at": [0.3,0.06], "below": 0.86, "colour": [236,244,232], "intensity": 0.8, "flicker": 0.03 },
+          { "id": "tube-right", "at": [0.75,0.06], "below": 0.86, "colour": [236,244,232], "intensity": 0.8, "flicker": 0.04 },
+          { "id": "window", "at": [0.9,0.35], "below": 0.86, "colour": [255,226,180], "intensity": 1, "flicker": 0.03, "shadow": true }
+        ],
+        "occluders": [
+          { "id": "bed", "poly": [[0.31,0.6],[0.69,0.6],[0.69,0.92],[0.31,0.92]], "base": 0.92, "x": 0.5 }
+        ],
+        "zones": [],
+        "marks": [
+          { "id": "by-the-bed", "at": [0.5,0.945], "yaw": 0, "label": "by the bed" },
+          { "id": "the-stool", "at": [0.24,0.9], "yaw": 20, "label": "the stool" },
+          { "id": "the-window", "at": [0.86,0.87], "yaw": -20, "label": "by the window" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.955, "x": [0.12,0.9], "gap": [0.36,0.64], "of": 6 },
+      "npcSlots": [[0.2,0.9],[0.8,0.88]],
+      "places": {
+        "shucks-mordant": [0.45,0.84],
+        "intake-medicals-clerk": [0.8,0.87]
+      },
+      "yaws": { "intake-medicals-clerk": -20 },
+      "demeanours": { "shucks-mordant": "slouch", "intake-medicals-clerk": "proud" },
+      "life": {
+        "shucks-mordant": { "kind": "visit", "spots": [[0.6,0.84],[0.15,0.88]], "every": 10, "restless": 0.6, "gait": "walk", "faces": [0.5,0.95] },
+        "intake-medicals-clerk": { "kind": "wander", "radius": 0.015, "every": 12, "restless": 0.4 }
+      },
+      "moments": {
+        "shucks-examines": { "label": "Shucks comes round", "tip": "The head of medical comes round the bed to examine whoever is on it.", "places": { "shucks-mordant": { "at": [0.36,0.935], "yaw": 25, "gait": "walk" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "e1-the-errand": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--the-errand.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.6, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 2,
+        "focus": [0.5,0.94],
+        "lights": [
+          { "id": "sun", "at": [0.85,0.05], "below": 0.95, "colour": [255,236,200], "intensity": 0.9, "flicker": 0.01, "shadow": true },
+          { "id": "shop-lamp", "at": [0.62,0.6], "below": 0.88, "colour": [255,190,120], "intensity": 0.5, "flicker": 0.03 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-door", "kind": "door", "name": "The door", "hint": "Go in", "shape": [[0.695,0.6],[0.765,0.6],[0.765,0.87],[0.695,0.87]], "floor": [[0.68,0.89],[0.79,0.89],[0.8,0.94],[0.67,0.94]] },
+          { "id": "shop-window", "kind": "spot", "name": "The shop window", "hint": "Look closer", "shape": [[0.31,0.6],[0.52,0.6],[0.52,0.8],[0.31,0.8]], "floor": [[0.31,0.9],[0.52,0.9],[0.53,0.94],[0.3,0.94]] }
+        ],
+        "marks": [
+          { "id": "at-the-window", "at": [0.42,0.93], "yaw": 0, "label": "at the window", "faces": { "point": [0.42,0.7] }},
+          { "id": "by-the-door", "at": [0.73,0.93], "yaw": -10, "label": "by the door" },
+          { "id": "under-the-tree", "at": [0.16,0.93], "yaw": 20, "label": "under the tree" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.965, "x": [0.1,0.9], "gap": [0.36,0.64], "of": 6 },
+      "npcSlots": [[0.6,0.93],[0.25,0.93]],
+      "places": {
+        "the-storekeeper": [0.72,0.925],
+        "manako": [0.6,0.93]
+      },
+      "demeanours": { "the-storekeeper": "calm", "manako": "calm" },
+      "life": {
+        "the-storekeeper": { "kind": "visit", "spots": [[0.45,0.925],[0.9,0.93]], "every": 13, "restless": 0.5, "gait": "stroll" }
+      },
+      "moments": {
+        "storekeeper-comes-out": { "label": "The storekeeper comes out", "tip": "He steps out of the shop to meet them in the street.", "places": { "the-storekeeper": { "at": [0.55,0.94], "yaw": 0, "gait": "walk" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "e1-the-errand-tea-house": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--the-errand--tea-house.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.55, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.7,
+        "focus": [0.5,0.94],
+        "lights": [
+          { "id": "pendant-1", "at": [0.255,0.2], "below": 0.9, "colour": [255,214,150], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "pendant-2", "at": [0.375,0.2], "below": 0.9, "colour": [255,214,150], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "pendant-3", "at": [0.5,0.2], "below": 0.9, "colour": [255,214,150], "intensity": 0.6, "flicker": 0.03, "pool": 320 },
+          { "id": "pendant-4", "at": [0.625,0.2], "below": 0.9, "colour": [255,214,150], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "pendant-5", "at": [0.745,0.2], "below": 0.9, "colour": [255,214,150], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "window", "at": [0.5,0.42], "below": 0.86, "colour": [255,236,200], "intensity": 0.7, "flicker": 0.03, "shadow": true }
+        ],
+        "occluders": [
+          { "id": "counter", "poly": [[0.165,0.645],[0.81,0.645],[0.81,0.905],[0.165,0.905]], "base": 0.905, "x": 0.5 }
+        ],
+        "zones": [],
+        "marks": [
+          { "id": "stool-1", "at": [0.21,0.93], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
+          { "id": "stool-2", "at": [0.31,0.935], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
+          { "id": "counter-3", "at": [0.48,0.94], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
+          { "id": "counter-4", "at": [0.64,0.94], "label": "at the counter", "faces": { "point": [0.5,0.75] }, "group": "counter" },
+          { "id": "his-table", "at": [0.85,0.93], "yaw": -20, "label": "Manako's table" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.96, "x": [0.1,0.92], "gap": [0.38,0.64], "of": 6 },
+      "npcSlots": [[0.5,0.88],[0.86,0.93]],
+      "places": {
+        "manako": [0.8,0.93],
+        "the-storekeeper": [0.5,0.885]
+      },
+      "yaws": { "manako": -20 },
+      "demeanours": { "manako": "calm", "the-storekeeper": "calm" },
+      "life": {
+        "manako": { "kind": "wander", "radius": 0.02, "every": 12, "restless": 0.4 },
+        "the-storekeeper": { "kind": "visit", "spots": [[0.3,0.885],[0.7,0.885]], "every": 12, "restless": 0.55, "gait": "stroll", "faces": [0.5,0.97] }
+      },
+      "moments": {
+        "manako-behind-the-counter": { "label": "Manako behind the counter", "tip": "Manako goes behind the counter to make the tea himself.", "places": { "manako": { "at": [0.5,0.88], "yaw": 0, "gait": "stroll" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "e1-the-errand-alley": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--the-errand--alley.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.55, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.6,
+        "focus": [0.5,0.9],
+        "lights": [
+          { "id": "sun-shaft", "at": [0.42,0.05], "below": 0.85, "colour": [255,220,170], "intensity": 0.9, "flicker": 0.01, "shadow": true },
+          { "id": "neon", "at": [0.86,0.36], "below": 0.85, "colour": [255,120,90], "intensity": 0.4, "flicker": 0.15, "flickerHz": 6 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-shutters", "kind": "chalk", "name": "The shutters", "shape": [[0.62,0.55],[0.775,0.55],[0.775,0.81],[0.62,0.81]] },
+          { "id": "the-mural", "kind": "spot", "name": "The mural", "hint": "Look closer", "shape": [[0.41,0.56],[0.58,0.56],[0.58,0.74],[0.41,0.74]], "floor": [[0.42,0.84],[0.58,0.84],[0.6,0.88],[0.4,0.88]] }
+        ],
+        "marks": [
+          { "id": "before-the-mural", "at": [0.5,0.87], "label": "before the mural", "faces": { "point": [0.5,0.65] }},
+          { "id": "by-the-bins", "at": [0.12,0.89], "yaw": 20, "label": "by the bins" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.1,0.94] }
+      },
+      "partyRow": { "y": 0.95, "x": [0.12,0.9], "gap": [0.38,0.62], "of": 6 },
+      "npcSlots": [[0.3,0.88],[0.7,0.88]],
+      "places": {
+        "the-storekeeper": [0.7,0.88],
+        "manako": [0.3,0.88]
+      }
+    },
+    "e1-the-walk-down": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--the-walk-down.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.765, "floorFront": 1, "depth": 1.1, "vanish": 0.51, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 2.2,
+        "focus": [0.51,0.86],
+        "lights": [
+          { "id": "sun", "at": [0.2,0.3], "below": 0.95, "colour": [255,214,160], "intensity": 1, "flicker": 0.01, "shadow": true }
+        ],
+        "occluders": [],
+        "zones": [],
+        "marks": [],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.955, "x": [0.18,0.84], "gap": [0.42,0.6], "of": 6 },
+      "npcSlots": [[0.3,0.93],[0.53,0.8]],
+      "places": {
+        "taka": [0.3,0.93],
+        "section-officer": [0.53,0.795]
+      },
+      "yaws": { "taka": 25 },
+      "demeanours": { "taka": "bouncy", "section-officer": "proud" },
+      "emotes": { "taka": "hand" },
+      "moments": {
+        "walk-on": { "label": "Walk on down the road", "tip": "The party walks off down the long road towards Dock C, getting smaller.", "formation": { "kind": "line", "focus": [0.51,0.81], "who": "party", "gait": "stroll" } },
+        "everyone-back": { "label": "Back to the start", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "e1-assembly": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--assembly.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.62, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 2,
+        "focus": [0.5,0.87],
+        "lights": [
+          { "id": "the-doors", "at": [0.5,0.55], "below": 0.88, "colour": [255,236,210], "intensity": 1, "flicker": 0.01, "shadow": true },
+          { "id": "windows-left", "at": [0.12,0.3], "below": 0.88, "colour": [255,206,150], "intensity": 0.7, "flicker": 0.03 },
+          { "id": "windows-right", "at": [0.9,0.3], "below": 0.88, "colour": [255,206,150], "intensity": 0.6, "flicker": 0.03 }
+        ],
+        "occluders": [],
+        "zones": [],
+        "marks": [],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.96, "x": [0.1,0.92], "gap": [0.36,0.64], "of": 6 },
+      "npcSlots": [[0.4,0.86],[0.6,0.86]],
+      "places": {
+        "deputy-director": [0.5,0.86],
+        "section-officer": [0.67,0.875],
+        "shucks-mordant": [0.36,0.865],
+        "shop-boss": [0.43,0.86],
+        "comms-officer": [0.58,0.86]
+      },
+      "demeanours": { "deputy-director": "proud", "section-officer": "proud", "shucks-mordant": "slouch", "shop-boss": "calm", "comms-officer": "nervous" },
+      "life": {
+        "comms-officer": { "kind": "wander", "radius": 0.01, "every": 8, "restless": 0.6 },
+        "section-officer": { "kind": "pace", "width": 0.03, "every": 6, "restless": 0.5, "gait": "march" }
+      },
+      "moments": {
+        "the-platform": { "label": "The platform", "tip": "The officials stand in a shallow arc facing the candidates.", "formation": { "kind": "panel", "focus": [0.5,0.875], "who": ["deputy-director", "shucks-mordant", "shop-boss", "comms-officer"], "gait": "march" } },
+        "steps-up": { "label": "The Deputy Director steps up", "tip": "One rung below the top steps forward to speak.", "places": { "deputy-director": { "at": [0.5,0.905], "yaw": 0, "gait": "march" } }},
+        "vetch-collects": { "label": "Vetch collects them", "tip": "Section Nine's officer comes for his section.", "places": { "section-officer": { "at": [0.3,0.93], "yaw": 25, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      },
+      "onTrigger": {
+        "deputy-director-steps-up": { "moment": "steps-up" },
+        "vetch-collects": { "moment": "vetch-collects" }
+      }
+    },
+    "e1-school-first-period": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/location--school-classroom.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.57, "floorFront": 1, "depth": 1.1, "vanish": 0.55, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1.9,
+        "focus": [0.6,0.86],
+        "lights": [
+          { "id": "window", "at": [0.15,0.3], "below": 0.9, "colour": [255,226,170], "intensity": 1, "flicker": 0.01, "shadow": true },
+          { "id": "tube-left", "at": [0.45,0.09], "below": 0.88, "colour": [236,244,232], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "tube-right", "at": [0.74,0.07], "below": 0.88, "colour": [236,244,232], "intensity": 0.5, "flicker": 0.03 }
+        ],
+        "occluders": [
+          { "id": "lectern", "poly": [[0.59,0.575],[0.72,0.575],[0.72,0.78],[0.59,0.78]], "base": 0.78, "x": 0.655 }
+        ],
+        "zones": [
+          { "id": "blackboard", "kind": "chalk", "name": "The blackboard", "shape": [[0.485,0.29],[0.875,0.29],[0.875,0.54],[0.485,0.54]] }
+        ],
+        "marks": [
+          { "id": "desk-1", "at": [0.22,0.93], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
+          { "id": "desk-2", "at": [0.4,0.91], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
+          { "id": "desk-3", "at": [0.56,0.92], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
+          { "id": "desk-4", "at": [0.76,0.92], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
+          { "id": "desk-5", "at": [0.9,0.93], "label": "at a desk", "faces": { "point": [0.68,0.45] }, "group": "desks" },
+          { "id": "the-front", "at": [0.66,0.81], "yaw": 0, "label": "at the front" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.06,0.95] }
+      },
+      "partyRow": { "y": 0.96, "x": [0.1,0.92], "gap": [0.42,0.68], "of": 6 },
+      "npcSlots": [[0.86,0.8],[0.3,0.8]],
+      "places": {
+        "school-history-teacher": [0.6,0.77],
+        "shop-boss": [0.87,0.8]
+      },
+      "yaws": { "shop-boss": -20 },
+      "demeanours": { "school-history-teacher": "bouncy", "shop-boss": "proud" },
+      "life": {
+        "school-history-teacher": { "kind": "patrol", "path": [[0.52,0.765],[0.82,0.775]], "every": 7, "gait": "stroll" },
+        "shop-boss": { "kind": "wander", "radius": 0.01, "every": 10, "restless": 0.4 }
+      },
+      "moments": {
+        "calls-on-someone": { "label": "The teacher calls on someone", "tip": "He comes down off the front to the desks.", "places": { "school-history-teacher": { "at": [0.55,0.87], "yaw": 0, "gait": "walk" } }},
+        "safety-induction": { "label": "The safety induction", "tip": "The head of the machine shop takes the front; the teacher steps aside.", "places": { "shop-boss": { "at": [0.64,0.8], "yaw": 0, "gait": "march" }, "school-history-teacher": { "at": [0.88,0.8], "yaw": -20, "gait": "stroll" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "e1-school-second-period": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/location--school-specimen-room.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.56, "floorFront": 0.91, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1.9,
+        "focus": [0.5,0.86],
+        "lights": [
+          { "id": "window", "at": [0.05,0.35], "below": 0.85, "colour": [255,226,170], "intensity": 1, "flicker": 0.01, "shadow": true },
+          { "id": "tube-left", "at": [0.3,0.16], "below": 0.85, "colour": [236,244,232], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "tube-right", "at": [0.75,0.16], "below": 0.85, "colour": [236,244,232], "intensity": 0.5, "flicker": 0.03 }
+        ],
+        "occluders": [
+          { "id": "bench", "poly": [[0.33,0.585],[0.71,0.585],[0.71,0.8],[0.33,0.8]], "base": 0.8, "x": 0.52 }
+        ],
+        "zones": [
+          { "id": "blackboard", "kind": "chalk", "name": "The blackboard", "shape": [[0.3,0.265],[0.765,0.265],[0.765,0.55],[0.3,0.55]] }
+        ],
+        "marks": [
+          { "id": "the-stool", "at": [0.63,0.83], "yaw": 0, "label": "the stool" },
+          { "id": "front-left", "at": [0.4,0.845], "label": "at the bench", "faces": { "point": [0.52,0.7] }, "group": "bench" },
+          { "id": "front-right", "at": [0.6,0.85], "label": "at the bench", "faces": { "point": [0.52,0.7] }, "group": "bench" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.08,0.88] }
+      },
+      "partyRow": { "y": 0.885, "x": [0.1,0.92], "gap": [0.36,0.66], "of": 6 },
+      "npcSlots": [[0.86,0.82],[0.15,0.82]],
+      "places": {
+        "school-natural-history-teacher": [0.52,0.78],
+        "range-safety-officer": [0.88,0.82]
+      },
+      "yaws": { "range-safety-officer": -20 },
+      "demeanours": { "school-natural-history-teacher": "calm", "range-safety-officer": "proud" },
+      "life": {
+        "school-natural-history-teacher": { "kind": "visit", "spots": [[0.4,0.78],[0.64,0.78]], "every": 9, "restless": 0.7, "gait": "walk", "faces": [0.52,0.9] }
+      },
+      "moments": {
+        "a-specimen": { "label": "A specimen from the drains", "tip": "The teacher brings one round to the front for a closer look.", "places": { "school-natural-history-teacher": { "at": [0.5,0.85], "yaw": 0, "gait": "walk" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
+      }
+    },
+    "haunt-general-hospital": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/general-hospital--ward.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.6, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1.1,
+        "focus": [0.5,0.86],
+        "lights": [
+          { "id": "night-desk", "at": [0.545,0.62], "below": 0.76, "colour": [255,150,80], "intensity": 0.9, "flicker": 0.05, "pool": 260, "shadow": true },
+          { "id": "ceiling", "at": [0.5,0.13], "below": 0.85, "colour": [170,230,240], "intensity": 0.6, "flicker": 0.04 },
+          { "id": "bedlamps-left", "at": [0.12,0.62], "below": 0.8, "colour": [140,220,240], "intensity": 0.5, "flicker": 0.03 },
+          { "id": "bedlamps-right", "at": [0.89,0.62], "below": 0.8, "colour": [140,220,240], "intensity": 0.5, "flicker": 0.03 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "night-desk", "kind": "spot", "name": "The night desk", "hint": "Sister Tsubaki's", "quiet": true, "shape": [[0.48,0.66],[0.61,0.66],[0.61,0.76],[0.48,0.76]] }
+        ],
+        "marks": [
+          { "id": "bedside-left", "at": [0.3,0.8], "yaw": 25, "label": "a bedside" },
+          { "id": "bedside-right", "at": [0.7,0.8], "yaw": -25, "label": "a bedside" },
+          { "id": "bed-eight", "at": [0.78,0.86], "yaw": -30, "label": "bed eight" },
+          { "id": "the-aisle", "at": [0.5,0.9], "yaw": 0, "label": "the aisle" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.955, "x": [0.14,0.86], "gap": [0.4,0.6], "of": 6 },
+      "npcSlots": [[0.35,0.84],[0.65,0.84]],
+      "places": {
+        "tsubaki": [0.54,0.77],
+        "imai": [0.27,0.79],
+        "aucourt": [0.2,0.85],
+        "kuroki": [0.8,0.85],
+        "gennai": [0.44,0.77],
+        "mori": [0.66,0.9]
+      },
+      "yaws": { "imai": 30, "aucourt": 35, "kuroki": -35 },
+      "demeanours": { "tsubaki": "proud", "imai": "calm", "aucourt": "calm", "kuroki": "slouch", "gennai": "calm", "mori": "nervous" },
+      "emotes": { "kuroki": "sleep" },
+      "life": {
+        "tsubaki": { "kind": "patrol", "path": [[0.54,0.77],[0.5,0.86],[0.5,0.93]], "every": 11, "gait": "walk" },
+        "gennai": { "kind": "visit", "spots": [[0.44,0.76],[0.56,0.93],[0.36,0.92]], "every": 16, "restless": 0.5, "gait": "stroll" },
+        "mori": { "kind": "pace", "width": 0.06, "every": 6, "restless": 0.8, "gait": "stroll" }
+      },
+      "moments": {
+        "tsubaki-comes-over": { "label": "Sister Tsubaki comes over", "tip": "The night sister comes down the aisle to see what they want.", "places": { "tsubaki": { "at": [0.5,0.92], "yaw": 0, "gait": "walk" } }},
+        "lights-out": { "label": "Lights out", "tip": "The ward settles: everyone stays where they are.", "life": false },
+        "everyone-back": { "label": "As they were", "tip": "Everyone goes back to their places and their rounds.", "home": true, "life": true }
+      }
+    },
+    "haunt-early-night": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/row-c-block-3--corridor.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.6, "floorFront": 0.99, "depth": 1.1, "vanish": 0.63, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1,
+        "focus": [0.6,0.86],
+        "lights": [
+          { "id": "ceiling", "at": [0.62,0.17], "below": 0.85, "colour": [170,220,240], "intensity": 0.9, "flicker": 0.03, "shadow": true },
+          { "id": "ceiling-far", "at": [0.635,0.36], "below": 0.75, "colour": [170,220,240], "intensity": 0.6, "flicker": 0.03 },
+          { "id": "wardens-lamp", "at": [0.64,0.57], "below": 0.72, "colour": [255,150,90], "intensity": 0.7, "flicker": 0.05, "pool": 220 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "wardens-room", "kind": "door", "name": "The warden's room", "hint": "Morishita's", "quiet": true, "shape": [[0.605,0.49],[0.65,0.49],[0.65,0.7],[0.605,0.7]], "floor": [[0.58,0.71],[0.67,0.71],[0.68,0.75],[0.57,0.75]] }
+        ],
+        "marks": [
+          { "id": "doorway-left", "at": [0.24,0.88], "yaw": 30, "label": "a doorway" },
+          { "id": "on-the-crates", "at": [0.14,0.94], "yaw": 25, "label": "on the crates" },
+          { "id": "doorway-right", "at": [0.86,0.86], "yaw": -30, "label": "a doorway" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.955, "x": [0.14,0.88], "gap": [0.42,0.68], "of": 6 },
+      "npcSlots": [[0.3,0.86],[0.8,0.86]],
+      "places": {
+        "morishita": [0.63,0.73],
+        "haru": [0.14,0.93],
+        "grenna": [0.86,0.86]
+      },
+      "yaws": { "haru": 25, "grenna": -30 },
+      "demeanours": { "morishita": "proud", "haru": "nervous", "grenna": "slouch" },
+      "emotes": { "grenna": "sleep", "haru": "think" },
+      "life": {
+        "morishita": { "kind": "patrol", "path": [[0.63,0.73],[0.6,0.85],[0.58,0.94]], "every": 10, "gait": "march" }
+      },
+      "moments": {
+        "count-in": { "label": "Morishita counts them in", "tip": "The warden lines everyone up in the corridor and counts heads.", "places": { "morishita": { "at": [0.62,0.8], "yaw": 0, "gait": "march" } }, "formation": { "kind": "line", "focus": [0.6,0.9], "who": "party" } },
+        "everyone-back": { "label": "As they were", "tip": "Everyone goes back to their doors.", "home": true }
+      }
+    },
+    "haunt-shrine-gate": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/the-shrine-gate-444--gate.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.58, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.3,
+        "focus": [0.5,0.92],
+        "lights": [
+          { "id": "lantern", "at": [0.75,0.52], "below": 0.88, "colour": [255,120,80], "intensity": 1, "flicker": 0.08, "flickerHz": 5, "pool": 300, "shadow": true },
+          { "id": "street", "at": [0.5,0.1], "below": 0.95, "colour": [140,190,210], "intensity": 0.5, "flicker": 0.01 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-shrine", "kind": "spot", "name": "The shrine", "hint": "Make an offering", "shape": [[0.42,0.5],[0.57,0.5],[0.57,0.85],[0.42,0.85]], "floor": [[0.41,0.885],[0.58,0.885],[0.59,0.93],[0.4,0.93]] },
+          { "id": "the-bell", "kind": "trigger", "name": "The bell", "hint": "Ring it", "shape": [[0.15,0.25],[0.22,0.25],[0.22,0.42],[0.15,0.42]], "floor": [[0.12,0.89],[0.25,0.89],[0.25,0.94],[0.12,0.94]] },
+          { "id": "the-basin", "kind": "spot", "name": "The basin", "hint": "Wash your hands", "quiet": true, "shape": [[0.15,0.72],[0.31,0.72],[0.31,0.86],[0.15,0.86]] }
+        ],
+        "marks": [
+          { "id": "before-the-shrine", "at": [0.5,0.905], "label": "before the shrine", "faces": { "point": [0.5,0.6] }},
+          { "id": "at-the-bell", "at": [0.18,0.915], "label": "at the bell", "faces": { "point": [0.18,0.5] }},
+          { "id": "under-the-lantern", "at": [0.75,0.915], "yaw": -20, "label": "under the lantern" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.97, "x": [0.1,0.9], "gap": [0.38,0.64], "of": 6 },
+      "npcSlots": [[0.35,0.92],[0.65,0.92]],
+      "places": {
+        "tokuji": [0.35,0.92],
+        "mira": [0.62,0.92]
+      },
+      "yaws": { "tokuji": 15, "mira": -15 },
+      "demeanours": { "tokuji": "calm", "mira": "calm" },
+      "life": {
+        "tokuji": { "kind": "patrol", "path": [[0.28,0.915],[0.72,0.92]], "every": 9, "gait": "stroll" }
+      },
+      "enter": {
+        "mira": { "from": "right", "gait": "walk" }
+      },
+      "moments": {
+        "mira-prays": { "label": "Mira stops to pray", "tip": "On her way home from the night exchange, she stops before the shrine.", "places": { "mira": { "mark": "before-the-shrine", "gait": "walk" } }},
+        "tokuji-leans": { "label": "Tokuji leans on his broom", "tip": "The keeper stops sweeping to talk.", "places": { "tokuji": { "at": [0.3,0.925], "yaw": 20, "gait": "stroll" } }},
+        "everyone-back": { "label": "As they were", "tip": "Back to the sweeping.", "home": true }
+      }
+    },
+    "haunt-card-game": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/row-f-block-5--common-room.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.55, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1,
+        "focus": [0.495,0.86],
+        "lights": [
+          { "id": "pendant", "at": [0.495,0.33], "below": 0.93, "colour": [255,170,100], "intensity": 1.3, "flicker": 0.03, "pool": 420, "shadow": true },
+          { "id": "window", "at": [0.03,0.3], "below": 0.85, "colour": [140,190,220], "intensity": 0.4, "flicker": 0.01 }
+        ],
+        "occluders": [
+          { "id": "the-table", "poly": [[0.35,0.63],[0.64,0.63],[0.64,0.9],[0.35,0.9]], "base": 0.9, "x": 0.495 }
+        ],
+        "zones": [
+          { "id": "debt-board", "kind": "chalk", "name": "The debt board", "hint": "Michiru keeps it", "shape": [[0.15,0.19],[0.4,0.19],[0.4,0.51],[0.15,0.51]] },
+          { "id": "the-cat", "kind": "spot", "name": "The cat", "hint": "Asleep on the radiator", "quiet": true, "shape": [[0.12,0.54],[0.22,0.54],[0.22,0.62],[0.12,0.62]] }
+        ],
+        "marks": [
+          { "id": "seat-far", "at": [0.495,0.82], "yaw": 0, "label": "at the table", "group": "table" },
+          { "id": "seat-left", "at": [0.33,0.9], "label": "at the table", "faces": { "point": [0.495,0.86] }, "group": "table" },
+          { "id": "seat-right", "at": [0.66,0.9], "label": "at the table", "faces": { "point": [0.495,0.86] }, "group": "table" },
+          { "id": "seat-near-left", "at": [0.42,0.95], "label": "at the table", "faces": { "point": [0.495,0.86] }, "group": "table" },
+          { "id": "seat-near-right", "at": [0.57,0.95], "label": "at the table", "faces": { "point": [0.495,0.86] }, "group": "table" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.92,0.95] }
+      },
+      "partyRow": { "y": 0.96, "x": [0.1,0.9], "gap": [0.34,0.66], "of": 6 },
+      "npcSlots": [[0.2,0.9],[0.8,0.9]],
+      "places": {
+        "michiru": [0.495,0.82],
+        "lucan": [0.33,0.885],
+        "chiyo": [0.66,0.885]
+      },
+      "yaws": { "michiru": 0, "lucan": 25, "chiyo": -25 },
+      "demeanours": { "michiru": "proud", "lucan": "sly", "chiyo": "nervous" },
+      "emotes": { "chiyo": "sweat" },
+      "life": {
+        "michiru": { "kind": "wander", "radius": 0.008, "every": 9, "restless": 0.5 },
+        "lucan": { "kind": "wander", "radius": 0.012, "every": 7, "restless": 0.6 }
+      },
+      "moments": {
+        "deal-everyone-in": { "label": "Deal everyone in", "tip": "Everyone round the table, the party too.", "formation": { "kind": "circle", "focus": [0.495,0.84], "who": "all" } },
+        "lucan-caught": { "label": "Lucan is caught", "tip": "Everyone turns on the cardsharp.", "formation": { "kind": "gangup", "focus": [0.5,0.975], "who": "all", "target": "lucan" } },
+        "everyone-back": { "label": "As they were", "tip": "Back to their seats.", "home": true }
+      }
+    },
+    "haunt-rumour-mill": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/row-b-block-8--common-room.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.52, "floorFront": 0.99, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.6,
+        "ambient": 1,
+        "focus": [0.45,0.93],
+        "lights": [
+          { "id": "floor-lamp", "at": [0.2,0.5], "below": 0.9, "colour": [255,160,90], "intensity": 1.1, "flicker": 0.04, "pool": 320, "shadow": true },
+          { "id": "window", "at": [0.5,0.5], "below": 0.85, "colour": [120,170,210], "intensity": 0.4, "flicker": 0.01 },
+          { "id": "ceiling", "at": [0.505,0.03], "below": 0.9, "colour": [255,190,120], "intensity": 0.3, "flicker": 0.03 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-notebook", "kind": "spot", "name": "The notebook", "hint": "Hana's", "shape": [[0.525,0.7],[0.6,0.7],[0.6,0.78],[0.525,0.78]], "floor": [[0.5,0.92],[0.66,0.92],[0.67,0.96],[0.49,0.96]] },
+          { "id": "the-wall", "kind": "chalk", "name": "The wall by the door", "shape": [[0.07,0.2],[0.3,0.2],[0.3,0.46],[0.07,0.46]] }
+        ],
+        "marks": [
+          { "id": "the-armchair", "at": [0.6,0.915], "yaw": -10, "label": "the armchair" },
+          { "id": "by-the-lamp", "at": [0.25,0.92], "yaw": 25, "label": "by the lamp" },
+          { "id": "at-the-kettle", "at": [0.36,0.92], "yaw": 10, "label": "at the kettle" },
+          { "id": "by-the-coats", "at": [0.84,0.9], "yaw": -25, "label": "by the coats" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.88,0.95] }
+      },
+      "partyRow": { "y": 0.965, "x": [0.1,0.92], "gap": [0.42,0.72], "of": 6 },
+      "npcSlots": [[0.3,0.92],[0.8,0.91]],
+      "places": {
+        "hana": [0.6,0.915],
+        "obi": [0.35,0.92],
+        "mrs-ueda": [0.06,0.91]
+      },
+      "yaws": { "hana": -10, "obi": 15, "mrs-ueda": 30 },
+      "demeanours": { "hana": "calm", "obi": "bouncy", "mrs-ueda": "proud" },
+      "emotes": { "obi": "question" },
+      "life": {
+        "obi": { "kind": "visit", "spots": [[0.3,0.925],[0.45,0.93],[0.82,0.91]], "every": 9, "restless": 0.7, "gait": "hurry" },
+        "mrs-ueda": { "kind": "visit", "spots": [[0.06,0.91],[0.3,0.92]], "every": 20, "restless": 0.35, "gait": "march" }
+      },
+      "moments": {
+        "round-the-notebook": { "label": "Huddle round the notebook", "tip": "Everyone leans in over Hana's notebook.", "formation": { "kind": "huddle", "focus": [0.56,0.93], "who": "all" } },
+        "ueda-looks-in": { "label": "Mrs Ueda looks in", "tip": "The night warden puts her head round the door.", "places": { "mrs-ueda": { "at": [0.28,0.92], "yaw": 20, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "Back to their corners.", "home": true }
+      }
+    },
+    "haunt-the-roof": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/row-e-block-9--roof.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.69, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.25,
+        "focus": [0.55,0.93],
+        "lights": [
+          { "id": "street-glow", "at": [0.86,0.78], "below": 0.9, "colour": [255,140,80], "intensity": 0.8, "flicker": 0.04, "pool": 320, "shadow": true },
+          { "id": "city-glow", "at": [0.5,0.6], "below": 0.9, "colour": [255,200,140], "intensity": 0.3, "flicker": 0.02 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-ladder", "kind": "exit", "name": "The ladder", "hint": "The way down", "shape": [[0.51,0.65],[0.55,0.65],[0.55,0.87],[0.51,0.87]], "floor": [[0.49,0.88],[0.57,0.88],[0.58,0.91],[0.48,0.91]] },
+          { "id": "the-view", "kind": "spot", "name": "The view", "hint": "Look out", "quiet": true, "shape": [[0.1,0.3],[0.95,0.3],[0.95,0.68],[0.1,0.68]], "floor": [[0.15,0.88],[0.9,0.88],[0.9,0.9],[0.15,0.9]] }
+        ],
+        "marks": [
+          { "id": "the-mat", "at": [0.6,0.935], "yaw": 0, "pitch": -8, "label": "on the mat", "capacity": 3 },
+          { "id": "parapet-left", "at": [0.3,0.885], "label": "at the parapet", "faces": { "point": [0.3,0.6] }},
+          { "id": "parapet-right", "at": [0.75,0.885], "label": "at the parapet", "faces": { "point": [0.75,0.6] }},
+          { "id": "by-the-tank", "at": [0.08,0.9], "yaw": 25, "label": "by the tank" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.97, "x": [0.12,0.88], "gap": [0.4,0.64], "of": 6 },
+      "npcSlots": [[0.3,0.9],[0.75,0.9]],
+      "places": {
+        "sayo": [0.62,0.935],
+        "faruq": [0.8,0.9],
+        "isamu": [0.53,0.89]
+      },
+      "yaws": { "faruq": -20 },
+      "demeanours": { "sayo": "calm", "faruq": "calm", "isamu": "proud" },
+      "emotes": { "sayo": "sparkle", "faruq": "music" },
+      "life": {
+        "sayo": { "kind": "wander", "radius": 0.01, "every": 15, "restless": 0.4 },
+        "faruq": { "kind": "pace", "width": 0.03, "every": 12, "restless": 0.4, "gait": "stroll" }
+      },
+      "enter": {
+        "isamu": { "from": "rise", "gait": "walk" }
+      },
+      "moments": {
+        "look-out": { "label": "Look out over the bay", "tip": "Everyone goes to the parapet to look at the lights across the water.", "formation": { "kind": "audience", "focus": [0.5,0.75], "who": "all", "gait": "stroll", "away": true } },
+        "isamu-catches-them": { "label": "Isamu catches them", "tip": "The warden of Row E comes up the ladder and finds people on his roof.", "places": { "isamu": { "at": [0.5,0.925], "yaw": 0, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "Back to the stars.", "home": true }
+      }
+    },
+    "haunt-met-office": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/the-met-office--roof.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.56, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.15,
+        "focus": [0.5,0.92],
+        "lights": [
+          { "id": "hut-lamp", "at": [0.755,0.33], "below": 0.88, "colour": [255,150,80], "intensity": 1.2, "flicker": 0.06, "pool": 320, "shadow": true },
+          { "id": "sky", "at": [0.3,0.1], "below": 0.95, "colour": [120,170,200], "intensity": 0.3, "flicker": 0.01 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "weather-board", "kind": "chalk", "name": "The weather board", "hint": "Nadi chalks it", "shape": [[0.535,0.49],[0.61,0.49],[0.61,0.69],[0.535,0.69]] },
+          { "id": "the-screen", "kind": "spot", "name": "The screen", "hint": "The thermometers", "shape": [[0.265,0.62],[0.385,0.62],[0.385,0.86],[0.265,0.86]], "floor": [[0.25,0.88],[0.4,0.88],[0.41,0.92],[0.24,0.92]] }
+        ],
+        "marks": [
+          { "id": "at-the-board", "at": [0.57,0.875], "label": "at the board", "faces": { "point": [0.57,0.6] }},
+          { "id": "at-the-screen", "at": [0.32,0.9], "label": "at the screen", "faces": { "point": [0.32,0.7] }},
+          { "id": "at-the-door", "at": [0.66,0.875], "yaw": -10, "label": "at the door" },
+          { "id": "on-the-steps", "at": [0.8,0.9], "yaw": -25, "label": "on the steps" }
+        ],
+        "chalk": { "mode": "zones", "box": [0.12,0.95] }
+      },
+      "partyRow": { "y": 0.97, "x": [0.1,0.9], "gap": [0.36,0.64], "of": 6 },
+      "npcSlots": [[0.4,0.9],[0.8,0.9]],
+      "places": {
+        "genzo": [0.66,0.875],
+        "nadi": [0.57,0.88]
+      },
+      "demeanours": { "genzo": "calm", "nadi": "bouncy" },
+      "life": {
+        "genzo": { "kind": "visit", "marks": ["at-the-screen", "on-the-steps", "at-the-door"], "every": 14, "restless": 0.6, "gait": "walk" },
+        "nadi": { "kind": "visit", "spots": [[0.57,0.88],[0.33,0.9]], "every": 10, "restless": 0.65, "gait": "hurry" }
+      },
+      "moments": {
+        "the-reading": { "label": "Take the reading", "tip": "Nadi to the board with the chalk, Genzo to the screen with the torch.", "places": { "nadi": { "mark": "at-the-board", "gait": "hurry" }, "genzo": { "mark": "at-the-screen", "gait": "walk" } }},
+        "everyone-back": { "label": "As they were", "tip": "Back to the watch.", "home": true }
+      }
+    },
+    "haunt-night-shift": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/no-1-machine-shop--night-hall.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.72, "floorFront": 0.995, "depth": 1.1, "vanish": 0.52, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1.1,
+        "focus": [0.5,0.92],
+        "lights": [
+          { "id": "lamp-left", "at": [0.16,0.47], "below": 0.85, "colour": [200,230,255], "intensity": 0.8, "flicker": 0.03, "pool": 300, "shadow": true },
+          { "id": "lamp-left-far", "at": [0.27,0.57], "below": 0.82, "colour": [200,230,255], "intensity": 0.6, "flicker": 0.03 },
+          { "id": "lamp-right", "at": [0.84,0.47], "below": 0.85, "colour": [200,230,255], "intensity": 0.8, "flicker": 0.03, "pool": 300, "shadow": true },
+          { "id": "lamp-right-far", "at": [0.73,0.57], "below": 0.82, "colour": [200,230,255], "intensity": 0.6, "flicker": 0.03 },
+          { "id": "welding", "at": [0.75,0.8], "below": 0.86, "colour": [255,140,60], "intensity": 0.9, "flicker": 0.35, "flickerHz": 14 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-pit", "kind": "spot", "name": "The pit", "hint": "Mind the edge", "shape": [[0.28,0.8],[0.76,0.8],[0.77,0.875],[0.27,0.875]] },
+          { "id": "the-welding", "kind": "spot", "name": "The welding", "hint": "Don't look at it", "quiet": true, "shape": [[0.7,0.7],[0.82,0.7],[0.82,0.82],[0.7,0.82]] }
+        ],
+        "marks": [
+          { "id": "pit-edge-left", "at": [0.35,0.9], "label": "at the pit's edge", "faces": { "point": [0.5,0.84] }},
+          { "id": "pit-edge-right", "at": [0.65,0.9], "label": "at the pit's edge", "faces": { "point": [0.5,0.84] }},
+          { "id": "by-the-racks", "at": [0.88,0.87], "yaw": -25, "label": "by the racks" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.97, "x": [0.1,0.9], "gap": [0.38,0.64], "of": 6 },
+      "npcSlots": [[0.3,0.9],[0.7,0.9]],
+      "places": {
+        "kaede": [0.5,0.9],
+        "joji": [0.33,0.89],
+        "nkiru": [0.84,0.87]
+      },
+      "demeanours": { "kaede": "proud", "joji": "slouch", "nkiru": "bouncy" },
+      "emotes": { "nkiru": "music" },
+      "life": {
+        "kaede": { "kind": "patrol", "path": [[0.3,0.9],[0.7,0.905]], "every": 12, "gait": "march" },
+        "joji": { "kind": "wander", "radius": 0.015, "every": 14, "restless": 0.4 },
+        "nkiru": { "kind": "wander", "radius": 0.02, "every": 9, "restless": 0.5 }
+      },
+      "moments": {
+        "a-lift": { "label": "Nkiru sings a lift", "tip": "The crane driver steps out and sings the lift; the hall turns to listen.", "places": { "nkiru": { "at": [0.6,0.925], "yaw": 0, "gait": "hop" } }},
+        "kaede-calls-them-over": { "label": "Kaede calls them over", "tip": "The night foreman wants a word.", "places": { "kaede": { "at": [0.5,0.93], "yaw": 0, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "Back to work.", "home": true }
+      }
+    },
+    "haunt-the-magic-show": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/the-market-hall-456--after-hours.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.7, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.62,
+        "ambient": 1,
+        "focus": [0.5,0.88],
+        "lights": [
+          { "id": "stage-lamp", "at": [0.5,0.39], "below": 0.82, "colour": [255,140,70], "intensity": 1.4, "flicker": 0.06, "pool": 340, "shadow": true },
+          { "id": "stall", "at": [0.28,0.48], "below": 0.84, "colour": [255,150,80], "intensity": 0.6, "flicker": 0.05 },
+          { "id": "windows", "at": [0.88,0.2], "below": 0.88, "colour": [130,190,220], "intensity": 0.4, "flicker": 0.01 },
+          { "id": "far-hall", "at": [0.64,0.62], "below": 0.8, "colour": [140,210,230], "intensity": 0.4, "flicker": 0.02 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-stage", "kind": "podium", "name": "The stage", "hint": "The Oddwater Company", "shape": [[0.44,0.785],[0.58,0.785],[0.6,0.83],[0.42,0.83]] },
+          { "id": "the-stove", "kind": "spot", "name": "The stove", "hint": "Warm your hands", "quiet": true, "shape": [[0.31,0.72],[0.36,0.72],[0.36,0.85],[0.31,0.85]] }
+        ],
+        "marks": [
+          { "id": "front-row-1", "at": [0.32,0.9], "label": "the front row", "faces": { "point": [0.5,0.8] }, "group": "audience" },
+          { "id": "front-row-2", "at": [0.42,0.92], "label": "the front row", "faces": { "point": [0.5,0.8] }, "group": "audience" },
+          { "id": "front-row-3", "at": [0.6,0.92], "label": "the front row", "faces": { "point": [0.5,0.8] }, "group": "audience" },
+          { "id": "front-row-4", "at": [0.7,0.9], "label": "the front row", "faces": { "point": [0.5,0.8] }, "group": "audience" },
+          { "id": "on-the-stage", "at": [0.51,0.81], "yaw": 0, "label": "on the stage" }
+        ],
+        "chalk": { "mode": "off" }
+      },
+      "partyRow": { "y": 0.97, "x": [0.1,0.9], "gap": [0.38,0.64], "of": 6 },
+      "npcSlots": [[0.3,0.88],[0.7,0.88]],
+      "places": {
+        "tamsin": [0.51,0.81],
+        "daisuke": [0.62,0.84],
+        "mrs-handa": [0.3,0.89]
+      },
+      "yaws": { "daisuke": -20, "mrs-handa": 20 },
+      "demeanours": { "tamsin": "proud", "daisuke": "nervous", "mrs-handa": "bouncy" },
+      "emotes": { "mrs-handa": "heart" },
+      "life": {
+        "daisuke": { "kind": "visit", "spots": [[0.62,0.84],[0.38,0.82],[0.18,0.86]], "every": 11, "restless": 0.6, "gait": "hurry" },
+        "tamsin": { "kind": "wander", "radius": 0.015, "every": 10, "restless": 0.5 }
+      },
+      "enter": {
+        "tamsin": { "from": "rise", "gait": "glide" }
+      },
+      "moments": {
+        "the-show-begins": { "label": "The show begins", "tip": "Everyone gathers in front of the scaffold stage; Tamsin takes it.", "places": { "tamsin": { "at": [0.51,0.81], "yaw": 0, "gait": "glide" }, "daisuke": { "at": [0.62,0.83], "yaw": -20, "gait": "hurry" } }, "formation": { "kind": "audience", "focus": [0.51,0.81], "who": "party", "gait": "walk" } },
+        "the-vanishing-act": { "label": "The vanishing act", "tip": "Tamsin glides off into the dark at the back of the hall.", "places": { "tamsin": { "at": [0.58,0.73], "yaw": 0, "gait": "glide" } }},
+        "everyone-back": { "label": "As they were", "tip": "Lights up, and back to their places.", "home": true }
+      }
+    }
+  }
+}

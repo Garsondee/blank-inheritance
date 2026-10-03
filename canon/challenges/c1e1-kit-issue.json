@@ -1,0 +1,64 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-kit-issue",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Kit Issue",
+  "description": "Two optional checks at the stores counter.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "work-nobu",
+      "name": "Talk Nobu out of something extra",
+      "skillOptions": [
+        "diplomacy",
+        "deception",
+        "crafting"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "He stops writing, looks at them properly for the first time, and goes into the back. Everyone in Section Nine gets something extra.",
+        "success": "\"...Fine. Quickly.\" That player gets something extra.",
+        "failure": "\"You've had your allowance.\"",
+        "criticalFailure": "He loudly assumes they're after a second weapon, and won't be worked again today."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "test-the-fit",
+      "name": "Try it out",
+      "skillOptions": [
+        "athletics",
+        "crafting",
+        "acrobatics"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1, one step easy",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "It sits right first time, and Nobu notices mid-sentence and says so.",
+        "success": "It works fine.",
+        "failure": "A strap on backwards. Somebody helps.",
+        "criticalFailure": "Comically tangled, and everyone politely ignores it."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--kit-issue"
+  ],
+  "notes": "Neither check costs anything mechanical."
+}

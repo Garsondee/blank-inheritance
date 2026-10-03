@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "induction-intake-prompts.schema.json",
   "title": "Induction Intake Prompts",
-  "description": "Prompt text and suggestion-chip content for the induction terminal's Pages 7-8 (design/induction-terminal.md, revised by design/induction-intake-audit.md §6 on 2026-09-18). Page 7 holds the Personal File short fields and the Personality one-liners; Page 8 holds the five open questions and the freeform box. Every prompt declares a `bioPath` -- the real sf2e Actor path its answer is written to on confirm -- so no answer this form collects is ever left unrecorded. Every suggestion is illustrative only, offered as a quick-start a player may click to insert into their own free-text answer, never a real answer for any of the six actual kids (data/characters/kids/README.md). Singleton file: data/campaign/induction-intake-prompts.json.",
+  "description": "Prompt text and suggestion-chip content for the induction terminal's Pages 7-8 and the page for the player that follows them (design/induction-terminal.md, revised by design/induction-intake-audit.md §6 on 2026-09-18). Page 7 holds the Personal File short fields and the Personality one-liners; Page 8 holds the four open questions and the freeform box; the step keyed \"player\" holds `playerQuestions`, the out-of-character questions addressed to the person playing (added 2026-10-01). Every prompt declares a `bioPath` -- the real sf2e Actor path its answer is written to on confirm -- so no answer this form collects is ever left unrecorded. Every suggestion is illustrative only, offered as a quick-start a player may click to insert into their own free-text answer, never a real answer for any of the six actual kids (data/characters/kids/README.md). Singleton file: data/campaign/induction-intake-prompts.json.",
   "type": "object",
-  "required": ["id", "type", "genderIdentityOptions", "pronounOptions", "appearanceOptions", "personalFile", "personality", "openQuestions", "freeform"],
+  "required": ["id", "type", "genderIdentityOptions", "pronounOptions", "appearanceOptions", "personalFile", "personality", "openQuestions", "playerQuestions", "freeform"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "const": "induction-intake-prompts" },
@@ -42,9 +42,16 @@
     },
     "openQuestions": {
       "type": "array",
-      "description": "Page 8's open questions -- deliberately capped small. Eleven open questions (three banal + bible §20's eight) were compressed to five here on 2026-09-18; raising this count back up is a design decision, not a content edit, and should go through design/induction-intake-audit.md first.",
+      "description": "Page 8's open questions -- deliberately capped small. Eleven open questions (three banal + bible §20's eight) were compressed to five here on 2026-09-18, and to four on 2026-10-01 when the out-of-character `player-goal` question moved to the player page; raising this count back up is a design decision, not a content edit, and should go through design/induction-intake-audit.md first.",
       "minItems": 1,
       "maxItems": 6,
+      "items": { "$ref": "#/$defs/promptQuestion" }
+    },
+    "playerQuestions": {
+      "type": "array",
+      "description": "The page for the player (step id \"player\", between Page 8 and Review): out-of-character questions addressed to the PERSON PLAYING, not the character -- what they enjoy, what they don't, what they hope to do, what sort of force they want to be in the story, how they like the spotlight shared, and anything to handle gently. Every entry is `outOfCharacter: true`. Nothing on the page is required. Answers are stored in the same `intake.questions` map as Page 8's (keyed by id, so ids must be unique across every group), land on the sheet's Campaign Notes under each prompt's `heading`, and reach the GM in the same whispered intake message.",
+      "minItems": 1,
+      "maxItems": 8,
       "items": { "$ref": "#/$defs/promptQuestion" }
     },
     "freeform": {
@@ -58,8 +65,12 @@
       "required": ["id", "text", "bioPath", "suggestions"],
       "properties": {
         "id": { "type": "string", "description": "Kebab-case; also the state key and the DOM element id suffix." },
-        "number": { "type": "integer", "minimum": 1, "description": "Open questions only -- display order." },
+        "number": { "type": "integer", "minimum": 1, "description": "Open questions and player questions only -- display order." },
         "text": { "type": "string", "description": "The prompt itself, as the player reads it." },
+        "heading": {
+          "type": "string",
+          "description": "Optional short label used as the heading over this answer on the character sheet when several prompts share one field (core/induction-bio.mjs). Falls back to `text`. For prompts whose `text` carries explanatory sentences that would make a clumsy heading."
+        },
         "bioPath": {
           "type": ["string", "null"],
           "description": "The real sf2e Actor path this answer is written to on confirm (e.g. system.details.biography.likes), verified against gamesystems/sf2e/template.json. Several prompts MAY share one path -- core/induction-bio.mjs joins them into one headed block, which is how campaignNotes carries more than one answer. Null means deliberately intake-only, which should be rare and justified."

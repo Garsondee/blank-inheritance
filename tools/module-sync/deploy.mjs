@@ -35,6 +35,11 @@
  *   2. data        -- the campaign-data allow-list -> .../data/campaign/
  *   3. video       -- the finished opening titles and episode title cards
  *                     -> Data/blank-inheritance-video/
+ *      stagecraft  -- module/stagecraft/'s release files (manifest, licence,
+ *                     the built bundle, language and style) -> Data/modules/
+ *                     stagecraft/. A second, separate module the adventure
+ *                     uses through its bridge (design/stagecraft/module.md).
+ *                     REFUSED if the bundle is older than its sources.
  *   4. prune       -- only with --prune: delete server files the repo no
  *                     longer has (never storage/, never video)
  *   5. stamp       -- data/campaign/build.json, written LAST and only if every
@@ -54,7 +59,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseArgs, promisify } from "node:util";
 
 import { diffChecksums } from "./checksums.mjs";
@@ -78,6 +83,8 @@ export const DEFAULT_CONFIG = Object.freeze({
   keyPath: path.join(REPO_ROOT, "SSH.ppk"),
   hostKey: "SHA256:7EsvSGvu2DqJfokfzaVnysbx/Ehf52fij/M9DLHo9cE",
   moduleRemoteDir: `${REMOTE_DATA_ROOT}/modules/blank-inheritance`,
+  stagecraftRemoteDir: `${REMOTE_DATA_ROOT}/modules/stagecraft`,
+  stagecraft: true,
   videoRemoteDir: `${REMOTE_DATA_ROOT}/${DEFAULT_VIDEO_FOLDER}`,
   dryRun: false,
   prune: false,
@@ -125,7 +132,37 @@ export function videoSources(repoRoot) {
   return sources;
 }
 
-/** The three channels, with everything each needs to push and to be checked. */
+/**
+ * The files of the Stagecraft module that a server needs, and nothing else: no tests, no node_modules, no source (the
+ * bundle is built from it), no dev source map. Empty when the repo has no such module.
+ */
+export async function stagecraftSources(repoRoot) {
+  const dir = path.join(repoRoot, "module", "stagecraft");
+  const sources = new Map();
+  if (!existsSync(path.join(dir, "module.json"))) return sources;
+  for (const rel of ["module.json", "LICENSE", "dist/stagecraft.js", "lang/en.json", "styles/stagecraft.css"]) {
+    const abs = path.join(dir, rel);
+    if (existsSync(abs)) sources.set(rel, abs);
+  }
+  return sources;
+}
+
+/**
+ * Is Stagecraft's bundle the one its sources make? A bundle older than its sources is the quiet kind of mistake: the tests
+ * pass and the server runs something else. Returns a sentence when it is stale, else null.
+ */
+export async function staleStagecraftBundle(repoRoot) {
+  const dir = path.join(repoRoot, "module", "stagecraft");
+  if (!existsSync(path.join(dir, "module.json"))) return null;
+  const stampFile = path.join(dir, "dist", "BUILD.json");
+  if (!existsSync(stampFile) || !existsSync(path.join(dir, "dist", "stagecraft.js"))) return "module/stagecraft/dist has no bundle: run npm run build:stagecraft";
+  const { sourcesHash } = await import(pathToFileURL(path.join(dir, "tools", "build.mjs")).href);
+  const stamp = JSON.parse(readFileSync(stampFile, "utf8"));
+  if (stamp.dev) return "module/stagecraft/dist holds a dev build: run npm run build:stagecraft";
+  return stamp.sources === sourcesHash().hash ? null : "module/stagecraft/dist is older than its sources: run npm run build:stagecraft";
+}
+
+/** The channels, with everything each needs to push and to be checked. */
 export async function gatherChannels(config) {
   const moduleDir = path.join(config.repoRoot, "module", "blank-inheritance");
   const channels = [
@@ -146,6 +183,19 @@ export async function gatherChannels(config) {
       prunable: true
     }
   ];
+  if (config.stagecraft !== false) {
+    const sources = await stagecraftSources(config.repoRoot);
+    if (sources.size) {
+      channels.push({
+        name: "stagecraft",
+        sources,
+        remoteDir: config.stagecraftRemoteDir,
+        ignoreRemote: () => false,
+        // A second module is not this deploy's to tidy: whatever else is in its folder stays.
+        prunable: false
+      });
+    }
+  }
   if (config.video !== false) {
     channels.push({
       name: "video",
@@ -268,6 +318,17 @@ export async function runDeploy(
     return result;
   }
   log(`  clean${checks.warnings.length ? ` (${checks.warnings.length} warning(s))` : ""}`);
+
+  // 0. Stagecraft's bundle -----------------------------------------------------
+  if (config.stagecraft !== false) {
+    const stale = await (deps.staleStagecraftBundle ?? staleStagecraftBundle)(config.repoRoot);
+    if (stale) {
+      log(`REFUSED: ${stale}. Nothing was sent.`);
+      result.errors.push(stale);
+      process.exitCode = 1;
+      return result;
+    }
+  }
 
   // 0. Art ---------------------------------------------------------------------
   if (config.art !== false) {
@@ -406,6 +467,12 @@ export async function runDeploy(
     }
   }
 
+  const newModule = channels.find((c) => c.name === "stagecraft" && result.channels.stagecraft && result.channels.stagecraft.added === result.channels.stagecraft.local);
+  if (newModule) {
+    log("NOTE: the Stagecraft module is new on this server. Foundry finds a new module folder only when it starts, so restart it:");
+    log("      plink ... ubuntu@<server> \"sudo systemctl restart foundryvtt\"   (it opens the campaign world at startup)");
+    log("      The adventure switches the module on by itself when a GM next loads the world.");
+  }
   const manifestChanged = previous && JSON.stringify(previous.module?.manifest) !== JSON.stringify(manifestFiles(manifest));
   if (manifestChanged) {
     // Found live 2026-09-27: a fixed module.json stayed rejected through every

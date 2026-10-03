@@ -151,6 +151,7 @@ const ALL_PROMPTS = [
   ...PROMPTS.personalFile,
   ...PROMPTS.personality,
   ...PROMPTS.openQuestions,
+  ...PROMPTS.playerQuestions,
   PROMPTS.freeform
 ];
 
@@ -175,16 +176,50 @@ test("prompt ids are unique across every group, since they key both DOM ids and 
 });
 
 test("every prompt except the freeform box has at least one suggestion chip", () => {
-  for (const q of [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions]) {
+  for (const q of [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions, ...PROMPTS.playerQuestions]) {
     assert.ok(q.suggestions.length > 0, `${q.id} has no suggestion chips`);
   }
   assert.deepEqual(PROMPTS.freeform.suggestions, [], "the catch-all box is deliberately the player's alone -- no chips");
 });
 
-test("exactly one prompt is addressed to the player rather than the character", () => {
-  const ooc = ALL_PROMPTS.filter((q) => q.outOfCharacter === true);
-  assert.equal(ooc.length, 1);
-  assert.equal(ooc[0].id, "player-goal");
+test("the prompts addressed to the player rather than the character are exactly the player page's questions", () => {
+  // Ingram, 2026-10-01: one page, out of character, just before Review. The old out-of-character
+  // `player-goal` question moved there from Page 8 -- asked once, not twice.
+  const ooc = ALL_PROMPTS.filter((q) => q.outOfCharacter === true).map((q) => q.id);
+  assert.deepEqual(ooc, PROMPTS.playerQuestions.map((q) => q.id));
+  assert.equal(PROMPTS.playerQuestions[0].id, "player-goal", "the original question leads the page, wording unchanged");
+  assert.equal(PROMPTS.openQuestions.some((q) => q.id === "player-goal"), false, "and is no longer on Page 8");
+});
+
+test("the player's page covers what Ingram asked for: what they enjoy, what they don't, what they hope to do, what sort of force they want to be", () => {
+  const ids = PROMPTS.playerQuestions.map((q) => q.id);
+  for (const id of ["enjoy", "avoid", "player-goal", "force"]) assert.ok(ids.includes(id), `the player's page has no "${id}" question`);
+  const text = PROMPTS.playerQuestions.map((q) => q.text).join(" ");
+  assert.match(text, /enjoy/i);
+  assert.match(text, /not enjoy/i);
+  assert.match(text, /always wanted to do with a character/i);
+  assert.match(text, /what sort of force/i);
+});
+
+test("the player's page stays one page: a handful of questions, numbered 1..n, each with a short sheet heading", () => {
+  assert.ok(PROMPTS.playerQuestions.length >= 4 && PROMPTS.playerQuestions.length <= 8, `${PROMPTS.playerQuestions.length} questions is no longer 'a single page'`);
+  assert.deepEqual(PROMPTS.playerQuestions.map((q) => q.number), PROMPTS.playerQuestions.map((_, i) => i + 1));
+  for (const q of PROMPTS.playerQuestions) {
+    assert.equal(typeof q.heading, "string", `${q.id} needs a short heading for the sheet`);
+    assert.ok(q.heading.length > 0 && q.heading.length <= 60, `${q.id}'s heading is ${q.heading.length} characters`);
+    assert.equal(q.outOfCharacter, true, `${q.id} is on the player's page, so it is out of character`);
+  }
+});
+
+test("the player's page follows the player-facing rules: no outside works, no real places, no promises, no stock shouting", () => {
+  // design/craft and the standing rules: the table hears everything literally, so nothing here may cite a real work or place.
+  const text = JSON.stringify(PROMPTS.playerQuestions);
+  for (const banned of [/evangelion/i, /giant robo/i, /starfinder/i, /pathfinder/i, /japan/i, /1950/, /watcher/i, /claude/i, /\bAI\b/]) {
+    assert.doesNotMatch(text, banned, `the player's page must not mention ${banned}`);
+  }
+  for (const q of PROMPTS.playerQuestions) {
+    assert.doesNotMatch(q.text, /[A-Z]{5,}/, `${q.id} shouts in capitals`);
+  }
 });
 
 test("the survivors of the compression are still present, as one-liners rather than open questions", () => {
@@ -254,6 +289,26 @@ test("summarizeIntakeAnswers: each group is its own labelled section, open quest
   assert.match(result.text, /Personal File/);
   assert.ok(result.text.indexOf("In Their Own Words") < result.text.indexOf("Personality"));
   assert.ok(result.text.indexOf("Anything Else") < result.text.indexOf("Personal File"));
+});
+
+test("summarizeIntakeAnswers: what the player said about how they like to play is its own section, and leads", () => {
+  const result = summarizeIntakeAnswers({
+    prompts: PROMPTS,
+    questions: { enjoy: "A plan that fell apart interestingly.", allies: "My sister.", gently: "Ask me first." },
+    personality: { [PROMPTS.personality[0].id]: "Hot water." }
+  });
+  assert.match(result.text, /From the Player \(out of character\)/);
+  assert.ok(result.text.indexOf("From the Player") < result.text.indexOf("In Their Own Words"), "the GM reads it first");
+  assert.match(result.text, /A plan that fell apart interestingly\./);
+  assert.match(result.text, /Ask me first\./);
+  // The same answer is never printed under two sections: a player answer is not an open question.
+  assert.equal((result.text.match(/A plan that fell apart interestingly\./g) ?? []).length, 1);
+});
+
+test("summarizeIntakeAnswers: a player's page answered on its own is enough to count as content", () => {
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: { avoid: "Fights that never end." } });
+  assert.equal(result.hasContent, true);
+  assert.match(result.text, /Fights that never end\./);
 });
 
 test("summarizeIntakeAnswers: the freeform box alone is enough to count as content", () => {

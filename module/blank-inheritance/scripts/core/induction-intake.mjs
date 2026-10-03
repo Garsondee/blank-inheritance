@@ -96,8 +96,9 @@ export function buildLanguageSuggestions(ancestryLanguages, curated, current) {
  * about having answered them, and the doc comment on Page 8 itself already
  * treats a skipped question as a legitimate choice, not an error.
  *
- * Ordered most-useful-first for a GM reading the whisper: the open questions
- * and the freeform box before the one-line texture fields.
+ * Ordered most-useful-first for a GM reading the whisper: what the player said
+ * about how they like to play first (it shapes the most scenes), then the open
+ * questions and the freeform box, then the one-line texture fields.
  */
 export function summarizeIntakeAnswers({ prompts, questions = {}, freeform = "", personalFile = {}, personality = {} } = {}) {
   const section = (title, list, answers) => {
@@ -111,6 +112,7 @@ export function summarizeIntakeAnswers({ prompts, questions = {}, freeform = "",
 
   const freeformText = (freeform ?? "").trim();
   const sections = [
+    section("From the Player (out of character)", prompts?.playerQuestions, questions),
     section("In Their Own Words", prompts?.openQuestions, questions),
     freeformText && prompts?.freeform ? `Anything Else\nQ: ${prompts.freeform.text}\nA: ${freeformText}` : null,
     section("Personality", prompts?.personality, personality),

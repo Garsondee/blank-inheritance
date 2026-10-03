@@ -10,7 +10,11 @@
  * pages: Page 1 (orientation), Page 2 (ancestry), Page 3 (background),
  * Page 4 (class), Page 5 (attribute boosts), Page 6 (portrait), Page 7
  * (finishing details), Page 8 (the eight questions) and Page 9 (review &
- * confirm). Two pages touch the real world: Page 6 uploads a cropped image
+ * confirm), plus two keyed pages that sit between the numbered ones: the
+ * Service Agreement ("agreement", second) and the out-of-character page for
+ * the person playing ("player", between Page 8 and Review -- what they enjoy,
+ * what they don't, what they hope to do, what sort of force they want to be;
+ * design/induction-terminal.md §4). Two pages touch the real world: Page 6 uploads a cropped image
  * (#uploadCroppedPortrait, via scripts/foundry/io.mjs) and Page 9 creates
  * the real Actor (#createCharacterActor) -- every other page only ever
  * writes to this.state. The Page 5→6→7 chain is real now too; no page's
@@ -207,7 +211,7 @@ function loadIntakePrompts() {
     intakePromptsPromise = null;
     return {
       genderIdentityOptions: [], pronounOptions: [], appearanceOptions: [],
-      personalFile: [], personality: [], openQuestions: [], freeform: null, failed: true
+      personalFile: [], personality: [], openQuestions: [], playerQuestions: [], freeform: null, failed: true
     };
   });
   return intakePromptsPromise;
@@ -272,7 +276,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       removeLanguage: InductionTerminal.#onRemoveLanguage,
       addLanguageCustom: InductionTerminal.#onAddLanguageCustom,
       continueFromQuestions: InductionTerminal.#onContinueFromQuestions,
-      backFromQuestions: InductionTerminal.#onBackFromQuestions
+      backFromQuestions: InductionTerminal.#onBackFromQuestions,
+      continueFromPlayer: InductionTerminal.#onContinueFromPlayer,
+      backFromPlayer: InductionTerminal.#onBackFromPlayer
     }
   };
 
@@ -314,6 +320,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     },
     page8: {
       template: `${TEMPLATE_ROOT}/page8-questions.hbs`,
+      scrollable: [".bi-induction__body"]
+    },
+    // The out-of-character page for the person playing: keyed by name like the agreement, sits just before Review.
+    pageplayer: {
+      template: `${TEMPLATE_ROOT}/page8b-player.hbs`,
       scrollable: [".bi-induction__body"]
     },
     page9: {
@@ -411,6 +422,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       : page === 6 ? this.#page6Context()
       : page === 7 ? await this.#page7Context()
       : page === 8 ? await this.#page8Context()
+      : page === "player" ? await this.#pagePlayerContext()
       : page === 9 ? await this.#page9Context()
       : {};
 
@@ -446,6 +458,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       case 6: return !s.portrait.uploading;
       case 7: return isFinishingComplete(s.finishing);
       case 8: return true;
+      case "player": return true; // nothing on the player's page is required
       case 9: return isReviewComplete(s);
       default: return false;
     }
@@ -1042,6 +1055,26 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /**
+   * The page for the person playing (Ingram, 2026-10-01): out-of-character questions about what they
+   * enjoy, what they don't, what they hope to do and what sort of force they want to be, so the GM can
+   * build a game that is fun for THEM. Same chip + free-text view-model as Pages 7-8; answers live in the
+   * same `intake.questions` map, keyed by prompt id. Every question is out of character, so the page says
+   * so once, in its header and first line, instead of tagging each field. Nothing here is required.
+   */
+  async #pagePlayerContext() {
+    const prompts = await loadIntakePrompts();
+    const promptFields = (prompts.playerQuestions ?? []).map((q) => this.#decoratePromptField({
+      id: q.id,
+      statePath: `intake.questions.${q.id}`,
+      label: `${q.number}. ${q.text}`,
+      isTextarea: true,
+      suggestions: q.suggestions,
+      helpBody: q.purposeNote
+    }));
+    return { loadFailed: prompts.failed === true, promptFields };
+  }
+
+  /**
    * A read-only summary of every choice made across Pages 1-8 -- NOT a
    * computed sheet. This terminal never re-implements sf2e's own AC/HP/
    * skill/save math (design doc §2's "collect the right raw ingredients,
@@ -1089,6 +1122,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       personalityAnswers: answerRows(prompts.personality, this.state.finishing.personality),
       questionAnswers: answerRows(prompts.openQuestions, this.state.intake.questions),
       freeformAnswer: (this.state.intake.freeform ?? "").trim() || null,
+      // The short heading, not the full question: a couple of these carry explanatory sentences.
+      playerAnswers: answerRows(
+        (prompts.playerQuestions ?? []).map((q) => ({ id: q.id, text: q.heading ?? q.text })),
+        this.state.intake.questions
+      ),
       isComplete: isReviewComplete(this.state),
       confirming: this.state.review.confirming,
       error: this.state.review.error,
@@ -1532,7 +1570,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   /** A finished tracker step: go straight there. Re-checked here, not just trusted from the button. */
   static async #onJumpToStep(_event, target) {
     const raw = target?.dataset?.step;
-    const step = raw === "agreement" ? raw : Number(raw);
+    // Numbered pages are numbers; the keyed ones ("agreement", "player") stay strings.
+    const step = /^\d+$/.test(String(raw)) ? Number(raw) : raw;
     const allowed = canJumpTo(step, {
       order: this.#stepOrder(), current: this.state.page, furthest: this.state.furthest ?? this.state.page,
       isComplete: (id) => this.#isStepComplete(id)
@@ -1841,7 +1880,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onContinueFromQuestions(_event, _target) {
-    this.state.page = 9;
+    this.state.page = "player";
     this.render({});
   }
 
@@ -1850,8 +1889,19 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.render({});
   }
 
-  static async #onBackFromReview(_event, _target) {
+  /** Nothing on the player's page is required, so Continue never points at anything missing. */
+  static async #onContinueFromPlayer(_event, _target) {
+    this.state.page = 9;
+    this.render({});
+  }
+
+  static async #onBackFromPlayer(_event, _target) {
     this.state.page = 8;
+    this.render({});
+  }
+
+  static async #onBackFromReview(_event, _target) {
+    this.state.page = "player";
     this.render({});
   }
 

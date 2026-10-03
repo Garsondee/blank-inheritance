@@ -5,123 +5,108 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "school-first-period",
   "title": "School: First Period",
-  "summary": "The first lesson of their lives here, an hour after being told what they are. Two rooms: the city on a wall map, or a machine shop run by a woman with horns who is shouting before anybody is through the door.",
-  "goal": "Every player has chosen a room, sat a short lesson, and had one optional chance to get more out of it than the lesson was offering.",
-  "howToPlay": "Short and light, straight after the Assembly. Run both rooms in parallel, cutting between them: one image each, one exchange, one optional roll, and out. Fifteen minutes for the whole thing.\n\n**The point of this scene is that it is ordinary.** They have been medically processed and addressed by the second most senior officer on the island, and now they have double period one like anybody else. Let that be funny.\n\nNeither room announces what a good roll is worth. Neither room announces what a bad one costs.",
-  "runsAbout": "15 minutes for both, run in parallel",
-  "mode": "downtime",
+  "summary": "Scene 4. Their first lesson: local studies, where the four founders are named, or Hulda Brack's workshop induction. Each player picks a room.",
+  "goal": "Each player has sat a lesson of their choice, and the table has heard the four founders' names.",
+  "howToPlay": "Short and light. Each player picks a room; cut between the two. Not rolling is always fine. **The founders' names come out here, however the rolls go.**",
+  "runsAbout": "15-20 minutes",
+  "mode": "social",
   "intro": {
-    "where": "The school block, first floor. Two rooms at opposite ends of the same corridor, and the corridor between them smells of floor polish and, faintly, of hot metal.",
-    "firstThing": "A bell nobody warned them about.",
-    "readAloud": "The bell goes at twenty past and the corridor fills in about four seconds with people who have done this every day for years.\n\nThere is a timetable on the wall, and against your names, today, somebody has written a choice instead of a room.",
-    "landmark": "the wall timetable, where their six names share a single hand-written entry that nobody has explained",
-    "holdInReserve": "The hand-written entry against their names is in a different hand from the rest of the timetable, and in green ink. Give this to anybody who looks at the timetable twice.",
+    "where": "The school block, first floor: two rooms at opposite ends of one corridor.",
+    "readAloud": "A bell goes, and the corridor fills in about four seconds. At one end, a man is pulling a city map down over the blackboard. At the other, somebody is already shouting about fingers.",
+    "landmark": "The corridor between the two doors.",
     "carriesIn": [
       {
-        "when": "The Assembly was played (it was, an hour ago)",
-        "then": "They have just been addressed by the second most senior officer on the island and told what they are for, and now they have double period one. Do not remark on the gap. Let it be the joke."
-      },
-      {
-        "when": "Intake Medicals was played and somebody clocked the prosthetic",
-        "then": "The doctor from this morning is not in either of these rooms and nobody mentions him. He turns up teaching a lesson next episode, which is when that matters."
+        "when": "After Assembly",
+        "then": "Vetch has left them at the corridor with a timetable."
       }
-    ]
+    ],
+    "position": {
+      "locationRef": "main-school-complex",
+      "state": "together",
+      "note": "The first-floor corridor of the school block."
+    }
   },
   "cast": [
     {
-      "id": "school-history-teacher",
+      "id": "history-teacher",
       "npcRef": "school-history-teacher",
-      "label": "The history teacher",
-      "role": "Takes local studies on a Tuesday -- the city, the districts, the tram network, and what is in the harbour square.",
-      "arrival": "announced",
+      "role": "Teaches history, and local studies, which he loves.",
+      "arrival": "quiet",
       "brief": {
-        "wants": "Them to be able to find their way around a city most of them arrived in yesterday. Local studies is his own subject rather than an assigned one, and it is the lesson where he is most alive.",
-        "opensWith": "A wall map, already pulled down, and a question about where they think they currently are.",
+        "wants": "For them to find their way round the city by the end of the week.",
+        "opensWith": "\"Where do you think you are right now? Show me.\" The map is already down.",
         "willDiscuss": [
           {
-            "topic": "The districts, the tram lines, and how to get anywhere from anywhere",
-            "note": "Thoroughly and well. He is a good teacher of the thing he is actually teaching."
+            "topic": "His name",
+            "note": "\"Ota. Mister Ota, if you like. Ota if you don't.\""
           },
           {
-            "topic": "The harbour square and what is in it",
-            "note": "The statue is on his map as a landmark. He will say it is a gnoll, that the plaque says Hyuck, and that it is obviously not Hyuck the founder, because every picture of Hyuck shows a tall man with a sword. Somebody's joke, or a harbour mascot that borrowed a famous name. He is completely sure of this."
+            "topic": "The city",
+            "note": "Districts, trams, where to eat, and which streets to avoid after dark. \"The number 4 is always late. Plan around it.\""
           },
           {
-            "topic": "Hyuck the founder",
-            "note": "The schoolbook version, happily and briefly: one of the four who stood against the rift at Kortos and swore to be in Kurose when the next one came. Every child here knows it. He tells it the way you would tell somebody which tram to catch."
+            "topic": "The founders",
+            "note": "Proud of them and cheerfully certain: four tall heroes, every picture shows it."
           },
           {
-            "topic": "Where to eat, where not to go after dark, and which tram is always late",
-            "note": "Genuinely useful and slightly gossipy. This is the warmest he gets."
+            "topic": "The statue on the harbour",
+            "note": "\"A gnoll, with HYUCK on the plaque? Somebody's mascot. Hyuck was a big man with a sword.\""
           }
         ],
         "willNotDiscuss": [
           {
             "topic": "Why the statue says Hyuck",
-            "why": "He does not know and has decided it does not matter, because it is clearly not him. He says so cheerfully if pressed and goes back to the map."
+            "why": "He doesn't know, and it doesn't bother him: \"Mascots get names. Right, trams.\""
           }
         ],
         "coercible": [],
         "voice": {
-          "register": "Unhurried, fond of his subject, a little dry. Talks to a class as though they are going to be interested, which is why they usually are.",
-          "tics": [
-            "Taps the map rather than pointing at it",
-            "Gives a direction and then the reason for the direction",
-            "Answers 'I don't know' plainly and moves on, with no embarrassment"
-          ],
+          "register": "Unhurried and dry. Taps the map. Says \"I don't know\" plainly and doesn't mind.",
           "samples": [
-            "\"You are here. -- No. You are here, which is about a mile out and downhill from where you just said, and that mile is all steps.\"",
-            "\"Harbour square. Statue in the middle of it, weathered, plaque says Hyuck. Kids climb it. Pigeons live on it.\"",
-            "\"Hyuck? The Hyuck? No. Look at it. Hyuck was a big man with a sword, he's in every picture. That's somebody's mascot. Right -- tram lines.\"",
-            "\"The 4 is always late. Plan around it and you will be a happier person than most of the people in this building.\""
+            "\"You are here. No. You are here, which is a mile from where you said, and that mile is all steps.\"",
+            "\"Good. Wrong, but good. Who else?\""
           ]
-        }
+        },
+        "statblock": "Proposed: level 1, a teacher, non-combat."
       }
     },
     {
-      "id": "shop-boss",
+      "id": "hulda-brack",
       "npcRef": "shop-boss",
-      "label": "Hulda Brack",
-      "role": "Runs the machine shop, and takes the workshop safety induction personally because she does not trust anybody else to frighten people properly.",
+      "role": "Head of the machine shop, taking the safety induction herself.",
       "arrival": "announced",
       "brief": {
-        "wants": "Her machines back undamaged, and the people who crew them back with the same number of fingers. She says the machines first and means the people, and anybody who has worked for her a week knows it.",
-        "opensWith": "Already talking, at volume, before the last of them is through the door.",
+        "wants": "Everyone leaving her workshop with the same number of fingers they came in with.",
+        "opensWith": "\"In. Sit. Hands where I can see them, all of you.\"",
         "willDiscuss": [
           {
-            "topic": "What will take a hand off, and how",
-            "note": "Cheerfully, at length, with demonstrations. She is enjoying herself and the class is appalled, and both of those are correct."
+            "topic": "Every machine in the room",
+            "note": "Exactly how each one would hurt them, at length, with relish."
           },
           {
-            "topic": "What is actually on her floor",
-            "note": "Everything. She is proud of it. Lathes, presses, a gantry, and up on trestles at the back, four metres of machine forearm and hand, opened along one side with its fingers slightly curled."
+            "topic": "Herself",
+            "note": "A nuar, and proud of it. She won't wear a glamour for anyone."
           },
           {
-            "topic": "Whether any of them are any good with their hands",
-            "note": "Direct question, asked of individuals, and she remembers the answer. A student who is honest about being useless gets more of her time, not less."
+            "topic": "The forearm on the trestles",
+            "note": "\"Off a Frame. It'll be back on by Thursday. Not cleared. Not today.\""
           }
         ],
         "willNotDiscuss": [
           {
-            "topic": "What the arm on the trestles is off, and where the rest of it is",
-            "why": "Not today. It is not a secret and she is not being coy -- they are not cleared for the floor yet and she will not have them near it."
+            "topic": "Letting them near the forearm",
+            "why": "They're not cleared for her floor yet: \"Earn it. Then ask me again.\""
           }
         ],
         "coercible": [],
         "voice": {
-          "register": "Enormous, warm, entirely without ceremony. Audible from the other end of the building without appearing to raise her voice.",
-          "tics": [
-            "Calls people by the machine or job they are standing next to",
-            "Says the frightening thing and the kind thing in the same breath",
-            "Ends a point by hitting something metal once"
-          ],
+          "register": "Enormous and warm. Calls people by the machine they're standing next to. Ends a point by hitting metal.",
           "samples": [
-            "\"IN. Sit. Hands where I can see them, all of you, because that is the last hour of your life where I am not counting them.\"",
-            "\"You -- bench three. What do you think that does? -- Wrong, and thank you for being wrong out loud, that's worth more to me than six of them being right quietly.\"",
-            "\"That? That is none of your business, and it will be your business soon enough. Sit down.\"",
-            "\"No, you're useless. Good. Useless I can work with. It's the ones who tell me they're handy that end up in the hospital.\""
+            "\"You, by the lathe. What does that do? Wrong, and thank you for being wrong out loud.\"",
+            "\"No, you're useless. Good. Useless I can work with. It's the handy ones that end up in hospital.\""
           ]
-        }
+        },
+        "statblock": "Proposed: level 4, a machine-shop chief, can fight if she has to."
       }
     }
   ],
@@ -130,127 +115,145 @@
       "id": "which-room",
       "kind": "action",
       "mandatory": true,
-      "delivery": "table",
-      "text": "Two rooms, one corridor, and a choice against their names instead of a room number.",
+      "delivery": "each",
+      "text": "Each player picks a room: local studies or the workshop. Splitting up is fine.",
       "choicePoint": {
         "label": "First period. Which end of the corridor?",
         "options": [
           {
             "id": "local-studies",
-            "label": "Local studies -- the city on a wall map, taught by a man who is fond of it.",
-            "consequence": "Where everything is, how to get there, and what is in the harbour square."
+            "label": "Local studies: the city on a wall map.",
+            "consequence": "Where everything is, how to get there, and who founded the place."
           },
           {
             "id": "workshop",
-            "label": "Workshop induction -- the machine shop, where somebody is already shouting.",
-            "consequence": "Tools, hands, and a very loud woman with horns explaining exactly how each machine would injure them."
+            "label": "Workshop induction: the machine shop.",
+            "consequence": "Tools, hands, and a very loud woman with horns."
           }
         ],
         "allowsInventedOption": true
       },
-      "direction": "Take each pick individually and do not let the table caucus into a single decision. Splitting is the intended outcome.\n\nIf a player asks which is more useful, nobody in the fiction knows, and the honest answer at the table is that they are useful for different things.\n\nIf somebody wants to skip both and go and look at the base instead, they can. It is their first morning, nobody is checking, and there is a whole island they have not seen. That costs them the lesson and nothing else.",
-      "note": "HOW TO PLAY IT. Both rooms pay off. Local studies pays this afternoon in the city. The workshop pays tonight in the flood tunnel and again next episode in the hangar. Say none of that.\n\nWrite down who went where. It matters twice today.\n\nAN INVENTED THIRD OPTION IS LIKELY HERE and should be backed. Plausible ones: finding the canteen, going back to the medical wing to ask Shucks something, walking the perimeter, or following the noise to the machine shop without being enrolled in it. Price any of them on the standard ladder and let them return something real, the same as the two authored rooms do."
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-founders",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "history-teacher",
+      "text": "In local studies, the teacher asks the room to name the four founders. Offer the check; on any result the table hears them.",
+      "note": "Do: The four are Hyuck, Rupiah, Anabala and Shucks Mordant: \"who you'll have met this morning. Don't stare, he hates it.\"\nIf nobody chose local studies: The four names are on the corridor noticeboard: \"Learn these for Friday.\"\nWatch for: Four of your players played these four. Let them enjoy hearing the names.",
+      "challengeRef": "c1e1-school-first-period",
+      "checkRef": "name-the-founders",
+      "facts": [
+        "school-history-teacher.name",
+        "founders.names",
+        "founders.pictures",
+        "rupiah.cuts-the-ribbon",
+        "shucks.revealed-early"
+      ],
+      "gmFacts": [
+        "founders.what-they-were"
+      ]
     },
     {
       "id": "local-studies",
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "A pulled-down wall map, a mile of steps they did not know about, and a statue in the harbour square.",
+      "npcRef": "history-teacher",
+      "text": "The teacher takes them round the city on the wall map. If anyone works at it, offer the check.",
+      "when": {
+        "condition": "someone chose local studies"
+      },
+      "note": "Plant: The harbour statue: a weathered gnoll with HYUCK on the plaque. He's sure it's a mascot.\nSecret: The statue is Hyuck as he was. He's alive, and test-pilots the Directorate's worst Frames.\nWatch for: Steve played Hyuck. Let the mascot joke land on him.",
       "challengeRef": "c1e1-school-first-period",
       "checkRef": "know-the-ground",
-      "npcRef": "school-history-teacher",
-      "when": {
-        "condition": "for players who chose local studies, and only if one of them engages with the map"
-      },
-      "readAloud": "\"You are here.\" He taps the map. \"No -- you are here, which is a mile out and downhill from where you just said, and that mile is all steps.\"\n\n\"Harbour square. Statue in the middle of it, weathered, plaque says Hyuck. Right -- tram lines.\"",
-      "direction": "Let the statue go past at exactly that speed. He is not lingering on it and neither should the GM.\n\nIf a player stops him and asks about Hyuck, he gives them the schoolbook Hyuck in one breath, says the statue plainly is not him, and carries straight on. No discomfort, no pause, no weight.",
-      "nodeRefs": [
-        "arc-the-four-founders"
+      "facts": [
+        "hyuck.statue"
       ],
-      "note": "HOW TO PLAY IT. The lesson is about navigation. The statue is one line in the middle of it and gets no more emphasis than the tram timetable does.\n\nPLANT. A famous name on a statue that looks nothing like the famous pictures. Next episode's history lesson names all four founders and shows them as four tall humans; an older printing, for anyone who finds it, shows otherwise. Nobody in the fiction ever connects the two.\n\nGM-ONLY: the statue is Hyuck, and the approved pictures are wrong about what the four looked like (`ideas/story/dossier-first-impact.md`, `ideas/story/bible/LEDGER.md` #27). Hyuck is alive, on the base, test-piloting the Directorate's worst Frame concepts, and revealed to the table slowly (LEDGER #28). Nothing here points at him.\n\nWHAT IT DOES NOT MEAN: the teacher is not hiding anything. He is sure, and wrong, and his cheerful certainty is the actual point.\n\nPAYS OFF THIS AFTERNOON on The Errand. Do not mention that now."
+      "gmFacts": [
+        "hyuck.statue-truth",
+        "hyuck.test-pilot"
+      ]
     },
     {
       "id": "workshop",
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "Brack, at volume, explaining what each machine on her floor would do to a person.",
+      "npcRef": "hulda-brack",
+      "text": "Hulda Brack runs the safety induction. If anyone joins in, offer the check.",
+      "when": {
+        "condition": "someone chose the workshop"
+      },
+      "note": "Plant: Four metres of Frame forearm on trestles at the back, opened along one side, fingers curled. She won't let them near it.",
       "challengeRef": "c1e1-school-first-period",
       "checkRef": "workshop-induction",
-      "npcRef": "shop-boss",
-      "when": {
-        "condition": "for players who chose the workshop, and only if one of them engages"
-      },
-      "readAloud": "\"IN. Sit. Hands where I can see them, all of you, because this is the last hour of your lives where I am not counting them.\n\nYou. Bench three. What do you think that does?\"",
-      "direction": "Play her enormous and warm. She is frightening them on purpose and she is delighted to be doing it.\n\nShe asks individuals direct questions and remembers the answers. A player who admits to being useless with their hands gets more of her attention, not less, and she says why.\n\nAt the back of the floor, up on trestles, is four metres of machine forearm and hand, opened along one side, fingers slightly curled. She will not let them near it and refuses plainly rather than mysteriously.",
-      "note": "HOW TO PLAY IT. This is the party's first meeting with the single most important person on the base to be on the right side of, and nobody tells them that.\n\nPLANT. The arm is off a Frame. Nobody says the word, nobody explains what it is for, and no roll in this scene identifies it. A school workshop with a war machine's hand in it, treated as completely routine, is the militarisation of this education stated as an object rather than as an argument -- which is the whole reason the school and the Directorate share a campus.\n\nWHAT IT DOES NOT MEAN: she has not singled the party out, she does not know anything about them, and she is exactly this loud with everyone.\n\nPAYS OFF TONIGHT in the flood tunnel, and again in the hangar next episode. Do not mention that now."
+      "facts": [],
+      "gmFacts": []
     },
     {
       "id": "corridor",
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Out into the corridor, where the two halves of the party find each other again.",
-      "direction": "Thirty seconds. Let them compare. Neither room has told anybody what it was worth.",
-      "note": "HOW TO PLAY IT. Thirty seconds, no rolls, and it exists so that a split scene closes as one group rather than two. Every school period in both episodes ends this way."
+      "text": "The bell. Give them about thirty seconds in the corridor to compare notes, then send them to the stores.",
+      "facts": [],
+      "gmFacts": []
     }
   ],
-  "artefacts": [],
+  "artefacts": [
+    {
+      "id": "tram-map",
+      "title": "The history teacher's tram map",
+      "earnedBy": "A critical success in local studies.",
+      "gmNote": "+1 circumstance to finding their way round the city.",
+      "body": "<p>A city tram map, soft with use and covered in pencil: times, cafés worth the walk, a circled stop, and <em>the 4 is never on time</em> underlined twice.</p>"
+    }
+  ],
   "handouts": [],
   "gmModifiers": [],
   "offers": [],
   "outro": {
-    "endsWhen": "The bell again, and the stores are expecting them.",
-    "artefactRefs": [],
-    "tracks": [
-      {
-        "track": "comprehension",
-        "delta": null,
-        "why": "Only if somebody came out of local studies able to place the city, or out of the workshop understanding what the machine shop is for."
-      }
+    "endsWhen": "The bell, and the corridor empties toward the stores.",
+    "artefactRefs": [
+      "tram-map"
     ],
+    "tracks": [],
     "transition": {
       "mechanism": "scheduled",
-      "line": "Kit issue is at noon and the queue starts before that.",
+      "line": "The timetable says the stores next, and the queue starts before the bell.",
       "scatterRisk": false
     },
-    "onwards": "Into Kit Issue.",
+    "onwards": "Kit Issue, at the quartermaster's stores.",
     "writeDown": [
-      "Who went to which room. Local studies pays on The Errand this afternoon; the workshop pays in the flood tunnel tonight and in the hangar next episode.",
-      "Anybody who asked about Hyuck, and whether they noticed that the statue looks nothing like the founder in the pictures.",
-      "Anybody carrying extra work out of this. It costs them their slack in the city this afternoon, and on a critical failure their evening as well."
-    ]
+      "Who sat which room, and what they rolled.",
+      "Anyone kept back, and anyone Fatigued tonight."
+    ],
+    "position": {
+      "locationRef": "main-school-complex",
+      "state": "together",
+      "note": "Heading for the stores."
+    }
   },
   "carryForward": [],
   "temptations": [
     {
-      "id": "ask-about-hyuck",
-      "text": "The plaque says Hyuck, and every picture of Hyuck in this city is of a tall man with a sword."
-    },
-    {
-      "id": "the-arm-on-the-trestles",
-      "text": "There is a four-metre hand at the back of the machine shop with its fingers slightly curled, and she has just told them not to go near it."
+      "id": "the-forearm",
+      "text": "There's a four-metre hand on the trestles at the back, and she's just told them not to go near it."
     }
   ],
   "reactionPrompts": [
     {
-      "id": "ordinary-lesson",
-      "text": "Whether having an ordinary double period an hour after the Assembly landed as funny.",
-      "scaleNote": "0 = felt like filler, 10 = the deflation was the joke and it worked."
+      "id": "the-names",
+      "text": "The founders' names landing with the table."
     },
     {
-      "id": "brack-arrival",
-      "text": "Brack's entrance -- volume, horns, and counting fingers."
-    },
-    {
-      "id": "hyuck-plant",
-      "text": "Whether the statue line went past at the right speed -- noticed by somebody, lingered on by nobody."
-    },
-    {
-      "id": "the-split",
-      "text": "Whether the party split willingly, or tried to negotiate into one room."
+      "id": "the-rooms",
+      "text": "Both rooms getting time, cut between briskly."
     }
   ],
-  "notes": "WHY THIS SCENE IS HERE. The party has just been medically processed and addressed by the second most senior officer on the island, and now they have first period. The ordinariness is the joke and it is also the argument: this is a school, they are students, and the mecha campaign is happening around a timetable.\n\nTHE RULES FOR EVERY SCHOOL PERIOD IN THIS CAMPAIGN. Not rolling is free and is a normal thing for a student to do. The risks and rewards are never announced beforehand. Failure and critical failure both cost something real.\n\nWHAT THEY COST ON DAY ONE IS NOT A QUARTER. The four-quarter day has not been named to the players yet -- that is The Board, next episode. Failure here takes the slack out of this afternoon in the city, and critical failure takes that and sends them into the flood tunnel Fatigued. The challenge file carries the full ladder; read it before running either check.\n\nTWO PLANTS, NEITHER RESOLVED. A statue with a name on it that the school cannot explain, and a war machine's forearm on trestles in a school workshop that nobody finds worth remarking on. Both are sitting in plain sight in an ordinary lesson on an ordinary morning, which is where a plant belongs.\n\nBRACK IS INTRODUCED HERE ON PURPOSE. Meeting her on day one, loud and warm and entirely uninterested in who they are, makes the hangar scene next episode much better than meeting her cold would."
+  "notes": "Not rolling is free; rewards and costs are never announced. What the rooms pay: local studies gives the founders' names (always), a way round the city this afternoon, and on a critical success the teacher's tram map; the workshop gives +2 tonight on working the drain chamber's panels, applied without comment. A critical failure in either keeps a character back and sends them into tonight's job Fatigued; a failure in local studies makes them last into the stores, where the handlamps have run out."
 }

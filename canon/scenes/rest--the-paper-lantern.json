@@ -13,7 +13,7 @@
   "spectrum": "downtime",
   "haunt": {
     "everyVisit": "A low room down a side street in the entertainment quarter, a noren curtain hanging in the doorway and paper lanterns strung from the beams overhead. A long wooden counter runs down one side, benches crowded along the other, and a charcoal brazier at the back sends up steam and the smell of grilled skewers. Nobody checks a rank here. Whoever is drinking is a regular, and whoever is a regular gets served next.",
-    "changes": "As the base grows and curfew is enforced harder, more candidates start finding their way here after hours, and the walk back gets watched more closely than it used to be. Some nights the room is half Directorate kit and half dock overalls, and Kiku minds that more than she lets on.",
+    "changes": "As the base grows and curfew is enforced harder, more candidates start finding their way here after hours, and the walk back is watched more closely. Some nights the room is half Directorate kit and half dock overalls, and Kiku minds that more than she lets on.",
     "upgrades": [
       {
         "id": "kikus-corner",
@@ -62,7 +62,7 @@
       }
     ],
     "holdInReserve": "Kiku keeps a spare stool behind the counter itself, for whoever she decides needs a quiet corner rather than the room. Nobody is told why some people get it.",
-    "landmark": "The noren curtain over the door, and Kiku's shamisen behind the counter when Sanzo isn't playing it.",
+    "landmark": "The long counter, where Kiku pours.",
     "position": {
       "locationRef": "the-paper-lantern",
       "state": "together",

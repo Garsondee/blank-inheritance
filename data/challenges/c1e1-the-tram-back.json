@@ -6,30 +6,24 @@
     "status": "drafted"
   },
   "name": "The Tram Back",
-  "description": "One pure-texture check, matching The Road In's own a-flourish exactly -- costs nothing on any result, never mandatory.",
+  "description": "A player's small moment on the ride, on a skill they name. It costs nothing on any result.",
   "levelContext": 1,
   "checks": [
     {
       "id": "a-flourish",
-      "name": "A small, real moment",
-      "skillOptions": [
-        "athletics",
-        "acrobatics",
-        "crafting",
-        "diplomacy",
-        "medicine",
-        "performance"
-      ],
+      "name": "A small moment",
+      "anySkill": true,
+      "skillOptions": [],
       "dc": {
-        "value": 13,
-        "basis": "level 1 DC 15, one step easy -- a treat, not a test, same convention as c1e1-the-road-in's own a-flourish",
-        "adjustment": "easy"
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
       },
       "outcomes": {
-        "criticalSuccess": "It lands exactly right -- whatever they did or said, somebody else on the tram actually noticed, in a small, real way.",
-        "success": "It goes fine, and it's theirs.",
-        "failure": "Nothing dramatic. The moment just doesn't quite land, which is a completely normal way for a quiet moment to go.",
-        "criticalFailure": "Mildly, harmlessly awkward -- the kind of thing that's funnier in a week than it is right now."
+        "criticalSuccess": "Somebody else on the train noticed, in a small, real way. The player tells us how.",
+        "success": "It goes fine, and it's theirs. The player tells us how.",
+        "failure": "It doesn't quite land. The player tells us how.",
+        "criticalFailure": "The kind of thing that's funnier in a week. The player tells us how."
       },
       "repeatable": true
     }
@@ -42,5 +36,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--the-tram-back"
   ],
-  "notes": "Never mandatory. If nobody reaches for it, the scene loses nothing -- the whole point of this scene is unstructured player-led time, not a checklist."
+  "notes": "A player moment: the player names the skill and tells the result."
 }

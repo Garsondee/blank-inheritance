@@ -1,0 +1,280 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--canteen",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "canteen",
+  "title": "Canteen",
+  "summary": "Scene 9. Supper in the Long Hall. Taka claims the six as his table, then Vetch reads the evening's orders and gives Section Nine the storm drains.",
+  "goal": "Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.",
+  "howToPlay": "Loud and warm, then one flat turn. Let them eat and talk; bring Vetch in when the talk slows. **After his order, Taka gets the last word.**",
+  "runsAbout": "20-30 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The Long Hall, the base's canteen, at the evening sitting.",
+    "readAloud": "You hear the Long Hall before you see it: several hundred candidates at long tables, all talking at once about the same day. Every table already seems to belong to somebody. Behind the serving line, a radio is playing an evening phone-in that nobody is listening to.",
+    "landmark": "The serving line, with the radio on a shelf behind it.",
+    "carriesIn": [
+      {
+        "when": "If they filed the requisition loudly",
+        "then": "Half the hall has heard. People grin at Section Nine on the way past, and Taka already knows."
+      },
+      {
+        "when": "If they filed it quietly",
+        "then": "Nobody knows yet, except Vetch."
+      }
+    ],
+    "position": {
+      "locationRef": "long-hall",
+      "state": "together",
+      "note": "Section Nine at one table near the serving line."
+    }
+  },
+  "cast": [
+    {
+      "id": "taka",
+      "npcRef": "taka",
+      "role": "A candidate a year ahead, who takes them under his wing.",
+      "arrival": "splash",
+      "brief": {
+        "wants": "Six new faces at his table tonight, before anyone else claims them.",
+        "opensWith": "Two chairs dragged over before anyone asks him to sit: \"Budge up. Properly. There's six of you and I'm not sitting on the end like a coat.\"",
+        "willDiscuss": [
+          {
+            "topic": "Where they're from",
+            "note": "He asks first, and actually listens: \"No, properly from.\""
+          },
+          {
+            "topic": "The first week",
+            "note": "\"Forms. Then forms about the forms. Then they let you near a machine.\""
+          },
+          {
+            "topic": "Vetch",
+            "note": "\"Did he send you for the bubble? He sends everyone for the bubble.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Anything unkind about anyone",
+            "why": "He just won't, and it costs him nothing: \"Nah. Have you tried the pickles?\""
+          }
+        ],
+        "coercible": [
+          {
+            "topic": "What's in the drains",
+            "how": "Ask him properly, after the order. He won't volunteer it, and he won't lie.",
+            "challengeRef": "c1e1-canteen",
+            "checkRef": "ask-taka"
+          }
+        ],
+        "voice": {
+          "register": "Loud, warm and quick, with a real question in every third sentence. Goes quiet for a moment when something real comes up.",
+          "samples": [
+            "\"First day? Then you've had the forms. Mother's maiden name, twice. Everybody laughs at it. Nobody knows why.\"",
+            "\"Right. Who's from furthest away? Go on.\""
+          ]
+        },
+        "statblock": "Proposed: level 2, a candidate, can fight."
+      }
+    },
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "role": "Duty officer tonight, reading the evening's orders.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To watch Section Nine get the worst job on the list, from him, in front of everyone.",
+        "opensWith": "Nothing to the six. He reads the hall its orders and looks up only for theirs.",
+        "willDiscuss": [
+          {
+            "topic": "The order",
+            "note": "He reads it again, word for word, once. Not a third time."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The vial",
+            "why": "\"I don't know what you're referring to.\""
+          },
+          {
+            "topic": "A different job",
+            "why": "\"Sections are assigned work. That is what a section is.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped and procedural. Reads orders like a shopping list. Never wrong in his own account.",
+          "samples": [
+            "\"Section Nine.\" He looks up. \"Yes, you. There's only one of you.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
+      }
+    },
+    {
+      "id": "pilot-track-student",
+      "npcRef": "the-young-one",
+      "role": "A pilot-track candidate at the next table.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Everyone to know his section got harbour patrol.",
+        "opensWith": "\"Which track are you on?\" before anyone's name.",
+        "voice": {
+          "register": "Confident and a little competitive, not unkind.",
+          "samples": [
+            "\"Section Nine? Rough. We got harbour patrol.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-hall",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Let them find a table and talk. Read the radio once, under the noise.",
+      "readAloud": "On the radio, a father is trying hard not to shout. His daughter is seventeen, she's being held without charge, and nobody will tell him where.",
+      "note": "Plant: Nobody in the hall reacts to the radio. Say nothing more about it.\nSecret: She is Shinobu Kudo, and he is her father. She comes back into the story much later.",
+      "facts": [
+        "shinobu.the-phone-in"
+      ],
+      "gmFacts": [
+        "shinobu.who"
+      ]
+    },
+    {
+      "id": "takas-entrance",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "npcRef": "taka",
+      "text": "Taka <trig id=\"taka-arrives\"/> arrives with two chairs, claims the six as his table, and asks each of them where they're properly from.",
+      "direction": "Full warmth: he asks about each of them and listens. Warm by including them, never by labelling them.",
+      "triggers": [
+        {
+          "id": "taka-arrives",
+          "kind": "npc-enter",
+          "npcRef": "taka",
+          "label": "Taka arrives"
+        }
+      ],
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-announcement",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "section-officer",
+      "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last.",
+      "readAloud": "\"Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two.\" He looks up for the first time. \"Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.\"",
+      "direction": "No choice and no appeal: he answers any argument by reading the order again, once, and goes.",
+      "note": "Secret: He gave them the drains for the vial. He'll never say so.",
+      "triggers": [
+        {
+          "id": "section-officer-arrives",
+          "kind": "npc-enter",
+          "npcRef": "section-officer",
+          "label": "Vetch arrives"
+        }
+      ],
+      "facts": [
+        "section-officer.the-drains"
+      ],
+      "gmFacts": [
+        "section-officer.drains-for-the-vial"
+      ]
+    },
+    {
+      "id": "read-vetch",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches Vetch rather than listening to him, offer the check.",
+      "when": {
+        "condition": "someone watches Vetch"
+      },
+      "challengeRef": "c1e1-canteen",
+      "checkRef": "read-the-announcement",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "after-the-order",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "taka",
+      "text": "The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word.",
+      "readAloud": "\"Storm drains.\" Taka is quiet for a moment, which is new. \"Wear the waders. Trust me.\"",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "ask-taka",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "taka",
+      "text": "If anyone asks Taka properly what's down there, offer the check.",
+      "when": {
+        "condition": "someone asks Taka about the drains"
+      },
+      "challengeRef": "c1e1-canteen",
+      "checkRef": "ask-taka",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Taka has had the last word.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "why": "If Taka's table, or the order, pulled the six together."
+      }
+    ],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "Dock C at twenty-one hundred, with waders from the night lockup.",
+      "scatterRisk": false
+    },
+    "onwards": "The Walk Down, to the night lockup and Dock C.",
+    "writeDown": [
+      "Who took to Taka, and who he took to.",
+      "Anything Taka told them about the drains."
+    ],
+    "position": {
+      "locationRef": "long-hall",
+      "state": "together",
+      "note": "Leaving for the night lockup."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "ask-taka",
+      "text": "Taka knows everyone on this island, and he's dying to be asked something."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "taka",
+      "text": "Taka landing as a friend."
+    },
+    {
+      "id": "the-order",
+      "text": "Vetch's order landing flat."
+    }
+  ],
+  "notes": "Taka's warmth is inclusion, never nicknames. The pilot-track candidate is the Young One: play him as an ordinary, slightly smug classmate, nothing more."
+}

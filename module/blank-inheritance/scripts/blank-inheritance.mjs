@@ -31,7 +31,7 @@ import { DirectorBar } from "./foundry/director-bar.mjs";
 import { installDeckFitting, noteRoll, resetActionPips } from "./foundry/deck.mjs";
 import { loadSessionLog } from "./foundry/session-log.mjs";
 import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
-import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
+import { ensureStageVault, summonToStage, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
 import { buildSceneSet, quarantineStrayScenes, retireDuplicateScenes, retireOrphanedScenes, retireTemporaryScenes } from "./foundry/scene-build.mjs";
@@ -56,6 +56,7 @@ import {
   registerCitySettings
 } from "./foundry/city-state.mjs";
 import { registerPawnGuards } from "./foundry/city-pawns.mjs";
+import { repairActorOwnership } from "./foundry/ownership-repair.mjs";
 import { mountCityLayer, onCityPan, onCityTokenMoved, refreshCityLayer } from "./foundry/city-layer.mjs";
 import { openInductionTerminal, createInductionTerminalMacroIfMissing, registerInductionSettings } from "./foundry/induction-terminal.mjs";
 import { registerInductionSocket } from "./foundry/induction-relay.mjs";
@@ -82,6 +83,7 @@ import { createApprovalsDeskMacroIfMissing, openApprovalsDesk } from "./foundry/
 import { registerAdminSettings } from "./foundry/admin-actions.mjs";
 import { registerAutopilotHooks, registerAutopilotSettings } from "./foundry/admin-autopilot.mjs";
 import { createAdminMacroIfMissing, openAdminPanel, refreshAdminPanel } from "./foundry/admin-panel.mjs";
+import { mountAdminKey } from "./foundry/admin-button.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
 import { registerChatExportHooks } from "./foundry/chat-export.mjs";
 import { installAudioEngine, registerAudioSettings, registerAudioSocket } from "./foundry/audio-engine.mjs";
@@ -100,6 +102,7 @@ import { playersWhoCanBrowseFiles } from "./core/file-exposure.mjs";
 import { registerNotebook, startNotebook } from "./foundry/notebook.mjs";
 import { createLocationEditorMacroIfMissing, openLocationEditor, registerLocationEditorHooks } from "./foundry/location-editor.mjs";
 import { registerLocationDrawKeybindings, registerLocationDrawLayer } from "./foundry/location-draw-layer.mjs";
+import { startStagecraftBridge } from "./foundry/stagecraft-bridge.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -137,6 +140,7 @@ Hooks.once("init", () => {
       // macro; this is the console-friendly way in.
       buildStageDemoScenes,
       writeAuthoredCast,
+      summonToStage,
       // Six temporary, clearly-marked test PCs for verifying map travel end
       // to end (#175) — a diagnostic aid, not a production feature. Has its
       // own macro too; exposed here the same way buildStageDemoScenes is.
@@ -391,6 +395,16 @@ Hooks.once("ready", async () => {
     } catch (err) {
       console.error("Blank Inheritance | Could not register the chat export:", err);
     }
+    // An Actor whose ownership holds INHERIT makes every unlinked token of it
+    // recurse until the stack is gone (core/ownership.mjs has the whole story),
+    // which blanks the Director's bar and breaks sf2e's data preparation. The
+    // admin panel used to leave that behind; this takes it out, and is silent
+    // when there is nothing to do. Its own try: never worth blocking ready on.
+    try {
+      await repairActorOwnership();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not repair actor ownership:", err);
+    }
     // Every Actor this pipeline creates carries a Dynamic Ring (token-ring.mjs)
     // — this is the one-time world-level move that makes it render in bronze
     // rather than core's own default steel. Its own try: a style mismatch is
@@ -489,6 +503,14 @@ Hooks.once("ready", async () => {
     mountSessionRail();
   } catch (err) {
     console.error("Blank Inheritance | Could not mount the session rail:", err);
+  }
+
+  // The admin key: the big red button that opens the admin panel (2026-10-01).
+  // GM-only is enforced inside mountAdminKey. Its own try, like every mount here.
+  try {
+    mountAdminKey();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the admin key:", err);
   }
 
   // The GM's script. Its own try: a panel that fails to mount must not stop
@@ -595,6 +617,8 @@ Hooks.once("ready", async () => {
   // automatically". Here in `ready` rather than on the first canvasReady, where
   // it used to be: Foundry never fires canvasReady when no scene is active.
   // Not awaited -- the page must not wait on a rebuild to finish loading.
+  // The puppet-show stage (foundry/stagecraft-bridge.mjs): switched on, given its scenes and its cast, by itself.
+  startStagecraftBridge().catch((err) => console.error("Blank Inheritance | Could not start the Stagecraft bridge:", err));
   startWorldSync({ beforeApply: () => resetSceneRunnerCache() }).catch((err) =>
     console.error("Blank Inheritance | Could not keep the world up to date:", err)
   );
@@ -664,6 +688,12 @@ Hooks.on("canvasReady", () => {
     mountSessionRail();
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the session rail:", err);
+  }
+
+  try {
+    mountAdminKey();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the admin key:", err);
   }
 
   // The stage, and the camera lock that makes a staged scene a picture rather

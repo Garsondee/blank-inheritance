@@ -15,10 +15,11 @@
  *   State        -- what every system holds right now, and a JSON copy of it.
  *
  * Everything it does lives in admin-actions.mjs and admin-autopilot.mjs; this
- * file only draws and asks.
+ * file only draws and asks. The way in from the main screen is the red Admin
+ * key (admin-button.mjs), which opens and closes this window by its id.
  */
 
-import { RESET_DEFAULTS, STRATEGIES, normalizeResetOptions, resetPlan } from "../core/admin.mjs";
+import { RESET_DEFAULTS, STRATEGIES, adminPanelSize, normalizeResetOptions, resetPlan } from "../core/admin.mjs";
 import { QUARTERS } from "../core/day-ring.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { copyTextToClipboard } from "./io.mjs";
@@ -102,9 +103,10 @@ export class AdminPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     id: "bi-admin",
     classes: ["bi-admin", "bi-scope"],
     window: { title: "BLANKINHERITANCE.Admin.Title", icon: "fa-solid fa-screwdriver-wrench", resizable: true },
-    // Opened near the top rather than centred: centred at 2560x1440, its
-    // foot sat over the console deck's orb.
-    position: { width: 780, height: 900, top: 70 },
+    // Only a fallback: openAdminPanel sizes the window to the screen it opens
+    // on (core/admin.mjs#adminPanelSize). Opened near the top rather than
+    // centred: centred at 2560x1440, its foot sat over the console deck's orb.
+    position: { width: 1100, height: 760, top: 70 },
     actions: {
       reset: AdminPanel.#onReset,
       undo: AdminPanel.#onUndo,
@@ -127,7 +129,9 @@ export class AdminPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    body: { template: `modules/${MODULE_ID}/templates/admin/panel.hbs`, scrollable: [".bi-admin__body"] }
+    // "" = the part's own root element is the scroller (.bi-admin__body is the
+    // part's one top-level element), so a re-render keeps where the GM had scrolled to.
+    body: { template: `modules/${MODULE_ID}/templates/admin/panel.hbs`, scrollable: [""] }
   };
 
   async _prepareContext() {
@@ -329,7 +333,7 @@ export function openAdminPanel() {
     open.bringToFront();
     return open;
   }
-  open = new AdminPanel();
+  open = new AdminPanel({ position: adminPanelSize({ viewportWidth: window.innerWidth, viewportHeight: window.innerHeight }) });
   open.render({ force: true });
   return open;
 }

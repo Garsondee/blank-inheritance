@@ -6,7 +6,7 @@
     "status": "drafted"
   },
   "name": "The Road In",
-  "description": "Every check in this scene costs nothing mechanical on any result. the-small-problem is each player's own opening anecdote, rolled on the skill they choose and told by them; the other two are Encyclopaedia checks that only ever add information, never take it away.",
+  "description": "Each player's small problem on the road, on a skill they name; and the violet mark, a free knowledge check.",
   "levelContext": 1,
   "checks": [
     {
@@ -16,14 +16,14 @@
       "skillOptions": [],
       "dc": {
         "value": 15,
-        "basis": "level 1 DC 15, no adjustment -- Ingram asked for \"a normal DC\"",
+        "basis": "level 1, no adjustment",
         "adjustment": "none"
       },
       "outcomes": {
         "criticalSuccess": "It goes better than it had any right to. The player tells us how, and something about it is worth remembering.",
         "success": "It works. The player tells us how.",
-        "failure": "It doesn't quite work, and they get to the city anyway, a bit later or a bit worse for wear. The player tells us how.",
-        "criticalFailure": "It goes wrong in a way that's funny rather than harmful, and they still get to the city. The player tells us how."
+        "failure": "It doesn't quite work. They reach the city anyway, a bit late or a bit worse for wear. The player tells us how.",
+        "criticalFailure": "It goes wrong in a way that is funny, not harmful, and they still reach the city. The player tells us how."
       },
       "repeatable": false
     },
@@ -37,48 +37,22 @@
       ],
       "dc": {
         "value": 17,
-        "basis": "level 1 DC 15, one step hard -- most of the table won't get this, and that's the point",
+        "basis": "level 1, one step hard",
         "adjustment": "hard"
       },
       "insight": true,
       "outcomes": {
-        "criticalSuccess": "Not the first one they've seen -- always this exact deep violet, always at head height, always somewhere a crowd stops and waits. This one looks fresher than the others.",
-        "success": "It isn't the first one they've noticed today, now they think about it. Always the same deep violet. Always at head height.",
-        "failure": "Just paint.",
-        "criticalFailure": "They peg it confidently as a condemned-building notice, the kind the housing office stencils on empty lots. It isn't, and nobody around them corrects it."
+        "criticalSuccess": "It isn't the first one they've seen: always this deep violet, always at head height, always where a crowd stops and waits. This one is fresh.",
+        "success": "Now they think about it, it isn't the first one today. The same deep violet, at the same height.",
+        "failure": "It looks like paint, and nothing more.",
+        "criticalFailure": "They are sure it's a condemned-building notice, the kind the housing office stencils on empty lots. It isn't, and nobody corrects them."
       },
       "bySkill": {
-        "occultism": "It's not idle graffiti -- the stroke sits like a working mark, laid down in one unbroken motion the way a tag or a scrawled name never is. Somebody drew this like it needed to be drawn correctly, not just visibly.",
-        "crafting": "Not house paint. It has the dull skin of marine primer, the stuff chandlers sell by the tin for ships' hulls, which is why it hasn't faded or run the way a wall paint would in this weather.",
-        "society": "Head height, always, on walls a crowd actually stops in front of -- never where it'd catch a passing glance and never where the housing office would notice it enough to paint over. Whoever's doing this understands exactly which walls in this city nobody minds."
+        "occultism": "Not idle graffiti. It was drawn in one unbroken stroke, carefully, the way you draw something that has to be right.",
+        "crafting": "Not house paint. It has the dull skin of marine primer, sold by the tin for ships' hulls, which is why the weather hasn't touched it.",
+        "society": "Always at head height, on walls a crowd faces, and never where the housing office would bother to paint over it. Whoever does this knows which walls nobody minds."
       },
       "repeatable": false
-    },
-    {
-      "id": "a-frame-at-a-distance",
-      "name": "Know what they're looking at",
-      "skillOptions": [
-        "piloting",
-        "crafting"
-      ],
-      "dc": {
-        "value": 15,
-        "basis": "level 1 DC 15, no adjustment -- this is offered to the whole table, not a specialist's roll",
-        "adjustment": "none"
-      },
-      "insight": true,
-      "outcomes": {
-        "criticalSuccess": "Everything in success, plus one more thing: you can see the pilot working. Every movement is a correction of the one before it -- the arm overshoots and comes back, the hips hunt for level before the feet commit. Whatever it is like inside that thing, it is not like driving something that wants to help.",
-        "success": "A Directorate Frame -- three storeys of riveted plate and hydraulic arm, painted the same flat Directorate grey as everything else, and loud in the way the ground is loud. Patched over so many times the patches have patches. Nobody on the ground is looking at it.",
-        "failure": "Big. Loud, in the way the ground is loud. That's all anyone gets from this far off.",
-        "criticalFailure": "Called with total confidence as derelict -- mothballed, kept for scrap, no one's home. It very much is not, though nothing about it right now proves that wrong."
-      },
-      "bySkill": {
-        "piloting": "The gait is the tell before anything else is: someone inside is actually working the pedals and yoke, not just walking it in a straight line -- weight shifted forward half a beat before every step lands, the kind of anticipatory correction you only learn by doing it badly a hundred times first. Whoever's in the seat is good.",
-        "crafting": "The plating overlaps the way it's supposed to and nowhere it isn't -- recent maintenance, not neglect, right down to the joint seals at knee and shoulder still showing fresh grease rather than rust bloom. Somebody keeps this one properly.",
-        "society": "Nobody around it is bracing, flinching, or even really looking. A gull rides the grapple arm through an entire stride and doesn't bother lifting off. This is furniture to everyone else on this street -- which means it comes through here often enough to have stopped being an event."
-      },
-      "repeatable": true
     }
   ],
   "resolutionMode": "narrative-only",
@@ -89,5 +63,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--the-road-in"
   ],
-  "notes": "EVERY CHECK HERE COSTS NOTHING ON EVERY RESULT, including critical failure. This is the only scene in the campaign built that way, deliberately: nobody should learn what a bad roll feels like in the first fifteen minutes of their own character's life. the-small-problem is rolled once by every player, on the skill they name (`anySkill`: the Scene Runner posts every skill and the player clicks theirs), and the player narrates the result. It replaced the old optional a-flourish.\n\nGEN 1 FRAMES ARE UTILITY MACHINES, NOT WAR MACHINES. This governs a-frame-at-a-distance's text and every other Frame description before the second generation arrives: rivets, a grapple arm, a chevron road-crew stripe, something more akin to a digger or a bulldozer than to anything military. Confirmed directly by Ingram -- see `ideas/story/dossier-second-generation-frames.md` and LEDGER #19/#21. The awe-inspiring register belongs to the Gen 2 fleet, chapters away, and nothing this early should spend it.\n\nTHE MARK IS GUARANTEED, BY GM HABIT RATHER THAN BY A SCRIPTED FALLBACK. If it does not come up naturally out of six freely-improvised arrivals, pick one player at random and narrate the sighting into the end of their spotlight anyway. The Frame is no longer guaranteed: From Up Here gives the whole table its first sight of Gen 1 Frames. A plant that depends on somebody happening to describe the right journey is not a plant. Offer either check to anybody at the table who wants to roll, not only the player whose arrival triggered it.\n\nONE PLANT, ONE BASELINE. a-mark-at-head-height is a real plant -- the cicada stencils (`mystery-ledger-6`), payoff chapter deliberately unassigned, and which chapter pays it off lives on that Node and not here. a-frame-at-a-distance is NOT a plant: it establishes what a Gen 1 Frame is like, badly maintained and visibly fighting its pilot, so that a Gen 2 machine moving with unusual grace has something to be measured against many chapters later.\n\nNEVER DESCRIBE THIS FRAME MOVING GRACEFULLY OR CAREFULLY. That register belongs to Gen 2's hyper-advanced Mitflit biotechnology, which almost nobody has ever seen operated -- it is the Gen 2 tell Mystery Ledger #11 depends on, and spending it here would contradict the generation distinction before it is set up. The critical success instead buys seeing the pilot correct every movement: real insight into the machine, not a foreshadowing hook.\n\nMITFLITS. Read `ideas/story/bible/species/mitflits.md` before writing anything anywhere that involves them. It sets hard limits on how this society's treatment of them may be depicted, and those limits apply to every scene in the campaign rather than to this one."
+  "notes": "Both checks cost nothing on any result."
 }

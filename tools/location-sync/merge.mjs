@@ -11,6 +11,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyCleanPaths, applyFieldsToDoc, fieldClashes, fieldsFromLocationDoc } from "../../module/blank-inheritance/scripts/core/location-editor.mjs";
+import { applySiteRecord } from "./siting.mjs";
 import { locationFilePath, readJsonFile, writeJsonFile } from "./store.mjs";
 
 const APPLY_GEOMETRY_SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), "apply_geometry.py");
@@ -70,8 +71,13 @@ export function existingLocationIds(dataRoot) {
  * writes it, so there's nothing to adjudicate. Only "update" (the
  * promotable metadata fields, which Claude may also hand-edit) can clash.
  */
-export function applyRecord(record, { dataRoot, existingIds }) {
+export function applyRecord(record, { dataRoot, existingIds, ledger }) {
   try {
+    // Placing a scene, an option or a travel point at a location. It writes
+    // scene data, never a location file, and a placement is the one thing here
+    // that CAN clash (core/siting.mjs, tools/location-sync/siting.mjs).
+    if (record.op === "site") return applySiteRecord(record, { dataRoot, existingIds, ledger });
+
     if (record.op === "create") {
       const locationId = mintLocationId(record, existingIds);
       const doc = runApplyGeometry({

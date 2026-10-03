@@ -84,6 +84,25 @@ All of these permit embedding in rendered output, so rendering them into a video
 
   A credit is honesty, not a licence: it changes nothing above about private use.
 
+## The Stage Renderer (`design/stagecraft/renderer.md`)
+
+### three.js — r186 (npm 0.186.1)
+
+- **Author:** the three.js authors ([threejs.org](https://threejs.org), [github.com/mrdoob/three.js](https://github.com/mrdoob/three.js)).
+- **Obtained:** 2026-10-01, from the npm package `three@0.186.1`.
+- **Local copy:** `/third-party/three/` (gitignored, like the rest of `third-party/`): `build/` (the library) and `addons/`
+  (the `examples/jsm` folder: the rounded-box geometry and the post-processing passes the spike uses), with the licence
+  and a `README.txt` naming the version.
+- **License:** MIT. The notice must travel with the library wherever it is shipped; when the Stage Renderer is bundled
+  into the module (`design/stagecraft/module.md` §10), the licence text goes in the bundle and in the module's own
+  `LICENSE` notices.
+- **Used for:** plate 38, the spike (`design/stagecraft/lab/three-spike.html`, which loads the copy in `third-party/`), and the
+  Stagecraft module (`module/stagecraft/`), whose build (`tools/build.mjs`, esbuild) bundles three.js 0.186.1 from the
+  module's own `node_modules` into `dist/stagecraft.js`. The MIT notice is kept at the end of that file (esbuild
+  `legalComments: "eof"`) and named in the module's `LICENSE`. The adventure's own module does not load it.
+- **Pinned on purpose:** an exact version, upgraded deliberately behind the golden-image test
+  (`design/stagecraft/renderer.md` §6.6).
+
 ## Session and scene music (`design/audio-system.md`)
 
 ### Source material: private table use only

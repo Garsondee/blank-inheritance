@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-the-tram-back",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Tram Back",
+  "description": "A player's small moment on the ride, on a skill they name. It costs nothing on any result.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "a-flourish",
+      "name": "A small moment",
+      "anySkill": true,
+      "skillOptions": [],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Somebody else on the train noticed, in a small, real way. The player tells us how.",
+        "success": "It goes fine, and it's theirs. The player tells us how.",
+        "failure": "It doesn't quite land. The player tells us how.",
+        "criticalFailure": "The kind of thing that's funnier in a week. The player tells us how."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--the-tram-back"
+  ],
+  "notes": "A player moment: the player names the skill and tells the result."
+}

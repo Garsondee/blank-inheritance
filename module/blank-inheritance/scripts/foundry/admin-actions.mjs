@@ -30,6 +30,7 @@ import {
   testPartyPlan
 } from "../core/admin.mjs";
 import { normalizeMoment } from "../core/day-ring.mjs";
+import { restoredOwnership } from "../core/ownership.mjs";
 import { fetchModuleJson, writeStorageJson } from "./io.mjs";
 import { ensureDowntimeVault, setMoment } from "./campaign-state.mjs";
 import { cancelCityDeparture, openCityDeparture, sceneForBrief } from "./city-state.mjs";
@@ -417,7 +418,14 @@ export async function returnTestParty() {
     const user = game.users.get(userId);
     if (user?.character?.id === actorId) await user.update({ character: null });
     const actor = game.actors.get(actorId);
-    if (actor) await actor.update({ [`ownership.${userId}`]: Number.isInteger(previousLevel) ? previousLevel : OWNERSHIP().INHERIT });
+    // Put back what was there. For a character this account never had, that is
+    // NO ENTRY: the key leaves the map. It used to be written as INHERIT, which
+    // loops forever behind an unlinked token (core/ownership.mjs) -- so the map
+    // is replaced whole, the way Foundry's own ownership dialog saves it.
+    if (actor) {
+      const ownership = restoredOwnership(actor.toObject().ownership, userId, previousLevel);
+      await actor.update({ ownership: foundry.data.operators.ForcedReplacement.create(ownership) });
+    }
     returned++;
   }
   await game.settings.set(MODULE_ID, SETTING_TEST_PARTY, {});

@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-the-road-in",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Road In",
+  "description": "Each player's small problem on the road, on a skill they name; and the violet mark, a free knowledge check.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "the-small-problem",
+      "name": "Get past a small problem",
+      "anySkill": true,
+      "skillOptions": [],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "It goes better than it had any right to. The player tells us how, and something about it is worth remembering.",
+        "success": "It works. The player tells us how.",
+        "failure": "It doesn't quite work. They reach the city anyway, a bit late or a bit worse for wear. The player tells us how.",
+        "criticalFailure": "It goes wrong in a way that is funny, not harmful, and they still reach the city. The player tells us how."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "a-mark-at-head-height",
+      "name": "Recognise the mark",
+      "skillOptions": [
+        "occultism",
+        "crafting",
+        "society"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard",
+        "adjustment": "hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "It isn't the first one they've seen: always this deep violet, always at head height, always where a crowd stops and waits. This one is fresh.",
+        "success": "Now they think about it, it isn't the first one today. The same deep violet, at the same height.",
+        "failure": "It looks like paint, and nothing more.",
+        "criticalFailure": "They are sure it's a condemned-building notice, the kind the housing office stencils on empty lots. It isn't, and nobody corrects them."
+      },
+      "bySkill": {
+        "occultism": "Not idle graffiti. It was drawn in one unbroken stroke, carefully, the way you draw something that has to be right.",
+        "crafting": "Not house paint. It has the dull skin of marine primer, sold by the tin for ships' hulls, which is why the weather hasn't touched it.",
+        "society": "Always at head height, on walls a crowd faces, and never where the housing office would bother to paint over it. Whoever does this knows which walls nobody minds."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--the-road-in"
+  ],
+  "notes": "Both checks cost nothing on any result."
+}

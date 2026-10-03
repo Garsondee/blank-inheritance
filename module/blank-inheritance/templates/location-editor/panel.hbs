@@ -1,4 +1,10 @@
-<div class="bi-location-editor__body">
+<div class="bi-location-editor__body"{{#unless (eq tab "map")}} hidden{{/unless}}>
+    {{#if drawFor}}
+    <div class="bi-story__banner">
+        <span><i class="fa-solid fa-draw-polygon"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.DrawingFor" label=drawFor.label}}</span>
+        <button type="button" class="bi-location-editor__button" data-action="cancelDraw">{{localize "BLANKINHERITANCE.LocationEditor.Story.Cancel"}}</button>
+    </div>
+    {{/if}}
     {{#if busy}}<p class="bi-location-editor__busy"><i class="fa-solid fa-spinner fa-spin"></i> {{busy}}</p>{{/if}}
     {{#unless onHubScene}}
     <p class="bi-location-editor__warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "BLANKINHERITANCE.LocationEditor.NotOnHub"}}</p>
@@ -21,21 +27,33 @@
     {{/if}}
 
     <div class="bi-location-editor__tools">
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "select")}} is-active{{/if}}" data-action="setTool" data-tool="select" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Select'}}"><i class="fa-solid fa-arrow-pointer"></i></button>
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "lasso")}} is-active{{/if}}" data-action="setTool" data-tool="lasso" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Lasso'}}"><i class="fa-solid fa-lasso"></i></button>
-        {{#if (eq mode "areas")}}
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "polygon")}} is-active{{/if}}" data-action="setTool" data-tool="polygon" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Polygon'}}"><i class="fa-solid fa-draw-polygon"></i></button>
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "rect")}} is-active{{/if}}" data-action="setTool" data-tool="rect" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Rect'}}"><i class="fa-regular fa-square"></i></button>
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "circle")}} is-active{{/if}}" data-action="setTool" data-tool="circle" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Circle'}}"><i class="fa-regular fa-circle"></i></button>
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "bisect")}} is-active{{/if}}" data-action="setTool" data-tool="bisect" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Bisect'}}"><i class="fa-solid fa-scissors"></i></button>
-        {{else if (eq placesShapeKind "site")}}
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "polygon")}} is-active{{/if}}" data-action="setTool" data-tool="polygon" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Polygon'}}"><i class="fa-solid fa-draw-polygon"></i></button>
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "rect")}} is-active{{/if}}" data-action="setTool" data-tool="rect" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Rect'}}"><i class="fa-regular fa-square"></i></button>
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "circle")}} is-active{{/if}}" data-action="setTool" data-tool="circle" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Circle'}}"><i class="fa-regular fa-circle"></i></button>
-        {{else}}
-        <button type="button" class="bi-location-editor__tool{{#if (eq tool "point")}} is-active{{/if}}" data-action="setTool" data-tool="point" title="{{localize 'BLANKINHERITANCE.LocationEditor.Tool.Point'}}"><i class="fa-solid fa-location-dot"></i></button>
+        {{#each tools}}
+        <button type="button" class="bi-location-editor__tool{{#if active}} is-active{{/if}}" data-action="setTool" data-tool="{{name}}" title="{{title}}"><i class="{{icon}}"></i></button>
+        {{/each}}
+    </div>
+
+    {{#if published}}
+    <div class="bi-location-editor__published">
+        <p class="bi-location-editor__published-title">
+            {{localize "BLANKINHERITANCE.LocationEditor.Published.Heading"}}
+            {{#if published.loading}}<i class="fa-solid fa-spinner fa-spin"></i>{{/if}}
+        </p>
+        {{#if published.failedToLoad}}<p class="bi-location-editor__warn">{{localize "BLANKINHERITANCE.LocationEditor.Published.Failed"}}</p>{{/if}}
+        {{#if published.noHub}}<p class="bi-location-editor__warn">{{localize "BLANKINHERITANCE.LocationEditor.Published.NoHub"}}</p>{{/if}}
+        {{#if published.ready}}
+        {{#unless published.onHub}}<p class="bi-location-editor__warn">{{localize "BLANKINHERITANCE.LocationEditor.Published.NotThisScene"}}</p>{{/unless}}
+        <div class="bi-location-editor__row">
+            <label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleTier" data-tier="region" {{#if published.visibility.region}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.Regions"}} ({{published.counts.region}})</label>
+            <label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleTier" data-tier="site" {{#if published.visibility.site}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.Sites"}} ({{published.counts.site}})</label>
+            <label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleTier" data-tier="point" {{#if published.visibility.point}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.Points"}} ({{published.counts.point}})</label>
+        </div>
+        <div class="bi-location-editor__row">
+            <button type="button" class="bi-location-editor__button" data-action="fitMap" {{#unless published.onHub}}disabled{{/unless}}><i class="fa-solid fa-expand"></i> {{localize "BLANKINHERITANCE.LocationEditor.Published.Fit"}}</button>
+        </div>
+        {{#if published.failed}}<p class="bi-location-editor__note">{{localize "BLANKINHERITANCE.LocationEditor.Published.SomeFailed" count=published.failed}}</p>{{/if}}
         {{/if}}
     </div>
+    {{/if}}
 
     {{#if (eq tool "bisect")}}
     <div class="bi-location-editor__advice">
@@ -63,7 +81,11 @@
                 <button type="button" class="bi-location-editor__item-select" data-action="selectItem" data-local-id="{{localId}}">
                     <span class="bi-location-editor__item-tier">{{tier}}</span> {{label}}
                 </button>
+                {{#if linked}}
+                <button type="button" class="bi-location-editor__item-delete" data-action="deleteItem" data-local-id="{{localId}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Close'}}"><i class="fa-solid fa-xmark"></i></button>
+                {{else}}
                 <button type="button" class="bi-location-editor__item-delete" data-action="deleteItem" data-local-id="{{localId}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Delete'}}"><i class="fa-solid fa-trash"></i></button>
+                {{/if}}
             </li>
             {{else}}
             <li class="bi-location-editor__empty">{{localize "BLANKINHERITANCE.LocationEditor.NoItems"}}</li>

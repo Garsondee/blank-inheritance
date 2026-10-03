@@ -43,10 +43,6 @@ const CLAIMS_TO_BE_A_CHOICE =
 // Beats that say something choice-shaped and are correctly plain prose.
 const NOT_A_FORK = new Map([
   [
-    "episode-c1e1--school-second-period/signals",
-    "The signals teacher is explaining that the Directorate chooses not to listen to the island's calls. That is an institution's choice being described to the party, not one of theirs to make."
-  ],
-  [
     "episode-c1e2--the-night-off/the-unlocked-hangar",
     "An optional beat about sitting alone in a cold, dark, much-too-big cab with no power. There is no fork -- whoever goes in, sits, and the scene lets them sit for as long as they want."
   ],

@@ -138,7 +138,7 @@
       "order": 11,
       "briefRef": "episode-c1e1--the-tram-back",
       "locationNote": "The evening run back to the combined campus is the island line, whose own platforms these are -- narrow gauge, four short carriages. The scene happens aboard a moving car on that line; the platforms are its fixed anchor and where the run ends.",
-      "blurb": "The evening tram back to campus, half-empty and running late. Streetlights are only just coming on outside the window, and for the first time all day there isn't an adult in the car with them.",
+      "blurb": "The island train home at dusk, half empty. For twenty minutes, nobody needs anything from anyone.",
       "locationRef": "island-platforms",
       "approximate": false
     },
@@ -174,7 +174,7 @@
       "briefRef": "episode-c1e1--the-walk-down",
       "locationRef": "old-landing",
       "locationNote": "PROPOSED, same guess as Flood Tunnel Clearance's own locationNote below and for the same reason: The Old Landing is the right district but Dock C's exact gate isn't in the gazetteer. Art is deliberately reused from Flood Tunnel Clearance, since this scene ends at the same site, same night, immediately before it.",
-      "blurb": "The equipment lockup nearest Dock C, then ten quiet minutes walking down to the gate — waders, torches, and a smell already coming up off the water."
+      "blurb": "Waders from the night lockup, Dock C, and the duty launch across the harbour to the old town."
     },
     {
       "id": "e1-flood-tunnel",
@@ -265,7 +265,7 @@
       "order": 7,
       "briefRef": "episode-c1e1--school-second-period",
       "locationRef": "main-school-complex",
-      "blurb": "The Main School Complex, second period. A specimen room wall-to-wall with jars and trays of things caught within a mile of here, and a room down the hall where a rank of old headsets hisses quietly to itself between lessons."
+      "blurb": "The Main School Complex, second period. A specimen room wall to wall with jars and trays of things caught within a mile of here, or the small-arms range out the back."
     },
     {
       "id": "e2-the-board",

@@ -135,3 +135,87 @@ test("the panel is reachable: API, macro, the Director's Palette and the Console
   assert.match(read("scripts/foundry/director-palette.mjs"), /id: "panel\.admin"[^\n]*run: \(\) => openAdminPanel\(\)/);
   assert.match(read("scripts/foundry/console-window.mjs"), /id: "admin", labelKey: "BLANKINHERITANCE\.Console\.Window\.Hub\.Admin"[^\n]*open: \(\) => openAdminPanel\(\)/);
 });
+
+/* ------------------------------------------------------------------ */
+/*  The admin key, and the panel's size and scrolling (2026-10-01)     */
+/* ------------------------------------------------------------------ */
+
+const keySource = read("scripts/foundry/admin-button.mjs");
+const keyTemplate = read("templates/admin/key.hbs");
+const deckSource = read("scripts/foundry/deck.mjs");
+const components = read("styles/bi-components.css");
+const bridge = read("styles/bi-foundry-bridge.css");
+
+/** The declarations of the first rule whose selector is exactly `selector`. */
+function rule(css, selector) {
+  // The stylesheet writes a rule's selector on its own line and closes it with a "}" in column 0.
+  const lines = css.split(/\r?\n/);
+  const start = lines.findIndex((line) => line === `${selector} {`);
+  assert.ok(start >= 0, `no CSS rule for ${selector}`);
+  const end = lines.findIndex((line, i) => i > start && line.startsWith("}"));
+  return lines.slice(start + 1, end).join("\n");
+}
+
+test("the admin key mounts only for a GM, on load and on every scene change, and the deck keeps it fitted", () => {
+  assert.match(keySource, /export function mountAdminKey\(\) \{\s*if \(!game\.user\?\.isGM\) return null;/, "a player's client could construct the key");
+  assert.match(entry, /import \{ mountAdminKey \} from "\.\/foundry\/admin-button\.mjs";/);
+  const mounts = entry.match(/^\s*mountAdminKey\(\);$/gm) ?? [];
+  assert.equal(mounts.length, 2, "the key is mounted once on ready and re-asserted on canvasReady");
+  assert.match(entry, /Hooks\.on\("canvasReady"[\s\S]*?mountAdminKey\(\);[\s\S]*?Could not re-assert the admin key/);
+  // deck.mjs refits it with the deck, on the early exit (no deck) and at the end of a real fit.
+  assert.match(deckSource, /import \{ fitAdminKey \} from "\.\/admin-button\.mjs";/);
+  const fits = code(deckSource).match(/\bfitAdminKey\(\);/g) ?? [];
+  assert.equal(fits.length, 2, "fitDeck refits the key on both of its exits");
+});
+
+test("the key never imports the panel statically: deck.mjs imports the key, and the panel pulls in the deck's own world", () => {
+  assert.doesNotMatch(code(keySource), /import[^;]*from\s+"\.\/admin-panel\.mjs"/, "a static import would make deck.mjs -> admin-button.mjs -> admin-panel.mjs a cycle");
+  assert.match(keySource, /await import\("\.\/admin-panel\.mjs"\)/);
+});
+
+test("pressing the key opens the panel, or puts it away; the id and the hook names are the panel's own", () => {
+  const buttons = new Set([...keyTemplate.matchAll(/data-action="(\w+)"/g)].map((m) => m[1]));
+  const handlers = new Set([...keySource.matchAll(/(\w+): AdminKey\.#on\w+/g)].map((m) => m[1]));
+  assert.deepEqual([...buttons], ["toggleAdmin"]);
+  assert.deepEqual([...handlers], ["toggleAdmin"]);
+  const panelId = panel.match(/id: "(bi-[\w-]+)",\s*classes: \["bi-admin"/)?.[1];
+  assert.equal(panelId, "bi-admin");
+  assert.match(keySource, new RegExp(`const PANEL_ID = "${panelId}";`), "the key looks for a different window than the one the panel opens");
+  assert.match(panel, /export class AdminPanel extends/, "Foundry names its render/close hooks after the class: renderAdminPanel, closeAdminPanel");
+  assert.match(keySource, /Hooks\.on\("renderAdminPanel", \(\) => showOpen\(true\)\);/);
+  assert.match(keySource, /Hooks\.on\("closeAdminPanel", \(\) => showOpen\(false\)\);/);
+});
+
+test("the key's position is the two properties the bridge stylesheet reads, on a fixed element", () => {
+  for (const prop of ["--bi-akey-right", "--bi-akey-bottom"]) {
+    assert.match(keySource, new RegExp(`"${prop}"`), `admin-button.mjs does not write ${prop}`);
+    assert.ok(bridge.includes(`var(${prop}`), `bi-foundry-bridge.css does not read ${prop}`);
+  }
+  const host = rule(bridge, "body.bi-theme #bi-admin-key");
+  assert.match(host, /position:\s*fixed/);
+  assert.match(host, /pointer-events:\s*none/, "the empty host must not swallow clicks meant for the canvas");
+  assert.match(rule(bridge, "body.bi-theme #bi-admin-key .bi-akey__button"), /pointer-events:\s*auto/);
+  // Under Foundry's own windows like the deck and the macro bar, so the panel it opens always stands over it.
+  assert.match(host, /z-index:\s*calc\(var\(--z-index-app\) - 1\)/);
+});
+
+test("the panel scrolls: the body is the scroller, the frame is not, and the sections flow into columns", () => {
+  // The part's own root element is the scroller, which Foundry spells "" (a selector would only look INSIDE the part,
+  // and a re-render, which every action here causes, would send the GM back to the top).
+  assert.match(panel, /body: \{ template: `modules\/\$\{MODULE_ID\}\/templates\/admin\/panel\.hbs`, scrollable: \[""\] \}/, "the scroll position is no longer kept across re-renders");
+  assert.match(template, /^<div class="bi-admin__body">/, "the part's one root element is the scroller");
+  const body = rule(components, ".bi-admin__body");
+  assert.match(body, /overflow-y:\s*auto/, "the body no longer scrolls: its content is clipped by the window");
+  assert.match(body, /min-height:\s*0/, "a flex child without min-height: 0 grows past its window instead of scrolling");
+  // Foundry's own selector, so it lives in the bridge: the component layer stays renderable outside Foundry.
+  assert.match(rule(bridge, "body.bi-theme .application.bi-admin .window-content"), /overflow:\s*hidden/);
+  // Columns live in their own height-less box, or extra sections would spill sideways.
+  assert.match(rule(components, ".bi-admin__columns"), /column-width:/);
+  assert.doesNotMatch(rule(components, ".bi-admin__columns"), /\bheight:/);
+  assert.match(template, /<div class="bi-admin__columns">[\s\S]*<\/section>\s*<\/div>\s*<\/div>\s*$/);
+  assert.match(rule(components, ".bi-admin__columns > .bi-admin__section"), /break-inside:\s*avoid/);
+});
+
+test("the panel opens at the size its screen allows, not at a fixed one", () => {
+  assert.match(panel, /new AdminPanel\(\{ position: adminPanelSize\(\{ viewportWidth: window\.innerWidth, viewportHeight: window\.innerHeight \}\) \}\);/);
+});

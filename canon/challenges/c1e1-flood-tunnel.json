@@ -1,0 +1,86 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-flood-tunnel",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Flood Tunnel Clearance",
+  "description": "The job in the drains: read the water, power the line, clear the feed. The two jobs run alongside each other.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "read-the-water",
+      "name": "Read the water before touching anything",
+      "skillOptions": [
+        "nature",
+        "survival",
+        "perception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "A nest under the grate, several of them, still asleep. Starting the machinery will wake them, so they can get into position first.",
+        "success": "Something large lives under that water, more than one of it, and it's asleep.",
+        "failure": "Black water. Nothing they can read.",
+        "criticalFailure": "They're sure the water's empty."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "power-the-line",
+      "name": "Get power back to the drainage line",
+      "skillOptions": [
+        "crafting",
+        "computers"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Clean, first try. The others notice.",
+        "success": "The line comes up.",
+        "failure": "It comes up with a bang that carries through the drains. The nest wakes now, before anyone's in position.",
+        "criticalFailure": "As failure, with a shower of sparks: whoever was working it is off-guard in the first round."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "clear-the-jam",
+      "name": "Clear the jam in the compactor feed",
+      "skillOptions": [
+        "athletics",
+        "crafting"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "Clean and fast. The machinery starts smoothly.",
+        "success": "It clears.",
+        "failure": "It clears with a shove, and the compactor lurches into motion: if it's running, start it at 1.",
+        "criticalFailure": "As failure, and a face full of standing water. Nobody's hurt."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--flood-tunnel",
+    "c1e1-flood-tunnel",
+    "c1e1-compactor-cycle"
+  ],
+  "notes": "Powering the line and clearing the feed run together; whoever does each is the party's call. The fight starts when both are done, or at once on a failed power check."
+}

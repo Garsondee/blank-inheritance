@@ -5,6 +5,13 @@ work. Companion to [`ux-doctrine.md`](ux-doctrine.md) (which decides what is on 
 [`npc-social-intel.md`](npc-social-intel.md) (which decides what is known about a person).
 This decides what a **scene** looks like.*
 
+*Next: **[Stagecraft: Puppet Show](stagecraft/README.md)** (2026-10-01, a plan awaiting Ingram's calls) is this
+document's successor: automatic debuts, the party's cards in the wings, puppets, a stage grid with formations and
+magnets, zones, a blueprint, a 3D diorama and a three.js Stage Renderer (it calls the people on the stage **cards**;
+this document, written first, says "frames"). It gives provisional answers to §10's questions 1 to 3 and, for
+theatre-of-the-mind fights, would reverse §8's "not a token-less combat mode". Every idea is listed in
+[`stagecraft/ledger.md`](stagecraft/ledger.md).*
+
 ---
 
 ## 1. The correction

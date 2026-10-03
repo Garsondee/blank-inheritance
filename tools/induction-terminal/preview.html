@@ -6,7 +6,7 @@
 <title>Induction terminal preview</title>
 <!-- The REAL induction terminal (module code, templates, styles, catalogues) running on ./foundry-shim.mjs.
      Serve the repo root (launch config "agreement-preview") and open /tools/induction-terminal/preview.html.
-     ?page=N (or ?page=agreement) opens straight on a page; ?agreement=0 turns the Service Agreement off;
+     ?page=N (or ?page=agreement, ?page=player) opens straight on a page; ?agreement=0 turns the Service Agreement off;
      ?fresh=1 forgets any saved form (they live in this browser's localStorage, as in Foundry). -->
 <link rel="stylesheet" href="/foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/public/css/foundry2.css">
 <link rel="stylesheet" href="/module/blank-inheritance/styles/bi-fonts.css">
@@ -32,7 +32,7 @@
   const app = terminal.openInductionTerminal();
   window.__terminal = app;
   const page = params.get("page");
-  if (page) { app.state.page = page === "agreement" ? "agreement" : Number(page); await app.render({}); }
+  if (page) { app.state.page = /^\d+$/.test(page) ? Number(page) : page; await app.render({}); }
 </script>
 </body>
 </html>

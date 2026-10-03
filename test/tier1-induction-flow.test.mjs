@@ -22,10 +22,24 @@ const allDone = () => true;
 
 // --- The step order ----------------------------------------------------------------------------------
 
-test("stepOrder: nine numbered pages, and the agreement second only when the world setting shows it", () => {
-  assert.deepEqual(ids(stepOrder()), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  assert.deepEqual(ids(stepOrder({ agreement: true })), [1, "agreement", 2, 3, 4, 5, 6, 7, 8, 9]);
-  assert.equal(STEPS.length, 10);
+test("stepOrder: nine numbered pages, the player's page just before Review, and the agreement second only when the world setting shows it", () => {
+  assert.deepEqual(ids(stepOrder()), [1, 2, 3, 4, 5, 6, 7, 8, "player", 9]);
+  assert.deepEqual(ids(stepOrder({ agreement: true })), [1, "agreement", 2, 3, 4, 5, 6, 7, 8, "player", 9]);
+  assert.equal(STEPS.length, 11);
+});
+
+test("the player's page (Ingram, 2026-10-01) sits between Questions and Review, and is labelled for the player", () => {
+  const order = ids(stepOrder());
+  assert.equal(order.indexOf("player"), order.indexOf(8) + 1);
+  assert.equal(order.indexOf(9), order.indexOf("player") + 1, "Review stays last: 'just before the end of the form'");
+  assert.equal(STEPS.find(([id]) => id === "player")[1], "For the Player");
+});
+
+test("canJumpTo: the player's page is a normal step -- reachable once passed, never the agreement's 'seen once' rule", () => {
+  const order = stepOrder();
+  assert.equal(canJumpTo("player", { order, current: 9, furthest: 9, isComplete: allDone }), true, "Review's Change link");
+  assert.equal(canJumpTo("player", { order, current: 3, furthest: 5, isComplete: allDone }), false, "not before you've been there");
+  assert.equal(canJumpTo(9, { order, current: 3, furthest: 9, isComplete: allDone }), true);
 });
 
 // --- Jumping -------------------------------------------------------------------------------------------
@@ -63,7 +77,7 @@ test("canJumpTo: a step that isn't in this order (the agreement, switched off) i
 
 test("trackerSteps: display numbers follow the visible order, so the agreement renumbers the rest", () => {
   const withAgreement = trackerSteps({ order: stepOrder({ agreement: true }), current: 2, furthest: 2, isComplete: allDone });
-  assert.deepEqual(withAgreement.map((s) => s.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.deepEqual(withAgreement.map((s) => s.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   assert.equal(withAgreement.find((s) => s.id === 2).number, 3);
   const without = trackerSteps({ order: stepOrder(), current: 2, furthest: 2, isComplete: allDone });
   assert.equal(without.find((s) => s.id === 2).number, 2);
@@ -153,6 +167,7 @@ test("hasProgress: any choice or any written answer is", () => {
     (s) => { s.finishing.languages = ["Common"]; },
     (s) => { s.finishing.personalFile = { age: "19" }; },
     (s) => { s.intake.questions = { allies: "Some." }; },
+    (s) => { s.intake.questions = { enjoy: "Working things out." }; }, // the player's page shares the same answer map
     (s) => { s.intake.freeform = "Anything."; }
   ];
   for (const mutate of cases) {
@@ -243,4 +258,20 @@ test("resumeStep: a form saved on the agreement, now switched off, reopens on th
 
 test("resumeStep: a page that doesn't exist reopens at the start", () => {
   assert.equal(resumeStep("nonsense", { order: stepOrder(), isComplete: allDone }), 1);
+});
+
+test("resumeStep: a form saved on the player's page reopens there, and a form saved on Review before it existed still opens on Review", () => {
+  assert.equal(resumeStep("player", { order: stepOrder(), isComplete: allDone }), "player");
+  assert.equal(resumeStep(9, { order: stepOrder(), isComplete: allDone }), 9);
+});
+
+test("restoreDraft: answers to the player's questions come back with the rest of the form", () => {
+  const s = midway();
+  s.page = "player";
+  s.furthest = "player";
+  s.intake.questions = { enjoy: "A plan that came together.", gently: "Ask me first." };
+  const restored = restoreDraft(JSON.parse(JSON.stringify(serializeDraft(s, "t"))), fresh());
+  assert.equal(restored.state.page, "player", "a keyed page id survives a save");
+  assert.equal(restored.state.furthest, "player");
+  assert.deepEqual(restored.state.intake.questions, { enjoy: "A plan that came together.", gently: "Ask me first." });
 });

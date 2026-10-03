@@ -14,10 +14,12 @@ import { fileURLToPath } from "node:url";
 import {
   AUTOPILOT_DEFAULTS,
   KEPT_SETTINGS,
+  PANEL_TOP,
   RESET_DEFAULTS,
   RESET_SETTINGS,
   SNAPSHOT_KIND,
   SNAPSHOT_VERSION,
+  adminPanelSize,
   autoCommitChoice,
   autopickChoice,
   autopilotOn,
@@ -238,4 +240,27 @@ test("a stand-in books one of the quarter's offers, and only those not yet booke
   assert.equal(autoCommitChoice({ moment: { day: 1, quarter: "morning" }, offers: [] }), null);
   const roster = [{ userId: "a" }, { userId: "b" }];
   assert.deepEqual(unbookedUsers({ roster, commitments: [{ userId: "a", momentKey: "d1:morning" }], momentKey: "d1:morning" }), ["b"]);
+});
+
+/* ------------------------------------------------------------------ */
+/*  The window                                                         */
+/* ------------------------------------------------------------------ */
+
+test("the panel opens wide on a wide screen: 1400px by 960px on Ingram's 2560x1440, clear of the console deck", () => {
+  // Reported 2026-10-01: "the admin panel needs to become bigger, wider". It was 780x900 on this very screen.
+  const size = adminPanelSize({ viewportWidth: 2560, viewportHeight: 1440 });
+  assert.deepEqual(size, { width: 1400, height: 960, top: PANEL_TOP });
+  assert.ok(size.top + size.height <= 1440 - 380, "its foot stays above the crown of the orb");
+});
+
+test("the panel's size follows the screen, and never asks for more than the screen has", () => {
+  assert.deepEqual(adminPanelSize({ viewportWidth: 1920, viewportHeight: 1080 }), { width: 1056, height: 600, top: PANEL_TOP });
+  assert.deepEqual(adminPanelSize({ viewportWidth: 3840, viewportHeight: 2160 }), { width: 1400, height: 1100, top: PANEL_TOP }, "a huge screen is capped, not stretched");
+  for (const [w, h] of [[1366, 768], [1024, 600], [700, 500], [320, 300]]) {
+    const s = adminPanelSize({ viewportWidth: w, viewportHeight: h });
+    assert.ok(s.width <= w - 32 || s.width === 760 && w - 32 >= 760, `${w}x${h}: ${s.width} wide fits the screen`);
+    assert.ok(s.top + s.height <= h - 16, `${w}x${h}: ${s.top}+${s.height} fits the screen`);
+  }
+  assert.deepEqual(adminPanelSize(), { width: 760, height: 520, top: PANEL_TOP }, "an unmeasurable screen gets a sensible window");
+  assert.deepEqual(adminPanelSize({ viewportWidth: NaN, viewportHeight: -4 }), adminPanelSize());
 });

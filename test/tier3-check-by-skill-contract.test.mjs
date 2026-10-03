@@ -65,8 +65,7 @@ const CHECKS_WITH_BY_SKILL = [
   { file: "c1e1-the-errand.json", checkId: "the-storekeeper" },
   { file: "c1e1-the-errand.json", checkId: "read-the-old-man" },
   { file: "c1e1-the-errand.json", checkId: "the-mark-again" },
-  { file: "c1e1-the-road-in.json", checkId: "a-mark-at-head-height" },
-  { file: "c1e1-the-road-in.json", checkId: "a-frame-at-a-distance" }
+  { file: "c1e1-the-road-in.json", checkId: "a-mark-at-head-height" }
 ];
 
 for (const { file, checkId } of CHECKS_WITH_BY_SKILL) {

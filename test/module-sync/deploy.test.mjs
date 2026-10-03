@@ -469,3 +469,42 @@ test("deploy: CRITICAL -- a failed art step refuses the whole deploy, same as a 
     await repo.cleanup();
   }
 });
+
+// ---------------------------------------------------------------------------
+// The Stagecraft module is a second module the adventure uses; one deploy carries it.
+
+import { gatherChannels, stagecraftSources, staleStagecraftBundle, DEFAULT_CONFIG, REPO_ROOT } from "../../tools/module-sync/deploy.mjs";
+
+test("the real repo's Stagecraft release is its manifest, licence, built bundle, language and style, and nothing else", async () => {
+  const sources = await stagecraftSources(REPO_ROOT);
+  assert.deepEqual([...sources.keys()].sort(), ["LICENSE", "dist/stagecraft.js", "lang/en.json", "module.json", "styles/stagecraft.css"]);
+});
+
+test("a deploy has a stagecraft channel, to its own folder, that is never pruned; a repo without the module has none", async () => {
+  const channels = await gatherChannels({ ...DEFAULT_CONFIG, video: false });
+  const c = channels.find((x) => x.name === "stagecraft");
+  assert.ok(c, "the channel is there");
+  assert.match(c.remoteDir, /\/modules\/stagecraft$/);
+  assert.equal(c.prunable, false);
+  const bare = await mkdtemp(path.join(os.tmpdir(), "no-stagecraft-"));
+  try {
+    await mkdir(path.join(bare, "module", "blank-inheritance"), { recursive: true });
+    await mkdir(path.join(bare, "data"), { recursive: true });
+    assert.equal((await gatherChannels({ ...DEFAULT_CONFIG, repoRoot: bare, video: false })).some((x) => x.name === "stagecraft"), false);
+    assert.equal(await staleStagecraftBundle(bare), null, "nothing to be stale");
+  } finally {
+    await rm(bare, { recursive: true, force: true });
+  }
+});
+
+test("the repo's own bundle is fresh, and a missing or dev bundle is refused with a sentence that says what to run", async () => {
+  assert.equal(await staleStagecraftBundle(REPO_ROOT), null, "run npm run build:stagecraft if this fails");
+  const fake = await mkdtemp(path.join(os.tmpdir(), "stale-stagecraft-"));
+  try {
+    await mkdir(path.join(fake, "module", "stagecraft", "dist"), { recursive: true });
+    await writeFile(path.join(fake, "module", "stagecraft", "module.json"), "{}");
+    assert.match(await staleStagecraftBundle(fake), /no bundle: run npm run build:stagecraft/);
+  } finally {
+    await rm(fake, { recursive: true, force: true });
+  }
+});

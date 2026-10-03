@@ -24,3 +24,7 @@ status: decided · source: D053 · known: nobody · told: later
 ## watcher.eventual-public-knowledge
 The group cannot defeat the problem on Golarion. By the end of the adventure, everyone will know the Watcher existed, whether they personally saw it or not. This is about what becomes PUBLICLY KNOWN, not about what happens to the Watcher itself -- its own final fate (dispersed, harmless, or taken home) stays open, per D041. Ingram's own hedge: "that's how I see things going potentially" -- a strong working direction, not locked the way this file's other facts are.
 status: open · source: D053 · known: nobody · told: later · candidates: "Public, worldwide knowledge by the end" | "Known within Kurose/the Directorate's own people, not necessarily wider Golarion"
+
+## watcher.animals
+Dogs, birds and other animals sense the Watcher's swarm, perhaps as a high buzzing that upsets them, and go anywhere else.
+status: decided · source: D043 · known: nobody · told: later

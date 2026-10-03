@@ -54,16 +54,22 @@ test("no beat's live-rendered note or direction cites another beat/scene's own d
   assert.deepEqual(offenders, [], "a beat's live-rendered note/direction still cites design rationale instead of just what the GM needs to run it");
 });
 
-test("REGRESSION: the two real instances found live are actually fixed, not just no-longer-matched by accident", () => {
+// The two beats where it was found were rebuilt with the rest of Episode One in
+// the house style (D056, 2026-10-01): every note is now labelled lines (Do, If…,
+// Secret, Plant, Watch for), which leaves no room for a "why". Canteen's
+// recall-the-drains beat is gone; the natural history lesson does that job now.
+test("REGRESSION: the two beats where it was found live carry no rationale, only labelled lines", () => {
   const kitIssue = JSON.parse(readFileSync(path.join(briefDir, "episode-c1e1--kit-issue.json"), "utf8"));
-  const testTheFit = kitIssue.beats.find((b) => b.id === "test-the-fit");
-  assert.equal(testTheFit.note, "Never required. Costs nothing on any result.");
-
-  const pickYourKit = kitIssue.beats.find((b) => b.id === "pick-your-kit");
-  assert.match(pickYourKit.note, /curated Directorate menu/);
-  assert.doesNotMatch(pickYourKit.note, /decision log/);
+  const label = /^(Do|Plant|Secret|Watch for|If [^:]+):\s/;
+  for (const id of ["test-the-fit", "pick-your-kit"]) {
+    const beat = kitIssue.beats.find((b) => b.id === id);
+    assert.ok(beat, `Kit Issue lost its ${id} beat`);
+    for (const line of String(beat.note ?? "").split("\n").filter((l) => l.trim())) {
+      assert.match(line, label, `${id}'s note line is not a labelled line: ${line}`);
+      assert.doesNotMatch(line, RATIONALE_PATTERN);
+    }
+  }
 
   const canteen = JSON.parse(readFileSync(path.join(briefDir, "episode-c1e1--canteen.json"), "utf8"));
-  const recallTheDrains = canteen.beats.find((b) => b.id === "recall-the-drains");
-  assert.equal(recallTheDrains.note, "The hard Recall Knowledge path. Never required, costs nothing on any result -- an Encyclopaedia check.");
+  assert.equal(canteen.beats.find((b) => b.id === "recall-the-drains"), undefined, "the old drains-knowledge beat came back to the Canteen");
 });

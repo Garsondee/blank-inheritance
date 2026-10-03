@@ -426,6 +426,14 @@
      the left and the sidebar on the right). */
   --bi-rail-left: 340px;
   --bi-rail-right: 72px;
+  /* The admin key (foundry/admin-button.mjs). Its plate is drawn at this size
+     (core/admin-key.mjs#ADMIN_KEY_SIZE is the same number; a test pins them
+     together). Runtime: its distance from the right and bottom edges, written
+     by admin-button.mjs#fitAdminKey; declared so it has a sane spot before
+     anything has measured. */
+  --bi-akey-size: 96px;
+  --bi-akey-right: 68px;
+  --bi-akey-bottom: 250px;
 
   /* North-star materials. The image's palette, taken literally at Ingram's
      direct instruction ("make it look like the image"): two honest metals —

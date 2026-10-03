@@ -1,0 +1,347 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--flood-tunnel",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "flood-tunnel",
+  "title": "Flood Tunnel Clearance",
+  "summary": "Scene 11. The first fight: a dead drainage line, a jammed feed and a nest of giant centipedes in a flooded compactor chamber under the old town. Then Vetch at the top with a signature nobody can explain, and each player picks where to spend the night.",
+  "goal": "The line runs, the nest is dealt with their way, Vetch has asked about Rand, and each player has picked a rest.",
+  "howToPlay": "Physical first: the smell, the dark, the job. When the nest wakes, keep it fast. **Let them choose how the fight ends.**",
+  "runsAbout": "45-60 minutes",
+  "mode": "combat",
+  "intro": {
+    "where": "A disused drainage chamber under the old town, down a ladder from the quay.",
+    "readAloud": "The smell reaches you before the light does: standing water that hasn't moved in a long time, and under it something sweeter.\n\nThe ladder puts you on a raised platform with a bank of panels, half their lights dead.\n\nBelow, a wide floor slopes under black water to a grate the size of a cart wheel, glowing faint amber. Conveyor walkways run along both walls.",
+    "landmark": "The amber grate in the middle of the flooded floor.",
+    "carriesIn": [
+      {
+        "when": "If anyone passed natural history",
+        "then": "They know giant centipedes when they see one: give them the Recall Knowledge result free."
+      },
+      {
+        "when": "If one critically succeeded there",
+        "then": "They also know a show of force sends one running."
+      },
+      {
+        "when": "If anyone passed the workshop induction",
+        "then": "+2 circumstance on panel work: powering the line and overriding the compactor."
+      },
+      {
+        "when": "If anyone qualified on the range",
+        "then": "+1 circumstance on their first ranged Strike."
+      },
+      {
+        "when": "If anyone has no handlamp",
+        "then": "They see only what the others' lamps light."
+      },
+      {
+        "when": "If anyone is Fatigued from today",
+        "then": "It applies now."
+      }
+    ],
+    "position": {
+      "locationRef": "old-landing",
+      "state": "together",
+      "note": "Under the old landing, down the hatch."
+    }
+  },
+  "cast": [
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "role": "Waiting at the top of the ladder with a sheet of paper.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To find out which of them is Rand.",
+        "opensWith": "\"Which one of you is Rand?\"",
+        "willDiscuss": [
+          {
+            "topic": "The requisition",
+            "note": "He holds it up: countersigned in green ink over Medical's stamp. Rand, Medical."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Whether the drains were a punishment",
+            "why": "\"Sections are assigned work.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped and procedural, and for once not sure of himself.",
+          "samples": [
+            "\"Nobody called Rand works in Medical. I've asked.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Let them look round before anyone touches the panels.",
+      "note": "If someone won't go down: They wait at the ladder and can come down any time. The job doesn't wait for them.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "read-the-water",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone studies the water before touching anything, offer the check.",
+      "when": {
+        "condition": "someone studies the water first"
+      },
+      "challengeRef": "c1e1-flood-tunnel",
+      "checkRef": "read-the-water",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "power-the-line",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The job, part one: get power back to the drainage line from the panels. Runs alongside clearing the jam.",
+      "challengeRef": "c1e1-flood-tunnel",
+      "checkRef": "power-the-line",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "clear-the-jam",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The job, part two: clear the jam in the compactor feed, down on the floor. Runs alongside powering the line.",
+      "readAloud": "The feed is packed solid with whatever the old town has been putting down its drains, pressed into something with a grain to it. It comes apart if you work it in the right place.",
+      "challengeRef": "c1e1-flood-tunnel",
+      "checkRef": "clear-the-jam",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-fight",
+      "kind": "combat",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The machinery wakes the nest <trig id=\"nest-wakes\"/>. Six giant centipedes come up out of the water around the grate.",
+      "direction": "Fast and physical. The flooded floor is difficult terrain in dim light; the walkways are dry high ground.",
+      "note": "Do: Ask how they want it to end, and back their answer. Each ending earns full XP.\nIf someone won't fight: Holding a walkway or working the panels is real work.\nIf it goes badly: Once half are down, the rest break for the grate.",
+      "encounterRef": "c1e1-flood-tunnel",
+      "subsystemRef": "c1e1-compactor-cycle",
+      "choicePoint": {
+        "label": "How do they end it?",
+        "options": [
+          {
+            "id": "kill",
+            "label": "Kill the nest",
+            "consequence": "A straight fight, until the last centipede is dead."
+          },
+          {
+            "id": "drive-off",
+            "label": "Drive them off",
+            "consequence": "Losses and a show of force send the rest down the grate."
+          },
+          {
+            "id": "find-another-way",
+            "label": "Use the room",
+            "consequence": "The compactor, the grate or the water does it."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "triggers": [
+        {
+          "id": "nest-wakes",
+          "kind": "note",
+          "label": "The nest wakes"
+        }
+      ],
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "work-the-panel",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If the compactor is closing in, anyone at the north panels can spend their turn overriding it.",
+      "when": {
+        "condition": "the compactor is running"
+      },
+      "subsystemRef": "c1e1-compactor-cycle",
+      "note": "Do: Say plainly that it's as useful as an attack: it buys everyone on the floor their ground back.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-top",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "section-officer",
+      "text": "They climb out. Vetch <trig id=\"vetch-at-the-top\"/> is waiting with their requisition, countersigned. Read it, then let him ask.",
+      "readAloud": "Vetch is waiting at the top of the ladder with a lamp and a sheet of paper. It's your requisition for the vial, countersigned in green ink over Medical's stamp: Rand, Medical.\n\n\"Which one of you is Rand?\"",
+      "note": "If they don't know: \"Nobody called Rand works in Medical. I've asked.\" He folds it away and dismisses them.\nSecret: Rand is Shucks's own right hand, loose in the city. It signed tonight, from Shucks's desk. Nobody knows, Shucks included.",
+      "triggers": [
+        {
+          "id": "vetch-at-the-top",
+          "kind": "npc-enter",
+          "npcRef": "section-officer",
+          "label": "Vetch at the top"
+        }
+      ],
+      "facts": [
+        "shucks.rand-signature"
+      ],
+      "gmFacts": [
+        "shucks.rand",
+        "shucks.rand-signs"
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "clockRef": "c1e1-compactor-cycle",
+  "outro": {
+    "endsWhen": "Vetch has dismissed them, and each player has picked a rest.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "why": "If the fight, or the climb out, pulled them together."
+      }
+    ],
+    "transition": {
+      "mechanism": "invited",
+      "line": "Dismissed. Each of them picks where to spend the night.",
+      "scatterRisk": true
+    },
+    "departure": {
+      "kind": "free",
+      "question": "Where do you spend the night?",
+      "destinations": [
+        {
+          "id": "hospital",
+          "label": "The General Hospital",
+          "blurb": "A ward bed and a night nurse. Restores all your HP, and nothing else.",
+          "placeRef": "general-hospital",
+          "briefRef": "rest--general-hospital"
+        },
+        {
+          "id": "early-night",
+          "label": "An early night",
+          "blurb": "Your own bunk in the overflow block. Restores half your HP.",
+          "placeRef": "row-c-block-3",
+          "briefRef": "rest--early-night"
+        },
+        {
+          "id": "bathhouse",
+          "label": "The Bathhouse",
+          "blurb": "The big public bath. Restores half your HP, and gives you temporary HP.",
+          "placeRef": "the-bathhouse-447",
+          "briefRef": "rest--bathhouse"
+        },
+        {
+          "id": "the-roof",
+          "label": "The Roof",
+          "blurb": "A flat roof, and the whole city lit up across the water. Restores half your HP.",
+          "placeRef": "row-e-block-9",
+          "briefRef": "rest--the-roof"
+        },
+        {
+          "id": "shrine-gate",
+          "label": "The Shrine Gate",
+          "blurb": "A small shrine on a street corner. Restores a quarter of your HP, and you draw a fortune.",
+          "placeRef": "the-shrine-gate-444",
+          "briefRef": "rest--shrine-gate"
+        },
+        {
+          "id": "crew-mess",
+          "label": "The Crew Mess",
+          "blurb": "The repair crews' bar behind the dry dock. Restores a quarter of your HP. Somebody might stand you a drink.",
+          "placeRef": "the-crew-mess",
+          "briefRef": "rest--crew-mess"
+        },
+        {
+          "id": "card-game",
+          "label": "The Card Game",
+          "blurb": "A game in Row F that never stops. Restores a quarter of your HP, and there's a pot to win.",
+          "placeRef": "row-f-block-5",
+          "briefRef": "rest--card-game"
+        },
+        {
+          "id": "rumour-mill",
+          "label": "The Rumour Mill",
+          "blurb": "Second-termers sitting up after lights-out. Restores a quarter of your HP, and you hear things.",
+          "placeRef": "row-b-block-8",
+          "briefRef": "rest--rumour-mill"
+        },
+        {
+          "id": "met-office",
+          "label": "The Night Observer",
+          "blurb": "The Met Office roof, read every hour of the night. Restores a quarter of your HP, and you learn tomorrow's weather.",
+          "placeRef": "the-met-office",
+          "briefRef": "rest--met-office"
+        },
+        {
+          "id": "night-shift",
+          "label": "The Night Shift",
+          "blurb": "No. 1 Machine Shop, where the night crew keep working. Restores a quarter of your HP, and pays.",
+          "placeRef": "no-1-machine-shop",
+          "briefRef": "rest--night-shift"
+        },
+        {
+          "id": "somewhere-new",
+          "label": "Somewhere new",
+          "blurb": "You don't know what's there, or what it gives. That's the point.",
+          "placeRef": "the-market-hall-456",
+          "briefRef": "discovery--the-magic-show",
+          "mystery": true
+        }
+      ]
+    },
+    "onwards": "The night's rests, each player their own. Episode One ends there.",
+    "writeDown": [
+      "How they ended the fight, and who did what.",
+      "Injuries carried into the night.",
+      "Who has a theory about Rand."
+    ],
+    "position": {
+      "locationRef": "old-landing",
+      "state": "split",
+      "note": "Leaving the old landing for the night."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "study-the-room",
+      "text": "What's actually down here, before anyone makes a noise?"
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-fight",
+      "text": "The first fight: pace, and whether the walkways got used."
+    },
+    {
+      "id": "how-they-ended-it",
+      "text": "How they chose to end it."
+    },
+    {
+      "id": "rand",
+      "text": "\"Which one of you is Rand?\" landing."
+    }
+  ],
+  "notes": "The episode's real climax. The centipedes are animals: nothing about them points at anything else. The compactor cycle is optional; the fight works without it. The Paper Lantern isn't offered as a rest yet because it isn't on the map."
+}

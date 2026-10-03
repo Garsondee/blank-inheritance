@@ -1,6 +1,9 @@
 <div class="bi-admin__body">
     {{#if busy}}<p class="bi-admin__busy"><i class="fa-solid fa-spinner fa-spin"></i> {{busy}}</p>{{/if}}
 
+    {{!-- The sections flow down one column and on into the next (styles/bi-components.css, .bi-admin__columns). --}}
+    <div class="bi-admin__columns">
+
     {{!-- START OVER: the reset, and its undo. --}}
     <section class="bi-admin__section bi-admin__section--danger">
         <h2 class="bi-admin__title"><i class="fa-solid fa-rotate-left"></i> {{localize "BLANKINHERITANCE.Admin.Reset.Heading"}}</h2>
@@ -129,4 +132,5 @@
             <button type="button" class="bi-admin__button" data-action="copyState"><i class="fa-solid fa-copy"></i> {{localize "BLANKINHERITANCE.Admin.State.Copy"}}</button>
         </div>
     </section>
+    </div>
 </div>

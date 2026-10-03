@@ -62,6 +62,7 @@ import {
 } from "../core/runner-view.mjs";
 import { decorateInlineTriggers, escapeHtml } from "../core/inline-triggers.mjs";
 import { renderProse } from "../core/emphasis.mjs";
+import { parseNoteLines } from "../core/note-lines.mjs";
 import { checkLabel, checkSkills, enrichersFor } from "../core/roll-intent.mjs";
 import { needsTravel } from "../core/travel-trigger.mjs";
 import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
@@ -1690,6 +1691,14 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // the template through a triple-stache, so they are escaped HERE.
       decoratedDirection: beat.direction ? renderProse(beat.direction, escapeHtml) : null,
       decoratedNote: beat.note ? renderProse(beat.note, escapeHtml) : null,
+      // A note written as labelled lines (Do, Plant, Secret, Watch for, If ...) is laid out as a list, label
+      // beside line, with a Secret marked so it is never read aloud (core/note-lines.mjs, D056). Anything
+      // else stays the paragraph above.
+      noteLines: (parseNoteLines(beat.note) ?? []).map((line) => ({
+        label: line.label,
+        html: renderProse(line.text, escapeHtml),
+        isSecret: line.kind === "secret"
+      })),
       choicePoint: beat.choicePoint
         ? {
             ...beat.choicePoint,
@@ -2124,6 +2133,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // Firing something from a beat's own prose means that beat is being run.
     this.#focus(beatId);
+    // other parts of the adventure (the Stagecraft bridge: the nest wakes, six centipedes) may act on a trigger being fired
+    Hooks.callAll("blankInheritance.triggerFired", { briefId: brief?.id ?? null, beatId, trigger });
 
     const logFired = () =>
       recordLogEntry({

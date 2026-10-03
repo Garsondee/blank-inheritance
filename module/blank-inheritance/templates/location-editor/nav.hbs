@@ -1,0 +1,8 @@
+<nav class="bi-location-editor__tabs">
+    <button type="button" class="bi-location-editor__tab{{#if (eq tab "story")}} is-active{{/if}}" data-action="setTab" data-tab="story">
+        <i class="fa-solid fa-list-check"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Story"}}
+    </button>
+    <button type="button" class="bi-location-editor__tab{{#if (eq tab "map")}} is-active{{/if}}" data-action="setTab" data-tab="map">
+        <i class="fa-solid fa-draw-polygon"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Map"}}
+    </button>
+</nav>

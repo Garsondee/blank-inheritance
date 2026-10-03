@@ -1,0 +1,288 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--assembly",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "assembly",
+  "title": "Assembly",
+  "summary": "Scene 3. The whole intake in the drill hall: the anthem, the charter, and the Deputy Director's address on what the Directorate is, how their days run and its two rules. Vetch collects Section Nine.",
+  "goal": "They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.",
+  "howToPlay": "Ceremonial and sincere: nobody in this room is lying. Read the address as a real speech. **Make sure the two rules land: curfew is small, a refused order is not.**",
+  "runsAbout": "20-25 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The drill hall, the only room on the island big enough for the whole intake.",
+    "readAloud": "The drill hall smells of floor polish and four hundred people. Somebody has put out more chairs than there are of you, and along the platform a dozen staff in a dozen different uniforms stand in a line. Above them, in a heavy frame, hangs the founding charter, and somebody has polished the glass.",
+    "landmark": "The charter, framed over the platform.",
+    "carriesIn": [
+      {
+        "when": "After Intake Medicals",
+        "then": "Section Nine sits together; their cards say so."
+      }
+    ],
+    "position": {
+      "locationRef": "the-drill-hall",
+      "state": "together",
+      "note": "Section Nine together among the intake's chairs."
+    }
+  },
+  "cast": [
+    {
+      "id": "deputy-director",
+      "npcRef": "deputy-director",
+      "role": "Deputy Director, one rung below the top.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "This intake to understand what it has joined, and to take it as seriously as he does.",
+        "opensWith": "Nothing: he waits, without a word, until the room goes quiet on its own.",
+        "willDiscuss": [
+          {
+            "topic": "What the Directorate is for",
+            "note": "\"To be ready. Everything else is how.\""
+          },
+          {
+            "topic": "How their days run",
+            "note": "Lessons in the morning, and afternoons theirs to choose once their section officer releases them."
+          },
+          {
+            "topic": "The rules",
+            "note": "\"Curfew is a small thing. An order is not.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why the Directorate came to Kurose",
+            "why": "He means it kindly: \"The founders' reasons are the founders' to give.\""
+          },
+          {
+            "topic": "The Frames",
+            "why": "\"You'll meet them soon enough. Not today.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Measured and warm. Pauses before the parts he cares about.",
+          "samples": [
+            "\"You will be asked to do things that seem beneath you. Some of them are. Do them anyway, and then come and tell me which ones.\"",
+            "\"Good question. I don't know. Find out, and tell me.\""
+          ]
+        },
+        "statblock": "Proposed: level 8, a senior officer, non-combat."
+      }
+    },
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "role": "Section Nine's officer.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To be seen with the senior staff, and to start Section Nine's day his way.",
+        "opensWith": "\"Section Nine. With me. Yes, all of you.\"",
+        "willDiscuss": [
+          {
+            "topic": "The timetable",
+            "note": "\"First period, then the stores, then second period. It's on the sheet. Read the sheet.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What Section Nine is for",
+            "why": "He doesn't know, and won't say so: \"Sections are assigned work. That is what a section is.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped and procedural. Never wrong in his own account: surprised, he pauses one beat, then says it was the plan.",
+          "samples": [
+            "\"Section Officer Vetch. You'll address me as Section Officer.\"",
+            "\"As discussed.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
+      }
+    },
+    {
+      "id": "shucks-mordant",
+      "npcRef": "shucks-mordant",
+      "role": "On the platform, looking rumpled.",
+      "walkOn": true,
+      "brief": {
+        "wants": "To get back to his clinic.",
+        "voice": {
+          "register": "He doesn't speak here.",
+          "samples": []
+        }
+      }
+    },
+    {
+      "id": "hulda-brack",
+      "npcRef": "shop-boss",
+      "role": "Head of the machine shop, on the platform.",
+      "walkOn": true,
+      "brief": {
+        "wants": "To be back on her shop floor, where things make sense.",
+        "voice": {
+          "register": "One laugh, much louder than the room allows, cut off halfway.",
+          "samples": []
+        }
+      }
+    },
+    {
+      "id": "comms-officer",
+      "npcRef": "comms-officer",
+      "role": "The radio voice off the plot room, on the platform.",
+      "walkOn": true,
+      "brief": {
+        "wants": "To see who this year's intake are.",
+        "voice": {
+          "register": "She watches the intake, not the speaker.",
+          "samples": []
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-anthem",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Everyone stands for the anthem. Read it, then wait to hear what each character does.",
+      "readAloud": "A piano starts, and four hundred people stand. The anthem is old and slow, and everyone in the room over thirty knows every word without looking.",
+      "note": "If a player says what their character does: Offer the check to get through a song they don't know.",
+      "challengeRef": "c1e1-assembly",
+      "checkRef": "the-anthem",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-address",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "deputy-director",
+      "text": "The Deputy Director <trig id=\"deputy-director-steps-up\"/> gives the address. Read it as a speech; drop any part but the last two.",
+      "readAloud": "My name is Seiichi Takamine. It will be on a great many documents you sign this year, so you may as well hear it said once, by me.\n\nYou have joined Tokubetsu Taisaku Honbu, the Special Countermeasures Headquarters, which this city calls the Directorate. We exist to be ready. We keep the sirens, the shelters and the drills, and on most days we keep the harbour, the drains and the heavy lifting this city can't do without. In a hundred and fifty years the alarm has never once been real. That is a promise, and it is not a guarantee.\n\nYou will find we are two things at once. We are a school, so you will sit lessons. We are a service, so you will drill, carry orders and stand watches. In the mornings you will be taught. In the afternoons, once your section officer releases you, the time is yours: the gymnasium, the range, the library, or a lesson you choose yourselves. Spend it well. Nobody here will spend it for you.\n\nWe have a great many rules, and you will break most of them by accident before the month is out. Two you should know today. If you are out after curfew, that is a small thing: it will be written down, and you will be told off. If you are given a direct order and you refuse it, that is not a small thing. It is the most serious thing you can do here, and you will explain yourself to someone like me.\n\nThat is all. Your section officers have your postings. Welcome to the Directorate. I am glad you are here.",
+      "note": "Do: Afterwards he takes questions, and answers plainly.",
+      "triggers": [
+        {
+          "id": "deputy-director-steps-up",
+          "kind": "npc-enter",
+          "npcRef": "deputy-director",
+          "label": "The Deputy Director steps up"
+        }
+      ],
+      "facts": [
+        "deputy-director.name",
+        "founders.promise",
+        "directorate.school-and-service",
+        "directorate.free-time",
+        "directorate.curfew-minor",
+        "directorate.orders-serious",
+        "directorate.alarm-never-real"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "read-the-room",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches the platform instead of the speaker, offer the check.",
+      "when": {
+        "condition": "someone watches the platform"
+      },
+      "challengeRef": "c1e1-assembly",
+      "checkRef": "read-the-room",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-charter",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone looks closely at the charter, offer the check to read its four signatures.",
+      "when": {
+        "condition": "someone looks at the charter"
+      },
+      "challengeRef": "c1e1-assembly",
+      "checkRef": "the-charter",
+      "note": "Secret: The doctor's scrawl is Shucks's own hand from before his right hand came off. Rand still writes in it.",
+      "facts": [
+        "founders.charter-signatures"
+      ],
+      "gmFacts": [
+        "founders.charter-hands",
+        "shucks.old-handwriting"
+      ]
+    },
+    {
+      "id": "section-nine-with-me",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "section-officer",
+      "text": "Vetch <trig id=\"vetch-collects\"/> collects Section Nine at the door and gives them the day's timetable.",
+      "readAloud": "\"Section Nine. With me. Yes, all of you.\" He doesn't wait to see if you follow. \"Section Officer Vetch. First period, then the stores, then second period. It's on the sheet. Read the sheet.\"",
+      "triggers": [
+        {
+          "id": "vetch-collects",
+          "kind": "npc-enter",
+          "npcRef": "section-officer",
+          "label": "Vetch collects Section Nine"
+        }
+      ],
+      "facts": [
+        "section-officer.vetch"
+      ],
+      "gmFacts": []
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "Vetch has led Section Nine out of the hall.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "\"First period. School block. Don't be late.\"",
+      "scatterRisk": false
+    },
+    "onwards": "School: First Period.",
+    "writeDown": [
+      "Who caught the Deputy Director's name.",
+      "Who read the charter, and who watched the platform."
+    ],
+    "position": {
+      "locationRef": "the-drill-hall",
+      "state": "together",
+      "note": "Leaving with Vetch for the school block."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-charter",
+      "text": "The charter hangs right above the platform, and somebody has polished the glass."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-speech",
+      "text": "The address holding the room."
+    },
+    {
+      "id": "the-rules",
+      "text": "The two rules registering with the table."
+    },
+    {
+      "id": "meeting-vetch",
+      "text": "Section Nine's first impression of Vetch."
+    }
+  ],
+  "notes": "Everyone on the platform is someone the party meets: Shucks, Hulda Brack, the Comms Officer and Vetch. The address carries D053: a school and a service at once, afternoons theirs to choose (the second school period is where they first choose), and the two rules. It names no founder and gives no reason for Kurose."
+}

@@ -6,6 +6,73 @@
 
 ---
 
+## 0. Most important first (D056)
+
+Write the Scene Runner the way an expert in adventure prep would write it for Ingram: concise, precise, plain, and in the order she needs it. The reader is her, mid-scene, with six people waiting. She knows how to run a table and deliver a line. She doesn't need persuading, history or reasons. She needs the next move, then the catch.
+
+**Three looks.** Each must be complete on its own.
+
+| Look | Time | What it reads | What it must give |
+|---|---|---|---|
+| Glance | 1 second | The beat line | What happens, or what she does. Verb first. |
+| Look | 5 seconds | The first line under it | The one thing that breaks the scene if missed. |
+| Read | 30 seconds | The rest | What to do if…, the secret, the results. |
+
+Anything that serves none of the three stays out of the Runner.
+
+**Ten rules.**
+1. Start with the verb. *Describe a utility machine*, not *THIS IS A GEN 1 FRAME*.
+2. Put the condition first, then the action. *If no arrival fits: put it in one random player's spotlight.*
+3. Say it once, where it's used. A rule that matters in one beat lives in that beat and nowhere else.
+4. Write it as it is now. Never "no longer", "now", "replaced", "the old version", "Ingram asked".
+5. Say what to do. Keep a "don't" only when the mistake is likely and breaks the scene.
+6. Give a secret as a fact, in a sentence or two. No lore lectures.
+7. Name things the way she'd say them at the table: no file names, ledger or decision numbers, beat ids or tool names.
+8. Leave the delivery, and the table's reaction, to her.
+9. Write full sentences. No fragments.
+10. Stay inside the budget. If it doesn't fit, it's two beats, a list, or prep notes.
+
+**The test for every sentence:** if I deleted this, would Ingram do anything differently at the table? If not, it goes to prep notes, or nowhere.
+
+**Budgets.**
+
+| Field | Its one job | Budget |
+|---|---|---|
+| Beat line (`text`) | What happens, or what she does | 25 words: it must fit the two lines a folded beat shows |
+| `direction` | How to deliver it, only when that matters | 40 words |
+| `note` | Labelled lines (below) | 80 words, 25 a line |
+| Check result | What they get, per degree or skill | 40 words |
+| `goal` | What is true when the scene ends | 30 words |
+| `howToPlay` | The scene's shape, with at most one bold rule | 40 words |
+| Ending | `endsWhen` / `transition.line` / `writeDown` | 15 words / 20 words / 3 items |
+| Handout card | One line per detail a player might ask about | 25 words a line |
+| `reactionPrompts` | What to rate afterwards | 3 prompts |
+| Whole scene | All of the above, not counting read-aloud, check results or cast cards | about 900 words |
+
+**Five labels for a note,** in sentence case at the start of a line, one line each. They replace §4's ALL-CAPS sections.
+
+| Label | Holds |
+|---|---|
+| `Do` | The instruction, when the beat line needs a second sentence. |
+| `If …` | What to do when something happens: "If they ask…", "If nobody…", "If it goes wrong…". The label is the condition; the line is the action. |
+| `Secret` | What only the GM knows, as a fact. Never read aloud. |
+| `Plant` | What they must see, and how often. Never the payoff. |
+| `Watch for` | The one likely mistake. Rare. |
+
+**Where things go instead.**
+
+| To keep | Put it in |
+|---|---|
+| Why a beat is built this way | Prep notes (`notes`): the Casebook shows them, the Runner doesn't |
+| A rule about the world | A canon fact in `canon/world/` |
+| What a later scene must not reveal | A canon fact with `told: later`, which `story check` enforces |
+| What changed, and why | The commit message, and the message to Ingram |
+| A rule the Runner can show (required, whole table, free roll) | A data field the Runner shows as a chip |
+
+The rest of this document still holds where it doesn't conflict with §0. Where it does, §0 wins.
+
+---
+
 ## 1. The one rule everything else follows from
 
 **The variable is whether the reader can stop and think.**
@@ -24,8 +91,8 @@ Every field in a scene brief has exactly one of these readers. Writing for the w
 |---|---|---|---|---|
 | `text` | GM | mid-scene, skimmed | One actionable line. What happens or what the GM does. | Rationale, history, citations |
 | `readAloud` | Table | spoken aloud | Prose built to be said. Three sentences (§5). | Anything the GM must silently filter out first |
-| `direction` | GM | mid-scene, when they need the *why* | How to play it. Register, pacing, the reason behind the instruction. | Provenance, dates, "this used to be" |
-| `note` | GM | prep, and glanced mid-scene | Secrets, plants, fallbacks, pricing ladders. Structured (§4). | Change history, justification chains |
+| `direction` | GM | mid-scene | How to deliver it, only when that is critical (D048). Usually empty. | Reasons, provenance, dates, "this used to be" |
+| `note` | GM | mid-scene, glanced | Labelled lines: Do, If…, Secret, Plant, Watch for (§0, §4). | Change history, justification chains, design reasons |
 | `notes` (file-level) | Designer | prep only | Standing rules for the scene, casting reasoning, open flags. | Dated changelog entries |
 | `summary` | Designer | prep only | What the scene is, in plain sentences. | — |
 | `cast[].brief` | GM | mid-scene, improvising | A generator (§6). | A script |
@@ -64,15 +131,9 @@ This project has strong, correct anti-staleness instincts — the Node Registry,
 
 ## 4. The shape of a `note`
 
-Notes carry the heaviest load and drift worst. Structure them, in this order, and label the sections in caps so they can be skimmed:
+Notes carry the heaviest load and drift worst. A note is a few labelled lines, in the order the GM needs them, using §0's five labels (`Do`, `If …`, `Secret`, `Plant`, `Watch for`) in sentence case. The line that breaks the scene if missed comes first. No provenance, ever, and no ALL-CAPS section headings.
 
-1. **HOW TO PLAY IT** — the playable instruction. Always first. If a GM reads only one line, this is the one that has to be there.
-2. **PLANT / PAYOFF** — what this seeds, with the payoff pointed at a Node rather than restated.
-3. **GM-ONLY** — the secret, and explicitly what is *not* available tonight.
-4. **WHAT IT DOES NOT MEAN** — where a secret is easy to over-read, say what it does not imply. This prevents a GM improvising past the plant.
-5. A short provenance tail, if genuinely needed. One sentence. No dates.
-
-A note longer than ~600 characters without labelled sections is a defect regardless of content quality.
+A note over §0's budget is a defect regardless of content quality: split it, or move what isn't needed at the table into the scene's prep `notes`.
 
 ---
 

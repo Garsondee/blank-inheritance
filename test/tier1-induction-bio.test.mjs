@@ -116,7 +116,13 @@ const fullState = {
       enemies: "A foreman I walked out on.",
       organizations: "My family's boatyard.",
       directorate: "Why I really signed up.",
-      "player-goal": "Someone unfashionably kind."
+      // The player's page (2026-10-01) shares this answer map, keyed by prompt id.
+      "player-goal": "Someone unfashionably kind.",
+      enjoy: "Working out what was really going on.",
+      avoid: "Rules arguments.",
+      force: "The one who holds the group together.",
+      spotlight: "Ask me before you put me on the spot.",
+      gently: "Ask me first if something heavy is coming."
     },
     freeform: "A paragraph.\n\nAnd another."
   },
@@ -153,7 +159,28 @@ test("buildBioUpdate: several answers sharing one field are headed, so the GM ca
   assert.match(notes, /Why I really signed up\./);
   assert.match(notes, /Someone unfashionably kind\./);
   assert.match(notes, /Fixing things\./);
-  assert.equal((notes.match(/<h4>/g) ?? []).length, 3, "each contribution needs its own heading");
+  // Every prompt that shares campaignNotes and was answered in the fixture gets exactly one heading.
+  const answered = [...PROMPTS.personality, ...PROMPTS.openQuestions, ...PROMPTS.playerQuestions]
+    .filter((p) => p.bioPath === "system.details.biography.campaignNotes")
+    .filter((p) => (fullState.intake.questions[p.id] ?? fullState.finishing.personality[p.id] ?? "").trim());
+  assert.ok(answered.length >= 8, "the fixture answers the old three and the player's page");
+  assert.equal((notes.match(/<h4>/g) ?? []).length, answered.length, "each contribution needs its own heading");
+});
+
+test("buildBioUpdate: the player's page lands in Campaign Notes under short headings, each marked out of character", () => {
+  const notes = buildBioUpdate({ prompts: PROMPTS, ...fullState })["system.details.biography.campaignNotes"];
+  for (const q of PROMPTS.playerQuestions) {
+    assert.ok(notes.includes(`<h4>${q.heading} (out of character)</h4>`), `${q.id} should be headed "${q.heading}" and marked out of character`);
+    assert.ok(!notes.includes(q.text.slice(0, 60)), `${q.id}: the long question text is not used as a heading`);
+  }
+  assert.match(notes, /The one who holds the group together\./);
+  assert.match(notes, /Ask me first if something heavy is coming\./);
+});
+
+test("buildBioUpdate: a player who answers only the player's page still gets those answers recorded", () => {
+  const update = buildBioUpdate({ prompts: PROMPTS, finishing: { name: "X" }, intake: { questions: { avoid: "Being told what my character feels." } } });
+  assert.match(update["system.details.biography.campaignNotes"], /Being told what my character feels\./);
+  assert.match(update["system.details.biography.campaignNotes"], /What do you not enjoy\? \(out of character\)/);
 });
 
 test("buildBioUpdate: the out-of-character question is labelled as such on the sheet", () => {
@@ -216,7 +243,7 @@ test("buildBioUpdate: called with nothing at all does not throw", () => {
 });
 
 test("every prompt in the real file declares a bioPath — nothing collected is silently dropped", () => {
-  const all = [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions, PROMPTS.freeform];
+  const all = [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions, ...PROMPTS.playerQuestions, PROMPTS.freeform];
   for (const prompt of all) {
     assert.ok(
       typeof prompt.bioPath === "string" && prompt.bioPath.startsWith("system."),
@@ -227,7 +254,7 @@ test("every prompt in the real file declares a bioPath — nothing collected is 
 
 test("a fully-answered form reaches every prompt's declared destination", () => {
   const update = buildBioUpdate({ prompts: PROMPTS, ...fullState });
-  const all = [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions, PROMPTS.freeform];
+  const all = [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions, ...PROMPTS.playerQuestions, PROMPTS.freeform];
   for (const prompt of all) {
     assert.ok(prompt.bioPath in update, `${prompt.id}'s answer never reached ${prompt.bioPath}`);
   }

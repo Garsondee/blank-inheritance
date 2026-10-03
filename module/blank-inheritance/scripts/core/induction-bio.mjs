@@ -123,6 +123,7 @@ function allPrompts(prompts) {
     ...(prompts?.personalFile ?? []),
     ...(prompts?.personality ?? []),
     ...(prompts?.openQuestions ?? []),
+    ...(prompts?.playerQuestions ?? []),
     ...(prompts?.freeform ? [prompts.freeform] : [])
   ];
 }
@@ -133,7 +134,9 @@ function allPrompts(prompts) {
  * question's answer is headed identically whether or not its neighbour was
  * answered. This is what lets campaignNotes carry the "good at", "what the
  * Directorate shouldn't know" and out-of-character player-goal answers at
- * once without the GM having to guess which is which.
+ * once without the GM having to guess which is which. (It now carries the
+ * out-of-character answers from the player page as well: each is headed with
+ * its prompt's short `heading`, falling back to the full `text`.)
  */
 export function sharedBioPaths(prompts) {
   const counts = new Map();
@@ -161,7 +164,8 @@ export function buildBioUpdate({ prompts, finishing = {}, intake = {}, knownLang
 
   const answerFor = (prompt) => {
     if (prompts?.freeform && prompt.id === prompts.freeform.id) return intake?.freeform;
-    if ((prompts?.openQuestions ?? []).some((q) => q.id === prompt.id)) return intake?.questions?.[prompt.id];
+    // Page 8's open questions and the player page's questions share one answer map, keyed by prompt id.
+    if ([...(prompts?.openQuestions ?? []), ...(prompts?.playerQuestions ?? [])].some((q) => q.id === prompt.id)) return intake?.questions?.[prompt.id];
     if ((prompts?.personalFile ?? []).some((q) => q.id === prompt.id)) return finishing?.personalFile?.[prompt.id];
     return finishing?.personality?.[prompt.id];
   };
@@ -178,7 +182,7 @@ export function buildBioUpdate({ prompts, finishing = {}, intake = {}, knownLang
     }
     if (!grouped.has(prompt.bioPath)) grouped.set(prompt.bioPath, []);
     grouped.get(prompt.bioPath).push({
-      heading: shared.has(prompt.bioPath) ? prompt.text : null,
+      heading: shared.has(prompt.bioPath) ? (prompt.heading ?? prompt.text) : null,
       outOfCharacter: prompt.outOfCharacter === true,
       body: answer
     });

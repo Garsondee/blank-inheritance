@@ -11,17 +11,17 @@ Every scene in play order, with a rough day and time of day, and its state.
 | # | Scene | Id | Day | Time | State | Note |
 |---|---|---|---|---|---|---|
 | 0 | From Up Here | `episode-c1e1--from-up-here` | — | early morning | awaiting-read | The camera's view. Nobody is anywhere yet. |
-| 1 | The Road In | `episode-c1e1--the-road-in` | 0 | morning | old-draft | Each arrives on their own morning, in the days before intake. |
-| 2 | Intake Medicals | `episode-c1e1--intake-medicals` | 1 | morning | old-draft |  |
-| 3 | Assembly | `episode-c1e1--assembly` | 1 | late morning | old-draft |  |
-| 4 | School: First Period | `episode-c1e1--school-first-period` | 1 | midday | old-draft |  |
-| 5 | Kit Issue | `episode-c1e1--kit-issue` | 1 | afternoon | old-draft |  |
-| 6 | School: Second Period | `episode-c1e1--school-second-period` | 1 | afternoon | old-draft |  |
-| 7 | The Errand | `episode-c1e1--the-errand` | 1 | afternoon | old-draft | Due back by nineteen-hundred. |
-| 8 | The Tram Back | `episode-c1e1--the-tram-back` | 1 | evening | old-draft |  |
-| 9 | Canteen | `episode-c1e1--canteen` | 1 | evening | old-draft |  |
-| 10 | The Walk Down | `episode-c1e1--the-walk-down` | 1 | night | old-draft |  |
-| 11 | Flood Tunnel Clearance | `episode-c1e1--flood-tunnel` | 1 | night | old-draft |  |
+| 1 | The Road In | `episode-c1e1--the-road-in` | 0 | morning | awaiting-read | Each arrives on their own morning, in the days before intake. |
+| 2 | Intake Medicals | `episode-c1e1--intake-medicals` | 1 | morning | awaiting-read |  |
+| 3 | Assembly | `episode-c1e1--assembly` | 1 | late morning | awaiting-read |  |
+| 4 | School: First Period | `episode-c1e1--school-first-period` | 1 | midday | awaiting-read |  |
+| 5 | Kit Issue | `episode-c1e1--kit-issue` | 1 | afternoon | awaiting-read |  |
+| 6 | School: Second Period | `episode-c1e1--school-second-period` | 1 | afternoon | awaiting-read |  |
+| 7 | The Errand | `episode-c1e1--the-errand` | 1 | afternoon | awaiting-read | Due back by nineteen-hundred. |
+| 8 | The Tram Back | `episode-c1e1--the-tram-back` | 1 | evening | awaiting-read | The requisition goes in before nineteen hundred. |
+| 9 | Canteen | `episode-c1e1--canteen` | 1 | evening | awaiting-read | Supper. Dock C at twenty-one hundred. |
+| 10 | The Walk Down | `episode-c1e1--the-walk-down` | 1 | night | awaiting-read |  |
+| 11 | Flood Tunnel Clearance | `episode-c1e1--flood-tunnel` | 1 | night | awaiting-read | Ends on each player's choice of rest. |
 
 ## Episode Two: Scheduled Exercise
 

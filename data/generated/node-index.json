@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T19:21:19.749Z",
+  "generatedAt": "2026-10-01T15:06:33.279Z",
   "generatedBy": "tools/node-registry/generate.mjs -- do not hand-edit this file, rerun the script instead",
   "counts": {
     "total": 99,
@@ -7,12 +7,15 @@
     "resolved": 46,
     "superseded": 0,
     "brokenRefs": 0,
-    "orphans": 0,
+    "orphans": 2,
     "duplicateIds": 0
   },
   "brokenRefs": [],
   "duplicateIds": [],
-  "orphans": [],
+  "orphans": [
+    "mystery-ledger-1",
+    "arc-gen1-baseline-inverted-by-gen2"
+  ],
   "openByAge": [
     {
       "id": "mystery-ledger-6",
@@ -71,7 +74,6 @@
       },
       "referencedBy": [
         "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--intake-medicals.json#beats.5.nodeRefs",
-        "data/scene-briefs/episode-c1e1--intake-medicals.json#beats.5.nodeRefs",
         "data/scene-briefs/episode-c1e2--the-hammer.json#beats.5.nodeRefs"
       ]
     },
@@ -106,7 +108,6 @@
         "kind": "markdown"
       },
       "referencedBy": [
-        "data/scene-briefs/episode-c1e1--intake-medicals.json#beats.5.nodeRefs",
         "data/scene-briefs/episode-c1e2--as-discussed.json#beats.1.nodeRefs",
         "data/scene-briefs/episode-c1e2--the-override.json#beats.2.nodeRefs"
       ]
@@ -125,7 +126,6 @@
         "kind": "markdown"
       },
       "referencedBy": [
-        "data/scene-briefs/episode-c1e1--school-first-period.json#beats.1.nodeRefs",
         "data/scene-briefs/episode-c1e2--school-period-one.json#beats.1.nodeRefs"
       ]
     },
@@ -160,7 +160,6 @@
       },
       "referencedBy": [
         "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--intake-medicals.json#beats.6.nodeRefs",
-        "data/scene-briefs/episode-c1e1--intake-medicals.json#beats.6.nodeRefs",
         "data/scene-briefs/episode-c1e2--the-override.json#beats.1.nodeRefs"
       ]
     },
@@ -180,8 +179,6 @@
       "referencedBy": [
         "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-errand.json#beats.3.nodeRefs",
         "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-road-in.json#beats.3.nodeRefs",
-        "data/scene-briefs/episode-c1e1--the-errand.json#beats.4.nodeRefs",
-        "data/scene-briefs/episode-c1e1--the-road-in.json#beats.3.nodeRefs",
         "data/scene-briefs/episode-c1e2--slack-water.json#beats.3.nodeRefs",
         "data/scene-briefs/episode-c1e2--the-board.json#beats.3.nodeRefs",
         "data/scene-briefs/episode-c1e2--unidentified-contact.json#beats.0.nodeRefs"
@@ -201,8 +198,7 @@
         "kind": "markdown"
       },
       "referencedBy": [
-        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--intake-medicals.json#beats.1.nodeRefs",
-        "data/scene-briefs/episode-c1e1--intake-medicals.json#beats.1.nodeRefs"
+        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--intake-medicals.json#beats.1.nodeRefs"
       ]
     },
     {
@@ -220,9 +216,7 @@
       },
       "referencedBy": [
         "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-errand.json#beats.1.nodeRefs",
-        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-errand.json#beats.4.nodeRefs",
-        "data/scene-briefs/episode-c1e1--the-errand.json#beats.1.nodeRefs",
-        "data/scene-briefs/episode-c1e1--the-errand.json#beats.2.nodeRefs"
+        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-errand.json#beats.4.nodeRefs"
       ]
     },
     {
@@ -239,8 +233,7 @@
         "kind": "markdown"
       },
       "referencedBy": [
-        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-errand.json#beats.0.nodeRefs",
-        "data/scene-briefs/episode-c1e1--the-errand.json#beats.0.nodeRefs"
+        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--the-errand.json#beats.0.nodeRefs"
       ]
     },
     {
@@ -257,8 +250,7 @@
         "kind": "markdown"
       },
       "referencedBy": [
-        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--canteen.json#beats.0.nodeRefs",
-        "data/scene-briefs/episode-c1e1--canteen.json#beats.0.nodeRefs"
+        "data/intray/unorganised/live-before-replacement-2026-09-21/episode-c1e1--canteen.json#beats.0.nodeRefs"
       ]
     },
     {
@@ -274,10 +266,7 @@
         "file": "ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
-      "referencedBy": [
-        "data/scene-briefs/episode-c1e1--intake-medicals.json#beats.6.nodeRefs",
-        "data/scene-briefs/episode-c1e1--intake-medicals.json#beats.7.nodeRefs"
-      ]
+      "referencedBy": []
     },
     {
       "id": "arc-gen1-baseline-inverted-by-gen2",
@@ -308,9 +297,7 @@
         "file": "ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
-      "referencedBy": [
-        "data/scene-briefs/episode-c1e1--the-road-in.json#beats.4.nodeRefs"
-      ]
+      "referencedBy": []
     },
     {
       "id": "arc-contacts-that-never-travelled",
@@ -1164,7 +1151,7 @@
         "kind": "registry"
       },
       "referencedBy": [
-        "data/generated/npc-asset-gaps.json#npcs.5.namingPlaceholderRef",
+        "data/generated/npc-asset-gaps.json#npcs.6.namingPlaceholderRef",
         "data/npcs/comms-officer.json#namingPlaceholderRef"
       ]
     },
@@ -1182,7 +1169,7 @@
         "kind": "registry"
       },
       "referencedBy": [
-        "data/generated/npc-asset-gaps.json#npcs.7.namingPlaceholderRef",
+        "data/generated/npc-asset-gaps.json#npcs.9.namingPlaceholderRef",
         "data/npcs/deputy-director.json#namingPlaceholderRef"
       ]
     },
@@ -1230,7 +1217,7 @@
         "kind": "registry"
       },
       "referencedBy": [
-        "data/generated/npc-asset-gaps.json#npcs.44.namingPlaceholderRef",
+        "data/generated/npc-asset-gaps.json#npcs.71.namingPlaceholderRef",
         "data/npcs/the-young-one.json#namingPlaceholderRef"
       ]
     },

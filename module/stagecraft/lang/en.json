@@ -1,0 +1,112 @@
+{
+  "STAGECRAFT": {
+    "Notify": {
+      "Unusable": "Stagecraft: the stage description of \"{scene}\" cannot be drawn, so Foundry's own canvas is showing. See the console for why.",
+      "Failed": "Stagecraft could not take over \"{scene}\", so Foundry's own canvas is showing. See the console.",
+      "TierNextScene": "Stagecraft: the new picture quality applies from the next scene.",
+      "Flat": "Stagecraft: this computer could not draw the 3D stage, so you are seeing the plain one. Everything still works.",
+      "FlatSoftware": "Stagecraft: this computer draws graphics without a graphics card, so you are seeing the plain stage. Everything still works. You can change this in the module's settings."
+    },
+    "Settings": {
+      "Tier": {
+        "Name": "Stage picture quality",
+        "Hint": "How much your computer draws on a stage scene. Automatic follows Foundry's own Performance Mode.",
+        "Auto": "Automatic",
+        "High": "High: lights, shadows and glow",
+        "Low": "Low: lights only",
+        "Flat": "Flat: plain, for a weak computer"
+      },
+      "Zones": {
+        "Name": "Zone outlines at rest",
+        "Hint": "How visible a zone's dashed outline is when nobody is holding a card near it.",
+        "Faint": "Faint",
+        "Off": "Hidden until a card comes near",
+        "Full": "Always clear"
+      },
+      "Calm": {
+        "Name": "Calm mode",
+        "Hint": "No flashes, sparks or film grain. Cards still move as you move them. Also on when Foundry's Photosensitive Mode or your system's reduced motion setting is."
+      }
+    },
+    "Keys": {
+      "hop": "Hop (card in hand)",
+      "nod": "Nod (card in hand)",
+      "bow": "Bow (card in hand)",
+      "shake": "Shake its head (card in hand)",
+      "turn": "Turn its back (card in hand)"
+    },
+    "Bar": {
+      "Label": "Stage controls",
+      "Mode": {
+        "Scene": "Chalk: {mode} (scene)",
+        "Set": "Chalk: {mode}",
+        "Tip": "Who may draw on this scene. Click to go round: as the scene says, off, in chalk zones only, anywhere.",
+        "off": "off",
+        "zones": "zones only",
+        "anywhere": "anywhere"
+      },
+      "Hands": {
+        "Label": "Hands off",
+        "Tip": "Only a GM can move cards: for a hearing, a speech, a death. A player carrying a card puts it down."
+      },
+      "Freeze": {
+        "Label": "Freeze",
+        "Tip": "Keep the wall as it is and take the chalk away."
+      },
+      "Undo": {
+        "Label": "Undo",
+        "Tip": "Take the newest stroke off the wall, whoever drew it."
+      },
+      "Wipe": {
+        "Label": "Wipe",
+        "Tip": "Clear everything drawn on this scene.",
+        "Title": "Wipe the chalk wall",
+        "Ask": "Clear everything drawn on this scene? This cannot be undone."
+      },
+      "Hide": {
+        "Label": "Hide wall",
+        "Tip": "Put the drawings out of sight for everyone without losing them."
+      }
+    },
+    "Blocking": {
+      "Label": "Blocking: where people stand",
+      "Armed": "{name}: click the floor where they gather, or a person · Esc to cancel",
+      "Selected": "{n} chosen (shift-click) · Esc to clear",
+      "Life": {
+        "Label": "Life",
+        "Tip": "The people of the scene go about their business: the waitress does her rounds, the guard paces. Off, everyone stands where they are."
+      },
+      "Board": {
+        "Label": "Board",
+        "Tip": "The fight board: the scene's positions drawn plainly for everyone, with who is in each and which are near each other."
+      },
+      "Form": {
+        "How": "Then click the floor where they gather, or a person. Double-click to use the scene's own spot. It moves the people you have shift-clicked, or else everyone of the scene's own (the party stays put).",
+        "Line": { "Label": "Line", "Tip": "Everyone in a row, facing the table." },
+        "Huddle": { "Label": "Huddle", "Tip": "Heads together: close, turned in, leaning in." },
+        "Talk": { "Label": "Talk", "Tip": "Two people facing each other; anyone else listens a step back. Click the one who speaks first." },
+        "Gangup": { "Label": "Gang-up", "Tip": "Everyone closes round one person. Click the one they gang up on." },
+        "Panel": { "Label": "Panel", "Tip": "A row to answer to: a hearing, a board, the night crew at the counter." },
+        "Standoff": { "Label": "Stand-off", "Tip": "Two sides facing each other across a gap." },
+        "Circle": { "Label": "Circle", "Tip": "Round a table, a fire or a body on the floor, the near side left open." },
+        "Queue": { "Label": "Queue", "Tip": "One behind another, going back from where you click: a counter, a door." },
+        "Scatter": { "Label": "Scatter", "Tip": "Everyone to a place of their own across the floor: a fight breaking out." },
+        "Audience": { "Label": "Audience", "Tip": "Everyone in a shallow arc facing where you click: a stage, a platform, a speaker." }
+      },
+      "Tidy": {
+        "Label": "Tidy",
+        "Tip": "Every loose card walks to its nearest free mark."
+      },
+      "Places": {
+        "Label": "Places",
+        "Tip": "Everyone you have moved walks back to where the scene put them, and back to what they were doing."
+      }
+    },
+    "Board": {
+      "Title": "Positions",
+      "Engaged": "same position: engaged",
+      "Near": "near: one Stride",
+      "Far": "far: two Strides or more"
+    }
+  }
+}

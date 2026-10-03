@@ -25,11 +25,11 @@ export const PLANTS = [
   ["4", "The same hull breach on every Gen 2 prototype", "5", "The core making its seat. (Not planted; Gen 2 only, or cut.)"],
   ["5", "The founding charter in the lobby", "1, 6, 12", "Cut as a mystery (LEDGER #41): nothing on it is painted out. Its four signatures are the clue instead (accepted, LEDGER #44): Shucks's old scrawl, which is the hand Rand writes in; HYUCK in capitals; and a script nobody here reads, which is Anabala's."],
   ["6", "Violet stencils at head height", "4, 6", "Where Cicada will gather next; and the show."],
-  ["7", "Gaps in the instrument makers' stores cupboard (moved from the general store, LEDGER #45)", "9", "The column's raw materials, stolen in the heist loop."],
+  ["7", "Gaps in the instrument makers' stores cupboard", "9", "The column's raw materials, stolen in the heist loop. (Not planted: cut from The Errand in version 9, where it had no payoff yet.)"],
   ["8", "Hyuck's protocol", "12", "[F] Gen 2 only, to be pinned down later. (Not planted.)"],
   ["9", "Dogs, birds, the street, the rooftop", "1 (Episode Two)", "Animals sense the Watcher's nanoparticles, perhaps as a high buzz that upsets them (LEDGER #43). [C] The street drops to the harbour road, where the three Proto-Claimants form. [P]"],
   ["10", "The girl in the news, on the canteen radio", "6", "Shinobu, walking away from a lorry. (Planted: the Canteen's read-aloud now carries her father on a phone-in, unnamed, LEDGER #44.)"],
-  ["11", "A Frame moving more gently than ordered", "7", "[P] Hyuck, testing a Gen 2 prototype. (Not planted: The Road In now shows a clumsy Gen 1 instead.)"],
+  ["11", "A Frame moving more gently than ordered", "7", "[P] Hyuck, testing a Gen 2 prototype. (Not planted: The Road In's Frame sighting is cut.)"],
   ["12", "Cultists helping people up while being arrested", "2, 11", "The Faithful's refusal to resist, and the Soldier's rule that nobody dies. (First seen in Chapter 2.)"],
   ["13", "The lens that mostly doesn't work", "6", "It always works; what varies is whether the Watcher is there. (First seen at the show.)"],
 ];

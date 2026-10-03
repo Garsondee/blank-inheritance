@@ -21,15 +21,22 @@ import {
   cutBoundaryMeetings,
   DEPTHS,
   emptyFields,
+  fieldsEdited,
   fieldsFromLocationDoc,
   geometryForRecord
 } from "../core/location-editor.mjs";
+import { TOOL_DEFS, toolsForMode, toolSurvivesModeChange } from "../core/location-draw-tools.mjs";
+import { chipOf, groupSummary, slotIndex, storyLines } from "../core/story-lines.mjs";
+import { linkedSlots, OFF_MAP_REASONS, offMapLabel, searchPlaces } from "../core/siting.mjs";
+import { itemGeometryChanged } from "../core/location-published.mjs";
 import { check as checkDepth } from "../core/depth.mjs";
 import { check as checkShape, metrics as shapeMetrics } from "../core/shape.mjs";
-import { sceneCalibration, toImagePoint, toScenePoint } from "../core/travel-animation.mjs";
+import { toImagePoint, toScenePoint } from "../core/travel-animation.mjs";
 import { loadLocationEdits, pendingRecordsFor, saveLocationEdit } from "./location-edits.mjs";
 import { fetchModuleJson } from "./io.mjs";
-import { campaignMapImageWidth, campaignMapMetresPerPixel, hubScene } from "./travel.mjs";
+import { hubCalibration } from "./location-published.mjs";
+import { buildStoryView, loadStoryInputs, resetStoryCache, storyOverrides } from "./location-story.mjs";
+import { campaignMapMetresPerPixel, hubScene } from "./travel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -49,7 +56,43 @@ function setDeep(obj, path, value) {
   node[keys[keys.length - 1]] = value;
 }
 
+const STORY_UI_KEY = "bi-location-story-ui";
+
+/** Which episodes and scenes the GM had open, kept in this browser only: a convenience, never data. */
+function readStoryUi() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORY_UI_KEY) ?? "null");
+    return saved && typeof saved === "object" ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoryUi(state) {
+  try {
+    localStorage.setItem(STORY_UI_KEY, JSON.stringify(state));
+  } catch {
+    // private window, blocked storage: the list simply opens at its defaults next time
+  }
+}
+
 export class LocationEditorApplication extends HandlebarsApplicationMixin(ApplicationV2) {
+  #tab = "story"; // "story": the episodes and haunts, scene by scene. "map": the drawing tools.
+  #storyInputs = null; // { docs, locations } once loaded
+  #storyLoading = false;
+  #storyError = null;
+  #uiSeeded = false;
+  #openGroups = new Set();
+  #openRows = new Set();
+  #onlyGaps = false;
+  #editing = null; // the slot key whose place is being changed
+  #search = "";
+  #refocusSearch = false;
+  #offMapOpen = false; // showing the list of reasons a scene may need no place
+  #scrollToEditor = false; // bring the change-this-place card into view on the next render: the list is long and the card opens under its row
+  #staged = null; // a place chosen for a slot, waiting for the GM to confirm
+  #drawFor = null; // { slotKey, label, kind }: drawing a new building or pin for a slot
+  #focusKey = null;
   #mode = "areas";
   #placesShapeKind = "site";
   #items = []; // this session's draft items, from the draw layer's onSessionChange
@@ -64,21 +107,54 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   #bisectTargetName = null;
   #bisectRingImagePx = null;
   #bisectInputError = "";
+  #claimed = false; // has this panel already put the canvas into the editor? only the first render does -- see #wireLayer
 
-  /** The sole selected item, or null when zero or several are selected -- everything below that only makes sense for exactly one item (the field form, Save) reads this instead of #selectedItems directly. */
+  /**
+   * The sole selected item, or null when zero or several are selected --
+   * everything below that only makes sense for exactly one item (the field
+   * form, Save) reads this instead of #selectedItems directly.
+   *
+   * Always the layer's LIVE copy. The items the layer hands the panel on a
+   * selection are snapshots, and dragging a handle replaces the item in the
+   * layer's session without the panel hearing about each drag -- so reading the
+   * snapshot meant Save wrote (and the shape advice measured) the outline the
+   * item had when it was SELECTED, not the one the GM had just reshaped it to.
+   */
   get #selectedItem() {
-    return this.#selectedItems.length === 1 ? this.#selectedItems[0] : null;
+    const snapshot = this.#selectedItems.length === 1 ? this.#selectedItems[0] : null;
+    if (!snapshot) return null;
+    return canvas.locationDraw?.getSession?.().items?.[snapshot.localId] ?? snapshot;
   }
 
   static DEFAULT_OPTIONS = {
     id: "bi-location-editor",
     classes: ["bi-location-editor", "bi-scope"],
     window: { title: "BLANKINHERITANCE.LocationEditor.Title", icon: "fa-solid fa-map-location-dot", resizable: true },
-    position: { width: 460, height: 780, top: 70, left: 100 },
+    position: { width: 540, height: 820, top: 70, left: 100 },
     actions: {
+      setTab: LocationEditorApplication.#onSetTab,
+      toggleGroup: LocationEditorApplication.#onToggleGroup,
+      toggleScene: LocationEditorApplication.#onToggleScene,
+      toggleOnlyGaps: LocationEditorApplication.#onToggleOnlyGaps,
+      refreshStory: LocationEditorApplication.#onRefreshStory,
+      focusSlot: LocationEditorApplication.#onFocusSlot,
+      editSlot: LocationEditorApplication.#onEditSlot,
+      pickOnMap: LocationEditorApplication.#onPickOnMap,
+      cancelArm: LocationEditorApplication.#onCancelArm,
+      drawFor: LocationEditorApplication.#onDrawFor,
+      cancelDraw: LocationEditorApplication.#onCancelDraw,
+      clearSlot: LocationEditorApplication.#onClearSlot,
+      stagePick: LocationEditorApplication.#onStagePick,
+      toggleLinked: LocationEditorApplication.#onToggleLinked,
+      confirmStage: LocationEditorApplication.#onConfirmStage,
+      cancelStage: LocationEditorApplication.#onCancelStage,
+      offMapMenu: LocationEditorApplication.#onOffMapMenu,
+      stageOffMap: LocationEditorApplication.#onStageOffMap,
       setMode: LocationEditorApplication.#onSetMode,
       setShapeKind: LocationEditorApplication.#onSetShapeKind,
       setTool: LocationEditorApplication.#onSetTool,
+      toggleTier: LocationEditorApplication.#onToggleTier,
+      fitMap: LocationEditorApplication.#onFitMap,
       selectItem: LocationEditorApplication.#onSelectItem,
       deleteItem: LocationEditorApplication.#onDeleteItem,
       deleteSelected: LocationEditorApplication.#onDeleteSelected,
@@ -90,29 +166,66 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   };
 
   static PARTS = {
+    nav: { template: `modules/${MODULE_ID}/templates/location-editor/nav.hbs` },
+    story: { template: `modules/${MODULE_ID}/templates/location-editor/story.hbs`, scrollable: [".bi-story"] },
     body: { template: `modules/${MODULE_ID}/templates/location-editor/panel.hbs`, scrollable: [".bi-location-editor__body"] }
   };
 
-  /** Wire this panel to the draw layer's callbacks. Called once, right after construction. */
-  #wireLayer() {
-    const layer = canvas.locationDraw;
-    if (!layer) return;
-    // Opening the panel claims the canvas the same way selecting Foundry's
-    // own Region/Drawing tool does -- without this, InteractionLayer.active
-    // stays false (Tokens stays the active layer) and every click on the
-    // canvas keeps going to Tokens instead of here. Found live: the panel's
-    // own setTool() only ever changed internal state, never actually
-    // claimed the layer, so clicking the canvas silently did nothing.
-    if (!layer.active) layer.activate({ tool: layer.tool ?? "select" });
+  /**
+   * Escape means "abandon what I am doing" first and "close this window"
+   * second. Foundry's Escape handler (client-keybindings.mjs#onDismiss) asks
+   * EVERY open window to close(closeKey) first, and only if none really
+   * closed does it ask the active canvas layer (_onDismissKey) -- so a
+   * polygon half-clicked out on the map would be lost along with the panel.
+   * Refusing the close while the layer has something to abandon makes
+   * Foundry fall through to the layer, which does the abandoning itself.
+   *
+   * This must NOT cancel anything here. The first version did, so by the time
+   * Foundry reached the layer there was nothing left for it to cancel, it
+   * reported "not handled", and Foundry carried on to its last case and
+   * opened the main menu on top of the editor (found live, 2026-10-01).
+   */
+  async close(options = {}) {
+    if (options?.closeKey && canvas.locationDraw?.hasEscapableState?.()) return this;
+    return super.close(options);
+  }
+
+  /** Closing the panel leaves the editor: the canvas goes back to Tokens, rather than staying in a drawing layer with no window to say so. */
+  _onClose(options) {
+    super._onClose?.(options);
+    this.#claimed = false;
+    canvas.locationDraw?.disarmAssign?.();
+    canvas.locationDraw?.clearFocus?.();
+    if (canvas.locationDraw?.active) canvas.tokens?.activate();
+  }
+
+  /**
+   * Put the canvas into the editor, once, when the panel opens -- the same
+   * claim selecting Foundry's own Region/Drawing tool makes, without which
+   * InteractionLayer.active stays false (Tokens stays the active layer) and
+   * every click on the canvas keeps going to Tokens instead of here.
+   *
+   * ONLY once per opening. The first version did this on EVERY render, so a
+   * GM who switched to another dock group while the panel stayed open had
+   * the canvas snatched straight back the next time anything re-rendered it.
+   */
+  #claimCanvas(layer) {
     // The layer's own pendingTier defaults to "site" and has no idea what
     // mode this panel opened in -- found live: opening straight into Areas
     // mode (the panel's own default) and drawing immediately produced a
     // SITE, not a region, because nothing had told the layer "areas" yet.
     layer.setPendingTier(this.#mode === "areas" ? "region" : this.#placesShapeKind);
+    layer.activate({ tool: layer.tool });
+  }
+
+  /** Wire this panel to the draw layer's callbacks. Runs on every render and only ever replaces callbacks, so it is safe to repeat. */
+  #wireLayer() {
+    const layer = canvas.locationDraw;
+    if (!layer) return;
     layer.configure({
       onSessionChange: (items) => {
         this.#items = items;
-        this.#selectedItems = this.#selectedItems.filter((s) => items.find((i) => i.localId === s.localId));
+        this.#selectedItems = this.#selectedItems.map((s) => items.find((i) => i.localId === s.localId)).filter(Boolean);
         this.render();
       },
       onSelectionChange: (items) => this.#loadSelection(items),
@@ -120,9 +233,16 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
         this.#status = text;
         this.render();
       },
-      onBisectReady: (points) => this.#onBisectReady(points)
+      onBisectReady: (points) => this.#onBisectReady(points),
+      onPublishedChange: () => this.render(),
+      // so "fit the map" frames it beside this window, not behind it
+      getViewInset: () => ({ left: this.rendered ? (this.element?.getBoundingClientRect?.().right ?? 0) : 0 })
     });
     this.#items = layer.getSession ? Object.values(layer.getSession().items).sort((a, b) => a.localId.localeCompare(b.localId)) : [];
+    if (!this.#claimed) {
+      this.#claimed = true;
+      this.#claimCanvas(layer);
+    }
   }
 
   async _prepareContext() {
@@ -131,17 +251,40 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     const onHubScene = canvas?.scene && (await hubScene())?.id === canvas.scene.id;
     const pending = this.#selectedItem ? pendingRecordsFor(this.#selectedItem.localId) : [];
     const advice = await this.#computeAdvice(this.#selectedItem);
+    const tool = layer?.tool ?? "pick";
+    const published = layer?.publishedSummary ?? null;
     return {
+      tab: this.#tab,
+      story: this.#tab === "story" ? this.#storyContext(layer) : null,
+      drawFor: this.#drawFor ? { label: this.#drawFor.label, kind: this.#drawFor.kind } : null,
       busy: this.#busy,
       mode: this.#mode,
       placesShapeKind: this.#placesShapeKind,
       onHubScene: Boolean(onHubScene),
-      tool: layer?.tool ?? "select",
-      status: this.#status,
+      tool,
+      tools: toolsForMode(this.#mode, this.#placesShapeKind).map((name) => ({
+        name,
+        active: name === tool,
+        icon: TOOL_DEFS[name].icon,
+        title: L(TOOL_DEFS[name].title)
+      })),
+      status: this.#status || L(TOOL_DEFS[tool]?.hint ?? TOOL_DEFS.pick.hint),
+      published: published && {
+        loading: published.state === "loading",
+        failedToLoad: published.state === "error",
+        noHub: published.state === "no-hub",
+        ready: published.state === "ok",
+        onHub: published.onHub,
+        counts: published.counts,
+        total: published.total,
+        failed: published.failed,
+        visibility: published.visibility
+      },
       items: this.#items.map((i) => ({
         localId: i.localId,
         tier: i.tier,
         locked: i.locked,
+        linked: Boolean(i.locationId),
         selected: this.#selectedItems.some((s) => s.localId === i.localId),
         label: i.name || i.fields?.name || `(unnamed ${i.tier})`
       })),
@@ -178,6 +321,30 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       this.#wireLayer();
     }
     const root = this.element;
+    if (this.#tab === "story" && !this.#storyInputs && !this.#storyLoading && !this.#storyError) queueMicrotask(() => this.#loadStory());
+    const search = root.querySelector('[name="storySearch"]');
+    if (search) {
+      let timer = null;
+      search.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          this.#search = search.value;
+          this.#refocusSearch = true;
+          this.render();
+        }, 220);
+      });
+      if (this.#refocusSearch) {
+        this.#refocusSearch = false;
+        search.focus();
+        search.setSelectionRange(search.value.length, search.value.length);
+      }
+    }
+    if (this.#scrollToEditor) {
+      this.#scrollToEditor = false;
+      root.querySelector(".bi-story__editor")?.scrollIntoView({ block: "nearest" });
+    }
+    const stagedNote = root.querySelector('[name="stagedNote"]');
+    if (stagedNote) stagedNote.addEventListener("input", () => { if (this.#staged) this.#staged.note = stagedNote.value; });
     const bind = (name, path, transform = (v) => v) => {
       const el = root.querySelector(`[name="${name}"]`);
       if (!el) return;
@@ -265,15 +432,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   }
 
   async #currentCalibration() {
-    const scene = await hubScene();
-    if (!scene) return null;
-    const width = await campaignMapImageWidth();
-    if (!width) return null;
-    const tiles = (scene.tiles?.contents ?? []).map((t) => ({
-      x: t.x, y: t.y, width: t.width, height: t.height,
-      texture: { anchorX: t.texture?.anchorX, anchorY: t.texture?.anchorY }
-    }));
-    return sceneCalibration(tiles, scene.width, width);
+    return (await hubCalibration())?.calibration ?? null;
   }
 
   async #buildGeometry(item) {
@@ -305,34 +464,56 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     }
   }
 
-  static #onSetMode(event, target) {
+  static async #onSetMode(event, target) {
     this.#mode = target.dataset.mode === "places" ? "places" : "areas";
     canvas.locationDraw?.setPendingTier(this.#mode === "areas" ? "region" : this.#placesShapeKind);
+    await this.#keepToolValid();
     this.render();
   }
 
-  static #onSetShapeKind(event, target) {
+  static async #onSetShapeKind(event, target) {
     this.#placesShapeKind = target.dataset.shapeKind === "point" ? "point" : "site";
     canvas.locationDraw?.setPendingTier(this.#placesShapeKind);
+    await this.#keepToolValid();
     this.render();
   }
 
-  static #onSetTool(event, target) {
-    // setTool() only, not activate({tool}) again -- #wireLayer already
-    // claimed the layer once when the panel opened. Found live: calling
-    // Foundry's own activate({tool}) a SECOND time (switching tools on an
-    // already-active layer) reaches into ui.controls.activate(), which
-    // crashes inside Foundry's own private #onChangeTool (`Cannot read
-    // properties of undefined (reading 'button')") -- its scene-controls
-    // sidebar machinery expects a tool that has already been through ITS
-    // OWN render pass, which mine never has, since this panel is the real
-    // control surface and Foundry's native left-edge dock for this layer is
-    // never shown. My own tool highlighting is entirely this panel's own
-    // concern; Foundry's canvas dispatch already routes every click to
-    // whichever layer is `active`, which does not depend on which tool
-    // ui.controls itself thinks is selected.
-    canvas.locationDraw?.setTool(target.dataset.tool ?? "select");
+  /** A tool the new mode does not offer (Bisect outside Areas, Point outside the pin kind) must not stay active invisibly. */
+  async #keepToolValid() {
+    const layer = canvas.locationDraw;
+    if (layer && !toolSurvivesModeChange(layer.tool, this.#mode, this.#placesShapeKind)) await this.#selectTool("pick");
+  }
+
+  /**
+   * Choose a tool. The layer's own setTool() is the source of truth for what
+   * the canvas does; the dock is told as well so its highlight and
+   * `game.activeTool` follow (Foundry's canvas dispatches drags on the active
+   * TOOL name -- see core/location-draw-tools.mjs).
+   */
+  async #selectTool(tool) {
+    const layer = canvas.locationDraw;
+    if (!layer) return;
+    layer.setTool(tool);
+    try {
+      if (layer.active) await ui.controls.activate({ control: "locationDraw", tool: layer.tool });
+      else layer.activate({ tool: layer.tool });
+    } catch (err) {
+      console.warn("Blank Inheritance | Location Editor could not sync the scene-controls dock:", err);
+    }
+  }
+
+  static async #onSetTool(event, target) {
+    await this.#selectTool(target.dataset.tool);
     this.render();
+  }
+
+  static #onToggleTier(event, target) {
+    canvas.locationDraw?.setPublishedVisible(target.dataset.tier, target.checked);
+  }
+
+  /** Bring the camera to everything that is drawn -- the whole map when all of it is showing. */
+  static #onFitMap() {
+    if (!canvas.locationDraw?.fitToPublished()) ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Published.NothingToFit"));
   }
 
   static #onSelectItem(event, target) {
@@ -348,6 +529,8 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   static async #onRefresh() {
     await this.#run("BLANKINHERITANCE.LocationEditor.Refreshing", async () => {
       await loadLocationEdits({ refresh: true });
+      // A pull may have just rewritten the locations on disk; show them as they are now.
+      await canvas.locationDraw?.loadPublished({ refresh: true });
     });
   }
 
@@ -453,10 +636,317 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Bisect.Saved", { id: this.#bisectTargetId }));
       console.log(`Blank Inheritance | Location Editor queued a bisect of "${this.#bisectTargetId}" -- pull with npm run locations to actually cut it.`);
       canvas.locationDraw?.clearReferenceRegion();
-      canvas.locationDraw?.setTool("select");
+      await this.#selectTool("pick");
       this.#bisectTargetId = null;
       this.#bisectTargetName = null;
       this.#bisectRingImagePx = null;
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  The Story tab (design/location-editor.md §12)                        */
+  /* ------------------------------------------------------------------ */
+
+  async #loadStory({ refresh = false } = {}) {
+    if (this.#storyLoading) return;
+    this.#storyLoading = true;
+    this.#storyError = null;
+    this.render();
+    try {
+      if (refresh) resetStoryCache();
+      this.#storyInputs = await loadStoryInputs({ refresh });
+    } catch (err) {
+      console.error("Blank Inheritance | Location Editor could not load the story:", err);
+      this.#storyError = err.message;
+    } finally {
+      this.#storyLoading = false;
+      this.render();
+    }
+  }
+
+  /** The deployed scene data with the GM's waiting placements laid over it, or null before it has loaded. */
+  #storyView() {
+    return this.#storyInputs ? buildStoryView(this.#storyInputs.docs, this.#storyInputs.locations) : null;
+  }
+
+  /** First time through: reopen what the GM had open; failing that, open whatever has a gap in it so the problems are the first thing seen. */
+  #seedStoryUi(story) {
+    if (this.#uiSeeded) return;
+    this.#uiSeeded = true;
+    const saved = readStoryUi();
+    if (saved) {
+      this.#openGroups = new Set(saved.groups ?? []);
+      this.#openRows = new Set(saved.rows ?? []);
+      this.#onlyGaps = Boolean(saved.onlyGaps);
+      return;
+    }
+    const flagged = story.groups.filter((g) => g.counts.gaps > 0 || g.counts.optionGaps > 0);
+    for (const group of flagged.length ? flagged : story.groups.slice(0, 1)) this.#openGroups.add(group.id);
+  }
+
+  #persistStoryUi() {
+    writeStoryUi({ groups: [...this.#openGroups], rows: [...this.#openRows], onlyGaps: this.#onlyGaps });
+  }
+
+  #storyContext(layer) {
+    const base = { loading: this.#storyLoading, error: this.#storyError, lines: [], summary: "", onlyGaps: this.#onlyGaps, problems: [], pendingCount: 0, armed: null, editor: null };
+    const view = this.#storyView();
+    if (!view) return base;
+    this.#seedStoryUi(view.story);
+    const lines = storyLines(view.story, { openGroups: this.#openGroups, openRows: this.#openRows, onlyGaps: this.#onlyGaps, editing: this.#editing, focused: this.#focusKey });
+    const entry = this.#editing ? slotIndex(view.story).get(this.#editing) : null;
+    const extra = Object.entries(view.newLocations).map(([recordId, fresh]) => ({ recordId, ...fresh }));
+    const suggestions = entry && this.#search && !this.#staged
+      ? searchPlaces(this.#storyInputs.locations, this.#search, { limit: 8, extra }).map((s) => ({ ...s, chipTier: { site: "building", region: "area", point: "pin" }[s.tier] ?? s.tier }))
+      : [];
+    const armed = layer?.assignArmed ? { label: entry ? `${entry.row.title} · ${entry.slot.label}` : "" } : null;
+    return {
+      ...base,
+      summary: groupSummary(view.story.totals),
+      lines,
+      problems: view.problems,
+      pendingCount: view.pendingCount,
+      armed,
+      editor: entry
+        ? {
+          slotKey: entry.slot.key, label: `${entry.row.title} · ${entry.slot.label}`, search: this.#search, suggestions, staged: this.#stagedView(), armed: Boolean(armed),
+          canClear: entry.slot.state !== "gap" && entry.slot.state !== "offmap",
+          canOffMap: entry.slot.target.kind === "scene",
+          offMapOpen: this.#offMapOpen,
+          reasons: OFF_MAP_REASONS.map((r) => ({ ...r, current: entry.slot.offMapReason === r.id }))
+        }
+        : null
+    };
+  }
+
+  #stagedView() {
+    const s = this.#staged;
+    if (!s) return null;
+    return {
+      label: s.label,
+      from: s.from,
+      clear: s.locationId === null && !s.viaRecord && !s.offMap,
+      offMap: s.offMap ? offMapLabel(s.offMap) : null,
+      name: s.name || "(unnamed)",
+      isNew: Boolean(s.viaRecord),
+      isScene: s.isScene,
+      note: s.note,
+      linked: s.linked.map((l) => ({ key: l.key, label: l.label, checked: l.checked })),
+      anyLinked: s.linked.length > 0
+    };
+  }
+
+  #editEntry() {
+    const view = this.#storyView();
+    return view && this.#editing ? (slotIndex(view.story).get(this.#editing) ?? null) : null;
+  }
+
+  /** The map, ready to be pointed at: the editor's layer active and the Campaign Map scene showing. Null (with a warning) when it is not. */
+  async #ensureMap() {
+    const layer = canvas.locationDraw;
+    const hub = await hubScene();
+    if (!layer || !hub || canvas.scene?.id !== hub.id) {
+      ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.NotOnHub"));
+      return null;
+    }
+    if (!layer.active) layer.activate({ tool: layer.tool });
+    return layer;
+  }
+
+  /**
+   * A place has been chosen for a slot: show what that would change -- the
+   * other slots that agree with it today, and may be moved with it -- and wait
+   * for the GM to confirm. Nothing is written yet.
+   */
+  #stagePlace(entry, choice) {
+    const { slot, row } = entry;
+    const same = choice.offMap ? (!slot.locationId && slot.offMapReason === choice.offMap)
+      : choice.locationId ? choice.locationId === slot.locationId
+        : choice.viaRecord ? false : (slot.locationId === null && !slot.offMapReason);
+    if (same) {
+      ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Story.AlreadyThere"));
+      return;
+    }
+    const { overrides } = storyOverrides();
+    const linked = choice.offMap ? [] : linkedSlots(this.#storyInputs.docs, slot.target, { overrides })
+      .map((l) => ({ key: l.key, target: l.target, label: l.label, value: l.value, checked: l.defaultChecked }));
+    this.#staged = {
+      slotKey: slot.key,
+      target: slot.target,
+      label: `${row.title} · ${slot.label}`,
+      from: chipOf(slot).text,
+      locationId: choice.locationId ?? null,
+      viaRecord: choice.viaRecord ?? null,
+      offMap: choice.offMap ?? null,
+      name: choice.name ?? "",
+      tier: choice.tier ?? null,
+      before: slot.locationId,
+      beforeVia: slot.location?.pending ? slot.viaRecord : null,
+      linked,
+      note: "",
+      isScene: slot.target.kind === "scene"
+    };
+    this.#editing = slot.key;
+    this.#offMapOpen = false;
+    this.#scrollToEditor = true;
+    this.#tab = "story";
+    this.#search = "";
+  }
+
+  static #onSetTab(event, target) {
+    this.#tab = target.dataset.tab === "map" ? "map" : "story";
+    this.render();
+  }
+
+  static #onToggleGroup(event, target) {
+    const id = target.dataset.group;
+    if (this.#openGroups.has(id)) this.#openGroups.delete(id);
+    else this.#openGroups.add(id);
+    this.#persistStoryUi();
+    this.render();
+  }
+
+  static #onToggleScene(event, target) {
+    const key = target.dataset.row;
+    if (this.#openRows.has(key)) this.#openRows.delete(key);
+    else this.#openRows.add(key);
+    this.#persistStoryUi();
+    this.render();
+  }
+
+  static #onToggleOnlyGaps(event, target) {
+    this.#onlyGaps = Boolean(target.checked);
+    this.#persistStoryUi();
+    this.render();
+  }
+
+  static async #onRefreshStory() {
+    await this.#loadStory({ refresh: true });
+  }
+
+  /** "Show me where that is": outline it on the map, label it, bring the camera to it. */
+  static async #onFocusSlot(event, target) {
+    const view = this.#storyView();
+    const entry = view ? slotIndex(view.story).get(target.dataset.slotKey) : null;
+    if (!entry?.slot.locationId) return;
+    const layer = await this.#ensureMap();
+    if (!layer) return;
+    this.#focusKey = entry.slot.key;
+    const label = entry.slot === entry.row.place ? entry.row.title : `${entry.row.title} · ${entry.slot.label}`;
+    if (!layer.focusLocation(entry.slot.locationId, { label })) ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Story.NotDrawable"));
+    this.render();
+  }
+
+  static #onEditSlot(event, target) {
+    const key = target.dataset.slotKey;
+    this.#editing = this.#editing === key ? null : key;
+    this.#scrollToEditor = Boolean(this.#editing);
+    this.#search = "";
+    this.#staged = null;
+    canvas.locationDraw?.disarmAssign?.();
+    this.render();
+  }
+
+  /** "Pick on the map": the next click on an existing building, pin or (with Shift) area is the place. */
+  static async #onPickOnMap() {
+    const entry = this.#editEntry();
+    if (!entry) return;
+    const layer = await this.#ensureMap();
+    if (!layer) return;
+    layer.armAssign({
+      label: `${entry.row.title} · ${entry.slot.label}`,
+      onPick: (pick) => {
+        this.#stagePlace(entry, { locationId: pick.locationId, name: pick.name, tier: pick.tier });
+        layer.focusLocation(pick.locationId, { label: entry.row.title, pan: false });
+        this.render();
+      },
+      onCancel: () => this.render()
+    });
+    this.render();
+  }
+
+  static #onCancelArm() {
+    canvas.locationDraw?.disarmAssign({ cancelled: true });
+  }
+
+  /** Draw a new building (or drop a new pin) for this slot: over to the map tab with the right tool, and back here to confirm once it is saved. */
+  static async #onDrawFor(event, target) {
+    const entry = this.#editEntry();
+    if (!entry) return;
+    const kind = target.dataset.kind === "point" ? "point" : "site";
+    this.#drawFor = { slotKey: entry.slot.key, label: `${entry.row.title} · ${entry.slot.label}`, kind };
+    this.#tab = "map";
+    this.#mode = "places";
+    this.#placesShapeKind = kind;
+    canvas.locationDraw?.disarmAssign?.();
+    canvas.locationDraw?.setPendingTier(kind);
+    await this.#selectTool(kind === "point" ? "point" : "polygon");
+    this.render();
+  }
+
+  static #onCancelDraw() {
+    this.#drawFor = null;
+    this.#tab = "story";
+    this.render();
+  }
+
+  static #onOffMapMenu() {
+    this.#offMapOpen = !this.#offMapOpen;
+    this.render();
+  }
+
+  static #onStageOffMap(event, target) {
+    const entry = this.#editEntry();
+    if (entry) this.#stagePlace(entry, { locationId: null, offMap: target.dataset.reason, name: "" });
+    this.render();
+  }
+
+  static #onClearSlot() {
+    const entry = this.#editEntry();
+    if (entry) this.#stagePlace(entry, { locationId: null, name: "" });
+    this.render();
+  }
+
+  /** A search suggestion was clicked: an existing location by id, or one drawn but not yet pulled by the record that drew it. */
+  static #onStagePick(event, target) {
+    const entry = this.#editEntry();
+    if (!entry) return;
+    const { locationId = null, recordId = null, name = "", tier = null } = target.dataset;
+    this.#stagePlace(entry, locationId ? { locationId, name, tier } : { viaRecord: recordId, name, tier });
+    if (locationId) canvas.locationDraw?.focusLocation?.(locationId, { label: entry.row.title });
+    this.render();
+  }
+
+  static #onToggleLinked(event, target) {
+    const link = this.#staged?.linked.find((l) => l.key === target.dataset.key);
+    if (link) link.checked = Boolean(target.checked);
+    this.render();
+  }
+
+  static #onCancelStage() {
+    this.#staged = null;
+    canvas.locationDraw?.clearFocus?.();
+    this.render();
+  }
+
+  /** Write the placement: one "site" record for the slot and one for each linked slot the GM left ticked. Nothing is applied to the scene data until `npm run locations` pulls them home. */
+  static async #onConfirmStage() {
+    const staged = this.#staged;
+    if (!staged) return;
+    await this.#run("BLANKINHERITANCE.LocationEditor.Saving", async () => {
+      const writes = [
+        { target: staged.target, before: staged.before, beforeVia: staged.beforeVia, note: staged.isScene ? (staged.note.trim() || null) : null },
+        ...staged.linked.filter((l) => l.checked).map((l) => ({ target: l.target, before: l.value, beforeVia: null, note: null }))
+      ];
+      for (const write of writes) {
+        await saveLocationEdit({
+          op: "site", target: write.target, locationId: staged.locationId, viaRecord: staged.viaRecord, offMap: staged.offMap,
+          before: write.before, beforeVia: write.beforeVia, note: write.note
+        });
+      }
+      ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Story.Saved", { count: writes.length }));
+      this.#staged = null;
+      this.#editing = null;
     });
   }
 
@@ -469,19 +959,34 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.NothingSelected"));
       return;
     }
-    if (!this.#fields.note?.trim()) {
+    const item = this.#selectedItem;
+    const isNew = !item.locationId;
+    // An existing location that was only opened and looked at has nothing to
+    // save; so does one whose only "change" is its note. A locked site/point
+    // never gets reshaped once promoted (draw.js's drawHandles rule: only a
+    // region's border keeps needing tidying against its neighbours), and
+    // tools/location-sync/apply_geometry.py#_apply_geometry refuses a
+    // non-region geometry record outright, so geometry is only ever written
+    // for a region whose outline actually moved.
+    const edited = isNew ? [] : fieldsEdited(this.#loadedFields, this.#fields);
+    const reshaped = !isNew && item.tier === "region" && itemGeometryChanged(item);
+    if (!isNew && !edited.length && !reshaped) {
+      ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.NothingChanged"));
+      return;
+    }
+    // The note says what a new location is, or why an existing one's fields
+    // changed; a region that was only reshaped needs none.
+    if ((isNew || edited.length) && !this.#fields.note?.trim()) {
       this.#problems = [L("BLANKINHERITANCE.LocationEditor.NoteRequired")];
       this.render();
       return;
     }
     await this.#run("BLANKINHERITANCE.LocationEditor.Saving", async () => {
-      const item = this.#selectedItem;
-      const geomResult = await this.#buildGeometry(item);
+      const geomResult = isNew || reshaped ? await this.#buildGeometry(item) : { ok: true, problems: [], geometry: null };
       if (!geomResult.ok) {
         this.#problems = geomResult.problems;
         return;
       }
-      const isNew = !item.locationId;
       if (isNew) {
         const record = await saveLocationEdit({
           op: "create", tier: item.tier, locationId: null, draftId: item.localId,
@@ -489,24 +994,31 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
         });
         ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.SavedNew"));
         console.log(`Blank Inheritance | Location Editor saved a new "${item.tier}" as record ${record.id} -- pull with npm run locations to mint its real id.`);
+        // Drawn FOR a scene: the next step is putting that scene there, on the Story list.
+        if (this.#drawFor) {
+          const drawFor = this.#drawFor;
+          this.#drawFor = null;
+          const view = this.#storyView();
+          const entry = view ? slotIndex(view.story).get(drawFor.slotKey) : null;
+          if (entry) this.#stagePlace(entry, { viaRecord: record.id, name: this.#fields.name ?? "", tier: item.tier });
+          this.#tab = "story";
+        }
       } else {
-        // Matches the old tool's own rule (draw.js's drawHandles: a locked
-        // site/point never gets reshaped once promoted, only a region's
-        // border keeps needing tidying against its neighbours) -- and
-        // tools/location-sync/apply_geometry.py#_apply_geometry refuses a
-        // non-region geometry record outright, so this guard keeps a stray
-        // save from ever producing one to refuse in the first place.
-        if (item.tier === "region") {
+        if (reshaped) {
           await saveLocationEdit({
             op: "geometry", tier: item.tier, locationId: item.locationId, draftId: item.localId,
             geometry: geomResult.geometry, fields: null, before: null
           });
+          // What was just saved is the new "as opened": a second Save must not write it again.
+          await canvas.locationDraw?.markItemSaved(item.localId);
         }
-        await saveLocationEdit({
-          op: "update", tier: item.tier, locationId: item.locationId, draftId: item.localId,
-          geometry: null, fields: this.#fields, before: this.#loadedFields ?? emptyFields()
-        });
-        this.#loadedFields = JSON.parse(JSON.stringify(this.#fields));
+        if (edited.length) {
+          await saveLocationEdit({
+            op: "update", tier: item.tier, locationId: item.locationId, draftId: item.localId,
+            geometry: null, fields: this.#fields, before: this.#loadedFields ?? emptyFields()
+          });
+          this.#loadedFields = JSON.parse(JSON.stringify(this.#fields));
+        }
         ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Saved"));
       }
       this.#problems = [];

@@ -21,6 +21,16 @@
       "url": "http://localhost:4191"
     },
     {
+      "name": "stagecraft-bench",
+      "runtimeExecutable": "py",
+      "runtimeArgs": [
+        "tools/induction-terminal/serve.py",
+        "4192"
+      ],
+      "port": 4192,
+      "url": "http://localhost:4192"
+    },
+    {
       "name": "foundry",
       "runtimeExecutable": "node",
       "runtimeArgs": [

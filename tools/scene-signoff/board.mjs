@@ -81,6 +81,7 @@ export function buildBoard(corpus) {
       // looked at yet. A note by itself is still not enough -- see P1's own
       // NOTE_EXEMPTIONS absence in checklist.mjs -- only a real waiver is.
       sited: Boolean(bundle.setEntry?.locationRef && corpus.locations[bundle.setEntry.locationRef]) ||
+        Boolean(!bundle.setEntry?.locationRef && bundle.setEntry?.offMap?.reason) ||
         results.find((r) => r.id === "P1")?.state === "waived",
       locationWaived: results.find((r) => r.id === "P1")?.state === "waived",
       radar: horizonsOf(bundle),

@@ -1,0 +1,92 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-school-first-period",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "School: First Period",
+  "description": "One roll per room, plus the founders' names in local studies. Not rolling is free.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "name-the-founders",
+      "name": "Name the four founders",
+      "skillOptions": [
+        "society",
+        "academia-lore"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "They name all four, and add that Rupiah still cuts the ribbon on Founding Day. The teacher is delighted.",
+        "success": "They name all four: Hyuck, Rupiah, Anabala, Shucks Mordant. The teacher writes them on the board.",
+        "failure": "They get two. The teacher fills in the rest, kindly.",
+        "criticalFailure": "They name a famous general instead. The teacher corrects them, and the room laughs, not unkindly."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "know-the-ground",
+      "name": "Learn the city",
+      "skillOptions": [
+        "society",
+        "survival",
+        "perception"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1, one step easy",
+        "adjustment": "easy"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "The teacher hands over his own tram map, twenty years of pencil notes on which services actually run. Grant it.",
+        "success": "They can find their way across the city this afternoon, and they know which tram to take.",
+        "failure": "Kept back to copy the map: they're last into the stores, and the handlamps have run out.",
+        "criticalFailure": "Kept back through the break and late for everything after: Fatigued tonight."
+      },
+      "bySkill": {
+        "society": "The districts by who lives in them: the old families on the waterfront, the newcomers' streets further in.",
+        "survival": "The city by its water: the river, the outfalls, and which streets flood first.",
+        "perception": "The seaward edge of the map is newer than the rest, drawn in a different hand."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "workshop-induction",
+      "name": "Pass the safety induction",
+      "skillOptions": [
+        "crafting",
+        "athletics",
+        "medicine",
+        "intimidation"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "As success, and she says their name out loud in front of everyone, and means it well.",
+        "success": "They can work safely on her floor, and she shows them how a control panel thinks: +2 circumstance on panel work tonight.",
+        "failure": "She stops them with one hand and a word. They sweep while the others work.",
+        "criticalFailure": "Something that would have cost a finger. She stops the floor and keeps them past the bell: Fatigued tonight."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--school-first-period"
+  ],
+  "notes": "Passing the induction gives +2 circumstance on the override check in Flood Tunnel Clearance, applied without comment."
+}

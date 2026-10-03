@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "location-edits.schema.json",
+  "title": "Location edits ledger",
+  "description": "Which Location Editor records (design/location-editor.md) have reached the repo. The records are immutable files the editor writes into the module's storage/ on the server; tools/location-sync pulls them into harvest/location-edits/ and applies each to data/locations/ (a drawing, a reshaped region, a split, edited fields) or to the scene data (a \"site\" record placing a scene, a player option or a travel point at a location). This ledger is the only thing that says what happened to each one, and is deployed with the campaign data so the editor knows which records to stop showing as waiting.",
+  "$comment": "OWNER: tools/location-sync (sync.mjs). No other tool, generator or hand edit writes this file. A record with no entry here is waiting: the editor shows it over whatever is deployed, and the next pull tries to apply it.",
+  "type": "object",
+  "required": ["id", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "location-edits" },
+    "description": { "type": "string" },
+    "entries": {
+      "description": "By record id (e.g. 2026-10-01T123626108Z-a8s4Wo), which sorts by time.",
+      "type": "object",
+      "propertyNames": { "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{9}Z-[A-Za-z0-9]{4,16}$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["state"],
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "description": "merged: applied. clash: something in the repo moved since the editor looked, so nothing was written for the clashing fields or slot. error: could not be applied (a \"site\" record names what went wrong). superseded: replaced by a later decision.",
+            "enum": ["merged", "clash", "error", "superseded"]
+          },
+          "locationId": { "type": ["string", "null"], "description": "The location the record created, changed or placed something at (null when a placement emptied a slot)." },
+          "mergedAt": { "type": "string" },
+          "clashes": { "type": "array", "items": { "type": "string" } },
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

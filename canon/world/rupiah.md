@@ -11,7 +11,7 @@ status: decided · source: D027, D043 · known: everyone · told: later
 
 ## rupiah.cuts-the-ribbon
 Rupiah is the founder who usually cuts the Founding Day ribbon.
-status: decided · source: D027, D028 · known: everyone · told: later
+status: decided · source: D027, D028, D056 · known: everyone · told: in:episode-c1e1--school-first-period
 
 ## rupiah.role
 Rupiah works in the Directorate's administration.

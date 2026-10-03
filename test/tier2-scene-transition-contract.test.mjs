@@ -93,9 +93,20 @@ test("every real Episode One scene except the last has a real, structurally vali
   }
 });
 
-test("Flood Tunnel Clearance is the last scene of the session and correctly has no transition to author", () => {
+// Flood Tunnel Clearance is the episode's last scripted scene, and since D050
+// (2026-09-29) it is not the end of the night: each player picks their own rest
+// on The City. So its transition is an invitation that may split the party, and
+// the departure carries the rests (rebuilt 2026-10-01, D056).
+test("Flood Tunnel Clearance hands each player their own choice of rest, honestly marked as a split", () => {
   const floodTunnel = brief("episode-c1e1--flood-tunnel");
-  assert.equal(floodTunnel.outro.transition ?? null, null, "Flood Tunnel now has a transition, but it's the last scene in the episode — check whether a new scene was added after it");
+  const t = floodTunnel.outro.transition;
+  assert.ok(t, "Flood Tunnel has no transition to the night's rests");
+  assert.equal(t.mechanism, "invited");
+  assert.equal(t.scatterRisk, true, "each player picks their own rest, so the party may split");
+  assert.equal(floodTunnel.outro.departure?.kind, "free");
+  const rests = floodTunnel.outro.departure.destinations.map((d) => d.briefRef);
+  assert.ok(rests.includes("rest--general-hospital"), "the sober choice, the hospital, is always on offer");
+  assert.ok(rests.every((ref) => /^(rest|discovery)--/.test(ref)), "every destination is a rest or somewhere new");
 });
 
 test("Canteen -> Flood Tunnel is authored as a real ORDER with zero scatter risk, matching its own tannoy beat", () => {

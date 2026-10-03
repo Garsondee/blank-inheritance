@@ -327,3 +327,30 @@ export function unbookedUsers({ roster = [], commitments = [], momentKey }) {
   const booked = new Set(commitments.filter((c) => c.momentKey === momentKey).map((c) => c.userId));
   return roster.map((m) => m.userId).filter((uid) => !booked.has(uid));
 }
+
+/* ---------------------------------------------------------------------- */
+/*  The window                                                             */
+/* ---------------------------------------------------------------------- */
+
+/** Where the window opens from the top, clear of the session rail along it. */
+export const PANEL_TOP = 70;
+
+/**
+ * How big the panel opens, for the screen it opens on (Ingram, 2026-10-01:
+ * "the admin panel needs to become bigger, wider"). The panel is laid out in
+ * columns, so it takes real width: 55% of the screen, but never past 1400
+ * (two comfortable columns) or under 760 (the old, one-column width), and
+ * never wider than the screen leaves room for.
+ *
+ * Its height stops short of the console deck at the foot of the screen (the
+ * crown of the orb rises about 380px above the bottom edge on a 1440px-high
+ * screen; opened lower than that, its foot sat over the orb). What does not
+ * fit scrolls inside the window.
+ */
+export function adminPanelSize({ viewportWidth, viewportHeight } = {}) {
+  const w = Number.isFinite(viewportWidth) && viewportWidth > 0 ? viewportWidth : 1280;
+  const h = Number.isFinite(viewportHeight) && viewportHeight > 0 ? viewportHeight : 720;
+  const width = Math.round(Math.min(Math.max(w * 0.55, 760), 1400, w - 32));
+  const height = Math.round(Math.min(Math.max(h - PANEL_TOP - 410, 520), 1100, h - PANEL_TOP - 16));
+  return { width, height, top: PANEL_TOP };
+}

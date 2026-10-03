@@ -1,0 +1,20 @@
+{{!--
+    The admin key (foundry/admin-button.mjs): the big red launch button that
+    opens the admin panel from the main screen. Pure dressing, layered back to
+    front: the steel plate, its hazard ring, the dark well, then the cap and its
+    face. All of it is drawn in styles/bi-components.css; the button is the only
+    thing that does anything. Must render exactly ONE top-level element
+    (tier0-architecture's ApplicationV2 part rule).
+--}}
+<div class="bi-akey__body">
+    <button type="button" class="bi-akey__button{{#if open}} is-open{{/if}}" data-action="toggleAdmin"
+        aria-pressed="{{#if open}}true{{else}}false{{/if}}"
+        data-tooltip="{{localize 'BLANKINHERITANCE.Admin.Key.Tip'}}" data-tooltip-direction="UP"
+        aria-label="{{localize 'BLANKINHERITANCE.Admin.Key.Tip'}}">
+        <span class="bi-akey__bezel" aria-hidden="true"></span>
+        <span class="bi-akey__hazard" aria-hidden="true"></span>
+        <span class="bi-akey__well" aria-hidden="true"></span>
+        <span class="bi-akey__cap" aria-hidden="true"></span>
+        <span class="bi-akey__face" aria-hidden="true"><b>{{localize "BLANKINHERITANCE.Admin.Key.Legend"}}</b></span>
+    </button>
+</div>

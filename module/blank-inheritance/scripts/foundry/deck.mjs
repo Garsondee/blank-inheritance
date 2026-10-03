@@ -45,6 +45,7 @@ import { quarterAt, quarterIndex, ringSlices, ringState } from "../core/day-ring
 import { actionListFor, actionRows } from "../core/deck-actions.mjs";
 import { initiativeKeyState, pageForIndex, turnCaptionName, turnKeyState } from "../core/deck-combat.mjs";
 import { buildTurnOrder } from "../core/cast.mjs";
+import { isPlayerOwned } from "../core/ownership.mjs";
 import { buildCheckGroups, FALLBACK_SKILL_SLUGS, SAVE_SLUGS } from "../core/skills.mjs";
 import { formatLogEntriesForDisplay } from "../core/phone.mjs";
 import { sheetOverview, sheetSkillGroups, sheetStrikes } from "./sheet-data.mjs";
@@ -53,6 +54,7 @@ import { currentMoment, segmentContext } from "./campaign-state.mjs";
 import { castForScene } from "./cast.mjs";
 import { currentEntries, localClock } from "./session-log.mjs";
 import { directorState } from "./audio-director.mjs";
+import { fitAdminKey } from "./admin-button.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -177,7 +179,9 @@ function turnNameForViewer(combat) {
     name: current?.name ?? null,
     hidden: !!current?.hidden,
     playersCanSeeName: typeof current?.playersCanSeeName === "boolean" ? current.playersCanSeeName : null,
-    hasPlayerOwner: !!current?.actor?.hasPlayerOwner
+    // A combatant's actor is a token's synthetic one when the token is unlinked, and asking
+    // that actor about players can recurse forever (core/ownership.mjs), on every client.
+    hasPlayerOwner: isPlayerOwned(current?.actor)
   });
 }
 
@@ -528,7 +532,7 @@ export function deckCastFor(memory = { page: 0, turnKey: null }) {
         actorId: c.actor?.id ?? null,
         combatantId: c.id,
         name: c.token?.name ?? c.name ?? c.actor?.name ?? null,
-        isPC: c.actor?.hasPlayerOwner ?? false,
+        isPC: isPlayerOwned(c.actor),
         hidden: c.hidden ?? false,
         selected: !!canvas?.tokens?.get(c.token?.id ?? c.tokenId)?.controlled,
         disposition: c.token?.disposition ?? 0,
@@ -815,6 +819,7 @@ export function fitDeck() {
       "--bi-deck-scale", "--bi-deck-left", "--bi-bar-height", "--bi-orb-center",
       "--bi-hotbar-left-w", "--bi-hotbar-right-w"
     ]) style.removeProperty(prop);
+    fitAdminKey();
     return null;
   }
   escapeHotbarFromUiMiddle();
@@ -851,6 +856,9 @@ export function fitDeck() {
   const rightControls = document.getElementById("hotbar-controls-right")?.getBoundingClientRect().width ?? 0;
   style.setProperty("--bi-hotbar-left-w", `${leftControls}px`);
   style.setProperty("--bi-hotbar-right-w", `${rightControls}px`);
+  // The admin key stands at the right-hand end of the macro bar's row, so it
+  // is fitted last: the hotbar's own position was just written above.
+  fitAdminKey();
   return fit;
 }
 

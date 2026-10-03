@@ -5,80 +5,103 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "kit-issue",
   "title": "Kit Issue",
-  "goal": "Every player has picked their personnel equipment, and every player has had one small, unexplained moment of Nobu's generosity.",
-  "howToPlay": "Fast and a little chaotic -- the opposite rhythm to Intake Medicals. Shucks was unhurried and one-on-one; Nobu is doing three things at once and never stops moving. **Don't slow down for this scene the way you slowed down for the last one.** Equipment choices should take real-world seconds each, not minutes. The content is in Nobu's energy, not in deliberation.\n\nSCOPE: personnel equipment and nothing else. No vehicles and no Frames -- both are Episode Two's business. One kit, one budget, one counter. If a player asks about a Frame tonight, Nobu has no idea what they're on about and there is a queue behind them.",
+  "summary": "Scene 5. The stores: uniforms, and a hundred and fifty credits of kit each from Nobu's catalogue. Then Vetch inspects them and hands Section Nine a docket for the city.",
+  "goal": "Each player has their uniform and kit, and Vetch has handed Section Nine the docket in person.",
+  "howToPlay": "Quick and busy: Nobu runs three conversations at once, and kit takes seconds a player. **End on Vetch's docket.**",
   "runsAbout": "15-20 minutes",
   "mode": "social",
   "intro": {
-    "where": "The quartermaster's stores, the same afternoon as Intake Medicals.",
-    "firstThing": "A man behind the counter who is already talking before the door finishes opening -- to the candidate, to a clipboard, to somebody in the back room, in no particular order, and somehow all three conversations get finished.",
-    "readAloud": "The stores smell like machine oil and stamped paperwork. \"Name -- no, don't, it's on the list -- sign there, there, and-\" he's already turned halfway to shout something through a doorway before turning back without missing a beat.",
-    "landmark": "Nobu's counter, buried under clipboards and stacked kit -- the one fixed point in a room where everything else is in motion.",
+    "where": "The quartermaster's stores, after first period.",
+    "readAloud": "The stores smell of machine oil and stamped paper. There's no queue, only a scrum at one long counter, and behind it a young man in braces is talking to a candidate, a clipboard and somebody in the back room at once, and finishing all three conversations.",
+    "landmark": "The long counter, with a slate board of names behind it.",
     "carriesIn": [
       {
-        "when": "Intake Medicals was played first (it should be)",
-        "then": "Nobu already has each of their names off a slip from Shucks. If a player especially impressed Shucks that morning, Nobu mentions it without being asked -- fast, in passing, already moving on to the next thing."
+        "when": "If anyone failed local studies",
+        "then": "They're last in, and the handlamps have run out."
       }
     ],
-    "holdInReserve": "There is a second ledger under the counter that Nobu writes in and does not file, and it is where the extra things go. Give this to anybody watching his hands rather than listening to him."
+    "position": {
+      "locationRef": "the-quartermasters-stores",
+      "state": "together",
+      "note": "At the stores counter."
+    }
   },
   "cast": [
     {
       "id": "nobu",
       "npcRef": "nobu",
-      "label": "Nobu",
-      "role": "Quartermaster",
+      "role": "Quartermaster.",
       "arrival": "announced",
       "brief": {
-        "wants": "To get forty kids kitted and rostered by end of day without dropping anything that actually matters. He is not stressed about this the way it sounds -- this is just his pace.",
-        "opensWith": "\"Sidearm or long arm, we've got both, don't take both, take one -- good, next thing --\"",
+        "wants": "Forty candidates kitted by the end of the day, with nothing that matters dropped.",
+        "opensWith": "\"Sidearm or long arm, both on the list, your money, your choice. Good. Next thing.\"",
         "willDiscuss": [
           {
             "topic": "What's on the list",
-            "note": "Fast, practical, no salesmanship. He'll answer exactly what's asked and nothing more, because he's already thinking about the next person."
+            "note": "Exactly what's asked: \"It's on the list or it isn't. I didn't write the list.\""
           },
           {
-            "topic": "Whatever Shucks flagged that morning",
-            "note": "If a player impressed Shucks, Nobu says so in passing -- warm, brief, already moving on."
+            "topic": "His favourites",
+            "note": "\"That one jams if you don't clean it. Take the other one.\""
           },
           {
-            "topic": "What he actually thinks of the gear",
-            "note": "Real, fast opinions -- this one's reliable, that one jams if you don't clean it, he'd take the other one himself. He has issued this exact list ten thousand times and has genuine favourites."
-          },
-          {
-            "topic": "The kids coming through today",
-            "note": "Not this specific six -- the whole intake, generally, fondly, and without slowing down. \"Good bunch this year. Say that every year, mind. Also true every year.\""
+            "topic": "The uniform",
+            "note": "Slate teal-grey tunic, brass buttons, an orange tab on the collar: \"Your size, or near enough.\""
           }
         ],
         "willNotDiscuss": [
           {
-            "topic": "Whether he's eaten today, slept, or has a life outside this counter",
-            "why": "Deflects with a joke and changes the subject -- he's just busy, not hiding anything. Never play this as evasive; it's the same energy as everything else he does."
+            "topic": "Himself",
+            "why": "Whether he's eaten, slept or has a life: \"Life? I've got a clipboard.\""
           }
         ],
         "coercible": [
           {
-            "topic": "Why he gave THEM the extra item specifically",
-            "how": "Asking him directly and pointedly, not just noticing it. He isn't hiding anything -- he genuinely doesn't experience it as a decision worth explaining. Never let this crack into a real answer tonight; see the-extra-thing's note before running it.",
-            "challengeRef": null
+            "topic": "Something extra",
+            "how": "Asked properly for something specific.",
+            "challengeRef": "c1e1-kit-issue",
+            "checkRef": "work-nobu"
           }
         ],
         "voice": {
-          "register": "Harried, fast, overworked, visibly doing three things at once. Run-on sentences, interrupts himself, starts the next thought before finishing the last.",
-          "tics": [
-            "Talks while signing, stacking, or reaching for something else -- never one thing at a time",
-            "Does the generous thing too fast to examine it, doesn't make eye contact while doing it",
-            "Waves off thanks immediately and changes the subject",
-            "Calls everyone by whatever's on the clipboard in front of him, not their name"
-          ],
+          "register": "Harried and fast, in run-on sentences. Does the generous thing too quickly to be thanked for it.",
           "samples": [
-            "\"It's on the list or it isn't on the list. I didn't write the list.\"",
-            "\"-- and take this too --\" (doesn't look up, already writing something else) \"-- don't make a thing of it, who's next --\"",
-            "\"Shucks said you were sharp this morning. Good. Arm here, sign there.\"",
-            "\"That one jams if you don't clean it. Take the other one. No, I don't care what it looks like.\"",
-            "\"Good bunch this year. -- Say that every year. Also true every year. Next.\""
+            "\"Good bunch this year. I say that every year. Also true every year. Next.\"",
+            "\"Shucks said you were sharp this morning. Don't make him a liar.\""
           ]
-        }
+        },
+        "statblock": "Proposed: level 2, a quartermaster, non-combat."
+      }
+    },
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "role": "Section Nine's officer, come to inspect.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To find something wrong with Section Nine before they've done anything.",
+        "opensWith": "He walks the line and finds one thing wrong with each of them.",
+        "willDiscuss": [
+          {
+            "topic": "The docket",
+            "note": "\"It's on the docket. Read the docket.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What the part is for",
+            "why": "He keeps a straight face: \"An instrument part. For an instrument. As discussed.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped and procedural. Never wrong in his own account.",
+          "samples": [
+            "\"Collar. Buttons. That's a boot, is it? Fine.\"",
+            "\"Back to me by nineteen hundred. Not a minute after.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
       }
     }
   ],
@@ -88,9 +111,8 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Establish the space and Nobu's energy <trig id=\"nobu-appears\"/> before anyone picks anything -- a scrum around one busy counter, not an orderly queue.",
       "npcRef": "nobu",
-      "direction": "Deliberate contrast with Intake Medicals' queue. That scene was slow and one-on-one; this one is fast and slightly chaotic, several things happening near-simultaneously. Don't let it feel rushed for the players even though Nobu himself never stops moving.\n\nDeliberate opposite of Intake Medicals. That was slow and one-on-one; this is fast, loud, and several things at once -- and he is nonetheless completely on top of all of it.\n\nTHE BOARD BEHIND THE COUNTER. A sheet of slate the width of the hatch, ruled into columns in white paint that has been there longer than the chalk has, with names down one side and kit against them, half of it rubbed out and written over. Nobu adds each of them to it as they are issued, without being asked and without making anything of it.\n\nDo not draw attention to it and do not let anybody explain it. It is how this place records that a thing belongs to a person, and it needs to be ordinary now so that it is ordinary later.",
+      "text": "Nobu <trig id=\"nobu-appears\"/> issues the uniforms: slate teal-grey tunics with an orange tab on the collar.",
       "triggers": [
         {
           "id": "nobu-appears",
@@ -99,108 +121,133 @@
           "label": "Nobu appears"
         }
       ],
-      "readAloud": "The stores smell of machine oil and stamped paper, and the noise is one man doing four conversations. <trig id=\"nobu-appears\"/>\n\n\"-- no, the OTHER shelf -- sign there, and there -- who's next, come on, I haven't got -- \" He does look up, briefly. \"Right. Section Nine. I've got you.\""
+      "facts": [
+        "visual-language.candidate-tunic"
+      ],
+      "gmFacts": []
     },
     {
       "id": "pick-your-kit",
       "kind": "action",
       "mandatory": true,
-      "delivery": "table",
-      "text": "Show every player the real catalogue and let them pick freely within the 150cr budget.",
-      "npcRef": "nobu",
-      "direction": "Full player choice, no restriction beyond the catalogue itself -- see data/campaign/equipment-catalogue.json. This should take seconds per player at the table, not minutes; if someone wants to deliberate, let them do it while the scene keeps moving around them rather than pausing everything.\n\nSeconds per player, not minutes. If somebody wants to deliberate, let the scene keep moving around them and come back.",
+      "delivery": "each",
+      "text": "Each player spends 150 credits from the stores catalogue. Press Open Equipment Locker so everyone sees the list.",
+      "direction": "Seconds a player, not minutes. Anyone still deciding can finish their sheet after the session.",
       "gmTool": {
         "id": "equipment-locker",
         "label": "Open Equipment Locker"
       },
-      "note": "The catalogue is a curated Directorate menu, not the full SF2E item list: same real 150cr Step-8 budget, shorter list, reflavoured as boring standard issue. See data/campaign/equipment-catalogue.json.",
-      "readAloud": "A list, a stub of pencil, and a hundred and fifty credits that somebody has decided is what a person is worth equipping with.\n\nEverything on it is standard issue and none of it is new."
+      "note": "If someone came in last: The handlamps have run out by their turn.",
+      "facts": [],
+      "gmFacts": []
     },
     {
       "id": "the-extra-thing",
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "Nobu has more in the back than the docket says, and he is entirely willing to be talked round -- he just will not volunteer it. Any player who works him socially (charm, a good question, reading what he's short of and offering to help, whatever they reach for) gets a roll. On a success, that player takes a small boost to their own personal budget. On a critical success, everyone does.\n\nCAPPED: boosts stay in the catalogue's cheap gear tier -- flashlight 1cr, cable-line 2cr, climbing-kit 5cr, comm-unit 7cr. Never a second weapon, and never anything approaching a second full budget.",
       "npcRef": "nobu",
-      "readAloud": "\"-- that's your lot, next --\" (already writing something else, not looking up) \"-- unless there's something you actually need, in which case say it properly and say it fast.\"",
-      "direction": "Do not offer the roll unprompted and do not hint that there is something to get. He is a busy man with a queue; if nobody engages with him beyond handing over a docket, nobody gets anything extra, and that is a legitimate outcome. If a player does engage, he responds to specifics -- a real request, a real observation about the stores, a real bit of charm -- and not to a generic 'I try to be friendly'. React to what they said when picking the item: loud and athletic, the climbing kit; already talking a lot, the comm unit; otherwise the flashlight is always a safe, fitting default.",
-      "note": "PLANT, do not resolve. This is the reveal about Nobu in miniature (dossier-cicada.md §8; the Casebook places it in Chapters 9 and 12) -- read bible/characters/nobu.md before running it.\n\nGM-ONLY, never stated at the table: track exactly which item each player got. It may matter later that some of what Nobu hands out isn't standard Directorate stock.\n\nWHY IT IS EARNED RATHER THAN GIVEN: a rewarded player action beats a passive gift, and it gives a social-leaning character a reason to step forward in a scene that is otherwise pure shopping. The crit-helps-everyone outcome is deliberate -- it makes one player's good roll a gift to the table, which is the kind of thing that builds a unit. See open-questions.json#nobu-extra-mechanism.",
+      "text": "If a player asks Nobu properly for something specific, offer the check.",
+      "when": {
+        "condition": "someone asks Nobu for something extra"
+      },
+      "note": "Do: Fit the extra to the player: a climbing kit, a comm unit, a coil of line or a handlamp. Never a second weapon.\nSecret: Some of what Nobu hands out isn't Directorate stock. Write down who got what.",
       "challengeRef": "c1e1-kit-issue",
       "checkRef": "work-nobu",
-      "when": {
-        "condition": "only if a player works Nobu socially beyond handing over the docket -- never offered unprompted"
-      }
+      "facts": [],
+      "gmFacts": []
     },
     {
       "id": "test-the-fit",
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "If a player wants a moment trying out their new gear, offer one roll, their choice of skill.",
+      "text": "If a player wants a moment with their new gear, offer the check.",
+      "when": {
+        "condition": "someone tries their kit on"
+      },
       "challengeRef": "c1e1-kit-issue",
       "checkRef": "test-the-fit",
-      "when": {
-        "condition": "if a player wants a moment with their own new equipment"
-      },
-      "note": "Never required. Costs nothing on any result."
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-inspection",
+      "kind": "reveal",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "section-officer",
+      "text": "Vetch <trig id=\"vetch-inspects\"/> walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table.",
+      "readAloud": "He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.\n\n\"Second period first. Then the city. Back to me by nineteen hundred.\"",
+      "note": "Plant: It's a direct order, and refusing one is the serious thing the Deputy Director warned them about.\nSecret: There's no such part. Vetch sends every new section for the bubble in a spirit level. It was done to him once.",
+      "handoutRef": "the-docket",
+      "triggers": [
+        {
+          "id": "vetch-inspects",
+          "kind": "npc-enter",
+          "npcRef": "section-officer",
+          "label": "Vetch inspects"
+        }
+      ],
+      "facts": [
+        "section-officer.the-docket"
+      ],
+      "gmFacts": [
+        "section-officer.hazing"
+      ]
     }
   ],
   "artefacts": [],
-  "handouts": [],
+  "handouts": [
+    {
+      "id": "the-docket",
+      "title": "The stores docket",
+      "body": "<div class=\"bi-paper bi-paper--letter\">\n<header class=\"bi-paper__letterhead\">\n<img class=\"bi-paper__mark\" src=\"modules/blank-inheritance/assets/ui/handouts/directorate-mark.webp\" alt=\"The Directorate's mark: a watchtower on a rock in the sea, ringed by a cog\">\n<div class=\"bi-paper__org\"><span class=\"bi-paper__org-jp\">特別対策本部</span><span class=\"bi-paper__org-en\">SPECIAL COUNTERMEASURES HEADQUARTERS</span><span class=\"bi-paper__org-sub\">Stores</span></div>\n</header>\n<div class=\"bi-paper__typed\">\n<p class=\"bi-paper__heading\">STORES DOCKET</p>\n<p>Section: <typed>NINE</typed></p>\n<p>Item: <typed>COMPOUND, LEVELLING, BUBBLE, ONE (1)</typed></p>\n<p>Collect from: <typed>the instrument makers</typed></p>\n<p>Sign here, here, and on the reverse.</p>\n</div>\n</div>",
+      "gmNotes": "Secret: a spirit level's bubble is the air in its vial. There's nothing to collect.",
+      "catchables": [
+        "The item: a spirit level's bubble, which is the part that isn't there.",
+        "\"Sign here, here, and on the reverse\": the instrument makers will want it signed."
+      ]
+    }
+  ],
   "gmModifiers": [],
   "offers": [],
   "outro": {
-    "endsWhen": "All six are kitted. Stop there -- don't linger, the scene's whole rhythm is momentum.",
+    "endsWhen": "Vetch has handed over the docket and gone.",
     "artefactRefs": [],
-    "tracks": [
-      {
-        "track": "bonds",
-        "delta": null,
-        "why": "Only if somebody actually talked to Nobu rather than handing over a docket. He remembers people who did."
-      }
-    ],
+    "tracks": [],
     "transition": {
       "mechanism": "ordered",
-      "line": "Nobu barely finishes with the last of them before their section officer is already in the doorway with a stores docket and a joke he thinks is funny -- see The Errand. Nobu's rapid-fire 'good, next thing' energy is the last thing they hear before the Officer's shadow falls over them. They do not go straight out: there is one more lesson first, and the docket goes with them into it.",
+      "line": "\"Second period first. Then the city.\"",
       "scatterRisk": false
     },
-    "onwards": "Into School: Second Period, carrying the docket. The Section Officer gives them the errand here, in the stores doorway, and then they have one more lesson before they are allowed off the island to run it -- so the docket sits in somebody's pocket through a room full of jars or a live switchboard. The Errand is next, and its own outro is what leads into Canteen.",
+    "onwards": "School: Second Period, with the docket in a pocket; then The Errand.",
     "writeDown": [
-      "What each player picked from the catalogue -- it matters for continuity.",
-      "Exactly what Nobu's extra item was for each player. GM-only -- do not reveal the reason it might matter."
-    ]
+      "What each player bought, and any extra Nobu gave.",
+      "Who holds the docket."
+    ],
+    "position": {
+      "locationRef": "the-quartermasters-stores",
+      "state": "together",
+      "note": "Leaving for second period."
+    }
   },
   "carryForward": [],
   "temptations": [
     {
-      "id": "the-overflowing-stack",
-      "text": "If nobody's tried working Nobu for something extra, one of the stacks behind the counter is visibly overflowing with kit nobody's claimed -- worth somebody asking about it?"
+      "id": "ask-nobu",
+      "text": "Nobu clearly has more in the back than he's putting on the counter."
     }
   ],
   "reactionPrompts": [
     {
-      "id": "nobus-energy",
-      "text": "Nobu's three-things-at-once, never-stops-moving energy landing as genuinely funny rather than just fast."
+      "id": "kit-pace",
+      "text": "Kit issue moving briskly."
     },
     {
-      "id": "the-extra-thing",
-      "text": "The free extra item landing as charming, unremarkable generosity rather than suspicious.",
-      "scaleNote": "0 = someone got suspicious of it, 10 = nobody thought twice."
-    },
-    {
-      "id": "pace-contrast",
-      "text": "The contrast with Intake Medicals' slow, one-on-one pace actually being felt at the table."
-    },
-    {
-      "id": "picking-dragged",
-      "text": "If equipment picking dragged into real deliberation instead of staying fast.",
-      "scaleNote": "0 = stayed fast like it's written, 10 = this needs a harder push next time."
-    },
-    {
-      "id": "test-the-fit",
-      "text": "Whether anyone took the optional \"test the fit\" roll, and if it added a fun beat."
+      "id": "the-docket",
+      "text": "Vetch's docket landing."
     }
   ],
-  "notes": "Deliberately brisk and low-stakes, mirroring Intake Medicals' function -- everyone gets a moment -- at the opposite pace. Nobu's voice and the Chapter Six secret behind his generosity are locked in bible/characters/nobu.md. Read it before running or editing this scene, and never let anything here foreshadow the secret directly."
+  "notes": "The catalogue is a hundred and fifty credits of real SF2E commercial gear, reflavoured as Directorate issue; the Equipment Locker shows it to every player. Nobu's extra item is earned by asking him properly, never automatic. Vetch's docket is the start of the episode's thread with him: the bubble, the vial, the drains, and the report at the hatch."
 }

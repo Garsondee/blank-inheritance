@@ -31,7 +31,7 @@
         "notes": { "type": "string" },
         "intake": {
           "type": "object",
-          "description": "Session-zero answers from the induction terminal's Page 7 (the Personality one-liners) and Page 8 (the five open questions and the freeform box) -- design/induction-terminal.md, revised by design/induction-intake-audit.md §6 on 2026-09-18, when the three banal questions and bible §20's eight were compressed into this shorter set. Raw answers, kept verbatim.",
+          "description": "Session-zero answers from the induction terminal's Page 7 (the Personality one-liners), Page 8 (the four open questions and the freeform box) and the out-of-character page for the player that follows it (added 2026-10-01) -- design/induction-terminal.md, revised by design/induction-intake-audit.md §6 on 2026-09-18, when the three banal questions and bible §20's eight were compressed into this shorter set. Raw answers, kept verbatim.",
           "properties": {
             "personality": {
               "type": "array",
@@ -40,7 +40,7 @@
             },
             "questions": {
               "type": "array",
-              "description": "The five open questions: allies, enemies, organizations, the Directorate secret, and the out-of-character player-goal question.",
+              "description": "The open answers, by prompt id: Page 8's four (allies, enemies, organizations, the Directorate secret) and the player's page's six, all out of character (player-goal, enjoy, avoid, force, spotlight, gently).",
               "items": { "$ref": "#/$defs/intakeAnswer" }
             },
             "freeform": {

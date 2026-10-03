@@ -1,0 +1,259 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--school-first-period",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "school-first-period",
+  "title": "School: First Period",
+  "summary": "Scene 4. Their first lesson: local studies, where the four founders are named, or Hulda Brack's workshop induction. Each player picks a room.",
+  "goal": "Each player has sat a lesson of their choice, and the table has heard the four founders' names.",
+  "howToPlay": "Short and light. Each player picks a room; cut between the two. Not rolling is always fine. **The founders' names come out here, however the rolls go.**",
+  "runsAbout": "15-20 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The school block, first floor: two rooms at opposite ends of one corridor.",
+    "readAloud": "A bell goes, and the corridor fills in about four seconds. At one end, a man is pulling a city map down over the blackboard. At the other, somebody is already shouting about fingers.",
+    "landmark": "The corridor between the two doors.",
+    "carriesIn": [
+      {
+        "when": "After Assembly",
+        "then": "Vetch has left them at the corridor with a timetable."
+      }
+    ],
+    "position": {
+      "locationRef": "main-school-complex",
+      "state": "together",
+      "note": "The first-floor corridor of the school block."
+    }
+  },
+  "cast": [
+    {
+      "id": "history-teacher",
+      "npcRef": "school-history-teacher",
+      "role": "Teaches history, and local studies, which he loves.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "For them to find their way round the city by the end of the week.",
+        "opensWith": "\"Where do you think you are right now? Show me.\" The map is already down.",
+        "willDiscuss": [
+          {
+            "topic": "His name",
+            "note": "\"Ota. Mister Ota, if you like. Ota if you don't.\""
+          },
+          {
+            "topic": "The city",
+            "note": "Districts, trams, where to eat, and which streets to avoid after dark. \"The number 4 is always late. Plan around it.\""
+          },
+          {
+            "topic": "The founders",
+            "note": "Proud of them and cheerfully certain: four tall heroes, every picture shows it."
+          },
+          {
+            "topic": "The statue on the harbour",
+            "note": "\"A gnoll, with HYUCK on the plaque? Somebody's mascot. Hyuck was a big man with a sword.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Why the statue says Hyuck",
+            "why": "He doesn't know, and it doesn't bother him: \"Mascots get names. Right, trams.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Unhurried and dry. Taps the map. Says \"I don't know\" plainly and doesn't mind.",
+          "samples": [
+            "\"You are here. No. You are here, which is a mile from where you said, and that mile is all steps.\"",
+            "\"Good. Wrong, but good. Who else?\""
+          ]
+        },
+        "statblock": "Proposed: level 1, a teacher, non-combat."
+      }
+    },
+    {
+      "id": "hulda-brack",
+      "npcRef": "shop-boss",
+      "role": "Head of the machine shop, taking the safety induction herself.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Everyone leaving her workshop with the same number of fingers they came in with.",
+        "opensWith": "\"In. Sit. Hands where I can see them, all of you.\"",
+        "willDiscuss": [
+          {
+            "topic": "Every machine in the room",
+            "note": "Exactly how each one would hurt them, at length, with relish."
+          },
+          {
+            "topic": "Herself",
+            "note": "A nuar, and proud of it. She won't wear a glamour for anyone."
+          },
+          {
+            "topic": "The forearm on the trestles",
+            "note": "\"Off a Frame. It'll be back on by Thursday. Not cleared. Not today.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Letting them near the forearm",
+            "why": "They're not cleared for her floor yet: \"Earn it. Then ask me again.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Enormous and warm. Calls people by the machine they're standing next to. Ends a point by hitting metal.",
+          "samples": [
+            "\"You, by the lathe. What does that do? Wrong, and thank you for being wrong out loud.\"",
+            "\"No, you're useless. Good. Useless I can work with. It's the handy ones that end up in hospital.\""
+          ]
+        },
+        "statblock": "Proposed: level 4, a machine-shop chief, can fight if she has to."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "which-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Each player picks a room: local studies or the workshop. Splitting up is fine.",
+      "choicePoint": {
+        "label": "First period. Which end of the corridor?",
+        "options": [
+          {
+            "id": "local-studies",
+            "label": "Local studies: the city on a wall map.",
+            "consequence": "Where everything is, how to get there, and who founded the place."
+          },
+          {
+            "id": "workshop",
+            "label": "Workshop induction: the machine shop.",
+            "consequence": "Tools, hands, and a very loud woman with horns."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-founders",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "history-teacher",
+      "text": "In local studies, the teacher asks the room to name the four founders. Offer the check; on any result the table hears them.",
+      "note": "Do: The four are Hyuck, Rupiah, Anabala and Shucks Mordant: \"who you'll have met this morning. Don't stare, he hates it.\"\nIf nobody chose local studies: The four names are on the corridor noticeboard: \"Learn these for Friday.\"\nWatch for: Four of your players played these four. Let them enjoy hearing the names.",
+      "challengeRef": "c1e1-school-first-period",
+      "checkRef": "name-the-founders",
+      "facts": [
+        "school-history-teacher.name",
+        "founders.names",
+        "founders.pictures",
+        "rupiah.cuts-the-ribbon",
+        "shucks.revealed-early"
+      ],
+      "gmFacts": [
+        "founders.what-they-were"
+      ]
+    },
+    {
+      "id": "local-studies",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "history-teacher",
+      "text": "The teacher takes them round the city on the wall map. If anyone works at it, offer the check.",
+      "when": {
+        "condition": "someone chose local studies"
+      },
+      "note": "Plant: The harbour statue: a weathered gnoll with HYUCK on the plaque. He's sure it's a mascot.\nSecret: The statue is Hyuck as he was. He's alive, and test-pilots the Directorate's worst Frames.\nWatch for: Steve played Hyuck. Let the mascot joke land on him.",
+      "challengeRef": "c1e1-school-first-period",
+      "checkRef": "know-the-ground",
+      "facts": [
+        "hyuck.statue"
+      ],
+      "gmFacts": [
+        "hyuck.statue-truth",
+        "hyuck.test-pilot"
+      ]
+    },
+    {
+      "id": "workshop",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "hulda-brack",
+      "text": "Hulda Brack runs the safety induction. If anyone joins in, offer the check.",
+      "when": {
+        "condition": "someone chose the workshop"
+      },
+      "note": "Plant: Four metres of Frame forearm on trestles at the back, opened along one side, fingers curled. She won't let them near it.",
+      "challengeRef": "c1e1-school-first-period",
+      "checkRef": "workshop-induction",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "corridor",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The bell. Give them about thirty seconds in the corridor to compare notes, then send them to the stores.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "artefacts": [
+    {
+      "id": "tram-map",
+      "title": "The history teacher's tram map",
+      "earnedBy": "A critical success in local studies.",
+      "gmNote": "+1 circumstance to finding their way round the city.",
+      "body": "<p>A city tram map, soft with use and covered in pencil: times, cafés worth the walk, a circled stop, and <em>the 4 is never on time</em> underlined twice.</p>"
+    }
+  ],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The bell, and the corridor empties toward the stores.",
+    "artefactRefs": [
+      "tram-map"
+    ],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The timetable says the stores next, and the queue starts before the bell.",
+      "scatterRisk": false
+    },
+    "onwards": "Kit Issue, at the quartermaster's stores.",
+    "writeDown": [
+      "Who sat which room, and what they rolled.",
+      "Anyone kept back, and anyone Fatigued tonight."
+    ],
+    "position": {
+      "locationRef": "main-school-complex",
+      "state": "together",
+      "note": "Heading for the stores."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "the-forearm",
+      "text": "There's a four-metre hand on the trestles at the back, and she's just told them not to go near it."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-names",
+      "text": "The founders' names landing with the table."
+    },
+    {
+      "id": "the-rooms",
+      "text": "Both rooms getting time, cut between briskly."
+    }
+  ],
+  "notes": "Not rolling is free; rewards and costs are never announced. What the rooms pay: local studies gives the founders' names (always), a way round the city this afternoon, and on a critical success the teacher's tram map; the workshop gives +2 tonight on working the drain chamber's panels, applied without comment. A critical failure in either keeps a character back and sends them into tonight's job Fatigued; a failure in local studies makes them last into the stores, where the handlamps have run out."
+}

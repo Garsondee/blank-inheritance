@@ -1,0 +1,17 @@
+{
+  "name": "stagecraft",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Stagecraft: Puppet Show. A Foundry VTT module for theatre-of-the-mind scenes where the players hold the puppets.",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "build:dev": "node tools/build.mjs --dev",
+    "test": "node --test test/"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "puppeteer-core": "22.15.0",
+    "three": "0.186.1"
+  }
+}

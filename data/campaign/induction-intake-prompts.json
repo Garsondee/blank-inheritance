@@ -2,7 +2,7 @@
   "$schema": "../schema/induction-intake-prompts.schema.json",
   "id": "induction-intake-prompts",
   "type": "induction-intake-prompts",
-  "description": "Prompt text and suggestion-chip content for the induction terminal's Page 7 (Personal File + Personality) and Page 8 (In Your Own Words). Revised 2026-09-18 per design/induction-intake-audit.md §6: the three banal texture questions and bible §20's eight questions were replaced by a shorter set -- five open questions and a freeform box, down from eleven open questions -- with the surviving material folded into short one-line fields instead of being cut (old Q5 is now `likes`, old Q2 is now `good-at`). Every entry declares its own `bioPath`: the real sf2e Actor path its answer is written to, so nothing collected here is ever dropped on the floor (core/induction-bio.mjs consumes it). Every suggestion is illustrative only -- a quick-start a player may click to insert into their own answer, never a real answer for any of the six actual kids.",
+  "description": "Prompt text and suggestion-chip content for the induction terminal's Page 7 (Personal File + Personality), Page 8 (In Your Own Words) and the page for the player that follows it, keyed \"player\" (`playerQuestions`, added 2026-10-01 at Ingram's direction: one out-of-character page, just before Review, asking the PLAYER what they enjoy, what they don't, what they hope to do and what sort of force they want to be, so the GM can shape a fun game around them; the old out-of-character `player-goal` question moved there from Page 8 and is asked once, not twice). Revised 2026-09-18 per design/induction-intake-audit.md §6: the three banal texture questions and bible §20's eight questions were replaced by a shorter set -- five open questions and a freeform box, down from eleven open questions -- with the surviving material folded into short one-line fields instead of being cut (old Q5 is now `likes`, old Q2 is now `good-at`). Every entry declares its own `bioPath`: the real sf2e Actor path its answer is written to, so nothing collected here is ever dropped on the floor (core/induction-bio.mjs consumes it). Every suggestion is illustrative only -- a quick-start a player may click to insert into their own answer, never a real answer for any of the six actual kids.",
   "genderIdentityOptions": [
     "Woman",
     "Man",
@@ -185,19 +185,101 @@
         "Something I did before any of this.",
         "Nothing at all. That bothers me more than it should."
       ]
-    },
+    }
+  ],
+  "playerQuestions": [
     {
       "id": "player-goal",
-      "number": 5,
+      "number": 1,
       "text": "A question for you, not your character: what do you want out of this? Is there something you have always wanted to do with a character and never got the chance to?",
+      "heading": "What do you want out of this?",
       "bioPath": "system.details.biography.campaignNotes",
       "outOfCharacter": true,
-      "purposeNote": "Say it plainly. This is the single most useful thing you can tell your GM, and it is the one place in this form where you are not in character.",
+      "purposeNote": "Say it plainly. This is the single most useful thing you can tell your GM.",
       "suggestions": [
         "I want to play someone genuinely, unfashionably kind.",
         "I've always wanted to be the one who talks the enemy down instead of shooting it.",
         "A character who's bad at the thing everyone expects them to be good at.",
         "Honestly? I want to find out how far the machine can be pushed."
+      ]
+    },
+    {
+      "id": "enjoy",
+      "number": 2,
+      "text": "What do you enjoy most when you play? Think of the best session you have ever been part of, at any table. What was happening?",
+      "heading": "What do you enjoy most when you play?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "outOfCharacter": true,
+      "purposeNote": "A specific memory tells your GM more than a general answer does. This is how we decide what to put in front of you.",
+      "suggestions": [
+        "Working out what was really going on before anyone told me.",
+        "A plan that came together, or fell apart in a way nobody expected.",
+        "A quiet scene where two characters finally said the thing.",
+        "The whole group arguing about what to do, and every side having a point.",
+        "Being the one who noticed the small detail that mattered."
+      ]
+    },
+    {
+      "id": "avoid",
+      "number": 3,
+      "text": "What do you not enjoy, or find dull? Anything that makes the evening drag for you.",
+      "heading": "What do you not enjoy?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "outOfCharacter": true,
+      "purposeNote": "Just as useful as the last question. Your GM would rather know than guess.",
+      "suggestions": [
+        "Long stretches where nothing I do changes anything.",
+        "Fights that carry on after they've stopped being interesting.",
+        "Being put on the spot to speak in character before I'm ready.",
+        "Rules arguments that stop the game.",
+        "Being told what my character feels or decides."
+      ]
+    },
+    {
+      "id": "force",
+      "number": 4,
+      "text": "What sort of force do you want your character to be in the story? Some people want to drive events, some want to hold the group together, some want to notice what everyone else missed. There is no wrong kind, and it can change as you play.",
+      "heading": "What sort of force do you want to be in the story?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "outOfCharacter": true,
+      "purposeNote": "This helps give each of the six of you a different way to matter, so you are not all reaching for the same thing.",
+      "suggestions": [
+        "The one who notices what nobody else does.",
+        "The one who holds the group together.",
+        "The one who says what everyone else is thinking.",
+        "The one who protects the others.",
+        "The one who stirs things up.",
+        "The one who changes things quietly, from the inside."
+      ]
+    },
+    {
+      "id": "spotlight",
+      "number": 5,
+      "text": "With six of you, how do you like the attention to be shared? Some people like to be in every scene; some like to step in when something matters to them and watch the rest.",
+      "heading": "How do you like the attention shared?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "outOfCharacter": true,
+      "purposeNote": "Six people cannot all have the centre of every scene. Knowing who wants what lets your GM share it out fairly.",
+      "suggestions": [
+        "I'm happy to step back and let other people have the big scenes.",
+        "A scene of my own now and then would be great.",
+        "Put me at the centre. I'll bring the energy.",
+        "Ask me before you put me on the spot."
+      ]
+    },
+    {
+      "id": "gently",
+      "number": 6,
+      "text": "Is there anything you would like your GM to steer away from, or handle gently? You do not have to explain why.",
+      "heading": "Anything to steer away from, or handle gently?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "outOfCharacter": true,
+      "purposeNote": "Your GM reads this and no other player does. If you would rather say it in person, leave this blank and do that instead.",
+      "suggestions": [
+        "Nothing in particular.",
+        "Ask me first if something heavy is coming.",
+        "I'd rather tell my GM privately.",
+        "It can happen, but keep it off the screen."
       ]
     }
   ],

@@ -94,13 +94,63 @@ test("every string the new pieces use exists", () => {
   for (const key of ["ViewportLabel", "CropHint", "DropHint"]) assert.equal(typeof lang.Page6[key], "string", `Page6.${key}`);
 });
 
-test("Review: every Change jumps to a real step, and every step from Ancestry to Questions has one", () => {
+test("Review: every Change jumps to a real step, and every step from Ancestry to the player's page has one", () => {
   const review = templates["page9-review.hbs"];
   const targets = [...review.matchAll(/data-action="jumpToStep" data-step="(\w+)"/g)].map((m) => m[1]);
   const stepIds = new Set(STEPS.map(([id]) => String(id)));
   for (const target of targets) assert.ok(stepIds.has(target), `Change points at unknown step ${target}`);
-  for (const step of ["2", "3", "4", "5", "6", "7", "8"]) assert.ok(targets.includes(step), `no Change back to step ${step}`);
+  for (const step of ["2", "3", "4", "5", "6", "7", "8", "player"]) assert.ok(targets.includes(step), `no Change back to step ${step}`);
   assert.ok(!targets.includes("agreement"), "the agreement is never re-opened");
+});
+
+test("the jump handler keeps keyed page ids as strings and numbered ones as numbers", () => {
+  const jump = terminal.match(/  static async #onJumpToStep[\s\S]*?\n  }\n/)?.[0] ?? "";
+  assert.match(jump, /\/\^\\d\+\$\/\.test\(String\(raw\)\) \? Number\(raw\) : raw/, "a numeric id becomes a number, anything else stays as it was");
+  assert.doesNotMatch(jump, /raw === "agreement"/, "no special case for one keyed id: 'player' needs the same treatment");
+});
+
+test("the player's page (Ingram, 2026-10-01): routed, rendered, reachable from Questions, and Review's Back returns to it", () => {
+  // Its template is registered as its own part, keyed by name like the agreement.
+  assert.match(terminal, /pageplayer: \{\n      template: `\$\{TEMPLATE_ROOT\}\/page8b-player\.hbs`/);
+  assert.ok("page8b-player.hbs" in templates, "the template exists");
+  assert.match(terminal, /: page === "player" \? await this\.#pagePlayerContext\(\)/);
+  assert.match(terminal, /case "player": return true;/, "nothing on it is required, so the tracker never holds a player back");
+  // The forward and backward chain: 8 -> player -> 9, and back the same way.
+  const after = (name) => terminal.match(new RegExp(`static async #${name}\\([\\s\\S]*?\\n  }\\n`))?.[0] ?? "";
+  assert.match(after("onContinueFromQuestions"), /this\.state\.page = "player";/);
+  assert.match(after("onContinueFromPlayer"), /this\.state\.page = 9;/);
+  assert.match(after("onBackFromPlayer"), /this\.state\.page = 8;/);
+  assert.match(after("onBackFromReview"), /this\.state\.page = "player";/);
+  // Its buttons are registered, and Continue is never greyed out or made to point at something missing.
+  for (const action of ["continueFromPlayer", "backFromPlayer"]) assert.ok(registeredActions.has(action), `${action} is registered`);
+  const continueButton = templates["page8b-player.hbs"].match(/<button[^>]*data-action="continueFromPlayer"[^>]*>/)?.[0] ?? "";
+  assert.ok(continueButton && !/disabled/.test(continueButton), "Continue stays clickable");
+  assert.doesNotMatch(after("onContinueFromPlayer"), /pointAtMissing/, "there is nothing on this page to be missing");
+  // Review shows the answers under the page's short headings, never the long question text.
+  const context = terminal.match(/  async #page9Context\(\) \{[\s\S]*?\n  }\n/)?.[0] ?? "";
+  assert.match(context, /playerAnswers: answerRows\(/);
+  assert.match(context, /q\.heading \?\? q\.text/);
+});
+
+test("the player's page: out of character is said once, in its own words, and every string it uses exists", () => {
+  for (const key of ["Title", "FormNumber", "OutOfCharacterTag", "Intro", "OptionalNote", "HelpSummary", "Back", "Continue"]) {
+    assert.equal(typeof lang.PagePlayer[key], "string", `PagePlayer.${key}`);
+  }
+  assert.equal(typeof lang.Page9.SectionPlayer, "string");
+  assert.match(lang.PagePlayer.Intro, /not for your character/i, "it tells the player who it is for");
+  assert.match(lang.PagePlayer.OptionalNote, /required/i, "and that none of it is required");
+  assert.match(lang.PagePlayer.FormNumber, /out of character/i, "with no Directorate form number: the form's voice stops here");
+  const template = templates["page8b-player.hbs"];
+  assert.doesNotMatch(template, /OrgNameJP/, "no letterhead on the page that steps out of the fiction");
+  for (const [, key] of template.matchAll(/localize "BLANKINHERITANCE\.Induction\.([\w.]+)"/g)) {
+    const value = key.split(".").reduce((o, k) => o?.[k], lang);
+    assert.equal(typeof value, "string", `the template uses a missing string: Induction.${key}`);
+  }
+});
+
+test("the preview accepts keyed page ids (?page=player), not only numbers", () => {
+  const preview = fs.readFileSync(path.join(ROOT, "tools/induction-terminal/preview.html"), "utf8");
+  assert.match(preview, /\/\^\\d\+\$\/\.test\(page\) \? Number\(page\) : page/);
 });
 
 test("Review: opens on the character -- photo, name, and the six attribute modifiers", () => {

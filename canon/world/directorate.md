@@ -67,4 +67,52 @@ status: decided · source: D026 · known: everyone · told: start
 
 ## directorate.digs
 The Directorate is Golarion's foremost gatherer of alien technology. It digs for it and locks it in deep storage vaults, so that it can't cause another disaster.
-status: decided · source: D040 · known: few · told: later
+status: decided · source: D040, D044, D056 · known: few · told: in:episode-c1e1--the-errand
+
+## directorate.brought-forward-stamp
+Every candidate's acceptance letter this year has its printed reporting date ruled through, "Monday next" written beside it in pen, and a red BROUGHT FORWARD stamp. Nothing on intake day explains it.
+status: decided · source: D038 · known: some · told: in:episode-c1e1--the-road-in
+
+## directorate.why-brought-forward
+This year's intake was brought forward two weeks because Nozomi, the pilot expected to fly first, refused the draft after a magic show.
+status: decided · source: D002, D011, D020, D038 · known: few · told: later
+
+## directorate.form-12b
+Form 12-B, the intake screening form, asks for mother's maiden name twice: in box 4, and again in box 19, in capitals.
+status: decided · source: D038 · known: some · told: in:episode-c1e1--intake-medicals
+
+## directorate.missing-pilot-search
+On intake morning, staff are quietly hunting for a pilot who hasn't turned up. A careful listener can catch the name Nozomi.
+status: decided · source: D011 · known: few · told: in:episode-c1e1--intake-medicals
+
+## directorate.the-marker
+Some people carry a heritable marker in their blood. Only people who carry it can pilot the newer, second-generation Frames. All six of the party carry it.
+status: decided · source: D020, D021, D034 · known: few · told: later
+
+## directorate.carriers-streamed
+Candidates whose screen shows the marker are streamed into one section together, as routine. Six in a single intake has never happened before.
+status: provisional · source: episode-c1e1--intake-medicals · known: few · told: later
+
+## directorate.section-nine
+The six are Section Nine. Each of them was told, alone, that their screen came back irregular.
+status: provisional · source: episode-c1e1--intake-medicals · known: some · told: in:episode-c1e1--intake-medicals
+
+## directorate.school-and-service
+The Directorate is a school and a service at once: candidates sit lessons, and they also drill, carry orders and stand watches.
+status: decided · source: D053 · known: everyone · told: in:episode-c1e1--assembly
+
+## directorate.free-time
+A candidate's free time is theirs to choose: the gymnasium, the range, the library, or a lesson they pick themselves.
+status: decided · source: D053 · known: everyone · told: in:episode-c1e1--assembly
+
+## directorate.curfew-minor
+Breaking curfew is a very minor offence: it is written down, and the candidate is told off.
+status: decided · source: D053 · known: everyone · told: in:episode-c1e1--assembly
+
+## directorate.orders-serious
+Refusing a direct order is the most serious thing a candidate can do. It means a hearing in front of someone senior, to explain themselves.
+status: decided · source: D053 · known: everyone · told: in:episode-c1e1--assembly
+
+## directorate.alarm-never-real
+In a hundred and fifty years, the Directorate's alarm has never once been real.
+status: provisional · source: episode-c1e1--assembly · known: everyone · told: in:episode-c1e1--assembly

@@ -4,7 +4,8 @@
  * player may jump to, never how a page decides it's finished.
  *
  * The rules, from the UI pass of 2026-09-25:
- * - The tracker's numbers are display positions; page ids stay as they were (1-9, plus "agreement").
+ * - The tracker's numbers are display positions; page ids stay as they were (1-9, plus "agreement" and
+ *   "player", the out-of-character page for the person playing, which sits between Questions and Review).
  * - A step is a link only if the player has already been that far, and every step before it is complete.
  *   So Back is always possible, forward is possible only over finished ground, and nobody can reach
  *   Review past a page they left half-done.
@@ -14,7 +15,7 @@ import { resolveSlots } from "./boost-slots.mjs";
 
 export const STEPS = [
   [1, "Orientation"], ["agreement", "Agreement"], [2, "Ancestry"], [3, "Background"], [4, "Class"],
-  [5, "Attributes"], [6, "Portrait"], [7, "Finishing"], [8, "Questions"], [9, "Review"]
+  [5, "Attributes"], [6, "Portrait"], [7, "Finishing"], [8, "Questions"], ["player", "For the Player"], [9, "Review"]
 ];
 
 /** The steps a player will actually see, in order: the agreement only when the world setting shows it. */

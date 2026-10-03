@@ -93,3 +93,15 @@ These are mine, not yet yours. Each is a `provisional` fact in `canon/world/`:
   scenes that put the old town on cliffs are listed in the plan, to fix when each is rebuilt.
 - **R25, all her detail.** Rift: D024, D025 and S001 all used. City: D024, D025, D026, D044 and D048 all used. One
   detail left out on purpose: D024's list of what the public knows about Cicada, which D048 moves out of this scene.
+
+## Re-read against version 3 (2026-10-01, D056)
+
+Four small fixes from the Runner review; nothing Ingram reads aloud changed.
+
+- **R26, R28.** The goal was the longest GM text in the scene (73 words, a list of nine topics the beats already
+  list); it is now one line. The summary shown in the goal box is one line too, and the first thing is shorter.
+- **R27.** The "carries in" row said only that nothing carries in. It is gone.
+- **R21.** "Four of them found the Directorate... Why, it has never said" read as "discovered" at a glance and ended
+  on a clipped inversion. It now reads "Four of them founded the Directorate, which crossed the world to Kurose and
+  never said why."
+- GM text is 212 words for a nine-minute speech.

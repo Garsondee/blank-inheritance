@@ -1,0 +1,9 @@
+Stagecraft: Puppet Show
+
+Copyright (c) 2026 Mythica Machina. All rights reserved for now.
+
+The licence has not been chosen yet. The plan (design/stagecraft/module.md section 11) is MIT for the code and CC0 for
+the default skin; until the author says so, no licence is granted.
+
+The bundled file dist/stagecraft.js contains three.js, which is MIT licensed. Its licence notice is kept at the end of
+that file, as the licence requires.

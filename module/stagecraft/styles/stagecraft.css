@@ -1,0 +1,149 @@
+/* Stagecraft: the host sits exactly where Foundry's own board canvas sits, one step above it, under every window. */
+#stagecraft-stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-canvas, 0);
+  overflow: hidden;
+  background: #060403;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#stagecraft-stage canvas {
+  touch-action: none;
+}
+
+/* with a stick of chalk in hand the pointer is the stick */
+#stagecraft-stage.stagecraft-chalk canvas {
+  cursor: none;
+}
+
+/* The GM's strip: small, along the top just under the clock, out of the way of the cards. */
+#stagecraft-stage .stagecraft-bar {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid rgba(230, 201, 141, 0.4);
+  border-radius: 999px;
+  background: rgba(14, 10, 6, 0.74);
+  backdrop-filter: blur(3px);
+  z-index: 5;
+}
+
+#stagecraft-stage .stagecraft-bar[hidden] {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-bar button {
+  all: unset;
+  box-sizing: border-box;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font: 600 12px/1.3 system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0.02em;
+  color: #e8dcc4;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#stagecraft-stage .stagecraft-bar button:hover:not(:disabled) {
+  background: rgba(230, 201, 141, 0.18);
+}
+
+#stagecraft-stage .stagecraft-bar button:focus-visible {
+  outline: 2px solid #f0c978;
+  outline-offset: 1px;
+}
+
+#stagecraft-stage .stagecraft-bar button.on {
+  background: #e6c98d;
+  color: #1b1208;
+}
+
+#stagecraft-stage .stagecraft-bar button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* The GM's blocking strip: under the chalk strip, two rows at most, and a line saying what a press is waiting for. */
+#stagecraft-stage .stagecraft-blocking {
+  top: 88px;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border-radius: 16px;
+  max-width: calc(100vw - 420px);
+}
+
+#stagecraft-stage .stagecraft-blocking .row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+#stagecraft-stage .stagecraft-blocking .row[hidden],
+#stagecraft-stage .stagecraft-blocking .hint[hidden] {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-blocking .moments button {
+  color: #f3c983;
+  font-style: italic;
+}
+
+#stagecraft-stage .stagecraft-blocking .sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 3px;
+  background: rgba(230, 201, 141, 0.35);
+}
+
+#stagecraft-stage .stagecraft-blocking .hint {
+  font: 600 11px/1.3 system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+  color: #ffb36b;
+  padding: 0 8px 2px;
+}
+
+/* The fight board's key: for everyone, small, at the top of the stage while the board is up. */
+#stagecraft-stage .stagecraft-board-key {
+  position: absolute;
+  top: 168px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(14, 10, 6, 0.7);
+  border: 1px solid rgba(230, 201, 141, 0.3);
+  font: 600 11px/1.3 system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0.03em;
+  color: #eadfc8;
+  pointer-events: none;
+  z-index: 4;
+}
+
+#stagecraft-stage .stagecraft-board-key b {
+  color: #f3c983;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#stagecraft-stage .stagecraft-board-key i {
+  display: inline-block;
+  width: 22px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-top: 3px solid #ffe9c4;
+}
+
+#stagecraft-stage .stagecraft-board-key i.engaged { border-top-style: solid; }
+#stagecraft-stage .stagecraft-board-key i.near { border-top-style: dashed; }
+#stagecraft-stage .stagecraft-board-key i.far { border-top-style: dotted; opacity: 0.6; }

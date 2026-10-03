@@ -1,0 +1,27 @@
+{
+  "$comment": "The module's public interface, exactly. test/api-contract.test.mjs fails if scripts/api.mjs or the hooks it raises differ from this file, so adding, renaming or removing anything is a deliberate act: change this file, API.md and the version together.",
+  "version": "0.2.0",
+  "api": {
+    "version": "string",
+    "skins": ["list", "register", "use"],
+    "scenes": ["describe", "isStage", "validate"],
+    "blocking": ["arrange", "backToPlaces", "formations", "gaits", "move", "registerMoments", "routines", "setBoard", "setLife", "tidy"],
+    "stage": "function",
+    "zoneKinds": "array",
+    "chalkModes": "array"
+  },
+  "hooks": [
+    "stagecraft.init",
+    "stagecraft.ready",
+    "stagecraft.stageReady",
+    "stagecraft.grab",
+    "stagecraft.drop",
+    "stagecraft.bonk",
+    "stagecraft.mark",
+    "stagecraft.zone",
+    "stagecraft.walk",
+    "stagecraft.arrive",
+    "stagecraft.chalk",
+    "stagecraft.settingsChanged"
+  ]
+}

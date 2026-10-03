@@ -5,181 +5,125 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "canteen",
   "title": "Canteen",
-  "goal": "Every player has met Taka and at least a taste of the wider trainee body, and Section Nine has been assigned -- no choice offered -- to storm drain clearance. Whether they know it's more than that by the time they leave depends entirely on what they asked.",
-  "howToPlay": "Loud and warm for most of the scene, then one flat, deflating turn at the very end. This is the biggest room the six of them have been in together all day -- dozens of other trainees, established groups, a real sense of scale after a day of small, private moments. Let the social half breathe; then let the announcement land hard and end the scene on it. **Don't soften the assignment once it's read, and don't let anyone talk their way out of it.** That refusal is the whole point.",
-  "runsAbout": "20-25 minutes",
+  "summary": "Scene 9. Supper in the Long Hall. Taka claims the six as his table, then Vetch reads the evening's orders and gives Section Nine the storm drains.",
+  "goal": "Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.",
+  "howToPlay": "Loud and warm, then one flat turn. Let them eat and talk; bring Vetch in when the talk slows. **After his order, Taka gets the last word.**",
+  "runsAbout": "20-30 minutes",
   "mode": "social",
   "intro": {
-    "where": "The combined-campus canteen, first evening meal as a group. Dozens of other trainees already eating -- established tables, established jokes, a scale the six of them haven't been part of yet today.",
-    "firstThing": "Noise. A room built for four hundred people, most of the seats full, and Section Nine visibly the newest table in it.",
-    "readAloud": "The canteen is loud in the specific way a room gets when nobody in it has anywhere else to be. Long tables, most of them full, easy noise. You're new enough that it shows -- new kit, new faces, a table nobody's claimed yet.",
-    "landmark": "The long table nobody's claimed -- empty, obviously new, the one fixed point in a room that's otherwise all noise and motion.",
+    "where": "The Long Hall, the base's canteen, at the evening sitting.",
+    "readAloud": "You hear the Long Hall before you see it: several hundred candidates at long tables, all talking at once about the same day. Every table already seems to belong to somebody. Behind the serving line, a radio is playing an evening phone-in that nobody is listening to.",
+    "landmark": "The serving line, with the radio on a shelf behind it.",
     "carriesIn": [
       {
-        "when": "Kit Issue was played first (it should be)",
-        "then": "Whatever they picked is visibly unworn -- a small, funny tell next to trainees who've had theirs for months. Worth one line, not a whole beat."
+        "when": "If they filed the requisition loudly",
+        "then": "Half the hall has heard. People grin at Section Nine on the way past, and Taka already knows."
+      },
+      {
+        "when": "If they filed it quietly",
+        "then": "Nobody knows yet, except Vetch."
       }
     ],
-    "holdInReserve": "One table near the door is laid for more people than are sitting at it, and nobody moves the spare chairs. Give this to anybody reading the room rather than joining it."
+    "position": {
+      "locationRef": "long-hall",
+      "state": "together",
+      "note": "Section Nine at one table near the serving line."
+    }
   },
   "cast": [
     {
       "id": "taka",
       "npcRef": "taka",
-      "label": "Taka",
-      "role": "Older student, real Frame time, instant nicknames",
+      "role": "A candidate a year ahead, who takes them under his wing.",
       "arrival": "splash",
       "brief": {
-        "wants": "To make six strangers feel like they already belong here, immediately, whether they're ready for it or not.",
-        "opensWith": "A nickname, delivered as already-decided fact, before anyone's introduced themselves.",
+        "wants": "Six new faces at his table tonight, before anyone else claims them.",
+        "opensWith": "Two chairs dragged over before anyone asks him to sit: \"Budge up. Properly. There's six of you and I'm not sitting on the end like a coat.\"",
         "willDiscuss": [
           {
-            "topic": "Anything, loudly, at length",
-            "note": "He has an opinion on everything and shares all of them. Genuinely warm, not performing it."
+            "topic": "Where they're from",
+            "note": "He asks first, and actually listens: \"No, properly from.\""
           },
           {
-            "topic": "Storm drains, if asked directly",
-            "note": "coercible below -- this is the only topic where the register actually changes."
+            "topic": "The first week",
+            "note": "\"Forms. Then forms about the forms. Then they let you near a machine.\""
+          },
+          {
+            "topic": "Vetch",
+            "note": "\"Did he send you for the bubble? He sends everyone for the bubble.\""
           }
         ],
         "willNotDiscuss": [
           {
-            "topic": "Anything unkind about anybody, however openly he is invited to",
-            "why": "Not diplomacy and not caution -- it visibly costs him nothing to refuse, which is the most revealing thing about him. He will change the subject to something he likes instead, at volume."
+            "topic": "Anything unkind about anyone",
+            "why": "He just won't, and it costs him nothing: \"Nah. Have you tried the pickles?\""
           }
         ],
         "coercible": [
           {
-            "topic": "What's actually down in the storm drains",
-            "how": "Ask him directly and specifically -- he won't volunteer it, but he won't lie if pushed.",
-            "challengeRef": "c1e1-canteen"
+            "topic": "What's in the drains",
+            "how": "Ask him properly, after the order. He won't volunteer it, and he won't lie.",
+            "challengeRef": "c1e1-canteen",
+            "checkRef": "ask-taka"
           }
         ],
         "voice": {
-          "register": "Exuberant, instantly familiar, total conviction. The nicknames arrive as settled fact, not an offer.",
-          "tics": [
-            "Never asks permission for a nickname, just uses it and moves on",
-            "Talks at full volume regardless of what's being discussed",
-            "Goes quiet for exactly one beat when something real comes up, then deflects straight back to noise"
-          ],
+          "register": "Loud, warm and quick, with a real question in every third sentence. Goes quiet for a moment when something real comes up.",
           "samples": [
-            "\"Oh, you're -- \" (already decided) \" -- yeah, that's you now, don't fight it.\"",
-            "\"First rule of the drill tomorrow: it will go wrong, it always goes wrong, that's why it's a drill.\"",
-            "\"Storm drains, huh.\" (a beat, longer than anything else he says all night) \"Wear the boots. Trust me.\""
+            "\"First day? Then you've had the forms. Mother's maiden name, twice. Everybody laughs at it. Nobody knows why.\"",
+            "\"Right. Who's from furthest away? Go on.\""
           ]
-        }
-      }
-    },
-    {
-      "id": "pilot-track-student",
-      "npcRef": "the-young-one",
-      "label": "A pilot-track student, a table over",
-      "role": "Texture and contrast tonight -- GM-ONLY: a real, tracked recurring character. See data/npcs/the-young-one.json before running or editing him.",
-      "walkOn": true,
-      "arrival": "quiet",
-      "brief": {
-        "wants": "To mention, unprompted, that their own assignment is more interesting than whatever Section Nine gets.",
-        "opensWith": "Asking which track they're on before asking their names.",
-        "willDiscuss": [
-          {
-            "topic": "Their own upcoming Frame time",
-            "note": "Not unkind, just clearly convinced this matters more than anything Section Nine is about to be handed."
-          }
-        ],
-        "willNotDiscuss": [
-          {
-            "topic": "Anything that would suggest he is anything other than an ordinary, slightly competitive classmate",
-            "why": "GM-ONLY, load-bearing: he is Cicada Cadre and a Directorate Frame pilot (ideas/story/dossier-cicada.md #9). Nothing in this scene may hint at it, exactly the same discipline as Manako's first-meeting rule in episode-c1e1--the-errand.json. He does not know he is being watched for anything; he is just having dinner."
-          }
-        ],
-        "coercible": [],
-        "voice": {
-          "register": "Confident, a little competitive, not actually malicious.",
-          "tics": [
-            "Turns most questions back to their own track"
-          ],
-          "samples": [
-            "\"You're Section Nine? Rough. We got harbour patrol.\""
-          ]
-        }
-      }
-    },
-    {
-      "id": "technical-track-student",
-      "npcRef": "technical-track-student",
-      "label": "A technical-track student, easier to talk to",
-      "role": "Texture, a friendlier contrast",
-      "walkOn": true,
-      "arrival": "quiet",
-      "brief": {
-        "wants": "An actual conversation, a rarer thing tonight than it should be.",
-        "opensWith": "Just asking how their first day went, genuinely.",
-        "willDiscuss": [
-          {
-            "topic": "What repair crew work is actually like",
-            "note": "Honest, a little tired, not glamorous and doesn't pretend otherwise."
-          }
-        ],
-        "willNotDiscuss": [
-          {
-            "topic": "Anything that would get another trainee in trouble",
-            "why": "Friendly about it and completely immovable. They will tell the party what a thing is; they will not tell them who did it."
-          }
-        ],
-        "coercible": [],
-        "voice": {
-          "register": "Quiet, warm, unhurried -- the easiest person in the room to end up next to.",
-          "tics": [
-            "Asks a real follow-up question instead of talking about themselves"
-          ],
-          "samples": [
-            "\"Nobody tells you how much of it is just... waiting for the part to actually break.\""
-          ]
-        }
+        },
+        "statblock": "Proposed: level 2, a candidate, can fight."
       }
     },
     {
       "id": "section-officer",
       "npcRef": "section-officer",
-      "label": "The Section Officer",
-      "role": "Arrives near the end of the meal to read the assignments out himself",
+      "role": "Duty officer tonight, reading the evening's orders.",
       "arrival": "announced",
-      "walkOn": false,
       "brief": {
-        "wants": "To watch Section Nine receive the worst job on the list, in person, from him.",
-        "opensWith": "Nothing to the party. He addresses the room, not them, and starts reading.",
+        "wants": "To watch Section Nine get the worst job on the list, from him, in front of everyone.",
+        "opensWith": "Nothing to the six. He reads the hall its orders and looks up only for theirs.",
         "willDiscuss": [
           {
-            "topic": "The assignment itself",
-            "note": "Purely procedural. Access, time, kit. He will repeat it once, in the same tone, and not a third time."
-          },
-          {
-            "topic": "Why Section Nine",
-            "note": "\"Sections are assigned work. That is what a section is.\" He does not elaborate and does not need to."
+            "topic": "The order",
+            "note": "He reads it again, word for word, once. Not a third time."
           }
         ],
         "willNotDiscuss": [
           {
-            "topic": "Reassignment",
-            "why": "Not handled in a canteen. Take it up through your section, which means take it up with him, later, and lose."
+            "topic": "The vial",
+            "why": "\"I don't know what you're referring to.\""
           },
           {
-            "topic": "The errand, the vial, or this afternoon",
-            "why": "He has not mentioned it and will not. That conversation is Episode Two's opening scene."
+            "topic": "A different job",
+            "why": "\"Sections are assigned work. That is what a section is.\""
           }
         ],
         "coercible": [],
         "voice": {
-          "register": "Clipped, procedural, faintly aggrieved. Reads a duty list the way other people read a shopping list.",
-          "tics": [
-            "Calls them Section Nine, never by name",
-            "Answers a question by reading the relevant clause aloud"
-          ],
+          "register": "Clipped and procedural. Reads orders like a shopping list. Never wrong in his own account.",
           "samples": [
-            "\"Section Nine: storm drain clearance, access via Dock C. Report by nineteen-hundred. Bring waders.\"",
-            "\"Sections are assigned work. That is what a section is.\"",
-            "\"Section Nine. -- Yes, you. Don't look round, there's only one of you.\"",
-            "\"It's on the sheet. It's been on the sheet since this morning. Somebody should read the sheet.\""
+            "\"Section Nine.\" He looks up. \"Yes, you. There's only one of you.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
+      }
+    },
+    {
+      "id": "pilot-track-student",
+      "npcRef": "the-young-one",
+      "role": "A pilot-track candidate at the next table.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Everyone to know his section got harbour patrol.",
+        "opensWith": "\"Which track are you on?\" before anyone's name.",
+        "voice": {
+          "register": "Confident and a little competitive, not unkind.",
+          "samples": [
+            "\"Section Nine? Rough. We got harbour patrol.\""
           ]
         }
       }
@@ -187,38 +131,28 @@
   ],
   "beats": [
     {
-      "id": "the-room",
+      "id": "the-hall",
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Establish scale before anything else happens -- this is the biggest room the six of them have shared all day, and most of the people in it are strangers.",
-      "direction": "Let it feel different from every scene so far. Intake Medicals and Kit Issue were both small and administrative; this is loud, social, and for the first time today the six of them are visibly outnumbered by people who aren't them.\n\nSomewhere under the noise, a radio nobody is really listening to: a man's voice, a phone-in programme, something about his daughter being held without charge. Neither name is said on air, and nobody at the table has any reason to know them. (GM-only: the father is Kudo, and the girl is Shinobu, who walks away from a lorry in Chapter 6; plant 10, LEDGER #44.) No check, nobody reacts, gone under the noise as fast as it arrived.\n\nLead with the noise. Everything today has been a queue, a counter or an office, and this is the first room that is bigger than the party rather than narrower.",
-      "nodeRefs": [
-        "mystery-ledger-10"
+      "text": "Let them find a table and talk. Read the radio once, under the noise.",
+      "readAloud": "On the radio, a father is trying hard not to shout. His daughter is seventeen, she's being held without charge, and nobody will tell him where.",
+      "note": "Plant: Nobody in the hall reacts to the radio. Say nothing more about it.\nSecret: She is Shinobu Kudo, and he is her father. She comes back into the story much later.",
+      "facts": [
+        "shinobu.the-phone-in"
       ],
-      "readAloud": "Four hundred people eating in a room built for it. It does not register as sound at all -- it registers as weather.\n\nEvery table is somebody's. You can tell by how people sit down at them -- no looking, no deciding, straight in.\n\nSomewhere behind all of it there is a radio nobody is listening to: a phone-in, and a man trying hard not to shout. His daughter is seventeen, she's being held without charge, and nobody will tell him where."
-    },
-    {
-      "id": "meet-someone",
-      "kind": "check",
-      "mandatory": false,
-      "delivery": "table",
-      "text": "If a player wants a real conversation with someone outside the six, offer one roll, their choice of skill.",
-      "challengeRef": "c1e1-canteen",
-      "checkRef": "sit-with-someone",
-      "npcRef": null,
-      "when": {
-        "condition": "if a player wants to talk to someone who isn't the group or Taka"
-      },
-      "note": "The scene's best chance for the table to meet the wider trainee population. Use the pilot-track and technical-track students as defaults, or invent on the spot. Never required; if nobody bites, the scene loses nothing.\n\nCROWD-SCENE RUMOURS -- AUTHORING GAP, flagged for Ingram. The standing rule is that any crowd scene carries at least three gatherable rumours reachable by social checks, and the episode file states this scene does. It does not yet. Assembly has its three written out; this scene has raw material but no authored set. Already in the room and usable as two of the three: what Taka knows about the drains (ask-taka-directly, though that is a different, harder ask), and the pilot-track student's harbour-patrol posting as a read on the section pecking order. A third needs writing, and it should be true in substance and wrong in detail, the same as Assembly's."
+      "gmFacts": [
+        "shinobu.who"
+      ]
     },
     {
       "id": "takas-entrance",
       "kind": "action",
       "mandatory": true,
-      "delivery": "table",
-      "text": "Taka arrives <trig id=\"taka-arrives\"/> uninvited and claims all six of them as his before the plates are cleared -- dragging chairs over, making room, declaring them his table's problem now, whether they like it or not.",
+      "delivery": "each",
       "npcRef": "taka",
+      "text": "Taka <trig id=\"taka-arrives\"/> arrives with two chairs, claims the six as his table, and asks each of them where they're properly from.",
+      "direction": "Full warmth: he asks about each of them and listens. Warm by including them, never by labelling them.",
       "triggers": [
         {
           "id": "taka-arrives",
@@ -227,57 +161,73 @@
           "label": "Taka arrives"
         }
       ],
-      "direction": "The warmth comes from INCLUSION, not labelling. Total confidence, zero permission asked, but aimed at the group and at whatever they actually did or said a moment ago in the-room, not at inventing who each of them is.\n\nIf a player mentioned anything specific, Taka seizes on it immediately and loudly. If nobody did, he is simply, overwhelmingly glad they exist and says so. If a player pushes back in character, Taka is delighted rather than deterred.\n\nHE DOES NOT HAND OUT NICKNAMES, AND THAT IS A LIVE DECISION RATHER THAN A RULE. Having him name each of them would need the GM to characterise six unknown PCs correctly, live, in a beat that then sticks for the rest of the campaign, and that is too precise a guess to make before the six real PCs exist. It is a genuinely good beat for a character somebody already knows -- worth revisiting once there is something real to react to.\n\nHe does not introduce himself and he does not ask. The warmth is in the assumption that of course he is sitting here.\n\n**Aim everything he says at what the party actually did or said a moment ago**, never at inventing who any of them is.",
-      "note": "ask-taka becomes available once he is actually in the scene -- see the check beat below.",
-      "readAloud": "A chair arrives before its owner does. <trig id=\"taka-arrives\"/> Then another one.\n\n\"Right -- budge up. No, properly budge up, there's six of you and I can't sit on the end like a coat.\"\n\nNobody asked him. Nobody is going to."
-    },
-    {
-      "id": "ask-taka-directly",
-      "kind": "check",
-      "mandatory": false,
-      "delivery": "table",
-      "text": "If a player asks Taka directly and specifically what the storm drain job is actually like, offer the check.",
-      "challengeRef": "c1e1-canteen",
-      "checkRef": "ask-taka",
-      "npcRef": "taka",
-      "when": {
-        "condition": "if a player asks Taka directly, not just generally, about the assignment"
-      },
-      "note": "One of the two 'verbal investigation' paths. He won't volunteer this -- it has to be a real, specific question."
-    },
-    {
-      "id": "recall-the-drains",
-      "kind": "check",
-      "mandatory": false,
-      "delivery": "table",
-      "text": "If a player wants to think about what they actually know about storm drains near the harbour, offer the check.",
-      "challengeRef": "c1e1-canteen",
-      "checkRef": "know-the-drains",
-      "when": {
-        "condition": "if a player wants to try recalling something relevant, at any point in the scene"
-      },
-      "note": "The hard Recall Knowledge path. Never required, costs nothing on any result -- an Encyclopaedia check."
+      "facts": [],
+      "gmFacts": []
     },
     {
       "id": "the-announcement",
-      "kind": "check",
+      "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "The Section Officer comes in near the end of the meal <trig id=\"section-officer-arrives\"/> with a clipboard, waits for the room to notice him, and reads the evening's section assignments out himself. Several other sections get theirs first. Section Nine's is last.",
-      "readAloud": "\"Section Four, harbour patrol, report to the east gate.\" He doesn't look up between entries. \"Section Six, assist Structural with a survey, Hangar Two.\"\n\nA pause. He looks up for this one. \"Section Nine: storm drain clearance, access via Dock C.\n\nReport by nineteen-hundred. Bring waders.\"",
       "npcRef": "section-officer",
-      "challengeRef": "c1e1-canteen",
-      "checkRef": "read-the-announcement",
+      "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last.",
+      "readAloud": "\"Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two.\" He looks up for the first time. \"Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.\"",
+      "direction": "No choice and no appeal: he answers any argument by reading the order again, once, and goes.",
+      "note": "Secret: He gave them the drains for the vial. He'll never say so.",
       "triggers": [
         {
           "id": "section-officer-arrives",
           "kind": "npc-enter",
           "npcRef": "section-officer",
-          "label": "Section Officer arrives"
+          "label": "Vetch arrives"
         }
       ],
-      "direction": "No choice is offered and none should seem available -- this isn't a negotiation. If a player objects or asks for a different assignment, the answer is procedural and final: reassignments aren't handled in a canteen, take it up through your section, next. The other sections' better-sounding jobs are the point. He does not gloat in words, and he does not have to -- he came down here to read this out himself when he could have sent it, and he looks up for exactly one entry on the list.\n\nTHE READ-ALOUD IS DROPPABLE UNITS. Cut from the middle if the table is ahead of it; keep the first and the last.\n\nNOBODY HAS TO ROLL HERE EITHER. A player who sits through the announcement and says nothing has done a normal thing. The check is for somebody who reacts.",
-      "note": "He is a face in the room rather than a voice on a tannoy, which is what makes read-the-announcement worth rolling -- reading a man is more interesting than reading a loudspeaker.\n\nGM-ONLY: same man as Kit Issue and The Errand, same grudge, no second more deliberate hand behind it. If a critical success asks who did this on purpose, the honest answer is one petty, familiar man standing right there, not an institution with a plan for them."
+      "facts": [
+        "section-officer.the-drains"
+      ],
+      "gmFacts": [
+        "section-officer.drains-for-the-vial"
+      ]
+    },
+    {
+      "id": "read-vetch",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches Vetch rather than listening to him, offer the check.",
+      "when": {
+        "condition": "someone watches Vetch"
+      },
+      "challengeRef": "c1e1-canteen",
+      "checkRef": "read-the-announcement",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "after-the-order",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "taka",
+      "text": "The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word.",
+      "readAloud": "\"Storm drains.\" Taka is quiet for a moment, which is new. \"Wear the waders. Trust me.\"",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "ask-taka",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "taka",
+      "text": "If anyone asks Taka properly what's down there, offer the check.",
+      "when": {
+        "condition": "someone asks Taka about the drains"
+      },
+      "challengeRef": "c1e1-canteen",
+      "checkRef": "ask-taka",
+      "facts": [],
+      "gmFacts": []
     }
   ],
   "artefacts": [],
@@ -285,56 +235,46 @@
   "gmModifiers": [],
   "offers": [],
   "outro": {
-    "endsWhen": "The moment the assignment lands. Don't let the scene wander after it -- end on the deflation, the same way Intake Medicals ended on the all-six realisation.",
+    "endsWhen": "Taka has had the last word.",
     "artefactRefs": [],
     "tracks": [
       {
         "track": "bonds",
-        "delta": 1,
-        "why": "The room got bigger and louder tonight, and Section Nine ended it with a shared, specific grievance: the worst job on the list, read last and read flat, after everyone else's sounded better. A pecking order they can resent together is exactly what turns six strangers into a section."
+        "why": "If Taka's table, or the order, pulled the six together."
       }
     ],
     "transition": {
       "mechanism": "ordered",
-      "line": "He already said it, to their faces: storm drain clearance, access via Dock C, report by nineteen-hundred. No choice was offered and none should seem available now either.",
+      "line": "Dock C at twenty-one hundred, with waders from the night lockup.",
       "scatterRisk": false
     },
-    "onwards": "Kit up and walk down to Dock C first (episode-c1e1--the-walk-down, the relax beat before the fight), then into the storm drains and whatever is waiting in them.",
+    "onwards": "The Walk Down, to the night lockup and Dock C.",
     "writeDown": [
-      "What Taka actually seized on or said to the table -- worth a callback later even without a fixed nickname attached to it.",
-      "Who they met outside the six, if anyone -- a real seed for Bonds later.",
-      "Who investigated the assignment and what they actually learned, since it changes how informed the party is walking into the fight -- but never changes the fight itself."
-    ]
+      "Who took to Taka, and who he took to.",
+      "Anything Taka told them about the drains."
+    ],
+    "position": {
+      "locationRef": "long-hall",
+      "state": "together",
+      "note": "Leaving for the night lockup."
+    }
   },
   "carryForward": [],
   "temptations": [
     {
-      "id": "what-do-you-know-about-drains",
-      "text": "If nobody's tried recalling anything about storm drains near the harbour yet, that's a free Encyclopaedia check sitting right there -- worth offering to whoever seems to be thinking about it?"
+      "id": "ask-taka",
+      "text": "Taka knows everyone on this island, and he's dying to be asked something."
     }
   ],
   "reactionPrompts": [
     {
-      "id": "takas-entrance",
-      "text": "Taka's uninvited, total-confidence claiming of the table landing as warmth rather than overbearing."
+      "id": "taka",
+      "text": "Taka landing as a friend."
     },
     {
-      "id": "the-scale-shift",
-      "text": "The canteen actually feeling like a bigger, louder world than the day's small administrative scenes."
-    },
-    {
-      "id": "the-announcement-sting",
-      "text": "The flat, final \"storm drain clearance, no choice offered\" announcement landing as a real deflation.",
-      "scaleNote": "0 = the table shrugged it off, 10 = the mood in the room genuinely dropped."
-    },
-    {
-      "id": "met-someone-outside-six",
-      "text": "Whether anyone had a real conversation with someone outside the six -- a seed for Bonds later."
-    },
-    {
-      "id": "investigated-the-drains",
-      "text": "Whether anyone tried to find out what's actually down in the drains before he read the assignment out and made it moot."
+      "id": "the-order",
+      "text": "Vetch's order landing flat."
     }
   ],
-  "notes": "A two-aspect scene by design: Taka's warmth is the joke half, the cold no-choice assignment is the plant half -- the same structural rhythm as Kit Issue's Nobu / extra-thing pairing. Taka's full voice is locked in bible/characters/taka.md; read it before editing this scene.\n\nTHE PILOT-TRACK STUDENT IS A REAL, TRACKED CHARACTER (data/npcs/the-young-one.json, dossier-cicada.md #9), not flexible texture -- though nothing about how he is played tonight changes. The technical-track student remains genuinely flexible texture unless and until he is reused enough to warrant the same treatment.\n\nWHO WROTE THE ASSIGNMENT LIST: the same Section Officer who sent them on The Errand's fool's errand. Same grudge, continuous, not a second antagonist (bible/characters/the-section-officer.md)."
+  "notes": "Taka's warmth is inclusion, never nicknames. The pilot-track candidate is the Young One: play him as an ordinary, slightly smug classmate, nothing more."
 }

@@ -3,8 +3,16 @@
 *Designed 2026-09-29, at Ingram's instruction: bring `tools/location-sync/`'s functionality into Foundry
 itself, as two separate edit modes (areas, and buildings/map points), then retire the standalone tool
 completely. Code (as built): `module/blank-inheritance/scripts/core/location-editor.mjs`,
-`foundry/location-editor.mjs`, `foundry/location-edits.mjs`, `foundry/location-draw-layer.mjs`,
+`core/location-draw-tools.mjs`, `core/location-published.mjs`, `foundry/location-editor.mjs`,
+`foundry/location-edits.mjs`, `foundry/location-draw-layer.mjs`, `foundry/location-published.mjs`,
 `templates/location-editor/*.hbs`, and `tools/location-sync/` on this side.*
+
+> **Read §10 phase 7 before trusting anything in phases 1-6 about what was "verified live".** The first
+> version of the editor passed every check its author wrote and was **completely unusable** the first time
+> the GM opened it in a real browser (2026-10-01: no panning, no existing outlines, nothing could be placed,
+> and a console crash that wedged the canvas). Phases 1-6 were "verified" by calling the layer's handlers
+> directly with hand-built event objects, which never exercises Foundry's own pointer pipeline. Phase 7 says
+> what was wrong, what replaced it, and how this tool is now tested for real (recipe in §11).
 
 **Revision history**: the first version of this document (same day) proposed drawing on Foundry's own
 native Region layer. Ingram rejected that outright before any of it was built on real data: *"Do not use
@@ -153,6 +161,21 @@ repo — only the explicit "save this item" action (§4) turns it into a harvest
 mid-session loses nothing: the panel reloads the last autosave on open, the same safety property
 `session.py`'s own autosave gave the browser tool.
 
+### 3.5 What already exists on the map
+
+`foundry/location-published.mjs` fetches every `data/campaign/locations/*.json` once (12 at a time, cached;
+the panel's **Refresh** re-reads) and lays each onto the hub scene with the same `sceneCalibration` the
+travel marker and the pin placer use (`hubCalibration()`, now the single copy). `core/location-published.mjs`
+reduces a document to a shape from `derived.imagePx`/`derived.centroidPx` -- **never `geometry.rings`**, which
+is lon/lat. The layer draws one fill+outline `Graphics` per polygon tier plus one for pins (a handful of
+display objects, not 237), dimmed outside the current mode like the session's own shapes, hidden when the
+layer is not the active one, and only on the hub scene. **Clicking** one opens it as a session item linked to
+its file (`locationId`, `locked`, `peek: true`, `baselineGeometry`); selecting anything else lets go of any
+item that was only looked at (`releasePeeked`), so clicking around leaves nothing behind. Editing a field or
+reshaping clears `peek`. Hit rule: a pin within reach wins, otherwise the smallest polygon (holes honoured);
+in Areas mode a region beats a building under the same point, and the reverse in Places mode. A new region's
+corners snap to the deployed regions' corners and edges too (a deployed region is only ever a snap *target*).
+
 ## 4. Harvest records
 
 Unchanged in shape from the first revision — this was never about the drawing engine. Foundry writes
@@ -278,13 +301,16 @@ Deferred, real functionality not yet given a new home (tracked, not silently los
 
 ## 9. Testing
 
-`core/location-editor.mjs` (session ops, field shaping/validation, record/clash logic) and
-`core/building-hit-test.mjs`/`core/location-depth-check.mjs` (once built) are pure, unit-tested, zero
-Foundry globals. `foundry/location-draw-layer.mjs` — the one genuinely Foundry-coupled, hard-to-unit-test
-piece — gets its correctness checked the way `draw.js` itself was: real interaction, live, in the local
-licensed Foundry copy (per `design/scene-edits.md §11`'s own verification model), plus porting across as
-many of `draw.js`'s ~35 documented regression cases as translate (angle-snap math, weld-tolerance math,
-hit-test rules) as pure-logic unit tests wherever the check itself doesn't require a live canvas.
+`core/location-editor.mjs` (session ops, field shaping/validation, record/clash logic),
+`core/location-draw-tools.mjs` and `core/location-published.mjs` are pure, unit-tested, zero Foundry
+globals. `foundry/location-draw-layer.mjs` — the one genuinely Foundry-coupled, hard-to-unit-test piece —
+is tested three ways, and **all three are needed** (§10 phase 7 is what happens with only the third):
+**executed** against a stand-in PIXI/Foundry that replays Foundry's real callback sequence
+(`test/tier4-location-draw-layer.test.mjs`); **read as source** where the wiring and Foundry's own source
+matter (`test/tier3-location-editor-contract.test.mjs`); and **driven live with real pointer events** in the
+local licensed Foundry copy (§11) -- *real events*, not direct handler calls. Porting across as many of
+`draw.js`'s ~35 documented regression cases as translate (angle-snap math, weld-tolerance math, hit-test
+rules) as pure-logic unit tests remains the way to keep the geometry honest.
 `tools/location-sync`'s merge/clash logic gets its own `test/location-sync/` suite mirroring
 `test/scene-edits/tools.test.mjs`. The relocated Python `core/` keeps its existing unit suite unchanged at
 its new path.
@@ -344,6 +370,10 @@ its new path.
    **Not done from this phase's original scope, still deferred:** draw.js's old per-district focus mode
    (mode-based dimming already covers the more load-bearing half of what it was for; a generalised "focus
    on just this one district and its neighbours" toggle is a separate, smaller nice-to-have).
+   **[CORRECTED 2026-10-01 -- see phase 7. The next paragraph's diagnosis was wrong: it called a defect of
+   the tool an "environment limitation". A real drag does work through Foundry's own
+   `MouseInteractionManager` once the Browser pane's animation loop is running (recipe in §11); what was
+   broken was the tool's own drag handling.]**
    **A genuine, disclosed environment limitation, not a code bug:** this local Foundry copy's browser
    automation cannot drive a real drag gesture that Foundry's own `MouseInteractionManager` recognises as
    one — confirmed by instrumenting `_onDragLeftStart/Move/Drop/Cancel` directly: every attempted
@@ -452,3 +482,149 @@ its new path.
    then run through the full merge on a scratch copy of the real `back-ridges.json` -- it split into
    1,226,660 m2 and 1,046,712 m2 (summing to the original 2,273,362 m2), the survivor kept its name and
    status, the new piece was an unnamed `needs-lore` stub `back-ridges-2`, and the real file was untouched.
+
+7. ✅ **It works in a real browser** (2026-10-01). The GM opened the deployed editor in real Foundry and wrote:
+   *"it's completely non-functional in Foundry VTT. I can't pan the camera, I can't see any existing outlines
+   for buildings or areas or map pins and I can't place new ones"*, pasting `Cannot read properties of null
+   (reading 'refCount')` from `LocationDrawLayer#_onDragLeftCancel`. Everything in phases 1-6 had been
+   checked by calling handlers directly, so none of it had ever met Foundry's real pointer pipeline.
+   **What was wrong** (each reproduced live with real pointer events before it was changed):
+   - **The crash wedged the canvas.** A left-drag made a preview `Graphics`; the drop destroyed it; and
+     Foundry *always* follows a drop with `cancel()` -> `_onDragLeftCancel`, which destroyed it again. PIXI's
+     second `destroy()` throws, **inside `MouseInteractionManager#cancel`, before that method resets its own
+     state** -- so `canvas.currentMouseManager` stayed set and the manager stayed in `DROP`, and every later
+     pan and click was dead until a reload. (Reproduced: state 5, manager stuck, right-drag pan dead.)
+   - **The default tool was named `"select"`**, which Foundry's canvas reserves: every drag dispatch in
+     `client/canvas/board.mjs` begins `["select", "target"].includes(game.activeTool)` and takes Foundry's own
+     rubber-band branch, never reaching the layer.
+   - **The dock group's `tools` was an array.** `SceneControls` keys tools by name, so they were called
+     `"0"`..`"6"`, `game.activeTool` was `null`, and the dock's own click handler crashed on `undefined.button`
+     (an earlier note here blamed that crash on calling `activate({tool})` twice; that was a misattribution).
+   - **Nothing that already existed was drawn.** The layer drew only the session's own drafts, so the map was
+     empty. All 237 deployed locations now draw (§3.5).
+   - **Shapes were drawn at a fixed scene-pixel weight.** The Campaign Map is 12,400 px across and is
+     normally viewed at about 0.06-0.3 zoom, where a 2-scene-pixel line is a tenth of a screen pixel.
+   - **The panel re-claimed the canvas on every render**, snatching it back from any other dock group.
+   - **A non-interactive `Graphics` above the handles swallowed presses on them** (found while verifying the
+     rest: PIXI 7 hit-tests `"auto"` children of an interactive parent, and one hit stops the search beneath
+     it, so the hover highlight made a region's corner impossible to grab).
+   - **Escape**, once the panel intercepted it, cancelled the draft *itself* and then reported "unhandled",
+     so Foundry carried on and opened its main menu on top of the editor.
+   **What replaced it:**
+   - `core/location-draw-tools.mjs`: one tool vocabulary (`pick` replaces `select`) shared by the dock, the
+     panel and the layer, with the reserved names written down and the dock built as an object by
+     `buildDockControl`. `onToolChange` now acts only on the tool being *entered*.
+   - Every Foundry-called callback is wrapped in `#guard`; the drag preview is owned by the layer and ended by
+     one idempotent `#endDrag`; `_canDragLeftStart` refuses drags for the click-only tools; every drawing
+     container except the handles is invisible to hit-testing (`#passive`).
+   - **Left-drag pans** (the pick tool; absolute from where the drag began, so it never drifts); **Shift-drag**
+     boxes a selection (Ctrl as well adds to it); right-drag still pans as everywhere in Foundry. A press only
+     *picks* on release and only if it did not become a drag, so panning from the middle of a building
+     selects nothing.
+   - **Existing locations** (§3.5): drawn, tier-toggled, hover-labelled, click to open for editing, snapped to.
+   - **Screen-constant sizing** (`#px`) with a debounced redraw on zoom (the `canvasPan` hook).
+   - **Escape** abandons a half-drawn shape, then lets go of the selection, then closes the panel; the panel
+     only *refuses* to close while the layer has something to abandon, and the layer does the abandoning.
+   - Closing the panel returns the canvas to Tokens; opening it claims the canvas once.
+   - **Save** writes only what changed: a reshaped region's geometry, an edited field set, nothing for a
+     location that was only looked at (`fieldsEdited`, `itemGeometryChanged`).
+   **How it is tested now** (the real lesson; §9 and §11): `test/tier4-location-draw-layer.test.mjs` *executes*
+   the layer against a stand-in PIXI that throws on a second `destroy()` and replays Foundry's real callback
+   sequence (`start -> move* -> drop -> cancel`); `test/tier3-location-editor-contract.test.mjs` reads the
+   wiring and checks the Foundry source it leans on (the Escape cascade, the manager's cancel order, the
+   dock's by-name tool lookup, the reserved names); `test/tier1-location-draw-tools.test.mjs` and
+   `test/tier1-location-published.test.mjs` cover the pure halves, including that **every real location file
+   can be drawn and found under the pointer**. And it was driven live in a real Foundry with real pointer
+   events (§11).
+   **Still open, deliberately:** welding a dragged corner to a neighbouring region that is *not open in the
+   session* (open both first); adopting a real OSM building that is not yet a location (§7, needs the
+   buildings index); labels appear on hover only.
+
+## 11. Driving the editor for real, from the Browser pane
+
+Calling a handler directly proves the handler, not the tool. Foundry's `MouseInteractionManager` is a state
+machine (`NONE -> HOVER -> CLICKED -> GRABBED -> DRAG -> DROP`), the board dispatches on `game.activeTool`,
+and a drop is always followed by a cancel; the first version of this editor was correct line by line and
+unusable as a whole. To test it the way a GM uses it:
+
+1. **Make the pane render.** A hidden Browser pane has a 0x0 viewport and no animation frames, so PIXI never
+   renders and events have nothing to hit. `resize_window` to 1280x800, replace `requestAnimationFrame` with a
+   `setTimeout` shim, and `canvas.app.ticker.stop(); canvas.app.ticker.start()`.
+2. **Dispatch real `PointerEvent`s on `canvas.app.view`** (`pointerdown`, a run of `pointermove`s with
+   `buttons`, `pointerup`; `button` 0 or 2; `shiftKey`/`ctrlKey`), with small sleeps between them -- Foundry
+   throttles drag moves to the ticker. Wheel zoom needs a `WheelEvent` at a point where
+   `document.elementFromPoint` is `#board` (an open modal such as Foundry's main menu covers everything).
+3. **Assert the manager, not just the layer:** `canvas.mouseInteractionManager.state === 1`,
+   `canvas.currentMouseManager === null`, `game.activeTool`, no `window.__errs`. The wedge was only visible
+   there.
+4. **Escape is one keydown on `document.body`** (it bubbles to Foundry's `window` listener). Dispatching it
+   on both `document` and `window` sends two and opens the main menu.
+5. **See it.** `computer screenshot` works once the viewport is emulated; for pixel detail render the stage
+   and `toBlob` the canvas, then `FilePicker.uploadPersistent("blank-inheritance", "", file)` -- the local
+   module directory is a junction, so the file appears under `module/blank-inheritance/storage/`.
+6. **Clean up what a test writes:** a Save writes `storage/location-edit-*.json`, which `npm run locations`
+   would later pull into real data. Delete test records, and the session autosave, afterwards.
+
+## 12. The Story tab: the episodes and haunts, scene by scene (2026-10-01)
+
+Ingram, after the editor worked: *"The ideal way for it to work would be tied very closely to the Episodes and Haunts
+structure so that I can look down a list and see where each scene per episode would be in order, see any gaps, be
+quickly able to see what it thinks the current scene location is and easily be able to reassign the building or draw a
+new building or map point for it to happen in. The same for haunts. This would be my primary way to use the interface
+since it focuses me towards the things that are most important. We need a nice expanding accordion list so that an
+episode can be collapsed or expanded to show all its scenes/locations. We need to account for places where players
+have options to go to multiple places."* The panel now opens on this list; the drawing tools are the second tab
+("Map tools").
+
+**What it shows.** An accordion: one group per Episode (in play order), one for the Haunts, and one for anything the
+Scene Set builds that no episode lists. Each scene is a row in play order with its day and quarter, its status, and a
+**place chip** saying where it happens (or "No place yet", in red). Open a scene to see: its **rooms** (the sub-scenes
+of the Scene Set), the **options the players choose between** under the question they are asked ("Where do you spend
+the night?", with the muster that follows), and its **travel points** (where the party stands when the scene opens and
+closes). A haunt also shows every option, in any scene's departure, that offers it. A header line counts what is
+missing; **"Only what needs a place"** filters to the gaps. What is open is remembered in this browser.
+
+**Where each place lives** (core/siting.mjs, read straight from the deployed data, never copied): a scene's place is
+`scenes[id].locationRef` in `scene-set.json`; an option is `outro.departure.destinations[id].placeRef` (or the `then`
+muster, or a departure-level `placeRef`) in the scene brief; a travel point is `intro|outro.position.locationRef` in the
+brief. Nothing invents a slot: a scene that wrote no travel points is not given any.
+
+**Gaps.** A scene with no place; a place that names a location that does not exist; an option or travel point left
+empty; an episode scene with no Foundry scene yet. A deliberately off-map scene (the view from above) is shown
+"Off the map" and is not a gap. A proposal flagged `approximate` is shown amber.
+
+**Changing a place.** Click the target icon on a row, then: **Pick on the map** (the next click on a building or pin;
+Shift-click takes the area), **Draw a building** or **Drop a pin** (over to Map tools with the right tool; Save, and the
+placement step comes up on the Story tab, naming the drawing by the record that drew it, since it has no id until the
+pull), search by name, or **No place**. Nothing is written yet: a confirm card shows what it is now, the **other places
+that agree with it today** (a haunt's place is also in its brief's travel points and in the option that offers it,
+ticked by default; a sibling room that agrees is listed unticked), and an optional "why here". Only Save placement
+writes: one `"site"` record per slot. The chip then shows the new place marked *waiting* until the pull. A chip is also
+the "show me" button: it outlines the place on the map in magenta, labels it and brings the camera to it.
+
+**The records and the pull.** A `"site"` record (`core/location-editor.mjs`) carries `target`, `locationId` *or*
+`viaRecord`, `before` (or `beforeVia`, when what the editor saw was itself a drawing not yet pulled) and an optional
+`note`. `npm run locations` applies it (`tools/location-sync/siting.mjs`): the scene-set entry, or the scene brief
+(**the canon copy when the brief has one, with the `data/scene-briefs` copy rewritten to match**, because `story check`
+fails if they differ; the pull prints which canon scenes changed, and one that Ingram had approved needs her read
+again). If the repo's slot is no longer what the editor saw, nothing is written and the pull reports a clash. Placing a
+scene clears `approximate` and replaces `locationNote` (her reason if she gave one, otherwise a plain line saying what
+changed) so the file never describes a place the scene no longer has. Results go in the ledger
+(`data/campaign/location-edits.json`, now with a schema), and a placement that could not be applied is shown on the
+Story tab. **Found while building it:** The Paper Lantern's travel points name a location that does not exist yet and
+the scene itself has no place; it is the one real gap in the campaign today.
+
+**Tests:** `test/tier1-siting.test.mjs` (the model, the story as lines, the records, and the real campaign),
+`test/location-sync/siting.test.mjs` (the apply, against scratch data), the Story section of
+`test/tier3-location-editor-contract.test.mjs`, focus/assign in `test/tier4-location-draw-layer.test.mjs`. Driven live
+with real pointer events: accordion, search, pick-on-map by a real click, draw-then-place, a second change chaining.
+
+### 12.1 Off the map: scenes that need no place (2026-10-01)
+
+A scene may honestly have no place on the Campaign Map. In the Story tab, editing a scene's own place offers **Off the map...**,
+which lists eighteen reasons (`OFF_MAP_REASONS` in `core/siting.mjs`): a view from above, in transit, everywhere, separate
+places, players choose, remote (call/message/broadcast), virtual, memory, vision, off-world, another map, at sea, underground,
+unknown, everyone knows it as, within a parent place, out of character, abstract. Choosing one stages a confirm card and writes
+one `"site"` record with `offMap: "<reason id>"` and `locationId: null`. Only scene places can be off-map, not destinations or
+travel points. Apply writes `offMap: {reason}` on the `scene-set.json` entry (and clears `approximate`); setting a real place
+removes it. The sign-off Place pass and board accept an `offMap.reason` as sited. Verified live 2026-10-01 on "From Up Here".

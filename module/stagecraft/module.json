@@ -1,0 +1,33 @@
+{
+  "id": "stagecraft",
+  "title": "Stagecraft: Puppet Show",
+  "description": "<p>Theatre-of-the-mind scenes where the players hold the puppets. A scene is a painting; people are cards that stand in it, lit by its lamps, and each player picks up their own card by its stick, moves it about and bumps it into others. Zones, marks to rest on, and a box of chalk.</p>",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.367"
+  },
+  "authors": [
+    {
+      "name": "Ingram Blakelock - Mythica Machina"
+    }
+  ],
+  "esmodules": [
+    "dist/stagecraft.js"
+  ],
+  "styles": [
+    "styles/stagecraft.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "socket": true,
+  "relationships": {
+    "requires": [],
+    "recommends": []
+  }
+}

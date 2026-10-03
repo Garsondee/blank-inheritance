@@ -1,0 +1,349 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--the-errand",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-errand",
+  "title": "The Errand",
+  "summary": "Scene 7. Into the city with Vetch's docket. The instrument makers laugh and send them to Manako, who owns a tea house a few streets on, was hazed the same way once, and shows them how to win.",
+  "goal": "They have been laughed at, met Manako, heard his plan for the vial, and chosen how to file it.",
+  "howToPlay": "Warm, funny and safe: a humiliation that turns into a win. Manako is kind and useful in every line. **Nothing here hints at who he really is.**",
+  "runsAbout": "30-40 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The city: an instrument makers' workshop, then a tea house a few streets on.",
+    "readAloud": "Off the train, the city is loud and close: cranes working behind the rooftops, a tram grinding past, a man arguing with a delivery van. The harbour is two streets over, and you can smell it. Your new uniforms are very obviously new.",
+    "landmark": "The harbour, two streets over, always in earshot.",
+    "carriesIn": [
+      {
+        "when": "If anyone has the tram map",
+        "then": "They find the workshop without asking anyone."
+      },
+      {
+        "when": "If anyone saw a violet mark on the road in",
+        "then": "They may recognise the next one."
+      }
+    ],
+    "position": {
+      "locationRef": null,
+      "state": "together",
+      "note": "In the city: the workshop and the tea house are a few streets apart."
+    }
+  },
+  "cast": [
+    {
+      "id": "storekeeper",
+      "npcRef": "the-storekeeper",
+      "role": "Runs the instrument makers' workshop.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Six uniforms away from her bench, nicely.",
+        "opensWith": "She reads the docket twice, then laughs.",
+        "willDiscuss": [
+          {
+            "topic": "The docket",
+            "note": "\"Love, we make the vials. There's nothing in the bubble. That's the whole point of the bubble.\""
+          },
+          {
+            "topic": "Who could help",
+            "note": "\"Ask Manako. Tea house, a few streets on, corner table. He'll enjoy beating it.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Other customers",
+            "why": "Professional, not secretive: \"Customers' business is customers' business.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Brisk and amused by uniforms. Repeats a request back flattened, like a form.",
+          "samples": [
+            "\"That's not a thing. I've been here nineteen years and that's not a thing.\"",
+            "\"...Oh. You asked properly.\""
+          ]
+        },
+        "statblock": "Proposed: level 1, an instrument maker, non-combat."
+      }
+    },
+    {
+      "id": "manako",
+      "npcRef": "manako",
+      "role": "Owns the tea house. A chemist, long retired.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To help these six win, and to be listened to while he does it.",
+        "opensWith": "He's already looking at the docket in their hands: \"May I? ...Ah. They've sent you for the bubble.\"",
+        "willDiscuss": [
+          {
+            "topic": "Himself",
+            "note": "\"Manako. I was a chemist, a long time ago. For them, as it happens.\""
+          },
+          {
+            "topic": "The Directorate",
+            "note": "Bitter, and fair with it: \"They're not wicked. They're just very good at not talking.\""
+          },
+          {
+            "topic": "Chemistry",
+            "note": "Happily and at length, until he catches himself: \"Sorry. You asked one question and I've given you four.\""
+          },
+          {
+            "topic": "The plan",
+            "note": "The vial: see the plan beat."
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "The violet marks",
+            "why": "He knows exactly what they are. He shrugs: \"Somebody's sign for something. The city's full of them.\""
+          },
+          {
+            "topic": "Why he left the Directorate",
+            "why": "\"They decided I'd made a fool of myself. Maybe I had.\" Then he changes the subject."
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Unhurried and warm, an old teacher's voice. Handles a thing before he talks about it. Goes over old failures out loud, then apologises.",
+          "samples": [
+            "\"Don't go back empty-handed. That's the whole joke, and you don't have to be in it.\"",
+            "\"That's not a new joke. It was old when they played it on me.\""
+          ]
+        },
+        "statblock": "Not built. He can't be fought or caught in this scene."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "into-the-city",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the city as they come off the train, then let them find the instrument makers.",
+      "note": "Plant: A side street the dogs won't walk down, and a roof with no pigeons on it. Say nothing about it.\nIf they pass the harbour square: The gnoll statue, with HYUCK on the plaque.\nSecret: Animals hear the Watcher's swarm as a high buzzing, and it's thick on that street.",
+      "facts": [
+        "hyuck.statue"
+      ],
+      "gmFacts": [
+        "watcher.animals"
+      ]
+    },
+    {
+      "id": "the-store",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "storekeeper",
+      "text": "The instrument maker reads the docket twice and laughs. On any result, she sends them on to Manako.",
+      "readAloud": "\"Love, we make the vials. There's nothing in the bubble. That's the whole point of the bubble. It's the bit that isn't there.\"",
+      "note": "If anyone tries to talk her round: Offer the check: it decides how warmly she sends them on.",
+      "challengeRef": "c1e1-the-errand",
+      "checkRef": "the-storekeeper",
+      "facts": [],
+      "gmFacts": [
+        "section-officer.hazing"
+      ]
+    },
+    {
+      "id": "the-mark-again",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "On the walk to the tea house: a small deep-violet mark at head height, on a tram-stop wall. Offer the check.",
+      "note": "Plant: The same violet, at the same height, as on the road in. Say nothing about it.\nSecret: Cicada's, like the others.",
+      "challengeRef": "c1e1-the-errand",
+      "checkRef": "the-mark-again",
+      "facts": [
+        "cicada.violet-marks"
+      ],
+      "gmFacts": [
+        "cicada.marks-meaning"
+      ]
+    },
+    {
+      "id": "the-old-man",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "manako",
+      "text": "Manako <trig id=\"manako-at-his-table\"/> owns the tea house. He reads the docket before they finish explaining: \"Ah. They've sent you for the bubble.\"",
+      "readAloud": "The tea house is small, warm and full: steam, low voices, a counter polished by a century of elbows. The regulars nod to the old man at the corner table as they pass, and his tea arrives without his asking.",
+      "direction": "Kind, useful and openly bitter about the Directorate, at an even pace. He gives his name before he's asked.",
+      "note": "Watch for: Every line of his is a leak risk. If unsure, have him talk chemistry.\nSecret: He founded Cicada. Nothing shows it here, because here he is only kind.",
+      "triggers": [
+        {
+          "id": "manako-at-his-table",
+          "kind": "npc-enter",
+          "npcRef": "manako",
+          "label": "Manako at his table"
+        }
+      ],
+      "facts": [
+        "manako.name",
+        "manako.chemist"
+      ],
+      "gmFacts": [
+        "manako.cicada"
+      ]
+    },
+    {
+      "id": "heard-the-name",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone tries to place his name, offer the very hard knowledge check.",
+      "when": {
+        "condition": "someone tries to place the name"
+      },
+      "challengeRef": "c1e1-the-errand",
+      "checkRef": "heard-the-name",
+      "facts": [
+        "manako.disgraced"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "read-the-old-man",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches Manako rather than the docket, offer the check.",
+      "when": {
+        "condition": "someone watches him"
+      },
+      "challengeRef": "c1e1-the-errand",
+      "checkRef": "read-the-old-man",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-vial",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "manako",
+      "text": "Manako tells them how he came back empty-handed once, then gives them his plan.",
+      "readAloud": "\"They did this to me, you know. Forty-odd years ago. I came back with nothing, and they laughed, and I've had a long time to think about what I should have done.\"\n\n\"So. He's written BUBBLE, ONE. Don't argue with him. Take him at his word. The bubble lives in a sealed vial, and the vial is a real part, with a real number, and it isn't cheap. Requisition a new vial against this docket, exactly as he wrote it. It needs a signature from a desk above his, and it makes a form that says who asked for it, and why.\"\n\n\"You'll have done exactly what you were told. Somebody upstairs will spend four minutes of their afternoon working out why.\"",
+      "note": "Do: He writes the part number on the back of a bill for them, in a careful, old-fashioned hand. Grant it.",
+      "facts": [
+        "manako.came-back-empty-handed",
+        "manako.the-vial-plan"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "how-to-file-it",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Ask the table how they'll file the requisition. Let them settle it between themselves.",
+      "choicePoint": {
+        "label": "How do they file it?",
+        "options": [
+          {
+            "id": "quietly",
+            "label": "Quietly.",
+            "consequence": "A receipt for Vetch, and nobody else the wiser."
+          },
+          {
+            "id": "loudly",
+            "label": "So people see.",
+            "consequence": "Filed where it's noticed: the base has heard by supper."
+          }
+        ],
+        "allowsInventedOption": true
+      },
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "what-he-thinks-of-your-employer",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "manako",
+      "text": "Before they go, if it hasn't come up, he asks who they work for, and says one true thing about them.",
+      "readAloud": "\"They dig things up, you know, the people you work for. Whatever they find goes in a vault, and nobody talks about it again. That's not wicked, mind. Some things ought to be locked away. But keeping quiet gets to be a habit.\"",
+      "facts": [
+        "directorate.digs"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "the-way-to-reach-him",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "manako",
+      "text": "He asks them to come back and say how it went. If one was especially kind, he writes them his number on a napkin.",
+      "note": "Do: Your call who, if anyone. No roll. Hand that player a note with the number.\nSecret: Trainee messages are read: by the Directorate, as routine, and by the Watcher.",
+      "facts": [],
+      "gmFacts": [
+        "manako.messages-read"
+      ]
+    }
+  ],
+  "artefacts": [
+    {
+      "id": "the-part-number",
+      "title": "A part number on the back of a bill",
+      "earnedBy": "Manako's plan.",
+      "gmNote": "His handwriting, kept: it can be set against Cicada's papers much later.",
+      "body": "<p>The back of a tea-house bill. In a careful, old-fashioned hand: a part number, a line under it, and <em>replacement vial, levelling, sealed</em>.</p>"
+    }
+  ],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "They leave the tea house with a plan, a part number and the time.",
+    "artefactRefs": [
+      "the-part-number"
+    ],
+    "tracks": [
+      {
+        "track": "bonds",
+        "why": "If they were kind to him and someone got his number."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The train back to the island, and the stores' requisitions hatch before nineteen hundred.",
+      "scatterRisk": false
+    },
+    "onwards": "The Tram Back, to the island.",
+    "writeDown": [
+      "Who holds Manako's number, if anyone.",
+      "How they're filing the requisition.",
+      "Who heard what he said about the Directorate."
+    ],
+    "position": {
+      "locationRef": null,
+      "state": "together",
+      "note": "Leaving the city for the island."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "ask-him",
+      "text": "Manako looks like a man who'd enjoy being asked a question about anything at all."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-turn",
+      "text": "The humiliation turning into a win."
+    },
+    {
+      "id": "manako",
+      "text": "The table warming to Manako."
+    },
+    {
+      "id": "the-choice",
+      "text": "The table settling quietly or loudly on its own."
+    }
+  ],
+  "notes": "Manako's scenes need care: every line is checked for leaks. He talks freely about everything except the Watcher, gives his real name, and is openly bitter about the Directorate and fatherly to recruits (D045). The Directorate has never linked the tea-house owner to Cicada, and both halves of that discovery belong to the players (D017, D034). The workshop and the tea house wait for Ingram's siting; the district is one where he has influence (D046)."
+}

@@ -1,0 +1,133 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--the-tram-back",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-tram-back",
+  "title": "The Tram Back",
+  "summary": "Scene 8. The island train home across the causeway at dusk, with nobody needing anything from them, then the requisition handed in at the stores before nineteen hundred.",
+  "goal": "They've had a quiet ride together and handed in the requisition before nineteen hundred.",
+  "howToPlay": "Quiet and short. Two lines, then let them talk. **Then the requisition goes in, the way they chose.**",
+  "runsAbout": "10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The island train across the causeway at dusk, then the stores hatch.",
+    "readAloud": "The island train is four short carriages, half empty at this hour. Out of the window the city's lights are coming on behind you, and the causeway runs out ahead across the water.",
+    "carriesIn": [
+      {
+        "when": "After The Errand",
+        "then": "Someone has Manako's part number on the back of a bill."
+      }
+    ],
+    "position": {
+      "locationRef": "island-platforms",
+      "state": "together",
+      "note": "On the island train, then at the stores."
+    }
+  },
+  "cast": [
+    {
+      "id": "nobu",
+      "npcRef": "nobu",
+      "role": "Closing the stores hatch for the night.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To shut the hatch and go home.",
+        "opensWith": "\"Hatch is closing. What is it?\"",
+        "voice": {
+          "register": "Fast, as ever, and not reading what he's handed.",
+          "samples": [
+            "\"Needs a countersignature from above your officer. It'll go up tonight. Next.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-ride",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the light, then let them talk. A quiet ride is fine.",
+      "readAloud": "The light through the window has gone long and orange. Nobody needs anything from any of you for about twenty minutes.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "a-small-moment",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "each",
+      "text": "If a player wants a moment of their own, ask what it is. They roll a skill they can argue for, then tell it.",
+      "when": {
+        "condition": "a player wants a moment"
+      },
+      "challengeRef": "c1e1-the-tram-back",
+      "checkRef": "a-flourish",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "the-hatch",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "nobu",
+      "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes the requisition without reading it. File it the way they chose.",
+      "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nSecret: It goes up tonight and comes back signed by Rand, of Medical: Shucks's own right hand.",
+      "triggers": [
+        {
+          "id": "nobu-at-the-hatch",
+          "kind": "npc-enter",
+          "npcRef": "nobu",
+          "label": "Nobu at the hatch"
+        }
+      ],
+      "facts": [],
+      "gmFacts": [
+        "shucks.rand",
+        "shucks.rand-signs"
+      ]
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The requisition is in.",
+    "artefactRefs": [],
+    "tracks": [],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "The supper bell, and the Long Hall.",
+      "scatterRisk": false
+    },
+    "onwards": "Canteen, in the Long Hall.",
+    "writeDown": [
+      "Anything said on the ride worth calling back.",
+      "How the requisition went in."
+    ],
+    "position": {
+      "locationRef": "island-platforms",
+      "state": "together",
+      "note": "Back on the island, heading for supper."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "what-was-he-like",
+      "text": "Someone asks whoever talked to Manako most: what was he actually like?"
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "the-ride",
+      "text": "The six talking among themselves on the ride."
+    }
+  ],
+  "notes": "The episode's breather after the city. Its one job is the deadline: the requisition goes in before nineteen hundred."
+}

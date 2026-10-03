@@ -43,6 +43,10 @@ const DELIBERATELY_QUIET = new Map([
     "Episode Two's closer. Four beats, ten minutes, and less is fine. Six people in a machine hall after everybody has gone home, reading a chalk board that has not been rubbed out. The arrow pass (design/scene-audit.md §9) closes the episode on this scene deliberately flat."
   ],
   [
+    "episode-c1e1--the-tram-back",
+    "The breather after the city: twenty minutes on the island train with nothing asked of anyone, a moment for any player who wants one, then the requisition handed in at the hatch. How to file it was the players' call in The Errand."
+  ],
+  [
     "episode-c1e1--from-up-here",
     "Scene 0 (Ingram, 2026-09-24): the GM's opening speech over one picture of the world, six minutes of narration and nothing for the players to do on purpose. Every player's first turn is the scene straight after it, The Road In, which is long and is all theirs."
   ]

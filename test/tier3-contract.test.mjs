@@ -127,7 +127,7 @@ test("buildBioUpdate: every biography path the induction terminal writes exists 
       personalFile: answerAll(prompts.personalFile),
       personality: answerAll(prompts.personality)
     },
-    intake: { questions: answerAll(prompts.openQuestions), freeform: "Contract check freeform." },
+    intake: { questions: answerAll([...prompts.openQuestions, ...prompts.playerQuestions]), freeform: "Contract check freeform." },
     knownLanguageSlugs: ["common"]
   });
 

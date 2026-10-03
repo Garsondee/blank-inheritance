@@ -1,12 +1,14 @@
 # The re-read
 
-version 2 · 2026-09-27
+version 3 · 2026-10-01
 
 Read the scene as a GM who has never seen this repo. Answer every question, fix what fails, and record the answers in
 `scenes/<id>.reread.md`. When Ingram's reading of a scene finds something these questions missed, add a question here
 and raise the version. A question keeps its number for good; new ones go at the end of their group.
 
-Version 2 added R16 to R25, and widened R3 and R12, from Ingram's read of Scene 0 (D048).
+Version 2 added R16 to R25, and widened R3 and R12, from Ingram's read of Scene 0 (D048). Version 3 added R26 to R28
+from her reading of The Road In in the Scene Runner (D056); the house style they check is
+`design/gm-facing-prose-style.md` §0.
 
 **Does every part earn its place?**
 - **R1** For each part: what does the GM do with it at the table, and what does a player get from it (something to
@@ -54,6 +56,12 @@ Version 2 added R16 to R25, and widened R3 and R12, from Ingram's read of Scene 
 - **R22** Is every word this campaign coined (Frame, glamour) explained the first time the players hear it?
 - **R23** Is the scene the length its job needs? An opening that sets up a whole world needs room; a quick scene
   doesn't.
+- **R26** Is the most important thing first: in the scene, in each beat, in each field and in each sentence? A beat
+  line starts with what happens or what the GM does; a note's first line is the one that breaks the scene if missed.
+- **R27** Is each thing said once, in the place it's used? Count the places a rule or a detail appears, Runner and prep
+  notes together, and cut every copy but the one where the GM needs it.
+- **R28** Is every field inside its budget (§0 of the style guide)? If a field won't fit, it's two beats, a list, or
+  prep notes.
 
 **Does it hold up?**
 - **R11** Is there one thing a player would retell?

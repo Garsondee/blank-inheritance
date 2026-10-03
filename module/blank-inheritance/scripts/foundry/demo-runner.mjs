@@ -85,7 +85,10 @@ async function scatterDemoParty() {
         // real chargen decision, but they should still LOOK like real
         // production tokens, which is the whole point of the art work
         // this same day. "character" reads as the party's own cyan ring.
-        prototypeToken: { ring: resolveTokenRing("character", {}) },
+        // Linked: Actor.createDocuments does not apply sf2e's own "a character's token is linked"
+        // default (Actor.create does), and an unlinked token's synthetic actor can loop forever
+        // on an INHERIT ownership entry (core/ownership.mjs).
+        prototypeToken: { ring: resolveTokenRing("character", {}), actorLink: true },
         flags: { [MODULE_ID]: { [DEMO_PARTY_FLAG]: true, originRef: p.originRef } }
       }], { keepId: true });
     }
@@ -95,11 +98,13 @@ async function scatterDemoParty() {
       // art (2026-09-23) or the ring (2026-09-23, later the same day)
       // landed — a re-run picks up both instead of leaving the old
       // placeholder in place forever.
-      await existing.update({ x: p.x, y: p.y, "texture.src": p.portrait, ring: resolveTokenRing("character", {}) });
+      // actorLink heals a token placed before these were linked.
+      await existing.update({ x: p.x, y: p.y, "texture.src": p.portrait, ring: resolveTokenRing("character", {}), actorLink: true });
     } else {
       await hub.createEmbeddedDocuments("Token", [{
         _id: p.tokenId,
         actorId: actor.id,
+        actorLink: true,
         name: p.label,
         x: p.x,
         y: p.y,

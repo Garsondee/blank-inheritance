@@ -41,6 +41,7 @@ export async function ensureTestFixturePCs() {
           type: "character",
           img: "icons/svg/mystery-man.svg",
           prototypeToken: {
+            actorLink: true,
             texture: { src: "icons/svg/mystery-man.svg", tint: pc.color },
             name: pc.name,
             disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY
@@ -87,7 +88,10 @@ export async function placeTestFixturesOnWesternEdge() {
     // obviously "the same testing batch" rather than scattered at random.
     const position = { x: scenePoint.x, y: scenePoint.y + i * 80 };
     if (existing) {
-      await existing.update(position);
+      // actorLink heals a fixture placed before they were linked. An unlinked token's synthetic
+      // actor loops forever on an INHERIT ownership entry (core/ownership.mjs) -- this is the
+      // token the bug was first seen on (2026-10-01).
+      await existing.update({ ...position, actorLink: true });
       created.push(existing);
       continue;
     }
@@ -95,6 +99,7 @@ export async function placeTestFixturesOnWesternEdge() {
       {
         _id: tokenId,
         actorId: actor.id,
+        actorLink: true,
         name: actor.name,
         x: position.x,
         y: position.y,

@@ -5,10 +5,71 @@
   "authoring": {
     "status": "drafted"
   },
-  "name": "The Medical -- finding out what \"irregular\" means",
-  "description": "Five ways at the same fact, at five DCs, plus three standalone side checks that don't belong to the 'irregular' ladder at all. Shucks will not say what the screen tests for, so every route on the main ladder (ask-him-straight, read-shucks, what-a-screen-tests, palm-the-form, make-him-like-you) gets at it sideways. The party is level 1, so the base DC is 15 and the ladder runs 13 / 15 / 17 / 20 (SF2E DC-by-level plus the standard easy/hard adjustments). Nobody has to succeed at any of this -- the scene works if they never ask. Three of the checks are not on that ladder at all and belong to unrelated topics: overhear-the-search is incidental texture from the queue; the-charter is the founding charter's four signatures; and the-hand is whether anybody clocks that Shucks's right hand is a very convincing prosthetic rather than bone (`arc-shucks-hand`).",
+  "name": "Intake Medicals",
+  "description": "Five optional checks around the medical. None of them costs anything mechanical.",
   "levelContext": 1,
   "checks": [
+    {
+      "id": "overhear-the-search",
+      "name": "Overhear the staff",
+      "skillOptions": [
+        "perception"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard",
+        "adjustment": "hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Two staff, low: \"...the pilot, Nozomi, still hasn't turned up...\" Then they see the candidates and stop.",
+        "success": "\"...still hasn't turned up.\" \"...keep looking.\" Somebody is missing, and it matters.",
+        "failure": "Just staff talking.",
+        "criticalFailure": "They're sure it's about a missing delivery of forms, and they'll repeat it to anyone who asks."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "recognise-the-name",
+      "name": "Recognise the name",
+      "skillOptions": [
+        "society"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Shucks Mordant: one of the four founders. Half the city is named after them, and this one is the real thing, taking blood.",
+        "success": "Mordant: one of the four founders' names. Half the city is named after them.",
+        "failure": "The name means nothing yet.",
+        "criticalFailure": "They're sure it's a brand of disinfectant."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "the-hand",
+      "name": "Watch the hand",
+      "skillOptions": [
+        "perception",
+        "medicine"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard",
+        "adjustment": "hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "A half-beat of lag in his right hand, as if something else is deciding. He notices them noticing, and flexes the fingers once.",
+        "success": "His right hand isn't bone. The give at the knuckle is wrong: it's a prosthetic.",
+        "failure": "Nothing they can put a finger on.",
+        "criticalFailure": "They decide it's just what being a skeleton looks like."
+      },
+      "repeatable": false
+    },
     {
       "id": "ask-him-straight",
       "name": "Ask him straight",
@@ -17,153 +78,35 @@
       ],
       "dc": {
         "value": 13,
-        "basis": "level 1 DC 15, one step easy -- he is friendly and they are allowed to ask",
+        "basis": "level 1, one step easy",
         "adjustment": "easy"
       },
       "outcomes": {
-        "criticalSuccess": "\"It's a screen. Screens flag things. You're fine.\" And then, because he likes them: \"Come back and ask me again in a year if it still bothers you.\" He means it.",
-        "success": "\"It's a screen. Screens flag things. You're fine.\" He is telling the truth as far as he is permitted to tell it.",
-        "failure": "He answers a slightly different question, warmly, and they are out of the door before they notice.",
-        "criticalFailure": "He decides this one is a worrier and mentions it to Ume. They get a welfare check-in nobody asked for, which is kindly meant and mildly humiliating."
-      },
-      "repeatable": false
-    },
-    {
-      "id": "read-shucks",
-      "name": "Read his face",
-      "skillOptions": [
-        "perception"
-      ],
-      "dc": {
-        "value": 15,
-        "basis": "level 1 standard DC -- the intended door"
-      },
-      "outcomes": {
-        "criticalSuccess": "He is bored, and boredom means routine. Also: there is one beat, just one, where he is not bored -- when he checks the result against something on the second page, and does not write it down.",
-        "success": "He is not worried. He is bored. Boredom means routine, and routine means this happens to everybody, every year.",
-        "failure": "A busy man being busy.",
-        "criticalFailure": "They read him as hiding something frightening, which is wrong in a way that will colour how they treat him for a chapter."
-      }
-    },
-    {
-      "id": "the-hand",
-      "name": "Notice the hand",
-      "skillOptions": [
-        "perception",
-        "medicine"
-      ],
-      "dc": {
-        "value": 17,
-        "basis": "level 1 DC 15, one step hard -- it's a genuinely convincing prosthetic, not a costume prop",
-        "adjustment": "hard"
-      },
-      "insight": true,
-      "outcomes": {
-        "criticalSuccess": "They clock exactly what's wrong: every other joint in his body moves the instant he decides to move it -- the same force that keeps a two-century-old skeleton walking and talking doesn't have a delay in it. The hand does. A half-beat of mechanical lag, there and gone, like something else is doing the deciding for that one hand and it takes a moment to catch up. Shucks notices them noticing. He doesn't explain -- just flexes the fingers once, testing it, and moves on to the next question.",
-        "success": "It's not bone. Beautifully made, matched to the rest of him well enough to fool a glance, but the give is wrong at the knuckle, and it doesn't quite keep pace with the rest of him -- everything else about Shucks moves like it means to, instantly; the hand catches up. He doesn't react to being caught. If anything, it's the least interesting thing about him today.",
-        "failure": "Nothing reads as off. He's unmistakably built of bone everywhere else, and the hand guiding the light past their eyes moves like it belongs to him.",
-        "criticalFailure": "They decide the thing nagging at them is just that he's a skeleton, full stop, and stop looking any further -- which misses the actual, stranger detail entirely, and is a little rude besides."
-      },
-      "bySkill": {
-        "perception": "It's the timing, not the look. Everything else about him moves the instant he means it to. The hand is always a half-beat behind, like it's catching up rather than obeying.",
-        "medicine": "The articulation is too good for bone and too smooth for standard prosthetic work -- no tendon, no ligament, and yet it moves. Whatever's driving it isn't attached to him the way the rest of him is attached to him."
+        "criticalSuccess": "\"It's a screen. Screens flag things. You're fine.\" Then, quieter: \"Ask me again in a year if it still bothers you.\"",
+        "success": "\"It's a screen. Screens flag things. You're fine.\" As far as he's allowed to say, it's true.",
+        "failure": "He answers a different question, kindly.",
+        "criticalFailure": "He decides they're a worrier and books them a welfare check-in nobody wants."
       },
       "repeatable": false
     },
     {
       "id": "what-a-screen-tests",
-      "name": "Know what a blood screen actually tests for",
+      "name": "Work out what the screen tests",
       "skillOptions": [
         "medicine",
         "nature"
       ],
       "dc": {
         "value": 17,
-        "basis": "level 1 DC 15, one step hard -- free, fast, and skips the conversation entirely",
+        "basis": "level 1, one step hard",
         "adjustment": "hard"
       },
       "insight": true,
       "outcomes": {
-        "criticalSuccess": "Standard panels have no result called \"irregular\". This is a custom test, looking for one specific thing, and whatever it is, it is heritable -- that is what a maiden-name field on a medical form is for.",
-        "success": "Standard panels have no result called \"irregular\". This is a custom test looking for one specific thing.",
-        "failure": "Nothing they can pin down. Blood tests are blood tests.",
-        "criticalFailure": "They confidently identify it as a common anaemia screen and tell the others so. This is wrong, and it will hold the party back for a chapter, which is fine."
-      }
-    },
-    {
-      "id": "palm-the-form",
-      "name": "Get a proper look at the paperwork",
-      "skillOptions": [
-        "thievery"
-      ],
-      "dc": {
-        "value": 17,
-        "basis": "level 1 DC 15, one step hard -- it is a busy room and the forms are right there",
-        "adjustment": "hard"
-      },
-      "outcomes": {
-        "criticalSuccess": "They keep a blank copy AND get a look at the completed pile. Every sheet on it is ticked the same way.",
-        "success": "They keep a blank copy of Form 12-B. The tick-box marked IRREGULAR is pre-printed -- somebody expected this result often enough to have it typeset.",
-        "failure": "No copy, but they saw the pre-printed box before it was taken off them.",
-        "criticalFailure": "Shucks catches them. He is delighted rather than angry, tells the story for years, and they are now memorable to the one man in the building who has been here since the founding. That cuts both ways."
-      },
-      "repeatable": false
-    },
-    {
-      "id": "make-him-like-you",
-      "name": "Make him like you",
-      "skillOptions": [
-        "diplomacy"
-      ],
-      "dc": {
-        "value": 20,
-        "basis": "level 1 DC 15, very hard -- this buys more than the scene was going to give them",
-        "adjustment": "very-hard"
-      },
-      "outcomes": {
-        "criticalSuccess": "He softens, tells them nothing, and says \"come and find me if it ever stops being fine.\" He means it, he will remember, and he is two hundred years old. Cash this in Chapter 6.",
-        "success": "He softens and tells them nothing, but they have his attention, which almost nobody in this city has.",
-        "failure": "Pleasant, forgettable, next.",
-        "criticalFailure": "They try too hard and he becomes bureaucratic. Nothing is lost except the opening, and the opening will come back."
-      }
-    },
-    {
-      "id": "the-charter",
-      "name": "Look properly at the founding charter",
-      "skillOptions": [
-        "society",
-        "perception"
-      ],
-      "dc": {
-        "value": 15,
-        "basis": "level 1 standard DC -- a framed public document; reading it is easy, understanding what's odd about it is the actual ask"
-      },
-      "insight": true,
-      "outcomes": {
-        "criticalSuccess": "Four signatures, and one of them is worth remembering. A flowing, elegant hand; a quick doctor's scrawl; HYUCK in capitals, pressed so hard the nib tore the paper; and a line of small, careful characters in a script nobody here can read. They would know that doctor's scrawl again anywhere. (GM: it is Shucks's hand from before his right hand came off, the hand Rand writes in. If this character later sees the \"Rand\" countersignature in Episode Two, tell them it's the same writing.)",
-        "success": "Four signatures at the foot of it: a flowing, elegant hand; a quick doctor's scrawl; HYUCK in capitals, pressed so hard the nib tore the paper; and a line of small characters in a script nobody here can read. Nobody in the lobby has ever looked at them closely.",
-        "failure": "Just an old document in a frame, signed at the bottom. Nothing about it stands out.",
-        "criticalFailure": "A well-meaning staff member explains the signatures away, as fact: the originals burned in a fire long ago, and these are an artist's copies. Plausible, boring, and wrong."
-      },
-      "repeatable": false
-    },
-    {
-      "id": "overhear-the-search",
-      "name": "Overhear something in the queue",
-      "skillOptions": [
-        "perception"
-      ],
-      "dc": {
-        "value": 17,
-        "basis": "level 1 DC 15, one step hard -- a good roll, per Ingram directly, for something that isn't being said to them",
-        "adjustment": "hard"
-      },
-      "insight": true,
-      "outcomes": {
-        "criticalSuccess": "Enough to actually piece together: a name, half-caught -- something like \"Nozomi\"paired with the word \"pilot,\" which doesn't fit anything anyone's told them yet. Whoever's talking clocks being overheard and the conversation ends immediately, too fast to be casual.",
-        "success": "Two staff a few feet away, tired rather than careful: \"...still hasn't turned up,\" \"...still looking,\" a shared look before one of them notices the queue is close enough to hear and they change the subject. Nothing that resolves into a name or a reason.",
-        "failure": "Queue noise. Nothing distinguishable from anything else being said around them.",
-        "criticalFailure": "They catch a fragment and land on the wrong, boring explanation -- a supply requisition gone missing, someone's rota mixed up -- and half-believe it enough to repeat it later. A real, plausible red herring, not a trap; just wrong."
+        "criticalSuccess": "No standard screen has a result called irregular. This is a custom test for something inherited, which is what a maiden-name box on a medical form is for.",
+        "success": "It's a custom test, not a standard screen.",
+        "failure": "A blood test is a blood test.",
+        "criticalFailure": "They're certain it's an anaemia screen."
       },
       "repeatable": false
     }
@@ -176,5 +119,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--intake-medicals"
   ],
-  "notes": "The design rule this file demonstrates: every approach costs either dice or consequences, never neither. The cheap DC is cheap because being remembered as a worrier is a real cost. The expensive DC is expensive because it buys a standing relationship with a founder. If a player invents a sixth approach, price it on the same ladder rather than saying no.\n\nSINGLE-SKILL CHECKS ARE DELIBERATE HERE AND ARE NOT A MISSING SKILL ROUTE. The main ladder is five different ways at one fact, and each way is a different approach rather than a different roll -- asking him straight is Diplomacy, watching him is Perception, taking the form is Thievery. The variety is across the ladder, not inside each rung: a character with none of those still has `what-a-screen-tests` (Medicine or Nature), `the-charter` (Society or Perception) and `the-hand` (Perception or Medicine). Widening each rung to four skills would make the five routes interchangeable and delete the design."
+  "notes": "No check gates the scene. The flag, the cards and the all-six moment happen whatever anyone rolls."
 }

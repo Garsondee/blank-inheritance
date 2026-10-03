@@ -1,7 +1,7 @@
 {{!--
     The induction terminal — Page 9, Review & Confirm.
 
-    A read-only summary of every choice made across Pages 1-8 -- NOT a
+    A read-only summary of every choice made across Pages 1-8 and the player's page -- NOT a
     computed sheet (design/induction-terminal.md §4/§6 and this page's own
     adapter doc comments explain why: sf2e's own derived-data engine
     computes AC/HP/skills/saves live once the real ancestry/background/
@@ -198,6 +198,18 @@
             <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="8" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionFreeform')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
         <p class="bi-induction__review-note">{{freeformAnswer}}</p>
+        {{/if}}
+
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionPlayer"}}</h2>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="player" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionPlayer')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+        </div>
+        {{#if playerAnswers.length}}
+        {{#each playerAnswers}}
+        <p class="bi-induction__review-qa"><em>{{this.prompt}}</em> — {{this.answer}}</p>
+        {{/each}}
+        {{else}}
+        <p class="bi-induction__review-blank">{{localize "BLANKINHERITANCE.Induction.Page9.LeftBlank"}}</p>
         {{/if}}
 
         <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page9.ConfirmNote"}}</p>

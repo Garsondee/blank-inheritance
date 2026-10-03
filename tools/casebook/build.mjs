@@ -91,8 +91,8 @@ const body = `<div class="wrap">
     <span><span class="tag gm">GM-only</span>a secret the table mustn't get early</span>
     <span><span class="tag flag">Flag</span>open, or yours to decide</span>
   </div>
-  <div class="changes" id="V8">
-    <h2>What's new in version 8</h2>
+  <div class="changes" id="V9">
+    <h2>What's new in version 9</h2>
     <ul>${C.META.changes.map((c) => `<li>${h(c)}</li>`).join("")}</ul>
   </div>
 </header>
@@ -348,7 +348,7 @@ P("# Blank Inheritance: the twenty chapters (draft)");
 P();
 P(`*${m(C.META.mdHeader)} The published page carries the same text: ${URL}. Edit this file and the page together, or the two will drift.*`);
 P();
-P("**What's new in version 8:**");
+P("**What's new in version 9:**");
 P();
 C.META.changes.forEach((c) => P(`- ${m(c)}`));
 P();

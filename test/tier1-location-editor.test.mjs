@@ -18,6 +18,7 @@ import {
   emptyFields,
   emptySession,
   fieldClashes,
+  fieldsEdited,
   fieldsFromLocationDoc,
   geometryForRecord,
   isValidSession,
@@ -378,4 +379,23 @@ test("cutBoundaryMeetings: ends resting on the border count (bisect_region snaps
   const square = [[0, 0], [100, 0], [100, 100], [0, 100]];
   assert.equal(cutBoundaryMeetings(square, [[50, 1], [50, 99]]), 2);
   assert.equal(cutBoundaryMeetings(square, [[-10, -10], [50, 50]]), 1);
+});
+
+test("fieldsEdited: nothing changed is an empty list; a changed field is named by its dot-path; the note alone never counts", () => {
+  const before = { ...emptyFields(), name: "The Hall", lore: { summary: "old", playerFacing: "", gmOnly: "" }, tags: ["a"] };
+  assert.deepEqual(fieldsEdited(before, JSON.parse(JSON.stringify(before))), []);
+  const edited = JSON.parse(JSON.stringify(before));
+  edited.lore.summary = "new";
+  edited.tags = ["a", "b"];
+  assert.deepEqual(fieldsEdited(before, edited), ["tags", "lore.summary"]);
+  assert.deepEqual(fieldsEdited(before, { ...JSON.parse(JSON.stringify(before)), note: "why I looked" }), [], "a note says WHY; it is not a change");
+  assert.deepEqual(fieldsEdited(null, null), [], "two blank forms are the same form");
+});
+
+test("updateItemFields and updateItemGeometry both mark a peeked item as touched, so it is not let go of", () => {
+  const { session, item } = addDraftItem(emptySession(), { tier: "site", geometry: { kind: "polygon", ringPx: [[0, 0], [1, 0], [1, 1]], holesPx: [] } });
+  const peeked = { ...session, items: { [item.localId]: { ...item, peek: true } } };
+  assert.equal(updateItemFields(peeked, item.localId, emptyFields()).items[item.localId].peek, false);
+  assert.equal(updateItemGeometry(peeked, item.localId, item.geometry).items[item.localId].peek, false);
+  assert.equal("peek" in updateItemFields(session, item.localId, emptyFields()).items[item.localId], false, "a drawing that was never peeked gains no flag");
 });

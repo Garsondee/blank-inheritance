@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stagecraft lab: the Stage Renderer spike (three.js)</title>
+  <!-- The module's own stylesheets, so the HTML UI over the canvas is the real thing. -->
+  <link rel="stylesheet" href="../../../module/blank-inheritance/styles/bi-fonts.css">
+  <link rel="stylesheet" href="../../../module/blank-inheritance/styles/bi-tokens.css">
+  <link rel="stylesheet" href="../../../module/blank-inheritance/styles/bi-components.css">
+  <link rel="stylesheet" href="../../../foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/public/fonts/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="lab.css">
+  <link rel="stylesheet" href="dio.css">
+  <!-- three.js r186 (MIT), vendored in third-party/three (gitignored; see CREDITS.md). -->
+  <script type="importmap">
+    { "imports": {
+        "three": "../../../third-party/three/build/three.module.js",
+        "three/addons/": "../../../third-party/three/addons/"
+    } }
+  </script>
+  <style>
+    html, body { margin: 0; background: #000; }
+    #screen { position: relative; overflow: hidden; background: #000; }
+    #gl { position: absolute; left: 0; top: 0; display: block; }
+    .tsp-hud {
+      position: absolute; right: 24px; top: 24px; z-index: 40; padding: 8px 12px; border-radius: 4px;
+      background: rgb(12 11 8 / 82%); border: 1px solid var(--bi-brass-dark); font: 600 13px var(--bi-font-readout);
+      color: var(--bi-bone-dim); white-space: pre; line-height: 1.5;
+    }
+    .tsp-hud b { color: var(--bi-amber); font-weight: 700; }
+    .tsp-hint {
+      position: absolute; right: 24px; top: 110px; z-index: 40; padding: 10px 14px; border-radius: 4px;
+      background: rgb(12 11 8 / 82%); border: 1px solid var(--bi-brass-dark); font: 500 15px/1.5 var(--bi-font-plate); color: var(--bi-bone);
+    }
+    .tsp-hint b { color: var(--bi-life); letter-spacing: 0.1em; }
+  </style>
+</head>
+<body>
+  <div id="screen">
+    <canvas id="gl"></canvas>
+  </div>
+  <script type="module" src="three-spike.mjs"></script>
+</body>
+</html>

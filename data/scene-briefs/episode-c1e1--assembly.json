@@ -5,107 +5,124 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "assembly",
   "title": "Assembly",
-  "summary": "The campaign's one deliberate exposition beat, and its roster parade. The whole intake is assembled in the drill hall and addressed from the platform by the Deputy Director, with every significant adult in the campaign standing visible along the wall behind him, wearing their rank. The speech carries the official version of the world; the checks carry what the speech leaves out.",
-  "goal": "The party leaves knowing what this city is, what the Directorate says it is for, what it is asking of them, and roughly who runs what -- having had the chance to notice several things nobody said out loud, and having had to get through four hundred people singing a song they do not know.",
-  "howToPlay": "Ceremonial, well-worn and completely sincere. Nobody in this room is lying. The Directorate is calcified rather than sinister, and this scene is that fact staged: a charter on the wall, an anthem, a century and a half of Frames, a maintenance budget, and no war. **Deliver the address straight and at full conviction.** It only does its job if it is genuinely stirring rather than played as hollow. Everything questionable about this institution is on public display in this room; none of it is hidden and none of it is pointed at. Keep the scene moving: the address is the spine, and the four optional checks hang off it for anyone who goes looking.",
+  "summary": "Scene 3. The whole intake in the drill hall: the anthem, the charter, and the Deputy Director's address on what the Directorate is, how their days run and its two rules. Vetch collects Section Nine.",
+  "goal": "They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.",
+  "howToPlay": "Ceremonial and sincere: nobody in this room is lying. Read the address as a real speech. **Make sure the two rules land: curfew is small, a refused order is not.**",
   "runsAbout": "20-25 minutes",
   "mode": "social",
   "intro": {
-    "where": "The drill hall. The largest indoor space on the base, and the only one big enough for an entire intake at once.",
-    "firstThing": "Rows of chairs that do not quite fill the room, a raised platform, and a line of senior staff along the wall behind it -- every one of them wearing their department.",
-    "readAloud": "The drill hall smells of floor polish and cold stone, and somebody has put out more chairs than there are of you, which makes the room feel emptier rather than fuller.\n\nThere is a platform at the front with a lectern on it, and a line of senior staff along the wall behind -- perhaps a dozen, in a dozen different uniforms, each with their department stitched at the shoulder.\n\nOn the wall above them, in a heavy frame, is the founding charter. Somebody has been polishing the glass.",
+    "where": "The drill hall, the only room on the island big enough for the whole intake.",
+    "readAloud": "The drill hall smells of floor polish and four hundred people. Somebody has put out more chairs than there are of you, and along the platform a dozen staff in a dozen different uniforms stand in a line. Above them, in a heavy frame, hangs the founding charter, and somebody has polished the glass.",
+    "landmark": "The charter, framed over the platform.",
     "carriesIn": [
       {
-        "when": "Intake Medicals was played first (it should be)",
-        "then": "They have already met one of the people on that wall -- the doctor who took their blood is standing in the line, in the same rumpled way he does everything. Do not draw attention to it; put him in the room and let it sit."
+        "when": "After Intake Medicals",
+        "then": "Section Nine sits together; their cards say so."
       }
     ],
-    "landmark": "the framed charter above the platform",
-    "holdInReserve": "The charter's glass has been polished and the frame has not been dusted. Give this to anybody who looks at the charter rather than at the people under it -- and see the-charter beat for what is actually on it."
+    "position": {
+      "locationRef": "the-drill-hall",
+      "state": "together",
+      "note": "Section Nine together among the intake's chairs."
+    }
   },
   "cast": [
     {
       "id": "deputy-director",
       "npcRef": "deputy-director",
-      "label": "The Deputy Director",
-      "role": "Gives the address",
+      "role": "Deputy Director, one rung below the top.",
       "arrival": "announced",
       "brief": {
-        "wants": "These children to understand what they have joined, and to take it as seriously as he does.",
-        "opensWith": "Waiting for the room to go quiet on its own rather than calling it to order.",
+        "wants": "This intake to understand what it has joined, and to take it as seriously as he does.",
+        "opensWith": "Nothing: he waits, without a word, until the room goes quiet on its own.",
         "willDiscuss": [
           {
-            "topic": "The Directorate's history and purpose",
-            "note": "At length, accurately, and with real feeling. He is not performing."
+            "topic": "What the Directorate is for",
+            "note": "\"To be ready. Everything else is how.\""
           },
           {
-            "topic": "What is expected of the intake",
-            "note": "Plainly, including the parts that are dull. He does not oversell it."
+            "topic": "How their days run",
+            "note": "Lessons in the morning, and afternoons theirs to choose once their section officer releases them."
+          },
+          {
+            "topic": "The rules",
+            "note": "\"Curfew is a small thing. An order is not.\""
           }
         ],
         "willNotDiscuss": [
           {
-            "topic": "The dig, in any detail beyond its existence",
-            "why": "Not evasion -- it genuinely is not what this speech is about, and he would be puzzled to be asked. The excavation is ordinary municipal fact to him."
+            "topic": "Why the Directorate came to Kurose",
+            "why": "He means it kindly: \"The founders' reasons are the founders' to give.\""
           },
           {
-            "topic": "Anything about the Frames beyond that they exist and are maintained",
-            "why": "Chapter One does not explain the Frames. He has no reason to bring them up to an intake who will not touch one for weeks."
+            "topic": "The Frames",
+            "why": "\"You'll meet them soon enough. Not today.\""
           }
         ],
         "coercible": [],
         "voice": {
-          "register": "Measured, unhurried, genuinely warm underneath the formality. A man who has given this address many times and still means it.",
-          "tics": [
-            "Pauses before the parts he cares about rather than after them",
-            "Says 'this city' where the written text says 'the municipality'"
-          ],
+          "register": "Measured and warm. Pauses before the parts he cares about.",
           "samples": [
-            "\"You will hear the word auxiliary. It is accurate and it is not small.\"",
-            "\"A hundred and fifty years, and the alarm has never once been real. I would like you to understand that as a promise rather than a guarantee.\"",
-            "\"This city has never needed you. I hope with my whole heart that it continues not to, and I am not going to train you as though that is likely.\"",
-            "\"Most of what you will do here is dull. I would rather tell you that now than have you find it out in a fortnight and feel lied to.\"",
-            "\"You will be asked to do things that seem beneath you. Some of them are. Do them anyway, and then come and tell me which ones, because I would like to know.\""
+            "\"You will be asked to do things that seem beneath you. Some of them are. Do them anyway, and then come and tell me which ones.\"",
+            "\"Good question. I don't know. Find out, and tell me.\""
           ]
-        }
+        },
+        "statblock": "Proposed: level 8, a senior officer, non-combat."
       }
     },
     {
       "id": "section-officer",
       "npcRef": "section-officer",
-      "label": "The Section Officer",
-      "role": "Somewhere in the line, and not near the front of it",
-      "walkOn": true,
+      "role": "Section Nine's officer.",
       "arrival": "quiet",
       "brief": {
-        "wants": "To be seen standing with the senior staff.",
-        "opensWith": "Nothing. He does not speak in this scene.",
-        "willDiscuss": [],
-        "willNotDiscuss": [],
+        "wants": "To be seen with the senior staff, and to start Section Nine's day his way.",
+        "opensWith": "\"Section Nine. With me. Yes, all of you.\"",
+        "willDiscuss": [
+          {
+            "topic": "The timetable",
+            "note": "\"First period, then the stores, then second period. It's on the sheet. Read the sheet.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What Section Nine is for",
+            "why": "He doesn't know, and won't say so: \"Sections are assigned work. That is what a section is.\""
+          }
+        ],
         "coercible": [],
         "voice": {
-          "register": "Silent here. His whole contribution is where he is standing.",
-          "tics": [],
+          "register": "Clipped and procedural. Never wrong in his own account: surprised, he pauses one beat, then says it was the plan.",
+          "samples": [
+            "\"Section Officer Vetch. You'll address me as Section Officer.\"",
+            "\"As discussed.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
+      }
+    },
+    {
+      "id": "shucks-mordant",
+      "npcRef": "shucks-mordant",
+      "role": "On the platform, looking rumpled.",
+      "walkOn": true,
+      "brief": {
+        "wants": "To get back to his clinic.",
+        "voice": {
+          "register": "He doesn't speak here.",
           "samples": []
         }
       }
     },
     {
-      "id": "shop-boss",
+      "id": "hulda-brack",
       "npcRef": "shop-boss",
-      "label": "Hulda Brack",
-      "role": "Head of the machine shop, impossible not to notice",
+      "role": "Head of the machine shop, on the platform.",
       "walkOn": true,
-      "arrival": "quiet",
       "brief": {
-        "wants": "To get back to her floor.",
-        "opensWith": "A laugh at something a neighbour said, considerably louder than the room allows for, cut off halfway.",
-        "willDiscuss": [],
-        "willNotDiscuss": [],
-        "coercible": [],
+        "wants": "To be back on her shop floor, where things make sense.",
         "voice": {
-          "register": "Enormous even at a whisper. The only person in the line who looks comfortable.",
-          "tics": [],
+          "register": "One laugh, much louder than the room allows, cut off halfway.",
           "samples": []
         }
       }
@@ -113,19 +130,12 @@
     {
       "id": "comms-officer",
       "npcRef": "comms-officer",
-      "label": "The Comms Officer",
-      "role": "In the line, watching the intake rather than the speaker",
+      "role": "The radio voice off the plot room, on the platform.",
       "walkOn": true,
-      "arrival": "quiet",
       "brief": {
-        "wants": "To get a look at this year's intake.",
-        "opensWith": "Nothing spoken.",
-        "willDiscuss": [],
-        "willNotDiscuss": [],
-        "coercible": [],
+        "wants": "To see who this year's intake are.",
         "voice": {
-          "register": "Silent here.",
-          "tics": [],
+          "register": "She watches the intake, not the speaker.",
           "samples": []
         }
       }
@@ -134,13 +144,16 @@
   "beats": [
     {
       "id": "the-anthem",
-      "kind": "action",
+      "kind": "check",
       "mandatory": true,
       "delivery": "table",
-      "text": "Everyone stands. There is an anthem, and every person in the room over thirty knows all of it without looking.",
-      "readAloud": "A piano starts somewhere behind you, slightly out of tune, and the entire senior staff begin to sing. So does most of the room.\n\nYour parents could probably have sung it too. Everyone in Kurose learns it at school, whether or not anyone in their family ever served here.\n\nThe words are about the harbour, and about holding.",
-      "direction": "Short. This exists to establish that the party has joined something old, ordinary, and genuinely beloved. Do not undercut it.\n\nRead it, then stop and wait. Do not ask whether they sing and do not announce a check. Somebody at the table will say what their character does about four hundred people singing a song they have never heard, and that is when `the-anthem` in c1e1-assembly is offered -- to that player, for what they said they were doing. Anyone who says nothing is mouthing along at the back and is fine.",
-      "checkRef": "the-anthem"
+      "text": "Everyone stands for the anthem. Read it, then wait to hear what each character does.",
+      "readAloud": "A piano starts, and four hundred people stand. The anthem is old and slow, and everyone in the room over thirty knows every word without looking.",
+      "note": "If a player says what their character does: Offer the check to get through a song they don't know.",
+      "challengeRef": "c1e1-assembly",
+      "checkRef": "the-anthem",
+      "facts": [],
+      "gmFacts": []
     },
     {
       "id": "the-address",
@@ -148,57 +161,82 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "deputy-director",
-      "text": "The Deputy Director steps up to the lectern <trig id=\"deputy-director-steps-up\"/>. This is the campaign's exposition dump and it should be delivered as a real speech, not summarised.",
+      "text": "The Deputy Director <trig id=\"deputy-director-steps-up\"/> gives the address. Read it as a speech; drop any part but the last two.",
+      "readAloud": "My name is Seiichi Takamine. It will be on a great many documents you sign this year, so you may as well hear it said once, by me.\n\nYou have joined Tokubetsu Taisaku Honbu, the Special Countermeasures Headquarters, which this city calls the Directorate. We exist to be ready. We keep the sirens, the shelters and the drills, and on most days we keep the harbour, the drains and the heavy lifting this city can't do without. In a hundred and fifty years the alarm has never once been real. That is a promise, and it is not a guarantee.\n\nYou will find we are two things at once. We are a school, so you will sit lessons. We are a service, so you will drill, carry orders and stand watches. In the mornings you will be taught. In the afternoons, once your section officer releases you, the time is yours: the gymnasium, the range, the library, or a lesson you choose yourselves. Spend it well. Nobody here will spend it for you.\n\nWe have a great many rules, and you will break most of them by accident before the month is out. Two you should know today. If you are out after curfew, that is a small thing: it will be written down, and you will be told off. If you are given a direct order and you refuse it, that is not a small thing. It is the most serious thing you can do here, and you will explain yourself to someone like me.\n\nThat is all. Your section officers have your postings. Welcome to the Directorate. I am glad you are here.",
+      "note": "Do: Afterwards he takes questions, and answers plainly.",
       "triggers": [
         {
           "id": "deputy-director-steps-up",
           "kind": "npc-enter",
           "npcRef": "deputy-director",
-          "label": "Deputy Director steps up"
+          "label": "The Deputy Director steps up"
         }
       ],
-      "readAloud": "\"Good morning. My name is going to be on a great many documents you will be asked to sign this year, so you may as well hear it said aloud once, by me.\" -- he gives it -- \"I am going to tell you four things and then let you get on.\n\nFirst: this city was built on top of a dig, and the dig came first. Everything you can see from the gate -- the yards, the wharves, the tramway, this hall -- is here because somebody found something under it a long time ago and the work never stopped. That is not a secret. It is on the municipal seal.\n\nSecond: you have joined Tokubetsu Taisaku Honbu -- the Special Countermeasures Headquarters. Nobody on this base will call it that twice; you will hear 'the Directorate' from everyone here, myself included, starting now. The Directorate exists to keep this city standing. We maintain the Frames. We maintain the sirens, the shelters, the drains, the pumps, and the roster that tells four thousand people where to go if the alarm sounds. A hundred and fifty years of that, and the alarm has never once been real. That is a promise and it is not a guarantee. Nobody in this building has ever confused the two.\n\nThird: what you are is auxiliary. You will hear that word a great deal and some of you will hear it as small. It is accurate and it is not small. You will be given real work. Most of it will be dull. Some of it will be beneath what you believe you are capable of, and you will do it anyway, because the day the roster matters is not the day to find out who did not learn it.\n\nFourth.\" -- and he stops for longer than the room expects -- \"You will be told that this is a rite of passage. Your parents did it, their parents did it, and it is faintly prestigious and mostly boring, and that is all true. Both of these are also true, and you will have to hold them at the same time: it has always been safe, and it was not built to be.\"",
-      "direction": "Deliver it straight and at full conviction. He believes every word and most of it is true. Do not signal to the table that anything is wrong -- nothing in the speech is a lie, and the scene works only if it lands as genuinely stirring. If players ask questions afterwards he answers them plainly and at length, within the two topics he will not discuss.",
-      "note": "GM-ONLY. Everything questionable about this institution is on display in this speech and none of it is flagged: they are digging up the thing that is killing them (2.1), and their own alert system feeds the enemy (2.6). See ideas/story/dossier-the-directorate.md. He is not concealing any of it; these are simply ordinary municipal facts to a man who has never seen the alarm be real. HE SAYS HIS OWN NAME HERE, once, from the platform -- the name nobody could read in the printed signature on their acceptance letters (The Road In's handout), and the same man the party is eventually marched in front of. Say it clearly and never repeat it. The countersignature on Episode Two's punishment roster and on the order that overrides it is NOT his: it is Rand's (LEDGER #34). An older version of this note said otherwise."
+      "facts": [
+        "deputy-director.name",
+        "founders.promise",
+        "directorate.school-and-service",
+        "directorate.free-time",
+        "directorate.curfew-minor",
+        "directorate.orders-serious",
+        "directorate.alarm-never-real"
+      ],
+      "gmFacts": []
     },
     {
       "id": "read-the-room",
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "Anyone watching the line of staff rather than the speaker can work out how this place is actually organised.",
+      "text": "If anyone watches the platform instead of the speaker, offer the check.",
+      "when": {
+        "condition": "someone watches the platform"
+      },
       "challengeRef": "c1e1-assembly",
       "checkRef": "read-the-room",
-      "when": {
-        "condition": "any point during the anthem or the address"
-      },
-      "direction": "Do not offer this unprompted -- it is for a player who says they are looking at the staff. Give real, usable information on a success: who runs what, and where the man who has been ordering them about all morning actually sits in that line."
+      "facts": [],
+      "gmFacts": []
     },
     {
       "id": "the-charter",
-      "kind": "reveal",
+      "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "The founding charter is framed above the platform, polished, and entirely readable from the third row.",
+      "text": "If anyone looks closely at the charter, offer the check to read its four signatures.",
       "when": {
-        "condition": "if a player looks at the charter itself rather than the people beneath it"
+        "condition": "someone looks at the charter"
       },
-      "direction": "Scenery. Never point at it and do not offer a check for it here. If a player reads it out, they get the text and nothing more -- the charter says what a founding charter says. Its signatures are studied in Intake Medicals, close up, by one person on their own, and that is where it should land.",
-      "note": "SECOND SIGHTING, NOT THE FIRST. Intake Medicals comes before this scene, and that is where the charter's signatures are studied, close up, by one person on their own. Here the same document hangs in public above a platform in front of four hundred people, polished, with nobody looking at it. Say the charter is up there and let them say whether they look."
+      "challengeRef": "c1e1-assembly",
+      "checkRef": "the-charter",
+      "note": "Secret: The doctor's scrawl is Shucks's own hand from before his right hand came off. Rand still writes in it.",
+      "facts": [
+        "founders.charter-signatures"
+      ],
+      "gmFacts": [
+        "founders.charter-hands",
+        "shucks.old-handwriting"
+      ]
     },
     {
-      "id": "the-rumours",
+      "id": "section-nine-with-me",
       "kind": "action",
-      "mandatory": false,
+      "mandatory": true,
       "delivery": "table",
-      "text": "Several hundred trainees in one room, most of them bored. Anyone who works the crowd before or after can pick up what is going around.",
-      "challengeRef": "c1e1-assembly",
-      "checkRef": "work-the-crowd",
-      "direction": "Standing rule for crowd scenes: at least three gatherable rumours, reachable by social checks. Hand out one per success, the player's choice of which thread they were digging at if they had one. All three are true in substance and wrong in detail, which is what rumours are.",
-      "note": "THE THREE RUMOURS. All three are true in substance and wrong in detail, which is what rumours are.\n(1) Something is wrong with the drains on the old side -- clearance rosters have been going out twice as often as last year and nobody will say why. TRUE: the drains genuinely are being cleared more often.\n(2) The dig hit something big last spring, and the whole shift was reassigned to other work inside a week. TRUE in outline, and nobody in this room knows more than that.\n(3) A previous intake had somebody wash out of Frame training in a single afternoon and leave the base the same night. TRUE -- and it was not a washout. Nothing here should suggest that, and don't decide yet who it was.",
-      "when": {
-        "condition": "if any player works the crowd, before the speech or after it"
-      }
+      "npcRef": "section-officer",
+      "text": "Vetch <trig id=\"vetch-collects\"/> collects Section Nine at the door and gives them the day's timetable.",
+      "readAloud": "\"Section Nine. With me. Yes, all of you.\" He doesn't wait to see if you follow. \"Section Officer Vetch. First period, then the stores, then second period. It's on the sheet. Read the sheet.\"",
+      "triggers": [
+        {
+          "id": "vetch-collects",
+          "kind": "npc-enter",
+          "npcRef": "section-officer",
+          "label": "Vetch collects Section Nine"
+        }
+      ],
+      "facts": [
+        "section-officer.vetch"
+      ],
+      "gmFacts": []
     }
   ],
   "artefacts": [],
@@ -206,49 +244,45 @@
   "gmModifiers": [],
   "offers": [],
   "outro": {
-    "endsWhen": "The Deputy Director finishes, the staff file out, and the intake is released to first period.",
-    "readAloud": "\"That is all. Your section officers have your postings. Welcome to the Directorate -- I am glad you are here.\" And he means it, and then the room is just a room again, with chairs to stack.",
+    "endsWhen": "Vetch has led Section Nine out of the hall.",
     "artefactRefs": [],
-    "tracks": [
-      {
-        "track": "comprehension",
-        "delta": null,
-        "why": "Move this if somebody can say, in their own words, what the Directorate is for and what it wants from them. The speech supplies both; whether it landed is the question."
-      }
-    ],
+    "tracks": [],
     "transition": {
-      "mechanism": "scheduled",
-      "line": "There is a bell about four seconds after he stops talking, and a corridor full of people who know where they are going.",
+      "mechanism": "ordered",
+      "line": "\"First period. School block. Don't be late.\"",
       "scatterRisk": false
     },
-    "onwards": "Into School: First Period. They have just been addressed by the second most senior officer on the island and now they have a double period, which is the joke. Kit issue is at the break after it, where the man they just watched standing at the wrong end of that line is waiting for them.",
+    "onwards": "School: First Period.",
     "writeDown": [
-      "Which rumours the party picked up, and who went looking.",
-      "Whether anyone read the charter.",
-      "Whether anyone caught the Deputy Director's name."
-    ]
+      "Who caught the Deputy Director's name.",
+      "Who read the charter, and who watched the platform."
+    ],
+    "position": {
+      "locationRef": "the-drill-hall",
+      "state": "together",
+      "note": "Leaving with Vetch for the school block."
+    }
   },
   "carryForward": [],
   "temptations": [
     {
-      "id": "watch-the-staff-not-the-speaker",
-      "text": "If nobody's said they're watching the line of staff rather than the speaker, that's an easy, free thing to offer someone whose attention seems to be wandering."
+      "id": "the-charter",
+      "text": "The charter hangs right above the platform, and somebody has polished the glass."
     }
   ],
   "reactionPrompts": [
     {
-      "id": "the-address-landed",
-      "text": "Whether the address landed as genuinely stirring rather than as an obvious setup.",
-      "scaleNote": "0 = read as hollow or telegraphed, 10 = the room bought it completely."
+      "id": "the-speech",
+      "text": "The address holding the room."
     },
     {
-      "id": "information-usable",
-      "text": "Whether the table came out of this scene actually knowing where they are and what the Directorate is, or whether it washed over them."
+      "id": "the-rules",
+      "text": "The two rules registering with the table."
     },
     {
-      "id": "cast-legible",
-      "text": "Whether the line of staff registered as a real organisation with ranks, or as undifferentiated background adults."
+      "id": "meeting-vetch",
+      "text": "Section Nine's first impression of Vetch."
     }
   ],
-  "notes": "Built at Ingram's request for a scene where the intake is gathered, addressed by the Deputy Director, and gets its first look at the campaign's adults with their ranks and roles legible -- a kind of information Chapter One was otherwise missing.\n\nPLACED THIRD, between Intake Medicals and Kit Issue: processed as bodies, addressed as a cohort, equipped as personnel, sent out as a unit.\n\nTHE DESIGN PROBLEM AND THE ANSWER. An exposition dump is the easiest scene in any campaign to get wrong. The answer used here is that the speech is not neutral information -- it IS the institution, staged. Every fault in dossier-the-directorate.md is on public display in this room and none of it is pointed at, exactly as that document specifies: hidden the way institutional facts are hidden, in plain sight, boring, and nobody's job to ask about. The address is sincere and mostly true. Anything else lives in the four optional checks, and all four are opt-in.\n\nWHAT THIS SCENE WIRES UP:\n- The Deputy Director's NAME is spoken once here, appears as a countersignature twice in Episode Two, and belongs to the man the party is eventually marched in front of. Three touches before he matters.\n- The Section Officer is seen standing near the wrong end of the senior line, before he has done anything. How small he actually is becomes available information on day one.\n- Hulda Brack is loud enough to notice and is not spoken to. First contact proper is Episode Two's hangar.\n- The framed charter is the second sighting of the document whose signatures Intake Medicals offers.\n- Rumour 1 points at the drains the party will be standing in by the end of the night.\n\nTHREE OF THE FOUR CAST MEMBERS ARE SILENT WALK-ONS AND THAT IS THE DESIGN. The Section Officer, Hulda Brack and the Comms Officer have no lines, no samples and no hard line to be pushed on, because their entire contribution in this scene is being visible in the line with their rank legible before any of them matters. They are `walkOn: true` for exactly this reason. Do not write them dialogue here; they all get real scenes later.\n\nONE ACT, NOT THREE LOOKS. This scene used to have three checks and all three were the same act: look at the staff line, look at the charter, listen to the crowd. Twenty-five minutes in which a player could learn a great deal and change nothing. The charter check moved out entirely (it duplicated Intake Medicals) and the anthem became a thing the party has to get through rather than a line of description. Read design/scene-audit.md section 10b before adding another check here, and make it an act rather than a look."
+  "notes": "Everyone on the platform is someone the party meets: Shucks, Hulda Brack, the Comms Officer and Vetch. The address carries D053: a school and a service at once, afternoons theirs to choose (the second school period is where they first choose), and the two rules. It names no founder and gives no reason for Kurose."
 }

@@ -73,7 +73,21 @@
         {{#if decoratedReadAloud}}<div class="bi-runner__read">{{{decoratedReadAloud}}}</div>{{/if}}
 
         {{#if direction}}<p class="bi-runner__direction">{{{decoratedDirection}}}</p>{{/if}}
+        {{!-- A note of labelled lines is a list, label beside line; a Secret is
+              tinted and locked so it is never read out by mistake
+              (core/note-lines.mjs). Any other note is paragraphs. --}}
+        {{#if noteLines.length}}
+        <dl class="bi-runner__lines">
+            {{#each noteLines}}
+            <div class="bi-runner__line{{#if isSecret}} bi-runner__line--secret{{/if}}">
+                <dt class="bi-runner__line-label">{{#if isSecret}}<i class="fa-solid fa-lock" aria-hidden="true"></i> {{/if}}{{label}}</dt>
+                <dd class="bi-runner__line-text">{{{html}}}</dd>
+            </div>
+            {{/each}}
+        </dl>
+        {{else}}
         {{#if note}}<p class="bi-runner__note">{{{decoratedNote}}}</p>{{/if}}
+        {{/if}}
 
         {{!-- A disclosed choicePoint (design/scene-triggers-and-depth.md §2.4,
               ux-doctrine.md Law 21) -- deliberately a louder, bordered block

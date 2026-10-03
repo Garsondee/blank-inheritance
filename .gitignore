@@ -187,3 +187,9 @@ reviews/*.html
 
 # The Casebook build output (tools/casebook/build.mjs); the source is tools/casebook/ and canon/
 tools/casebook/out/
+
+# Stagecraft lab screenshots: they show Ingram's portrait and place art, which is never committed.
+/design/stagecraft/lab/shots/
+
+# Stagecraft: the dev build's source map is for working only; the shipped bundle (dist/stagecraft.js) is committed
+/module/stagecraft/dist/*.map

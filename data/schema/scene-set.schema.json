@@ -160,6 +160,19 @@
             "type": "boolean",
             "default": false,
             "description": "Set when locationRef is a PROPOSED correspondence rather than an exact one, saying so plainly. A guess recorded as a fact is how a map stops being trustworthy. **This description survived in the file while the field itself did not** -- found 2026-09-22 during the first siting run, when writing `approximate: false` failed validation. The Sign-Off's P2 check reads this field, so for as long as it was undeclared P2 could never fail: every scene reported 'exact' whether or not anybody had ever confirmed it."
+          },
+          "offMap": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reason"
+            ],
+            "description": "Set instead of a locationRef when this scene deliberately happens nowhere the campaign map can show: a view from above, a call, a dream, a scene on another map, an out-of-character moment. `reason` is one of core/siting.mjs#OFF_MAP_REASONS. Written by the Location Editor's Story tab (tools/location-sync); the Sign-Off's Place check accepts it as an answer.",
+            "properties": {
+              "reason": {
+                "type": "string"
+              }
+            }
           }
         }
       }

@@ -1,0 +1,90 @@
+{{!--
+    The induction terminal — the page for the player, between Page 8 and Review.
+
+    Added 2026-10-01 at Ingram's direction: a single page of questions just before the end of the form
+    that ask THE PLAYERS (not their characters) what they do and don't enjoy in adventures, what they hope
+    to do with their character and what sort of force they want to be in the story -- "help us define what
+    a fun experience would be." Every question is out of character, so unlike the Directorate's own pages
+    this one has no letterhead and no form number: the form's voice stops here and a person speaks to a
+    person. The page says so once, in its header and its first line, rather than tagging every field.
+
+    The fields are data-driven from induction-intake-prompts.json's `playerQuestions` (design/induction-
+    terminal.md §4): the same suggestion-chip + free-text pattern as Pages 7-8, the same `intake.questions`
+    answer map, each answer landing on the sheet's Campaign Notes under its own short heading. Nothing on
+    this page is required; Continue never points at anything missing. PAPER register, .bi-doc vocabulary.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.PagePlayer.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.PagePlayer.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body" data-induction-body>
+
+        <p><span class="bi-prompt-field__tag">{{localize "BLANKINHERITANCE.Induction.PagePlayer.OutOfCharacterTag"}}</span> {{localize "BLANKINHERITANCE.Induction.PagePlayer.Intro"}}</p>
+        <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.PagePlayer.OptionalNote"}}</p>
+
+        {{#if loadFailed}}
+        <div class="bi-induction__load-error">
+            <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+        </div>
+        {{else}}
+
+        {{#each promptFields}}
+        <div class="bi-prompt-field">
+            <label class="bi-prompt-field__label" for="{{this.elementId}}">{{this.label}}</label>
+            <textarea class="bi-prompt-field__control bi-prompt-field__control--textarea" id="{{this.elementId}}"
+                      name="{{this.elementId}}" data-prompt-field="{{this.statePath}}">{{this.value}}</textarea>
+            {{#if this.suggestions.length}}
+            <div class="bi-induction__options">
+                {{#each this.suggestions}}
+                <button type="button" class="bi-induction__option" data-prompt-suggestion
+                        data-prompt-target="{{this.targetElementId}}" data-suggestion-text="{{this.text}}"
+                        data-prompt-separator="{{this.separator}}">{{this.text}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+            {{#if this.helpBody}}
+            <details class="bi-induction__help" data-sync="{{this.syncKey}}">
+                <summary>{{localize "BLANKINHERITANCE.Induction.PagePlayer.HelpSummary"}}</summary>
+                <p>{{this.helpBody}}</p>
+            </details>
+            {{/if}}
+        </div>
+        {{/each}}
+
+        {{/if}}
+
+        </div>
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromPlayer">{{localize "BLANKINHERITANCE.Induction.PagePlayer.Back"}}</button>
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
+            <button type="button" class="bi-induction__begin" data-action="continueFromPlayer">
+                {{localize "BLANKINHERITANCE.Induction.PagePlayer.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

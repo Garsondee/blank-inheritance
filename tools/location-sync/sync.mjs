@@ -17,6 +17,7 @@
 
 import { parseArgs } from "node:util";
 import { existingLocationIds, applyRecord } from "./merge.mjs";
+import { targetKey } from "../../module/blank-inheritance/scripts/core/siting.mjs";
 import { folderInbox, pullNew, serverInbox } from "./inbox.mjs";
 import { DEFAULT_PATHS, acquireLock, listHarvested, readLedger, saveHarvested, writeLedger } from "./store.mjs";
 
@@ -62,11 +63,17 @@ async function main() {
     const existingIds = existingLocationIds(paths.dataRoot);
     let merged = 0, clashed = 0, errored = 0;
     for (const { record } of fetched) {
-      const result = applyRecord(record, { dataRoot: paths.dataRoot, existingIds });
+      const result = applyRecord(record, { dataRoot: paths.dataRoot, existingIds, ledger });
       if (result.state === "merged") {
         merged++;
         ledger.entries[record.id] = { state: "merged", locationId: result.locationId, mergedAt: new Date().toISOString() };
-        if (record.op === "create") {
+        if (record.op === "site") {
+          const where = result.noChange ? "already there" : result.files.join(", ");
+          console.log(`  ~ ${record.id} -> ${targetKey(record.target)} placed at ${result.locationId ?? "nowhere"} (${where})`);
+          for (const scene of result.canonChanged ?? []) {
+            console.log(`    note: canon scene ${scene} changed. If Ingram has approved it, \`node tools/story/story.mjs check\` will say it needs her read again.`);
+          }
+        } else if (record.op === "create") {
           console.log(`  + ${record.id} -> data/locations/${result.locationId}.json (new ${record.tier})`);
         } else {
           console.log(`  ~ ${record.id} -> data/locations/${result.locationId}.json (${record.op})`);
@@ -74,9 +81,13 @@ async function main() {
       } else if (result.state === "clash") {
         clashed++;
         ledger.entries[record.id] = { state: "clash", locationId: result.locationId, clashes: result.clashes };
-        console.warn(`  ! CLASH on ${result.locationId}: ${result.clashes.join(", ")} -- resolve by hand, nothing written for these fields`);
+        const where = record.op === "site" ? targetKey(record.target) : result.locationId;
+        console.warn(`  ! CLASH on ${where}: ${result.clashes.join(", ")} -- resolve by hand, nothing written for these fields`);
       } else {
         errored++;
+        // A placement that could not be applied is remembered, so the editor stops
+        // showing it as waiting and says what went wrong instead.
+        if (record.op === "site") ledger.entries[record.id] = { state: "error", error: result.error };
         console.error(`  x ${record.id}: ${result.error}`);
       }
     }

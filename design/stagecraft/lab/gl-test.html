@@ -1,0 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>GL test</title>
+<body style="margin:0;background:#111;color:#fff;font:28px monospace;padding:30px">
+<pre id="out"></pre>
+<script>
+  const out = document.getElementById("out");
+  const c = document.createElement("canvas");
+  const gl = c.getContext("webgl2", { antialias: true });
+  if (!gl) out.textContent = "NO WEBGL2";
+  else {
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    out.textContent = [
+      "webgl2: yes",
+      "renderer: " + (dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)),
+      "vendor: " + (dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR)),
+      "maxTexture: " + gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      "maxSamples: " + gl.getParameter(gl.MAX_SAMPLES),
+      "ext float: " + !!gl.getExtension("EXT_color_buffer_float"),
+      "ext half: " + !!gl.getExtension("EXT_color_buffer_half_float"),
+      "ua: " + navigator.userAgent
+    ].join("\n");
+  }
+</script>

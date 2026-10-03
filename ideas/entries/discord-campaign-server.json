@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "discord-campaign-server",
+  "type": "idea",
+  "title": "A Discord server for the campaign, set up by an official bot: induction by post, and a living space where messages appear during the session",
+  "status": "new",
+  "domains": ["tooling", "technical-architecture", "narrative", "ui"],
+  "summary": "Ingram will create a brand-new Discord server for the campaign and asked whether Claude could populate it through an official bot, as a 'living' space where messages appear during a session; it is also the natural home for induction by post (D055).",
+  "description": "Ingram, 2026-10-01, mid-turn, while the launch checklist and the induction page for the player were being built: \"I had a mad idea but maybe it's just a bad one. I will create a brand new discord server for this campaign. I was wondering if you could populate it? As you say, an official discord modded bot and not something else. But I'm wondering if you could do that? The goal would be to create a 'living' space where during the session messages would appear. No need to stop or change course, just telling you why I asked.\"\n\nThe same message thread had just asked for induction by post over Discord (D055: \"I send them the questions, they send what they like back and the image of their character and they are signed up\"), and asked whether Claude may send Discord messages at all. The answer given: nothing forbids it, but the session has no Discord connector, a message sent on her behalf needs her yes each time, and the sanctioned route is an official bot (an application and bot token she creates in Discord's developer portal, invited to her own server), not a person's account driven through a browser.\n\n**Claude's assessment, a proposal and not a decision.** Not a bad idea; it fits. Three separable pieces, in the order they earn their keep:\n\n1. **Build the server once, from a script.** With a bot that has Manage Channels, Manage Roles, Send Messages, Manage Messages and Embed Links, Claude can write an idempotent setup script (with a dry run that prints every channel, role and message before anything is made): categories and channels, roles for the GM and the six players, pinned welcome and how-it-works posts, and one private channel per player visible only to that player and the GM, which is where induction by post would happen. Only Ingram can create the server, the Discord application and the bot token; the token goes in a local `.env` (already gitignored) and never into chat or the repo.\n2. **One-way drops from the session.** The Foundry module already knows when a scene opens, when a handout is given, when a reveal is told. Those moments can post an in-world artefact into a channel (a message on a comm-device, a news bulletin, an order from the Directorate, a rumour, a recap with the handout image) with no model in the loop: scripted, deterministic, timed by the same 'told' rules as the canon (D048), so nothing reaches Discord before its reveal. A GM-side relay keeps the webhook or token out of players' browsers.\n3. **Two-way, living.** NPCs that answer, a Watcher that speaks. That needs a process that stays running (Claude is not a background process between sessions), a model API key, hosting (the Oracle server already runs Foundry) and a running cost. It is also the piece that overlaps the campaign's own themes (mass surveillance, runaway agentic systems): a bot that reads what the players write is real surveillance of real people's chat, so it must be opt-in, told plainly, and use only the fiction, never their out-of-character messages. Defer until after launch.\n\nTwo cautions that apply to every piece: Discord history is effectively permanent and searchable, so GM-only material stays out of it entirely; and a second surface is one more thing the six have to be on (it helps the players who find a computer hard in the moment, since Discord runs on a phone).",
+  "capturedDate": "2026-10-01",
+  "lastTouchedDate": "2026-10-01",
+  "sourceContext": "Ingram, 2026-10-01, a message sent while Claude was building the induction page for the player and the launch checklist (D055, design/launch-checklist.md). She said no change of course was needed.",
+  "openSubQuestions": [
+    "Whether to do piece 1 (the server, the private induction channels, the pinned posts) before launch, since it is also how induction by post would work.",
+    "Which Foundry moments should post to Discord, and in whose voice; one-way drops first.",
+    "Whether players should be told that an AI assistant helps prepare the campaign before any bot reads or answers their messages, and whether a two-way bot is wanted at all (the consent question above).",
+    "Where a relay would run (the Oracle server is the obvious home) and who holds the bot token.",
+    "Whether the server replaces or complements the in-Foundry correspondence system and phone (ideas: in-universe-correspondence-negotiation-system, phone-app-suite)."
+  ],
+  "relatedRefs": [
+    "in-universe-correspondence-negotiation-system",
+    "phone-app-suite",
+    "terminal-login-landing-page",
+    "design/launch-checklist.md",
+    "canon/decisions/D055.md",
+    "design/induction-terminal.md"
+  ],
+  "resolution": null
+}

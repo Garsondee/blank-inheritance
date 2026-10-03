@@ -1,0 +1,317 @@
+/* =====================================================================
+   THE DIORAMA — cards standing in a painted scene, in CSS 3D
+   ---------------------------------------------------------------------
+   Proposed for bi-components.css when built. The camera is a CSS
+   perspective whose origin sits on the painting's horizon (diorama.mjs);
+   everything in .dio__world is placed in that one 3D space, so cards and
+   the furniture cut from the painting sort in depth by themselves.
+   ===================================================================== */
+
+.dio-bg::after { display: none; }
+/* The apron: the strip a lifted painting leaves above the screen's bottom edge,
+   filled with the painting's own floor, mirrored and dimmed. Only its ends show
+   either side of the deck. */
+.dio-apron {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; pointer-events: none;
+  background-repeat: no-repeat; transform: scaleY(-1); filter: blur(2px) brightness(0.62) saturate(0.85);
+}
+.dio-apron::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgb(0 0 0 / 0%), rgb(0 0 0 / 55%)); }
+.dio-layer { position: absolute; left: 0; top: 0; pointer-events: none; }
+.dio-floor { z-index: 2; }
+.dio-glow { z-index: 3; }
+.dio-back { z-index: 4; }
+.dio { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+.dio__world { position: absolute; inset: 0; transform-style: preserve-3d; }
+.dio-front { z-index: 6; }
+.dio-overlay { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.dio-vignette {
+  position: absolute; inset: 0; z-index: 8; pointer-events: none;
+  background: radial-gradient(ellipse 125% 95% at 50% 42%, transparent 58%, rgb(0 0 0 / 50%) 100%);
+}
+.dio-tint { position: absolute; inset: 0; z-index: 8; pointer-events: none; mix-blend-mode: soft-light; }
+
+/* Furniture cut from the painting, set at its own depth. */
+.dio-occ { position: absolute; left: 0; top: 0; background-repeat: no-repeat; }
+
+/* --- The card in 3D ------------------------------------------------------ */
+.dio-card {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 50% 100%; transform-style: preserve-3d;
+}
+.dio-card__body { position: absolute; inset: 0; transform-style: preserve-3d; }
+.dio-card__face {
+  position: absolute; inset: 0; transform: translateZ(1px);
+  backface-visibility: hidden; border-radius: 4px; overflow: hidden;
+}
+.dio-card__face .bi-frame {
+  filter: brightness(var(--b, 1)); height: 100%; box-sizing: border-box;
+  transition: none;
+}
+.dio-card__face .bi-frame__art img { filter: none; }
+.dio-card__face .bi-frame__keys { display: none; }
+.dio-card__face .bi-frame__scope:hover { transform: none; }
+.dio-card.is-speaking .dio-card__face .bi-frame {
+  box-shadow: var(--bi-bevel-up), 0 0 0 2px rgb(255 190 120 / 70%);
+}
+/* The glow has to sit outside the face, which clips its own children. */
+.dio-card.is-speaking .dio-card__face { filter: drop-shadow(0 0 12px rgb(255 176 96 / 90%)) drop-shadow(0 0 36px rgb(255 140 60 / 50%)); }
+
+/* Light, from the scene's own lamps: a coloured wash on the lit side, a rim
+   when the light is behind, a sheen on the glass, and haze with distance. */
+.dio-card__lit, .dio-card__shade, .dio-card__rim, .dio-card__sheen, .dio-card__haze { position: absolute; inset: 0; pointer-events: none; border-radius: 4px; }
+.dio-card__lit { background: var(--lit, none); mix-blend-mode: overlay; }
+.dio-card__shade { background: var(--shade, none); }
+.dio-card__rim { box-shadow: var(--rim, none); mix-blend-mode: screen; }
+.dio-card__sheen {
+  background: linear-gradient(112deg, transparent calc(var(--sheen, 50%) - 16%), rgb(255 250 235 / var(--sheen-a, 0)) var(--sheen, 50%), transparent calc(var(--sheen, 50%) + 16%));
+  mix-blend-mode: screen;
+}
+.dio-card__haze { background: var(--haze-c, rgb(20 16 12)); opacity: var(--haze-a, 0); }
+/* The room's own colour laid over every card, so a portrait belongs to the painting it stands in. */
+.dio-card__ambient { position: absolute; inset: 0; pointer-events: none; background: var(--amb-c, transparent); opacity: var(--amb-a, 0); mix-blend-mode: multiply; }
+
+/* Standing in water: below the line, tinted, with a moving surface. */
+.dio-card__water { position: absolute; left: -2px; right: -2px; bottom: 0; z-index: 3; }
+.dio-card__water svg { position: absolute; left: 0; top: -10px; width: 100%; height: 20px; }
+.dio-card__water svg path { fill: rgb(64 132 140 / 72%); stroke: rgb(235 250 250 / 90%); stroke-width: 2.5; }
+.dio-card__water::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 9px; bottom: 0;
+  background: linear-gradient(180deg, rgb(64 132 140 / 72%), rgb(30 80 88 / 88%));
+}
+
+/* The back: brass, rivets, a typed label. */
+.dio-card__back {
+  position: absolute; inset: 0; transform: translateZ(-9px) rotateY(180deg); backface-visibility: hidden;
+  display: grid; place-items: center; border-radius: 4px;
+  background: linear-gradient(180deg, #9a7c43, #5f4a22 62%, #3e2f14);
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 35%), inset 0 0 40px rgb(0 0 0 / 45%);
+}
+.dio-card__back::before, .dio-card__back::after {
+  content: ""; position: absolute; left: 14px; width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f1d9a2, #5f4a22);
+  box-shadow: 238px 0 0 0 #a8894f;
+}
+.dio-card__back::before { top: 14px; }
+.dio-card__back::after { bottom: 14px; }
+
+/* Thickness: a brass edge either side, seen when the card turns. */
+.dio-card__edge { position: absolute; top: 2px; bottom: 2px; width: 9px; background: linear-gradient(180deg, #e6c98d, #8a6a33 50%, #4a3818); }
+.dio-card__edge--l { left: 0; transform-origin: 0 50%; transform: rotateY(90deg); }
+.dio-card__edge--r { right: 0; transform-origin: 100% 50%; transform: rotateY(-90deg); }
+
+/* The foot it stands on; a player's has their colour in enamel. */
+.dio-card__base {
+  position: absolute; left: 22%; right: 22%; bottom: -12px; height: 14px; transform: translateZ(0.5px);
+  background: linear-gradient(180deg, #e6c98d, #6a5124); clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+}
+.dio-card.is-pc .dio-card__base { box-shadow: inset 0 -5px 0 var(--who, transparent); }
+
+/* --- Emotes and labels --------------------------------------------------- */
+.dio-emote { position: absolute; pointer-events: none; filter: drop-shadow(0 6px 8px rgb(0 0 0 / 45%)); transform-origin: 50% 70%; }
+.dio-emote svg { width: 100%; height: 100%; overflow: visible; }
+
+.dio-label {
+  position: absolute; transform: translate(-50%, -100%); white-space: nowrap; pointer-events: none;
+  padding: 5px 10px 6px; border-radius: 3px; background: rgb(12 11 8 / 84%); border: 1px solid rgb(172 138 77 / 70%);
+  font: 600 13px var(--bi-font-plate); color: var(--bi-bone); text-shadow: 0 1px 2px #000;
+}
+.dio-label b { display: block; font: 700 10px var(--bi-font-legend); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bi-brass-lit); }
+.dio-label.is-done { opacity: 0.55; }
+.dio-label.is-here { border-color: var(--bi-life); box-shadow: 0 0 14px rgb(232 134 58 / 45%); }
+
+/* A caption set under a card (the anatomy plate). */
+.lab-note.is-caption { max-width: 400px; font-size: 17px; line-height: 1.42; }
+.lab-note.is-caption b { color: var(--bi-brass-lit); font-weight: 700; }
+
+/* --- The emote sheet ------------------------------------------------------ */
+.emote-sheet {
+  position: absolute; left: 60px; right: 60px; top: 170px; bottom: 50px;
+  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr); gap: 18px;
+}
+.emote-cell {
+  position: relative; display: grid; grid-template-rows: 1fr auto auto; justify-items: center; align-items: center;
+  padding: 12px 8px 14px; border-radius: 8px;
+  background: radial-gradient(ellipse at 50% 35%, #3a2f22 0%, #1a1510 75%); box-shadow: inset 0 0 0 1px rgb(172 138 77 / 35%);
+}
+.emote-cell__art { width: 170px; height: 170px; filter: drop-shadow(0 8px 10px rgb(0 0 0 / 50%)); }
+.emote-cell__art svg { width: 100%; height: 100%; overflow: visible; }
+.emote-cell__name { font: 400 26px var(--bi-font-display-jp); color: var(--bi-bone); }
+.emote-cell__motion { font: 600 11px var(--bi-font-legend); letter-spacing: 0.24em; text-transform: uppercase; color: var(--bi-brass-lit); margin-top: 2px; }
+
+/* --- Track readout -------------------------------------------------------- */
+.dio-progress {
+  position: absolute; right: 36px; top: 30px; z-index: 30; width: 430px; padding: 14px 16px 12px;
+  background: rgb(12 11 8 / 86%); border: 1px solid var(--bi-brass-dark); border-radius: 6px; box-shadow: 0 14px 30px rgb(0 0 0 / 55%);
+}
+.dio-progress__title { font: 700 12px var(--bi-font-legend); letter-spacing: 0.24em; text-transform: uppercase; color: var(--bi-brass-lit); margin-bottom: 10px; }
+.dio-progress__title b { color: var(--bi-bone); }
+.dio-progress__row { display: grid; grid-template-columns: 34px 78px 1fr; align-items: center; gap: 10px; margin: 6px 0; font: 600 14px var(--bi-font-plate); color: var(--bi-bone); }
+.dio-progress__row img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; object-position: 50% 15%; box-shadow: 0 0 0 2px var(--who); }
+.dio-progress__row i { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+.dio-progress__row em { height: 12px; border-radius: 2px; background: rgb(255 255 255 / 10%); }
+.dio-progress__row em.is-on { background: linear-gradient(180deg, #f2b53f, #b87a1e); box-shadow: 0 0 6px rgb(242 181 63 / 50%); }
+.dio-progress__foot { margin-top: 10px; padding-top: 9px; border-top: 1px solid rgb(172 138 77 / 35%); font: 500 13px var(--bi-font-plate); color: rgb(221 211 186 / 80%); }
+.dio-progress__foot b { color: var(--bi-amber); font-size: 15px; }
+
+/* --- Setting the scene ----------------------------------------------------- */
+.dio-rig { position: absolute; left: 0; top: 0; z-index: 7; pointer-events: none; }
+.dio-ghost { position: absolute; z-index: 7; border: 2px dashed rgb(120 210 230 / 90%); border-radius: 4px; background: rgb(120 210 230 / 8%); pointer-events: none; }
+.dio-ghost::after { content: "a person, here"; position: absolute; left: 50%; bottom: -24px; transform: translateX(-50%); white-space: nowrap; font: 700 11px var(--bi-font-legend); letter-spacing: 0.14em; text-transform: uppercase; color: rgb(160 225 240); text-shadow: 0 1px 2px #000; }
+.dio-setpanel {
+  position: absolute; right: 30px; top: 110px; z-index: 30; width: 390px; padding: 16px 18px;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-800)); border: 1px solid var(--bi-brass-dark); border-radius: 6px;
+  box-shadow: var(--bi-bevel-up), 0 14px 30px rgb(0 0 0 / 60%); color: var(--bi-bone);
+}
+.dio-setpanel__title { font: 400 26px var(--bi-font-display-jp); margin-bottom: 10px; }
+.dio-setpanel label { display: grid; grid-template-columns: 84px 1fr 40px; align-items: center; gap: 10px; margin: 9px 0; font: 600 12px var(--bi-font-legend); letter-spacing: 0.1em; text-transform: uppercase; color: var(--bi-bone-dim); }
+.dio-setpanel label b { font: 700 13px var(--bi-font-readout); color: var(--bi-amber); text-align: right; }
+.dio-slider { position: relative; height: 6px; border-radius: 3px; background: var(--bi-steel-900); box-shadow: inset 0 1px 2px #000; }
+.dio-slider i { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f1d9a2, #8a6a33); box-shadow: 0 2px 4px #000; }
+.dio-setpanel__group { margin: 14px 0 6px; font: 700 11px var(--bi-font-legend); letter-spacing: 0.24em; text-transform: uppercase; color: var(--bi-brass-lit); }
+.dio-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dio-chips span { padding: 5px 10px; border-radius: 12px; font: 600 12px var(--bi-font-plate); background: var(--bi-steel-900); border: 1px solid rgb(172 138 77 / 45%); color: var(--bi-bone); }
+
+/* --- The handle, when a card is held -------------------------------------- */
+.dio-card__rod { position: absolute; left: 50%; top: calc(100% + 2px); width: 18px; height: 150px; transform: translateX(-50%) translateZ(0.6px); display: flex; flex-direction: column; align-items: center; }
+.dio-card__rod::before { content: ""; width: 14px; height: 16px; border-radius: 2px; background: linear-gradient(90deg, #5f4a22, #e6c98d 45%, #ac8a4d 60%, #4a3a1a); }
+.dio-card__rod i { display: block; width: 12px; flex: 1; border-radius: 0 0 7px 7px; background: linear-gradient(90deg, #1c120a, #6a4a2c 40%, #3a2716 70%, #120b06); }
+
+/* --- Live, and the emote wheel --------------------------------------------- */
+.is-live .dio-card { pointer-events: auto; cursor: grab; }
+.dio-wheel { position: absolute; z-index: 60; width: 0; height: 0; }
+.dio-wheel::before { content: ""; position: absolute; left: -150px; top: -150px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgb(12 11 8 / 0%) 34%, rgb(12 11 8 / 78%) 35%, rgb(12 11 8 / 78%) 66%, rgb(12 11 8 / 0%) 67%); border: 1px solid rgb(172 138 77 / 40%); }
+.dio-wheel.is-shot::before { left: -178px; top: -178px; width: 356px; height: 356px; }
+.dio-wheel__item { all: unset; position: absolute; width: 74px; height: 74px; margin: -37px 0 0 -37px; cursor: pointer; filter: drop-shadow(0 4px 6px rgb(0 0 0 / 55%)); transition: transform 120ms; }
+.dio-wheel__item svg { width: 100%; height: 100%; overflow: visible; }
+.dio-wheel__item:hover, .dio-wheel__item.is-hover { transform: scale(1.28); }
+.dio-wheel__item.is-hover::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--bi-life); box-shadow: 0 0 16px rgb(232 134 58 / 60%); }
+.dio-wheel__hub { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); padding: 6px 12px; border-radius: 14px; background: rgb(12 11 8 / 92%); border: 1px solid var(--bi-brass-dark); font: 400 18px var(--bi-font-display-jp); color: var(--bi-bone); white-space: nowrap; }
+
+/* --- Three lights, side by side --------------------------------------------- */
+.dio-trio__panel { position: absolute; overflow: hidden; border-radius: 6px; box-shadow: 0 0 0 1px rgb(172 138 77 / 45%), 0 18px 40px rgb(0 0 0 / 60%); }
+.dio-trio__inner { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #000; }
+.dio-trio__label { position: absolute; display: grid; gap: 6px; }
+.dio-trio__label b { font: 400 30px var(--bi-font-display-jp); color: var(--bi-bone); }
+.dio-trio__label span { font: 500 17px/1.4 var(--bi-font-plate); color: rgb(221 211 186 / 82%); max-width: 640px; }
+
+/* --- Links between cards: a glare, a whisper, a look ------------------------ */
+.dio-links { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+
+/* --- A wet or polished floor: each card mirrored below its foot ------------- */
+.dio-card__reflect {
+  position: absolute; left: 0; right: 0; top: calc(100% + 2px); height: 100%;
+  transform: scaleY(-1); backface-visibility: hidden; pointer-events: none; overflow: hidden; border-radius: 4px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 38%, rgb(0 0 0 / 85%));
+  mask-image: linear-gradient(to bottom, transparent 38%, rgb(0 0 0 / 85%));
+  filter: blur(1.6px) saturate(0.8) brightness(0.8);
+}
+.dio-card__reflect .bi-frame { height: 100%; box-sizing: border-box; }
+.dio-card__reflect .bi-frame__keys { display: none; }
+.dio-card__reflect::after {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(180deg, transparent 0 7px, rgb(0 0 0 / 22%) 7px 9px);
+}
+
+/* --- A photograph: the viewfinder, the flash, the print ---------------------- */
+.dio-viewfinder { position: absolute; inset: 110px 150px 120px; z-index: 40; pointer-events: none; }
+.dio-viewfinder i { position: absolute; width: 90px; height: 90px; border: 0 solid rgb(255 255 255 / 85%); filter: drop-shadow(0 1px 2px #000); }
+.dio-viewfinder i.tl { left: 0; top: 0; border-width: 4px 0 0 4px; }
+.dio-viewfinder i.tr { right: 0; top: 0; border-width: 4px 4px 0 0; }
+.dio-viewfinder i.bl { left: 0; bottom: 0; border-width: 0 0 4px 4px; }
+.dio-viewfinder i.br { right: 0; bottom: 0; border-width: 0 4px 4px 0; }
+.dio-viewfinder b { position: absolute; left: 50%; top: 52%; width: 120px; height: 84px; transform: translate(-50%, -50%); border: 2px solid rgb(255 255 255 / 70%); border-radius: 4px; filter: drop-shadow(0 1px 2px #000); }
+.dio-viewfinder span { position: absolute; left: 50%; bottom: -46px; transform: translateX(-50%); white-space: nowrap; font: 600 22px var(--bi-font-readout); color: var(--bi-amber); text-shadow: 0 1px 3px #000; letter-spacing: 0.08em; }
+.dio-viewfinder span em { font-style: normal; color: var(--bi-bone); }
+.dio-flash { position: absolute; inset: 0; z-index: 30; pointer-events: none; background: radial-gradient(ellipse at 50% 60%, rgb(255 252 240 / 30%), rgb(255 252 240 / 8%) 70%); }
+.dio-print {
+  position: absolute; right: 120px; top: 260px; z-index: 50; width: 820px; padding: 24px 24px 96px; box-sizing: border-box;
+  background: linear-gradient(180deg, #f6f0e0, #ece2c9); border-radius: 3px; transform: rotate(4.5deg);
+  box-shadow: 0 2px 0 rgb(0 0 0 / 10%), 0 30px 60px rgb(0 0 0 / 65%), 0 8px 18px rgb(0 0 0 / 45%);
+}
+.dio-print__photo {
+  position: relative; height: 560px; background-size: 1700px auto; background-position: 50% 74%;
+  filter: sepia(0.78) saturate(0.75) contrast(1.1) brightness(1.04);
+  box-shadow: inset 0 0 70px rgb(40 24 8 / 55%);
+}
+.dio-print__photo::after { content: ""; position: absolute; inset: 0; background: repeating-radial-gradient(circle at 30% 40%, rgb(0 0 0 / 5%) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; }
+.dio-print__caption { position: absolute; left: 34px; bottom: 26px; font: 600 36px var(--bi-font-hand); color: #2a2216; transform: rotate(-1.5deg); }
+.dio-papers {
+  position: absolute; right: 150px; top: 1040px; z-index: 50; padding: 10px 18px; border-radius: 20px;
+  background: rgb(12 11 8 / 88%); border: 1px solid var(--bi-brass-dark); font: 600 18px var(--bi-font-plate); color: var(--bi-bone);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 50%);
+}
+.dio-papers i { color: var(--bi-amber); margin-right: 8px; }
+.dio-papers b { color: var(--bi-amber); }
+
+/* --- A split stage: two dioramas side by side, like a manga page ------------- */
+.dio-split__panel { position: absolute; top: 0; overflow: hidden; }
+.dio-split__gutter { position: absolute; inset: 0; z-index: 15; pointer-events: none;
+  background: linear-gradient(to right, transparent, transparent); }
+.dio-split__gutter::before {
+  content: ""; position: absolute; left: 1277px; top: -30px; width: 16px; height: 1500px; background: #0b0a08;
+  transform: rotate(4.37deg); transform-origin: 50% 50%; box-shadow: 0 0 0 1px rgb(172 138 77 / 70%), 0 0 24px rgb(0 0 0 / 70%);
+}
+.dio-split__plaque {
+  position: absolute; top: 112px; z-index: 30; padding: 10px 18px 12px; border-radius: 4px;
+  background: rgb(12 11 8 / 84%); border: 1px solid var(--bi-brass-dark); box-shadow: 0 10px 24px rgb(0 0 0 / 50%);
+  display: grid; gap: 2px;
+}
+.dio-split__plaque b { font: 400 30px var(--bi-font-display-jp); color: var(--bi-bone); }
+.dio-split__plaque span { font: 700 12px var(--bi-font-legend); letter-spacing: 0.22em; text-transform: uppercase; color: var(--bi-brass-lit); }
+
+/* --- Conditions you can see ------------------------------------------------ */
+.dio-card.is-hidden .dio-card__face { outline: 3px dashed rgb(160 225 240 / 95%); outline-offset: 5px; }
+.dio-card.is-out .dio-card__face .bi-frame { filter: brightness(var(--b, 1)) grayscale(0.55); }
+.dio-plaque {
+  position: absolute; transform: translate(-50%, -100%); display: grid; justify-items: center; gap: 3px; white-space: nowrap; pointer-events: none;
+  padding: 6px 12px 7px; border-radius: 3px; background: rgb(12 11 8 / 86%); border: 1px solid rgb(172 138 77 / 75%);
+  box-shadow: 0 6px 14px rgb(0 0 0 / 50%);
+}
+.dio-plaque b { font: 700 13px var(--bi-font-legend); letter-spacing: 0.16em; text-transform: uppercase; color: var(--bi-bone); }
+.dio-plaque span { font: 500 13px var(--bi-font-plate); color: rgb(221 211 186 / 82%); }
+.dio-plaque i { display: flex; gap: 4px; }
+.dio-plaque i em { width: 14px; height: 6px; border-radius: 2px; background: rgb(255 255 255 / 14%); }
+.dio-plaque i em.is-on { background: #e0533a; box-shadow: 0 0 6px rgb(224 83 58 / 70%); }
+.dio-plaque.is-calm i em.is-on { background: #f2b53f; box-shadow: 0 0 6px rgb(242 181 63 / 60%); }
+
+/* --- Badges, counts, captions, speaking bars ------------------------------- */
+.dio-pill {
+  position: absolute; padding: 3px 9px; border-radius: 3px; white-space: nowrap;
+  font: 700 12px var(--bi-font-legend); letter-spacing: 0.08em;
+  background: rgb(8 24 27 / 90%); color: var(--bi-cyan); border: 1px solid var(--bi-cyan-dim); box-shadow: 0 4px 10px rgb(0 0 0 / 50%);
+}
+.dio-hand {
+  position: absolute; padding: 4px 10px 4px 8px; border-radius: 3px; white-space: nowrap;
+  font: 700 14px var(--bi-font-legend); background: var(--bi-life); color: #1c1006;
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 55%), 0 0 16px rgb(232 134 58 / 70%);
+}
+.dio-count {
+  position: absolute; min-width: 34px; height: 34px; padding: 0 8px; border-radius: 17px; display: grid; place-items: center;
+  font: 700 16px var(--bi-font-legend); color: #10171a; background: var(--bi-cyan);
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 55%), 0 0 16px rgb(79 200 216 / 60%);
+}
+.dio-capt {
+  position: absolute; white-space: nowrap; font: 600 12px var(--bi-font-legend); letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--bi-bone); text-shadow: 0 1px 3px #000, 0 0 8px #000;
+}
+.dio-bars { position: absolute; display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+.dio-bars i { width: 4px; background: var(--bi-life); border-radius: 1px; box-shadow: 0 0 6px var(--bi-life); }
+.dio-vignette.is-heavy { background: radial-gradient(ellipse 78% 68% at 50% 58%, transparent 28%, rgb(0 0 0 / 80%) 100%); }
+
+/* --- A card in a hand, and the wings ---------------------------------------- */
+.dio-card.show-keys .dio-card__face .bi-frame__keys { display: flex; }
+.dio-card.is-wing .dio-card__base { display: none; }
+.dio-card__rod::before { box-shadow: 0 0 0 3px var(--who, transparent); }
+.dio-rack {
+  position: absolute; bottom: 0; height: 64px; z-index: 7; pointer-events: none; border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #e6c98d 0, #b8924f 3px, #5d4521 6px, #3b2a13 9px, #281b0b 100%);
+  box-shadow: 0 -8px 18px rgb(0 0 0 / 55%), inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+.dio-rack::before {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 16px; bottom: 0;
+  background: linear-gradient(90deg, transparent 33.1%, rgb(0 0 0 / 55%) 33.1%, rgb(0 0 0 / 55%) 33.5%, transparent 33.5%, transparent 66.6%, rgb(0 0 0 / 55%) 66.6%, rgb(0 0 0 / 55%) 67%, transparent 67%);
+}
+.dio-rack span {
+  position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font: 700 11px var(--bi-font-legend);
+  letter-spacing: 0.3em; text-transform: uppercase; color: rgb(230 201 141 / 55%);
+}

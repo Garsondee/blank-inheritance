@@ -7,6 +7,7 @@
  */
 
 import { buildCast, castSummary } from "../core/cast.mjs";
+import { isPlayerOwned } from "../core/ownership.mjs";
 
 /**
  * Every token on the viewed scene, as board rows.
@@ -22,7 +23,8 @@ export function castForScene() {
       id: token.id,
       actorId: token.actor?.id ?? null,
       name: token.document?.name ?? token.actor?.name ?? null,
-      isPC: token.actor?.hasPlayerOwner ?? false,
+      // Not token.actor.hasPlayerOwner: an unlinked token's actor can loop forever on it (core/ownership.mjs).
+      isPC: isPlayerOwned(token.actor),
       hidden: token.document?.hidden ?? false,
       selected: token.controlled ?? false,
       disposition: token.document?.disposition ?? 0,

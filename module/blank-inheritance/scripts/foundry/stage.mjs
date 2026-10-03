@@ -38,6 +38,7 @@ import { openNotebook } from "./notebook.mjs";
 import { syncPeoplePages } from "./notebook-store.mjs";
 import { MODULE_ID, ensureStageVault, markNameKnown, readKnownNames } from "./stage-store.mjs";
 import { postInlineCheck } from "./rolls.mjs";
+import { stagecraftDraws } from "./stagecraft-gate.mjs";
 // Deliberately one-directional: this file imports FROM foundry/splash.mjs,
 // which never imports back — splash.mjs cannot call setRevealed itself
 // (that would be a circular import), so #onSplash below performs both
@@ -513,7 +514,8 @@ export function getStage() {
  * invisible sheet of pointer-events waiting to eat somebody's click.
  */
 export function syncStage() {
-  const staged = Boolean(canvas?.scene?.getFlag(MODULE_ID, FLAG_KEY));
+  // a scene Stagecraft draws shows its people as cards, not as these frames (foundry/stagecraft-bridge.mjs)
+  const staged = Boolean(canvas?.scene?.getFlag(MODULE_ID, FLAG_KEY)) && !stagecraftDraws(canvas.scene);
   if (!staged) {
     active?.close();
     active = null;

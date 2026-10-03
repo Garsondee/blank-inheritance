@@ -267,13 +267,27 @@ export function getCommandBar() {
  */
 export function mountCommandBar(BarClass) {
   if (active && active.constructor === BarClass) {
-    active.render({ force: true });
+    reportFailedRender(active.render({ force: true }));
     return active;
   }
   active?.close();
   active = new BarClass();
-  active.render({ force: true });
+  reportFailedRender(active.render({ force: true }));
   return active;
+}
+
+/**
+ * A render that throws must say so, with our name on it. render() hands back a
+ * promise, so the try/catch around mountCommandBar (blank-inheritance.mjs,
+ * canvasReady) never saw a failure: it surfaced as a bare "Uncaught (in
+ * promise)" with the deck silently missing (found 2026-10-01, when a scene's
+ * tokens made the cast board recurse -- core/ownership.mjs). Promise.resolve so
+ * a test double whose render() returns nothing is fine.
+ */
+function reportFailedRender(rendered) {
+  Promise.resolve(rendered).catch((err) => {
+    console.error("Blank Inheritance | The command bar failed to render:", err);
+  });
 }
 
 /**
@@ -284,7 +298,7 @@ export function mountCommandBar(BarClass) {
  */
 export function refreshCommandBar(parts = null) {
   if (!active) return null;
-  active.render(parts ? { parts } : {});
+  reportFailedRender(active.render(parts ? { parts } : {}));
   return active;
 }
 

@@ -328,6 +328,8 @@ at that has nothing to do with piloting → our intake *(old Q2, whose ground-ro
 **Count: 11 open questions → 4, plus one freeform box.** Fifteen of sf2e's twenty-one biography fields
 get filled; the other six are deliberate (6e).
 
+> **Update 2026-10-01 (D055).** Item 4 of Group 3 above, the question addressed to the player, now has a page of its own: Ingram asked for a single out-of-character page just before the end of the form asking the players what they enjoy, what they do not, what they hope to do and what sort of force they want to be, "to help us define what a fun experience would be." The original question moved there unchanged and sits first among six; Group 3 is therefore four questions plus the box. See `design/induction-terminal.md` §4 row 8b.
+
 ### 6e. What this costs, and the six fields left empty
 
 - **Question 4 stopped being a departure when it became player-facing.**

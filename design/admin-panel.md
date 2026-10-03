@@ -8,8 +8,46 @@
 > make sure they are working. ... this panel is primarily for doing unusual things to all the systems that we've
 > invented and added to Foundry."
 
-**Open it** from the Director's Palette ("Admin"), the Console's Hub tab, the macro *Blank Inheritance: Admin Panel*,
-or `game.modules.get("blank-inheritance").api.openAdminPanel()`.
+**Open it** with the big red **Admin key** on the main screen (below), from the Director's Palette ("Admin"), the
+Console's Hub tab, the macro *Blank Inheritance: Admin Panel*, or
+`game.modules.get("blank-inheritance").api.openAdminPanel()`.
+
+## The Admin key
+
+*Added 2026-10-01 at Ingram's request:* "Give me a button so I can access it from the main UI (something red looking
+large a missile launching button, square with bevelled corners ... on the right side of the UI, to the right of the
+macro bar stuff but not where the chat toaster popups would appear)."
+
+A 96px red launch key: a chamfered-square cap on a steel plate with an amber hazard ring and an "ADMIN" legend. Press it
+to open the panel; press it again to put the panel away. While the panel is open the cap stays pressed in, darkened and
+glowing. GM-only: a player's client never constructs it (`mountAdminKey` returns at once for a non-GM).
+
+**Where it stands** is measured, not fixed (`core/admin-key.mjs`, fitted by `foundry/admin-button.mjs`, called at the
+end of every `fitDeck`, so it follows the deck, the Scene Runner and the sidebar):
+
+1. Home is the macro bar's own baseline, against the sidebar's left edge (collapsed or open): the right-hand end of
+   the macro bar's row. In Ingram's usual layout (Runner open, sidebar open) that is the gap between the macro bar's
+   right end and the sidebar, where she drew it.
+2. If the macro bar's right end would run under the key (a narrow window), the key lifts to stand just above the bar.
+3. It is never where chat toasts appear. Foundry pops them into a column the width of the sidebar
+   (`#chat-notifications`) that **ends above the macro bar row** (the foot of the column is the chat input; measured live at
+   2560x1440, 93px above the macro bar, and with five long toasts stacked the lowest ended at y=891 against the key's top
+   at y=1090). It is still checked rather than assumed: a short window, or a lift into the column's height, slides the key
+   left to stand beside the column.
+
+## The window
+
+Reported 2026-10-01: the panel needed to be bigger and wider, and could not scroll. Both fixed.
+
+- **Size.** It opens at 55% of the screen's width (760 to 1400px) and as tall as the room above the console deck allows
+  (`core/admin.mjs#adminPanelSize`): 1400x960 on a 2560x1440 screen, where it was 780x900. Type and controls are larger
+  (15px body, 38px buttons).
+- **Layout.** The sections flow into two columns on a wide window and one on a narrow one (`.bi-admin__columns`, CSS
+  multi-column inside a height-less box, because a column box with a fixed height grows sideways instead of down).
+- **Scrolling.** The window's frame is `overflow: hidden`, as Foundry ships it, and nothing inside it scrolled, so
+  everything below the fold was unreachable. `.bi-admin__body` is now the scroller. The part declares
+  `scrollable: [""]` (the empty string means "the part's own root element"; a selector only looks *inside* the part and
+  never matched), so the position survives the panel's frequent re-renders.
 
 ## What it does
 
@@ -63,3 +101,7 @@ tag, so the Runner records it exactly as it records a click. What the stand-ins 
 - `scripts/foundry/admin-actions.mjs` — reset, snapshot, undo, test party, clock, jump, City, state.
 - `scripts/foundry/admin-autopilot.mjs` — the stand-ins.
 - `scripts/foundry/admin-panel.mjs`, `templates/admin/panel.hbs` — the window. `test/tier3-admin-contract.test.mjs`.
+- `scripts/core/admin-key.mjs` — where the key stands (pure geometry); `scripts/foundry/admin-button.mjs`,
+  `templates/admin/key.hbs` — the key itself. Looks: `styles/bi-components.css` (the admin section); position:
+  `styles/bi-foundry-bridge.css` (`#bi-admin-key`). `test/tier1-admin-key.test.mjs` (the placement, with numbers
+  measured live, plus a sweep over screen sizes), `test/tier3-admin-contract.test.mjs` (the wiring).

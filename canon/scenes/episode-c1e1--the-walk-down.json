@@ -1,0 +1,177 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--the-walk-down",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "the-walk-down",
+  "title": "The Walk Down",
+  "summary": "Scene 10. Waders that don't fit from the night lockup, Vetch's one-line briefing at Dock C, and the duty launch across the harbour to the old town.",
+  "goal": "They've kitted up, heard the job from Vetch, and crossed to the hatch on the old town's quay.",
+  "howToPlay": "Quiet and a little funny. The waders don't fit. **Then the crossing: let them talk.**",
+  "runsAbout": "10 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The night lockup and Dock C on the island, then the launch across the harbour.",
+    "readAloud": "The night lockup is a counter, a single bulb and a clerk who has already issued everything worth having. Six pairs of waders and one chit to sign.",
+    "landmark": "Dock C's gate, lit, at the bottom of the hill.",
+    "carriesIn": [],
+    "position": {
+      "locationRef": null,
+      "state": "together",
+      "note": "The night lockup, then Dock C. Not yet sited."
+    }
+  },
+  "cast": [
+    {
+      "id": "section-officer",
+      "npcRef": "section-officer",
+      "role": "Waiting at Dock C to see them off.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Section Nine down the hatch on time, with nothing they can complain about on paper.",
+        "opensWith": "\"Twenty-one hundred. You're on time. Don't let it go to your heads.\"",
+        "willDiscuss": [
+          {
+            "topic": "The job",
+            "note": "\"Power to the drainage line. Clear the feed. Report to me when it runs.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What's down there",
+            "why": "\"Drains. Drains have things in them. Lamps on before you go down.\""
+          },
+          {
+            "topic": "Why them",
+            "why": "\"Sections are assigned work.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Clipped and procedural. Never wrong in his own account.",
+          "samples": [
+            "\"Lamps on before you go down, not after.\""
+          ]
+        },
+        "statblock": "Proposed: level 3, an officer, non-combat."
+      }
+    },
+    {
+      "id": "taka",
+      "npcRef": "taka",
+      "role": "Sees them off at the lockup door, if it fits.",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To see them off.",
+        "opensWith": "\"Told you. Waders.\"",
+        "voice": {
+          "register": "Warm, and briefer than usual.",
+          "samples": [
+            "\"Told you. Waders.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-waders",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Every pair of waders is the wrong size. Let whoever looks first find out how wrong.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "takas-send-off",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "taka",
+      "text": "If it fits, Taka <trig id=\"taka-sees-them-off\"/> catches them at the door: \"Told you. Waders.\" Nothing else.",
+      "when": {
+        "condition": "it fits"
+      },
+      "triggers": [
+        {
+          "id": "taka-sees-them-off",
+          "kind": "npc-enter",
+          "npcRef": "taka",
+          "label": "Taka at the door"
+        }
+      ],
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "dock-c",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "section-officer",
+      "text": "At Dock C, Vetch <trig id=\"vetch-at-dock-c\"/> gives them the job and puts them on the duty launch.",
+      "readAloud": "\"Power to the drainage line. Clear the compactor feed. Report to me when it runs.\" He ticks something on his clipboard. \"The launch will take you over. I'll be at the top.\"",
+      "triggers": [
+        {
+          "id": "vetch-at-dock-c",
+          "kind": "npc-enter",
+          "npcRef": "section-officer",
+          "label": "Vetch at Dock C"
+        }
+      ],
+      "facts": [
+        "section-officer.the-job"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "the-crossing",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Read the crossing, then ask each player what their character does with the ten minutes.",
+      "readAloud": "The launch is cold and loud and smells of oil. Behind you, the island's lights. Ahead, the old town, dark down at the waterline. The crew don't talk. It's ten minutes across black water.",
+      "facts": [],
+      "gmFacts": []
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The launch bumps against the old town's quay.",
+    "artefactRefs": [],
+    "tracks": [
+      {
+        "track": "bonds",
+        "why": "If they used the crossing on each other."
+      }
+    ],
+    "transition": {
+      "mechanism": "ordered",
+      "line": "A hatch in the quay, already open, with a ladder going down.",
+      "scatterRisk": false
+    },
+    "onwards": "Flood Tunnel Clearance, down the hatch.",
+    "writeDown": [
+      "Anything said on the crossing worth calling back."
+    ],
+    "position": {
+      "locationRef": "old-landing",
+      "state": "together",
+      "note": "At the hatch on the old town's quay."
+    }
+  },
+  "carryForward": [],
+  "temptations": [],
+  "reactionPrompts": [
+    {
+      "id": "the-crossing",
+      "text": "The six talking among themselves on the crossing."
+    }
+  ],
+  "notes": "The calm before the fight, and a little comedy. Dock C and the night lockup are on the island and not yet sited; the hatch is on the old landing, on the mainland."
+}

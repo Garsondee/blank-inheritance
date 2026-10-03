@@ -23,6 +23,8 @@
  *      EDITABLE_LOCATION_FIELDS, saved whole, not per field).
  */
 
+import { isOffMapReason, validTarget } from "./siting.mjs";
+
 export const TIERS = Object.freeze(["region", "site", "point"]);
 
 /** Which tiers each edit mode shows/allows drawing. design/location-editor.md §2. */
@@ -147,6 +149,18 @@ export const PANEL_FIELD_PATHS = Object.freeze([
   "scene.hooks", "scene.activities",
   "note"
 ]);
+
+/**
+ * Which panel fields (dot-paths) differ between two field sets -- `note`
+ * excluded, because the note says WHY a change was made, so it alone never
+ * makes an existing location worth a save record. The panel uses this to tell
+ * "opened a real location and looked at it" from "changed it".
+ */
+export function fieldsEdited(before, after) {
+  const b = before ?? emptyFields();
+  const a = after ?? emptyFields();
+  return PANEL_FIELD_PATHS.filter((path) => path !== "note" && !deepEqual(getPath(b, path), getPath(a, path)));
+}
 
 function getPath(obj, path) {
   return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
@@ -359,7 +373,7 @@ function ptsToPairs(points) {
 export const RECORD_KIND = "location-edit";
 export const RECORD_VERSION = 1;
 export const RECORD_PREFIX = "location-edit-";
-export const OPS = Object.freeze(["create", "update", "geometry", "split"]);
+export const OPS = Object.freeze(["create", "update", "geometry", "split", "site"]);
 
 /** `<time>-<rand>`, matching core/scene-edits.mjs's own id shape exactly. */
 export function makeRecordId(at, rand) {
@@ -383,12 +397,12 @@ export function recordIdFromFilename(filename) {
  */
 export function makeRecord(spec) {
   const {
-    at, rand, by = null, op, locationId = null, tier, draftId = null,
-    geometry = null, fields = null, before = null
+    at, rand, by = null, op, locationId = null, tier = null, draftId = null,
+    geometry = null, fields = null, before = null, target = null, viaRecord = null, note = null, beforeVia = null, offMap = null
   } = spec;
   if (!OPS.includes(op)) throw new Error(`makeRecord: unknown op "${op}"`);
-  if (!TIERS.includes(tier)) throw new Error(`makeRecord: unknown tier "${tier}"`);
-  return {
+  if (op !== "site" && !TIERS.includes(tier)) throw new Error(`makeRecord: unknown tier "${tier}"`);
+  const record = {
     kind: RECORD_KIND,
     version: RECORD_VERSION,
     id: makeRecordId(at, rand),
@@ -402,6 +416,21 @@ export function makeRecord(spec) {
     fields,
     before
   };
+  // A "site" record places a scene, an option or a travel point at a location
+  // (core/siting.mjs). It carries its own three fields, and only it does, so
+  // every record the other ops have ever written keeps exactly its old shape.
+  if (op === "site") {
+    record.target = target;
+    record.viaRecord = viaRecord;
+    // What the slot held when the GM chose, for clash detection. When that was a
+    // location drawn but not yet pulled it has no id to write down: `beforeVia`
+    // names the record that drew it, and the pull looks its id up.
+    record.beforeVia = beforeVia;
+    // Instead of a place: why this scene needs none (core/siting.mjs#OFF_MAP_REASONS).
+    record.offMap = offMap;
+    record.note = note;
+  }
+  return record;
 }
 
 /** Structural problems with a record, as a list. Empty means usable. Mirrors core/scene-edits.mjs#validateRecord's shape. */
@@ -413,9 +442,28 @@ export function validateRecord(record) {
   if (typeof record.id !== "string" || !record.id) problems.push("no id");
   if (typeof record.at !== "string") problems.push("no at");
   if (!OPS.includes(record.op)) problems.push(`op ${JSON.stringify(record.op)} is not one of ${OPS.join("/")}`);
-  if (!TIERS.includes(record.tier)) problems.push(`tier ${JSON.stringify(record.tier)} is not one of ${TIERS.join("/")}`);
+  if (record.op !== "site" && !TIERS.includes(record.tier)) problems.push(`tier ${JSON.stringify(record.tier)} is not one of ${TIERS.join("/")}`);
   if (record.op === "create" && record.locationId !== null) problems.push('op "create" must have locationId null');
-  if (record.op !== "create" && typeof record.locationId !== "string") problems.push(`op "${record.op}" needs a locationId`);
+  if (record.op !== "create" && record.op !== "site" && typeof record.locationId !== "string") problems.push(`op "${record.op}" needs a locationId`);
+  if (record.op === "site") {
+    // Places something at a location: the location is named by id, or by the
+    // create record that drew it (not yet pulled, so no id exists), or neither,
+    // which empties the slot.
+    if (!validTarget(record.target)) problems.push('op "site" needs a valid target');
+    if (record.locationId !== null && typeof record.locationId !== "string") problems.push('op "site" locationId must be a string or null');
+    if (record.viaRecord !== null && typeof record.viaRecord !== "string") problems.push('op "site" viaRecord must be a string or null');
+    if (record.locationId && record.viaRecord) problems.push('op "site" names a location by id OR by the record that drew it, not both');
+    if (record.before !== null && typeof record.before !== "string") problems.push('op "site" before must be a location id or null');
+    if (record.beforeVia !== null && typeof record.beforeVia !== "string") problems.push('op "site" beforeVia must be a record id or null');
+    if (record.offMap !== null && record.offMap !== undefined) {
+      if (!isOffMapReason(record.offMap)) problems.push(`op "site" offMap ${JSON.stringify(record.offMap)} is not a known reason`);
+      if (record.locationId || record.viaRecord) problems.push('op "site" is either placed at a location or off the map, not both');
+      if (record.target?.kind !== "scene") problems.push('only a scene can be marked off the map');
+    }
+    if (record.geometry !== null) problems.push('op "site" must have geometry null');
+    if (record.fields !== null) problems.push('op "site" must have fields null');
+    if (record.note !== null && typeof record.note !== "string") problems.push('op "site" note must be a string or null');
+  }
   if ((record.op === "create" || record.op === "geometry" || record.op === "split") && !record.geometry) problems.push(`op "${record.op}" needs geometry`);
   if (record.op === "update" && record.geometry !== null) problems.push('op "update" must have geometry null');
   if ((record.op === "create" || record.op === "update") && !record.fields) problems.push(`op "${record.op}" needs fields`);
@@ -473,18 +521,27 @@ export function addDraftItem(session, { tier, geometry, name = null }) {
   };
 }
 
-/** Replace one item's geometry (a vertex drag, a nudge, a re-adopt). */
+/**
+ * Replace one item's geometry (a vertex drag, a nudge, a re-adopt). An item
+ * opened from an existing location only to look at it (`peek`, see
+ * core/location-published.mjs) stops being "just looked at" the moment it is
+ * changed, so it is no longer let go of when the selection moves on.
+ */
 export function updateItemGeometry(session, localId, geometry) {
   const item = session.items[localId];
   if (!item) return session;
-  return { ...session, items: { ...session.items, [localId]: { ...item, geometry } } };
+  const next = { ...item, geometry };
+  if (next.peek) next.peek = false;
+  return { ...session, items: { ...session.items, [localId]: next } };
 }
 
 /** Replace one item's panel fields (name/lore/tags/... -- see `PANEL_FIELD_PATHS`) and/or its name label. */
 export function updateItemFields(session, localId, fields) {
   const item = session.items[localId];
   if (!item) return session;
-  return { ...session, items: { ...session.items, [localId]: { ...item, fields, name: fields.name ?? item.name } } };
+  const next = { ...item, fields, name: fields.name ?? item.name };
+  if (next.peek) next.peek = false;
+  return { ...session, items: { ...session.items, [localId]: next } };
 }
 
 /** Mark an item as linked to a real (possibly still-minting) location id, and locked against reshaping by accident. */

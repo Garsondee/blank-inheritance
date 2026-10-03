@@ -231,6 +231,37 @@ body.bi-theme #bi-session-rail {
   pointer-events: none;
 }
 
+/* The admin panel's window (foundry/admin-panel.mjs): the frame never
+   scrolls, the panel's own body does (.bi-admin__body, bi-components.css).
+   Foundry clips a window's content box and gives it padding, so the body has
+   to be the one thing inside it, filling it edge to edge. */
+body.bi-theme .application.bi-admin .window-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* The admin key (foundry/admin-button.mjs, 2026-10-01): the big red button
+   that opens the admin panel. Ingram: "on the right side of the UI, to the
+   right of the macro bar stuff but not where the chat toaster popups would
+   appear." Where exactly is measured, not guessed: fitAdminKey() reads the
+   macro bar, the sidebar and the chat toast column and writes the key's
+   distance from the right and bottom edges (core/admin-key.mjs has the
+   rules). The defaults here only hold until the first fit. A direct child of
+   #interface, never #ui-middle, for the transform reason the deck's own
+   mount explains; under Foundry's own windows like the deck and the macro
+   bar, so the panel it opens always stands over it. */
+body.bi-theme #bi-admin-key {
+  position: fixed;
+  right: var(--bi-akey-right, 68px);
+  bottom: var(--bi-akey-bottom, 250px);
+  z-index: calc(var(--z-index-app) - 1);
+  margin: 0;
+  pointer-events: none;
+}
+body.bi-theme #bi-admin-key .bi-akey__button {
+  pointer-events: auto;
+}
+
 /* Give the macro hotbar room to sit above the chassis instead of behind
    it. Height is read from the same token the bar is built from, so the two
    can never drift apart.
@@ -553,9 +584,23 @@ body.bi-theme #bi-scene-runner {
   z-index: calc(var(--z-index-app) - 1);
   /* The host itself is never translated or hidden -- .bi-runner-toggle is
      `position: fixed` and .bi-runner-shell (panel.hbs) does its own slide,
-     so the CLOSED drawer's invisible box sits here doing nothing rather
-     than needing to move. Nothing else reserves space for it while closed:
-     every rule below is scoped to :has(.bi-runner-shell--open). */
+     so the CLOSED drawer's box stays put rather than needing to move.
+     Nothing else reserves space for it while closed: every rule below is
+     scoped to :has(.bi-runner-shell--open).
+
+     That box is NOT doing nothing, though. It is a full-height strip down
+     the left of the screen (826 x 744 at 1920 x 1080), empty while closed,
+     and an empty box still wins the hit test: it swallowed every click,
+     drag and wheel turn meant for the canvas under it, so Foundry's own
+     board (and the Stagecraft stage, at the same layer) could not be
+     clicked, panned or zoomed there (found live 2026-10-01 with real
+     pointer events: elementFromPoint returned this host, not the board).
+     So the host is click-through, the same idiom as #bi-stage,
+     #bi-command-bar and #bi-session-rail, and the parts that take input opt
+     back in: .bi-runner-shell while open (bi-components.css) and
+     .bi-runner-toggle below. pointer-events is inherited, so this also
+     covers .bi-runner-frame, the display:contents wrapper between them. */
+  pointer-events: none;
 }
 
 /* FULL SCREEN HEIGHT while OPEN (found live 2026-09-20, at 1280x720: the
@@ -636,4 +681,8 @@ body.bi-theme #bi-scene-runner > .bi-runner-frame > .bi-runner-shell { flex: 1 1
 body.bi-theme .bi-runner-toggle {
   left: 104px;
   bottom: calc(var(--bi-bar-height) + 14px);
+  /* It inherits `none` from the click-through host above, and it must take
+     clicks while the drawer is closed: it is the way back in when the deck
+     has not mounted (see the rule hiding it while the deck is). */
+  pointer-events: auto;
 }

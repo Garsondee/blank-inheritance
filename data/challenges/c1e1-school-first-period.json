@@ -6,12 +6,33 @@
     "status": "drafted"
   },
   "name": "School: First Period",
-  "description": "One optional roll per room, and the first checks in the campaign that can cost something. Not rolling is free. Failure eats the party's slack time in the city this afternoon; critical failure eats that and sends them into the flood tunnel tired.",
+  "description": "One roll per room, plus the founders' names in local studies. Not rolling is free.",
   "levelContext": 1,
   "checks": [
     {
+      "id": "name-the-founders",
+      "name": "Name the four founders",
+      "skillOptions": [
+        "society",
+        "academia-lore"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "They name all four, and add that Rupiah still cuts the ribbon on Founding Day. The teacher is delighted.",
+        "success": "They name all four: Hyuck, Rupiah, Anabala, Shucks Mordant. The teacher writes them on the board.",
+        "failure": "They get two. The teacher fills in the rest, kindly.",
+        "criticalFailure": "They name a famous general instead. The teacher corrects them, and the room laughs, not unkindly."
+      },
+      "repeatable": false
+    },
+    {
       "id": "know-the-ground",
-      "name": "Actually learn the city, not just look at it",
+      "name": "Learn the city",
       "skillOptions": [
         "society",
         "survival",
@@ -19,26 +40,26 @@
       ],
       "dc": {
         "value": 13,
-        "basis": "level 1 DC 15, one step easy. He is a good teacher of exactly this and wants them to have it -- the difficulty is caring about a wall map on your first morning",
+        "basis": "level 1, one step easy",
         "adjustment": "easy"
       },
+      "insight": true,
       "outcomes": {
-        "criticalSuccess": "Everything below, and at the end of the lesson he hands over his own tram map -- dog-eared, annotated in pencil, twenty years of which services actually run on time, which cafes are worth it, and which street to take when the 4 does not come. He does not make anything of it. The player keeps it. It is a real object and it goes on working for the rest of the campaign.",
-        "success": "They can find their way across the district without asking anybody, including the way down to the harbour square and back, and they know which tram to want.",
-        "failure": "They spend the lesson lost on the map and he keeps them behind to copy it out properly. It costs them their slack this afternoon: they go to the store, they come back, and there is no wandering in it.",
-        "criticalFailure": "They argue with the map, are wrong, and are kept back long enough to be behind for the rest of the day. No slack in the city, and the extra work runs into the evening -- they go into the flood tunnel tonight Fatigued."
+        "criticalSuccess": "The teacher hands over his own tram map, twenty years of pencil notes on which services actually run. Grant it.",
+        "success": "They can find their way across the city this afternoon, and they know which tram to take.",
+        "failure": "Kept back to copy the map: they're last into the stores, and the handlamps have run out.",
+        "criticalFailure": "Kept back through the break and late for everything after: Fatigued tonight."
       },
       "bySkill": {
-        "society": "Reading a city as districts and functions rather than as streets, which is the version that survives contact with being lost.",
-        "survival": "Ground, gradient and water. The mile of steps stops being an obstacle and becomes a reason -- this is where the hill is, so this is where the old town had to stop.",
-        "perception": "What is actually drawn on the map, including how much of the seaward edge is a later addition in a different hand.",
-        "diplomacy": "Getting him talking rather than teaching, which is the only clean route to the critical success and to his own map."
+        "society": "The districts by who lives in them: the old families on the waterfront, the newcomers' streets further in.",
+        "survival": "The city by its water: the river, the outfalls, and which streets flood first.",
+        "perception": "The seaward edge of the map is newer than the rest, drawn in a different hand."
       },
       "repeatable": false
     },
     {
       "id": "workshop-induction",
-      "name": "Convince Brack you will not lose a hand",
+      "name": "Pass the safety induction",
       "skillOptions": [
         "crafting",
         "athletics",
@@ -47,33 +68,25 @@
       ],
       "dc": {
         "value": 15,
-        "basis": "level 1 standard DC 15. She is genuinely assessing them and is not gradeable by charm -- she wants to see hands that know what they are doing or an honest admission that they do not",
+        "basis": "level 1, no adjustment",
         "adjustment": "none"
       },
       "outcomes": {
-        "criticalSuccess": "Everything below, and she uses their name. Out loud, in front of the class, on the first morning. Nobody else in the room has managed that and several of them have been here for years.",
-        "success": "They come out able to work safely on her floor and she has noticed them, which on this base is worth considerably more than it sounds.",
-        "failure": "They do something she stops with one hand and a single word, and then they are cleaning the floor after everybody else has gone. It costs their slack in the city this afternoon.",
-        "criticalFailure": "They do something that would have cost somebody a finger, and she stops the entire floor to say so, at volume, using their name for the first time and not in the good way. Then she stays two hours past the end of her shift making them do it correctly, and walks them to the door afterwards. No slack in the city, and they go into the flood tunnel tonight Fatigued. Brack's attitude to that character also drops one step, from Friendly to Indifferent -- she is not angry and does not hold it against them, she simply stops volunteering things, and a trainee who has to ask Brack for everything gets slower answers than one she walks over to. It comes back the moment they show her they have learned it, and she will notice the first time they do."
-      },
-      "bySkill": {
-        "crafting": "The direct route. Hands that already know something, which she spots immediately and says so.",
-        "athletics": "Handling weight and knowing what their own body can and cannot hold, which is half of workshop safety and the half people ignore.",
-        "medicine": "Knowing what the injury actually looks like. She likes this answer enormously and it is the one that most reliably gets her talking.",
-        "intimidation": "Refusing to be frightened by her. Risky, and she respects it if it is real -- she is not remotely threatened, but she is interested."
+        "criticalSuccess": "As success, and she says their name out loud in front of everyone, and means it well.",
+        "success": "They can work safely on her floor, and she shows them how a control panel thinks: +2 circumstance on panel work tonight.",
+        "failure": "She stops them with one hand and a word. They sweep while the others work.",
+        "criticalFailure": "Something that would have cost a finger. She stops the floor and keeps them past the bell: Fatigued tonight."
       },
       "repeatable": false
     }
   ],
   "resolutionMode": "narrative-only",
   "participants": [
-    "Individually -- each player is in one room or the other"
+    "Any of the six"
   ],
   "relatedRefs": [
     "episode-c1e1-mothers-maiden-name",
-    "episode-c1e1--school-first-period",
-    "c1e1-the-errand",
-    "c1e1-flood-tunnel"
+    "episode-c1e1--school-first-period"
   ],
-  "notes": "NOT ROLLING IS FREE. A player who sits quietly through a lesson pays nothing and has done an entirely normal thing. Only offer the roll to somebody who engages with the material. This is the rule that makes unannounced risks fair, and it holds for every school period in the campaign.\n\nRISKS ARE NOT ANNOUNCED. Neither room states what a good roll buys or a bad one costs.\n\nTHE FAILURE COST IS DELIBERATELY NOT A QUARTER. The four-quarter day is not named to the players until The Board, in Episode Two. Charging them a currency they have never seen would be confusing rather than tense. Instead failure takes something they can already feel on their first day -- the slack in the afternoon's errand, which is where the tea house, the old man and the cicada mark all live. By the time The Board names the time economy, a player who failed here has already felt exactly what losing free time costs. That is the better teaching order.\n\nWHAT LOSING SLACK ACTUALLY MEANS. On The Errand they go to the store, they do the task, and they come back. The optional beats -- `read-the-old-man`, `the-mark-again`, the tea house -- are not available to them. Other players can still reach all of it, and should be encouraged to bring it back.\n\nFATIGUED IS A REAL SF2E CONDITION and is the correct weight for a critical failure: recoverable, not dangerous, and it makes tonight's fight genuinely harder without closing anything off. Do not invent a bespoke debuff when the system has one.\n\nKNOW-THE-GROUND PAYS OFF THIS AFTERNOON, IN THE SAME CURRENCY IT CHARGES. It does not help with `ask-around`: the docket's obsolete catalogue name is unreadable to a level-1 character at any DC, and no amount of city geography changes that. What it buys is time. They do not have to find the instrument makers, so they get there early and the afternoon has room in it for the tea house, the old man and the mark on the wall. Failure takes that slack away, success adds to it, and that symmetry is the whole design. Do not mention it here.\n\nWORKSHOP-INDUCTION PAYS OFF TONIGHT, ON A SPECIFIC AUTHORED CHECK. The flood tunnel shares power with a trash compactor, and stopping it means reaching the north control panels and overriding it: `override-the-cycle`, DC 15, in `data/subsystems/c1e1-compactor-cycle.json`. A player who passed Brack's induction takes a +2 circumstance bonus on that check, having spent the morning being shown this exact kind of panel by exactly the right person. Real number, real check, and nobody mentions it before the tunnel.\n\nHER USING THEIR NAME IS THE REWARD. Brack calls people by the machine or job they are standing next to until they have earned a name (`data/npcs/shop-boss.json`). A critical success is the party's first standing with the most important person on this base, and the scene never says so.\n\nPRICING AN INVENTED APPROACH. Standard Chapter One ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it would get more than the scene was going to give."
+  "notes": "Passing the induction gives +2 circumstance on the override check in Flood Tunnel Clearance, applied without comment."
 }

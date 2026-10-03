@@ -6,7 +6,7 @@
     "status": "drafted"
   },
   "name": "Kit Issue",
-  "description": "One optional flavor check, same shape as The Road In's a-flourish: never costs anything on any result, exists to make a moment vivid rather than to test anyone.",
+  "description": "Two optional checks at the stores counter.",
   "levelContext": 1,
   "checks": [
     {
@@ -19,16 +19,16 @@
       ],
       "dc": {
         "value": 15,
-        "basis": "level 1 standard DC -- he is willing, just busy, and he responds to specifics rather than charm alone",
+        "basis": "level 1, no adjustment",
         "adjustment": "none"
       },
-      "insight": false,
       "outcomes": {
-        "criticalSuccess": "He stops writing for a second, looks at them properly for the first time, and then goes into the back. EVERY player gets a small boost to their personal budget, from the catalogue's cheap gear tier. He does not explain and does not want thanking.",
-        "success": "\"...fine. Quickly.\" That player takes a small boost to their own personal budget, from the cheap gear tier. He is already talking to the next person before they have finished picking.",
-        "failure": "\"You've had your allowance.\" Not unkind, not interested. Nothing gained, nothing lost, and they can watch somebody else try.",
-        "criticalFailure": "He assumes they are angling for a second weapon and says so, loudly enough that the queue hears. Nothing is actually lost except the next thirty seconds, but he will not be worked again tonight by that player."
-      }
+        "criticalSuccess": "He stops writing, looks at them properly for the first time, and goes into the back. Everyone in Section Nine gets something extra.",
+        "success": "\"...Fine. Quickly.\" That player gets something extra.",
+        "failure": "\"You've had your allowance.\"",
+        "criticalFailure": "He loudly assumes they're after a second weapon, and won't be worked again today."
+      },
+      "repeatable": false
     },
     {
       "id": "test-the-fit",
@@ -40,14 +40,14 @@
       ],
       "dc": {
         "value": 13,
-        "basis": "level 1 DC 15, one step easy -- this is a treat, not a test",
+        "basis": "level 1, one step easy",
         "adjustment": "easy"
       },
       "outcomes": {
-        "criticalSuccess": "It sits right immediately -- a good line, a clean draw, whatever the character's own equipment was. Nobu, mid-sentence to someone else, notices anyway and says so without stopping what he's doing.",
+        "criticalSuccess": "It sits right first time, and Nobu notices mid-sentence and says so.",
         "success": "It works fine.",
-        "failure": "A small, funny fumble -- a strap on backwards, a stance that isn't quite it yet. Nothing that matters, and nobody here has time to make it a moment.",
-        "criticalFailure": "Comically clumsy, entirely harmless -- and completely ignored, because Nobu is already three sentences into something else."
+        "failure": "A strap on backwards. Somebody helps.",
+        "criticalFailure": "Comically tangled, and everyone politely ignores it."
       },
       "repeatable": true
     }
@@ -60,5 +60,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--kit-issue"
   ],
-  "notes": "Offer once per player at most, and only if someone wants a moment with their own new gear. If nobody bites, the scene loses nothing -- same design rule as a-flourish (c1e1-the-road-in.json)."
+  "notes": "Neither check costs anything mechanical."
 }

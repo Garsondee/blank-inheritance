@@ -1,0 +1,365 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1e1--intake-medicals",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "sceneRef": "intake-medicals",
+  "title": "Intake Medicals",
+  "summary": "Scene 2. The six meet in the infirmary queue. Forms, then a private medical with Doctor Mordant, who tells each of them their screen came back irregular. They come out as Section Nine.",
+  "goal": "Each player has had a private moment with Shucks and been told their screen came back irregular, and the six could find out it was all of them.",
+  "howToPlay": "A school medical crossed with a passport office: slow queue, then one kind conversation each, played in front of the whole table. **Nobody explains what the screen is for.**",
+  "runsAbout": "30-45 minutes",
+  "mode": "social",
+  "accomplishment": {
+    "award": "moderate",
+    "xp": 30,
+    "forWhat": "Working out, without being told, that all six of them were flagged."
+  },
+  "intro": {
+    "where": "The Candidate Gate, then the infirmary waiting room on the island. Monday, first thing.",
+    "firstThing": "The queue, and how long it has not moved.",
+    "readAloud": "At the land end of the causeway, the guard in the booth finds your name in his ledger, takes your return slip, and waves you on to the island and the infirmary.\n\nThe waiting room smells of disinfectant, floor polish and somebody's wet coat. A hand-lettered sign says FORMS FIRST, NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.\n\nSomewhere ahead a man keeps saying \"other arm\" in exactly the same tone. When the queue shuffles forward you see him <trig id=\"shucks-glimpsed\"/>: a doctor built entirely of bone, in a white coat, with a badge on the pocket that says MORDANT. Nobody else in the queue looks up.",
+    "landmark": "The two signs above the clerk's hatch.",
+    "carriesIn": [
+      {
+        "when": "After The Road In",
+        "then": "This is the first time the six are in one room. Let them notice each other."
+      }
+    ],
+    "triggers": [
+      {
+        "id": "shucks-glimpsed",
+        "kind": "npc-enter",
+        "npcRef": "shucks-mordant",
+        "arrival": "quiet",
+        "label": "Shucks glimpsed in the queue"
+      }
+    ],
+    "position": {
+      "locationRef": "intake-infirmary",
+      "state": "together",
+      "note": "One queue in the infirmary waiting room, with the rest of the morning's intake."
+    }
+  },
+  "cast": [
+    {
+      "id": "shucks-mordant",
+      "npcRef": "shucks-mordant",
+      "role": "Head of medical, doing the morning's screening himself.",
+      "called": "Doctor Mordant",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To do forty medicals properly, and send each of these six out feeling looked after.",
+        "opensWith": "\"Name. Not the one on the form. The one you actually use.\"",
+        "willDiscuss": [
+          {
+            "topic": "What they really are",
+            "note": "A disguise doesn't work on the man holding the blood sample. He asks how long they can hold it, and whether it hurts."
+          },
+          {
+            "topic": "What they eat",
+            "note": "\"The canteen won't have it. Tell me now and I'll make them.\""
+          },
+          {
+            "topic": "His name",
+            "note": "\"Shucks. Yes, that one. Arm.\""
+          },
+          {
+            "topic": "How old he is",
+            "note": "\"Old enough. Other arm.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What the screen tests for",
+            "why": "He's forbidden, thinks the rule is stupid, and keeps it: \"Not mine to say. I've complained, in writing.\""
+          },
+          {
+            "topic": "The other founders",
+            "why": "He won't gossip about old friends: \"Ask your history teacher. He'll get it wrong, but he'll enjoy it.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Warm and deadpan. Practical first, kind second, in one-word instructions.",
+          "samples": [
+            "\"Arm. Other arm. Look at the light, not at me.\"",
+            "\"Yes, I know. Sit down. You're not the first this morning, and I'm not writing it anywhere that matters.\"",
+            "\"If you come in here unconscious, what do I need to know that I wouldn't be able to see?\"",
+            "\"It's a screen. Screens flag things. You're fine.\""
+          ]
+        },
+        "statblock": "A founder, level 15 (D047). Not built: nothing here is a fight."
+      }
+    },
+    {
+      "id": "clerk",
+      "npcRef": "intake-medicals-clerk",
+      "role": "Records clerk, Intake.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Every form filled in correctly, once.",
+        "opensWith": "The box they've got wrong, before their name.",
+        "willDiscuss": [
+          {
+            "topic": "Why the form asks twice",
+            "note": "\"Records and Welfare haven't spoken since the flood.\""
+          },
+          {
+            "topic": "A spare form",
+            "note": "She hands one over without looking up."
+          },
+          {
+            "topic": "Section cards",
+            "note": "\"Section Nine. Corridor on your left. Next.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "What a result means",
+            "why": "She doesn't know: \"Not won't. Can't. It's not on my screen.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Flat and patient. Answers the question asked, then stops.",
+          "samples": [
+            "\"It's the same form for everyone. I know. I do know.\"",
+            "\"Box nineteen. Capitals.\""
+          ]
+        },
+        "statblock": "Proposed: level 0, a civilian clerk, non-combat."
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-queue",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "Go round once while the queue doesn't move: each player says or does one thing in character.",
+      "note": "If stuck: Someone behind them asks which sign is right.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "form-12b",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The clerk hands out Form 12-B, each with the candidate's name already typed on it. Boxes 4 and 19 both ask for mother's maiden name.",
+      "note": "Plant: The typed names have the same low, faint e as their letters. Say nothing about it.\nIf anyone asks for a spare: She hands one over. Grant the blank form.\nSecret: Shucks uses mothers' maiden names to trace the marker through families. Nobody else remembers why the form asks.",
+      "facts": [
+        "directorate.form-12b"
+      ],
+      "gmFacts": [
+        "shucks.maiden-names"
+      ]
+    },
+    {
+      "id": "overhear-the-search",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone listens to the staff instead of the queue, offer the check.",
+      "when": {
+        "condition": "someone listens to the staff"
+      },
+      "challengeRef": "c1e1-the-medical",
+      "checkRef": "overhear-the-search",
+      "note": "Secret: The pilot expected to fly first, Nozomi, refused the draft after a magic show. It is why the intake came early.",
+      "facts": [
+        "directorate.missing-pilot-search"
+      ],
+      "gmFacts": [
+        "directorate.why-brought-forward"
+      ]
+    },
+    {
+      "id": "one-at-a-time",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "npcRef": "shucks-mordant",
+      "text": "Shucks sees each of them alone: blood sample, then two or three questions about them. Play each in front of the table.",
+      "direction": "Give each player different questions. Save this one for last: \"If you come in here unconscious, what do I need to know that I wouldn't be able to see?\"",
+      "note": "If they're disguised or alien: He already knows: \"Yes, I know. Sit down.\" He asks how long they can hold it, and if it hurts.\nIf they're what they appear to be: Ask what they left behind, or about an old injury he can see.\nWatch for: Craig played Shucks in the old campaign. Give his character's turn with the doctor room.",
+      "facts": [
+        "shucks.head-of-medical",
+        "shucks.revealed-early"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "recognise-the-name",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone asks about the name on his badge, offer the check. If they ask him, he says <trig id=\"shucks-named\"/> \"Shucks. Yes, that one. Arm.\"",
+      "when": {
+        "condition": "someone asks about his badge"
+      },
+      "challengeRef": "c1e1-the-medical",
+      "checkRef": "recognise-the-name",
+      "triggers": [
+        {
+          "id": "shucks-named",
+          "kind": "reveal-name",
+          "npcRef": "shucks-mordant",
+          "label": "Shucks Mordant"
+        }
+      ],
+      "facts": [
+        "shucks.revealed-early"
+      ],
+      "gmFacts": []
+    },
+    {
+      "id": "the-hand",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches the hand that holds the needle, offer the check.",
+      "when": {
+        "condition": "someone watches his hands"
+      },
+      "challengeRef": "c1e1-the-medical",
+      "checkRef": "the-hand",
+      "note": "Secret: His real right hand is Rand, a familiar loose in the city. He doesn't know where it is today.",
+      "facts": [],
+      "gmFacts": [
+        "shucks.rand"
+      ]
+    },
+    {
+      "id": "the-flag",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "solo",
+      "npcRef": "shucks-mordant",
+      "text": "Shucks tells each of them, alone: \"Your screen came back irregular. It does that. Nothing to worry about.\"",
+      "direction": "The same words, the same way, six times.",
+      "facts": [],
+      "gmFacts": [
+        "directorate.the-marker"
+      ]
+    },
+    {
+      "id": "what-does-irregular-mean",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone asks Shucks what irregular means, he deflects kindly. Offer the check to ask him straight.",
+      "when": {
+        "condition": "someone asks about the screen"
+      },
+      "challengeRef": "c1e1-the-medical",
+      "checkRef": "ask-him-straight",
+      "facts": [],
+      "gmFacts": [
+        "directorate.the-marker"
+      ]
+    },
+    {
+      "id": "what-a-screen-tests",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone tries to work out what the screen tests for, offer the knowledge check.",
+      "when": {
+        "condition": "someone tries to work it out"
+      },
+      "challengeRef": "c1e1-the-medical",
+      "checkRef": "what-a-screen-tests",
+      "facts": [],
+      "gmFacts": [
+        "directorate.the-marker",
+        "shucks.maiden-names"
+      ]
+    },
+    {
+      "id": "all-six",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE. Let them compare.",
+      "note": "Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.\nIf nobody compares: A candidate from another queue asks loudly whether anyone else got irregular.\nSecret: Candidates with the marker are streamed together as routine. Six in one intake has never happened; Shucks is quietly astonished.",
+      "facts": [
+        "directorate.section-nine"
+      ],
+      "gmFacts": [
+        "directorate.carriers-streamed"
+      ]
+    }
+  ],
+  "artefacts": [
+    {
+      "id": "form-12b-public",
+      "documentRef": "form-12b",
+      "clearance": 0,
+      "title": "Form 12-B, Intake Screening (blank)",
+      "earnedBy": "Asking the clerk for a spare.",
+      "gmNote": "The IRREGULAR box is printed on the form, not added by hand. Somebody expected the result often enough to have it typeset.",
+      "body": "<p>特別対策本部</p>\n<h2>SPECIAL COUNTERMEASURES HEADQUARTERS</h2>\n<p><em>Form 12-B -- Intake Screening Record</em></p>\n<hr>\n<p><strong>4.</strong> Mother's maiden name &nbsp;<span style=\"letter-spacing:.6em\">__________</span></p>\n<p><strong>5.</strong> Date of birth &nbsp;<span style=\"letter-spacing:.6em\">______</span></p>\n<p><strong>6.</strong> District of residence &nbsp;<span style=\"letter-spacing:.6em\">__________</span></p>\n<p>…</p>\n<p><strong>19.</strong> Mother's maiden name <em>(CAPITALS)</em> &nbsp;<span style=\"letter-spacing:.6em\">__________</span></p>\n<hr>\n<p><strong>SCREENING RESULT</strong> -- <em>for completion by medical staff only</em></p>\n<p>☐ Clear &nbsp;&nbsp;&nbsp; ☐ Repeat &nbsp;&nbsp;&nbsp; ☐ <strong>Irregular</strong> &nbsp;&nbsp;&nbsp; ☐ Refer</p>\n<p><em>Boxes 4 and 19 are collected separately. Do not amend one without amending the other.</em></p>\n<p><em>Records copy -- retain 40 years.</em></p>"
+    }
+  ],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "All six hold a Section Nine card.",
+    "artefactRefs": [
+      "form-12b-public"
+    ],
+    "tracks": [
+      {
+        "track": "bonds",
+        "why": "If they worked out together that all six were flagged."
+      }
+    ],
+    "transition": {
+      "mechanism": "scheduled",
+      "line": "A bell, and a staff officer marches the whole intake to the drill hall for Assembly.",
+      "scatterRisk": false
+    },
+    "onwards": "Assembly, in the drill hall.",
+    "writeDown": [
+      "The order the six saw Shucks in.",
+      "What each told him, and who he took to.",
+      "Who noticed the hand, the search or the name."
+    ],
+    "position": {
+      "locationRef": "intake-infirmary",
+      "state": "together",
+      "note": "Leaving with the intake for the drill hall."
+    }
+  },
+  "carryForward": [],
+  "temptations": [
+    {
+      "id": "which-sign",
+      "text": "Somebody behind them in the queue asks, \"Which sign's right, do you reckon?\""
+    },
+    {
+      "id": "the-badge",
+      "text": "MORDANT is right there on his pocket, and nobody has asked about it."
+    }
+  ],
+  "reactionPrompts": [
+    {
+      "id": "private-moments",
+      "text": "Each private moment with Shucks given its own room."
+    },
+    {
+      "id": "all-six",
+      "text": "The six working out together that all of them were flagged.",
+      "scaleNote": "0 = nobody compared, 10 = they worked it out unprompted."
+    },
+    {
+      "id": "the-screen",
+      "text": "Players pushing on what the screen is for."
+    }
+  ],
+  "notes": "The section is the six: candidates who carry the marker are streamed into one section after the screen, which is why the cards come out in the corridor and not before. Shucks's private moments are played in front of the whole table, as every private conversation in this campaign is; only the flag is solo. The founders' names come out here only as Shucks's own (his badge and a free roll), and all four come out in the first school period."
+}

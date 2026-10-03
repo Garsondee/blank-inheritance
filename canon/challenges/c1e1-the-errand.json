@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-the-errand",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Errand",
+  "description": "Four checks in the city. None gates the scene, and none costs anything mechanical.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "the-storekeeper",
+      "name": "Talk the instrument maker round",
+      "skillOptions": [
+        "diplomacy",
+        "deception",
+        "intimidation"
+      ],
+      "dc": {
+        "value": 13,
+        "basis": "level 1, one step easy",
+        "adjustment": "easy"
+      },
+      "outcomes": {
+        "criticalSuccess": "She walks them to the door: \"Manako. Tea house, few streets on. Tell him I sent you.\" They arrive half-trusted.",
+        "success": "Cheerful, no help, and the name: \"Ask Manako.\"",
+        "failure": "The docket is somebody else's problem. A voice from the back says, \"Ask Manako.\"",
+        "criticalFailure": "She calls them \"the Directorate\" for the rest of the visit, the way you'd say \"the electric company\". Someone still says, \"Ask Manako.\""
+      },
+      "bySkill": {
+        "diplomacy": "She warms up: \"...Oh. You asked properly.\"",
+        "deception": "She sees straight through it and enjoys it. Now she's in on the joke.",
+        "intimidation": "She gets flatter, not more helpful: \"Scare tactics. In my workshop. On a Monday.\""
+      },
+      "repeatable": false
+    },
+    {
+      "id": "the-mark-again",
+      "name": "Recognise the mark",
+      "skillOptions": [
+        "occultism",
+        "crafting",
+        "society"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard",
+        "adjustment": "hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Like every one they've seen, it's where a crowd stands and waits. Somebody is choosing these walls.",
+        "success": "Somebody has been doing this for a while.",
+        "failure": "It looks like paint, nothing more.",
+        "criticalFailure": "They decide it's a tram company mark, and say so with confidence."
+      },
+      "bySkill": {
+        "occultism": "Drawn the way a working mark is drawn: one careful stroke, as if it has to be right.",
+        "crafting": "Marine primer again, the kind ships' chandlers sell by the tin.",
+        "society": "Always on walls nobody minds and nobody paints over."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "heard-the-name",
+      "name": "Place the name",
+      "skillOptions": [
+        "society",
+        "academia-lore"
+      ],
+      "dc": {
+        "value": 20,
+        "basis": "level 1, very hard",
+        "adjustment": "very-hard"
+      },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "The Directorate scientist who had a breakdown at a science conference, caused a huge fuss, and was expelled. Nothing about why.",
+        "success": "A chemist, disgraced, a long time ago.",
+        "failure": "Nothing comes.",
+        "criticalFailure": "They're sure they've heard it, and can't place it."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "read-the-old-man",
+      "name": "Read Manako",
+      "skillOptions": [
+        "perception",
+        "medicine"
+      ],
+      "dc": {
+        "value": 17,
+        "basis": "level 1, one step hard",
+        "adjustment": "hard"
+      },
+      "outcomes": {
+        "criticalSuccess": "As success, and he notices being looked at, and isn't used to it. He has decided he likes this one.",
+        "success": "A man who has been very good at something and stopped, and minds.",
+        "failure": "A kind old man with a good coat.",
+        "criticalFailure": "A faint conviction that he is nobody much. Let it stand."
+      },
+      "bySkill": {
+        "perception": "He reads the docket the way a musician reads music: not working it out, hearing it.",
+        "medicine": "Old chemical stains on two fingers that never wash out, and a tremor he has learned to steady."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Any of the six"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--the-errand"
+  ],
+  "notes": "No roll decides whether they reach Manako or get his help. His number goes to a player who was kind, at the GM's call, never on a roll."
+}

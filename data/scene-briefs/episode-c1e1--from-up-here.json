@@ -5,21 +5,16 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "from-up-here",
   "title": "From Up Here",
-  "summary": "Scene 0. The GM speaks for about nine minutes over one picture: the world from the edge of the sky, then down through the cloud to Kurose and out to the Directorate's gate. It tells the table what everyone in Kurose grew up knowing, and leaves the biggest questions open.",
-  "goal": "Before anyone speaks as their character, every player has heard what everyone in Kurose knows: what kind of world this is, the rift at Kortos and the four people standing in front of it at the end, the Directorate and the open question of why it came here, how a fishing village became a great city and who it left behind, what a Frame is, and the gate their characters are heading for.",
+  "summary": "Scene 0. A nine-minute speech over one picture, from the edge of the sky down to the Directorate's gate.",
+  "goal": "Everyone has heard what Kurose grew up knowing, from the edge of the sky down to the gate.",
   "howToPlay": "One continuous speech over one picture, moving down from the edge of the sky to the gate.",
   "runsAbout": "9 minutes",
   "mode": "social",
   "intro": {
     "where": "Nowhere yet. High above the world, looking down.",
-    "firstThing": "The picture: the curve of the world, cumulus, a long bay with a beach, a city along the coast with a river through it, hills behind, and the early sun on the sea.",
+    "firstThing": "The picture: the curve of the world, a long bay and its city, a river through it, hills behind, early sun on the sea.",
     "readAloud": null,
-    "carriesIn": [
-      {
-        "when": "This is the campaign's first played scene",
-        "then": "Nothing carries in."
-      }
-    ],
+    "carriesIn": [],
     "position": {
       "locationRef": null,
       "state": "scattered",
@@ -71,7 +66,7 @@
     {
       "id": "the-directorate",
       "kind": "action",
-      "text": "Four of them found the Directorate, and it crosses the world. Why, it has never said.",
+      "text": "Four of them founded the Directorate, which crossed the world to Kurose and never said why.",
       "mandatory": true,
       "delivery": "table",
       "readAloud": "About five years afterwards, four of the people who had stood in front of it founded the Directorate. They promised that if anything like it ever happened again, the world would be ready, and would answer it faster and more decisively than anyone had managed on Kortos.\n\nThen, about a hundred and fifty years ago, the Directorate packed up everything it had, crossed the whole world, and settled in a tiny fishing village on the other side of it. Why it believes there will ever be a next time, and why it went so far to wait for one, it has never said.",
