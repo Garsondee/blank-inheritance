@@ -385,6 +385,19 @@ test("into position: the chosen spread out into free places in the zone clicked,
   assert.equal(outside.length, 2, "outside any zone it is a plain line");
 });
 
+test("when someone falls, or arrives, the people near them look round at them for a moment", () => {
+  const start = 1790995000;
+  const { s, tick } = clocked([{ id: "a", name: "A", X: -300, Z: -600 }, { id: "b", name: "B", X: 300, Z: -600 }], start);
+  s.setDown("b", true);
+  tick(0.8);
+  assert.ok(s.cards.get("a").look > 8, `A looks at B as B falls (${s.cards.get("a").look.toFixed(1)})`);
+  tick(4);
+  assert.ok(Math.abs(s.cards.get("a").look) < 2, "and then looks away");
+  s.addCard({ id: "c", name: "C", X: -700, Z: -600, enter: { from: "rise", t0: start + 4.9 } });
+  tick(0.8);
+  assert.ok(s.cards.get("a").look < -8, `A looks round at the newcomer on the left (${s.cards.get("a").look.toFixed(1)})`);
+});
+
 test("a zone near one that is not there is a problem the author is told about", () => {
   const raw = structuredClone(RAW_SCENE);
   raw.zones.push({ id: "x", kind: "area", shape: [[0.1, 0.8], [0.2, 0.8], [0.2, 0.9]], near: ["nowhere"] });

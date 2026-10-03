@@ -205,6 +205,8 @@ export class Stage {
       const t0 = Number.isFinite(enter.t0) ? enter.t0 : this.clock();
       c.rise = { t0, dur: Number.isFinite(enter.dur) ? enter.dur : 0.7 };
     }
+    // someone arriving now (not long ago, on a page loaded later) is looked at by whoever is near
+    if (enter && Number.isFinite(enter.t0) && this.clock() - enter.t0 < 3) this.#glanceAt(c);
     if (enter && typeof enter === "object" && ["left", "right", "back"].includes(enter.from)) {
       const t0 = Number.isFinite(enter.t0) ? enter.t0 : this.clock();
       const from = entrancePoint(enter.from, { X, Z }, this.opts.limits);
@@ -305,7 +307,17 @@ export class Stage {
     c.downTo = to;
     if (down && c.walk) this.#stopWalking(c);
     this.events.push({ type: "fall", card: id, down: !!down, t: this.time });
+    if (down) this.#glanceAt(c);
     return true;
+  }
+
+  /** Everyone near a card looks round at it for a moment (it has just fallen, or just arrived). */
+  #glanceAt(c) {
+    const until = this.clock() + this.opts.look.linger;
+    for (const o of this.cards.values()) {
+      if (o === c || o.holder !== null || o.downTo) continue;
+      if (floorDistance({ X: o.puppet.x, Z: o.Z }, { X: c.puppet.x, Z: c.Z }) <= this.opts.look.reach * 1.4) o.attention = { id: c.id, until };
+    }
   }
 
   /** Who has the floor (a card's id, or null): they are lit, and the people on the stage turn their heads to them. */

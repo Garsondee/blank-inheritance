@@ -570,7 +570,12 @@ Tests: `walks`, `life`, `formations`, `blocking`, `three-world` in the module (2
 
 **Later the same day:** whoever has the floor (Alt-click, `api.blocking.setSpeaker`: a pool of light and every head turned
 to them), docking in fight positions while the board is up, an audience formation, `away` (backs to the table), and the
-host bench with its two-screen check (`npm run bench:stagecraft`, 13 checks with real clicks, all passing).
+host bench with its two-screen check (`npm run bench:stagecraft`, all passing with real clicks). Then: regulars who talk to
+each other and gesture now and then; nobody left hidden behind a cut-out (taller risers; formations step in front); circles
+sized to what they gather round (`size`); knocked down (Ctrl-click, `api.blocking.setDown`, the `stagecraft.fall` hook, and in
+the adventure a character at 0 HP falls by themself), with the board counting the fallen apart; the Position formation
+(spread into a zone's free places); board labels that hang above heads; and people who glance round at someone falling or
+arriving.
 
 **Not done yet.** A live check of the strip on the real Foundry with two screens (the remote world needs a GM signed in;
 the host bench covers the module's side); stacks of foes (§5.6); the speaking bars and the Runner lighting the speaker by
