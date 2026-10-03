@@ -7,6 +7,7 @@
 import * as THREE from "three";
 import { zoneKey, drawZoneOutlines, markCanvas, labelCanvas, boardLabelCanvas, boardLabelPoint } from "../canvas-art.mjs";
 import { canvasTexture, paintingPlane } from "./support.mjs";
+import { depthGrow } from "../../core/rigspace.mjs";
 
 /** Dashed outlines of every zone, on one canvas laid just in front of the painting. */
 export class ZoneOutlines {
@@ -88,7 +89,7 @@ export class BoardLabels {
       const k = f / (f - label.at.Z);
       const s = 1.45 / Math.sqrt(Math.max(0.15, k));
       label.sprite.scale.set(w * s, h * s, 1);
-      label.sprite.position.set(label.at.X, this.cardHeight * 1.08 + (h * s) / 2, label.at.Z);
+      label.sprite.position.set(label.at.X, this.cardHeight * depthGrow(this.rig.cam, label.at.Z) * 1.08 + (h * s) / 2, label.at.Z);
     }
     return label;
   }

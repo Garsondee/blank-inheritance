@@ -11,6 +11,9 @@ export const SCENE_VERSION = 1;
 
 export const CHALK_MODES = Object.freeze(["off", "zones", "anywhere"]);
 
+/** How much of a card a cut-out (a bar, a counter) may hide at most: the bottom 15%, so most of the card stays in view. */
+export const HIDE_AT_MOST = 0.15;
+
 /** Zone kinds the module itself knows. Any other kind is a trigger (stage.md §8.9). */
 export const ZONE_KINDS = Object.freeze(["door", "spot", "area", "exit", "track", "chalk", "podium", "photo", "quiet", "music", "shelter", "shot", "trigger"]);
 
@@ -78,9 +81,10 @@ export function describeScene(raw) {
   const occluders = (Array.isArray(r.occluders) ? r.occluders : []).flatMap((o, i) => {
     const poly = points(o?.poly, `occluders[${i}].poly`, problems, 3);
     if (poly.length < 3) return [];
-    // a card standing behind a cut-out is raised, as on a box behind a bar, until no more than `hideAtMost` of it is hidden;
-    // `riser: false` lets the cut-out hide whoever is behind it entirely (a wall, a curtain)
-    return [{ id: str(o.id, `occluder-${i + 1}`), poly, base: num(o.base, 0.86), x: num(o.x, 0.5), riser: o.riser !== false, hideAtMost: Math.max(0.1, Math.min(1, num(o.hideAtMost, 0.45))) }];
+    // a card standing behind a cut-out is raised, as on a box behind a bar, until no more than `hideAtMost` of it is hidden
+    // (Ingram, 2026-10-03: a bar should hide only the bottom 15% of a card, so the most of it stays in view); `riser: false`
+    // lets the cut-out hide whoever is behind it entirely (a wall, a curtain)
+    return [{ id: str(o.id, `occluder-${i + 1}`), poly, base: num(o.base, 0.86), x: num(o.x, 0.5), riser: o.riser !== false, hideAtMost: Math.max(0.05, Math.min(1, num(o.hideAtMost, HIDE_AT_MOST))) }];
   });
 
   const zonesRaw = (Array.isArray(r.zones) ? r.zones : []).flatMap((z, i) => {

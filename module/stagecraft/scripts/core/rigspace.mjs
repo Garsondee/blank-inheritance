@@ -47,6 +47,19 @@ export function makeRig(painting, rig, ref = REF) {
 }
 
 /**
+ * How much bigger a card is drawn at depth Z than the camera alone would draw it (Ingram, 2026-10-03: "cards which move
+ * towards the back shouldn't get small as quickly"). The camera makes a card at depth Z appear `k = f / (f - Z)` as big as
+ * at the front; this gives back part of what it takes, `k ^ -DEPTH_EASE`, so a card twice as far away looks about 0.7 of
+ * its size rather than half. Never less than 1 (nothing in front is shrunk) and never more than `most`.
+ */
+export const DEPTH_EASE = 0.5;
+export function depthGrow(cam, Z, { ease = DEPTH_EASE, most = 2.2 } = {}) {
+  if (!(Z < 0)) return 1;
+  const k = cam.f / (cam.f - Z);
+  return Math.min(most, Math.max(1, k ** -ease));
+}
+
+/**
  * How the reference page (2560 x 1440) sits in a viewport: it is covered, as a painting is, so the viewport sees a
  * centred part of it. `s` converts a reference pixel to a viewport pixel; `ox`, `oy` is the reference point at the
  * viewport's top left. Both backends use it.

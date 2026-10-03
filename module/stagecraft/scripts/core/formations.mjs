@@ -15,7 +15,7 @@
  * of them is its target or a speaker.
  */
 
-import { cheatOut, yawTo, huddlePlaces, tablePlaces, standoffPlaces } from "./diorama.mjs";
+import { cheatOut, yawTo, standoffPlaces } from "./diorama.mjs";
 
 /**
  * The formations. `position` is the stage's own (core/stage.mjs `formationMoves`): it needs the scene's zones, so it is
@@ -107,11 +107,30 @@ function audience(cards, focus, w, limits) {
   return out;
 }
 
-/** Heads together round the focus: close, turned in, leaning in. The conspiratorial look is the lean, not the distance. */
+/**
+ * The least distance across between two neighbours in a close formation, as a share of a card's width: closer than this
+ * and one face covers another (Ingram, 2026-10-03: a huddle round the notebook "results in a complete collision").
+ */
+export const NEIGHBOUR = 0.86;
+
+/**
+ * Heads together round the focus: a U behind and round it, open to the table, everyone turned in and leaning in, heads
+ * bowed. The conspiratorial look is the lean and the turn, not the distance: neighbours stand at least NEIGHBOUR of a card
+ * apart, so every face stays in view. `radius` (floor units) widens it round something big.
+ */
 function huddle(cards, focus, w, radius = null) {
   const sorted = byX(cards);
-  const places = huddlePlaces({ x: focus.X, z: focus.Z }, sorted.length, { r: radius ?? w * (0.45 + 0.08 * sorted.length), lean: 8, pitch: 6 });
-  return sorted.map((c, i) => ({ id: c.id, X: places[i].x, Z: places[i].z, yaw: places[i].yaw, lean: places[i].lean, pitch: places[i].pitch }));
+  const n = sorted.length;
+  const across = Math.max(w * NEIGHBOUR * (n - 1), (radius ?? 0) * 2);
+  const sag = Math.min(260, 90 + 32 * n);                 // the middle of the U stands furthest back
+  return sorted.map((c, i) => {
+    const u = n > 1 ? (i - (n - 1) / 2) / ((n - 1) / 2) : 0;   // -1 .. 1, left to right
+    const X = focus.X + (u * across) / 2;
+    const Z = focus.Z - sag * (1 - u * u) * 0.9 - 40;
+    // turned towards a point just in front of the focus, so the ends look in and the middle looks out at the table a little
+    const yaw = facing(X, Z, focus.X, focus.Z + 140, 0.8, 50);
+    return { id: c.id, X, Z, yaw, lean: -u * 9, pitch: 6 };
+  });
 }
 
 /**
@@ -140,26 +159,25 @@ function talk(cards, focus, w, speakers) {
 }
 
 /**
- * Ganging up on one person: the target stands at the focus, front and centre; everyone else closes round them in an arc
- * behind and to the sides, leaning in, the flanks lower and closer, allowed to overlap (crowding is the point).
+ * Ganging up on one person: the target stands at the focus, front and centre; everyone else closes round them in two
+ * flanks, the nearest a step behind and to either side, looming, and the further out the further forward, closing the
+ * trap; everyone turned on the target and leaning in. Nobody stands straight behind the target, where they would be
+ * hidden (2026-10-03: the middle of the old arc stood exactly there).
  */
 function gangUp(cards, focus, w, target) {
   const victim = cards.find((c) => c.id === target) ?? null;
   const crowd = byX(cards.filter((c) => c !== victim));
-  const n = crowd.length;
   const out = [];
   if (victim) out.push({ id: victim.id, X: focus.X, Z: focus.Z + 60, yaw: 0, pitch: 3 });
-  const span = Math.min(200, 90 + n * 22);                // degrees of arc round the target
-  const rx = w * (0.85 + n * 0.17);
-  const rz = 140 + n * 14;
-  crowd.forEach((c, i) => {
-    const u = n > 1 ? i / (n - 1) : 0.5;
-    const deg = -span / 2 + u * span;                     // 0 is straight behind the target
-    const a = deg * DEG;
-    const X = focus.X + Math.sin(a) * rx;
-    const Z = focus.Z - Math.cos(a) * rz;
-    const side = Math.sign(Math.sin(a)) || 0;
-    out.push({ id: c.id, X, Z, yaw: facing(X, Z, focus.X, focus.Z + 60, 0.8, 55), lean: -side * 7, pitch: 5 });
+  const half = Math.ceil(crowd.length / 2);
+  // each flank nearest the middle first, so nobody crosses anybody to get there
+  [crowd.slice(0, half).reverse(), crowd.slice(half)].forEach((flank, side) => {
+    const s = side === 0 ? -1 : 1;
+    flank.forEach((c, k) => {
+      const X = focus.X + s * w * (0.95 + k * 0.95);
+      const Z = focus.Z - 90 + k * 55;
+      out.push({ id: c.id, X, Z, yaw: facing(X, Z, focus.X, focus.Z + 60, 0.8, 55), lean: -s * 7, pitch: 5 });
+    });
   });
   return out;
 }
@@ -193,14 +211,22 @@ function standoff(cards, focus, w) {
 }
 
 /**
- * Round the focus (a table, a fire, a body on the floor), the side towards the table left open. `radius` (floor units)
- * says how big the thing in the middle is; without it the ring is just big enough for everyone in it.
+ * Round the focus (a table, a fire, a body on the floor), as a stage does it: an arc round the far side and the two ends,
+ * open to the table, everyone turned in to the middle. A whole ring seen from where the table sits hides its far side
+ * behind its near side (2026-10-03: a ring of six hid four of them), so nobody stands on the near side; the ends stand
+ * level with the thing in the middle. `radius` (floor units) says how big that is; without it the arc is just wide
+ * enough for everyone in it to be seen.
  */
 function circle(cards, focus, w, radius = null) {
   const sorted = byX(cards);
-  const r = radius ?? Math.max(w * 0.9, (w * 1.05 * sorted.length) / (2 * Math.PI * 0.7));
-  const places = tablePlaces({ x: focus.X, z: focus.Z }, r, sorted.length, { open: sorted.length > 5 ? 70 : 110 });
-  return sorted.map((c, i) => ({ id: c.id, X: places[i].x, Z: places[i].z, yaw: places[i].yaw }));
+  const n = sorted.length;
+  const r = Math.max(radius ?? 0, w * 0.75, (w * 1.02 * (n - 1)) / 2);
+  return sorted.map((c, i) => {
+    const u = n > 1 ? (i - (n - 1) / 2) / ((n - 1) / 2) : 0;   // -1 .. 1, left to right
+    const X = focus.X + u * r;
+    const Z = focus.Z - Math.sqrt(Math.max(0, 1 - u * u)) * r * 0.7;
+    return { id: c.id, X, Z, yaw: facing(X, Z, focus.X, focus.Z, 0.75, 55) };
+  });
 }
 
 /**
@@ -219,7 +245,8 @@ function queue(cards, focus, w, seed, dir = "back") {
     let X;
     let Z;
     if (sideways) { X = focus.X + sign * i * w * 1.08; Z = focus.Z + wob * 26 - i * 8; }
-    else { X = focus.X + wob * w * 0.18 + i * w * 0.12; Z = focus.Z + (dir === "front" ? 1 : -1) * i * 175; }
+    // going back, each stands a little to one side of the one in front, so every face peeks out past the shoulder
+    else { X = focus.X + wob * w * 0.12 + i * w * 0.42; Z = focus.Z + (dir === "front" ? 1 : -1) * i * 175; }
     // the head faces upstage, to the counter or the door the queue is for; everyone behind faces the head
     const yaw = i === 0 ? facing(X, Z, focus.X, focus.Z - 300, 0.55, 38) : facing(X, Z, focus.X, focus.Z, 0.55, 38);
     return { id: c.id, X, Z, yaw, pitch: i === 0 ? 0 : 2 };

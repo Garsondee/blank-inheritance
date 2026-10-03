@@ -18,10 +18,43 @@
   cursor: none;
 }
 
-/* The GM's strip: small, along the top just under the clock, out of the way of the cards. */
-#stagecraft-stage .stagecraft-bar {
+/* The GM's key: one small pill at the top of the stage that unfolds the strips below it. Folded by default. */
+#stagecraft-stage .stagecraft-gm-toggle {
+  all: unset;
   position: absolute;
   top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 201, 141, 0.4);
+  background: rgba(14, 10, 6, 0.74);
+  font: 600 12px/1.3 system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+  color: #e8dcc4;
+  cursor: pointer;
+  z-index: 6;
+}
+
+#stagecraft-stage .stagecraft-gm-toggle:hover {
+  background: rgba(40, 28, 16, 0.85);
+}
+
+/* folded: the strips are not there at all, so they never take a click meant for the stage */
+#stagecraft-stage:not(.stagecraft-gm-open) .stagecraft-bar {
+  display: none !important;
+}
+
+/* chalk in hand: the strips and their key step aside, so every wall can be drawn on */
+#stagecraft-stage.stagecraft-chalk .stagecraft-bar,
+#stagecraft-stage.stagecraft-chalk .stagecraft-gm-toggle {
+  display: none !important;
+}
+
+/* The GM's strip: small, along the top just under the key, out of the way of the cards. */
+#stagecraft-stage .stagecraft-bar {
+  position: absolute;
+  top: 84px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -71,7 +104,7 @@
 
 /* The GM's blocking strip: under the chalk strip, two rows at most, and a line saying what a press is waiting for. */
 #stagecraft-stage .stagecraft-blocking {
-  top: 88px;
+  top: 118px;
   flex-direction: column;
   align-items: center;
   gap: 3px;
@@ -108,6 +141,65 @@
   letter-spacing: 0.04em;
   color: #ffb36b;
   padding: 0 8px 2px;
+}
+
+/* Beside the stick of chalk, while it would leave no mark: where chalk does go in this scene. */
+#stagecraft-stage .stagecraft-chalk-hint {
+  position: absolute;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(14, 10, 6, 0.82);
+  border: 1px solid rgba(242, 236, 220, 0.4);
+  font: 600 12px/1.3 system-ui, "Segoe UI", sans-serif;
+  color: #f2ecdc;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 6;
+}
+
+#stagecraft-stage .stagecraft-chalk-hint[hidden] {
+  display: none;
+}
+
+/* Who has gone to a door or a thing to look at, for a few seconds over the place (host.mjs #visitCaption). */
+#stagecraft-stage .stagecraft-visit {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 14px 6px;
+  border-radius: 10px;
+  background: rgba(14, 10, 6, 0.84);
+  border: 1px solid rgba(230, 201, 141, 0.45);
+  color: #f6eedc;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 6;
+  animation: stagecraft-visit 4.2s ease forwards;
+}
+
+#stagecraft-stage .stagecraft-visit b {
+  font: 600 17px/1.25 "Shippori Mincho", "Hiragino Mincho ProN", serif;
+}
+
+#stagecraft-stage .stagecraft-visit span {
+  font: 700 11px/1.3 system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f0c98a;
+}
+
+@keyframes stagecraft-visit {
+  0% { opacity: 0; transform: translate(-50%, -80%); }
+  10% { opacity: 1; transform: translate(-50%, -100%); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stagecraft-stage .stagecraft-visit { animation: none; }
 }
 
 /* The fight board's key: for everyone, small, at the top of the stage while the board is up. */

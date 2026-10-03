@@ -2,15 +2,17 @@
  * Pictures of the Stagecraft bench (tools/stagecraft/bench/), taken in headless Chrome with a real graphics card at
  * 1920 x 1080, after scripted moments: what the GM's strip would do, done through `window.bench`.
  *
- *   py tools/induction-terminal/serve.py 4192        (in another terminal)
- *   node tools/stagecraft/bench/shoot.mjs [--port=4192] [--out=design/stagecraft/lab/shots/bench] [--only=name]
+ *   node tools/stagecraft/bench/shoot.mjs [--port=4192] [--out=design/stagecraft/lab/shots/bench] [--only=name] [--rest]
  *
- * Each shot is a stage, a few steps (each a line of script run in the page) and a wait. The pictures land in --out,
- * which is gitignored with the rest of lab/shots (they show Ingram's art).
+ * Each shot is a stage, a few steps (each a line of script run in the page) and a wait. `--rest` instead shoots every
+ * stage as the GM first opens it, with a full party of six: the picture the table sees most. A little web server is
+ * started on the port if nothing answers there. The pictures land in --out, which is gitignored with the rest of
+ * lab/shots (they show Ingram's art).
  */
 
 import { createRequire } from "node:module";
-import { mkdirSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -60,6 +62,17 @@ export const SHOTS = [
   ["magic-show", "haunt-the-magic-show", 4, [["bench.moment('the-show-begins')", 5500]]]
 ];
 
+/** Every stage as the GM first opens it, with six in the party. */
+const restShots = () => Object.keys(JSON.parse(readFileSync(path.join(repo, "module", "blank-inheritance", "stagecraft", "stages.json"), "utf8")).stages)
+  .map((stage) => [`rest-${stage}`, stage, 6, [["0", Number(args.get("wait") ?? 3500)]]]);
+
+const up = async () => { try { return (await fetch(`http://127.0.0.1:${port}/`)).ok; } catch { return false; } };
+let server = null;
+if (!(await up())) {
+  server = spawn("py", [path.join(repo, "tools", "induction-terminal", "serve.py"), String(port)], { stdio: "ignore" });
+  for (let i = 0; i < 50 && !(await up()); i++) await sleep(200);
+}
+
 const browser = await puppeteer.launch({
   executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
   headless: "new",
@@ -68,7 +81,7 @@ const browser = await puppeteer.launch({
 });
 mkdirSync(out, { recursive: true });
 try {
-  for (const [name, stage, party, steps] of SHOTS) {
+  for (const [name, stage, party, steps] of args.get("rest") ? restShots() : SHOTS) {
     if (only && !name.includes(only)) continue;
     const page = await browser.newPage();
     const errors = [];
@@ -88,4 +101,5 @@ try {
   }
 } finally {
   await browser.close();
+  server?.kill();
 }

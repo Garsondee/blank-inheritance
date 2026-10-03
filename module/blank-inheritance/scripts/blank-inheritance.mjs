@@ -102,7 +102,7 @@ import { playersWhoCanBrowseFiles } from "./core/file-exposure.mjs";
 import { registerNotebook, startNotebook } from "./foundry/notebook.mjs";
 import { createLocationEditorMacroIfMissing, openLocationEditor, registerLocationEditorHooks } from "./foundry/location-editor.mjs";
 import { registerLocationDrawKeybindings, registerLocationDrawLayer } from "./foundry/location-draw-layer.mjs";
-import { startStagecraftBridge } from "./foundry/stagecraft-bridge.mjs";
+import { reloadStages, startStagecraftBridge } from "./foundry/stagecraft-bridge.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -619,7 +619,13 @@ Hooks.once("ready", async () => {
   // Not awaited -- the page must not wait on a rebuild to finish loading.
   // The puppet-show stage (foundry/stagecraft-bridge.mjs): switched on, given its scenes and its cast, by itself.
   startStagecraftBridge().catch((err) => console.error("Blank Inheritance | Could not start the Stagecraft bridge:", err));
-  startWorldSync({ beforeApply: () => resetSceneRunnerCache() }).catch((err) =>
+  // a deploy also changes the stages file: the bridge reads it afresh, so the open stage is drawn and laid out anew
+  startWorldSync({
+    beforeApply: async () => {
+      resetSceneRunnerCache();
+      await reloadStages().catch((err) => console.warn("Blank Inheritance | Could not reload the stages:", err));
+    }
+  }).catch((err) =>
     console.error("Blank Inheritance | Could not keep the world up to date:", err)
   );
 });

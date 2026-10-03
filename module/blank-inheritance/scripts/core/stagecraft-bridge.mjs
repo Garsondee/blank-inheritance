@@ -21,13 +21,23 @@ export function rawKeyOf(publishedMember, authoredMember = null) {
 }
 
 /**
- * Where the n-th member of the party stands: a row across the front of the stage. A row may leave a `gap` in the middle
- * ([from, to]) so the scene's own people have the centre of the stage and are never hidden behind the party, as a stage
- * keeps its centre open: the party then stands in two groups at the front corners, facing in. The row fills from the
- * middle outwards, one side then the other, so a party of any size stands balanced.
+ * How the party stands when a stage says nothing else: in the wings, two small groups at the front corners of the stage,
+ * turned in towards the middle, so the scene's own people have the whole centre and are never hidden behind the party.
+ * `wings` are the outermost places, left and right; each group steps inwards by `step` and a little further back by
+ * `back`, so it reads as people standing at an angle, each card clear of the next but for a sliver at its edge. Found
+ * 2026-10-03: with cards half as big again (Ingram: "roughly 50% larger"), a row of six across the front was a wall that
+ * hid the room behind it.
+ */
+export const WINGS = Object.freeze({ y: 0.972, wings: [0.12, 0.88], step: 0.072, back: 0.016, of: 6 });
+
+/**
+ * Where the n-th member of the party stands, as fractions of the painting. A stage's `partyRow` is either wings (the
+ * default, above: the outermost places fill first, one side then the other, so a small party leaves the stage wide open)
+ * or a row across the front from `x[0]` to `x[1]`, perhaps with a `gap` in the middle, filled from the middle outwards.
  */
 export function partySlot(def, n) {
-  const row = def?.partyRow ?? { y: 0.95, x: [0.2, 0.8], of: 6 };
+  const row = def?.partyRow ?? WINGS;
+  if (!Array.isArray(row.x)) return wingSlot({ ...WINGS, ...row }, n);
   const [x0, x1] = row.x;
   const of = Math.max(2, row.of ?? 6);
   const gap = Array.isArray(row.gap) && row.gap[0] > x0 && row.gap[1] < x1 && row.gap[0] < row.gap[1] ? row.gap : null;
@@ -43,12 +53,47 @@ export function partySlot(def, n) {
 }
 
 /**
+ * The n-th place in the wings: one side then the other, outermost first. `split` is how many of the party the left wing
+ * holds (half, rounded up, unless a stage keeps one side clearer: a shop door on the right, say); when one wing is full
+ * the rest go to the other.
+ */
+function wingSlot(row, n) {
+  const of = Math.max(2, row.of ?? 6);
+  const left = Math.max(0, Math.min(of, row.split ?? Math.ceil(of / 2)));
+  const taken = [0, 0];
+  let side = 0;
+  for (let i = 0; i <= n % of; i++) {
+    side = i % 2;
+    if (taken[side] >= (side === 0 ? left : of - left)) side = 1 - side;
+    taken[side]++;
+  }
+  const k = taken[side] - 1;                         // 0 is the outermost place of its wing
+  const x = side === 0 ? row.wings[0] + k * row.step : row.wings[1] - k * row.step;
+  return [Math.round(x * 1000) / 1000, Math.round((row.y - k * row.back) * 1000) / 1000];
+}
+
+/**
  * Which way a member of the party faces where they stand: turned a little in towards the middle of the stage, more the
  * further out they are, so the two groups at the corners face the scene's people rather than the table.
  */
 export function partyYaw(def, at) {
-  const mid = def?.partyRow?.gap ? (def.partyRow.gap[0] + def.partyRow.gap[1]) / 2 : 0.5;
+  const row = def?.partyRow ?? WINGS;
+  const wings = Array.isArray(row.x) ? null : row.wings ?? WINGS.wings;
+  const mid = wings ? (wings[0] + wings[1]) / 2 : row.gap ? (row.gap[0] + row.gap[1]) / 2 : 0.5;
   return Math.round(Math.max(-28, Math.min(28, (mid - at[0]) * 70)) * 10) / 10;
+}
+
+/**
+ * A short stamp of how a stage entry places people (its places, the party's row, their turns, sizes and routines). The GM's
+ * side keeps the stamp a scene was last laid out by; when a deploy changes the entry, the people already on the stage walk
+ * to their new places instead of keeping the old ones for ever (found 2026-10-03: placements are kept on the scene once
+ * made, so a better staging never reached a scene the table had already opened).
+ */
+export function layoutOf(def) {
+  const text = canonical({ places: def?.places ?? null, partyRow: def?.partyRow ?? null, yaws: def?.yaws ?? null, sizes: def?.sizes ?? null, life: def?.life ?? null });
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(36);
 }
 
 const near = (a, b, d = 0.045) => Math.abs(a[0] - b[0]) < d && Math.abs(a[1] - b[1]) < d * 1.6;
@@ -103,7 +148,7 @@ function entranceOf(spec, now) {
  * clock in seconds). A card already on the stage keeps everything Stagecraft has written on it (KEPT); its routine always
  * follows the entry, so a deploy that changes a routine changes it.
  */
-export function mirrorCards({ published = [], authored = [], existing = [], def = {}, ownersOf = () => [], npcOwners = [], now = null }) {
+export function mirrorCards({ published = [], authored = [], existing = [], def = {}, ownersOf = () => [], npcOwners = [], now = null, relayout = false }) {
   const prior = new Map(existing.map((c) => [c.id, c]));
   const real = new Map(authored.map((m) => [m.portraitId, m]));
   const out = [];
@@ -131,7 +176,7 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
     // a regular's habit, shown now and then over their head (Sanzo humming, a patient asleep), each out of step with the rest
     const emote = member.kind === "pc" ? null : def.emotes?.[key];
     if (typeof emote === "string") card.emote = { id: emote, t0: Math.round(([...key].reduce((s, ch) => s + ch.charCodeAt(0), 0) % 60) / 10 * 10) / 10 };
-    if (before?.at || before?.mark) {
+    if ((before?.at || before?.mark) && !relayout) {
       for (const k of KEPT) if (before[k] !== undefined) card[k] = before[k];
     } else {
       card.at = placeFor({ member, key, def, cards: out });
@@ -141,8 +186,14 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
         card.home = [card.at[0], card.at[1]];
         if (yaw !== undefined) card.homeYaw = yaw;
       }
-      const enter = entranceOf(def.enter?.[key], now);
-      if (enter) card.enter = enter;
+      if (before) {
+        // laid out afresh while already on the stage: it walks over to its new place (and stays down if it was down)
+        if (Number.isFinite(now)) card.move = { t0: Math.round(now * 1000) / 1000, gait: "walk" };
+        if (before.down === true) card.down = true;
+      } else {
+        const enter = entranceOf(def.enter?.[key], now);
+        if (enter) card.enter = enter;
+      }
     }
     out.push(card);
   }

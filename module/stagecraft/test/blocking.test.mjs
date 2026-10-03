@@ -160,6 +160,39 @@ test("heads turn towards a card in someone's hand, and back again when it is put
   near(s.cards.get("bo").look, 0, 1, "and back");
 });
 
+test("a card put down at a door or a thing to look at has gone there: the stage says who, where, and what it is for", () => {
+  // found 2026-10-03: a zone on the stage did nothing and said nothing of what it was for
+  const { s, tick } = clocked([{ id: "bo", name: "Bo", X: -300, Z: -500 }]);
+  const grill = s.rig.standing([0.36, 0.84]);
+  s.hold("bo", "u1");
+  s.setHand("bo", { x: grill.X, z: grill.Z });
+  tick(0.5);
+  s.release("bo");
+  const visit = s.drain().find((e) => e.type === "visit");
+  assert.ok(visit, "a visit");
+  assert.equal(visit.card, "bo");
+  assert.equal(visit.by, "u1");
+  assert.equal(visit.zone, "grill");
+  assert.equal(visit.name, "The grill");
+  const elsewhere = s.rig.standing([0.6, 0.95]);
+  s.hold("bo", "u1");
+  s.setHand("bo", { x: elsewhere.X, z: elsewhere.Z });
+  tick(0.5);
+  s.release("bo");
+  assert.equal(s.drain().filter((e) => e.type === "visit").length, 0, "put down anywhere else, nothing is said");
+});
+
+test("a card given a new home goes about its routine round the new one", () => {
+  const { s, tick } = clocked([{ id: "bo", name: "Bo", X: -600, Z: -500, life: { kind: "wander", radius: 0.02, every: 3, restless: 1 } }]);
+  tick(1);
+  s.setRoutine("bo", { kind: "wander", radius: 0.02, every: 3, restless: 1 }, [0.75, 0.9]);
+  const home = s.rig.standing([0.75, 0.9]);
+  assert.ok(Math.abs(s.cards.get("bo").routine.home.X - home.X) < 1 && Math.abs(s.cards.get("bo").routine.home.Z - home.Z) < 1);
+  tick(30);
+  const c = s.cards.get("bo");
+  assert.ok(Math.hypot(c.puppet.x - home.X, c.Z - home.Z) < 260, `it wanders round its new home (${Math.round(Math.hypot(c.puppet.x - home.X, c.Z - home.Z))} away)`);
+});
+
 test("a card that walks on comes in from the side and reaches its place", () => {
   const start = 1790995000;
   const { s, tick } = clocked([{ id: "cent", name: "Centipede", X: 200, Z: -600, enter: { from: "left", t0: start, gait: "scurry" } }], start);
@@ -269,7 +302,9 @@ test("a card behind the counter is raised until its face shows over it; in front
   assert.ok(k.riser > 20, `raised over the counter: ${k.riser}`);
   const r = behind.risers[0];
   const hidden = r.camY + (r.top - r.camY) * ((r.f - k.Z) / (r.f - r.Z)) - k.riser;
-  assert.ok(hidden <= 0.45 * k.h + 1, "no more than 45% of it hidden");
+  // Ingram, 2026-10-03: a bar hides the bottom 15% of a card at most, measured on the card as it is drawn (grown at depth)
+  assert.equal(r.hideAtMost, 0.15);
+  assert.ok(hidden <= 0.15 * k.h * k.grow + 1, `no more than 15% of it hidden (${(hidden / (k.h * k.grow)).toFixed(3)})`);
   assert.ok(behind.snapshot().cards[0].lift >= k.riser - 1e-9, "and drawn that much higher");
   const front = new Stage(scene, [{ id: "drinker", name: "Drinker", at: [0.5, 0.92] }]);
   assert.equal(front.cards.get("drinker").riser, 0, "in front of the counter, nobody needs a box");
@@ -396,6 +431,21 @@ test("when someone falls, or arrives, the people near them look round at them fo
   s.addCard({ id: "c", name: "C", X: -700, Z: -600, enter: { from: "rise", t0: start + 4.9 } });
   tick(0.8);
   assert.ok(s.cards.get("a").look < -8, `A looks round at the newcomer on the left (${s.cards.get("a").look.toFixed(1)})`);
+});
+
+test("further back a card is drawn bigger than the camera alone would draw it, so the back of a room does not shrink it away", async () => {
+  const { depthGrow, DEPTH_EASE } = await import("../scripts/core/rigspace.mjs");
+  const s = new Stage(scene, [{ id: "front", name: "F", X: 0, Z: 0 }, { id: "back", name: "B", X: 0, Z: -1800 }]);
+  const snap = s.snapshot().cards;
+  const front = snap.find((c) => c.id === "front");
+  const back = snap.find((c) => c.id === "back");
+  assert.equal(front.grow, 1, "nothing at the front is changed");
+  const k = s.rig.cam.f / (s.rig.cam.f + 1800);
+  near(back.grow, k ** -DEPTH_EASE, 1e-9, "the camera's shrink, partly given back");
+  assert.ok(back.grow * k > k * 1.2, "it looks bigger than the camera alone would draw it");
+  assert.ok(back.scale > front.scale, "and the snapshot's scale says so");
+  assert.equal(depthGrow(s.rig.cam, 100), 1, "in front of the stage line: never shrunk");
+  assert.ok(depthGrow(s.rig.cam, -1e6) <= 2.2, "and never more than a cap");
 });
 
 test("a zone near one that is not there is a problem the author is told about", () => {

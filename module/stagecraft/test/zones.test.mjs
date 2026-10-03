@@ -58,6 +58,11 @@ test("subtle by default: faint at rest, loud only when it matters, and the playe
   assert.equal(outlineStrength(z, OUTLINE.target, "off"), 1);
   assert.equal(outlineStrength({ ...z, quiet: true }, OUTLINE.rest, "full"), 0, "a quiet zone never shows at rest");
   assert.equal(outlineStrength({ ...z, quiet: true }, OUTLINE.near, "faint"), 0.85);
+  // a chalk zone is not drawn at rest: it means something only with chalk in hand, when the host lights it
+  assert.equal(outlineStrength({ ...z, kind: "chalk" }, OUTLINE.rest, "full"), 0);
+  // 2026-10-03: zones are hidden at rest unless a player asks for them, so the setting's first choice is "off"
+  assert.equal(outlineStrength(z, OUTLINE.rest, "off"), 0, "the default: nothing at rest");
+  assert.equal(outlineStrength({ ...z, kind: "chalk" }, OUTLINE.near, "faint"), 0.85);
 });
 
 test("entering and leaving are events, and a card that stays put makes none", () => {

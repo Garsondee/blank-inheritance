@@ -21,7 +21,9 @@ export function registerSettings() {
     hint: "STAGECRAFT.Settings.Zones.Hint",
     scope: "client",
     config: true,
-    type: new F.StringField({ required: true, blank: false, initial: "faint", choices: { faint: "STAGECRAFT.Settings.Zones.Faint", off: "STAGECRAFT.Settings.Zones.Off", full: "STAGECRAFT.Settings.Zones.Full" } }),
+    // hidden until a card comes near (2026-10-03: a faint dashed box nobody had brought a card to was a puzzle, saying
+    // nothing of what it was for; near a card in hand it lights up with its name and what it is for)
+    type: new F.StringField({ required: true, blank: false, initial: "off", choices: { off: "STAGECRAFT.Settings.Zones.Off", faint: "STAGECRAFT.Settings.Zones.Faint", full: "STAGECRAFT.Settings.Zones.Full" } }),
     onChange: () => Hooks.callAll("stagecraft.settingsChanged", "zones")
   });
   game.settings.register(NS, "calm", {

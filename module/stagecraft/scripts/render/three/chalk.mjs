@@ -170,19 +170,24 @@ export class ChalkCursor {
     this.last = null;
   }
 
-  /** `at` is a world point (or null to put it away); `tool` is a colour name or "rub". */
-  set(at, tool, drawing, dt = 1 / 60) {
+  /**
+   * `at` is a world point (or null to put it away); `tool` is a colour name or "rub"; `blocked` means the chalk would leave
+   * no mark here: the stick fades and tips back, held off the wall.
+   */
+  set(at, tool, drawing, blocked = false, dt = 1 / 60) {
     if (!at) { this.group.visible = false; this.last = null; return; }
     this.group.visible = true;
     const rub = tool === "rub";
     this.chalk.visible = !rub;
     this.eraser.visible = rub;
-    if (!rub) this.mat.color.set(chalkHex(tool));
+    if (!rub) this.mat.color.set(blocked ? 0x6f6a62 : chalkHex(tool));
+    this.mat.transparent = true;
+    this.mat.opacity = blocked ? 0.55 : 1;
     const vx = this.last ? (at.x - this.last.x) / Math.max(dt, 1e-3) : 0;
     this.last = at;
     this.group.position.set(at.x, at.y, at.z);
-    // held like a pencil: leaning away from the way it moves, down a little when it is drawing
-    this.group.rotation.set(0, 0, (rub ? 0 : -0.6) - Math.max(-0.5, Math.min(0.5, vx / 4000)));
+    // held like a pencil: leaning away from the way it moves, down a little when it is drawing, tipped back when it cannot
+    this.group.rotation.set(0, 0, (rub ? 0 : blocked ? 0.35 : -0.6) - Math.max(-0.5, Math.min(0.5, vx / 4000)));
     this.group.position.y += drawing ? 10 : 36;
   }
 }

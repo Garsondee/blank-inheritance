@@ -1,6 +1,6 @@
 {
   "$comment": "The module's public interface, exactly. test/api-contract.test.mjs fails if scripts/api.mjs or the hooks it raises differ from this file, so adding, renaming or removing anything is a deliberate act: change this file, API.md and the version together.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "api": {
     "version": "string",
     "skins": ["list", "register", "use"],
@@ -19,6 +19,7 @@
     "stagecraft.bonk",
     "stagecraft.mark",
     "stagecraft.zone",
+    "stagecraft.visit",
     "stagecraft.walk",
     "stagecraft.arrive",
     "stagecraft.fall",

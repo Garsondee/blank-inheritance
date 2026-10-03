@@ -28,7 +28,7 @@ export class ThreeBackend {
     this.adding = new Set();         // card ids being built
     this.tier = "high";
     this.needsRebuild = false;
-    this.zoneSetting = "faint";
+    this.zoneSetting = "off";                 // the player's setting's own default (settings.mjs)
     this.calm = false;
     this.disposed = false;
     this.ready = false;              // true once load() has built the whole room: nothing is drawn or picked before that
@@ -263,14 +263,17 @@ export class ThreeBackend {
   setChalkHidden(hidden) { this.chalkWall?.setHidden(hidden); }
   setChalkBox(visible) { this.chalkBox?.setVisible(visible); }
 
-  /** Show the stick of chalk (or the eraser) at a viewport point; `tool` is a colour name or "rub"; null puts it away. */
-  setChalkCursor(point, tool, drawing = false) {
+  /**
+   * Show the stick of chalk (or the eraser) at a viewport point; `tool` is a colour name or "rub"; null puts it away.
+   * `blocked`: the chalk would leave no mark here (the stick is drawn faded and tipped back).
+   */
+  setChalkCursor(point, tool, drawing = false, blocked = false) {
     if (!this.chalkCursor) return;
     if (!point) { this.chalkCursor.set(null); return; }
     const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 200);       // z = -200, among the cards
     const out = new THREE.Vector3();
     if (!this.#ray(point.x, point.y).ray.intersectPlane(plane, out)) { this.chalkCursor.set(null); return; }
-    this.chalkCursor.set(out, tool, drawing);
+    this.chalkCursor.set(out, tool, drawing, blocked);
   }
 
   async capture() {

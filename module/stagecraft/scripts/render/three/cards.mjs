@@ -132,6 +132,8 @@ export class CardView {
   /** Lay the card out as the snapshot says. */
   pose(c) {
     const g = c.grip;
+    const grow = c.grow ?? 1;                  // drawn bigger further back (rigspace.mjs depthGrow)
+    const s = this.s * grow;
     this.root.position.set(c.x, c.lift, c.z);
     const share = 1 - 0.45 * g;
     this.leanG.rotation.z = -c.lean * share * DEG;
@@ -140,7 +142,8 @@ export class CardView {
     this.rod.visible = g > 0.02;
     this.rod.scale.set(1, Math.max(g, 0.001), 1);
     this.yawG.rotation.set(c.pitch * DEG, c.yaw * DEG, 0);
-    this.card.scale.set(this.s, this.s * (c.down ? 1 : c.breathe) * c.squash, this.s);
+    this.card.scale.set(s, s * (c.down ? 1 : c.breathe) * c.squash, s);
+    this.grown = grow;
     // down: the face dims, as a fallen piece does on a board
     const dim = 1 - 0.45 * (c.down ?? 0);
     if (this.faceMaterial && this.lastDim !== dim) { this.faceMaterial.color.setScalar(dim); this.lastDim = dim; }
@@ -149,19 +152,19 @@ export class CardView {
       // chosen by the GM for a formation: the shadow under it becomes a warm glow
       this.blob.material.color.setHex(0xff9a46);
       this.blob.material.blending = THREE.AdditiveBlending;
-      this.blob.scale.set(this.w * this.s * 1.5, 120, 1);
+      this.blob.scale.set(this.w * s * 1.5, 120 * grow, 1);
       this.blob.material.opacity = 0.95;
     } else if (c.speaking) {
       // has the floor: a pool of soft light at its feet, breathing a little
       const pulse = 1 + 0.06 * Math.sin((c.breathe - 1) * 400);
       this.blob.material.color.setHex(0xfff0c8);
       this.blob.material.blending = THREE.AdditiveBlending;
-      this.blob.scale.set(this.w * this.s * 1.9 * pulse, 170 * pulse, 1);
+      this.blob.scale.set(this.w * s * 1.9 * pulse, 170 * grow * pulse, 1);
       this.blob.material.opacity = 0.8;
     } else {
       this.blob.material.color.setHex(0x000000);
       this.blob.material.blending = THREE.NormalBlending;
-      this.blob.scale.set(this.w * this.s * (0.95 + 0.5 * g), 74 + 46 * g, 1);
+      this.blob.scale.set(this.w * s * (0.95 + 0.5 * g), (74 + 46 * g) * grow, 1);
       this.blob.material.opacity = 0.62 - 0.26 * g;
     }
     this.#poseEmote(c);
@@ -185,8 +188,9 @@ export class CardView {
     if (!e || e.id !== this.emote.id) { sprite.visible = false; return; }
     sprite.visible = e.opacity > 0.01;
     sprite.material.opacity = e.opacity;
-    sprite.position.set(c.x + 74 * this.s, c.lift + this.stickLen * c.grip + this.h * this.s * c.breathe + 36, c.z + 30);
-    sprite.scale.set(96 * e.pop, 96 * e.pop, 1);
+    const grow = c.grow ?? 1;
+    sprite.position.set(c.x + 74 * this.s * grow, c.lift + this.stickLen * c.grip + this.h * this.s * grow * c.breathe + 36 * grow, c.z + 30);
+    sprite.scale.set(96 * e.pop * grow, 96 * e.pop * grow, 1);
   }
 
   dispose() {

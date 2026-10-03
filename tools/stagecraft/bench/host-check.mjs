@@ -58,12 +58,24 @@ try {
   }
   await sleep(1500);
 
+  /* the strips fold away behind one key, folded at first, so they never cover a wall or a face */
+  check("the GM's strips start folded away behind one small key", await gm.evaluate(() => {
+    const strip = document.querySelector(".stagecraft-blocking");
+    return !!document.querySelector(".stagecraft-gm-toggle") && getComputedStyle(strip).display === "none";
+  }));
+  // a page behind another gets no frames, and puppeteer's own click() waits for one, so the GM's page comes to the front
+  await gm.bringToFront();
+  const key = await (await gm.$(".stagecraft-gm-toggle")).boundingBox();
+  await gm.mouse.click(key.x + key.width / 2, key.y + key.height / 2);
+  await sleep(150);
+  check("one press on the key unfolds them", await gm.evaluate(() => getComputedStyle(document.querySelector(".stagecraft-blocking")).display !== "none"));
+
   /* the strip is the GM's */
   const strip = await gm.$$eval(".stagecraft-blocking [data-act=form]", (b) => b.length);
   const moments = await gm.$$eval(".stagecraft-blocking [data-act=moment]", (b) => b.map((x) => x.textContent));
   check("the GM has the blocking strip, with every formation", strip === 11, `${strip} formations`);
   check("the strip offers the scene's moments", moments.length === 3, moments.join(" / "));
-  check("a player has no strip at all", (await player.$(".stagecraft-blocking")) === null);
+  check("a player has no strip at all", (await player.$(".stagecraft-blocking")) === null && (await player.$(".stagecraft-gm-toggle")) === null);
 
   /* a formation pressed and placed with the mouse */
   const huddle = await gm.$('.stagecraft-blocking [data-kind="huddle"]');
@@ -82,8 +94,10 @@ try {
   const ids = Object.keys(a);
   const same = ids.every((id) => Math.abs(a[id][0] - b[id][0]) < 1 && Math.abs(a[id][1] - b[id][1]) < 1);
   check("the huddle walked out to the identical place on both screens", same, ids.map((id) => `${id.replace("summon-", "")} ${Math.round(a[id][0])}/${Math.round(b[id][0])}`).join(", "));
+  // a huddle is shoulder to shoulder: neighbours less than one card width apart, measured at the depth they stand
   const spread = Math.max(...ids.map((id) => a[id][0])) - Math.min(...ids.map((id) => a[id][0]));
-  check("and it is a huddle: close together", spread < 400, `${Math.round(spread)} across`);
+  const cardW = await gm.evaluate((list) => Math.max(...list.map((id) => { const c = window.bench.host.stage.cards.get(id); return c.w * c.grow; })), ids);
+  check("and it is a huddle: shoulder to shoulder", spread < (ids.length - 1) * cardW && spread > (ids.length - 1) * cardW * 0.6, `${Math.round(spread)} across, cards ${Math.round(cardW)} wide`);
   const packed = await player.evaluate(() => window.bench.scene.flags.stagecraft.published.cards.filter((c) => c.packed && c.still && c.move).length);
   check("the player's copy of the scene carries the moves, set aside and packed", packed === 3, `${packed}`);
 

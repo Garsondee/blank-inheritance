@@ -21,7 +21,7 @@ import { MODULE_ID } from "./stage-store.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor } from "../core/stagecraft-bridge.mjs";
+import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, layoutOf } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -39,6 +39,21 @@ let stagesLoaded = null;
 export function loadStages() {
   stagesPromise ??= fetch(foundry.utils.getRoute(STAGES_PATH)).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((s) => (stagesLoaded = s));
   return stagesPromise;
+}
+
+/**
+ * A deploy has landed (world-sync.mjs): read the stages file afresh, give the scenes their new descriptions (a scene open
+ * now is drawn again from its new one, and laid out on the way), and lay the open scene out again if its description
+ * did not change but its people's places did.
+ */
+export async function reloadStages() {
+  stagesPromise = null;
+  stagesLoaded = null;
+  if (!game.user?.isGM || !stagecraftActive()) return;
+  await loadStages();
+  const touched = await applyStages();
+  const scene = canvas?.scene;
+  if (scene && !touched.includes(scene.name)) await mirrorScene(game.scenes.get(scene.id));
 }
 
 /** The time every screen shares, in seconds (Stagecraft's walks and entrances run on it). */
@@ -138,9 +153,14 @@ export async function mirrorScene(scene) {
   // read what is on the scene only now, after the waiting: Stagecraft writes where a card was put down into the same list
   const published = scene.getFlag(MODULE_ID, "stage")?.cast ?? [];
   const existing = scene.flags?.[NS]?.published?.cards ?? [];
-  const cards = mirrorCards({ published, authored, existing, def: entry, ownersOf, npcOwners: game.users.filter((u) => u.isGM).map((u) => u.id), now: sharedNow() + 0.4 });
-  if (sameCards(cards, existing)) return false;
-  await scene.update({ [`flags.${NS}.published`]: { cards, rev: (scene.flags?.[NS]?.published?.rev ?? 0) + 1 } });
+  // a deploy that changed how this stage places people: everyone on it walks to their new place, once
+  const layout = layoutOf(entry);
+  const relayout = scene.getFlag(MODULE_ID, "stageLayout") !== layout;
+  const cards = mirrorCards({ published, authored, existing, def: entry, ownersOf, npcOwners: game.users.filter((u) => u.isGM).map((u) => u.id), now: sharedNow() + 0.4, relayout });
+  if (sameCards(cards, existing) && !relayout) return false;
+  const update = { [`flags.${MODULE_ID}.stageLayout`]: layout };
+  if (!sameCards(cards, existing)) update[`flags.${NS}.published`] = { cards, rev: (scene.flags?.[NS]?.published?.rev ?? 0) + 1 };
+  await scene.update(update);
   return true;
 }
 

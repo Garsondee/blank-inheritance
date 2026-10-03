@@ -3,8 +3,9 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.2.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
-`api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks.
+**Version 0.3.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+`api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
+published card whose `home` changes now goes about its routine round the new one.
 
 ## api
 
@@ -17,7 +18,7 @@ without notice. `api.schema.json` lists exactly this, and a test fails if the co
 | `api.scenes.isStage(scene)` | Does this Foundry scene carry a stage description? |
 | `api.scenes.describe(scene)` | The scene's description, understood: `{ ok, usable, scene, problems }` |
 | `api.scenes.validate(raw)` | The same for a description that is not in a scene yet |
-| `api.blocking.formations` | The formations: `line`, `huddle`, `talk`, `gangup`, `panel`, `standoff`, `circle`, `queue`, `scatter` |
+| `api.blocking.formations` | The formations: `line`, `huddle`, `talk`, `gangup`, `panel`, `standoff`, `circle`, `queue`, `scatter`, `audience`, `position`. Each is loosened, after it is arranged, just enough that no card hides more than 15% of another |
 | `api.blocking.gaits` | The ways a card can walk: `walk`, `stroll`, `hurry`, `march`, `sneak`, `scurry`, `hop`, `glide` |
 | `api.blocking.routines` | What a card can do on its own: `still`, `wander`, `visit`, `patrol`, `pace`, `swarm` (see "Life" below) |
 | `api.blocking.move(scene, moves)` | GM only. Send cards somewhere: `[{ id, at: [fx, fy] \| mark, yaw?, lean?, pitch?, gait?, still?, packed? }]`. Every screen walks them there together |
@@ -47,6 +48,7 @@ Raised with `Hooks.callAll`. The first argument is the event; the second is the 
 | `stagecraft.bonk` | A card in a hand met another: `{ a, b, x, speed, Z, t }` |
 | `stagecraft.mark` | A card settled on a mark: `{ card, mark, t }` |
 | `stagecraft.zone` | A card entered or left a zone: `{ card, zone, entered, t }` |
+| `stagecraft.visit` | A card was put down at a door or a thing to look at (a zone of kind `door` or `spot`): `{ card, by, zone, name, hint, t }`. The stage shows who went where for a few seconds on every screen |
 | `stagecraft.walk` | A card set off somewhere without a hand (a formation, a move): `{ card, to: { X, Z }, mark, t }` |
 | `stagecraft.arrive` | A card that was sent somewhere got there: `{ card, mark, t }` |
 | `stagecraft.fall` | A card was knocked down or stood back up: `{ card, down, t }` |

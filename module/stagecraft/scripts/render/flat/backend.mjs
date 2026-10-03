@@ -46,7 +46,7 @@ export class FlatBackend {
     this.adding = new Set();
     this.emotes = new Map();                 // emote id -> an image, or null while it loads
     this.calm = false;
-    this.zoneSetting = "faint";
+    this.zoneSetting = "off";                 // the player's setting's own default (settings.mjs)
     this.disposed = false;
     this.ready = false;
     this.order = [];                         // last frame's drawables, front to back, for picking
@@ -549,12 +549,14 @@ export class FlatBackend {
     this.#set([1, 0, 0, 1, 0, 0]);
     ctx.save();
     ctx.translate(cur.x, cur.y - (cur.drawing ? 10 : 36) * k);
-    ctx.rotate(rub ? 0 : 0.6 + Math.max(-0.5, Math.min(0.5, cur.vx / 4000)));
+    // a stick that would leave no mark here is faded and tipped back, held off the wall
+    ctx.rotate(rub ? 0 : (cur.blocked ? -0.35 : 0.6) + Math.max(-0.5, Math.min(0.5, cur.vx / 4000)));
+    if (cur.blocked && !rub) ctx.globalAlpha = 0.55;
     if (rub) {
       ctx.fillStyle = "#5b6670";
       ctx.fillRect(-25 * k, -16 * k, 50 * k, 32 * k);
     } else {
-      ctx.fillStyle = chalkHex(cur.tool);
+      ctx.fillStyle = cur.blocked ? "#6f6a62" : chalkHex(cur.tool);
       ctx.fillRect(-8 * k, -31 * k, 16 * k, 62 * k);
       ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.fillRect(-8 * k, 25 * k, 16 * k, 6 * k);
@@ -625,12 +627,12 @@ export class FlatBackend {
   setChalkBox(visible) { this.boxShown = !!visible; }
 
   /** Show the stick of chalk (or the eraser) at a window point; `tool` is a colour name or "rub"; null puts it away. */
-  setChalkCursor(point, tool, drawing = false) {
+  setChalkCursor(point, tool, drawing = false, blocked = false) {
     if (!point) { this.cursor = null; return; }
     const now = performance.now();
     const last = this.cursor;
     const vx = last ? ((point.x - last.x) / Math.max(now - last.at, 1)) * 1000 : 0;
-    this.cursor = { x: point.x, y: point.y, tool, drawing, vx, at: now };
+    this.cursor = { x: point.x, y: point.y, tool, drawing, vx, at: now, blocked };
   }
 
   /* ---------------------------------------------------------------- the rest of the contract */

@@ -78,7 +78,9 @@ export function outlineStates(zones, held, reach = 0.1) {
 export function outlineStrength(zone, state, setting = "faint") {
   if (state === OUTLINE.target) return 1;
   if (state === OUTLINE.near) return 0.85;
-  if (zone.quiet) return 0;
+  // A chalk zone means something only with chalk in hand (the host lights it then), so at rest it is not drawn at all: a
+  // dashed box on a wall that nothing can be done with was a puzzle (found 2026-10-03, the Rumour Mill).
+  if (zone.quiet || zone.kind === "chalk") return 0;
   return REST_STRENGTH[setting] ?? REST_STRENGTH.faint;
 }
 

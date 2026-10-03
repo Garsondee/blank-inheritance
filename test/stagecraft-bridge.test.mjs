@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { rawKeyOf, partySlot, placeFor, mirrorCards, sameCards, summonsForTrigger, entryFor, descriptionFor, STAGES_PATH } from "../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
+import { rawKeyOf, partySlot, partyYaw, placeFor, mirrorCards, sameCards, summonsForTrigger, entryFor, descriptionFor, layoutOf, STAGES_PATH } from "../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
 import { publishedCast, leaksConcealed } from "../module/blank-inheritance/scripts/core/stage-layout.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -122,7 +122,183 @@ test("nobody a scene places stands where a cut-out would hide them entirely, and
     for (const p of people) {
       if (!s.rig.standing(p.at)) { problems.push(`${id}: ${p.id} stands above the horizon`); continue; }
       const c = s.cards.get(p.id);
-      if (s.unhidden(c.puppet.x, c.Z, c.w, c.h) !== c.Z) problems.push(`${id}: ${p.id} would be hidden behind a cut-out`);
+      if (s.unhidden(c.puppet.x, c.Z, c.w * c.grow, c.h * c.grow) !== c.Z) problems.push(`${id}: ${p.id} would be hidden behind a cut-out`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+/** A scene's people where the entry puts them (or where a moment sends them), with a party of six in their places, as cards. */
+async function sceneCards(entry, moment = null) {
+  const { Stage } = await import("../module/stagecraft/scripts/core/stage.mjs");
+  const d = describeScene(descriptionFor(stages, entry)).scene;
+  const people = [
+    ...Object.entries(entry.places ?? {}).map(([key, at]) => ({ id: key, name: key, at: moment?.places?.[key]?.at ?? at, size: entry.sizes?.[key] })),
+    ...Array.from({ length: 6 }, (_, n) => ({ id: `pc-${n + 1}`, name: `PC ${n + 1}`, at: partySlot(entry, n), pc: true }))
+  ];
+  const s = new Stage(d, people, { card: { w: 280, h: 468 } });
+  const cards = people.map((p) => {
+    const at = s.rig.standing(p.at);
+    const c = s.cards.get(p.id);
+    const g = s.grow(at.Z);
+    return { id: p.id, X: at.X, Z: at.Z, w: c.w * g, h: c.h * g, lift: s.riserFor(at.X, at.Z, c.w * g, c.h * g) };
+  });
+  return { s, cards };
+}
+
+test("every scene with everyone in it and six in the party: no card is hidden by another more than the rule allows", async () => {
+  // Ingram, 2026-10-03: people placed "fully in view", and anything in front of a card hiding no more than its bottom 15%;
+  // with cards half as big again, a party of six standing across the front hid the room behind it
+  const { hiddenShares, HIDDEN_AT_MOST } = await import("../module/stagecraft/scripts/core/visibility.mjs");
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    const { s, cards } = await sceneCards(entry);
+    for (const [who, v] of hiddenShares(s.rig, cards)) if (v.hidden > HIDDEN_AT_MOST + 0.001) problems.push(`${id}: ${who} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("every place a routine takes someone to is in view too: the waitress's rounds never go behind the party", async () => {
+  const { hiddenShares, HIDDEN_AT_MOST } = await import("../module/stagecraft/scripts/core/visibility.mjs");
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    for (const [who, life] of Object.entries(entry.life ?? {})) {
+      for (const at of [...(life.spots ?? []), ...(life.path ?? [])]) {
+        const { s, cards } = await sceneCards(entry, { places: { [who]: { at } } });
+        const v = hiddenShares(s.rig, cards).get(who);
+        // only whoever is on their rounds: the others are where the scene put them, and may have stepped aside
+        const byParty = v.by.filter((b) => b.startsWith("pc-"));
+        if (v.hidden > HIDDEN_AT_MOST + 0.001 && byParty.length) problems.push(`${id}: ${who} at ${at} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("every door and thing to look at can be gone to in view: a card at it is on the page and not behind the party", async () => {
+  // a zone is used by putting a card down at it (stagecraft.visit); one whose floor is behind the wings, or off the page,
+  // cannot be (found 2026-10-03: the examination room's door was off the left edge of the page)
+  const { hiddenShares, HIDDEN_AT_MOST } = await import("../module/stagecraft/scripts/core/visibility.mjs");
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    for (const z of entry.description.zones ?? []) {
+      if (!["door", "spot"].includes(z.kind)) continue;
+      const area = z.floor ?? z.shape;
+      const at = [area.reduce((s, p) => s + p[0], 0) / area.length, Math.max(...area.map((p) => p[1])) - 0.012];
+      const visitor = { ...entry, places: { ...entry.places, "a-visitor": at } };
+      const { s, cards } = await sceneCards(visitor);
+      const v = hiddenShares(s.rig, cards.filter((c) => c.id === "a-visitor" || c.id.startsWith("pc-"))).get("a-visitor");
+      if (v.hidden > HIDDEN_AT_MOST + 0.001) problems.push(`${id}: a card at ${z.id} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+      const [x0] = s.rig.fractionOfScreen(0, 0);
+      const [x1] = s.rig.fractionOfScreen(2560, 0);
+      if (at[0] < x0 + 0.03 || at[0] > x1 - 0.03) problems.push(`${id}: ${z.id} is off the page`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("every moment of every scene leaves everyone in view as well", async () => {
+  const { hiddenShares, HIDDEN_AT_MOST } = await import("../module/stagecraft/scripts/core/visibility.mjs");
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    for (const [mid, m] of Object.entries(entry.moments ?? {})) {
+      if (!m.places || Object.values(m.places).some((p) => !Array.isArray(p.at))) continue;
+      const { s, cards } = await sceneCards(entry, m);
+      for (const [who, v] of hiddenShares(s.rig, cards)) if (v.hidden > HIDDEN_AT_MOST + 0.001) problems.push(`${id} / ${mid}: ${who} is ${Math.round(v.hidden * 100)}% hidden by ${v.by.join(", ")}`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("the party stands in the wings unless a stage says otherwise: two groups at the front corners, the middle open", () => {
+  const slots = Array.from({ length: 6 }, (_, n) => partySlot({}, n));
+  const left = slots.filter((p) => p[0] < 0.5);
+  const right = slots.filter((p) => p[0] > 0.5);
+  assert.equal(left.length, 3);
+  assert.equal(right.length, 3);
+  assert.ok(Math.max(...left.map((p) => p[0])) < 0.3 && Math.min(...right.map((p) => p[0])) > 0.7, "the middle of the stage is left open");
+  assert.deepEqual(slots[0], [0.12, 0.972], "the outermost places fill first");
+  assert.ok(slots[4][1] < slots[0][1], "each wing steps back as it comes in");
+  assert.ok(partyYaw({}, slots[0]) > 20 && partyYaw({}, slots[1]) < -20, "and turns in towards the middle");
+  // a stage that keeps one side clearer (a door on the right) puts more of the party on the other
+  const split = Array.from({ length: 6 }, (_, n) => partySlot({ partyRow: { split: 4 } }, n));
+  assert.equal(split.filter((p) => p[0] < 0.5).length, 4);
+  assert.equal(split.filter((p) => p[0] > 0.5).length, 2);
+  assert.equal(new Set(split.map((p) => p.join())).size, 6, "six different places");
+});
+
+test("a stage laid out afresh walks the people already on it to their new places, keeps the fallen down, and stamps its layout", () => {
+  const def = { places: { tama: [0.4, 0.8] }, partyRow: { wings: [0.15, 0.85] } };
+  const before = [{ id: "summon-tama", name: "Tama", at: [0.7, 0.75], home: [0.7, 0.75], still: true, down: true }, { id: "summon-pc-a", name: "A", pc: true, at: [0.5, 0.95] }];
+  const published = [member("summon-tama"), member("summon-pc-a", { kind: "pc", actorId: "A1" })];
+  const kept = mirrorCards({ published, existing: before, def, now: 1790995000 });
+  assert.deepEqual(kept[0].at, [0.7, 0.75], "without a new layout, a place once made is kept");
+  const fresh = mirrorCards({ published, existing: before, def, now: 1790995000, relayout: true });
+  assert.deepEqual(fresh[0].at, [0.4, 0.8]);
+  assert.deepEqual(fresh[0].home, [0.4, 0.8]);
+  assert.deepEqual(fresh[0].move, { t0: 1790995000, gait: "walk" }, "it walks over rather than jumping");
+  assert.equal(fresh[0].down, true, "the fallen stay down");
+  assert.equal(fresh[0].enter, undefined, "nobody already there walks on again");
+  assert.deepEqual(fresh[1].at, partySlot(def, 0));
+  assert.notEqual(layoutOf(def), layoutOf({ ...def, places: { tama: [0.41, 0.8] } }), "a moved place is a new layout");
+  assert.equal(layoutOf(def), layoutOf(JSON.parse(JSON.stringify(def))), "and the same entry is the same layout");
+});
+
+test("everything a scene places is fully on screen: its people wherever they go, its marks, the party's row, its chalk zones and its box", async () => {
+  // found 2026-10-03: the painting is raised to clear the deck, which pushed Kit Issue's chalk wall off the top of the
+  // screen, so "chalk goes on the back wall" pointed at a wall nobody could reach; and with cards half as big again
+  // (Ingram: "fully in view"), a person put 0.06 in from the painting's edge had half their card off the page
+  const { Stage } = await import("../module/stagecraft/scripts/core/stage.mjs");
+  const W = 2560;
+  const FLOOR = 1440 - 270;                           // the deck covers about the bottom 270 pixels of the 2560 x 1440 page
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    const d = describeScene(descriptionFor(stages, entry)).scene;
+    const people = Object.entries(entry.places ?? {}).map(([key, at]) => ({ id: key, name: key, at, size: entry.sizes?.[key] }));
+    const s = new Stage(d, people, { card: { w: 280, h: 468 } });
+    const r = s.rig;
+    // the rectangle a card standing at a point of the painting fills on the page: drawn bigger at its depth, raised over any
+    // cut-out in front of it, and as wide as it is face-on (a card turned away is narrower, never wider)
+    const fits = (what, at, size = 1) => {
+      const p = r.standing(at);
+      if (!p) { problems.push(`${id}: ${what} stands above the horizon`); return; }
+      const g = s.grow(p.Z);
+      const w = 280 * d.cardScale * size * g;
+      const h = 468 * d.cardScale * size * g;
+      const lift = s.riserFor(p.X, p.Z, w, h);
+      const a = r.screenOf(p.X - w / 2, lift, p.Z);
+      const b = r.screenOf(p.X + w / 2, lift + h, p.Z);
+      if (a.x < 0 || b.x > W) problems.push(`${id}: ${what} is cut off by the ${a.x < 0 ? "left" : "right"} edge (${at})`);
+      if (b.y < 0) problems.push(`${id}: ${what} has their head off the top (${at})`);
+      if (a.y - FLOOR > (a.y - b.y) * 0.15) problems.push(`${id}: ${what} stands behind the deck (${at})`);
+    };
+    const sizeOf = (who) => entry.sizes?.[who] ?? 1;
+    for (const [who, at] of Object.entries(entry.places ?? {})) fits(who, at, sizeOf(who));
+    for (const [who, life] of Object.entries(entry.life ?? {})) for (const at of [...(life.spots ?? []), ...(life.path ?? [])]) fits(`${who} on their rounds`, at, sizeOf(who));
+    for (const [mid, m] of Object.entries(entry.moments ?? {})) for (const [who, p] of Object.entries(m.places ?? {})) if (Array.isArray(p.at)) fits(`${who} in ${mid}`, p.at, sizeOf(who));
+    for (const m of d.marks) fits(`mark ${m.id}`, m.at);
+    for (let n = 0; n < (entry.partyRow?.of ?? 6); n++) fits(`the party's place ${n + 1}`, partySlot(entry, n));
+    // what the page shows of the painting, in fractions of it
+    const [x0, y0] = r.fractionOfScreen(0, 0);
+    const [x1, y1] = r.fractionOfScreen(W, FLOOR);
+    const seen = { x0, x1, y0, y1 };
+    const inside = ([x, y], pad = 0) => x >= seen.x0 + pad && x <= seen.x1 - pad && y >= seen.y0 && y <= seen.y1 + 0.03;
+    for (const z of d.zones.filter((q) => q.kind === "chalk")) {
+      const ys = z.shape.map((p) => p[1]);
+      const xs = z.shape.map((p) => p[0]);
+      const h = Math.max(...ys) - Math.min(...ys);
+      const shownH = Math.min(Math.max(...ys), seen.y1) - Math.max(Math.min(...ys), seen.y0);
+      const shownW = Math.min(Math.max(...xs), seen.x1) - Math.max(Math.min(...xs), seen.x0);
+      if (shownH < h * 0.8 || shownW <= 0) problems.push(`${id}: chalk zone ${z.id} is mostly off screen`);
+    }
+    if (d.chalk.mode !== "off" && d.chalk.box && !inside(d.chalk.box, 0.03)) problems.push(`${id}: the box of chalk is off screen`);
+    // and nobody of the party stands over it, or a click on the box finds their card (found 2026-10-03, when the party
+    // moved into the wings at the front corners where the box was)
+    if (d.chalk.mode !== "off" && d.chalk.box) {
+      for (let n = 0; n < 6; n++) {
+        const p = partySlot(entry, n);
+        if (p[1] >= d.chalk.box[1] - 0.004 && Math.abs(p[0] - d.chalk.box[0]) < 0.1) problems.push(`${id}: the party's place ${n + 1} is on top of the box of chalk`);
+      }
     }
   }
   assert.deepEqual(problems, []);

@@ -54,6 +54,7 @@ export class StageHost {
     }
     if (problems.length) console.warn(`${NS} | "${this.scene.name}" has notes:`, problems);
     this.description = description;
+    this.described = JSON.stringify(this.scene.flags?.[NS]?.stage ?? null);
     this.people = readCast(this.scene);
     // walks, routines and entrances run on the time every screen shares, so they agree everywhere
     this.stage = new Stage(description, this.people, { card: this.skins.get(description.skin).size, clock: sharedNow });
@@ -83,7 +84,7 @@ export class StageHost {
     this.chalk = this.services.chalkStore ? new ChalkController({ host: this, store: this.services.chalkStore }) : null;
     this.chalk?.sync();
     this.chalk?.refresh();
-    if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); }
+    if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.#gmToggle(); }
     this.#boardKey();
 
     this.#watchSize();
@@ -188,12 +189,44 @@ export class StageHost {
       this.last = now;
       this.sync.tick();
       this.stage.advance(dt);
-      this.backend.draw(this.stage.snapshot({ viewer: this.userId, selected: this.selected }));
+      const snap = this.stage.snapshot({ viewer: this.userId, selected: this.selected });
+      // chalk in hand in a "zones only" scene: the zones it may go on are lit and named, the one under the stick brightest
+      if (this.chalk?.inHand) for (const z of this.chalk.chalkZones()) snap.zones[z.id] = this.chalk.cursorZone === z.id ? "target" : "near";
+      this.backend.draw(snap);
       this.frames++;
-      for (const e of this.stage.drain()) Hooks.callAll(`stagecraft.${e.type}`, e, this);
+      for (const e of this.stage.drain()) {
+        if (e.type === "visit") this.#visitCaption(e);
+        Hooks.callAll(`stagecraft.${e.type}`, e, this);
+      }
     });
     if (alive) this.raf = requestAnimationFrame(this.#frame);
   };
+
+  /**
+   * A card put down at a door or at something to look at: for a few seconds a line over the place says who went where
+   * and what it is for ("Etsuko · The grill / Look closer"), on every screen, so moving a card there is a way to act.
+   */
+  #visitCaption(e) {
+    const zone = this.description.zones.find((z) => z.id === e.zone);
+    const c = this.stage.cards.get(e.card);
+    if (!zone || !c || !this.root || !this.backend?.project) return;
+    const area = zone.floor ?? zone.shape;
+    const fx = area.reduce((s, p) => s + p[0], 0) / area.length;
+    const fy = Math.max(...area.map((p) => p[1]));
+    const at = this.stage.rig.standing([fx, fy]) ?? { X: c.puppet.restX, Z: c.restZ };
+    const p = this.backend.project({ X: at.X, Y: c.h * c.grow * 1.12, Z: at.Z });
+    if (!p || !Number.isFinite(p.x)) return;
+    const el = document.createElement("div");
+    el.className = "stagecraft-visit";
+    const who = document.createElement("b");
+    who.textContent = game.i18n.format("STAGECRAFT.Visit.At", { name: c.person.name ?? c.id, zone: zone.name || zone.id });
+    el.append(who);
+    if (zone.hint) { const hint = document.createElement("span"); hint.textContent = zone.hint; el.append(hint); }
+    el.style.left = `${Math.round(p.x)}px`;
+    el.style.top = `${Math.round(p.y)}px`;
+    this.root.append(el);
+    setTimeout(() => el.remove(), 4200);
+  }
 
   /* ---------------------------------------------------------------- pointer */
 
@@ -370,6 +403,33 @@ export class StageHost {
   }
 
   /**
+   * The GM's strips fold away behind one small key at the top of the stage, folded by default, so they never sit over a
+   * wall someone wants to draw on or a face (found 2026-10-03: Kit Issue's back wall lay under them, and a stroke there
+   * never reached the stage). They also step aside entirely while chalk is in hand (styles/stagecraft.css). The choice is
+   * remembered on this machine.
+   */
+  #gmToggle() {
+    const KEY = "stagecraft.gmOpen";
+    let open = false;
+    try { open = globalThis.localStorage?.getItem(KEY) === "1"; } catch { /* a private window: start folded */ }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "stagecraft-gm-toggle";
+    const show = () => {
+      this.root?.classList.toggle("stagecraft-gm-open", open);
+      button.textContent = game.i18n.localize(open ? "STAGECRAFT.Gm.Hide" : "STAGECRAFT.Gm.Show");
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    button.addEventListener("click", () => {
+      open = !open;
+      try { globalThis.localStorage?.setItem(KEY, open ? "1" : "0"); } catch { /* not kept: fine */ }
+      show();
+    });
+    this.root.append(button);
+    show();
+  }
+
+  /**
    * The fight board's key, for everyone at the table while the board is up (stage.md §8.6): what the lines between the
    * positions mean, in SF2E's own terms. Only shown on a scene that has positions to draw.
    */
@@ -387,8 +447,10 @@ export class StageHost {
 
   /** One card already on the stage, as the scene now says: a new move to walk, its routine set aside or taken up again. */
   #follow(c, p) {
-    // a routine that changed (a deploy, or someone it talks to was revealed) is taken up afresh
-    if (JSON.stringify(p.life ?? null) !== JSON.stringify(c.person.life ?? null)) this.stage.setRoutine(p.id, p.life);
+    // a routine that changed (a deploy, or someone it talks to was revealed) is taken up afresh; a card given a new home
+    // (the scene laid out again) goes about its business round the new one
+    const rehomed = JSON.stringify(p.home ?? null) !== JSON.stringify(c.person.home ?? null);
+    if (rehomed || JSON.stringify(p.life ?? null) !== JSON.stringify(c.person.life ?? null)) this.stage.setRoutine(p.id, p.life, rehomed && Array.isArray(p.home) ? p.home : null);
     this.stage.setDown(p.id, p.down === true);
     c.person = { ...c.person, ...p, portrait: c.person.portrait };   // who may hold it, its name; the picture stays as built
     const move = p.move;
@@ -429,6 +491,13 @@ export class StageHost {
     this.hooks.push(["userConnected", Hooks.on("userConnected", (user, connected) => { if (!connected) this.sync?.userGone(user.id); })]);
     this.hooks.push(["updateScene", Hooks.on("updateScene", (scene) => {
       if (scene.id !== this.scene.id) return;
+      // the scene's description itself changed (a deploy: bigger cards, a new zone): the stage is drawn again from it
+      const described = JSON.stringify(this.scene.flags?.[NS]?.stage ?? null);
+      if (described !== this.described) {
+        this.described = described;
+        if (globalThis.canvas?.scene?.id === this.scene.id) globalThis.canvas.draw();
+        return;
+      }
       this.chalk?.refresh();
       this.bar?.refresh();
       this.blocking?.refresh();

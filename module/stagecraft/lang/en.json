@@ -18,7 +18,7 @@
       },
       "Zones": {
         "Name": "Zone outlines at rest",
-        "Hint": "How visible a zone's dashed outline is when nobody is holding a card near it.",
+        "Hint": "How visible a zone's dashed outline is when nobody is holding a card near it. Carry a card near one and it lights up with its name and what it is for.",
         "Faint": "Faint",
         "Off": "Hidden until a card comes near",
         "Full": "Always clear"
@@ -102,6 +102,17 @@
         "Label": "Places",
         "Tip": "Everyone you have moved walks back to where the scene put them, and back to what they were doing."
       }
+    },
+    "Gm": {
+      "Show": "Stage ▾",
+      "Hide": "Stage ▴"
+    },
+    "Visit": {
+      "At": "{name} · {zone}"
+    },
+    "Chalk": {
+      "OnlyOn": "Chalk goes on: {where}",
+      "NotHere": "Chalk leaves no mark here"
     },
     "Board": {
       "Title": "Positions",

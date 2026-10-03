@@ -16,12 +16,13 @@
 
 import { idle, cheatOut, yawTo } from "./diorama.mjs";
 import { createPuppet, stepPuppet, collide, box, perform, verbPose } from "./puppets.mjs";
-import { makeRig } from "./rigspace.mjs";
+import { makeRig, depthGrow } from "./rigspace.mjs";
 import { resolveMarks, nearestFree, visibleMarks, markPose, tidy } from "./marks.mjs";
 import { zonesAt, zoneChanges, outlineStates, rangeBands, zoneSlots } from "./zones.mjs";
 import { planWalk, walkAt, entrancePoint, floorDistance } from "./walks.mjs";
 import { describeRoutine, prepareRoutine, lifeAt, gestureAt } from "./life.mjs";
 import { arrange } from "./formations.mjs";
+import { spreadApart } from "./visibility.mjs";
 
 export const STEP = 1 / 120;
 
@@ -131,6 +132,9 @@ export class Stage {
     return Math.max(0, Math.min(need, h * RISER_MOST));
   }
 
+  /** How much bigger a card is drawn at depth Z (rigspace.mjs `depthGrow`). */
+  grow(Z) { return depthGrow(this.rig.cam, Z); }
+
   /**
    * A place a formation would put a card, moved if the card could not be seen there: behind a cut-out that would hide more
    * of it than its riser could ever lift it clear of (just behind a table's front edge, say), it stands just in front of
@@ -183,9 +187,10 @@ export class Stage {
       stepLift: 0, stepRock: 0,      // the bob and tip of a step
       look: 0, lookV: 0, attention: null,
       riser: 0, riserTo: 0,          // how far it is raised to be seen over a cut-out in front of it
-      down: person.down === true ? 1 : 0, downV: 0, downTo: person.down === true ? 1 : 0   // fallen (0 standing, 1 lying flat)
+      down: person.down === true ? 1 : 0, downV: 0, downTo: person.down === true ? 1 : 0,   // fallen (0 standing, 1 lying flat)
+      grow: this.grow(Z)               // drawn this much bigger at its depth, so the back of a room does not shrink it away
     };
-    c.riser = c.riserTo = this.riserFor(X, Z, c.w, c.h);
+    c.riser = c.riserTo = this.riserFor(X, Z, c.w * c.grow, c.h * c.grow);
     this.cards.set(c.id, c);
     if (mark) this.#settle(c, mark, true);
     const routine = describeRoutine(person.life);
@@ -271,13 +276,15 @@ export class Stage {
   }
 
   /**
-   * Give a card a new routine (as authored: life.mjs), keeping its home. A card whose routine changes while it is going
-   * about its business walks to wherever the new one has it, rather than jumping.
+   * Give a card a new routine (as authored: life.mjs), keeping its home unless given a new one (`home`, a point of the
+   * painting). A card whose routine changes while it is going about its business walks to wherever the new one has it,
+   * rather than jumping.
    */
-  setRoutine(id, life) {
+  setRoutine(id, life, home = null) {
     const c = this.cards.get(id);
     if (!c) return;
-    const home = c.routine?.home ?? { X: c.puppet.restX, Z: c.restZ };
+    const given = Array.isArray(home) ? this.rig.standing(home) : null;
+    home = given ? { X: given.X, Z: given.Z } : c.routine?.home ?? { X: c.puppet.restX, Z: c.restZ };
     const routine = describeRoutine(life);
     c.routine = routine ? prepareRoutine(routine, { home, rig: this.rig, marks: this.marks, seed: c.seed }) : null;
     c.living = false;
@@ -334,9 +341,10 @@ export class Stage {
     const zone = this.zones.find((q) => q.kind === "area" && zonesAt([q], f[0], f[1]).length);
     if (!zone) return null;
     const c = this.cards.get(id);
-    if (!this.slots.has(zone.id)) this.slots.set(zone.id, zoneSlots(zone, this.rig, { w: (c?.w ?? 180) * 1.05 }));
+    const w = (c?.w ?? 180) * this.grow(z);
+    if (!this.slots.has(zone.id)) this.slots.set(zone.id, zoneSlots(zone, this.rig, { w: w * 1.05 }));
     const taken = [...this.cards.values()].filter((o) => o.id !== id && o.holder === null).map((o) => ({ X: o.walk ? o.walk.to.X : o.puppet.restX, Z: o.walk ? o.walk.to.Z : o.restZ }));
-    const free = this.slots.get(zone.id).filter((s) => !taken.some((t) => Math.abs(t.X - s.X) < (c?.w ?? 180) * 0.6 && Math.abs(t.Z - s.Z) < 90));
+    const free = this.slots.get(zone.id).filter((s) => !taken.some((t) => Math.abs(t.X - s.X) < w * 0.6 && Math.abs(t.Z - s.Z) < 90));
     if (!free.length) return null;
     free.sort((a, b) => Math.hypot(a.X - x, (a.Z - z) * 0.8) - Math.hypot(b.X - x, (b.Z - z) * 0.8));
     return { X: free[0].X, Z: free[0].Z, zone: zone.id };
@@ -387,6 +395,10 @@ export class Stage {
     else { c.puppet.restX = L.X; c.restZ = clamp(L.Z, this.opts.limits.z[0], this.opts.limits.z[1]); c.mark = null; }
     const result = { type: "drop", card: id, by, t: this.time, mark: mark?.id ?? null, X: c.puppet.restX, Z: c.restZ };
     this.events.push(result);
+    // put down at a door or at something to look at: the card has gone there (the stage says so, the GM hears of it)
+    const f = this.rig.fractionOf(c.puppet.restX, c.restZ);
+    const at = zonesAt(this.zones.filter((z) => z.kind === "door" || z.kind === "spot"), f[0], f[1])[0];
+    if (at) this.events.push({ type: "visit", card: id, by, zone: at.id, name: at.name, hint: at.hint, t: this.time });
     return result;
   }
 
@@ -504,6 +516,7 @@ export class Stage {
       spring(c, "lift", "liftV", c.liftTo, dt, 18, 0.62);
       spring(c, "look", "lookV", inHand || c.downTo ? 0 : this.#lookTo(c, held, now), dt, 7, 0.9);
       c.riser += (c.riserTo - c.riser) * Math.min(1, dt * 9);
+      c.grow = this.grow(c.Z);
       // falling: a stiff spring that overshoots a little, so it lands with a bounce; getting up is slower
       if (c.downTo) spring(c, "down", "downV", 1, dt, 9, 0.45);
       else spring(c, "down", "downV", 0, dt, 6, 0.8);
@@ -513,7 +526,7 @@ export class Stage {
     if (this.steps % o.zoneEvery === 0) {
       this.#zones();
       this.#magnets(dt * o.zoneEvery);
-      if (this.risers.length) for (const c of this.cards.values()) c.riserTo = this.riserFor(c.puppet.x, c.Z, c.w, c.h);
+      if (this.risers.length) for (const c of this.cards.values()) c.riserTo = this.riserFor(c.puppet.x, c.Z, c.w * c.grow, c.h * c.grow);
     }
   }
 
@@ -627,7 +640,9 @@ export class Stage {
         const b = free[j];
         if (Math.abs(a.restZ - b.restZ) >= M.lane) continue;
         const dx = b.puppet.restX - a.puppet.restX;
-        const allowed = (a.w + b.w) / 2 - Math.min(a.w, b.w) * M.overlap;
+        const wa = a.w * a.grow;
+        const wb = b.w * b.grow;
+        const allowed = (wa + wb) / 2 - Math.min(wa, wb) * M.overlap;
         const need = allowed - Math.abs(dx);
         if (need <= 0.5) continue;
         const dir = dx !== 0 ? Math.sign(dx) : (a.id < b.id ? 1 : -1);
@@ -738,7 +753,7 @@ export class Stage {
         // down: tipped over backwards to lie on the floor (a little short of flat, so the face still reads from the table)
         pitch: (c.pitch + life.pitch + vp.tipX + vp.dip * 0.4) * (1 - Math.min(1, c.down)) - 78 * c.down,
         down: Math.max(0, Math.min(1, c.down)),
-        grip: g, breathe: life.breathe, squash: vp.squash * up, scale: c.s,
+        grip: g, breathe: life.breathe, squash: vp.squash * up, scale: c.s * c.grow, grow: c.grow,
         held: c.holder !== null, holder: c.holder, mark: c.mark,
         walking: !!c.walk || (c.living && Math.abs(c.stepLift) > 0.2),
         selected: !!selected?.has?.(c.id),
@@ -803,7 +818,10 @@ export class Stage {
     let at = this.focus;
     if (Array.isArray(focus)) at = this.rig.standing(focus) ?? this.focus;
     else if (typeof focus === "string" && this.cards.has(focus)) { const c = this.cards.get(focus); at = { X: c.puppet.restX, Z: c.restZ }; }
-    if (kind === "position") return this.#positionMoves(cards, at, { party, gait });
+    // cards are drawn bigger the further back they stand, so they are spaced for the size they will be where they gather
+    const g = this.grow(at.Z);
+    const sized = cards.map((c) => ({ ...c, w: c.w * g }));
+    if (kind === "position") return this.#positionMoves(sized, at, { party, gait });
     const packed = ["huddle", "gangup", "queue"].includes(kind);
     // `size`: how wide the thing they gather round is, as a share of the painting's width where they gather
     let radius = null;
@@ -813,8 +831,25 @@ export class Stage {
       const b = this.rig.standing([f[0] + size / 2, f[1]]);
       if (a && b) radius = Math.abs(b.X - a.X) / 2;
     }
-    const placed = arrange(kind, { cards, focus: at, target, speakers, party, dir, radius, limits: { x: this.opts.limits.x, z: [this.opts.limits.z[0], 200] }, seed: this.steps % 7 })
-      .map((p) => { const c = this.cards.get(p.id); return c ? { ...p, Z: this.unhidden(p.X, p.Z, c.w, c.h) } : p; });
+    const arranged = arrange(kind, { cards: sized, focus: at, target, speakers, party, dir, radius, limits: { x: this.opts.limits.x, z: [this.opts.limits.z[0], 200] }, seed: this.steps % 7 })
+      .filter((p) => this.cards.has(p.id))
+      .map((p) => { const c = this.cards.get(p.id); const pg = this.grow(p.Z); return { ...p, Z: this.unhidden(p.X, p.Z, c.w * pg, c.h * pg) }; });
+    // then loosened just enough that no face is hidden behind another (visibility.mjs), the formation's own people and
+    // anyone else on the stage alike; only the formation's people move
+    const movers = new Set(arranged.map((p) => p.id));
+    const asCard = (id, X, Z) => {
+      const c = this.cards.get(id);
+      const pg = this.grow(Z);
+      return { id, X, Z, w: c.w * pg, h: c.h * pg, lift: this.riserFor(X, Z, c.w * pg, c.h * pg) };
+    };
+    const everyone = [...arranged.map((p) => asCard(p.id, p.X, p.Z)), ...all.filter((c) => !movers.has(c.id)).map((c) => asCard(c.id, c.X, c.Z))];
+    const loose = new Map(spreadApart(this.rig, everyone, movers, { limits: this.opts.limits.x }).map((c) => [c.id, c.X]));
+    const placed = arranged.map((p) => {
+      const c = this.cards.get(p.id);
+      const X = loose.get(p.id) ?? p.X;
+      const pg = this.grow(p.Z);
+      return { ...p, X, Z: this.unhidden(X, p.Z, c.w * pg, c.h * pg) };
+    });
     // `away`: everyone turns right round to look where the formation looks (out over the view, up at the stage), backs to the table
     return placed.map((p) => ({
       id: p.id, at: this.rig.fractionOf(p.X, p.Z).map((n) => Math.round(n * 10000) / 10000),

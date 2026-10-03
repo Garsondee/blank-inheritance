@@ -70,6 +70,22 @@ wire.onmessage = ({ data }) => {
   if (data.kind === "scene") scene.update(data.changes, { remote: true });
 };
 
+/**
+ * Where chalk is kept, in memory: the same shape as the module's ChalkStore (a world journal there), so the real chalk
+ * controller draws and keeps strokes here exactly as it does in Foundry. Nothing outlives the page.
+ */
+class MemoryChalkStore {
+  constructor() { this.byScene = new Map(); this.listeners = new Set(); }
+  get ready() { return true; }
+  strokes(sceneId) { return [...(this.byScene.get(sceneId) ?? [])]; }
+  strokesBy(sceneId, userId) { return this.strokes(sceneId).filter((s) => s.by === userId); }
+  async append(sceneId, stroke) { this.byScene.set(sceneId, [...this.strokes(sceneId), stroke]); this.#tell(sceneId); }
+  async remove(sceneId, ids) { const gone = new Set(ids); this.byScene.set(sceneId, this.strokes(sceneId).filter((s) => !gone.has(s.id))); this.#tell(sceneId); }
+  async wipe(sceneId) { this.byScene.set(sceneId, []); this.#tell(sceneId); }
+  onChange(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
+  #tell(sceneId) { for (const fn of this.listeners) fn(sceneId); }
+}
+
 /* ---------------------------------------------------------------- the stage */
 
 const { SkinRegistry } = await import("/module/stagecraft/scripts/skins/registry.mjs");
@@ -117,7 +133,7 @@ registerMoments((s) => momentsOf(entry).map((m) => ({
 
 const skins = new SkinRegistry();
 skins.register(brass);
-const host = new StageHost({ scene, skins, anchor: document.getElementById("board"), services: { chalkStore: null } });
+const host = new StageHost({ scene, skins, anchor: document.getElementById("board"), services: { chalkStore: new MemoryChalkStore() } });
 window.host = host;
 const ok = await host.start();
 document.getElementById("seat").textContent = `${seat === "gm" ? "Gamemaster" : "Player"} · ${which}${ok ? "" : " · could not start"}`;

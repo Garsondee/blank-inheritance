@@ -11,6 +11,7 @@
 
 import { NS } from "./scene-data.mjs";
 import { LIMITS, effectivePolicy, allowedAt, boxVisible, clipPath, makeStroke, eraseAlong, strokeBounds, trimToCaps } from "../core/chalk.mjs";
+import { pointInPolygon } from "../core/zones.mjs";
 
 const SIZE = "medium";
 const MIN_GAP = 0.0018;              // fractions of the painting between recorded points while drawing
@@ -92,17 +93,46 @@ export class ChalkController {
   putAway() {
     this.inHand = null;
     this.drawing = null;
+    this.cursorZone = null;
+    this.blocked = false;
     this.host?.root?.classList.remove("stagecraft-chalk");
     this.host?.backend?.setChalkCursor(null);
     this.host?.backend?.setChalkPreview(null);
+    this.#hint(null);
   }
 
   /** The pointer moved with chalk in hand (viewport px). */
   hover(p) {
     if (!this.inHand) return;
-    if (!p) { this.host.backend.setChalkCursor(null); return; }
-    this.host.backend.setChalkCursor(p, this.inHand, !!this.drawing);
+    if (!p) { this.host.backend.setChalkCursor(null); this.#hint(null); return; }
+    const at = this.host.backend.paintingAt(p.x, p.y);
+    // where the chalk would take: the stick shows it, and in a "zones only" scene the zone under it lights up
+    this.cursorZone = at ? (this.chalkZones().find((z) => pointInPolygon(z.shape, at.x, at.y))?.id ?? null) : null;
+    this.blocked = this.inHand !== "rub" && !(at && allowedAt(this.policy(), this.host.description.zones, at.x, at.y));
+    this.host.backend.setChalkCursor(p, this.inHand, !!this.drawing, this.blocked);
+    this.#hint(this.blocked ? p : null);
     if (this.drawing) this.#extend(p);
+  }
+
+  /** The chalk zones of the scene, when the rules say chalk goes only on them (else none: it goes anywhere, or nowhere). */
+  chalkZones() {
+    return this.policy().mode === "zones" ? this.host.description.zones.filter((z) => z.kind === "chalk") : [];
+  }
+
+  /** A small line by the pointer, while the chalk would leave no mark there: where it does go. */
+  #hint(p) {
+    const root = this.host?.root;
+    if (typeof root?.querySelector !== "function" || typeof document === "undefined") return;
+    let el = root.querySelector(".stagecraft-chalk-hint");
+    if (!p) { if (el) el.hidden = true; return; }
+    if (!el) { el = document.createElement("div"); el.className = "stagecraft-chalk-hint"; root.append(el); }
+    const names = this.chalkZones().map((z) => z.name).filter(Boolean);
+    el.textContent = names.length
+      ? game.i18n.format("STAGECRAFT.Chalk.OnlyOn", { where: names.join(", ") })
+      : game.i18n.localize("STAGECRAFT.Chalk.NotHere");
+    el.style.left = `${Math.round(p.x + 22)}px`;
+    el.style.top = `${Math.round(p.y + 18)}px`;
+    el.hidden = false;
   }
 
   begin(p) {

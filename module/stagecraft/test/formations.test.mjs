@@ -34,15 +34,21 @@ test("the party's cards are the players': a formation leaves them be unless aske
   assert.ok(target.includes("pc-1"), "the one ganged up on is moved, even one of the party");
 });
 
-test("a huddle is close, turned in, and leaning in", () => {
-  const out = arrange("huddle", { cards, focus });
+test("a huddle is close, turned in and leaning in, and never a pile-up: every face stays in view", () => {
+  const out = arrange("huddle", { cards, focus, party: true });
   for (const p of out) {
-    assert.ok(Math.hypot(p.X - focus.X, p.Z - focus.Z) < 260, `${p.id} is close`);
+    assert.ok(Math.hypot(p.X - focus.X, p.Z - focus.Z) < 700, `${p.id} is close`);
     assert.ok(Math.sign(p.yaw) === Math.sign(focus.X - p.X) || Math.abs(p.X - focus.X) < 20, `${p.id} turns in`);
     assert.ok(p.pitch > 0, "heads bowed in");
   }
   const left = out.find((p) => p.X < focus.X - 20);
   assert.ok(left.lean > 0, "the one on the left leans towards the middle");
+  // regression, 2026-10-03: three people huddled round the notebook all but covered each other
+  const xs = out.map((p) => p.X).sort((a, b) => a - b);
+  for (let i = 1; i < xs.length; i++) assert.ok(xs[i] - xs[i - 1] >= 174 * 0.85, `neighbours stand apart (${(xs[i] - xs[i - 1]).toFixed(0)})`);
+  const three = arrange("huddle", { cards: cards.slice(0, 3), focus });
+  const t = three.map((p) => p.X).sort((a, b) => a - b);
+  assert.ok(t[1] - t[0] >= 174 * 0.85 && t[2] - t[1] >= 174 * 0.85, "three in a huddle stand apart too");
 });
 
 test("two people talking face each other, and the rest listen a step back", () => {

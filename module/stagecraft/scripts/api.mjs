@@ -11,7 +11,7 @@ import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
 import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, setDown, registerMoments } from "./foundry/blocking.mjs";
 
-export const API_VERSION = "0.2.0";
+export const API_VERSION = "0.3.0";
 
 export function createApi({ skins, current }) {
   return {
