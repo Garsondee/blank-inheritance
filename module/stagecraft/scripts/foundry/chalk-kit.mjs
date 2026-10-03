@@ -113,8 +113,10 @@ export class ChalkKit {
     swatches.innerHTML = Object.entries(PALETTE).map(([name, hex]) => `<button type="button" class="kit-swatch" data-colour="${hex}" title="${t(`STAGECRAFT.Kit.Colours.${name}`)}" style="--c:${hex}"></button>`).join("")
       + ["#1c1a17", "#e2483c", "#3f7fe0", "#8a4fd8"].map((hex) => `<button type="button" class="kit-swatch" data-colour="${hex}" style="--c:${hex}" title="${hex}"></button>`).join("");
     // the ring that shows where the paint goes
-    this.ring = document.createElement("canvas");
-    this.ring.className = "stagecraft-chalk-ring";
+    this.ring = document.createElement("div");
+    this.ring.className = "stagecraft-chalk-cursor";
+    this.ring.hidden = true;
+    this.ring.innerHTML = '<i class="ring"></i><i class="tick across"></i><i class="tick down"></i><i class="cross"></i><i class="dot"></i><i class="strike"></i>';
     this.host.root.append(this.ring);
     window.addEventListener("keydown", this.#key, true);
     window.addEventListener("keyup", this.#keyUp, true);
@@ -316,50 +318,33 @@ export class ChalkKit {
 
   /* ---------------------------------------------------------------- the ring round the pointer */
 
+  /**
+   * The ring round the pointer: a few small elements that move with it (only their place changes as the pointer moves;
+   * their look only when the tool, the size, the colour or whether chalk would mark here does). It was a canvas the size
+   * of the screen, cleared and drawn again at every move of the pointer: chalk.md §11.
+   */
   #cursor(p) {
-    const ring = this.ring;
-    if (!ring) return;
+    const el = this.ring;
+    if (!el) return;
     const c = this.chalk;
-    const root = this.host.root.getBoundingClientRect();
-    const ratio = Math.min(2, globalThis.devicePixelRatio || 1);
-    if (ring.width !== Math.round(root.width * ratio) || ring.height !== Math.round(root.height * ratio)) {
-      ring.width = Math.round(root.width * ratio);
-      ring.height = Math.round(root.height * ratio);
-    }
-    const ctx = ring.getContext("2d");
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, ring.width, ring.height);
-    if (!p || !c.tool) return;
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    if (!p || !c.tool) { if (!el.hidden) el.hidden = true; return; }
     const def = TOOLS[c.tool];
-    const picking = this.picking || this.alt;
-    const outline = (draw, dash = []) => {
-      ctx.setLineDash(dash);
-      ctx.lineWidth = 3; ctx.strokeStyle = "rgba(10,8,6,0.75)"; draw(); ctx.stroke();
-      ctx.lineWidth = 1.3; ctx.strokeStyle = c.blocked ? "rgba(200,190,175,0.7)" : "rgba(255,250,238,0.95)"; draw(); ctx.stroke();
-      ctx.setLineDash([]);
-    };
-    if (picking || def.kind === "fill") {
-      // a fine cross for the exact point, and the colour that would be used
-      outline(() => { ctx.beginPath(); ctx.moveTo(p.x - 9, p.y); ctx.lineTo(p.x + 9, p.y); ctx.moveTo(p.x, p.y - 9); ctx.lineTo(p.x, p.y + 9); });
-      ctx.fillStyle = c.colour;
-      ctx.strokeStyle = "rgba(10,8,6,0.8)";
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(p.x + 16, p.y + 16, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      return;
+    const exact = this.picking || this.alt || def.kind === "fill";    // a fine cross for the exact point
+    const r = exact ? 0 : Math.round(Math.max(1.5, ((c.sizes[c.tool] ?? 8) / 2) * (c.scale(p) ?? 1)) * 2) / 2;
+    const look = `${exact}|${r}|${def.kind}|${c.blocked === true}|${c.colour}`;
+    if (look !== this.look) {
+      this.look = look;
+      const classes = ["stagecraft-chalk-cursor"];
+      if (exact) classes.push("exact");
+      if (def.kind === "erase") classes.push("erase");
+      if (c.blocked) classes.push("blocked");
+      if (!exact && ["erase", "smudge"].includes(def.kind)) classes.push("nodot");
+      if (!exact && r < 6) classes.push("small");
+      el.className = classes.join(" ");
+      el.style.setProperty("--r", `${r}px`);
+      el.style.setProperty("--c", c.colour);
     }
-    const scale = c.scale(p) ?? 1;
-    const r = Math.max(1.5, ((c.sizes[c.tool] ?? 8) / 2) * scale);
-    outline(() => { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); }, def.kind === "erase" ? [4, 3] : []);
-    if (r < 6) outline(() => { ctx.beginPath(); ctx.moveTo(p.x - r - 7, p.y); ctx.lineTo(p.x - r - 2, p.y); ctx.moveTo(p.x + r + 2, p.y); ctx.lineTo(p.x + r + 7, p.y); ctx.moveTo(p.x, p.y - r - 7); ctx.lineTo(p.x, p.y - r - 2); ctx.moveTo(p.x, p.y + r + 2); ctx.lineTo(p.x, p.y + r + 7); });
-    if (!["erase", "smudge"].includes(def.kind)) {
-      ctx.fillStyle = c.colour;
-      ctx.strokeStyle = "rgba(10,8,6,0.8)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(p.x + r + 9, p.y + r + 9, 4.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    }
-    if (c.blocked) {
-      outline(() => { ctx.beginPath(); ctx.moveTo(p.x - r * 0.7, p.y + r * 0.7); ctx.lineTo(p.x + r * 0.7, p.y - r * 0.7); });
-    }
+    if (el.hidden) el.hidden = false;
+    el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
   }
 }

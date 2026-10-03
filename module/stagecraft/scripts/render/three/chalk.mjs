@@ -35,6 +35,22 @@ export class ChalkTiles {
     scene.add(this.group);
     this.geometry = new THREE.PlaneGeometry(1, 1);
     this.tiles = new Map();          // key -> { mesh, texture, material, canvas }
+    this.#prime();
+  }
+
+  /**
+   * A tile of nothing, too small to see and wholly clear, there from the start: the graphics card builds the program that
+   * draws chalk while the stage loads, not at the first stroke (where it was a stall on a slow machine), and keeps it.
+   */
+  #prime() {
+    const blank = document.createElement("canvas");
+    blank.width = blank.height = 4;
+    const texture = canvasTexture(blank, { anisotropy: 4 });
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, color: 0xeeeeee });
+    const mesh = paintingPlane(this.rig, material, IN_FRONT, { x0: 0, y0: 0, x1: 0.001, y1: 0.001 }, this.geometry);
+    mesh.renderOrder = ORDER;
+    this.group.add(mesh);
+    this.primer = { mesh, texture, material };
   }
 
   /** Show what changed on the wall: the tiles `keys`, or (`full`) every tile, as a wall drawn afresh. */
@@ -71,6 +87,8 @@ export class ChalkTiles {
 
   dispose() {
     for (const key of [...this.tiles.keys()]) this.#remove(key);
+    this.primer?.texture.dispose();
+    this.primer?.material.dispose();
     this.geometry.dispose();
     this.group.removeFromParent();
   }

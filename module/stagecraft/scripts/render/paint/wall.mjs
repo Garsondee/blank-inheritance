@@ -7,6 +7,11 @@
  * so a stroke never darkens where it crosses itself, the wall's grain sits still under it (chalk catches on the wall,
  * not on the stick), and a stroke kept to the chalk zones stops exactly at a zone's edge. Rubbing out is a stroke too: a
  * buffer of what to take away. A smudge and a fill change their painter's layer directly.
+ *
+ * Kept quick on purpose (Ingram, 2026-10-03: "Chalk is really good but very laggy"; chalk.md §11): a dab only marks the
+ * part of a tile it touched, and the wall is laid together once a frame (`flush`, which the host calls before it draws),
+ * only where something changed, on canvases kept from frame to frame; a tile is turned into a picture to keep off the
+ * main thread (`encodeTile`); and magic chalk's glow is blurred at a quarter of the size.
  */
 
 import { tileRect, tilesFor, layerOrder } from "../../core/chalk.mjs";
@@ -19,6 +24,7 @@ const FILL_ALPHA = 48;             // paint at least this solid is a line a fill
 const FILL_MOST = 0.3;             // a fill that would cover more of the wall than this is not filling a shape
 const RAINBOW_STEP = 15;           // magic chalk's rainbow moves on a step of hue every this many pixels (60 to a turn)
 const TIP_CACHE = 320;             // coloured tips kept at once
+const GLOW_SCALE = 4;              // magic chalk's glow is blurred at a quarter of the size: it is soft anyway
 
 const make = (w, h) => {
   const c = document.createElement("canvas");
@@ -26,7 +32,20 @@ const make = (w, h) => {
   c.height = Math.max(1, Math.round(h));
   return c;
 };
-const ctxOf = (c) => c.getContext("2d");
+// the wall's canvases are drawn where the browser chooses (the graphics card, mostly): read back only to be kept, to pick
+// a colour or to fill
+const ctxOf = (c) => c.getContext("2d", globalThis.__chalkSoftware ? { willReadFrequently: true } : undefined);
+
+/** The rectangle `r` (any numbers; null for all of it) as whole pixels inside a w x h tile. */
+function whole(r, w, h) {
+  if (!r) return { x: 0, y: 0, w, h };
+  const x0 = Math.max(0, Math.floor(r.x0));
+  const y0 = Math.max(0, Math.floor(r.y0));
+  const x1 = Math.min(w, Math.ceil(r.x1));
+  const y1 = Math.min(h, Math.ceil(r.y1));
+  return { x: x0, y: y0, w: Math.max(0, x1 - x0), h: Math.max(0, y1 - y0) };
+}
+const union = (a, b) => (!a || !b ? null : { x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1) });
 
 /** Smooth noise over a square of `size` pixels from a grid of `cells` random values (0..1), wrapping round if asked. */
 function valueNoise(size, cells, r, wrap = false) {
@@ -101,7 +120,7 @@ class Tips {
 
 /** The wall's grain: a texture that repeats, how much paint a spot of the wall takes. Fixed to the wall, not the stroke. */
 class Grain {
-  constructor() { this.noise = null; this.by = new Map(); }
+  constructor() { this.noise = null; this.by = new Map(); this.patterns = new Map(); }
 
   canvas(strength) {
     const k = Math.round(Math.max(0, Math.min(1, strength)) * 20) / 20;
@@ -125,18 +144,17 @@ class Grain {
     this.by.set(k, c);
     return c;
   }
-}
 
-/** Fill a whole canvas with a pattern placed so that it sits still on the wall, under a composite operation. */
-function patternOver(ctx, image, wallX, wallY, w, h, op) {
-  const p = ctx.createPattern(image, "repeat");
-  if (!p) return;
-  p.setTransform?.(new DOMMatrix().translate(-wallX, -wallY));
-  ctx.save();
-  ctx.globalCompositeOperation = op;
-  ctx.fillStyle = p;
-  ctx.fillRect(0, 0, w, h);
-  ctx.restore();
+  /** The grain as a pattern placed so that it sits still on the wall under a canvas whose corner is wall pixel (wx, wy). */
+  pattern(ctx, strength, wx, wy) {
+    const key = `${strength}|${wx}|${wy}`;
+    let p = this.patterns.get(key);
+    if (p) return p;
+    p = ctx.createPattern(this.canvas(strength), "repeat");
+    p?.setTransform?.(new DOMMatrix().translate(-wx, -wy));
+    if (p) this.patterns.set(key, p);
+    return p;
+  }
 }
 
 export class RasterWall {
@@ -155,8 +173,58 @@ export class RasterWall {
     this.grain = new Grain();
     this.mask = null;                 // the chalk zones' shapes in wall pixels, when paint is kept to them
     this.maskTiles = new Map();
-    this.dirty = new Set();
+    this.dirty = new Map();           // tile key -> the part of it to lay together again (tile pixels), or null for all of it
     this.loads = new Map();           // `${by}|${key}` -> the source being loaded, so a later one wins
+    this.scratch = null;              // a tile-sized canvas kept for laying a layer under an eraser
+    this.pending = false;
+  }
+
+  /**
+   * Make every tool's tip and the wall's grain ahead of the first stroke, one at a time while the browser is idle (made at
+   * the first dab, they were a stall of a few tenths of a second on a slow machine, on every screen that saw it).
+   */
+  warmUp() {
+    const jobs = [];
+    for (let v = 0; v < VARIANTS; v++) jobs.push(() => this.tips.shape("chalk", v));
+    for (const tip of ["pencil", "round", "soft", "speck"]) jobs.push(() => this.tips.shape(tip, 0));
+    for (const def of Object.values(TOOLS)) if (def.grain > 0) jobs.push(() => this.grain.canvas(def.grain));
+    const idle = globalThis.requestIdleCallback ?? ((fn) => setTimeout(fn, 30));
+    const next = () => {
+      const job = jobs.shift();
+      if (!job) return;
+      try { job(); } catch { /* a tip is made at the first dab instead */ }
+      idle(next);
+    };
+    idle(next);
+  }
+
+  /* ---------------------------------------------------------------- what to lay together, and when */
+
+  /** Mark part of a tile (tile pixels; null for all of it) to be laid together again at the next flush. */
+  #dirty(key, part = null) {
+    const had = this.dirty.get(key);
+    this.dirty.set(key, had === undefined ? part : union(had, part));
+    this.#schedule();
+  }
+
+  #schedule() {
+    if (this.pending) return;
+    this.pending = true;
+    const later = globalThis.requestAnimationFrame ?? ((fn) => setTimeout(fn, 16));
+    later(() => this.flush());
+  }
+
+  /**
+   * Lay together every tile that changed since the last flush, and tell the picture. The host calls this once a frame,
+   * before it draws, so new paint is on the screen the frame it was made; it also runs by itself once a frame.
+   */
+  flush() {
+    this.pending = false;
+    if (!this.dirty.size) return;
+    const work = [...this.dirty];
+    this.dirty.clear();
+    for (const [key, part] of work) this.#recomposite(key, part);
+    this.onChange(new Set(work.map(([key]) => key)));
   }
 
   /* ---------------------------------------------------------------- layers */
@@ -170,7 +238,7 @@ export class RasterWall {
     for (const s of this.strokes.values()) want.add(s.by);
     for (const [by, layer] of this.layers) {
       if (want.has(by)) continue;
-      for (const key of layer.tiles.keys()) this.dirty.add(key);
+      for (const key of layer.tiles.keys()) this.#dirty(key);
       this.layers.delete(by);
     }
     for (const l of list) {
@@ -181,7 +249,6 @@ export class RasterWall {
     const before = this.order.join("|");
     this.order = layerOrder([...this.layers.values()]).map((l) => l.by);
     if (before !== this.order.join("|")) for (const layer of this.layers.values()) this.#allDirty(layer);
-    this.#flush();
   }
 
   ensureLayer(by, since = Date.now()) {
@@ -189,7 +256,7 @@ export class RasterWall {
     return this.layers.get(by);
   }
 
-  #allDirty(layer) { for (const key of layer.tiles.keys()) this.dirty.add(key); }
+  #allDirty(layer) { for (const key of layer.tiles.keys()) this.#dirty(key); }
 
   /** What a layer's tile holds, as kept in the world (a picture's data URL, or null for no paint). */
   sourceOf(by, key) { return this.layers.get(by)?.sources.get(key) ?? null; }
@@ -199,7 +266,7 @@ export class RasterWall {
     const layer = this.layers.get(by);
     if (!layer) return;
     layer.sources.set(key, source ?? null);
-    if (!source) { layer.tiles.delete(key); this.dirty.add(key); this.#flush(); }
+    if (!source) { layer.tiles.delete(key); this.#dirty(key); }
   }
 
   /** The strokes being painted by someone else on this screen's wall, seen live: their ids by painter. */
@@ -231,8 +298,7 @@ export class RasterWall {
       x.clearRect(0, 0, c.width, c.height);
       x.drawImage(image, 0, 0);
     }
-    this.dirty.add(key);
-    this.#flush();
+    this.#dirty(key);
     return true;
   }
 
@@ -244,10 +310,9 @@ export class RasterWall {
       const source = layer.sources.get(key) ?? null;
       layer.sources.delete(key);
       layer.tiles.delete(key);
-      this.dirty.add(key);
+      this.#dirty(key);
       if (source) await this.setTile(by, key, source);
     }));
-    this.#flush();
   }
 
   /** Keep paint to these shapes (the chalk zones, fractions of the painting), or let it go anywhere (null). */
@@ -256,6 +321,36 @@ export class RasterWall {
     if (JSON.stringify(next) === JSON.stringify(this.mask)) return;
     this.mask = next;
     this.maskTiles.clear();
+    this.maskBoxes = next?.map((poly) => {
+      const xs = poly.map((p) => p[0]);
+      const ys = poly.map((p) => p[1]);
+      return { poly, x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
+    }) ?? null;
+  }
+
+  /**
+   * Can a dab at (x, y) of radius r leave paint inside the chalk zones? A dab that cannot is never laid down at all, so a
+   * stroke painted outside the zones costs nothing, and every tile a stroke does touch is sure to hold paint.
+   */
+  #inMask(x, y, r) {
+    if (!this.maskBoxes) return true;
+    for (const m of this.maskBoxes) {
+      if (x + r < m.x0 || x - r > m.x1 || y + r < m.y0 || y - r > m.y1) continue;
+      const p = m.poly;
+      let inside = false;
+      for (let i = 0, j = p.length - 1; i < p.length; j = i++) {
+        const [xi, yi] = p[i];
+        const [xj, yj] = p[j];
+        if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+        // within r of this edge?
+        const dx = xj - xi;
+        const dy = yj - yi;
+        const t = Math.max(0, Math.min(1, ((x - xi) * dx + (y - yi) * dy) / (dx * dx + dy * dy || 1)));
+        if (Math.hypot(xi + t * dx - x, yi + t * dy - y) <= r) return true;
+      }
+      if (inside) return true;
+    }
+    return false;
   }
 
   #maskTile(key) {
@@ -289,13 +384,13 @@ export class RasterWall {
     const stroke = {
       id, by, tool, def, colour, magic: def.magic ? { rainbow: false, glow: false, sparkle: false, ...(magic ?? {}) } : null,
       opacity: opacity ?? def.opacity, everyone: def.kind === "erase" && everyone, live,
-      buffer: new Map(), processed: new Map(), touched: new Set(), dabs: [], carried: null, before: new Map()
+      buffer: new Map(), processed: new Map(), stale: new Map(), touched: new Set(), dabs: [], carried: null
     };
     this.strokes.set(id, stroke);
     return stroke;
   }
 
-  /** Lay dabs (core/brush.mjs) into a stroke. */
+  /** Lay dabs (core/brush.mjs) into a stroke. The wall shows them at the next flush (once a frame). */
   paint(id, dabs) {
     const s = this.strokes.get(id);
     if (!s || !dabs.length) return;
@@ -304,27 +399,28 @@ export class RasterWall {
       if (s.def.kind === "smudge") this.#smudge(s, dab);
       else this.#stamp(s, dab);
     }
-    this.#flush();
   }
 
-  #bufferTile(s, key) {
+  #bufferTile(s, key, rect) {
     let c = s.buffer.get(key);
     if (!c) {
-      const rect = tileRect(this.grid, key);
       c = make(rect.w, rect.h);
       s.buffer.set(key, c);
     }
     return c;
   }
 
-  #touch(s, key) {
+  /** A stroke changed part of a tile (`part`, tile pixels): its processed tile and the wall there are out of date. */
+  #touch(s, key, part) {
     s.touched.add(key);
-    s.processed.delete(key);
-    this.dirty.add(key);
+    const had = s.stale.get(key);
+    s.stale.set(key, had === undefined ? part : union(had, part));
+    this.#dirty(key, part);
   }
 
   #stamp(s, dab) {
     const r = dab.size / 2;
+    if (s.def.kind !== "erase" && !this.#inMask(dab.x, dab.y, r + 1)) return;      // all of it would be masked away
     const keys = tilesFor(this.grid, { x0: dab.x - r - 2, y0: dab.y - r - 2, x1: dab.x + r + 2, y1: dab.y + r + 2 });
     // the rainbow's colour changes every RAINBOW_STEP pixels, so its tips can be kept rather than made afresh at every dab
     const colour = s.def.kind === "erase" ? "#ffffff" : s.magic?.rainbow ? rainbowAt(s.colour, Math.round(dab.dist / RAINBOW_STEP) * RAINBOW_STEP) : s.colour;
@@ -340,68 +436,94 @@ export class RasterWall {
       const tip = this.tips.coloured("speck", 0, colour);
       for (const key of keys) {
         const rect = tileRect(this.grid, key);
-        const x = ctxOf(this.#bufferTile(s, key));
+        const x = ctxOf(this.#bufferTile(s, key, rect));
         for (const p of specks) {
           if (p.x < rect.x - 4 || p.y < rect.y - 4 || p.x > rect.x + rect.w + 4 || p.y > rect.y + rect.h + 4) continue;
           x.globalAlpha = p.alpha;
           x.drawImage(tip, p.x - rect.x - p.size / 2, p.y - rect.y - p.size / 2, p.size, p.size);
         }
         x.globalAlpha = 1;
-        this.#touch(s, key);
+        this.#touch(s, key, { x0: dab.x - r - 4 - rect.x, y0: dab.y - r - 4 - rect.y, x1: dab.x + r + 4 - rect.x, y1: dab.y + r + 4 - rect.y });
       }
       return;
     }
     const tipName = s.def.tip ?? "round";
     const variant = tipName === "chalk" ? dab.seed % VARIANTS : 0;
     const tip = this.tips.coloured(tipName, variant, colour);
+    const cos = dab.angle ? Math.cos(dab.angle) : 1;
+    const sin = dab.angle ? Math.sin(dab.angle) : 0;
     for (const key of keys) {
       const rect = tileRect(this.grid, key);
-      const x = ctxOf(this.#bufferTile(s, key));
-      x.save();
+      const x = ctxOf(this.#bufferTile(s, key, rect));
+      const cx = dab.x - rect.x;
+      const cy = dab.y - rect.y;
+      x.setTransform(cos, sin, -sin, cos, cx, cy);
       x.globalAlpha = dab.flow;
-      x.translate(dab.x - rect.x, dab.y - rect.y);
-      if (dab.angle) x.rotate(dab.angle);
       x.drawImage(tip, -r, -r, r * 2, r * 2);
-      x.restore();
-      this.#touch(s, key);
+      x.setTransform(1, 0, 0, 1, 0, 0);
+      x.globalAlpha = 1;
+      this.#touch(s, key, { x0: cx - r - 2, y0: cy - r - 2, x1: cx + r + 2, y1: cy + r + 2 });
     }
   }
 
-  /** What a stroke's buffer lays down on a tile: with the wall's grain, kept to the zones. Cached until it changes. */
+  /**
+   * What a stroke's buffer lays down on a tile: with the wall's grain, kept to the zones. Kept from frame to frame, and
+   * made again only where the stroke has painted since it was last made.
+   */
   #processedTile(s, key) {
-    let c = s.processed.get(key);
-    if (c) return c;
     const buf = s.buffer.get(key);
     if (!buf) return null;
+    let c = s.processed.get(key);
+    const stale = s.stale.get(key);
+    if (c && stale === undefined) return c;
     const rect = tileRect(this.grid, key);
-    c = make(rect.w, rect.h);
+    let part = stale ?? null;
+    if (!c) { c = make(rect.w, rect.h); s.processed.set(key, c); part = null; }
+    s.stale.delete(key);
+    const b = whole(part, rect.w, rect.h);
+    if (!b.w || !b.h) return c;
     const x = ctxOf(c);
+    x.save();
+    x.beginPath();
+    x.rect(b.x, b.y, b.w, b.h);
+    x.clip();
+    x.clearRect(b.x, b.y, b.w, b.h);
     x.drawImage(buf, 0, 0);
-    if (s.def.grain > 0 && s.def.kind !== "erase") patternOver(x, this.grain.canvas(s.def.grain), rect.x, rect.y, rect.w, rect.h, "destination-in");
+    if (s.def.grain > 0 && s.def.kind !== "erase") {
+      const p = this.grain.pattern(x, Math.round(Math.max(0, Math.min(1, s.def.grain)) * 20) / 20, rect.x, rect.y);
+      if (p) { x.globalCompositeOperation = "destination-in"; x.fillStyle = p; x.fillRect(b.x, b.y, b.w, b.h); }
+    }
     const mask = s.def.kind === "erase" ? null : this.#maskTile(key);
-    if (mask) { x.globalCompositeOperation = "destination-in"; x.drawImage(mask, 0, 0); x.globalCompositeOperation = "source-over"; }
-    s.processed.set(key, c);
+    if (mask) { x.globalCompositeOperation = "destination-in"; x.drawImage(mask, 0, 0); }
+    x.restore();
     return c;
   }
 
-  /** The finger: carries the paint it passes over (from the whole wall) and lays it down a little further on. */
+  /**
+   * The finger: carries the paint it passes over (from the whole wall) and lays it down a little further on. The wall it
+   * reads is the one last laid together (at most a frame old: the finger's own last few dabs are not picked up again until
+   * the next frame, which nobody can see), into canvases kept for the stroke, so a dab makes nothing new.
+   */
   #smudge(s, dab) {
     const size = Math.max(4, Math.ceil(dab.size));
     const x0 = Math.round(dab.x - size / 2);
     const y0 = Math.round(dab.y - size / 2);
-    const here = this.#read(x0, y0, size, size);
-    if (!s.carried) { s.carried = here; return; }
+    if (s.here?.width !== size) { s.here = make(size, size); s.put = make(size, size); }
+    const here = this.#readInto(s.here, x0, y0);
+    if (!s.carried) { s.carried = make(size, size); ctxOf(s.carried).drawImage(here, 0, 0); return; }
     if (s.carried.width !== size) {
       const resized = make(size, size);
       ctxOf(resized).drawImage(s.carried, 0, 0, size, size);
       s.carried = resized;
     }
     // what is laid down: what the finger carries, through a soft round tip
-    const put = make(size, size);
+    const put = s.put;
     const px = ctxOf(put);
+    px.globalCompositeOperation = "copy";
     px.drawImage(s.carried, 0, 0);
     px.globalCompositeOperation = "destination-in";
     px.drawImage(this.tips.shape("soft", 0), 0, 0, size, size);
+    px.globalCompositeOperation = "source-over";
     const layer = this.layers.get(s.by);
     for (const key of tilesFor(this.grid, { x0, y0, x1: x0 + size, y1: y0 + size })) {
       const rect = tileRect(this.grid, key);
@@ -412,7 +534,7 @@ export class RasterWall {
       tx.drawImage(put, x0 - rect.x, y0 - rect.y);
       tx.globalAlpha = 1;
       s.touched.add(key);
-      this.dirty.add(key);
+      this.#dirty(key, { x0: x0 - rect.x - 1, y0: y0 - rect.y - 1, x1: x0 - rect.x + size + 1, y1: y0 - rect.y + size + 1 });
     }
     // and picks up some of what is here, so the colour drags and fades
     const cx = ctxOf(s.carried);
@@ -421,11 +543,18 @@ export class RasterWall {
     cx.globalAlpha = 1;
   }
 
-  /** A rectangle of the whole wall as it is shown, into a canvas of its own. */
+  /** A rectangle of the whole wall as it is shown, into a canvas of its own (laid together first, to the last dab). */
   #read(x0, y0, w, h) {
-    const out = make(w, h);
+    const keys = tilesFor(this.grid, { x0, y0, x1: x0 + w, y1: y0 + h });
+    if (keys.some((key) => this.dirty.has(key))) this.flush();
+    return this.#readInto(make(w, h), x0, y0);
+  }
+
+  /** The wall as last laid together, from (x0, y0), into `out` (cleared first). */
+  #readInto(out, x0, y0) {
     const ox = ctxOf(out);
-    for (const key of tilesFor(this.grid, { x0, y0, x1: x0 + w, y1: y0 + h })) {
+    ox.clearRect(0, 0, out.width, out.height);
+    for (const key of tilesFor(this.grid, { x0, y0, x1: x0 + out.width, y1: y0 + out.height })) {
       const t = this.composite.get(key);
       if (!t) continue;
       const rect = tileRect(this.grid, key);
@@ -480,10 +609,12 @@ export class RasterWall {
       }
       if (s.magic?.sparkle) for (const key of this.#sparkle(s, layer)) keys.add(key);
       for (const key of keys) note(s.by, key, layer.tiles.get(key) ?? null);
+      // paint only ever adds, and only dabs that reach the zones are laid down: every tile here holds paint, so nobody
+      // has to read it back to find out (`encodeTile`'s `sure`)
+      changed.painted = true;
     }
-    for (const key of s.touched) this.dirty.add(key);
-    for (const tiles of changed.values()) for (const key of tiles.keys()) this.dirty.add(key);
-    this.#flush();
+    for (const key of s.touched) this.#dirty(key);
+    for (const tiles of changed.values()) for (const key of tiles.keys()) this.#dirty(key);
     return changed;
   }
 
@@ -492,11 +623,14 @@ export class RasterWall {
     const s = this.strokes.get(id);
     if (!s) return;
     this.strokes.delete(id);
-    for (const key of s.touched) this.dirty.add(key);
-    this.#flush();
+    for (const key of s.touched) this.#dirty(key);
   }
 
-  /** Magic chalk's glow: a soft halo of the stroke's own colour, laid under it. Returns the tiles it reached. */
+  /**
+   * Magic chalk's glow: a soft halo of the stroke's own colour, laid under it. Blurred at a quarter of the size (a blur
+   * this soft looks the same, and a long stroke's halo at full size was most of the pause when the pointer came up).
+   * Returns the tiles it reached.
+   */
   #glow(s, layer) {
     const box = dabBounds(s.dabs);
     if (!box) return [];
@@ -505,18 +639,22 @@ export class RasterWall {
     const y0 = Math.floor(box.y0 - spread * 2);
     const w = Math.ceil(box.x1 - box.x0 + spread * 4);
     const h = Math.ceil(box.y1 - box.y0 + spread * 4);
-    const whole = make(w, h);
-    const wx = ctxOf(whole);
+    const k = GLOW_SCALE;
+    const sw = Math.max(1, Math.ceil(w / k));
+    const sh = Math.max(1, Math.ceil(h / k));
+    const small = make(sw, sh);
+    const wx = ctxOf(small);
+    wx.imageSmoothingQuality = "medium";
     for (const key of s.touched) {
       const p = this.#processedTile(s, key);
       if (!p) continue;
       const rect = tileRect(this.grid, key);
-      wx.drawImage(p, rect.x - x0, rect.y - y0);
+      wx.drawImage(p, (rect.x - x0) / k, (rect.y - y0) / k, rect.w / k, rect.h / k);
     }
-    const halo = make(w, h);
+    const halo = make(sw, sh);
     const hx = ctxOf(halo);
-    hx.filter = `blur(${spread}px)`;
-    hx.drawImage(whole, 0, 0);
+    hx.filter = `blur(${spread / k}px)`;
+    hx.drawImage(small, 0, 0);
     hx.filter = "none";
     const keys = tilesFor(this.grid, { x0, y0, x1: x0 + w, y1: y0 + h });
     for (const key of keys) {
@@ -525,7 +663,8 @@ export class RasterWall {
       if (!t) { t = make(rect.w, rect.h); layer.tiles.set(key, t); }
       const tx = ctxOf(t);
       tx.globalAlpha = 0.85;
-      tx.drawImage(halo, x0 - rect.x, y0 - rect.y);
+      tx.imageSmoothingQuality = "medium";
+      tx.drawImage(halo, x0 - rect.x, y0 - rect.y, sw * k, sh * k);
       tx.globalAlpha = 1;
     }
     return keys;
@@ -542,6 +681,7 @@ export class RasterWall {
       const size = Math.max(6, dab.size * (1.2 + rand() * 1.2));
       const cx = dab.x + (rand() - 0.5) * dab.size * 1.5;
       const cy = dab.y + (rand() - 0.5) * dab.size * 1.5;
+      const turn = rand() * 0.6;
       for (const key of tilesFor(this.grid, { x0: cx - size, y0: cy - size, x1: cx + size, y1: cy + size })) {
         const rect = tileRect(this.grid, key);
         let t = layer.tiles.get(key);
@@ -549,7 +689,7 @@ export class RasterWall {
         const x = ctxOf(t);
         x.save();
         x.translate(cx - rect.x, cy - rect.y);
-        x.rotate(rand() * 0.6);
+        x.rotate(turn);
         x.fillStyle = "rgba(255,252,240,0.95)";
         x.beginPath();
         for (let i = 0; i < 8; i++) {
@@ -577,6 +717,7 @@ export class RasterWall {
     const px = Math.floor(x);
     const py = Math.floor(y);
     if (px < 0 || py < 0 || px >= W || py >= H) return { ok: false, reason: "outside", changed: new Map() };
+    this.flush();
     const all = this.#read(0, 0, W, H);
     const data = ctxOf(all).getImageData(0, 0, W, H).data;
     const solid = (i) => data[i * 4 + 3] >= FILL_ALPHA;
@@ -613,42 +754,53 @@ export class RasterWall {
         }
       }
     }
-    // tuck the fill a little under the lines round it, so no gap shows at their soft edges
+    // tuck the fill a little under the lines round it, so no gap shows at their soft edges: grown two pixels every way,
+    // across and then down (the same square, in a tenth of the time)
     const grow = 2;
     x0 = Math.max(0, x0 - grow); y0 = Math.max(0, y0 - grow); x1 = Math.min(W - 1, x1 + grow); y1 = Math.min(H - 1, y1 + grow);
     const bw = x1 - x0 + 1;
     const bh = y1 - y0 + 1;
+    const across = new Uint8Array(bw * bh);
+    for (let yy = 0; yy < bh; yy++) {
+      const row = (y0 + yy) * W;
+      for (let xx = 0; xx < bw; xx++) {
+        const gx = x0 + xx;
+        for (let dx = -grow; dx <= grow; dx++) {
+          const rx = gx + dx;
+          if (rx >= 0 && rx < W && mask[row + rx]) { across[yy * bw + xx] = 1; break; }
+        }
+      }
+    }
     const n = parseInt(colour.slice(1), 16);
     const [cr, cg, cb] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
     const shape = make(bw, bh);
     const sx = ctxOf(shape);
     const img = sx.createImageData(bw, bh);
+    const alpha = Math.round(255 * opacity);
     for (let yy = 0; yy < bh; yy++) {
       for (let xx = 0; xx < bw; xx++) {
-        const gx = x0 + xx;
-        const gy = y0 + yy;
         let on = 0;
-        for (let dy = -grow; dy <= grow && !on; dy++) {
-          const ry = gy + dy;
-          if (ry < 0 || ry >= H) continue;
-          for (let dx = -grow; dx <= grow; dx++) {
-            const rx = gx + dx;
-            if (rx >= 0 && rx < W && mask[ry * W + rx]) { on = 1; break; }
-          }
+        for (let dy = -grow; dy <= grow; dy++) {
+          const ry = yy + dy;
+          if (ry >= 0 && ry < bh && across[ry * bw + xx]) { on = 1; break; }
         }
         if (!on) continue;
         const o = (yy * bw + xx) * 4;
-        img.data[o] = cr; img.data[o + 1] = cg; img.data[o + 2] = cb; img.data[o + 3] = Math.round(255 * opacity);
+        img.data[o] = cr; img.data[o + 1] = cg; img.data[o + 2] = cb; img.data[o + 3] = alpha;
       }
     }
     sx.putImageData(img, 0, 0);
-    if (grain > 0) patternOver(sx, this.grain.canvas(grain), x0, y0, bw, bh, "destination-in");
+    if (grain > 0) {
+      const p = this.grain.pattern(sx, Math.round(Math.max(0, Math.min(1, grain)) * 20) / 20, x0, y0);
+      if (p) { sx.globalCompositeOperation = "destination-in"; sx.fillStyle = p; sx.fillRect(0, 0, bw, bh); sx.globalCompositeOperation = "source-over"; }
+    }
     const layer = this.ensureLayer(by);
     const changed = new Map();
+    const piece = make(this.grid.tile, this.grid.tile);
+    const pc = ctxOf(piece);
     for (const key of tilesFor(this.grid, { x0, y0, x1, y1 })) {
       const rect = tileRect(this.grid, key);
-      let piece = make(rect.w, rect.h);
-      const pc = ctxOf(piece);
+      pc.clearRect(0, 0, piece.width, piece.height);
       pc.drawImage(shape, x0 - rect.x, y0 - rect.y);
       const mask2 = this.#maskTile(key);
       if (mask2) { pc.globalCompositeOperation = "destination-in"; pc.drawImage(mask2, 0, 0); pc.globalCompositeOperation = "source-over"; }
@@ -656,18 +808,17 @@ export class RasterWall {
       if (!t) { t = make(rect.w, rect.h); layer.tiles.set(key, t); }
       const tx = ctxOf(t);
       tx.globalCompositeOperation = "destination-over";        // under whatever this painter has already put here
-      tx.drawImage(piece, 0, 0);
+      tx.drawImage(piece, 0, 0, rect.w, rect.h, 0, 0, rect.w, rect.h);
       tx.globalCompositeOperation = "source-over";
-      piece = null;
       changed.set(key, t);
-      this.dirty.add(key);
+      this.#dirty(key);
     }
-    this.#flush();
     return { ok: true, changed, area: count };
   }
 
   /** The colour of the paint at a point of the wall, or null where there is none to speak of. */
   pick(x, y) {
+    this.flush();
     const key = tilesFor(this.grid, { x0: x, y0: y, x1: x, y1: y })[0];
     const t = key ? this.composite.get(key) : null;
     if (!t) return null;
@@ -679,59 +830,72 @@ export class RasterWall {
 
   /* ---------------------------------------------------------------- the whole wall */
 
-  /** Lay every layer of a tile together, with any strokes being painted into it at their painter's place. */
-  #recomposite(key) {
+  /** A tile-sized canvas kept for laying a layer under an eraser, without making one each time. */
+  #scratchTile() {
+    this.scratch ??= make(this.grid.tile, this.grid.tile);
+    return this.scratch;
+  }
+
+  /**
+   * Lay every layer of a tile together, with any strokes being painted into it at their painter's place: all of it, or
+   * only `part` (tile pixels), where something changed.
+   */
+  #recomposite(key, part = null) {
     const rect = tileRect(this.grid, key);
     const strokes = [...this.strokes.values()].filter((s) => s.touched.has(key));
-    let out = this.composite.get(key) ?? null;
-    let drew = false;
-    const target = () => {
-      if (!out) { out = make(rect.w, rect.h); this.composite.set(key, out); }
-      return ctxOf(out);
-    };
-    if (out) ctxOf(out).clearRect(0, 0, out.width, out.height);
+    if (!strokes.length && !this.order.some((by) => this.layers.get(by)?.tiles.has(key))) {
+      this.composite.delete(key);
+      return;
+    }
+    let out = this.composite.get(key);
+    if (!out) { out = make(rect.w, rect.h); this.composite.set(key, out); part = null; }
+    const b = whole(part, rect.w, rect.h);
+    if (!b.w || !b.h) return;
+    const x = ctxOf(out);
+    x.save();
+    x.beginPath();
+    x.rect(b.x, b.y, b.w, b.h);
+    x.clip();
+    x.clearRect(b.x, b.y, b.w, b.h);
     for (const by of this.order) {
       const layer = this.layers.get(by);
       const tile = layer.tiles.get(key);
       const erasers = strokes.filter((s) => s.def.kind === "erase" && (s.by === by || s.everyone));
       if (tile) {
-        const x = target();
         if (erasers.length) {
-          const tmp = make(rect.w, rect.h);
+          const tmp = this.#scratchTile();
           const tx = ctxOf(tmp);
+          tx.save();
+          tx.beginPath();
+          tx.rect(b.x, b.y, b.w, b.h);
+          tx.clip();
+          tx.clearRect(b.x, b.y, b.w, b.h);
           tx.drawImage(tile, 0, 0);
           tx.globalCompositeOperation = "destination-out";
           for (const s of erasers) { const m = this.#processedTile(s, key); if (m) { tx.globalAlpha = s.opacity; tx.drawImage(m, 0, 0); } }
-          x.drawImage(tmp, 0, 0);
+          tx.restore();
+          x.drawImage(tmp, b.x, b.y, b.w, b.h, b.x, b.y, b.w, b.h);
         } else {
           x.drawImage(tile, 0, 0);
         }
-        drew = true;
       }
       for (const s of strokes) {
         if (s.by !== by || s.def.kind === "erase" || s.def.kind === "smudge") continue;
         const p = this.#processedTile(s, key);
         if (!p) continue;
-        const x = target();
         x.globalAlpha = s.opacity * (s.live ? 0.9 : 1);
         x.drawImage(p, 0, 0);
         x.globalAlpha = 1;
-        drew = true;
       }
     }
-    if (!drew && out) { this.composite.delete(key); out = null; }
-  }
-
-  #flush() {
-    if (!this.dirty.size) return;
-    const keys = new Set(this.dirty);
-    this.dirty.clear();
-    for (const key of keys) this.#recomposite(key);
-    this.onChange(keys);
+    x.restore();
   }
 
   /** Every tile with paint, for a picture being built afresh. */
-  keys() { return [...this.composite.keys()]; }
+  keys() {
+    this.flush();
+    return [...this.composite.keys()];
+  }
 
   /** Forget everything (the scene is going). */
   clear() {
@@ -740,6 +904,7 @@ export class RasterWall {
     this.order = [];
     this.composite.clear();
     this.strokes.clear();
+    this.dirty.clear();
     this.onChange(keys);
   }
 }
@@ -760,7 +925,7 @@ export function samplePainting(image, fx, fy) {
     const w = Math.min(1024, iw);
     const h = Math.max(1, Math.round((w * ih) / iw));
     const c = make(w, h);
-    const x = c.getContext("2d", { willReadFrequently: true });
+    const x = ctxOf(c);
     x.drawImage(image, 0, 0, w, h);
     s = { x, w, h };
     samplers.set(image, s);
@@ -773,13 +938,96 @@ export function samplePainting(image, fx, fy) {
   }
 }
 
-/** A tile as a small picture to keep in the world (WebP where the browser can make one), or null when it has no paint. */
-export function encodeTile(canvas) {
-  if (!canvas) return null;
+/** Has a tile any paint on it? */
+function painted(canvas) {
   const d = ctxOf(canvas).getImageData(0, 0, canvas.width, canvas.height).data;
-  let any = false;
-  for (let i = 3; i < d.length; i += 4) if (d[i] > 3) { any = true; break; }
-  if (!any) return null;
+  for (let i = 3; i < d.length; i += 4) if (d[i] > 3) return true;
+  return false;
+}
+
+/**
+ * The worker that turns tiles into pictures: it is given a snapshot of a tile (an ImageBitmap, which the main thread makes
+ * without reading the graphics card back), reads it back itself, says whether there is any paint on it, and encodes it.
+ */
+const ENCODER = `
+self.onmessage = async (e) => {
+  const { id, bitmap, sure } = e.data;
+  try {
+    const c = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const x = c.getContext("2d", { willReadFrequently: true });
+    x.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    if (!sure) {
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      let any = false;
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 3) { any = true; break; }
+      if (!any) { self.postMessage({ id, url: null }); return; }
+    }
+    let blob = await c.convertToBlob({ type: "image/webp", quality: 0.92 });
+    if (blob.type !== "image/webp") blob = await c.convertToBlob({ type: "image/png" });
+    self.postMessage({ id, url: new FileReaderSync().readAsDataURL(blob) });
+  } catch (err) {
+    self.postMessage({ id, error: String(err) });
+  }
+};`;
+
+let encoder;                       // the worker, once made; false where none can be made (then the main thread encodes)
+let asked = 0;
+const waiting = new Map();
+
+function encoderWorker() {
+  if (encoder !== undefined) return encoder;
+  try {
+    if (typeof Worker === "undefined" || typeof OffscreenCanvas === "undefined" || typeof createImageBitmap === "undefined") throw new Error("no workers here");
+    encoder = new Worker(URL.createObjectURL(new Blob([ENCODER], { type: "text/javascript" })));
+    encoder.onmessage = ({ data }) => {
+      const w = waiting.get(data.id);
+      if (!w) return;
+      waiting.delete(data.id);
+      if (data.error) w.fail(new Error(data.error)); else w.done(data.url);
+    };
+    encoder.onerror = () => { encoder = false; for (const w of waiting.values()) w.fail(new Error("the encoder stopped")); waiting.clear(); };
+  } catch {
+    encoder = false;
+  }
+  return encoder;
+}
+
+/**
+ * A tile as a small picture to keep in the world (WebP where the browser can make one), or null when it has no paint.
+ * Asynchronous, and kept off the main thread (chalk.md §11: making it there was a pause of a quarter to half a second when
+ * the pointer came up): the tile is snapshotted the moment this is called, and read back and encoded by a worker. `sure`:
+ * the tile is known to hold paint (`commit`'s `painted`), so nobody looks to find out.
+ */
+export function encodeTile(canvas, sure = false) {
+  if (!canvas) return Promise.resolve(null);
+  const worker = encoderWorker();
+  if (!worker) return encodeHere(canvas, sure);
+  const id = ++asked;
+  const snapshot = createImageBitmap(canvas);         // the tile as it is now, whatever is painted on it next
+  return new Promise((resolve) => {
+    waiting.set(id, { done: resolve, fail: () => resolve(encodeNow(canvas)) });
+    snapshot.then((bitmap) => worker.postMessage({ id, bitmap, sure }, [bitmap]))
+      .catch(() => { waiting.delete(id); resolve(encodeHere(canvas, sure)); });
+  });
+}
+
+/** The same on the main thread, where there is no worker to do it. */
+function encodeHere(canvas, sure) {
+  if (!sure && !painted(canvas)) return Promise.resolve(null);
+  if (typeof canvas.toBlob !== "function" || typeof FileReader === "undefined") return Promise.resolve(encodeNow(canvas));
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if (!blob) { resolve(encodeNow(canvas)); return; }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => resolve(encodeNow(canvas));
+      reader.readAsDataURL(blob);
+    }, "image/webp", 0.92);
+  });
+}
+
+function encodeNow(canvas) {
   const webp = canvas.toDataURL("image/webp", 0.92);
   return webp.startsWith("data:image/webp") ? webp : canvas.toDataURL("image/png");
 }

@@ -94,6 +94,7 @@ async function clickAt(page, fx, fy, keys = []) {
  */
 const ink = (page, box) => page.evaluate((bx) => {
   const w = window.bench.host.chalk.wall;
+  w.flush();                 // laid together once a frame, and a page in the background has no frames: as it would show
   const g = w.grid;
   const [x0, y0, x1, y1] = [bx[0] * g.w, bx[1] * g.h, bx[2] * g.w, bx[3] * g.h].map(Math.round);
   let n = 0;
@@ -164,6 +165,8 @@ try {
   await stroke(kit.page, [[0.45, 0.205], [0.66, 0.245]]);
   const mark = await ink(kit.page, [0.43, 0.18, 0.68, 0.27]);
   check("a stroke on the wall over the bench leaves paint, in the stick's colour", mark.inked > 400 && mark.mean.every((c) => c > 190), JSON.stringify(mark));
+  // kept a moment later: its pictures are made by a worker, which the first stroke of a page has to start
+  await kit.page.waitForFunction(() => window.bench.host.chalk.store.layers(window.bench.scene.id).some((l) => Object.keys(l.tiles).length), { timeout: 5000 }).catch(() => {});
   check("it is kept, and the 3D picture shows it", (await kept(kit.page)) > 0 && (await kit.page.evaluate(() => window.bench.host.backend.chalkTiles.tiles.size)) > 0);
   check("no page threw (Kit Issue)", kit.errors.length === 0, kit.errors.slice(0, 2).join(" | "));
   await kit.page.screenshot({ path: path.join(SHOTS, "chalk-kit-issue.jpg"), type: "jpeg", quality: 88 });
@@ -196,6 +199,23 @@ try {
   await stroke(L, [[0.14, 0.44], [0.3, 0.44]]);
   const bInk = await ink(L, B);
   check("the pencil draws a fine line, much finer than the chalk", bInk.inked > 80 && bInk.inked < a.inked * 0.45, `${bInk.inked} against ${a.inked}`);
+
+  // Ingram, 2026-10-03: "Chalk is really good but very laggy". The worst of it was the end of every stroke, when its tiles
+  // were read back from the graphics card and encoded on the main thread. They are snapshotted and handed to a worker now:
+  // a stroke, painted and kept, makes the main thread read no canvas back and encode none.
+  await L.evaluate(() => {
+    const counts = (window.__mainThread = { getImageData: 0, toBlob: 0, toDataURL: 0 });
+    const count = (proto, name) => { const f = proto[name]; proto[name] = function (...a) { counts[name]++; return f.apply(this, a); }; };
+    count(CanvasRenderingContext2D.prototype, "getImageData");
+    count(HTMLCanvasElement.prototype, "toBlob");
+    count(HTMLCanvasElement.prototype, "toDataURL");
+  });
+  const keptBefore = await L.evaluate(() => Object.values(window.bench.host.chalk.store.layers(window.bench.scene.id)[0]?.history ?? {}).length);
+  await stroke(L, [[0.42, 0.52], [0.56, 0.55]]);
+  await sleep(800);
+  const thread = await L.evaluate(() => window.__mainThread);
+  const keptAfter = await L.evaluate(() => Object.values(window.bench.host.chalk.store.layers(window.bench.scene.id)[0]?.history ?? {}).length);
+  check("a stroke is painted and kept without the main thread reading a canvas back or encoding one", thread.getImageData + thread.toBlob + thread.toDataURL === 0 && keptAfter > keptBefore, `${JSON.stringify(thread)}, steps ${keptBefore} -> ${keptAfter}`);
 
   await L.click('.stagecraft-kit [data-tool="spray"]');
   await stroke(L, [[0.42, 0.3], [0.56, 0.32]]);

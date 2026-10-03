@@ -239,3 +239,11 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | # | Idea | Where | Plates |
 |---|---|---|---|
 | N1 | Where a cut-out (a counter, a bar) hides the bottom of a card, a nice fade instead of a harsh cut | stage.md §5.8.1 | bench |
+
+## O. Her eleventh message: chalk without the lag (2026-10-03)
+
+*"Chalk is really good but very laggy. What can we do about that?"* Measured and built the same evening (`chalk.md` §11.1).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| O1 | Chalk paints without lag: no pause when a stroke ends, and painting as smooth as only moving the pointer | chalk.md §11.1 | bench |

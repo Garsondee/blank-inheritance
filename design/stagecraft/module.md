@@ -674,6 +674,7 @@ became). What changed in the module:
 
 Tests: 288 in the module (new: `brush.test.mjs`, `fake-wall.mjs`; rewritten: the chalk, store, controller, box and plain
 picture tests).
+
 ## 23. A fade, not a cut (2026-10-03, last of all)
 
 Her tenth message: *"Where we occlude cards let's use a nice fade instead of a harsh cut."* `core/visibility.mjs` gains
@@ -685,3 +686,13 @@ fade; the plain picture cuts the same fade into its cut-out pictures. `stage.md`
 Two things found on the live server the same evening: a stroke that left nothing (painted outside the chalk zones) still
 made a page and a step, and now keeps nothing (`#changesOf` in `foundry/chalk.mjs`, and the `end` message names only the
 layers that really change); and the box of chalk moves clear of the deck and the macro bar (§22).
+
+## 24. Chalk, made quick (2026-10-03)
+
+Her message: *"Chalk is really good but very laggy. What can we do about that?"* `chalk.md` §11.1 has the measurements
+and the changes. In the module: `render/paint/wall.mjs` lays the wall together once per frame (`flush`, called by the host
+before it draws), only the parts that changed, on canvases kept rather than made every frame, skips dabs that cannot reach the
+chalk zones, blurs the glow at a quarter of the size, makes the tips and the grain while the browser is idle (`warmUp`),
+and encodes tiles in a worker (`encodeTile(canvas, sure)`); `foundry/chalk.mjs` keeps strokes in order (`#keepStroke`)
+from pictures taken the moment a stroke ends; the kit's ring is a few small elements; the 3D picture keeps its raycaster
+and builds the chalk tiles' program at load. The bench has `chalk-perf.mjs` (no pass or fail: a table to compare against).

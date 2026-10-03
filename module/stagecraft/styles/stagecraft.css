@@ -18,14 +18,123 @@
   cursor: none;
 }
 
-/* The ring round the pointer: over the stage, under the kit, never in the way of a click. */
-#stagecraft-stage .stagecraft-chalk-ring {
+/*
+ * The ring round the pointer (chalk-kit.mjs): the true size of the tip, the colour in a dot beside it, a fine cross for
+ * the fill and the dropper, struck through where chalk would leave no mark. Small elements moved with a transform, over
+ * the stage and under the kit, never in the way of a click. `--r` is the ring's radius, `--c` the colour in hand.
+ */
+#stagecraft-stage .stagecraft-chalk-cursor {
+  --r: 4px;
+  --c: #f2ecdc;
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
   pointer-events: none;
   z-index: 6;
+  will-change: transform;
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor[hidden] {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor .ring {
+  left: calc(-1 * var(--r));
+  top: calc(-1 * var(--r));
+  width: calc(2 * var(--r));
+  height: calc(2 * var(--r));
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.3px solid rgba(255, 250, 238, 0.95);
+  box-shadow: 0 0 0 1px rgba(10, 8, 6, 0.75), inset 0 0 0 1px rgba(10, 8, 6, 0.5);
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor.erase .ring {
+  border-style: dashed;
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor.blocked .ring {
+  border-color: rgba(200, 190, 175, 0.7);
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor .dot {
+  left: calc(var(--r) + 4.5px);
+  top: calc(var(--r) + 4.5px);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 1.5px rgba(10, 8, 6, 0.8);
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor.exact .dot {
+  left: 9px;
+  top: 9px;
+  width: 14px;
+  height: 14px;
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor.nodot .dot,
+#stagecraft-stage .stagecraft-chalk-cursor.exact .ring,
+#stagecraft-stage .stagecraft-chalk-cursor .cross,
+#stagecraft-stage .stagecraft-chalk-cursor .tick,
+#stagecraft-stage .stagecraft-chalk-cursor .strike {
+  display: none;
+}
+
+/* the fine cross, for the exact point a fill or the dropper takes */
+#stagecraft-stage .stagecraft-chalk-cursor.exact .cross {
+  display: block;
+  left: -9px;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  background:
+    linear-gradient(rgba(255, 250, 238, 0.95), rgba(255, 250, 238, 0.95)) center / 1.4px 100% no-repeat,
+    linear-gradient(rgba(255, 250, 238, 0.95), rgba(255, 250, 238, 0.95)) center / 100% 1.4px no-repeat;
+  filter: drop-shadow(0 0 1px rgba(10, 8, 6, 0.9));
+}
+
+/* a small tip: ticks round the ring, outside it, so the exact spot stays clear */
+#stagecraft-stage .stagecraft-chalk-cursor.small .tick {
+  display: block;
+  filter: drop-shadow(0 0 1px rgba(10, 8, 6, 0.9));
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor .tick.across {
+  left: calc(-1 * var(--r) - 8px);
+  top: -0.7px;
+  width: calc(2 * var(--r) + 16px);
+  height: 1.4px;
+  background: linear-gradient(to right, rgba(255, 250, 238, 0.95) 0 6px, transparent 6px calc(100% - 6px), rgba(255, 250, 238, 0.95) calc(100% - 6px));
+}
+
+#stagecraft-stage .stagecraft-chalk-cursor .tick.down {
+  left: -0.7px;
+  top: calc(-1 * var(--r) - 8px);
+  width: 1.4px;
+  height: calc(2 * var(--r) + 16px);
+  background: linear-gradient(to bottom, rgba(255, 250, 238, 0.95) 0 6px, transparent 6px calc(100% - 6px), rgba(255, 250, 238, 0.95) calc(100% - 6px));
+}
+
+/* struck through: chalk would leave no mark here */
+#stagecraft-stage .stagecraft-chalk-cursor.blocked .strike {
+  display: block;
+  left: calc(-0.75 * var(--r) - 2px);
+  top: -0.7px;
+  width: calc(1.5 * var(--r) + 4px);
+  height: 1.4px;
+  background: rgba(220, 210, 195, 0.95);
+  box-shadow: 0 0 0 1px rgba(10, 8, 6, 0.7);
+  transform: rotate(-45deg);
 }
 
 /*

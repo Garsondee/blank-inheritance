@@ -207,11 +207,13 @@ export class ThreeBackend {
 
   /* ---------------------------------------------------------------- questions */
 
+  /** A ray from the camera through a viewport point. One raycaster, kept: chalk asks this for every sample of the pointer. */
   #ray(x, y) {
-    const ndc = new THREE.Vector2((x / this.width) * 2 - 1, -((y / this.height) * 2 - 1));
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(ndc, this.camera);
-    return ray;
+    this.raycaster ??= new THREE.Raycaster();
+    this.ndc ??= new THREE.Vector2();
+    this.ndc.set((x / this.width) * 2 - 1, -((y / this.height) * 2 - 1));
+    this.raycaster.setFromCamera(this.ndc, this.camera);
+    return this.raycaster;
   }
 
   /**
@@ -235,9 +237,10 @@ export class ThreeBackend {
 
   /** Where on the painting (fractions) a viewport point falls, or null. */
   paintingAt(x, y) {
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), BACKDROP_DEPTH);
-    const out = new THREE.Vector3();
-    if (!this.#ray(x, y).ray.intersectPlane(plane, out)) return null;
+    this.backPlane ??= new THREE.Plane(new THREE.Vector3(0, 0, 1), BACKDROP_DEPTH);
+    this.hit ??= new THREE.Vector3();
+    const out = this.hit;
+    if (!this.#ray(x, y).ray.intersectPlane(this.backPlane, out)) return null;
     const { cx, cy, f, floorY } = this.rig.cam;
     const k = f / (f + BACKDROP_DEPTH);
     const sx = cx + out.x * k;
@@ -248,9 +251,10 @@ export class ThreeBackend {
 
   /** Floor coordinates of a viewport point, on a plane `height` above the floor. */
   floorAt(x, y, height = 0) {
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -height);
-    const out = new THREE.Vector3();
-    return this.#ray(x, y).ray.intersectPlane(plane, out) ? { x: out.x, z: out.z } : null;
+    this.floorPlane ??= new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    this.floorPlane.constant = -height;
+    this.hit ??= new THREE.Vector3();
+    return this.#ray(x, y).ray.intersectPlane(this.floorPlane, this.hit) ? { x: this.hit.x, z: this.hit.z } : null;
   }
 
   /** Where a world point falls in the viewport. */

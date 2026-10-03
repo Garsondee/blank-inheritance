@@ -18,6 +18,9 @@ import { effectivePolicy, newestStep, overflowSteps, validTileKey, wallGrid, HIS
 export const ENTRY_NAME = "Stagecraft chalk";
 export const FORMAT = 2;
 
+/** Chalk's writes ask Foundry to redraw nothing: nobody reads these pages in a window (chalk.md §11). */
+const QUIET = Object.freeze({ render: false });
+
 /**
  * Take one key out of an object in a document update: Foundry 14's ForcedDeletion (`_del`) where it has one, the older
  * "-=key" form elsewhere (Foundry 14 still takes it, with a warning in the console every time).
@@ -133,7 +136,7 @@ export class ChalkStore {
         await entry.createEmbeddedDocuments("JournalEntryPage", [{
           name: `chalk ${sceneId} ${by}`, type: "text", text: { content: "" },
           flags: { [NS]: { chalk: { v: FORMAT, scene: sceneId, by, since: step?.at ?? Date.now(), tiles: kept, history } } }
-        }]);
+        }], QUIET);
         return true;
       }
       const data = page.getFlag(NS, "chalk");
@@ -147,7 +150,7 @@ export class ChalkStore {
         update[`${root}.history.${step.id}`] = { at: step.at, who: game.user.id, tiles: Object.fromEntries(keys.map((k) => [k, data.tiles?.[k] ?? null])) };
         for (const old of overflowSteps({ ...(data.history ?? {}), [step.id]: { at: step.at } }, HISTORY)) remove(update, `${root}.history`, old);
       }
-      await page.update(update);
+      await page.update(update, QUIET);
       return true;
     });
   }
@@ -182,7 +185,7 @@ export class ChalkStore {
           if (before) update[`${root}.tiles.${key}`] = before;
           else if (data.tiles?.[key] !== undefined) remove(update, `${root}.tiles`, key);
         }
-        await layer.page.update(update);
+        await layer.page.update(update, QUIET);
         undone[layer.by] = held;
       }
       return { id: newest.id, layers: undone };
@@ -200,7 +203,7 @@ export class ChalkStore {
         const update = {};
         for (const key of Object.keys(data?.tiles ?? {})) remove(update, `${root}.tiles`, key);
         for (const id of Object.keys(data?.history ?? {})) remove(update, `${root}.history`, id);
-        if (Object.keys(update).length) await page.update(update);
+        if (Object.keys(update).length) await page.update(update, QUIET);
       }
     });
   }

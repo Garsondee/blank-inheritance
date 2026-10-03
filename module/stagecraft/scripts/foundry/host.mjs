@@ -210,6 +210,8 @@ export class StageHost {
       const snap = this.stage.snapshot({ viewer: this.userId, selected: this.selected });
       // chalk in hand in a "zones only" scene: the zones it may go on are lit and named, the one under the stick brightest
       if (this.chalk?.inHand) for (const z of this.chalk.chalkZones()) snap.zones[z.id] = this.chalk.cursorZone === z.id ? "target" : "near";
+      // paint made since the last frame is laid together once, now, so it is on the screen in this frame
+      this.chalk?.wall?.flush?.();
       this.backend.draw(snap);
       this.frames++;
       // what covers the stage can change without the window changing (the deck folded away): the box keeps clear of it

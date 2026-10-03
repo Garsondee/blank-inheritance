@@ -43,6 +43,7 @@ export class ChalkController {
     this.pointerListeners = new Set();
     this.grid = wallGrid(host.description.painting);
     this.wall = makeWall({ grid: this.grid, onChange: (keys) => this.host.backend?.setChalkTiles?.(this.wall, keys) });
+    this.wall.warmUp?.();            // the tips and the grain, made while the browser is idle, not at the first dab
     const prefs = loadPrefs();
     this.colour = cleanHex(prefs.colour) ?? PALETTE.white;
     this.recent = (prefs.recent ?? []).map(cleanHex).filter(Boolean).slice(0, 10);
@@ -53,6 +54,7 @@ export class ChalkController {
     this.drawing = null;
     this.lastEnd = null;             // where this hand's last stroke ended, for a straight line (Shift-click)
     this.redoSteps = [];
+    this.keeping = Promise.resolve();   // strokes being kept, one after another, in the order they were made
     this.remote = new Map();         // live strokes of other painters: id -> { by, stroke, ended, layers, timer }
     this.loading = new Map();        // painter -> their layer's pictures being put on the wall
     this.listeners = new Set();      // the kit, told when the hand changes
@@ -353,20 +355,21 @@ export class ChalkController {
     d.unsent = [];
   }
 
-  /** The pointer came up: the stroke becomes paint in this painter's layer, and is kept. */
-  async end() {
+  /**
+   * The pointer came up: the stroke becomes paint in this painter's layer at once, and is kept a moment later. Pictures of
+   * the tiles it changed are taken now and made off the main thread (making them on it was a pause of a quarter to half a
+   * second at the end of every stroke: chalk.md §11).
+   */
+  end() {
     const d = this.drawing;
-    if (!d) return;
+    if (!d) return Promise.resolve();
     this.wall.paint(d.id, d.stroke.finish());
     clearTimeout(d.timer);
     this.#sendLive();
     this.drawing = null;
     this.lastEnd = d.at;
     const box = dabBounds(this.wall.strokes.get(d.id)?.dabs ?? []);
-    const work = this.#changesOf(this.wall.commit(d.id));
-    // the others are told which layers to wait for before their live copy gives way to what is kept
-    this.send({ type: "chalk", op: "end", scene: this.sceneId, id: d.id, layers: work.map(([by]) => by) });
-    await this.#keepChanges(work, d.id, box, d.opts.tool);
+    return this.#keepStroke(this.#picturesOf(this.wall.commit(d.id)), d.id, box, d.opts.tool, { live: true });
   }
 
   /** Escape in the middle of a stroke: it is thrown away. */
@@ -382,23 +385,48 @@ export class ChalkController {
   }
 
   /**
+   * The pictures of the tiles a stroke changed, taken now, made in the background: [[painter, [[key, Promise<picture>]]]].
+   * A painting stroke's tiles are sure to hold paint (`changed.painted`), so they are not read back to check.
+   */
+  #picturesOf(changed) {
+    const sure = changed.painted === true;
+    return [...changed].map(([by, tiles]) => [by, [...tiles].map(([key, canvas]) => [key, Promise.resolve(this.encode(canvas, sure))])]);
+  }
+
+  /**
+   * Keep a stroke's pictures (`#picturesOf`), strictly after every stroke before it, so the strokes of a quick hand are kept
+   * in the order they were made and each step knows what its tiles held before it. `live`: the others were watching it
+   * being painted, and are told when it ends which layers to wait for.
+   */
+  #keepStroke(pictures, strokeId, box, tool, { live = false } = {}) {
+    const run = this.keeping.then(async () => {
+      const work = await this.#changesOf(pictures);
+      // the others are told which layers to wait for before their live copy gives way to what is kept
+      if (live) this.send({ type: "chalk", op: "end", scene: this.sceneId, id: strokeId, layers: work.map(([by]) => by) });
+      await this.#keepChanges(work, strokeId, box, tool);
+    });
+    this.keeping = run.catch((err) => console.warn(`${NS} | chalk could not be kept`, err));
+    return run;
+  }
+
+  /**
    * What a stroke really changed, as pictures to keep: [[painter, { key: picture }, { key: what it held }]]. Only tiles
    * whose picture changed: a stroke that left nothing (painted outside the chalk zones, or a rub where there was no paint)
    * keeps nothing, and makes no page and no step (found live 2026-10-03).
    */
-  #changesOf(changed) {
+  async #changesOf(pictures) {
     const work = [];
-    for (const [by, tiles] of changed) {
-      const pictures = {};
+    for (const [by, tiles] of pictures) {
+      const made = await Promise.all(tiles.map(async ([key, picture]) => [key, await picture]));
+      const kept = {};
       const before = {};
-      for (const [key, canvas] of tiles) {
+      for (const [key, picture] of made) {
         const was = this.wall.sourceOf(by, key);
-        const picture = this.encode(canvas);
         if (picture === was) continue;
         before[key] = was;
-        pictures[key] = picture;
+        kept[key] = picture;
       }
-      if (Object.keys(pictures).length) work.push([by, pictures, before]);
+      if (Object.keys(kept).length) work.push([by, kept, before]);
     }
     return work;
   }
@@ -438,7 +466,7 @@ export class ChalkController {
     this.wall.paint(id, dabs);
     this.lastEnd = to;
     const box = dabBounds(dabs);
-    this.#keepChanges(this.#changesOf(this.wall.commit(id)), id, box, tool).catch((err) => console.warn(`${NS} | a straight line could not be kept`, err));
+    this.#keepStroke(this.#picturesOf(this.wall.commit(id)), id, box, tool).catch(() => {});
     return box;
   }
 
@@ -448,7 +476,7 @@ export class ChalkController {
       this.flash(sample, game.i18n.localize(r.reason === "open" ? "STAGECRAFT.Chalk.FillOpen" : "STAGECRAFT.Chalk.FillOnPaint"));
       return;
     }
-    this.#keepChanges(this.#changesOf(new Map([[game.user.id, r.changed]])), newId(), { x0: at.x - 1, y0: at.y - 1, x1: at.x + 1, y1: at.y + 1 }).catch((err) => console.warn(`${NS} | a fill could not be kept`, err));
+    this.#keepStroke(this.#picturesOf(new Map([[game.user.id, r.changed]])), newId(), { x0: at.x - 1, y0: at.y - 1, x1: at.x + 1, y1: at.y + 1 }).catch(() => {});
   }
 
   /** Take the colour under the pointer: from the chalk on the wall, or, where there is none, from the painting. */
@@ -466,6 +494,7 @@ export class ChalkController {
   /** Take back this painter's own newest stroke (Ctrl+Z), wherever it went (a GM's rubbing out went on others' layers). */
   async undo() {
     if (this.drawing) this.cancel();
+    await this.keeping;                                     // a stroke still being kept is the newest: it is what goes
     const done = await this.store.undo(this.sceneId, { by: game.user.id });
     if (!done) return false;
     this.redoSteps.push(done.layers);
@@ -474,6 +503,7 @@ export class ChalkController {
 
   /** Put back what the last undo took away (Ctrl+Shift+Z or Ctrl+Y). */
   async redo() {
+    await this.keeping;
     const layers = this.redoSteps.pop();
     if (!layers) return false;
     const now = Date.now();

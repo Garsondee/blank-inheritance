@@ -463,3 +463,38 @@ as soon as its own place is clear.
 
 **Not built yet.** Dust and a scratch while painting; chalk lit by the room's lamps; "who painted that?" on hover; a
 button to wipe one player's layer; weathering; floor chalk.
+
+### 11.1 Made quick (the same evening)
+
+> Chalk is really good but very laggy. What can we do about that?
+
+Measured first, on the bench at her GM window's size and density (2560 by 1271 at 1.5), with real mouse strokes as fast
+as Chrome takes them, by `tools/stagecraft/bench/chalk-perf.mjs` (it prints the frame time while the pointer only moves
+and while each tool paints, and the time each part of the chalk's own code takes; `--cpu=4` slows the processor fourfold,
+for a weaker machine). What was slow, and what changed:
+
+| What | Before | After (normal speed / four times slower) |
+|---|---|---|
+| The pause when the pointer came up | 70 to 255 ms (360 to 580 ms slowed) | 1 to 5 ms / about 10 ms |
+| The longest frame time in a stroke | up to 255 ms (387 to 637 ms slowed) | 21 to 45 ms / 37 to 50 ms |
+| The usual frame time while painting (the median) | about 19 ms | about 10.5 ms, the same as with the pointer only moving / about 20 ms |
+| The first stroke of a page | a stall of about 220 ms slowed | about 87 ms slowed (about 20 ms at normal speed), once |
+
+1. **The end of a stroke.** Every tile a stroke touched was read back from the graphics card and encoded on the main
+   thread, all at once, and magic chalk's glow was blurred at full size. Now a tile is snapshotted at once and read back
+   and encoded by a worker (`encodeTile` in `render/paint/wall.mjs`); a painting stroke's tiles are known to hold paint, so
+   nothing looks to find out; and the glow is blurred at a quarter of the size. Strokes are kept strictly in the order they
+   were made (a quick hand's second stroke never overtakes its first), and Ctrl+Z waits for a stroke still being kept.
+2. **Painting.** Every mouse sample laid whole tiles of the wall together again and made new canvases (a fast mouse sends
+   many samples per frame). Now a dab marks only the part of a tile it touched; the wall is laid together once per frame,
+   by the host just before it draws, only where something changed, on canvases that are kept, not made anew every frame.
+   A dab that cannot reach the chalk zones is never laid down at all.
+3. **The ring round the pointer** was a canvas the size of the screen, cleared and drawn at every move; it is a few small
+   elements now that only move.
+4. **Smaller things.** The 3D picture's pointer maths no longer makes new objects at every sample; the tips and the wall's
+   grain are made while the browser is idle when the stage opens, and the program that draws chalk tiles is built while
+   the stage loads; the smudge reads the wall as last laid together, into canvases kept for the stroke; chalk's writes ask
+   Foundry to redraw nothing.
+
+`chalk-check.mjs` now also proves that a stroke, painted and kept, makes the main thread read no canvas back and encode
+none (43 checks).
