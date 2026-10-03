@@ -16,8 +16,11 @@ the box of chalk (graffiti that persists between sessions), held cards that move
 **Since 2026-10-03 the people move** (`module.md` §20, `stage.md` §5.8 and §8.12): cards walk with steps, the GM has
 formations and a scene's authored moments on a strip of their own, regulars go about their business on their own (the same
 on every screen), new arrivals walk on or rise up, and a fight can put up a plain board of positions with SF2E tags,
-headcounts and range bands. Six scenes use it, three of them haunts; the bench (`tools/stagecraft/bench/`) shows any of it
-without Foundry.
+headcounts and range bands. The bench (`tools/stagecraft/bench/`) shows any of it without Foundry.
+**Later on 2026-10-03, every face in view** (`module.md` §21, `stage.md` §5.8.1, `chalk.md` §10.1): cards half as big
+again, the party in the wings, nobody hidden more than 15% by anything (tested for every scene, moment and routine), and
+every Episode One scene and haunt staged, 28 in all (From Up Here and The Road In need no cards). Chalk leaves its mark
+and says where it may go; zones say what they are for.
 **An end goal, recorded and not built:** [the Draft](draft.md), cards the GM draws in action scenes for the players to pick.
 The decisions that are Ingram's are collected in [§ Calls waiting](#calls-waiting-for-ingram).
 

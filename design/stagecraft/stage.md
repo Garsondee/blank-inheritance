@@ -505,6 +505,46 @@ scene come to life with a bit of NPC movement."* What exists now, on the diorama
   key; the bridge turns it into their card on the stage, and a person not yet revealed is not talked to (nothing about them
   is sent). Someone revealed later is turned to from then on.
 
+#### 5.8.1 Every face in view (2026-10-03, her eighth message)
+
+*"Across the boards cards need to be roughly 50% larger. Cards which move towards the back shouldn't get small as quickly.
+Huddle around the notebook results in a complete collision ... I'm not a very big fan of the 'occlusion' of things like
+bars so we should make stuff like that only effect the bottom 15% of a card so that the majority stays in view. Ideally you
+place them in characterful positions and angles, fully in view and in a way that helps to tell the story."*
+
+- **Cards are half as big again** in every scene (each scene's `cardScale`, 0.9 to 0.99).
+- **The back of a room keeps them readable**: a card at depth is drawn bigger than the camera alone would draw it
+  (`rigspace.mjs` `depthGrow`), giving back half of what distance takes, so a card twice as far away looks about 0.7 of
+  its size, not half.
+- **Nothing hides more than the bottom 15% of a card.** A counter or a bar (a cut-out) raises a card behind it until no
+  more than 15% is hidden (`HIDE_AT_MOST`). Between cards the same rule is measured (`core/visibility.mjs`): every
+  formation is loosened, after it is arranged, just enough that no card hides more than 15% of another, and the circle is
+  an arc open to the table (a whole ring hid its far side behind its near side), and the gang-up never puts anyone
+  straight behind the one ganged up on.
+- **The party stands in the wings**: two small groups at the front corners, turned in, each card stepping a little further
+  back than the one outside it, so the whole middle of the stage is the scene's (with six cards across the front at the
+  new size, the party was a wall that hid the room). A stage that keeps one side clearer says how many go left
+  (`partyRow.split`). The party's place in the wings is its **home**: Places, and a moment marked `party: true`, bring them
+  back to it.
+- **Nobody stands behind the painting.** The 3D stage hangs the painting a long way back (`BACKDROP_DEPTH`, 12000 units)
+  and never puts a card further back than a little in front of it (`rig.place`); people put at the back of a long ward
+  had been drawn behind the painting and so not at all.
+- **Every Episode One scene and every haunt was re-staged** round the open middle: each person where they belong in the
+  story (Kiku behind her counter, Sanzo and Tama in front of it; Hana in her armchair with Obi at her elbow; the patients
+  of Ward Four by their beds), turned towards whom they talk to. Four rooms that had no stage got one: the tram back, the
+  canteen's long tables, and the flood tunnel's generator and machine rooms.
+- **Tested for every scene**, with six in the party: nobody is hidden more than 15% by anyone, at rest, in every moment,
+  at every stop of every routine (and no routine stop hides anybody either); everyone is fully on the 2560 by 1440 page
+  and above the deck; nobody is too far back to be read; a card can go to every door and every thing to look at without
+  being hidden by the party.
+- **A scene re-staged by a deploy re-stages itself**: the GM's side keeps a stamp of how each scene places people, and
+  when a deploy changes it the people already on the stage walk to their new places (the fallen stay down); a scene whose
+  description changes is drawn again.
+- **Zones say what they are for.** Zone outlines are hidden at rest unless a player asks for them in their settings; carry
+  a card near one and it lights up with its name and what it is for. Put a card down at a door or a thing to look at and,
+  for a few seconds on every screen, a line over it says who went where ("Etsuko · The grill / Look closer"), and the
+  `stagecraft.visit` hook tells the adventure.
+
 The **host bench** (`tools/stagecraft/bench/host.html`) runs the module's real host and the GM's real strip against a small
 stand-in for Foundry, two pages sharing scene updates as a GM and a player; `npm run bench:stagecraft`
 (`host-check.mjs`) drives it with real clicks and proves: the strip is the GM's alone; a formation pressed and placed with

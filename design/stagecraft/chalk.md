@@ -308,3 +308,25 @@ fields `chalk.mode`, `chalk.lock`, `chalk.box`.
 **Not built yet.** Dust and scratch; lighting on the wall; weathering; baking the oldest strokes; "Wipe a player's" and
 "who drew that" in the strip; the flat renderer; live streaming of a line as it is drawn (a stroke shows to others when the
 drawer lets go).
+
+### 10.1 "I can pick up chalk but I can't get it to leave a visible mark" (2026-10-03)
+
+Ingram, at the table: *"The chalk system just isn't working for me right now, I can pick up chalk but I can't get it to
+leave a visible mark. There appears to be a 'zone' in the Rumour Mill scene at the top left but no way to use it and no
+indicator of what it's used for."* Five causes, each found by driving the real host with a real mouse
+(`tools/stagecraft/bench/chalk-check.mjs`, 13 checks):
+
+1. **In a "zones only" scene a line outside the chalk zones was clipped to nothing, silently.** Now the stick fades and
+   tips back while it is over a place it cannot mark, and a small line by the pointer says where chalk goes ("Chalk goes
+   on: The wall over the bench"). The chalk zones light up and show their names while chalk is in hand, and are not drawn
+   at all otherwise: a dashed box on a wall that nothing can be done with was the puzzle she found in the Rumour Mill.
+2. **The haunts are "anywhere"**: a place the group keeps coming back to is the place for graffiti. Episode One's Kit
+   Issue keeps its one wall.
+3. **With cards half as big again, the party stood in front of the box**, so a click on a stick found a card. The box is
+   at the lip of the stage now, just left of the middle (`[0.405, 0.978]`), where no card stands over it, and a test fails
+   if any of the party's places is on top of it.
+4. **The GM's strips covered the top of the walls.** They fold away behind one small key ("Stage ▾"), folded at first,
+   and step aside entirely while chalk is in hand.
+5. **Kit Issue's wall was mostly off the top of the screen**: the painting is raised to clear the deck, which cuts off the
+   top sixth of it. The zone is now the wall over the bench, below that line, and a test fails if any chalk zone is mostly
+   off the screen at the 2560 by 1440 reference page.

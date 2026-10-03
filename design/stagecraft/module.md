@@ -580,3 +580,33 @@ arriving.
 **Not done yet.** A live check of the strip on the real Foundry with two screens (the remote world needs a GM signed in;
 the host bench covers the module's side); stacks of foes (§5.6); the speaking bars and the Runner lighting the speaker by
 itself (§5.3).
+
+## 21. Every face in view, and chalk that marks (2026-10-03, later)
+
+Her eighth message asked for cards half as big again, backs of rooms that do not shrink people away, no more collisions,
+nothing hiding more than the bottom 15% of a card, characterful staging of every scene, and chalk that leaves a mark. What
+changed in the module (the design as built is `stage.md` §5.8.1 and `chalk.md` §10.1):
+
+- **`core/visibility.mjs`**: how much of each card can be seen (`hiddenShares`, sampled over each card's rectangle on the
+  page), and `spreadApart`, which loosens a formation just enough that nobody is hidden more than 15% by anybody;
+  `formationMoves` runs every formation through it. The circle is an arc open to the table; the gang-up has two flanks.
+- **`core/rigspace.mjs`**: `depthGrow` (a card at depth drawn bigger, so the back of a room keeps it readable),
+  `BACKDROP_DEPTH` and `DEEPEST` (the painting's depth is the core's to say, and `rig.place` never puts a card behind it;
+  the three.js world takes the depth from here).
+- **`core/scene.mjs`**: a cut-out hides at most 15% of a card by default (`HIDE_AT_MOST`).
+- **The `stagecraft.visit` hook** (interface 0.3.0): a card put down at a door or a spot raises it, and the host shows who
+  went where over the place for a few seconds. Zone outlines are hidden at rest by default (the player's setting), and lit
+  with their name and purpose when a card comes near.
+- **Chalk**: the stick fades over a place it cannot mark, with a line by the pointer saying where chalk goes; chalk zones
+  are drawn only while chalk is in hand; the GM's strips fold behind one key and step aside while chalk is in hand.
+- **A routine given a new home** (`setRoutine(id, life, home)`) goes about its business round it, and the host redraws a
+  stage whose description changes under it.
+- **The adventure**: every party stands in the wings (`partyRow.wings`, `split`) and has a home there; every scene and
+  haunt re-staged; four new stages (the tram back, the canteen's long tables, the generator and machine rooms, 28 in all);
+  a deploy that changes how a scene places people walks them to their new places (`layoutOf`, kept on the scene as
+  `stageLayout`).
+- **Checks**: `chalk-check.mjs` (13 real-mouse checks on the bench: a stick taken, a mark left in a zone and anywhere,
+  nothing left outside a zone, and the stick saying so), and the bridge's tests that every scene, moment, routine stop and
+  zone keeps everyone fully in view with six in the party.
+
+Tests: 275 in the module, 31 in `test/stagecraft-bridge.test.mjs`. Deployed to the live server the same day.

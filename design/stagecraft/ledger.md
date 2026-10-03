@@ -195,3 +195,20 @@ the scene come to life with a bit of NPC movement."* Built the same day (`module
 | K3 | A bit of NPC movement: routines (wander, visit, patrol, pace, swarm) that every screen runs alike from the shared clock | stage.md §5.8 | bench |
 | K4 | Life in the position, angle and grouping of cards: walking with steps, entrances, heads that turn, magnets, risers behind counters | stage.md §5.8 | bench |
 | K5 | The party at the front corners, the centre of the stage left open for the scene's people | stage.md §5.8 | bench |
+
+## L. Her eighth message: bigger cards, every face in view, chalk that marks (2026-10-03)
+
+*"Across the boards cards need to be roughly 50% larger. Cards which move towards the back shouldn't get small as
+quickly. Huddle around the notebook results in a complete collision ... Ideally you place them in characterful positions
+and angles, fully in view and in a way that helps to tell the story."* Built the same day (`module.md` §21).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| L1 | Cards roughly half as big again, on every stage | stage.md §5.8.1 | bench |
+| L2 | Cards towards the back do not get small as quickly | stage.md §5.8.1 | bench |
+| L3 | A huddle (round the notebook) is never a collision: every face stays in view | stage.md §5.8.1 | bench |
+| L4 | A bar or counter in front of a card hides only its bottom 15% | stage.md §5.8.1 | bench |
+| L5 | People in characterful positions and angles, fully in view, telling the story, in every haunt and Episode One scene (not From Up Here or The Road In, which need no cards) | stage.md §5.8.1 | bench |
+| L6 | Chalk must leave a visible mark | chalk.md §10.1 | bench |
+| L7 | A zone must say what it is for, or not be shown (the Rumour Mill's wall) | chalk.md §10.1, stage.md §5.8.1 | bench |
+| L8 | Keep pushing to the live server, where she tests | module.md §21 | none |
