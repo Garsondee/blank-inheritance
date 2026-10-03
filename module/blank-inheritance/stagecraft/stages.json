@@ -1099,6 +1099,159 @@
         "the-vanishing-act": { "label": "The vanishing act", "tip": "Tamsin glides off into the dark at the back of the hall.", "places": { "tamsin": { "at": [0.58,0.765], "yaw": 0, "gait": "glide" } }},
         "everyone-back": { "label": "As they were", "tip": "Lights up, and back to their places.", "home": true }
       }
+    },
+    "e1-the-tram-back": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--the-tram-back.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.6, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.93,
+        "ambient": 1.9,
+        "focus": [0.5,0.9],
+        "lights": [
+          { "id": "dusk", "at": [0.9,0.25], "below": 0.9, "colour": [255,176,110], "intensity": 1, "flicker": 0.01, "shadow": true },
+          { "id": "lamp-left", "at": [0.45,0.19], "below": 0.88, "colour": [255,214,160], "intensity": 0.6, "flicker": 0.03, "pool": 260 },
+          { "id": "lamp-clock", "at": [0.66,0.24], "below": 0.88, "colour": [255,214,160], "intensity": 0.5, "flicker": 0.03, "pool": 220 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "vending-machine", "kind": "spot", "name": "The vending machine", "hint": "Something cold", "shape": [[0.13,0.4],[0.21,0.4],[0.21,0.64],[0.13,0.64]], "floor": [[0.3,0.86],[0.42,0.86],[0.42,0.92],[0.3,0.92]] }
+        ],
+        "marks": [
+          { "id": "by-the-machine", "at": [0.36,0.9], "yaw": 14, "label": "by the vending machine" },
+          { "id": "on-the-crates", "at": [0.62,0.88], "yaw": -10, "label": "on the crates" }
+        ]
+      },
+      "partyRow": { "y": 0.975, "wings": [0.104,0.896], "step": 0.078, "back": 0.012, "of": 6 },
+      "npcSlots": [[0.62,0.86]],
+      "places": {
+        "nobu": [0.6,0.86]
+      },
+      "yaws": { "nobu": -16 },
+      "sizes": { "nobu": 1.3 },
+      "demeanours": { "nobu": "calm" },
+      "life": {
+        "nobu": { "kind": "visit", "spots": [[0.54,0.865],[0.66,0.86]], "every": 9, "restless": 0.6, "gait": "walk", "faces": [0.5,0.97], "gestures": ["nod"], "gestureChance": 0.25 }
+      },
+      "enter": {
+        "nobu": { "from": "right", "gait": "walk" }
+      },
+      "moments": {
+        "hand-it-over": { "label": "Hand over the requisition", "tip": "Nobu comes to the party for the requisition, and takes it without reading it.", "places": { "nobu": { "at": [0.5,0.92], "yaw": 0, "gait": "walk" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone back where the scene put them, the party too.", "home": true, "party": true }
+      }
+    },
+    "e1-canteen-tables": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--canteen--alt.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.55, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.93,
+        "ambient": 2.3,
+        "focus": [0.5,0.88],
+        "lights": [
+          { "id": "windows", "at": [0.08,0.3], "below": 0.9, "colour": [255,220,160], "intensity": 1, "flicker": 0.01, "shadow": true },
+          { "id": "lamp-left", "at": [0.24,0.21], "below": 0.85, "colour": [255,226,180], "intensity": 0.6, "flicker": 0.02, "pool": 300 },
+          { "id": "lamp-right", "at": [0.74,0.21], "below": 0.85, "colour": [255,226,180], "intensity": 0.6, "flicker": 0.02, "pool": 300 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-board", "kind": "spot", "name": "The noticeboard", "hint": "Drill schedules, a lost coat", "shape": [[0.53,0.4],[0.7,0.4],[0.7,0.58],[0.53,0.58]], "floor": [[0.54,0.84],[0.68,0.84],[0.68,0.89],[0.54,0.89]] },
+          { "id": "the-window", "kind": "chalk", "name": "The window", "shape": [[0.19,0.3],[0.49,0.3],[0.49,0.6],[0.19,0.6]] }
+        ],
+        "marks": [
+          { "id": "at-the-table", "at": [0.44,0.9], "yaw": 10, "label": "at the table", "group": "table" },
+          { "id": "at-the-table-2", "at": [0.56,0.9], "yaw": -10, "label": "at the table", "group": "table" }
+        ],
+        "chalk": { "mode": "anywhere", "box": [0.405,0.978] }
+      },
+      "partyRow": { "y": 0.975, "wings": [0.104,0.896], "step": 0.078, "back": 0.012, "of": 6 },
+      "npcSlots": [[0.5,0.885],[0.62,0.8],[0.37,0.84]],
+      "places": {
+        "taka": [0.5,0.885],
+        "section-officer": [0.62,0.8],
+        "the-young-one": [0.37,0.84]
+      },
+      "yaws": { "taka": 6, "section-officer": -14, "the-young-one": 20 },
+      "demeanours": { "taka": "bouncy", "section-officer": "proud", "the-young-one": "nervous" },
+      "life": {
+        "taka": { "kind": "visit", "spots": [[0.46,0.89],[0.55,0.875]], "every": 12, "restless": 0.55, "gait": "stroll", "gestures": ["hop", "nod"], "gestureChance": 0.3 },
+        "the-young-one": { "kind": "wander", "radius": 0.01, "every": 9, "restless": 0.5, "faces": "taka", "gestures": ["nod"], "gestureChance": 0.25 },
+        "section-officer": { "kind": "pace", "width": 0.03, "every": 7, "restless": 0.6, "gait": "march" }
+      },
+      "enter": {
+        "taka": { "from": "left", "gait": "walk" },
+        "section-officer": { "from": "right", "gait": "march" }
+      },
+      "moments": {
+        "taka-sits": { "label": "Taka sits with them", "tip": "Taka pulls a chair round to the party's table.", "places": { "taka": { "at": [0.5,0.925], "yaw": 0, "gait": "walk" } }},
+        "orders": { "label": "The evening's orders", "tip": "The duty officer stands to read the evening's orders; everyone turns to him.", "places": { "section-officer": { "at": [0.59,0.84], "yaw": -4, "gait": "march" } }},
+        "everyone-back": { "label": "As they were", "tip": "Everyone back where the scene put them, the party too.", "home": true, "party": true }
+      }
+    },
+    "e1-flood-tunnel-generator": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--flood-tunnel--generator-room.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.6, "floorFront": 0.925, "depth": 1.1, "vanish": 0.55, "lift": 135 },
+        "cardScale": 0.93,
+        "ambient": 1.1,
+        "focus": [0.55,0.85],
+        "lights": [
+          { "id": "tube-left", "at": [0.4,0.13], "below": 0.82, "colour": [200,240,230], "intensity": 0.9, "flicker": 0.05, "pool": 340, "shadow": true },
+          { "id": "tube-right", "at": [0.68,0.18], "below": 0.8, "colour": [200,240,230], "intensity": 0.8, "flicker": 0.06, "pool": 300 },
+          { "id": "doorway", "at": [0.86,0.58], "below": 0.8, "colour": [255,170,100], "intensity": 0.8, "flicker": 0.08, "flickerHz": 7, "pool": 240 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "the-panels", "kind": "spot", "name": "The panels", "hint": "Power the line", "shape": [[0.62,0.57],[0.74,0.57],[0.74,0.73],[0.62,0.73]], "floor": [[0.6,0.77],[0.74,0.77],[0.75,0.83],[0.59,0.83]] },
+          { "id": "the-generator", "kind": "spot", "name": "The generator", "hint": "Look closer", "shape": [[0.3,0.38],[0.55,0.38],[0.55,0.75],[0.3,0.75]], "floor": [[0.36,0.77],[0.54,0.77],[0.55,0.83],[0.35,0.83]] }
+        ],
+        "marks": [
+          { "id": "at-the-panels", "at": [0.68,0.8], "yaw": 170, "label": "at the panels", "group": "panels" },
+          { "id": "at-the-panels-2", "at": [0.6,0.81], "yaw": 165, "label": "at the panels", "group": "panels" },
+          { "id": "at-the-generator", "at": [0.42,0.8], "yaw": 175, "label": "at the generator" }
+        ]
+      },
+      "partyRow": { "y": 0.9, "wings": [0.104,0.896], "step": 0.078, "back": 0.012, "of": 6, "split": 4 },
+      "npcSlots": [[0.5,0.85]],
+      "places": {},
+      "moments": {
+        "to-the-panels": { "label": "To the panels", "tip": "The party gathers at the panels to bring the power back.", "formation": { "kind": "huddle", "focus": [0.68,0.81], "who": "party", "gait": "walk" } },
+        "round-the-generator": { "label": "Round the generator", "tip": "The party looks the old generator over.", "formation": { "kind": "circle", "focus": [0.43,0.8], "who": "party", "gait": "walk", "size": 0.26 }},
+        "everyone-back": { "label": "Back to the edges", "tip": "The party steps back to the edges of the room.", "home": true, "party": true }
+      }
+    },
+    "e1-flood-tunnel-machine": {
+      "description": {
+        "painting": { "src": "modules/blank-inheritance/assets/scenes/episode-c1e1--flood-tunnel--machine-room.webp", "size": [1920,960] },
+        "rig": { "horizon": 0.5, "floorFront": 0.995, "depth": 1.1, "vanish": 0.5, "lift": 250 },
+        "cardScale": 0.93,
+        "ambient": 1.1,
+        "focus": [0.5,0.86],
+        "lights": [
+          { "id": "lamp-left", "at": [0.36,0.1], "below": 0.85, "colour": [190,235,230], "intensity": 0.9, "flicker": 0.04, "pool": 340, "shadow": true },
+          { "id": "lamp-right", "at": [0.66,0.1], "below": 0.85, "colour": [190,235,230], "intensity": 0.9, "flicker": 0.04, "pool": 340 },
+          { "id": "door-lamp", "at": [0.51,0.57], "below": 0.75, "colour": [190,235,230], "intensity": 0.5, "flicker": 0.05, "pool": 200 },
+          { "id": "desk-lamp", "at": [0.67,0.58], "below": 0.75, "colour": [160,230,210], "intensity": 0.4, "flicker": 0.08, "flickerHz": 6 }
+        ],
+        "occluders": [],
+        "zones": [
+          { "id": "compactor-feed", "kind": "spot", "name": "The compactor feed", "hint": "Clear the jam", "shape": [[0.28,0.45],[0.42,0.45],[0.42,0.76],[0.28,0.76]], "floor": [[0.27,0.78],[0.43,0.78],[0.44,0.84],[0.26,0.84]] },
+          { "id": "north-panels", "kind": "spot", "name": "The north panels", "hint": "Override it", "shape": [[0.58,0.6],[0.69,0.6],[0.69,0.72],[0.58,0.72]], "floor": [[0.57,0.74],[0.7,0.74],[0.7,0.78],[0.57,0.78]] },
+          { "id": "the-door", "kind": "door", "name": "The door", "hint": "Back to the flood", "shape": [[0.48,0.56],[0.55,0.56],[0.55,0.72],[0.48,0.72]], "floor": [[0.47,0.74],[0.56,0.74],[0.56,0.78],[0.47,0.78]] }
+        ],
+        "marks": [
+          { "id": "at-the-feed", "at": [0.35,0.82], "yaw": 170, "label": "at the compactor feed", "group": "feed" },
+          { "id": "at-the-feed-2", "at": [0.43,0.83], "yaw": 165, "label": "at the compactor feed", "group": "feed" },
+          { "id": "at-the-panels", "at": [0.635,0.77], "yaw": 175, "label": "at the north panels" }
+        ]
+      },
+      "partyRow": { "y": 0.975, "wings": [0.104,0.896], "step": 0.078, "back": 0.012, "of": 6 },
+      "npcSlots": [[0.5,0.86]],
+      "places": {},
+      "moments": {
+        "clear-the-jam": { "label": "At the feed", "tip": "The party sets to the jam in the compactor feed.", "formation": { "kind": "huddle", "focus": [0.36,0.83], "who": "party", "gait": "walk" } },
+        "at-the-panels": { "label": "At the north panels", "tip": "The party crowds the north panels to override the compactor.", "formation": { "kind": "huddle", "focus": [0.635,0.78], "who": "party", "gait": "hurry" } },
+        "everyone-back": { "label": "Back to the edges", "tip": "The party steps back to the edges of the room.", "home": true, "party": true }
+      }
     }
   }
 }

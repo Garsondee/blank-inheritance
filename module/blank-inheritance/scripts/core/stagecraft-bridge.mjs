@@ -182,10 +182,10 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
       card.at = placeFor({ member, key, def, cards: out });
       const yaw = def.yaws?.[key] ?? (member.kind === "pc" ? partyYaw(def, card.at) : undefined);
       if (yaw !== undefined) card.yaw = yaw;
-      if (member.kind !== "pc") {
-        card.home = [card.at[0], card.at[1]];
-        if (yaw !== undefined) card.homeYaw = yaw;
-      }
+      // where the scene put them is home, the party's place in the wings included: the GM's Places button, and a moment
+      // that sends everyone back, return them there (a room with nobody else in it is staged by moving the party about)
+      card.home = [card.at[0], card.at[1]];
+      if (yaw !== undefined) card.homeYaw = yaw;
       if (before) {
         // laid out afresh while already on the stage: it walks over to its new place (and stays down if it was down)
         if (Number.isFinite(now)) card.move = { t0: Math.round(now * 1000) / 1000, gait: "walk" };
@@ -214,7 +214,8 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
  * An authored moment of a scene (stage entry `moments`) as moves for Stagecraft: who goes where. `moment.places` maps a
  * person's key to { at: [fx, fy] | mark, yaw?, lean?, pitch?, gait?, still?, packed? }; `keyOf(cardId)` gives the key of a
  * card on the stage. Anyone the moment names who is not on the stage is left out (they have not been revealed).
- * `moment.home` sends everyone else it does not name back home.
+ * `moment.home` sends everyone else it does not name back home: the scene's own people, and the party too when the moment
+ * says `party: true` (the party's cards are the players', so a moment leaves them be unless it says so).
  */
 export function momentMoves(moment, cards, keyOf) {
   const moves = [];
@@ -227,7 +228,7 @@ export function momentMoves(moment, cards, keyOf) {
       if (p.mark) move.mark = p.mark; else if (Array.isArray(p.at)) move.at = [p.at[0], p.at[1]]; else continue;
       for (const k of ["yaw", "lean", "pitch"]) if (Number.isFinite(p[k])) move[k] = p[k];
       moves.push(move);
-    } else if (moment?.home && Array.isArray(card.home) && !card.pc) {
+    } else if (moment?.home && Array.isArray(card.home) && (!card.pc || moment.party === true)) {
       moves.push({ id: card.id, at: [card.home[0], card.home[1]], yaw: card.homeYaw ?? 0, lean: 0, pitch: 0, gait: moment.gait ?? "walk", still: false, packed: false });
     }
   }

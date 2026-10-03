@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { rawKeyOf, partySlot, partyYaw, placeFor, mirrorCards, sameCards, summonsForTrigger, entryFor, descriptionFor, layoutOf, STAGES_PATH } from "../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
+import { rawKeyOf, partySlot, partyYaw, placeFor, mirrorCards, momentMoves, sameCards, summonsForTrigger, entryFor, descriptionFor, layoutOf, STAGES_PATH } from "../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs";
 import { publishedCast, leaksConcealed } from "../module/blank-inheritance/scripts/core/stage-layout.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -314,7 +314,7 @@ test("everything a scene places is fully on screen: its people wherever they go,
   assert.deepEqual(problems, []);
 });
 
-test("a new person on the stage takes their routine, their home and their entrance from the entry; the party does not", () => {
+test("a new person on the stage takes their routine, their home and their entrance from the entry; the party only a home", () => {
   const entry = { places: { tama: [0.4, 0.8] }, life: { tama: { kind: "wander" } }, enter: { tama: "right" }, yaws: { tama: -12 } };
   const [tama, pc] = mirrorCards({ published: [member("summon-tama"), member("summon-pc-a", { kind: "pc", actorId: "A1" })], def: entry, now: 1790995000.5 });
   assert.deepEqual(tama.life, { kind: "wander" });
@@ -322,7 +322,15 @@ test("a new person on the stage takes their routine, their home and their entran
   assert.equal(tama.homeYaw, -12);
   assert.deepEqual(tama.enter, { from: "right", t0: 1790995000.5, gait: "walk" });
   assert.equal(pc.life, undefined);
-  assert.equal(pc.home, undefined);
+  assert.equal(pc.enter, undefined);
+  // 2026-10-03: the party's place in the wings is its home, so a scene can be put back as it was, the party included
+  assert.deepEqual(pc.home, pc.at);
+  assert.equal(pc.homeYaw, pc.yaw);
+  const keyOf = (id) => id.replace(/^summon-/, "");
+  const back = { home: true };
+  const away = [{ ...tama, at: [0.7, 0.9] }, { ...pc, at: [0.5, 0.8] }];
+  assert.deepEqual(momentMoves(back, away, keyOf).map((m) => m.id), ["summon-tama"], "a moment sends the scene's own people home");
+  assert.deepEqual(momentMoves({ ...back, party: true }, away, keyOf).map((m) => m.id), ["summon-tama", "summon-pc-a"], "and the party too when it says so");
   // mirrored again, everything Stagecraft wrote is kept, and the entrance is not played twice
   const moved = [{ ...tama, at: [0.6, 0.85], still: true, move: { t0: 5, gait: "walk" } }, pc];
   const again = mirrorCards({ published: [member("summon-tama"), member("summon-pc-a", { kind: "pc", actorId: "A1" })], existing: moved, def: entry, now: 1790995999 });
@@ -377,7 +385,7 @@ test("a character at 0 HP is down on the stage: their card carries their actor, 
 });
 
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {
-  const { momentMoves, momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  const { momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
   const cards = [{ id: "c1", home: [0.2, 0.9] }, { id: "c2", home: [0.5, 0.9] }, { id: "pc", pc: true, at: [0.5, 0.95] }];
   const keys = { c1: "kiku", c2: "sanzo", pc: "pc" };
   const moment = { label: "A round", gait: "stroll", places: { kiku: { at: [0.4, 0.8], yaw: 10 }, nobody: { at: [0.1, 0.1] } }, home: true };

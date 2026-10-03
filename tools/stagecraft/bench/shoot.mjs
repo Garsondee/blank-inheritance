@@ -59,7 +59,11 @@ export const SHOTS = [
   ["roof", "haunt-the-roof", 4, [["bench.moment('look-out')", 5500]]],
   ["met-office", "haunt-met-office", 4, [["bench.moment('the-reading')", 4500]]],
   ["night-shift", "haunt-night-shift", 4, [["bench.moment('a-lift')", 4500]]],
-  ["magic-show", "haunt-the-magic-show", 4, [["bench.moment('the-show-begins')", 5500]]]
+  ["magic-show", "haunt-the-magic-show", 4, [["bench.moment('the-show-begins')", 5500]]],
+  ["tram-hatch", "e1-the-tram-back", 6, [["bench.moment('hand-it-over')", 4500]]],
+  ["canteen-tables", "e1-canteen-tables", 6, [["bench.moment('orders')", 4500]]],
+  ["generator-panels", "e1-flood-tunnel-generator", 6, [["bench.moment('to-the-panels')", 5000]]],
+  ["machine-feed", "e1-flood-tunnel-machine", 6, [["bench.moment('clear-the-jam')", 5000]]]
 ];
 
 /** Every stage as the GM first opens it, with six in the party. */
