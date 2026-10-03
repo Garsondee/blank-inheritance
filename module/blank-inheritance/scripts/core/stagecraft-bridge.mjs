@@ -197,7 +197,9 @@ export function formationRequest(formation, cards, keyOf) {
   if (Array.isArray(ids) && !ids.length) return null;
   const target = formation.target ? idOf(formation.target) : null;
   if (target && ids && !ids.includes(target)) ids = [...ids, target];
-  return { kind: formation.kind, opts: { ids, party, target, focus: formation.focus ?? null, gait: formation.gait ?? "walk", dir: formation.dir ?? "back", away: formation.away === true } };
+  const opts = { ids, party, target, focus: formation.focus ?? null, gait: formation.gait ?? "walk", dir: formation.dir ?? "back", away: formation.away === true };
+  if (Number.isFinite(formation.size)) opts.size = formation.size;
+  return { kind: formation.kind, opts };
 }
 
 /** The moments a stage entry offers, in its own order: [{ id, label, tip, ... }]. */

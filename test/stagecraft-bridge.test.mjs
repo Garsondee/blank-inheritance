@@ -112,6 +112,22 @@ test("every routine, moment and trigger in the stages file is one Stagecraft and
   }
 });
 
+test("nobody a scene places stands where a cut-out would hide them entirely, and everyone stands on the floor", async () => {
+  const { Stage } = await import("../module/stagecraft/scripts/core/stage.mjs");
+  const problems = [];
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    const d = describeScene(descriptionFor(stages, entry)).scene;
+    const people = Object.entries(entry.places ?? {}).map(([key, at]) => ({ id: key, name: key, at, size: entry.sizes?.[key] }));
+    const s = new Stage(d, people, { card: { w: 280, h: 468 } });
+    for (const p of people) {
+      if (!s.rig.standing(p.at)) { problems.push(`${id}: ${p.id} stands above the horizon`); continue; }
+      const c = s.cards.get(p.id);
+      if (s.unhidden(c.puppet.x, c.Z, c.w, c.h) !== c.Z) problems.push(`${id}: ${p.id} would be hidden behind a cut-out`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
 test("a new person on the stage takes their routine, their home and their entrance from the entry; the party does not", () => {
   const entry = { places: { tama: [0.4, 0.8] }, life: { tama: { kind: "wander" } }, enter: { tama: "right" }, yaws: { tama: -12 } };
   const [tama, pc] = mirrorCards({ published: [member("summon-tama"), member("summon-pc-a", { kind: "pc", actorId: "A1" })], def: entry, now: 1790995000.5 });

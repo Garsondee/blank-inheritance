@@ -33,18 +33,18 @@ const facing = (x, z, tx, tz, share = 0.7, max = 52) => cheatOut(yawTo(x, z, tx,
  * Arrange cards. `cards` are [{ id, X, Z, w, pc }]; `focus` is { X, Z }; `limits` the floor's ({ x: [lo, hi], z: [lo, hi] }).
  * Returns [{ id, X, Z, yaw, lean, pitch }] for the cards it moves, in no particular order.
  */
-export function arrange(kind, { cards = [], focus = { X: 0, Z: -400 }, target = null, speakers = [], party = false, limits = null, seed = 1, dir = "back" } = {}) {
+export function arrange(kind, { cards = [], focus = { X: 0, Z: -400 }, target = null, speakers = [], party = false, limits = null, seed = 1, dir = "back", radius = null } = {}) {
   const chosen = cards.filter((c) => party || !c.pc || c.id === target || speakers.includes(c.id));
   if (!chosen.length) return [];
   const w = widest(chosen);
   let out;
   switch (kind) {
-    case "huddle": out = huddle(chosen, focus, w); break;
+    case "huddle": out = huddle(chosen, focus, w, radius); break;
     case "talk": out = talk(chosen, focus, w, speakers); break;
     case "gangup": out = gangUp(chosen, focus, w, target); break;
     case "panel": out = panel(chosen, focus, w); break;
     case "standoff": out = standoff(chosen, focus, w); break;
-    case "circle": out = circle(chosen, focus, w); break;
+    case "circle": out = circle(chosen, focus, w, radius); break;
     case "queue": out = queue(chosen, focus, w, seed, dir); break;
     case "scatter": out = scatter(chosen, focus, w, limits, seed); break;
     case "audience": out = audience(chosen, focus, w, limits); break;
@@ -104,9 +104,9 @@ function audience(cards, focus, w, limits) {
 }
 
 /** Heads together round the focus: close, turned in, leaning in. The conspiratorial look is the lean, not the distance. */
-function huddle(cards, focus, w) {
+function huddle(cards, focus, w, radius = null) {
   const sorted = byX(cards);
-  const places = huddlePlaces({ x: focus.X, z: focus.Z }, sorted.length, { r: w * (0.45 + 0.08 * sorted.length), lean: 8, pitch: 6 });
+  const places = huddlePlaces({ x: focus.X, z: focus.Z }, sorted.length, { r: radius ?? w * (0.45 + 0.08 * sorted.length), lean: 8, pitch: 6 });
   return sorted.map((c, i) => ({ id: c.id, X: places[i].x, Z: places[i].z, yaw: places[i].yaw, lean: places[i].lean, pitch: places[i].pitch }));
 }
 
@@ -188,10 +188,13 @@ function standoff(cards, focus, w) {
   return [...left, ...right].map((c, i) => ({ id: c.id, X: places[i].x, Z: places[i].z, yaw: places[i].yaw, lean: places[i].lean, pitch: places[i].pitch }));
 }
 
-/** Round the focus (a table, a fire, a body on the floor), the side towards the table left open. */
-function circle(cards, focus, w) {
+/**
+ * Round the focus (a table, a fire, a body on the floor), the side towards the table left open. `radius` (floor units)
+ * says how big the thing in the middle is; without it the ring is just big enough for everyone in it.
+ */
+function circle(cards, focus, w, radius = null) {
   const sorted = byX(cards);
-  const r = Math.max(w * 0.9, (w * 1.05 * sorted.length) / (2 * Math.PI * 0.7));
+  const r = radius ?? Math.max(w * 0.9, (w * 1.05 * sorted.length) / (2 * Math.PI * 0.7));
   const places = tablePlaces({ x: focus.X, z: focus.Z }, r, sorted.length, { open: sorted.length > 5 ? 70 : 110 });
   return sorted.map((c, i) => ({ id: c.id, X: places[i].x, Z: places[i].z, yaw: places[i].yaw }));
 }

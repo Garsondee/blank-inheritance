@@ -25,6 +25,9 @@ import { arrange } from "./formations.mjs";
 
 export const STEP = 1 / 120;
 
+/** The most a card behind a cut-out is ever raised, in card heights. */
+export const RISER_MOST = 2.5;
+
 /** Tunables that are about the stage rather than the springs (the springs are FEEL in puppets.mjs). */
 export const STAGE = Object.freeze({
   card: { w: 280, h: 468 },   // a card at scale 1, in reference pixels (a skin may say otherwise)
@@ -123,7 +126,23 @@ export class Stage {
       const hidden = r.camY + (r.top - r.camY) * ((r.f - Z) / (r.f - r.Z));
       need = Math.max(need, hidden - r.hideAtMost * h);
     }
-    return Math.max(0, Math.min(need, h * 1.1));
+    // A raised card's foot always stays below the line the cut-out hides up to (need is that line less the share left
+    // showing), so it is never seen floating; the cap only stops something absurd behind a cut-out the size of a wall.
+    return Math.max(0, Math.min(need, h * RISER_MOST));
+  }
+
+  /**
+   * A place a formation would put a card, moved if the card could not be seen there: behind a cut-out that would hide more
+   * of it than its riser could ever lift it clear of (just behind a table's front edge, say), it stands just in front of
+   * that cut-out instead. Returns the Z to stand at.
+   */
+  unhidden(X, Z, w, h) {
+    for (const r of this.risers) {
+      if (Z >= r.Z - 4 || X + w / 2 < r.x0 || X - w / 2 > r.x1) continue;
+      const hidden = r.camY + (r.top - r.camY) * ((r.f - Z) / (r.f - r.Z));
+      if (hidden - r.hideAtMost * h > h * RISER_MOST) return r.Z + 60;
+    }
+    return Z;
   }
 
   /** The place on the floor a formation is about when nobody says otherwise: the scene's focus, or the middle of its floor. */
@@ -739,14 +758,23 @@ export class Stage {
    * `ids` limits it to those cards (the GM's selection); `focus` is a point of the painting ([fx, fy]) or a card's id, and
    * defaults to the scene's focus. The moves carry `still` (routines set aside) and, for the close formations, `packed`.
    */
-  formationMoves(kind, { ids = null, focus = null, target = null, speakers = [], party = false, gait = "walk", dir = "back", away = false } = {}) {
+  formationMoves(kind, { ids = null, focus = null, target = null, speakers = [], party = false, gait = "walk", dir = "back", away = false, size = null } = {}) {
     const all = this.standing();
     const cards = ids ? all.filter((c) => ids.includes(c.id)) : all;
     let at = this.focus;
     if (Array.isArray(focus)) at = this.rig.standing(focus) ?? this.focus;
     else if (typeof focus === "string" && this.cards.has(focus)) { const c = this.cards.get(focus); at = { X: c.puppet.restX, Z: c.restZ }; }
     const packed = ["huddle", "gangup", "queue"].includes(kind);
-    const placed = arrange(kind, { cards, focus: at, target, speakers, party, dir, limits: { x: this.opts.limits.x, z: [this.opts.limits.z[0], 200] }, seed: this.steps % 7 });
+    // `size`: how wide the thing they gather round is, as a share of the painting's width where they gather
+    let radius = null;
+    if (Number.isFinite(size) && size > 0) {
+      const f = this.rig.fractionOf(at.X, at.Z);
+      const a = this.rig.standing([f[0] - size / 2, f[1]]);
+      const b = this.rig.standing([f[0] + size / 2, f[1]]);
+      if (a && b) radius = Math.abs(b.X - a.X) / 2;
+    }
+    const placed = arrange(kind, { cards, focus: at, target, speakers, party, dir, radius, limits: { x: this.opts.limits.x, z: [this.opts.limits.z[0], 200] }, seed: this.steps % 7 })
+      .map((p) => { const c = this.cards.get(p.id); return c ? { ...p, Z: this.unhidden(p.X, p.Z, c.w, c.h) } : p; });
     // `away`: everyone turns right round to look where the formation looks (out over the view, up at the stage), backs to the table
     return placed.map((p) => ({
       id: p.id, at: this.rig.fractionOf(p.X, p.Z).map((n) => Math.round(n * 10000) / 10000),

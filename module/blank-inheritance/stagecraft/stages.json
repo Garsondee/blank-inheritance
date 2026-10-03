@@ -479,6 +479,7 @@
         "the-storekeeper": [0.5,0.885]
       },
       "yaws": { "manako": -20 },
+      "sizes": { "manako": 1.4, "the-storekeeper": 1.4 },
       "demeanours": { "manako": "calm", "the-storekeeper": "calm" },
       "life": {
         "manako": { "kind": "wander", "radius": 0.02, "every": 12, "restless": 0.4, "faces": "the-storekeeper", "gestures": ["nod"], "gestureChance": 0.3 },
@@ -626,6 +627,7 @@
         "shop-boss": [0.87,0.8]
       },
       "yaws": { "shop-boss": -20 },
+      "sizes": { "school-history-teacher": 1.6, "shop-boss": 1.3 },
       "demeanours": { "school-history-teacher": "bouncy", "shop-boss": "proud" },
       "life": {
         "school-history-teacher": { "kind": "patrol", "path": [[0.52,0.765],[0.82,0.775]], "every": 7, "gait": "stroll", "gestures": ["nod", "hop"], "gestureChance": 0.3 },
@@ -669,6 +671,7 @@
         "range-safety-officer": [0.88,0.82]
       },
       "yaws": { "range-safety-officer": -20 },
+      "sizes": { "range-safety-officer": 1.2 },
       "demeanours": { "school-natural-history-teacher": "calm", "range-safety-officer": "proud" },
       "life": {
         "school-natural-history-teacher": { "kind": "visit", "spots": [[0.4,0.78],[0.64,0.78]], "every": 9, "restless": 0.7, "gait": "walk", "faces": [0.52,0.9] }
@@ -760,6 +763,7 @@
         "grenna": [0.86,0.86]
       },
       "yaws": { "haru": 25, "grenna": -30 },
+      "sizes": { "morishita": 1.3 },
       "demeanours": { "morishita": "proud", "haru": "nervous", "grenna": "slouch" },
       "emotes": { "grenna": "sleep", "haru": "think" },
       "life": {
@@ -851,6 +855,7 @@
         "chiyo": [0.66,0.885]
       },
       "yaws": { "michiru": 0, "lucan": 25, "chiyo": -25 },
+      "sizes": { "michiru": 1.25 },
       "demeanours": { "michiru": "proud", "lucan": "sly", "chiyo": "nervous" },
       "emotes": { "chiyo": "sweat" },
       "life": {
@@ -859,7 +864,7 @@
         "chiyo": { "kind": "wander", "radius": 0.006, "every": 6, "restless": 0.15, "faces": "michiru", "gestures": ["shake", "nod"], "gestureChance": 0.4 }
       },
       "moments": {
-        "deal-everyone-in": { "label": "Deal everyone in", "tip": "Everyone round the table, the party too.", "formation": { "kind": "circle", "focus": [0.495,0.84], "who": "all" } },
+        "deal-everyone-in": { "label": "Deal everyone in", "tip": "Everyone round the table, the party too.", "formation": { "kind": "circle", "focus": [0.495,0.84], "who": "all", "size": 0.36 } },
         "lucan-caught": { "label": "Lucan is caught", "tip": "Everyone turns on the cardsharp.", "formation": { "kind": "gangup", "focus": [0.5,0.975], "who": "all", "target": "lucan" } },
         "everyone-back": { "label": "As they were", "tip": "Back to their seats.", "home": true }
       }
@@ -1078,6 +1083,7 @@
         "mrs-handa": [0.3,0.89]
       },
       "yaws": { "daisuke": -20, "mrs-handa": 20 },
+      "sizes": { "tamsin": 1.3 },
       "demeanours": { "tamsin": "proud", "daisuke": "nervous", "mrs-handa": "bouncy" },
       "emotes": { "mrs-handa": "heart" },
       "life": {

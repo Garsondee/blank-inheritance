@@ -198,6 +198,11 @@ test("a formation from the engine: moves in fractions of the painting, still, an
     assert.equal(m.still, true);
     assert.equal(m.packed, true);
   }
+  const small = s.formationMoves("circle", {});
+  const big = s.formationMoves("circle", { size: 0.4 });
+  const spread = (moves) => Math.max(...moves.map((m) => m.at[0])) - Math.min(...moves.map((m) => m.at[0]));
+  assert.ok(spread(big) > spread(small) * 1.3, `a circle round something big is wider (${spread(big).toFixed(3)} against ${spread(small).toFixed(3)})`);
+  assert.ok(spread(big) > 0.25 && spread(big) < 0.45, "and about as wide as it was asked to be");
   const away = s.formationMoves("audience", { away: true });
   assert.ok(away.every((m) => m.yaw === 180), "turned right round, backs to the table");
   const line = s.formationMoves("line", { ids: ["a", "p"], party: true });
@@ -312,6 +317,24 @@ test("with the fight board up, a card put down in a position docks in a free pla
   s.setHand("b", { x: -1700, z: -300 });
   run(s, 0.5);
   assert.equal(s.dockFor("b", s.cards.get("b").puppet.x, -300), null, "outside every position there is nowhere to dock");
+});
+
+test("a formation never leaves someone where a cut-out would hide them entirely: they stand in front of it instead", () => {
+  const raw = structuredClone(RAW_SCENE);
+  raw.occluders = [{ id: "partition", poly: [[0.3, -0.2], [0.7, -0.2], [0.7, 0.9], [0.3, 0.9]], base: 0.9, x: 0.5 }];   // a partition to the ceiling
+  const s = new Stage(describeScene(raw).scene, [{ id: "a", name: "A", at: [0.3, 0.95] }]);
+  const c = s.cards.get("a");
+  const r = s.risers[0];
+  const justBehind = r.Z - 30;            // right behind the partition: no riser could lift a card clear of it
+  const x = (r.x0 + r.x1) / 2;
+  assert.equal(s.unhidden(x, justBehind, c.w, c.h), r.Z + 60, "moved to just in front of the counter");
+  assert.equal(s.unhidden(x, r.Z + 100, c.w, c.h), r.Z + 100, "in front already: left alone");
+  assert.equal(s.unhidden(r.x1 + c.w, justBehind, c.w, c.h), justBehind, "beside the counter: left alone");
+  // behind a low counter, far back, a riser lifts a card clear of it: left where it is
+  const low = new Stage(scene, [{ id: "a", name: "A", at: [0.3, 0.95] }]);
+  const lr = low.risers[0];
+  const lc = low.cards.get("a");
+  assert.equal(low.unhidden((lr.x0 + lr.x1) / 2, -2200, lc.w, lc.h), -2200);
 });
 
 test("a zone near one that is not there is a problem the author is told about", () => {
