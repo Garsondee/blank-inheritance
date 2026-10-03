@@ -18,6 +18,7 @@ export class FakeWall {
     this.fills = [];
     this.fillAnswer = null;           // what fill() answers, set by a test
     this.pickAnswer = null;           // what pick() answers
+    this.masked = false;              // true: paint is masked away to nothing (a stroke outside the chalk zones)
   }
 
   setLayers(list) {
@@ -98,6 +99,10 @@ export class FakeWall {
     if (TOOLS[s.tool].kind === "erase") {
       const layers = s.everyone ? [...this.layers.values()] : [this.layers.get(s.by)].filter(Boolean);
       for (const key of s.touched) for (const l of layers) if (l.tiles.has(key)) { l.tiles.delete(key); note(l.by, key, null); }
+    } else if (this.masked) {
+      // the real wall still hands back every tile the stroke touched, only with nothing new on it
+      const l = this.layers.get(s.by);
+      for (const key of s.touched) note(s.by, key, l.tiles.get(key) ?? { content: null });
     } else {
       const l = this.layers.get(s.by);
       for (const key of s.touched) {

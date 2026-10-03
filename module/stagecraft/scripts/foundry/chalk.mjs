@@ -363,10 +363,10 @@ export class ChalkController {
     this.drawing = null;
     this.lastEnd = d.at;
     const box = dabBounds(this.wall.strokes.get(d.id)?.dabs ?? []);
-    const changed = this.wall.commit(d.id);
+    const work = this.#changesOf(this.wall.commit(d.id));
     // the others are told which layers to wait for before their live copy gives way to what is kept
-    this.send({ type: "chalk", op: "end", scene: this.sceneId, id: d.id, layers: [...changed.keys()] });
-    await this.#keepChanges(changed, d.id, box, d.opts.tool);
+    this.send({ type: "chalk", op: "end", scene: this.sceneId, id: d.id, layers: work.map(([by]) => by) });
+    await this.#keepChanges(work, d.id, box, d.opts.tool);
   }
 
   /** Escape in the middle of a stroke: it is thrown away. */
@@ -382,22 +382,38 @@ export class ChalkController {
   }
 
   /**
-   * Keep what a stroke changed: each painter's tiles it touched, with the step that takes them back. `box` is where the
-   * stroke lay, in wall pixels, for the `stagecraft.chalk` hook ("Taka squints at the doodle").
+   * What a stroke really changed, as pictures to keep: [[painter, { key: picture }, { key: what it held }]]. Only tiles
+   * whose picture changed: a stroke that left nothing (painted outside the chalk zones, or a rub where there was no paint)
+   * keeps nothing, and makes no page and no step (found live 2026-10-03).
    */
-  async #keepChanges(changed, strokeId, box = null, tool = this.tool) {
-    if (!changed.size) return;
-    const now = Date.now();
-    const step = { id: stepId(now, strokeId), at: now };
-    this.redoSteps = [];
+  #changesOf(changed) {
+    const work = [];
     for (const [by, tiles] of changed) {
       const pictures = {};
       const before = {};
       for (const [key, canvas] of tiles) {
-        before[key] = this.wall.sourceOf(by, key);
-        pictures[key] = this.encode(canvas);
-        this.wall.noteSource(by, key, pictures[key]);
+        const was = this.wall.sourceOf(by, key);
+        const picture = this.encode(canvas);
+        if (picture === was) continue;
+        before[key] = was;
+        pictures[key] = picture;
       }
+      if (Object.keys(pictures).length) work.push([by, pictures, before]);
+    }
+    return work;
+  }
+
+  /**
+   * Keep what a stroke changed (`#changesOf`): each painter's tiles, with the step that takes them back. `box` is where the
+   * stroke lay, in wall pixels, for the `stagecraft.chalk` hook ("Taka squints at the doodle").
+   */
+  async #keepChanges(work, strokeId, box = null, tool = this.tool) {
+    if (!work.length) return;
+    const now = Date.now();
+    const step = { id: stepId(now, strokeId), at: now };
+    this.redoSteps = [];
+    for (const [by, pictures, before] of work) {
+      for (const [key, picture] of Object.entries(pictures)) this.wall.noteSource(by, key, picture);
       try {
         await this.store.save(this.sceneId, { by, tiles: pictures, step, grid: this.grid });
       } catch (err) {
@@ -422,7 +438,7 @@ export class ChalkController {
     this.wall.paint(id, dabs);
     this.lastEnd = to;
     const box = dabBounds(dabs);
-    this.#keepChanges(this.wall.commit(id), id, box, tool).catch((err) => console.warn(`${NS} | a straight line could not be kept`, err));
+    this.#keepChanges(this.#changesOf(this.wall.commit(id)), id, box, tool).catch((err) => console.warn(`${NS} | a straight line could not be kept`, err));
     return box;
   }
 
@@ -432,7 +448,7 @@ export class ChalkController {
       this.flash(sample, game.i18n.localize(r.reason === "open" ? "STAGECRAFT.Chalk.FillOpen" : "STAGECRAFT.Chalk.FillOnPaint"));
       return;
     }
-    this.#keepChanges(new Map([[game.user.id, r.changed]]), newId(), { x0: at.x - 1, y0: at.y - 1, x1: at.x + 1, y1: at.y + 1 }).catch((err) => console.warn(`${NS} | a fill could not be kept`, err));
+    this.#keepChanges(this.#changesOf(new Map([[game.user.id, r.changed]])), newId(), { x0: at.x - 1, y0: at.y - 1, x1: at.x + 1, y1: at.y + 1 }).catch((err) => console.warn(`${NS} | a fill could not be kept`, err));
   }
 
   /** Take the colour under the pointer: from the chalk on the wall, or, where there is none, from the painting. */

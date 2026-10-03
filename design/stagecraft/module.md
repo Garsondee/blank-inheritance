@@ -674,3 +674,14 @@ became). What changed in the module:
 
 Tests: 288 in the module (new: `brush.test.mjs`, `fake-wall.mjs`; rewritten: the chalk, store, controller, box and plain
 picture tests).
+## 23. A fade, not a cut (2026-10-03, last of all)
+
+Her tenth message: *"Where we occlude cards let's use a nice fade instead of a harsh cut."* `core/visibility.mjs` gains
+`cutoutFade` (how solid each pixel of a cut-out is: clear at its top edge, solid `CUTOUT_FADE`, 44 reference pixels, below
+it, and never over more than `CUTOUT_FADE_MOST`, two fifths, of its height). The 3D picture gives each cut-out a fade mask
+on a second set of texture coordinates and draws it after the cards (`renderOrder` 3), so the ones behind show through the
+fade; the plain picture cuts the same fade into its cut-out pictures. `stage.md` §5.8.1. Tests: 290 in the module.
+
+Two things found on the live server the same evening: a stroke that left nothing (painted outside the chalk zones) still
+made a page and a step, and now keeps nothing (`#changesOf` in `foundry/chalk.mjs`, and the `end` message names only the
+layers that really change); and the box of chalk moves clear of the deck and the macro bar (§22).

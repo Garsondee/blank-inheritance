@@ -66,6 +66,51 @@ export function coveredShare(r, shapes, { across = 12, down = 20 } = {}) {
 }
 
 /**
+ * How deep a cut-out's top edge fades, in reference pixels (Ingram, 2026-10-03: "Where we occlude cards let's use a nice
+ * fade instead of a harsh cut"): a card standing behind a counter melts into it over this much of its height instead of
+ * being sliced off. Never more than `CUTOUT_FADE_MOST` of the cut-out's own height, so a low ledge still hides.
+ */
+export const CUTOUT_FADE = 44;
+export const CUTOUT_FADE_MOST = 0.4;
+
+/**
+ * How solid each pixel of a cut-out is, on a grid of `w` x `h` pixels laid over it: nothing outside its shape; inside,
+ * clear at its top edge and solid `fade` pixels further down, smoothly. `poly` is the shape in the grid's pixels
+ * ([[x, y], ...]). Returns a Uint8ClampedArray of w x h (0 to 255), row by row from the top.
+ */
+export function cutoutFade(poly, w, h, fade) {
+  const inside = new Uint8Array(w * h);
+  const n = poly.length;
+  for (let y = 0; y < h; y++) {
+    const py = y + 0.5;
+    const xs = [];
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const [xi, yi] = poly[i];
+      const [xj, yj] = poly[j];
+      if ((yi > py) !== (yj > py)) xs.push(xi + ((py - yi) / (yj - yi)) * (xj - xi));
+    }
+    xs.sort((a, b) => a - b);
+    for (let k = 0; k + 1 < xs.length; k += 2) {
+      const a = Math.max(0, Math.ceil(xs[k] - 0.5));
+      const b = Math.min(w - 1, Math.floor(xs[k + 1] - 0.5));
+      for (let x = a; x <= b; x++) inside[y * w + x] = 1;
+    }
+  }
+  const out = new Uint8ClampedArray(w * h);
+  const smooth = (t) => t * t * (3 - 2 * t);
+  for (let x = 0; x < w; x++) {
+    let top = -1;
+    for (let y = 0; y < h; y++) {
+      if (!inside[y * w + x]) continue;
+      if (top < 0) top = y;
+      const d = y - top + 0.5;                                   // how far below the top edge this pixel's middle is
+      out[y * w + x] = Math.round(255 * (fade > 0 ? smooth(Math.min(1, d / fade)) : 1));
+    }
+  }
+  return out;
+}
+
+/**
  * Spread cards apart across the floor until none is hidden more than `most`: each card covered too much and whatever
  * covers it are pushed away from each other, a little at a time, so everyone keeps their order left to right and a
  * formation keeps its shape, only looser. Only the cards in `movable` (a Set of ids) move; the rest (the party, people

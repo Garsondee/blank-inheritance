@@ -231,3 +231,11 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | M6 | A range of tools, and more of her own to add: pencil, brush, spray, smudge, fill, eraser | chalk.md §5 | bench |
 | M7 | Rethink how chalk is stored: a layer of tiles per painter, with the history to take strokes back | chalk.md §4.1, chalk.md §4.2 | bench |
 | M8 | Improve chalk across the board: strokes seen live on every screen, undo and redo for everyone, the plain picture too | chalk.md §11 | bench |
+
+## N. Her tenth message: a fade, not a cut (2026-10-03)
+
+*"Where we occlude cards let's use a nice fade instead of a harsh cut."* Built the same day (`stage.md` §5.8.1).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| N1 | Where a cut-out (a counter, a bar) hides the bottom of a card, a nice fade instead of a harsh cut | stage.md §5.8.1 | bench |

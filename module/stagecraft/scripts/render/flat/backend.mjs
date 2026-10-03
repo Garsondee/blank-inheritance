@@ -14,6 +14,7 @@ import { makeRig, viewFor } from "../../core/rigspace.mjs";
 import { DEFAULT_BOX, PALETTE, tileRect, tilesFor } from "../../core/chalk.mjs";
 import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
 import { samplePainting } from "../paint/wall.mjs";
+import { cutoutFade, CUTOUT_FADE, CUTOUT_FADE_MOST } from "../../core/visibility.mjs";
 import { cardPlacement, hitCard, floorAt, paintingAt, project, byDepth, toWindow, FOOT } from "./geometry.mjs";
 import { boxLayout, hitBox } from "./box.mjs";
 
@@ -394,6 +395,7 @@ export class FlatBackend {
     canvas.height = y1 - y0;
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingQuality = "high";
+    ctx.save();
     ctx.setTransform(view.s * ratio, 0, 0, view.s * ratio, -view.ox * view.s * ratio - x0, -view.oy * view.s * ratio - y0);
     ctx.beginPath();
     o.poly.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
@@ -401,6 +403,23 @@ export class FlatBackend {
     ctx.clip();
     const [iw, ih] = rig.size;
     ctx.drawImage(this.painting, rig.map.ox, rig.map.oy, iw * rig.map.s, ih * rig.map.s);
+    ctx.restore();
+    // its top edge fades in, as in the 3D picture (core/visibility.mjs `cutoutFade`): a card behind it melts into it
+    const ys = o.poly.map((p) => p[1]);
+    const fade = Math.min(CUTOUT_FADE, (Math.max(...ys) - Math.min(...ys)) * CUTOUT_FADE_MOST) * view.s * ratio;
+    const alpha = cutoutFade(win.map((p) => [p.x * ratio - x0, p.y * ratio - y0]), canvas.width, canvas.height, fade);
+    const mask = document.createElement("canvas");
+    mask.width = canvas.width;
+    mask.height = canvas.height;
+    const mx = mask.getContext("2d");
+    const img = mx?.createImageData?.(mask.width, mask.height);
+    if (img?.data) {
+      for (let i = 0; i < alpha.length; i++) img.data[i * 4 + 3] = alpha[i];
+      mx.putImageData(img, 0, 0);
+      ctx.globalCompositeOperation = "destination-in";
+      ctx.drawImage(mask, 0, 0);
+      ctx.globalCompositeOperation = "source-over";
+    }
     return { canvas, x: x0, y: y0 };
   }
 

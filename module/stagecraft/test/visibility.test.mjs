@@ -6,10 +6,32 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { describeScene } from "../scripts/core/scene.mjs";
 import { Stage } from "../scripts/core/stage.mjs";
-import { cardRect, hiddenShares, coveredShare, HIDDEN_AT_MOST } from "../scripts/core/visibility.mjs";
+import { cardRect, hiddenShares, coveredShare, HIDDEN_AT_MOST, cutoutFade, CUTOUT_FADE, CUTOUT_FADE_MOST } from "../scripts/core/visibility.mjs";
 import { RAW_SCENE } from "./fixture.mjs";
 
 const { scene } = describeScene(RAW_SCENE);
+
+test("a cut-out fades in from its top edge, so a card behind it melts into it rather than being sliced (Ingram, 2026-10-03)", () => {
+  // a counter 100 wide and 60 high, a 20-pixel fade
+  const a = cutoutFade([[10, 20], [110, 20], [110, 80], [10, 80]], 120, 100, 20);
+  const at = (x, y) => a[y * 120 + x];
+  assert.equal(at(5, 50), 0, "nothing outside its shape");
+  assert.equal(at(60, 10), 0, "nor above it");
+  assert.ok(at(60, 20) < 20, `nearly clear at its top edge: ${at(60, 20)}`);
+  assert.ok(at(60, 30) > 60 && at(60, 30) < 200, `half way through the fade: ${at(60, 30)}`);
+  assert.equal(at(60, 45), 255, "solid below the fade");
+  for (let y = 21; y < 80; y++) assert.ok(at(60, y) >= at(60, y - 1), "and it only ever gets more solid going down");
+  // a slanted top: the fade follows the edge across the cut-out
+  const s = cutoutFade([[0, 10], [100, 50], [100, 99], [0, 99]], 100, 100, 10);
+  // the edge is at y 12.2 at x 5 and y 48.2 at x 95
+  assert.ok(s[12 * 100 + 5] < 40 && s[48 * 100 + 95] < 40, `clear just under the edge at both ends: ${s[12 * 100 + 5]}, ${s[48 * 100 + 95]}`);
+  assert.equal(s[47 * 100 + 95], 0, "and nothing above it");
+  assert.equal(s[40 * 100 + 5], 255);
+  // the fade is a share of the cut-out's height at most, so a low ledge still hides what is behind it
+  assert.ok(CUTOUT_FADE > 0 && CUTOUT_FADE_MOST > 0 && CUTOUT_FADE_MOST < 1);
+  const noFade = cutoutFade([[0, 0], [10, 0], [10, 10], [0, 10]], 10, 10, 0);
+  assert.ok(noFade.every((v) => v === 255), "no fade: solid throughout");
+});
 
 /** Where everyone stands once a formation's moves are made, as cards the visibility check reads. */
 function placed(s, moves) {

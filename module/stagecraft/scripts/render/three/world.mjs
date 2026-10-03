@@ -6,6 +6,7 @@
 
 import * as THREE from "three";
 import { noise1 } from "../../core/diorama.mjs";
+import { cutoutFade, CUTOUT_FADE, CUTOUT_FADE_MOST } from "../../core/visibility.mjs";
 import { atDepth, pointScale, BACKDROP_DEPTH } from "./support.mjs";
 const SPOT = 3.2e6;          // candela per unit of a light's authored intensity, tuned for pixel-sized worlds (renderer.md §8.4)
 
@@ -45,21 +46,32 @@ export class World {
     this.#apron(paintTex, w, h);
 
     // Cut-outs: the painting's own pixels, stood at the depth where they meet the floor, so cards can stand behind them.
+    // Each fades in from its top edge (core/visibility.mjs `cutoutFade`), so a card behind it melts into the counter
+    // instead of being sliced off, and is drawn after the cards so the ones behind it show through the fade.
     for (const o of d.occluders) {
       const base = rig.standing([o.x, o.base]);
       if (!base) continue;
+      const xs = o.poly.map((p) => p[0]);
+      const ys = o.poly.map((p) => p[1]);
+      const box = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
       const pos = [];
       const uv = [];
+      const uv1 = [];
       for (const [fx, fy] of o.poly) {
         const v = atDepth(rig, rig.map.x(fx), rig.map.y(fy), base.Z);
         pos.push(v.x, v.y, v.z);
         uv.push(fx, 1 - fy);
+        uv1.push((fx - box[0]) / (box[2] - box[0] || 1), 1 - (fy - box[1]) / (box[3] - box[1] || 1));
       }
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
       geo.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+      geo.setAttribute("uv1", new THREE.Float32BufferAttribute(uv1, 2));
       geo.setIndex(o.poly.length === 4 ? [0, 2, 1, 0, 3, 2] : fanIndices(o.poly.length));
-      this.group.add(T.mesh(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: paintTex, color: 0xdcdcdc, side: THREE.DoubleSide }))));
+      const fade = this.#fadeTexture(o.poly, box);
+      const mesh = T.mesh(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: paintTex, color: 0xdcdcdc, side: THREE.DoubleSide, ...(fade ? { alphaMap: fade, transparent: true } : {}) })));
+      mesh.renderOrder = 3;
+      this.group.add(mesh);
     }
 
     // The floor takes shadows and nothing else. It must hide nothing either: it lies in front of the painting, and if it wrote
@@ -80,6 +92,36 @@ export class World {
 
     this.#dust();
     return this;
+  }
+
+  /**
+   * A cut-out's fade as a texture over its bounding box (`box`, fractions of the painting), read through the mesh's second
+   * set of texture coordinates: clear at its top edge, solid CUTOUT_FADE reference pixels below it.
+   */
+  #fadeTexture(poly, [fx0, fy0, fx1, fy1]) {
+    const { rig, T } = this;
+    const [iw, ih] = rig.size;
+    const wPx = (fx1 - fx0) * iw * rig.map.s;
+    const hPx = (fy1 - fy0) * ih * rig.map.s;
+    if (!(wPx > 0 && hPx > 0)) return null;
+    const W = 256;
+    const H = Math.max(32, Math.min(512, Math.round((W * hPx) / wPx)));
+    const fade = (Math.min(CUTOUT_FADE, hPx * CUTOUT_FADE_MOST) / hPx) * H;
+    const alpha = cutoutFade(poly.map(([fx, fy]) => [((fx - fx0) / (fx1 - fx0)) * W, ((fy - fy0) / (fy1 - fy0)) * H]), W, H, fade);
+    const data = new Uint8Array(W * H * 4);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const a = alpha[y * W + x];
+        const o = ((H - 1 - y) * W + x) * 4;             // a data texture's first row is its bottom
+        data[o] = data[o + 1] = data[o + 2] = data[o + 3] = a;
+      }
+    }
+    const tex = T.add(new THREE.DataTexture(data, W, H, THREE.RGBAFormat));
+    tex.magFilter = THREE.LinearFilter;
+    tex.minFilter = THREE.LinearFilter;
+    tex.channel = 1;
+    tex.needsUpdate = true;
+    return tex;
   }
 
   /**

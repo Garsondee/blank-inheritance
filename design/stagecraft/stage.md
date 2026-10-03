@@ -521,6 +521,11 @@ place them in characterful positions and angles, fully in view and in a way that
   formation is loosened, after it is arranged, just enough that no card hides more than 15% of another, and the circle is
   an arc open to the table (a whole ring hid its far side behind its near side), and the gang-up never puts anyone
   straight behind the one ganged up on.
+- **And what a cut-out does hide, it fades** (her tenth message, the same day: *"Where we occlude cards let's use a nice
+  fade instead of a harsh cut."*). A counter's top edge is clear and grows solid over 44 reference pixels (never more than
+  two fifths of the counter's own height, so a low ledge still hides), so a card behind it melts into the counter instead
+  of being sliced off: `cutoutFade` and `CUTOUT_FADE` in `core/visibility.mjs`, the same in the 3D picture (a fade mask on
+  the cut-out, drawn after the cards) and the plain one.
 - **The party stands in the wings**: two small groups at the front corners, turned in, each card stepping a little further
   back than the one outside it, so the whole middle of the stage is the scene's (with six cards across the front at the
   new size, the party was a wall that hid the room). A stage that keeps one side clearer says how many go left

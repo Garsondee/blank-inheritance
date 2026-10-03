@@ -173,6 +173,20 @@ test("in zones only, paint is held to the chalk zones by the wall's mask; a stro
   assert.equal(free.wall.mask, null, "anywhere is anywhere");
 });
 
+test("a stroke that leaves nothing keeps nothing: no page, no step, no hook, and nobody waits for it (found live)", async () => {
+  const t = await table({ chalk: { mode: "zones" } });
+  t.controller.take("white");
+  t.wall.masked = true;                                         // painted outside the chalk zone: masked away to nothing
+  await paint(t.controller, across(0.6, 0.8, 0.3));
+  assert.deepEqual(t.store.layers("sc"), [], "no page was made");
+  assert.equal(hookLog.length, 0, "the adventure is not told of paint that is not there");
+  assert.deepEqual(sent.at(-1).layers, [], "and other screens are told to wait for nothing");
+  t.wall.masked = false;
+  await paint(t.controller, across(0.2, 0.3, 0.3));
+  assert.equal(Object.keys(mine(t).history).length, 1, "a stroke that does leave paint is kept as one step");
+  t.controller.stop();
+});
+
 test("taking back and putting back: Ctrl+Z takes back my newest stroke, Ctrl+Shift+Z puts it back, a new stroke ends the redo", async () => {
   const t = await table({ chalk: { mode: "anywhere" } });
   t.controller.take("white");
