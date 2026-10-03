@@ -4,6 +4,8 @@
  */
 
 import { NS } from "./scene-data.mjs";
+import { lowestOf } from "../core/speed.mjs";
+import { speedLimit, forgetSpeed } from "./speed-store.mjs";
 
 export function registerSettings() {
   const F = foundry.data.fields;
@@ -14,7 +16,8 @@ export function registerSettings() {
     config: true,
     requiresReload: false,
     type: new F.StringField({ required: true, blank: false, initial: "auto", choices: { auto: "STAGECRAFT.Settings.Tier.Auto", high: "STAGECRAFT.Settings.Tier.High", low: "STAGECRAFT.Settings.Tier.Low", flat: "STAGECRAFT.Settings.Tier.Flat" } }),
-    onChange: () => Hooks.callAll("stagecraft.settingsChanged", "tier")
+    // any choice a player makes here clears what the start-up test found: Automatic tests this computer afresh
+    onChange: () => { forgetSpeed(); Hooks.callAll("stagecraft.settingsChanged", "tier"); }
   });
   game.settings.register(NS, "zones", {
     name: "STAGECRAFT.Settings.Zones.Name",
@@ -39,12 +42,16 @@ export function registerSettings() {
 /** What the player left the picture quality on: auto, high, low or flat. */
 export const tierSetting = () => game.settings.get(NS, "tier");
 
-/** The tier to draw at: the player's choice, else what Foundry's own performance mode says about their machine. */
+/**
+ * The tier to draw at: the player's choice, else what Foundry's own performance mode says about their machine, held down
+ * to what the start-up speed test found this computer can hold (foundry/speed.mjs). A limit only ever lowers a tier.
+ */
 export function chosenTier() {
   const set = game.settings.get(NS, "tier");
   if (set === "high" || set === "low" || set === "flat") return set;
   const mode = game.settings.get("core", "performanceMode");
-  return mode !== null && mode <= CONST.CANVAS_PERFORMANCE_MODES.LOW ? "low" : "high";
+  const base = mode !== null && mode <= CONST.CANVAS_PERFORMANCE_MODES.LOW ? "low" : "high";
+  return lowestOf(base, speedLimit() ?? "high");
 }
 
 /** Calm when the player asked for it, or when their system or Foundry asks for reduced motion or photosensitive mode. */

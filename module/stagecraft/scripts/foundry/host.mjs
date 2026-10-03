@@ -16,6 +16,8 @@ import { openChannel } from "./socket.mjs";
 import { chosenTier, tierSetting, isCalm, zoneSetting } from "./settings.mjs";
 import { ChalkController } from "./chalk.mjs";
 import { ChalkKit } from "./chalk-kit.mjs";
+import { HealthMeter, HealthBoard } from "./health.mjs";
+import { SpeedTest } from "./speed.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
@@ -42,6 +44,9 @@ export class StageHost {
     this.selected = new Set();             // the GM's selection (shift-click): what a formation moves
     this.running = false;
     this.frames = 0;
+    this.speed = null;                     // the start-up speed test (speed.mjs)
+    this.health = null;                    // how this screen is coping, and tells the GM (health.mjs)
+    this.healthBoard = null;               // the GM's board of everyone's
     this.listeners = [];
     this.hooks = [];
   }
@@ -77,9 +82,11 @@ export class StageHost {
       onLost: (id) => this.#grabLost(id),
       onDrop: (result) => this.#dropped(result)
     });
-    // one channel for both: cards in hand (core/sync.mjs) and strokes of chalk being painted (chalk.mjs)
+    // one channel for all three: cards in hand (core/sync.mjs), strokes of chalk being painted (chalk.mjs) and how each
+    // screen is coping (health.mjs)
     this.channel = openChannel((message, sender) => {
       if (message?.type === "chalk") this.chalk?.receive(message, sender);
+      else if (message?.type === "health") { this.health?.receive(message); this.healthBoard?.receive(message, sender); }
       else this.sync.receive(message, sender);
     });
 
@@ -96,8 +103,10 @@ export class StageHost {
       this.chalk.refresh();
       this.#placeBox();
     }
-    if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.#gmToggle(); }
+    if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.healthBoard = new HealthBoard(this); this.#gmToggle(); }
     this.#boardKey();
+    this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
+    this.speed = new SpeedTest(this);           // and, left on Automatic, a moment's test of whether it can hold the lit stage
 
     this.#watchSize();
     this.#watchPointer();
@@ -106,6 +115,7 @@ export class StageHost {
     this.running = true;
     this.last = performance.now();
     this.raf = requestAnimationFrame(this.#frame);
+    this.speed.start();
     // whatever the scene was given while the picture was being built is taken up now; it would otherwise wait for the
     // scene's next change (found live 2026-10-03: a deploy's new layout, written as the GM's page loaded, landed while the
     // painting was loading, and the stage went on showing everyone where they had been). Once this draw has finished.
@@ -186,11 +196,14 @@ export class StageHost {
     this.chalk?.stop();
     this.kit?.dispose();
     this.chalk?.wall?.clear();
+    this.speed?.cancel();
+    this.health?.stop();
+    this.healthBoard?.dispose();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
     this.root?.remove();
-    this.chalk = this.kit = this.bar = this.blocking = this.backend = this.root = null;
+    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.bar = this.blocking = this.backend = this.root = null;
   }
 
   /* ---------------------------------------------------------------- the loop */
@@ -212,7 +225,16 @@ export class StageHost {
       if (this.chalk?.inHand) for (const z of this.chalk.chalkZones()) snap.zones[z.id] = this.chalk.cursorZone === z.id ? "target" : "near";
       // paint made since the last frame is laid together once, now, so it is on the screen in this frame
       this.chalk?.wall?.flush?.();
-      this.backend.draw(snap);
+      this.health?.frame(now);
+      if (this.speed?.probe) {
+        // the start-up speed test: this frame's whole cost, the draw and the wait for the graphics card to have finished it
+        const t0 = performance.now();
+        this.backend.draw(snap);
+        this.backend.finish?.();
+        this.speed.feed(performance.now() - t0, now);
+      } else {
+        this.backend.draw(snap);
+      }
       this.frames++;
       // what covers the stage can change without the window changing (the deck folded away): the box keeps clear of it
       if (this.frames % 60 === 0) this.#placeBox();
@@ -370,6 +392,7 @@ export class StageHost {
       if (e.code !== "Escape") return;
       if (this.chalk?.drawing) this.chalk.cancel();
       else if (this.chalk?.inHand) this.chalk.putAway();
+      else if (this.healthBoard?.close()) { /* the table's list is put away */ }
       else if (this.blocking?.disarm()) { /* the waiting formation is put away */ }
       else if (this.selected.size) { this.selected.clear(); this.blocking?.selectionChanged(); }
       else return;
@@ -626,5 +649,7 @@ export class StageHost {
     this.boxAt = null;                      // the new picture's box stands where the scene put it until it is placed again
     this.#placeBox();
     this.#watchPointer();
+    this.health?.changed();                 // the new picture (a lighter one, a recovered one) is news for the GM's board
+    this.speed?.start();                    // and, if this computer is still to be tested, the test begins again
   }
 }

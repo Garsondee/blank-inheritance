@@ -5,7 +5,12 @@
       "Failed": "Stagecraft could not take over \"{scene}\", so Foundry's own canvas is showing. See the console.",
       "TierNextScene": "Stagecraft: the new picture quality applies from the next scene.",
       "Flat": "Stagecraft: this computer could not draw the 3D stage, so you are seeing the plain one. Everything still works.",
-      "FlatSoftware": "Stagecraft: this computer draws graphics without a graphics card, so you are seeing the plain stage. Everything still works. You can change this in the module's settings."
+      "FlatSoftware": "Stagecraft: this computer draws graphics without a graphics card, so you are seeing the plain stage. Everything still works. You can change this in the module's settings.",
+      "SpeedLow": "Stagecraft: this computer found the lit stage heavy, so it is drawing the lighter one now. Everything still works. You can change this in the module's settings (Stage picture quality).",
+      "SpeedFlat": "Stagecraft: this computer found the 3D stage too heavy, so it is drawing the plain one now. Everything still works. You can change this in the module's settings (Stage picture quality)."
+    },
+    "Health": {
+      "Label": "Table {n}/{of}"
     },
     "Settings": {
       "Tier": {

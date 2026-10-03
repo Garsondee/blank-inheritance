@@ -388,9 +388,123 @@
 
 /* chalk in hand: the strips and their key step aside, so every wall can be drawn on */
 #stagecraft-stage.stagecraft-chalk .stagecraft-bar,
-#stagecraft-stage.stagecraft-chalk .stagecraft-gm-toggle {
+#stagecraft-stage.stagecraft-chalk .stagecraft-gm-toggle,
+#stagecraft-stage.stagecraft-chalk .stagecraft-health {
   display: none !important;
 }
+
+/*
+ * How each screen at the table is coping (health.mjs), for the GM only: one pill beside the Stage key, folded away with the
+ * strips, whose dot is green when everyone is fine, amber when someone is slow and red when someone is struggling; opened,
+ * a list of every player and what they are drawing with.
+ */
+#stagecraft-stage:not(.stagecraft-gm-open) .stagecraft-health {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-health {
+  position: absolute;
+  top: 54px;
+  left: calc(50% + 56px);
+  z-index: 6;
+  font: 600 12px/1.3 system-ui, "Segoe UI", sans-serif;
+  color: #e8dcc4;
+}
+
+#stagecraft-stage .stagecraft-health .pill {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 11px 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 201, 141, 0.4);
+  background: rgba(14, 10, 6, 0.74);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+#stagecraft-stage .stagecraft-health .pill:hover {
+  background: rgba(40, 28, 16, 0.85);
+}
+
+#stagecraft-stage .stagecraft-health .pill:focus-visible {
+  outline: 2px solid #f0c978;
+  outline-offset: 1px;
+}
+
+#stagecraft-stage .stagecraft-health .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #7d7466;
+}
+
+#stagecraft-stage .stagecraft-health .pill[data-level="ok"] .dot { background: #7fd48a; }
+#stagecraft-stage .stagecraft-health .pill[data-level="plain"] .dot { background: #8fc0e0; }
+#stagecraft-stage .stagecraft-health .pill[data-level="warn"] .dot { background: #f0b84a; }
+#stagecraft-stage .stagecraft-health .pill[data-level="bad"] .dot { background: #f06a5a; }
+
+#stagecraft-stage .stagecraft-health .panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 250px;
+  padding: 8px 10px 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(230, 201, 141, 0.45);
+  background: rgba(14, 10, 6, 0.92);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+#stagecraft-stage .stagecraft-health .panel[hidden] {
+  display: none;
+}
+
+#stagecraft-stage .stagecraft-health .line {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #f0c98a;
+}
+
+#stagecraft-stage .stagecraft-health ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#stagecraft-stage .stagecraft-health li {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 2px 0 2px 14px;
+  position: relative;
+  cursor: help;
+}
+
+#stagecraft-stage .stagecraft-health li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7d7466;
+}
+
+#stagecraft-stage .stagecraft-health li[data-level="ok"]::before { background: #7fd48a; }
+#stagecraft-stage .stagecraft-health li[data-level="plain"]::before { background: #8fc0e0; }
+#stagecraft-stage .stagecraft-health li[data-level="warn"]::before { background: #f0b84a; }
+#stagecraft-stage .stagecraft-health li[data-level="bad"]::before { background: #f06a5a; }
+
+#stagecraft-stage .stagecraft-health li span {
+  color: #cdbf9f;
+  font-variant-numeric: tabular-nums;
+}
+
+#stagecraft-stage .stagecraft-health li[data-level="stale"] { opacity: 0.55; }
 
 /* The GM's strip: small, along the top just under the key, out of the way of the cards. */
 #stagecraft-stage .stagecraft-bar {

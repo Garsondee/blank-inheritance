@@ -434,7 +434,7 @@ the adventure's Blank Inheritance world, a stage scene with eight cards):
 
 **Not built.**
 
-- The accessible mirror, a start-up speed test for the default tier, camera moves, `capture`, the cancelling hooks, `cards.*` and `scenes.enable`
+- The accessible mirror, camera moves, `capture`, the cancelling hooks, `cards.*` and `scenes.enable`
   (a scene is made a stage scene by writing its flags).
 - The scene set-up and rig editor windows; the token bridge; systems adapters.
 - (The adventure's bridge and the deploy are built: see §19.)
@@ -696,3 +696,17 @@ chalk zones, blurs the glow at a quarter of the size, makes the tips and the gra
 and encodes tiles in a worker (`encodeTile(canvas, sure)`); `foundry/chalk.mjs` keeps strokes in order (`#keepStroke`)
 from pictures taken the moment a stroke ends; the kit's ring is a few small elements; the 3D picture keeps its raycaster
 and builds the chalk tiles' program at load. The bench has `chalk-perf.mjs` (no pass or fail: a table to compare against).
+## 25. The table measures itself (2026-10-04)
+
+From her goal that evening ("Proceed through as much as possible"), the second item of the priority list in `README.md`.
+`renderer.md` §9.1 has the design and the measurements. In the module: `core/speed.mjs` (the probe, the verdicts, the rule
+that a tier only drops on evidence and never rises), `core/health.mjs` (what a screen reports, what an incoming report is
+trusted to be, what the board says), `foundry/speed-store.mjs` (what the test found, kept in the browser for that graphics
+card), `foundry/speed.mjs` (the test the host runs on the first stage of a session), `foundry/health.mjs` (`HealthMeter` on
+every screen, `HealthBoard` on the GM's), `finish()` on the three.js backend (one pixel read back, so the whole cost
+of drawing can be timed), and the stored limit in `chosenTier()`. The module's channel now carries three kinds of message (cards in
+hand, strokes of chalk, health), told apart by their `type`. Tests: `speed.test.mjs` (8), `health.test.mjs` (8) and
+`tools/stagecraft/bench/health-check.mjs` (23 checks: the board as a GM and a player in two pages, the test finding a fast
+machine fine and leaving it alone, a "slow" machine moved down after two verdicts, a crawl sent to the plain stage, the
+finding remembered by the next page, a player who chose a tier never tested). The limits can be laid over in the bench
+(`globalThis.__stagecraftSpeed`), so a fast machine can be "slow" on demand; nothing sets it at a table.

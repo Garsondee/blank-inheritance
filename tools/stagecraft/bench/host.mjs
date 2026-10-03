@@ -15,6 +15,8 @@
 
 const params = new URLSearchParams(location.search);
 const seat = params.get("seat") === "player" ? "player" : "gm";
+// ?fresh=1: this browser forgets what the start-up speed test found (foundry/speed-store.mjs), as a computer new to the table is
+if (params.get("fresh")) { try { localStorage.removeItem("stagecraft.speed"); } catch { /* nothing kept */ } }
 const route = (p) => (typeof p === "string" && p.startsWith("modules/") ? `/module/${p.slice("modules/".length)}` : p);
 
 /* ---------------------------------------------------------------- a small Foundry */

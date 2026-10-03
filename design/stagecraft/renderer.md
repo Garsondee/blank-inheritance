@@ -570,6 +570,34 @@ graphics chip, which is the one case that matters and the one that is neither of
 - The 3D feel under a real hand: the numbers match the CSS lab's and the pictures show the sensations, but only Ingram
   can say whether they *feel* right. The live page is the thing to try (`lab/README.md`).
 
+### 9.1 The table measures itself (2026-10-04)
+
+The machines nobody could measure from here (the integrated chip, the older laptop) are measured where they are: **the
+first stage a computer draws, left on Automatic, is its own test** (`core/speed.mjs`, `foundry/speed.mjs`). Two and a half
+seconds after the stage is up, 120 drawn pictures are timed, each as its draw *and the wait for the graphics card to have
+finished it* (one pixel is read back, `finish()` on the backend), which is what drawing really costs whatever the
+display's refresh rate. The first 30 are thrown away (shaders compile, pictures upload) and the median of the next 90 is judged:
+
+| Drawing costs (median) | Can hold | Verdict | What happens |
+|---|---|---|---|
+| under 20 ms | 50 pictures a second | ok | nothing, and the computer is never tested again |
+| 20 to 36 ms | 28 to 50 | slow | a doubt: tested again 45 seconds later, and only a second "slow" drops the tier one step (lit to low, low to plain) |
+| over 36 ms | under 28 | very slow | straight to the plain stage |
+
+Measured on the bench with the processor slowed (an AMD Radeon RX 6800 XT, so a card that is no test at all): 5.7 ms at full
+speed, 9.2 ms at half, 18.2 ms at a quarter (still ok: about 55 a second) and 30 ms at a sixth (slow). What was found is kept in
+that browser for that graphics card (`stagecraft.speed`), so the next scene and the next session start at the right tier at
+once; a computer found fine is not tested again. **A tier is only ever lowered, never raised, and a player who chose a tier
+in the module's settings is never tested or moved**; choosing anything in that setting makes Automatic judge the computer
+afresh. The player is told once ("this computer found the lit stage heavy, so it is drawing the lighter one now").
+
+**And the GM sees it.** Every screen drawing a stage reports now and then (every 20 seconds, and at once when something
+changes) over the module's socket: which picture, its frame rate, its graphics card, its window, any lost context or failed
+pictures, and what the start-up test found (`core/health.mjs`, `foundry/health.mjs`). The GM's strip has a pill beside the
+Stage key ("Table 5/6") whose dot is green when everyone is fine, blue when someone is on the plain stage, amber when someone
+is slow and red when someone is struggling; opened, it lists every player, trouble first, and asks everyone to report. So
+call 6 below ("what do the six of you play on?") is answered at the table, in the first minutes, by the table.
+
 ---
 
 ## 10. The plan
@@ -621,7 +649,8 @@ Each has my default; none is settled until she says so.
 3. **Tokens.** The stage's own state stays the source of truth; a token bridge only when fights need it. *Default: as written.*
 4. **Two renderers, not three** (three.js and flat; CSS-3D kept as a contingency). *Default: as written.*
 5. **Which extras first** (§5.6). *Default: the order given there.* Footlights in particular are a look she should see before they are anywhere near a real scene.
-6. **The players' machines.** What do the six of you play on, and in which browsers? This sets the default tier.
+6. **The players' machines.** What do the six of you play on, and in which browsers? This sets the default tier. *Since
+   2026-10-04 the table answers it for itself (§9.1): each computer tests itself, and the GM's board shows who is on what.*
 7. **Accessibility** (§6.3) in phase 1, not later. *Default: yes.*
 8. **The Watcher's tells** as renderer effects (§5.5): allowed at all, and where is the reveal line?
 9. **The module's name and licence** and whether it goes public (`module.md` §11): hers, and later.
