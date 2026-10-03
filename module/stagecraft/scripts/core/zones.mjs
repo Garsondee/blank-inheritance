@@ -115,6 +115,30 @@ export function rangeBands(zones, { touch = 0.035 } = {}) {
 }
 
 /**
+ * The places a card can stand in a zone, so that cards put down in a fight position line up instead of piling up
+ * (stage.md §8.3, docking): a grid over the zone's floor, `w` apart across and `deep` apart in depth (floor units), keeping
+ * only the points inside the zone, nearest the zone's middle first. `rig` is the stage's rig (rigspace.mjs).
+ */
+export function zoneSlots(zone, rig, { w = 180, deep = 160, most = 24 } = {}) {
+  const area = zoneArea(zone);
+  const floor = area.map((p) => rig.standing(p)).filter(Boolean);
+  if (floor.length < 3) return [];
+  const xs = floor.map((p) => p.X);
+  const zs = floor.map((p) => p.Z);
+  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+  const mid = rig.standing(centroid(area)) ?? { X: (x0 + x1) / 2, Z: (z0 + z1) / 2 };
+  const out = [];
+  for (let Z = z1 - deep / 2; Z >= z0; Z -= deep) {
+    for (let X = x0 + w / 2; X <= x1; X += w) {
+      const f = rig.fractionOf(X, Z);
+      if (pointInPolygon(area, f[0], f[1])) out.push({ X, Z });
+    }
+  }
+  out.sort((a, b) => Math.hypot(a.X - mid.X, (a.Z - mid.Z) * 0.8) - Math.hypot(b.X - mid.X, (b.Z - mid.Z) * 0.8));
+  return out.slice(0, most);
+}
+
+/**
  * Entering and leaving. `previous` is a Map of card id to a Set of zone ids; `now` is the same for this moment.
  * Returns the changes as events, and does not mutate either.
  */

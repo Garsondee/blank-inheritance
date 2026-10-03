@@ -5,7 +5,7 @@
     "version": "string",
     "skins": ["list", "register", "use"],
     "scenes": ["describe", "isStage", "validate"],
-    "blocking": ["arrange", "backToPlaces", "formations", "gaits", "move", "registerMoments", "routines", "setBoard", "setLife", "tidy"],
+    "blocking": ["arrange", "backToPlaces", "formations", "gaits", "move", "registerMoments", "routines", "setBoard", "setLife", "setSpeaker", "tidy"],
     "stage": "function",
     "zoneKinds": "array",
     "chalkModes": "array"

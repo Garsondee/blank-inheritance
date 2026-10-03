@@ -18,7 +18,7 @@ import { idle, cheatOut, yawTo } from "./diorama.mjs";
 import { createPuppet, stepPuppet, collide, box, perform, verbPose } from "./puppets.mjs";
 import { makeRig } from "./rigspace.mjs";
 import { resolveMarks, nearestFree, visibleMarks, markPose, tidy } from "./marks.mjs";
-import { zonesAt, zoneChanges, outlineStates, rangeBands } from "./zones.mjs";
+import { zonesAt, zoneChanges, outlineStates, rangeBands, zoneSlots } from "./zones.mjs";
 import { planWalk, walkAt, entrancePoint, floorDistance } from "./walks.mjs";
 import { describeRoutine, prepareRoutine, lifeAt } from "./life.mjs";
 import { arrange } from "./formations.mjs";
@@ -88,6 +88,8 @@ export class Stage {
     this.steps = 0;
     this.lifeOn = true;             // the GM's "Life" switch: routines run
     this.board = false;             // the GM's fight board: zones drawn plainly, with who is in each
+    this.speaker = null;            // who has the floor: lit, and everyone else turns to look at them
+    this.slots = new Map();         // zone id -> the places a card can dock in it (worked out when first wanted)
     for (const p of people) this.addCard(p);
   }
 
@@ -258,6 +260,28 @@ export class Stage {
   /** The GM's fight board: zones drawn plainly with who is in each, and the range bands between them. */
   setBoard(on) { this.board = !!on; }
 
+  /** Who has the floor (a card's id, or null): they are lit, and the people on the stage turn their heads to them. */
+  setSpeaker(id) { this.speaker = id && this.cards.has(id) ? id : null; }
+
+  /**
+   * Where a card let go inside a fight position docks while the board is up (stage.md §8.3): the nearest place in that
+   * position that nobody else is standing on, so a fight's positions stay readable. Null when the board is down, the point
+   * is in no position, or every place is taken.
+   */
+  dockFor(id, x, z) {
+    if (!this.board) return null;
+    const f = this.rig.fractionOf(x, z);
+    const zone = this.zones.find((q) => q.kind === "area" && zonesAt([q], f[0], f[1]).length);
+    if (!zone) return null;
+    const c = this.cards.get(id);
+    if (!this.slots.has(zone.id)) this.slots.set(zone.id, zoneSlots(zone, this.rig, { w: (c?.w ?? 180) * 1.05 }));
+    const taken = [...this.cards.values()].filter((o) => o.id !== id && o.holder === null).map((o) => ({ X: o.walk ? o.walk.to.X : o.puppet.restX, Z: o.walk ? o.walk.to.Z : o.restZ }));
+    const free = this.slots.get(zone.id).filter((s) => !taken.some((t) => Math.abs(t.X - s.X) < (c?.w ?? 180) * 0.6 && Math.abs(t.Z - s.Z) < 90));
+    if (!free.length) return null;
+    free.sort((a, b) => Math.hypot(a.X - x, (a.Z - z) * 0.8) - Math.hypot(b.X - x, (b.Z - z) * 0.8));
+    return { X: free[0].X, Z: free[0].Z, zone: zone.id };
+  }
+
   /* ---------------------------------------------------------------- hands */
 
   /** Take hold of a card. Returns false if someone else already has it. */
@@ -314,6 +338,9 @@ export class Stage {
     const z = c.hand?.z ?? c.Z;
     let mark = nearestFree(this.marks, this.resting, x, z, this.scene.reach.snap);
     if (!mark && this.scene.marksOnly) mark = nearestFree(this.marks, this.resting, x, z, Infinity);
+    // with the fight board up, a card let go in a position docks in a free place in it
+    const dock = mark ? null : this.dockFor(id, x, z);
+    if (dock) return { X: dock.X, Z: dock.Z, mark: null };
     return { X: x, Z: clamp(z, this.opts.limits.z[0], this.opts.limits.z[1]), mark: mark?.id ?? null };
   }
 
@@ -505,6 +532,8 @@ export class Stage {
         if (d < best) { best = d; target = h; }
       }
     }
+    // with nothing nearer to look at, everyone looks at whoever has the floor
+    if (!target && this.speaker && this.speaker !== c.id) target = this.cards.get(this.speaker) ?? null;
     if (!target) return 0;
     const want = cheatOut(yawTo(c.puppet.x, c.Z, target.puppet.x, target.Z), { share: 0.8, max: 60 });
     return clamp(want - c.yaw, -L.most, L.most);
@@ -637,6 +666,7 @@ export class Stage {
         held: c.holder !== null, holder: c.holder, mark: c.mark,
         walking: !!c.walk || (c.living && Math.abs(c.stepLift) > 0.2),
         selected: !!selected?.has?.(c.id),
+        speaking: this.speaker === c.id,
         emote: this.#emote(c, t)
       });
       if (viewer !== null && c.holder === viewer) marks.push(...this.marksFor(c.id));

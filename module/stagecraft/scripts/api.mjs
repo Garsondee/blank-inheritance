@@ -9,7 +9,7 @@ import { isStageScene, readStage } from "./foundry/scene-data.mjs";
 import { FORMATIONS } from "./core/formations.mjs";
 import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
-import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, registerMoments } from "./foundry/blocking.mjs";
+import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, registerMoments } from "./foundry/blocking.mjs";
 
 export const API_VERSION = "0.2.0";
 
@@ -50,6 +50,8 @@ export function createApi({ skins, current }) {
       tidy: (scene) => tidyUp(scene, current.host),
       setLife: (scene, on) => setLife(scene, on),
       setBoard: (scene, on) => setBoard(scene, on),
+      /** Give someone the floor (a card's id; null takes it back): lit, and everyone turns to look at them. */
+      setSpeaker: (scene, id) => setSpeaker(scene, id),
       /** Offer a scene's authored blocking as buttons on the GM's strip: provider(scene) -> [{ id, label, tip?, run(scene) }]. */
       registerMoments: (provider) => registerMoments(provider)
     },

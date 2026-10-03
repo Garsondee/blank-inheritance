@@ -17,7 +17,7 @@ import { chosenTier, tierSetting, isCalm, zoneSetting } from "./settings.mjs";
 import { ChalkController } from "./chalk.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
-import { sharedNow, serially, lifeOn, boardOn } from "./blocking.mjs";
+import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker } from "./blocking.mjs";
 
 export class StageHost {
   constructor({ scene, skins, anchor, services = {}, onFatal = null }) {
@@ -59,6 +59,7 @@ export class StageHost {
     this.stage = new Stage(description, this.people, { card: this.skins.get(description.skin).size, clock: sharedNow });
     this.stage.setLife(lifeOn(this.scene));
     this.stage.setBoard(boardOn(this.scene));
+    this.stage.setSpeaker(speakerOf(this.scene));
     // a move already published was made before this screen was here: the card stands where it went, nothing to walk
     for (const p of this.people) { const c = this.stage.cards.get(p.id); if (c) c.appliedMove = p.move?.t0 ?? null; }
     for (const p of this.stage.problems) console.warn(`${NS} | ${p}`);
@@ -230,6 +231,12 @@ export class StageHost {
           e.preventDefault();
           return;
         }
+        // Alt-click gives someone the floor (or takes it back): they are lit and everyone turns to look at them
+        if (e.altKey && hit?.kind === "card") {
+          setSpeaker(this.scene, this.stage.speaker === hit.id ? null : hit.id).catch((err) => console.warn(`${NS} | could not give the floor`, err));
+          e.preventDefault();
+          return;
+        }
       }
       // the box of chalk: take a stick, or put it back
       if (hit?.kind === "chalk" || hit?.kind === "eraser") { this.chalk?.take(hit.kind === "eraser" ? "rub" : hit.colour); this.chalk?.hover(p); e.preventDefault(); return; }
@@ -351,6 +358,8 @@ export class StageHost {
       this.backend.removeCard(id);
       this.people = this.people.filter((p) => p.id !== id);
     }
+    // after the cards: someone who has just arrived may be the one given the floor
+    this.stage.setSpeaker(speakerOf(this.scene));
   }
 
   /**

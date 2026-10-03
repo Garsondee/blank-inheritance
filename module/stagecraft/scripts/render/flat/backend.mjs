@@ -290,10 +290,10 @@ export class FlatBackend {
       const near = rig.screenOf(c.x, 0.6, c.z + deep);
       const far = rig.screenOf(c.x, 0.6, c.z - deep);
       const tall = Math.max(2, Math.abs(near.y - far.y) / 2);
-      if (c.selected) {
-        // chosen by the GM for a formation: a warm glow on the floor instead of a shadow
-        ctx.globalAlpha = 0.85;
-        ctx.fillStyle = "#ff9a46";
+      if (c.selected || c.speaking) {
+        // chosen by the GM for a formation (orange), or has the floor (a pale pool of light): a glow instead of a shadow
+        ctx.globalAlpha = c.selected ? 0.85 : 0.6;
+        ctx.fillStyle = c.selected ? "#ff9a46" : "#fff0c8";
         ctx.beginPath();
         ctx.ellipse(at.x, at.y, wide * 1.45, tall * 1.6, 0, 0, Math.PI * 2);
         ctx.fill();

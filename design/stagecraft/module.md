@@ -568,6 +568,10 @@ life to where cards stand and how they move. What is in the module now (the desi
 Tests: `walks`, `life`, `formations`, `blocking`, `three-world` in the module (258 in all), and the bridge's own in
 `test/stagecraft-bridge.test.mjs`. Deployed to the live server on 2026-10-03.
 
-**Not done yet.** A live check in Foundry of the strip and of a published walk on two screens (the remote world needs a
-GM signed in); zone docking (a card dropped in a position taking a place in it); stacks of foes (§5.6); the speaking
-light (§5.3).
+**Later the same day:** whoever has the floor (Alt-click, `api.blocking.setSpeaker`: a pool of light and every head turned
+to them), docking in fight positions while the board is up, an audience formation, `away` (backs to the table), and the
+host bench with its two-screen check (`npm run bench:stagecraft`, 13 checks with real clicks, all passing).
+
+**Not done yet.** A live check of the strip on the real Foundry with two screens (the remote world needs a GM signed in;
+the host bench covers the module's side); stacks of foes (§5.6); the speaking bars and the Runner lighting the speaker by
+itself (§5.3).

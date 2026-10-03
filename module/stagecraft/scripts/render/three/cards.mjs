@@ -147,6 +147,13 @@ export class CardView {
       this.blob.material.blending = THREE.AdditiveBlending;
       this.blob.scale.set(this.w * this.s * 1.5, 120, 1);
       this.blob.material.opacity = 0.95;
+    } else if (c.speaking) {
+      // has the floor: a pool of soft light at its feet, breathing a little
+      const pulse = 1 + 0.06 * Math.sin((c.breathe - 1) * 400);
+      this.blob.material.color.setHex(0xfff0c8);
+      this.blob.material.blending = THREE.AdditiveBlending;
+      this.blob.scale.set(this.w * this.s * 1.9 * pulse, 170 * pulse, 1);
+      this.blob.material.opacity = 0.8;
     } else {
       this.blob.material.color.setHex(0x000000);
       this.blob.material.blending = THREE.NormalBlending;

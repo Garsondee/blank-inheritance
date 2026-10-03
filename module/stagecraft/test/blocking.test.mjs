@@ -242,6 +242,47 @@ test("a card behind the counter is raised until its face shows over it; in front
   assert.equal(wall.cards.get("keeper").riser, 0, "a cut-out that hides people entirely raises nobody");
 });
 
+test("whoever has the floor is lit, and everyone else turns to look at them", () => {
+  const { s, tick } = clocked([{ id: "speaker", name: "S", X: 400, Z: -500 }, { id: "a", name: "A", X: -400, Z: -500 }, { id: "b", name: "B", X: -100, Z: -700 }]);
+  s.setSpeaker("speaker");
+  tick(2);
+  const snap = s.snapshot();
+  assert.equal(snap.cards.find((c) => c.id === "speaker").speaking, true);
+  assert.equal(snap.cards.find((c) => c.id === "a").speaking, false);
+  assert.ok(s.cards.get("a").look > 8 && s.cards.get("b").look > 8, "both turn towards the speaker on their right");
+  assert.ok(Math.abs(s.cards.get("speaker").look) < 1, "the speaker does not look at themself");
+  s.setSpeaker(null);
+  tick(3);
+  near(s.cards.get("a").look, 0, 1, "and back when the floor is taken back");
+  s.setSpeaker("nobody");
+  assert.equal(s.speaker, null, "someone not on the stage cannot have the floor");
+});
+
+test("with the fight board up, a card put down in a position docks in a free place there; with it down, it lands where it is let go", () => {
+  const raw = structuredClone(RAW_SCENE);
+  raw.zones.push({ id: "pit", kind: "area", name: "The pit", shape: [[0.3, 0.86], [0.7, 0.86], [0.72, 0.97], [0.28, 0.97]] });
+  raw.marks = [];                       // a mark within reach is taken first, as it should be; here there are none
+  const d = describeScene(raw).scene;
+  const s = new Stage(d, [{ id: "a", name: "A", at: [0.5, 0.92] }, { id: "b", name: "B", at: [0.1, 0.95] }]);
+  const a = s.cards.get("a");
+  const spot = s.rig.standing([0.5, 0.92]);
+  s.hold("b", "u1");
+  s.setHand("b", { x: spot.X + 20, z: spot.Z });
+  run(s, 0.5);
+  const free = s.landingFor("b");
+  near(free.X, s.cards.get("b").puppet.x, 0.01, "board down: it lands where it is let go, on top of A");
+  s.setBoard(true);
+  const docked = s.landingFor("b");
+  assert.ok(Math.abs(docked.X - a.puppet.restX) >= a.w * 0.6 - 1 || Math.abs(docked.Z - a.restZ) >= 90, "board up: it docks clear of A");
+  const f = s.rig.fractionOf(docked.X, docked.Z);
+  assert.ok(f[0] > 0.27 && f[0] < 0.73 && f[1] > 0.85 && f[1] < 0.98, `and inside the pit (${f.map((n) => n.toFixed(3))})`);
+  s.release("b");
+  s.hold("b", "u1");
+  s.setHand("b", { x: -1700, z: -300 });
+  run(s, 0.5);
+  assert.equal(s.dockFor("b", s.cards.get("b").puppet.x, -300), null, "outside every position there is nowhere to dock");
+});
+
 test("a zone near one that is not there is a problem the author is told about", () => {
   const raw = structuredClone(RAW_SCENE);
   raw.zones.push({ id: "x", kind: "area", shape: [[0.1, 0.8], [0.2, 0.8], [0.2, 0.9]], near: ["nowhere"] });

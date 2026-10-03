@@ -25,7 +25,8 @@ without notice. `api.schema.json` lists exactly this, and a test fails if the co
 | `api.blocking.backToPlaces(scene)` | GM only. Everyone moved walks back to their `home` and takes up their routine again |
 | `api.blocking.tidy(scene)` | GM only. Every loose card walks to its nearest free mark |
 | `api.blocking.setLife(scene, on)` | GM only. Routines run (on, the default) or everyone stands where they are |
-| `api.blocking.setBoard(scene, on)` | GM only. The fight board: positions (zones of kind `area`) drawn plainly, with who is in each and the range bands |
+| `api.blocking.setBoard(scene, on)` | GM only. The fight board: positions (zones of kind `area`) drawn plainly, with who is in each and the range bands. While it is up, a card put down inside a position docks in a free place in it |
+| `api.blocking.setSpeaker(scene, id)` | GM only. Give someone the floor (a card's id, or `null` to take it back): a pool of light at their feet, and everyone else on the stage turns to look at them. The GM can also Alt-click a card |
 | `api.blocking.registerMoments(provider)` | Offer a scene's authored blocking as buttons on the GM's strip: `provider(scene)` returns `[{ id, label, tip?, run(scene) }]`. Returns a function that takes it away |
 | `api.stage()` | The stage on screen now as `{ stage, backend }`, or `null` |
 | `api.zoneKinds` | The zone kinds the module knows. Any other kind is treated as a trigger |

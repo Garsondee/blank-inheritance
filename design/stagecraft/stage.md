@@ -493,6 +493,18 @@ scene come to life with a bit of NPC movement."* What exists now, on the diorama
   written only to remember a drop is never acted on. Two writes to the cast never overwrite each other (they queue).
 - **The party stands in two groups at the front corners**, facing in, leaving the centre of the stage to the scene's
   people (a `gap` in the adventure's party row), and fills from the middle out.
+- **Whoever has the floor** (§5.3, a first step): the GM Alt-clicks a card (or a moment, or `api.blocking.setSpeaker`) and
+  a pool of soft light breathes at that card's feet while every other card on the stage turns its head towards it, until
+  the GM takes the floor back. It is one field in the scene's live flags, so every screen shows it at once. (The three
+  speaking bars and the Runner following the script by itself are not built.)
+- **An audience** formation (two groups with the middle left open, well forward of what they watch, so it is seen between
+  them), and a formation can turn everyone's back to the table (`away`) to look out over a view.
+
+The **host bench** (`tools/stagecraft/bench/host.html`) runs the module's real host and the GM's real strip against a small
+stand-in for Foundry, two pages sharing scene updates as a GM and a player; `npm run bench:stagecraft`
+(`host-check.mjs`) drives it with real clicks and proves: the strip is the GM's alone; a formation pressed and placed with
+the mouse walks out to the identical place on both screens; a moment does the same; an Alt-click gives someone the floor on
+both; Board and Life reach the player.
 
 Tested in `module/stagecraft/test/{walks,life,formations,blocking}.test.mjs`; seen working on the bench
 (`tools/stagecraft/bench/`, the real engine and renderer with the real stage entries in a plain page).
@@ -849,6 +861,10 @@ outline, a label standing on its floor and drawn over the cards (the position's 
 anything else, far. Which positions are near is authored (`near: [...]` on a zone) or, if no zone says, worked out from
 which floors touch. The engine counts who is in each and answers `bandBetween(a, b)`. The first scene that uses it is
 Flood Tunnel Clearance: the two walkways, the flood, the compactor and the panels, raised by "The nest wakes".
+
+**Docking** (§8.3, for positions): while the board is up, a card put down inside a position goes to the nearest free place
+in it (a grid over the position's floor, a card's width apart), so a fight's positions stay readable instead of piling up.
+A mark within reach still wins; with the board down a card lands where it is let go, as before.
 
 Found building it: the shadow-catching floor sat in front of the painting and hid every zone drawn on the painting's
 floor; only zones at the very back of a room ever showed. The floor now hides nothing (`world.mjs`, with a test).

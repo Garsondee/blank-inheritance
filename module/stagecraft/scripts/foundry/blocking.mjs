@@ -97,6 +97,12 @@ export function boardOn(scene) {
 export const setLife = (scene, on) => scene.update({ [`flags.${NS}.live.life`]: !!on });
 export const setBoard = (scene, on) => scene.update({ [`flags.${NS}.live.board`]: !!on });
 
+/** Who has the floor in a scene: a card's id, or null. */
+export const speakerOf = (scene) => scene?.flags?.[NS]?.live?.speaker ?? null;
+
+/** Give someone the floor (they are lit and everyone turns to them), or take it back with null. */
+export const setSpeaker = (scene, id) => scene.update({ [`flags.${NS}.live.speaker`]: typeof id === "string" ? id : null });
+
 /* ---------------------------------------------------------------- authored moments */
 
 const providers = new Set();

@@ -29,6 +29,7 @@ export const SHOTS = [
   ["lantern-life", "haunt-the-paper-lantern", 4, [["0", 5000]]],
   ["lantern-moment", "haunt-the-paper-lantern", 4, [["bench.moment('sanzo-takes-the-floor')", 700], ["bench.moment('a-round')", 3200]]],
   ["lantern-huddle", "haunt-the-paper-lantern", 4, [["bench.formation('huddle')", 4200]]],
+  ["lantern-speaker", "haunt-the-paper-lantern", 4, [["bench.moment('sanzo-takes-the-floor')", 3500], ["bench.stage.setSpeaker('summon-sanzo')", 2500]]],
   ["tunnel-board", "e1-flood-tunnel", 4, [["bench.trigger('nest-wakes')", 3500]]],
   ["tunnel-grate", "e1-flood-tunnel", 4, [["bench.trigger('nest-wakes')", 2500], ["bench.moment('break-for-the-grate')", 3500]]],
   ["kit-queue", "e1-kit-issue", 5, [["bench.moment('line-up')", 4500]]],
