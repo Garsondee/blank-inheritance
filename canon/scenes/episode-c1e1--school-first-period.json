@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "school-first-period",
   "title": "School: First Period",
-  "summary": "Scene 4. Their first lesson, local studies with Ota, for the whole section: the city on a wall map, and the four founders named.",
+  "summary": "Local studies with Ota, for the whole section: the city on a wall map, and the four founders named.",
   "goal": "The table has heard the four founders' names, and each of them has learned the city as well as they could.",
   "howToPlay": "Short and light: one room, one teacher who loves his subject. Not rolling is always fine. **The founders' names come out here, however the rolls go.**",
   "runsAbout": "15 minutes",
@@ -14,12 +14,7 @@
     "where": "The school block, first floor: Section Nine's classroom.",
     "readAloud": "A bell goes, and the corridor fills in about four seconds. Section Nine's room is at the near end. Inside, a man is pulling a city map down over the blackboard, and he doesn't wait for you to sit.",
     "landmark": "The city map over the blackboard.",
-    "carriesIn": [
-      {
-        "when": "After Assembly",
-        "then": "Vetch has left them at the classroom door with a timetable."
-      }
-    ],
+    "carriesIn": [],
     "position": {
       "locationRef": "main-school-complex",
       "state": "together",
@@ -30,6 +25,7 @@
     {
       "id": "history-teacher",
       "npcRef": "school-history-teacher",
+      "label": "Mister Ota",
       "role": "Teaches history, and local studies, which he loves.",
       "arrival": "quiet",
       "brief": {

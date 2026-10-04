@@ -105,3 +105,11 @@ Four small fixes from the Runner review; nothing Ingram reads aloud changed.
   on a clipped inversion. It now reads "Four of them founded the Directorate, which crossed the world to Kurose and
   never said why."
 - GM text is 212 words for a nine-minute speech.
+
+## Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R27.** Goal, summary and how to play said the same thing three times; now one line each.

@@ -466,7 +466,9 @@ test("the real Act 1 Scene 1 carries an intro, an outro and an earnable artefact
   const state = sceneRunnerState({ brief, runState: emptyRunState() });
 
   assert.ok(state.goal, "the goal box has to have something in it");
-  assert.ok(state.intro.where && state.intro.firstThing, "you cannot open a scene you have not been told the shape of");
+  // The opening can be a read-aloud rather than a separate "first thing" line (2026-10-04, the Runner pass: a first-thing
+  // fragment that only repeated the read-aloud's opening image was cut, as The Road In's was in the house-style rewrite).
+  assert.ok(state.intro.where && (state.intro.firstThing || state.intro.readAloud), "you cannot open a scene you have not been told the shape of");
   assert.ok(state.outro.endsWhen, "a scene that does not say how it ends will sag past its own finish");
   assert.ok(state.outro.tracks.length, "the outro is the only hook back up to the strategy layer");
 

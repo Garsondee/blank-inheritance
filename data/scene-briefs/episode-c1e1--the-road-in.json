@@ -5,20 +5,15 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "the-road-in",
   "title": "The Road In",
-  "summary": "Scene 1. The letter arrives, then each character's first moment on screen: how they look, how we first see them, and a small problem on the way into Kurose, rolled and told by the player.",
+  "summary": "The letter arrives. Then a montage: each character's first moment on screen, and a small problem on the way into Kurose.",
   "goal": "Each player has said how their character looks and how we first see them, then rolled for and told one small problem on the way into Kurose.",
   "howToPlay": "A montage, one player at a time. They tell it; you ask the questions and note the answers. **Nobody meets anybody yet.**",
   "runsAbout": "25-35 minutes",
   "mode": "social",
   "intro": {
-    "where": "Six separate mornings, in six separate places, all in the same week.",
+    "where": "Off the map: wherever each player says their character lives.",
     "readAloud": "It happened on six separate mornings, in six separate places, all in the same week. Whatever you were doing that day, you stopped, because an envelope had come for you from a city you had never had a reason to visit.",
-    "carriesIn": [
-      {
-        "when": "After From Up Here",
-        "then": "Go straight into the letter."
-      }
-    ],
+    "carriesIn": [],
     "position": {
       "locationRef": null,
       "state": "scattered",
@@ -32,7 +27,7 @@
       "kind": "reveal",
       "mandatory": true,
       "delivery": "table",
-      "text": "Read the letter aloud, then press Show the table. <trig id=\"give-enrolment\"/> Each player gets a private copy with their own character's name typed in.",
+      "text": "Read the letter aloud, then press Show the table. Each player gets a private copy with their own character's name typed in. <trig id=\"give-enrolment\"/>",
       "readAloud": "Dear Candidate,\n\nYour application to Tokubetsu Taisaku Honbu has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n\nPlease bring nothing you cannot carry, and nothing you cannot leave.\n\nWe look forward to your service.",
       "note": "Plant: The stamp, the typed name and the return slip are for whoever reads closely. Say nothing about them.\nIf asked what \"nothing you cannot leave\" means: Pack light. This is enlistment, and the Directorate provides what is needed.",
       "handoutRef": "acceptance-letter",
@@ -72,8 +67,7 @@
       "kind": "check",
       "mandatory": true,
       "delivery": "each",
-      "text": "Ask which skill they use to get past it. Post the check (any skill, DC 15), then they tell us how it goes.",
-      "direction": "Take any skill they can argue for. Give them the result, then hand it back: \"Tell us how it goes.\"",
+      "text": "Ask which skill they use to get past it, and post the check. Then they tell us how it goes.",
       "note": "If they would rather not roll: They just tell it. No result costs anything, and everyone reaches Kurose by Monday.",
       "challengeRef": "c1e1-the-road-in",
       "checkRef": "the-small-problem",

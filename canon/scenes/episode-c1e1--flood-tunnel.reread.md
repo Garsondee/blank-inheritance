@@ -130,3 +130,11 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
+## Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.

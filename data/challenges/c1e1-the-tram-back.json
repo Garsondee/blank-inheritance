@@ -20,10 +20,10 @@
         "adjustment": "none"
       },
       "outcomes": {
-        "criticalSuccess": "Somebody else on the train noticed, in a small, real way. The player tells us how.",
-        "success": "It goes fine, and it's theirs. The player tells us how.",
-        "failure": "It doesn't quite land. The player tells us how.",
-        "criticalFailure": "The kind of thing that's funnier in a week. The player tells us how."
+        "criticalSuccess": "Somebody else on the train noticed, in a small, real way.",
+        "success": "It goes fine, and it's theirs.",
+        "failure": "It doesn't quite land.",
+        "criticalFailure": "The kind of thing that's funnier in a week."
       },
       "repeatable": true
     }

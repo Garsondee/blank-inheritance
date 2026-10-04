@@ -5,21 +5,16 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "assembly",
   "title": "Assembly",
-  "summary": "Scene 3. The whole intake in the drill hall: the anthem, the charter, and the Deputy Director's address on what the Directorate is, how their days run and its two rules. Vetch collects Section Nine.",
+  "summary": "The whole base in the drill hall: the anthem, the charter, and the Deputy Director's address with its two rules. Then Vetch collects Section Nine.",
   "goal": "They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.",
   "howToPlay": "Ceremonial and sincere: nobody in this room is lying. Read the address as a real speech. **Make sure the two rules land: curfew is small, a refused order is not.**",
   "runsAbout": "20-25 minutes",
   "mode": "social",
   "intro": {
-    "where": "The drill hall, where the whole base turns out for a new intake.",
+    "where": "The drill hall. Section Nine sits together at the front; their cards say so.",
     "readAloud": "The drill hall smells of floor polish and four hundred people: the whole base has turned out, and the forty of you in the new intake have the front rows. Along the platform, a dozen staff in a dozen different uniforms stand in a line. Above them, in a heavy frame, hangs the founding charter, and somebody has polished the glass.",
     "landmark": "The charter, framed over the platform.",
-    "carriesIn": [
-      {
-        "when": "After Intake Medicals",
-        "then": "Section Nine sits together; their cards say so."
-      }
-    ],
+    "carriesIn": [],
     "position": {
       "locationRef": "the-drill-hall",
       "state": "together",
@@ -30,6 +25,7 @@
     {
       "id": "deputy-director",
       "npcRef": "deputy-director",
+      "label": "Deputy Director Takamine",
       "role": "Deputy Director, one rung below the top.",
       "arrival": "announced",
       "brief": {
@@ -85,6 +81,7 @@
     {
       "id": "section-officer",
       "npcRef": "section-officer",
+      "label": "Section Officer Vetch",
       "role": "Section Nine's officer.",
       "arrival": "quiet",
       "brief": {
@@ -116,6 +113,8 @@
     {
       "id": "shucks-mordant",
       "npcRef": "shucks-mordant",
+      "label": "Shucks Mordant",
+      "called": "Doctor Mordant",
       "role": "On the platform, looking rumpled.",
       "walkOn": true,
       "brief": {
@@ -129,6 +128,7 @@
     {
       "id": "hulda-brack",
       "npcRef": "shop-boss",
+      "label": "Hulda Brack",
       "role": "Head of the machine shop, on the platform.",
       "walkOn": true,
       "brief": {
@@ -142,6 +142,7 @@
     {
       "id": "comms-officer",
       "npcRef": "comms-officer",
+      "label": "The comms officer",
       "role": "The radio voice off the plot room, on the platform.",
       "walkOn": true,
       "brief": {
@@ -175,7 +176,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "deputy-director",
-      "text": "The Deputy Director <trig id=\"deputy-director-steps-up\"/> gives the address. Read it as a speech; drop any part but the last two. <trig id=\"enrolment-instructions\"/>",
+      "text": "The Deputy Director gives the address. Read it as a speech. Short on time, cut any paragraph but the last two. <trig id=\"deputy-director-steps-up\"/> <trig id=\"enrolment-instructions\"/>",
       "readAloud": "My name is Seiichi Takamine. It will be on a great many documents you sign this year, so you may as well hear it said once, by me.\n\nYou have joined Tokubetsu Taisaku Honbu, the Special Countermeasures Headquarters, which this city calls the Directorate. We exist to be ready. We keep the sirens, the shelters and the drills, and on most days we keep the harbour, the drains and the heavy lifting this city can't do without. In a hundred and fifty years the alarm has never once been real. That is a promise, and it is not a guarantee.\n\nYou will find we are two things at once. We are a school, so you will sit lessons. We are a service, so you will drill, carry orders and stand watches. In the mornings you will be taught. In the afternoons, once your section officer releases you, the time is yours: the gymnasium, the range, the library, or a lesson you choose yourselves. Spend it well. Nobody here will spend it for you.\n\nWe have a great many rules, and you will break most of them by accident before the month is out. Two you should know today. If you are out after curfew, that is a small thing: it will be written down, and you will be told off. If you are given a direct order and you refuse it, that is not a small thing. It is the most serious thing you can do here, and you will explain yourself to someone like me.\n\nThat is all. Your section officers have your postings. Welcome to the Directorate. I am glad you are here.",
       "note": "Do: Afterwards he takes questions, and answers plainly.",
       "triggers": [
@@ -250,7 +251,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "Vetch <trig id=\"vetch-collects\"/> collects Section Nine at the door and gives them the day's timetable.",
+      "text": "Vetch collects Section Nine at the door and gives them the day's timetable. <trig id=\"vetch-collects\"/>",
       "readAloud": "\"Section Nine. With me. Yes, all of you.\" He doesn't wait to see if you follow. \"Section Officer Vetch. First period, then the stores, then second period. It's on the sheet. Read the sheet.\"",
       "triggers": [
         {

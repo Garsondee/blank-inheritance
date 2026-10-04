@@ -109,6 +109,28 @@
         "medicine": "Old chemical stains on two fingers that never wash out, and a tremor he has learned to steady."
       },
       "repeatable": false
+    },
+    {
+      "id": "read-the-regulars",
+      "name": "Read the regulars",
+      "skillOptions": [
+        "society",
+        "perception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "secret": true,
+      "outcomes": {
+        "criticalSuccess": "As success, and when he speaks, the room lowers its voice without being asked.",
+        "success": "People come to his table to ask him things, a lease, a quarrel, a job, and he settles each in a sentence. He matters round here.",
+        "failure": "A tea house full of regulars, fond of the old man in the corner.",
+        "criticalFailure": "They decide he's a lonely old man the regulars humour."
+      },
+      "repeatable": false
     }
   ],
   "resolutionMode": "narrative-only",

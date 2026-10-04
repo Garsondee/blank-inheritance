@@ -5,22 +5,16 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "intake-medicals",
   "title": "Intake Medicals",
-  "summary": "Scene 2. The six meet in the infirmary queue. Forms, then a private medical with Doctor Mordant, who tells each of them their screen came back irregular. They come out as Section Nine.",
+  "summary": "The six meet in the infirmary queue. Forms, a private medical each with Doctor Mordant, and the same word for all of them: irregular.",
   "goal": "Each player has had a private moment with Shucks and been told their screen came back irregular, and the six could find out it was all of them.",
   "howToPlay": "A school medical crossed with a passport office: slow queue, then one kind conversation each, played in front of the whole table. **Nobody explains what the screen is for.**",
   "runsAbout": "30-45 minutes",
   "mode": "social",
   "intro": {
     "where": "The Candidate Gate, then the infirmary waiting room on the island. Monday, first thing.",
-    "firstThing": "The queue, and how long it has not moved.",
-    "readAloud": "At the land end of the causeway, the guard in the booth finds your name in his ledger, takes your return slip, <trig id=\"enrolment-gate\"/> and waves you on to the island and the infirmary.\n\nThe waiting room smells of disinfectant, floor polish and somebody's wet coat. A hand-lettered sign says FORMS FIRST, NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.\n\nSomewhere ahead a man keeps saying \"other arm\" in exactly the same tone. When the queue shuffles forward you see him <trig id=\"shucks-glimpsed\"/>: a doctor built entirely of bone, in a white coat, with a badge on the pocket that says MORDANT. Nobody else in the queue looks up.",
+    "readAloud": "At the land end of the causeway, the guard in the booth finds your name in his ledger, takes your return slip, and waves you on to the island and the infirmary. <trig id=\"enrolment-gate\"/>\n\nThe waiting room smells of disinfectant, floor polish and somebody's wet coat. A hand-lettered sign says FORMS FIRST, NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.\n\nSomewhere ahead a man keeps saying \"other arm\" in exactly the same tone. When the queue shuffles forward you see him: a doctor built entirely of bone, in a white coat, with a badge on the pocket that says MORDANT. Nobody else in the queue looks up. <trig id=\"shucks-glimpsed\"/>",
     "landmark": "The two signs above the clerk's hatch.",
-    "carriesIn": [
-      {
-        "when": "After The Road In",
-        "then": "This is the first time the six are in one room. Let them notice each other."
-      }
-    ],
+    "carriesIn": [],
     "triggers": [
       {
         "id": "shucks-glimpsed",
@@ -48,6 +42,7 @@
     {
       "id": "shucks-mordant",
       "npcRef": "shucks-mordant",
+      "label": "Shucks Mordant",
       "role": "Head of medical, doing the morning's screening himself.",
       "called": "Doctor Mordant",
       "arrival": "quiet",
@@ -102,6 +97,7 @@
     {
       "id": "clerk",
       "npcRef": "intake-medicals-clerk",
+      "label": "The records clerk",
       "role": "Records clerk, Intake.",
       "arrival": "quiet",
       "brief": {
@@ -211,7 +207,7 @@
       "kind": "check",
       "mandatory": false,
       "delivery": "table",
-      "text": "If anyone asks about the name on his badge, offer the check. If they ask him, he says <trig id=\"shucks-named\"/> \"Shucks. Yes, that one. Arm.\"",
+      "text": "If anyone asks about the name on his badge, offer the check. If they ask him, he says \"Shucks. Yes, that one. Arm.\" <trig id=\"shucks-named\"/>",
       "when": {
         "condition": "someone asks about his badge"
       },
@@ -300,7 +296,7 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. <trig id=\"enrolment-medical\"/> Let them compare.",
+      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. Let them compare. <trig id=\"enrolment-medical\"/>",
       "note": "Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.\nDo: Whoever first says out loud that it was all six of them gets a Hero Point.\nIf nobody compares: A candidate from another queue asks loudly whether anyone else got irregular.\nSecret: Candidates with the marker are streamed together as routine. Six in one intake has never happened; Shucks is quietly astonished.",
       "facts": [
         "directorate.section-nine",

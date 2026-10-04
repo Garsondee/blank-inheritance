@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "flood-tunnel",
   "title": "Flood Tunnel Clearance",
-  "summary": "Scene 11. The first fight: a dead drainage line, a jammed feed and a nest of giant centipedes in a flooded compactor chamber under the old town. Then Vetch at the top with a signature nobody can explain, and each player picks where to spend the night.",
+  "summary": "The first fight: power the line, clear the feed, and a nest of giant centipedes wakes. Then Vetch at the top with a signature nobody can explain.",
   "goal": "The line runs, the nest is dealt with their way, Vetch has asked about Rand, and each player has picked a rest.",
   "howToPlay": "Physical first: the smell, the dark, the job. When the nest wakes, keep it fast. **Let them choose how the fight ends.**",
   "runsAbout": "45-60 minutes",
@@ -54,6 +54,7 @@
     {
       "id": "section-officer",
       "npcRef": "section-officer",
+      "label": "Section Officer Vetch",
       "role": "Waiting at the top of the ladder with a sheet of paper.",
       "arrival": "announced",
       "brief": {
@@ -206,7 +207,7 @@
       "kind": "combat",
       "mandatory": true,
       "delivery": "table",
-      "text": "The machinery wakes the nest <trig id=\"nest-wakes\"/>. Six giant centipedes come up out of the water around the grate.",
+      "text": "The machinery wakes the nest. Six giant centipedes come up out of the water around the grate. <trig id=\"nest-wakes\"/>",
       "direction": "Fast and physical. The flooded floor is difficult terrain in dim light; the walkways are dry high ground.",
       "note": "Do: Ask how they want it to end, and back their answer. Every ending counts as the job done.\nIf someone won't fight: Holding a walkway or working the panels is real work.\nIf it goes badly: Once half are down, the rest break for the grate.\nIf they abandon the job: At the top, Vetch sends them back down. Refusing is a refused order.",
       "encounterRef": "c1e1-flood-tunnel",
@@ -265,7 +266,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "They climb out. Vetch <trig id=\"vetch-at-the-top\"/> is waiting with their requisition, countersigned. Read it, then let him ask. <trig id=\"drains-reported\"/> <trig id=\"close-drains\"/>",
+      "text": "They climb out. Vetch is waiting with their requisition, countersigned. Read it, then let him ask. <trig id=\"vetch-at-the-top\"/> <trig id=\"drains-reported\"/> <trig id=\"close-drains\"/>",
       "readAloud": "Vetch is waiting at the top of the ladder with a lamp and a sheet of paper. It's your requisition for the vial, countersigned in green ink over Medical's stamp: Rand, Medical.\n\n\"Which one of you is Rand?\"",
       "note": "If they don't know: \"Nobody called Rand works in Medical. I've asked.\" He dismisses them.\nIf someone claims to be Rand: \"Sign it, then.\" It doesn't match.\nIf they ask if they're in trouble: \"You did exactly what you were told.\" He isn't pleased.\nIf they handed in something else: The same ink on its back: \"Received, one (1).\"\nSecret: Rand is Shucks's own right hand, loose in the city. It signed tonight, at Shucks's desk. Nobody knows, Shucks included.",
       "triggers": [

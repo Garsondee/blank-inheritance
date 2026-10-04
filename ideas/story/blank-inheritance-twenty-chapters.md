@@ -192,11 +192,19 @@ Four small fixes from the Runner review; nothing Ingram reads aloud changed.
   never said why."
 - GM text is 212 words for a nine-minute speech.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R27.** Goal, summary and how to play said the same thing three times; now one line each.
+
 #### The scene, as the GM runs it
 
-**What it's for.** Everyone has heard what Kurose grew up knowing, from the edge of the sky down to the gate.
+**What it's for.** Everyone has heard what Kurose grew up knowing.
 
-**How to play it.** One continuous speech over one picture, moving down from the edge of the sky to the gate. *Runs about 9 minutes.*
+**How to play it.** Read it straight through over the picture. No rolls, and no questions. *Runs about 9 minutes.*
 
 **Where.** Nowhere yet. High above the world, looking down.  
 **First thing.** The picture: the curve of the world, a long bay and its city, a river through it, hills behind, early sun on the sea.  
@@ -274,7 +282,7 @@ Four small fixes from the Runner review; nothing Ingram reads aloud changed.
 **Ends when.** The last line of the speech.
 **Into the next scene.** "This year, it sent for you." The Road In.
 
-*Scene hash 8e2751dd6b059a5f.*
+*Scene hash 031fa765707a6fba.*
 
 ### Scene 1: The Road In *(Written in detail · waiting for your read)*
 
@@ -373,16 +381,24 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
   Runner posts it with sf2e's own `traits:secret`. No words changed.
 - **R6.** The critical failure still escalates into a wrong belief, and now the player can't tell it is one.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R27.** The where line repeated the read-aloud's first sentence; it now says where the scene is (wherever each player says). The always-true carry-in ("go straight into the letter") is gone. The small problem's direction repeated its beat line, and every result ended "the player tells us how"; both trimmed.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has said how their character looks and how we first see them, then rolled for and told one small problem on the way into Kurose.
 
 **How to play it.** A montage, one player at a time. They tell it; you ask the questions and note the answers. **Nobody meets anybody yet.** *Runs about 25-35 minutes.*
 
-**Where.** Six separate mornings, in six separate places, all in the same week.  
+**Where.** Off the map: wherever each player says their character lives.  
 **First thing.** undefined  
 
-**1. Read the letter aloud, then press Show the table. <trig id="give-enrolment"/> Each player gets a private copy with their own character's name typed in.**
+**1. Read the letter aloud, then press Show the table. Each player gets a private copy with their own character's name typed in. <trig id="give-enrolment"/>**
 
 > Dear Candidate,
 > 
@@ -407,17 +423,15 @@ If someone arrives undisguised: That is the player's call. People stare; plenty 
 
 *Facts:* tells the table none; GM only `glamour.aliens-outsiders`, `glamour.refusers`.
 
-**3. Ask which skill they use to get past it. Post the check (any skill, DC 15), then they tell us how it goes.**
-
-*Direction:* Take any skill they can argue for. Give them the result, then hand it back: "Tell us how it goes."
+**3. Ask which skill they use to get past it, and post the check. Then they tell us how it goes.**
 
 *GM:* If they would rather not roll: They just tell it. No result costs anything, and everyone reaches Kurose by Monday.
 
 *Roll:* Get past a small problem: , DC 15.
-- Critical success: It goes better than it had any right to. The player tells us how, and something about it is worth remembering.
-- Success: It works. The player tells us how.
-- Failure: It doesn't quite work. They reach the city anyway, a bit late or a bit worse for wear. The player tells us how.
-- Critical failure: It goes wrong in a way that is funny, not harmful, and they still reach the city. The player tells us how.
+- Critical success: It goes better than it had any right to, and something about it is worth remembering.
+- Success: It works.
+- Failure: It doesn't quite work: they reach the city anyway, a bit late or a bit worse for wear.
+- Critical failure: It goes wrong in a way that is funny, not harmful, and they still reach the city.
 
 **4. When an arrival ends where people stand and wait, describe a small deep-violet mark at head height on the wall. Then offer the check.**
 
@@ -441,7 +455,7 @@ Secret: The marks are Cicada's, laid on walls where crowds wait, as places to sh
 - For each player: look, first shot, problem, skill, result, and one line of how it went.
 - How often the violet mark came up, and who rolled well on it.
 
-*Scene hash c1af92bf1fda2337.*
+*Scene hash 1bf3a7de4ded1f83.*
 
 ### Scene 2: Intake Medicals *(Written in detail · waiting for your read)*
 
@@ -565,6 +579,15 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R27.** The first-thing fragment repeated the read-aloud's opening, and the always-true carry-in repeated the queue beat; both gone. The read-aloud's two chips moved to the end of their paragraphs, so it reads aloud cleanly.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has had a private moment with Shucks and been told their screen came back irregular, and the six could find out it was all of them.
@@ -572,7 +595,7 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 **How to play it.** A school medical crossed with a passport office: slow queue, then one kind conversation each, played in front of the whole table. **Nobody explains what the screen is for.** *Runs about 30-45 minutes.*
 
 **Where.** The Candidate Gate, then the infirmary waiting room on the island. Monday, first thing.  
-**First thing.** The queue, and how long it has not moved.  
+**First thing.** undefined  
 
 **1. Go round once while the queue doesn't move: each player says or does one thing in character.**
 
@@ -610,7 +633,7 @@ Watch for: Craig played Shucks in the old campaign. Give his character's turn wi
 
 *Facts:* tells the table `shucks.head-of-medical`, `shucks.revealed-early`; GM only none.
 
-**5. If anyone asks about the name on his badge, offer the check. If they ask him, he says <trig id="shucks-named"/> "Shucks. Yes, that one. Arm."** *(optional)*
+**5. If anyone asks about the name on his badge, offer the check. If they ask him, he says "Shucks. Yes, that one. Arm." <trig id="shucks-named"/>** *(optional)*
 
 *Someone asks about his badge.*
 
@@ -667,7 +690,7 @@ Secret: His real right hand is Rand, a familiar loose in the city. He doesn't kn
 
 *Facts:* tells the table none; GM only `directorate.the-marker`, `shucks.maiden-names`.
 
-**10. Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. <trig id="enrolment-medical"/> Let them compare.**
+**10. Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. Let them compare. <trig id="enrolment-medical"/>**
 
 *GM:* Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.
 Do: Whoever first says out loud that it was all six of them gets a Hero Point.
@@ -685,7 +708,7 @@ Secret: Candidates with the marker are streamed together as routine. Six in one 
 - What each told him, and who he took to.
 - Who noticed the hand, the search or the name.
 
-*Scene hash dcdf6dde295a5735.*
+*Scene hash 5e165cc2df83702e.*
 
 ### Scene 3: Assembly *(Written in detail · waiting for your read)*
 
@@ -804,13 +827,22 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R27.** The where line repeated the read-aloud; it now carries the one staging fact (Section Nine sits together at the front), and the carry-in that said it is gone. "Drop any part but the last two" now says paragraphs. Shucks keeps his protected name here too: the table sees Doctor Mordant until the Name key is pressed.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.
 
 **How to play it.** Ceremonial and sincere: nobody in this room is lying. Read the address as a real speech. **Make sure the two rules land: curfew is small, a refused order is not.** *Runs about 20-25 minutes.*
 
-**Where.** The drill hall, where the whole base turns out for a new intake.  
+**Where.** The drill hall. Section Nine sits together at the front; their cards say so.  
 **First thing.** undefined  
 
 **1. Everyone stands for the anthem. Read it, then wait to hear what each character does.**
@@ -827,7 +859,7 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 *Facts:* tells the table `directorate.intake-size`; GM only none.
 
-**2. The Deputy Director <trig id="deputy-director-steps-up"/> gives the address. Read it as a speech; drop any part but the last two. <trig id="enrolment-instructions"/>**
+**2. The Deputy Director gives the address. Read it as a speech. Short on time, cut any paragraph but the last two. <trig id="deputy-director-steps-up"/> <trig id="enrolment-instructions"/>**
 
 > My name is Seiichi Takamine. It will be on a great many documents you sign this year, so you may as well hear it said once, by me.
 > 
@@ -872,7 +904,7 @@ Secret: It's Rupiah, a founder, high in the administration, here to watch and no
 
 *Facts:* tells the table `founders.charter-signatures`; GM only `founders.charter-hands`, `shucks.old-handwriting`.
 
-**5. Vetch <trig id="vetch-collects"/> collects Section Nine at the door and gives them the day's timetable.**
+**5. Vetch collects Section Nine at the door and gives them the day's timetable. <trig id="vetch-collects"/>**
 
 > "Section Nine. With me. Yes, all of you." He doesn't wait to see if you follow. "Section Officer Vetch. First period, then the stores, then second period. It's on the sheet. Read the sheet."
 
@@ -886,7 +918,7 @@ Secret: It's Rupiah, a founder, high in the administration, here to watch and no
 - Who caught the Deputy Director's name.
 - Who read the charter, and who watched the platform.
 
-*Scene hash 29cfac21e4dcaf84.*
+*Scene hash eb3cced6678e5cbb.*
 
 ### Scene 4: School: First Period *(Written in detail · waiting for your read)*
 
@@ -999,6 +1031,15 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **For Ingram, while reading:** merging the choice into second period is my call; it changes which period is the
   first free choice.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R27.** The always-true carry-in is gone.
+
 #### The scene, as the GM runs it
 
 **What it's for.** The table has heard the four founders' names, and each of them has learned the city as well as they could.
@@ -1048,7 +1089,7 @@ Watch for: Steve played Hyuck. Let the mascot joke land on him.
 - Who learned the city, and who was kept back.
 - Anyone Fatigued tonight.
 
-*Scene hash b39f57261da1b27a.*
+*Scene hash ba9e0a5f3db43bc4.*
 
 ### Scene 5: Kit Issue *(Written in detail · waiting for your read)*
 
@@ -1149,6 +1190,15 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R16.** The shopping direction now says the Locker is self-serve: players shop while Nobu talks.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has their uniform and kit, and Vetch has handed Section Nine the docket in person.
@@ -1158,13 +1208,13 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 **Where.** The quartermaster's stores, after first period.  
 **First thing.** undefined  
 
-**1. Nobu <trig id="nobu-appears"/> issues the uniforms <trig id="enrolment-kit"/> <trig id="close-enrolment"/>: slate teal-grey tunics with an orange tab on the collar.**
+**1. Nobu issues the uniforms: slate teal-grey tunics with an orange tab on the collar. <trig id="nobu-appears"/> <trig id="enrolment-kit"/> <trig id="close-enrolment"/>**
 
 *Facts:* tells the table `visual-language.candidate-tunic`; GM only none.
 
 **2. Each player spends 150 credits from the stores catalogue. Press Open Equipment Locker so everyone sees the list.**
 
-*Direction:* Seconds a player, not minutes. Anyone still deciding can finish their sheet after the session.
+*Direction:* Let them shop in the Locker while Nobu talks. Anyone still deciding finishes after the session.
 
 *GM:* Do: Nobu pushes a handlamp at everyone: "One credit. Take one. You'll thank me."
 If someone came in last: The handlamps have sold out by their turn. Tell them; the Locker won't. Asking Nobu properly can still find one.
@@ -1194,7 +1244,7 @@ Secret: Some of it isn't Directorate stock. He buys it, cash, from the ships' ch
 - Failure: A strap on backwards. Somebody helps.
 - Critical failure: Comically tangled, and everyone politely ignores it.
 
-**5. Vetch <trig id="vetch-inspects"/> walks the line, finds fault with each of them, and hands Section Nine a docket. <trig id="give-docket"/> Show the table.**
+**5. Vetch walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table. <trig id="vetch-inspects"/> <trig id="give-docket"/>**
 
 > He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.
 > 
@@ -1214,7 +1264,7 @@ Secret: There's no such part. Vetch sends every new section for the bubble in a 
 - What each player bought, and any extra Nobu gave.
 - Who holds the docket.
 
-*Scene hash 953150bd8ed01e15.*
+*Scene hash 5275ab2fdbf9b9df.*
 
 ### Scene 6: School: Second Period *(Written in detail · waiting for your read)*
 
@@ -1315,6 +1365,15 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R15, R21.** The intro reads aloud as three sentences.
 - **R23.** 15 to 20 minutes.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R27.** The always-true carry-in (the docket in a pocket) is gone: the transition says it.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has spent the period where they chose, and Section Nine leaves for the city with the docket.
@@ -1375,7 +1434,7 @@ Secret: Undecided, even to the GM. Nothing in this episode explains it.
 - Who went where, and what they rolled.
 - Anyone Fatigued tonight.
 
-*Scene hash 9bffeb1359fc3d45.*
+*Scene hash 40424dc14f167348.*
 
 ### Scene 7: The Errand *(Written in detail · waiting for your read)*
 
@@ -1519,11 +1578,21 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R10.** A table that wanders the city instead: a tram, the harbour, and somewhere a clock striking five; the docket still says nineteen hundred. The hearing check now also covers striking an officer, always at DC 17.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R4, R19.** A missed roll is added: reading the regulars rather than Manako (Society or Perception, DC 15, blind). It tells the table, on a success, that he matters in this district (`manako.district`, decided in D046), which the read-aloud only hints at. Nothing about who he is.
+- **R27.** How to play no longer repeats the beat's own "kind and useful" direction.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have been laughed at, met Manako, heard his plan for the vial, and chosen how to file it.
 
-**How to play it.** Warm, funny and safe: a humiliation that turns into a win. Manako is kind and useful in every line. **Nothing here hints at who he really is.** *Runs about 30-40 minutes.*
+**How to play it.** Warm, funny and safe: a humiliation that turns into a win. **Nothing here hints at who he really is.** *Runs about 30-40 minutes.*
 
 **Where.** The city: an instrument makers' workshop, then a tea house a few streets on.  
 **First thing.** undefined  
@@ -1537,7 +1606,7 @@ Secret: Animals hear the Watcher's swarm as a high buzzing, and it's thick on th
 
 *Facts:* tells the table `hyuck.statue`; GM only `watcher.animals`.
 
-**2. The instrument maker reads the docket twice and laughs. <trig id="docket-no-such-part"/> On any result, she sends them on to Manako.**
+**2. The instrument maker reads the docket twice and laughs. On any result, she sends them on to Manako. <trig id="docket-no-such-part"/>**
 
 > "Love, we make the vials. There's nothing in the bubble. That's the whole point of the bubble. It's the bit that isn't there."
 
@@ -1564,7 +1633,7 @@ Secret: Cicada's, like the others.
 
 *Facts:* tells the table `cicada.violet-marks`; GM only `cicada.marks-meaning`.
 
-**4. Manako <trig id="manako-at-his-table"/> owns the tea house. He reads the docket before they finish explaining: "Ah. They've sent you for the bubble."**
+**4. Manako owns the tea house. He reads the docket before they finish explaining: "Ah. They've sent you for the bubble." <trig id="manako-at-his-table"/>**
 
 > The tea house is small, warm and full: steam, low voices, a counter polished by a century of elbows. The regulars nod to the old man at the corner table as they pass, and his tea arrives without his asking.
 
@@ -1575,7 +1644,19 @@ Secret: He founded Cicada. Nothing shows it here, because here he is only kind.
 
 *Facts:* tells the table `manako.name`, `manako.chemist`; GM only `manako.cicada`.
 
-**5. If anyone tries to place his name, offer the very hard knowledge check.** *(optional)*
+**5. If anyone watches the regulars rather than Manako, offer the check.** *(optional)*
+
+*Someone watches the regulars.*
+
+*Roll:* Read the regulars: Society or Perception, DC 15. Costs nothing on any result.
+- Critical success: As success, and when he speaks, the room lowers its voice without being asked.
+- Success: People come to his table to ask him things, a lease, a quarrel, a job, and he settles each in a sentence. He matters round here.
+- Failure: A tea house full of regulars, fond of the old man in the corner.
+- Critical failure: They decide he's a lonely old man the regulars humour.
+
+*Facts:* tells the table `manako.district`; GM only none.
+
+**6. If anyone tries to place his name, offer the very hard knowledge check.** *(optional)*
 
 *Someone tries to place the name.*
 
@@ -1587,7 +1668,7 @@ Secret: He founded Cicada. Nothing shows it here, because here he is only kind.
 
 *Facts:* tells the table `manako.disgraced`; GM only none.
 
-**6. If anyone watches Manako rather than the docket, offer the check.** *(optional)*
+**7. If anyone watches Manako rather than the docket, offer the check.** *(optional)*
 
 *Someone watches him.*
 
@@ -1597,7 +1678,7 @@ Secret: He founded Cicada. Nothing shows it here, because here he is only kind.
 - Failure: A kind old man with a good coat.
 - Critical failure: A faint conviction that he is nobody much. Let it stand.
 
-**7. Manako tells them how he came back empty-handed once, then gives them his plan. <trig id="docket-manakos-way"/>**
+**8. Manako tells them how he came back empty-handed once, then gives them his plan. <trig id="docket-manakos-way"/>**
 
 > "They did this to me, you know. Forty-odd years ago. I came back with nothing, and they laughed, and I've had a long time to think about what I should have done."
 > 
@@ -1609,22 +1690,22 @@ Secret: He founded Cicada. Nothing shows it here, because here he is only kind.
 
 *Facts:* tells the table `manako.came-back-empty-handed`, `manako.the-vial-plan`; GM only none.
 
-**8. Ask the table how they'll file the requisition. Let them settle it between themselves.**
+**9. Ask the table how they'll file the requisition. Let them settle it between themselves.**
 
-**9. Before they go, if it hasn't come up, he asks who they work for, and says one true thing about them.**
+**10. Before they go, if it hasn't come up, he asks who they work for, and says one true thing about them.**
 
 > "They dig things up, you know, the people you work for. Whatever they find goes in a vault, and nobody talks about it again. That's not wicked, mind. Some things ought to be locked away. But keeping quiet gets to be a habit."
 
 *Facts:* tells the table `directorate.digs`; GM only none.
 
-**10. He asks them to come back and say how it went. <trig id="docket-tell-manako"/> If one was especially kind, he writes them his number on a napkin.**
+**11. He asks them to come back and say how it went. If one was especially kind, he writes them his number on a napkin. <trig id="docket-tell-manako"/>**
 
 *GM:* Do: Your call who, if anyone. No roll. Hand that player a note with the number.
 Secret: Trainee messages are read: by the Directorate, as routine, and by the Watcher.
 
 *Facts:* tells the table none; GM only `manako.messages-read`.
 
-**11. If someone refused the docket, the Deputy Director hears them in his office while the others are in the city. Cut between the two.** *(optional)*
+**12. If someone refused the docket, the Deputy Director hears them in his office while the others are in the city. Cut between the two.** *(optional)*
 
 *Someone refused the docket.*
 
@@ -1651,7 +1732,7 @@ If the order was badly given: He takes it up with Vetch himself, never in front 
 - How they're filing the requisition.
 - Who heard what he said about the Directorate.
 
-*Scene hash 205e5d870f504d4c.*
+*Scene hash 92c788e6dd0234d1.*
 
 ### Scene 8: The Train Back *(Written in detail · waiting for your read)*
 
@@ -1744,6 +1825,15 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R10.** If they're late, the hatch is shut: they hand it to Vetch in person, and go on report. The no-requisition line is shorter, so the note stays inside its budget.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R27.** The always-true carry-in is gone; the small moment's results no longer each end "the player tells us how".
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've had a quiet ride together and handed in their paper before nineteen hundred.
@@ -1762,12 +1852,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 *A player wants a moment.*
 
 *Roll:* A small moment: , DC 15.
-- Critical success: Somebody else on the train noticed, in a small, real way. The player tells us how.
-- Success: It goes fine, and it's theirs. The player tells us how.
-- Failure: It doesn't quite land. The player tells us how.
-- Critical failure: The kind of thing that's funnier in a week. The player tells us how.
+- Critical success: Somebody else on the train noticed, in a small, real way.
+- Success: It goes fine, and it's theirs.
+- Failure: It doesn't quite land.
+- Critical failure: The kind of thing that's funnier in a week.
 
-**3. At the stores hatch, Nobu <trig id="nobu-at-the-hatch"/> takes their paper without reading it. <trig id="docket-requisition-in"/> <trig id="docket-in-time"/> <trig id="close-docket"/> File it the way they chose.**
+**3. At the stores hatch, Nobu takes their paper without reading it. File it the way they chose. <trig id="nobu-at-the-hatch"/> <trig id="docket-requisition-in"/> <trig id="docket-in-time"/> <trig id="close-docket"/>**
 
 > "A vial? Medical countersigns those. It'll go up tonight. Next."
 
@@ -1787,7 +1877,7 @@ Secret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns
 - Anything said on the ride worth calling back.
 - What they handed in, and how.
 
-*Scene hash 2f9c58e32a8bf195.*
+*Scene hash ac0debb8fa610e78.*
 
 ### Scene 9: Canteen *(Written in detail · waiting for your read)*
 
@@ -1887,6 +1977,14 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R10.** A character who missed supper still gets the order: a runner finds them with a chit, word for word.
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.
@@ -1905,11 +2003,11 @@ Secret: She is Shinobu Kudo, and he is her father. She comes back into the story
 
 *Facts:* tells the table `shinobu.the-phone-in`; GM only `shinobu.who`.
 
-**2. Taka <trig id="taka-arrives"/> arrives with two chairs, claims the six as his table, and asks each of them where they're properly from.**
+**2. Taka arrives with two chairs, claims the six as his table, and asks each of them where they're properly from. <trig id="taka-arrives"/>**
 
 *Direction:* Full warmth: he asks about each of them and listens. Warm by including them, never by labelling them.
 
-**3. Vetch <trig id="section-officer-arrives"/> reads the evening's orders to the hall. Section Nine's is last. <trig id="give-drains"/>**
+**3. Vetch reads the evening's orders to the hall. Section Nine's is last. <trig id="section-officer-arrives"/> <trig id="give-drains"/>**
 
 > "Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two." He looks up for the first time. "Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup."
 
@@ -1955,7 +2053,7 @@ Secret: He gave them the drains for the vial, or, if they came back empty-handed
 - Who took to Taka, and who he took to.
 - Anything Taka told them about the drains.
 
-*Scene hash 77908f20223d6a98.*
+*Scene hash b5645e9067d3f119.*
 
 ### Scene 10: The Walk Down *(Written in detail · waiting for your read)*
 
@@ -2050,6 +2148,15 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R7.** Taka's role said "if it fits" in a scene about waders that don't; now plain.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've kitted up, heard the job from Vetch, and crossed to the hatch on the old town's quay.
@@ -2061,11 +2168,11 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 **1. Every pair of waders is the wrong size. Let whoever looks first find out how wrong. <trig id="drains-waders"/> <trig id="drains-wearing"/>**
 
-**2. If there's room for it, Taka <trig id="taka-sees-them-off"/> catches them at the door: "Told you. Waders." Nothing else.** *(optional)*
+**2. If there's room for it, Taka catches them at the door: "Told you. Waders." Nothing else. <trig id="taka-sees-them-off"/>** *(optional)*
 
 *There's room for it.*
 
-**3. At Dock C, Vetch <trig id="vetch-at-dock-c"/> gives them the job <trig id="drains-at-dock-c"/> <trig id="drains-job-power"/> <trig id="drains-job-feed"/> <trig id="drains-job-report"/> and puts them on the duty launch.**
+**3. At Dock C, Vetch gives them the job and puts them on the duty launch. <trig id="vetch-at-dock-c"/> <trig id="drains-at-dock-c"/> <trig id="drains-job-power"/> <trig id="drains-job-feed"/> <trig id="drains-job-report"/>**
 
 > "Power to the drainage line. Clear the compactor feed. Report to me when it runs." He ticks something on his clipboard. "The launch will take you over. I'll be at the top."
 
@@ -2084,7 +2191,7 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - Anything said on the crossing worth calling back.
 
-*Scene hash 766287026676f5a8.*
+*Scene hash b429331613fe8010.*
 
 ### Scene 11: Flood Tunnel Clearance *(Written in detail · waiting for your read)*
 
@@ -2219,6 +2326,14 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
 
+#### Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+
 #### The scene, as the GM runs it
 
 **What it's for.** The line runs, the nest is dealt with their way, Vetch has asked about Rand, and each player has picked a rest.
@@ -2278,7 +2393,7 @@ If they ask what happens now: "It goes on your file. If you prove right, that go
 - Failure: It clears with a shove, and the compactor lurches into motion: if it's running, start it at 1.
 - Critical failure: As failure, and a face full of standing water. Nobody's hurt.
 
-**7. The machinery wakes the nest <trig id="nest-wakes"/>. Six giant centipedes come up out of the water around the grate.**
+**7. The machinery wakes the nest. Six giant centipedes come up out of the water around the grate. <trig id="nest-wakes"/>**
 
 *Direction:* Fast and physical. The flooded floor is difficult terrain in dim light; the walkways are dry high ground.
 
@@ -2293,7 +2408,7 @@ If they abandon the job: At the top, Vetch sends them back down. Refusing is a r
 
 *GM:* Do: Say plainly that it's as useful as an attack: it buys everyone on the floor their ground back.
 
-**9. They climb out. Vetch <trig id="vetch-at-the-top"/> is waiting with their requisition, countersigned. Read it, then let him ask. <trig id="drains-reported"/> <trig id="close-drains"/>**
+**9. They climb out. Vetch is waiting with their requisition, countersigned. Read it, then let him ask. <trig id="vetch-at-the-top"/> <trig id="drains-reported"/> <trig id="close-drains"/>**
 
 > Vetch is waiting at the top of the ladder with a lamp and a sheet of paper. It's your requisition for the vial, countersigned in green ink over Medical's stamp: Rand, Medical.
 > 
@@ -2316,7 +2431,7 @@ Secret: Rand is Shucks's own right hand, loose in the city. It signed tonight, a
 - Injuries carried into the night.
 - Who has a theory about Rand.
 
-*Scene hash a8fcd4300efa622c.*
+*Scene hash 4494a9189c2ffacf.*
 
 ### Scene 1: The General Hospital *(Written in detail · waiting for your read)*
 

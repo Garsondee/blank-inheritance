@@ -94,3 +94,11 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
   confident wrong belief ("a condemned-building notice"), which only works if the player can't see the roll. The Scene
   Runner posts it with sf2e's own `traits:secret`. No words changed.
 - **R6.** The critical failure still escalates into a wrong belief, and now the player can't tell it is one.
+
+## Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R27.** The where line repeated the read-aloud's first sentence; it now says where the scene is (wherever each player says). The always-true carry-in ("go straight into the letter") is gone. The small problem's direction repeated its beat line, and every result ended "the player tells us how"; both trimmed.

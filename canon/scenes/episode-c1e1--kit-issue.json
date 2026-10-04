@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "kit-issue",
   "title": "Kit Issue",
-  "summary": "Scene 5. The stores: uniforms, and a hundred and fifty credits of kit each from Nobu's catalogue. Then Vetch inspects them and hands Section Nine a docket for the city.",
+  "summary": "The stores: uniforms and a hundred and fifty credits of kit each from Nobu's counter, then Vetch's inspection and his docket for the city.",
   "goal": "Each player has their uniform and kit, and Vetch has handed Section Nine the docket in person.",
   "howToPlay": "Quick and busy: Nobu runs three conversations at once, and kit takes seconds a player. **End on Vetch's docket.**",
   "runsAbout": "15-20 minutes",
@@ -30,6 +30,7 @@
     {
       "id": "nobu",
       "npcRef": "nobu",
+      "label": "Nobu",
       "role": "Quartermaster.",
       "arrival": "announced",
       "brief": {
@@ -80,6 +81,7 @@
     {
       "id": "section-officer",
       "npcRef": "section-officer",
+      "label": "Section Officer Vetch",
       "role": "Section Nine's officer, come to inspect.",
       "arrival": "announced",
       "brief": {
@@ -116,7 +118,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "nobu",
-      "text": "Nobu <trig id=\"nobu-appears\"/> issues the uniforms <trig id=\"enrolment-kit\"/> <trig id=\"close-enrolment\"/>: slate teal-grey tunics with an orange tab on the collar.",
+      "text": "Nobu issues the uniforms: slate teal-grey tunics with an orange tab on the collar. <trig id=\"nobu-appears\"/> <trig id=\"enrolment-kit\"/> <trig id=\"close-enrolment\"/>",
       "triggers": [
         {
           "id": "nobu-appears",
@@ -151,7 +153,7 @@
       "mandatory": true,
       "delivery": "each",
       "text": "Each player spends 150 credits from the stores catalogue. Press Open Equipment Locker so everyone sees the list.",
-      "direction": "Seconds a player, not minutes. Anyone still deciding can finish their sheet after the session.",
+      "direction": "Let them shop in the Locker while Nobu talks. Anyone still deciding finishes after the session.",
       "gmTool": {
         "id": "equipment-locker",
         "label": "Open Equipment Locker"
@@ -198,7 +200,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "Vetch <trig id=\"vetch-inspects\"/> walks the line, finds fault with each of them, and hands Section Nine a docket. <trig id=\"give-docket\"/> Show the table.",
+      "text": "Vetch walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table. <trig id=\"vetch-inspects\"/> <trig id=\"give-docket\"/>",
       "readAloud": "He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.\n\n\"Second period first. Then the city. Back to me by nineteen hundred.\"",
       "note": "Plant: It's a direct order, and refusing one is the serious thing the Deputy Director warned them about.\nIf someone refuses it: Vetch writes their name down, slowly: \"The Deputy Director will see you at seventeen hundred.\" The rest go.\nSecret: There's no such part. Vetch sends every new section for the bubble in a spirit level. It was done to him once.",
       "handoutRef": "the-docket",

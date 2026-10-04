@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "the-walk-down",
   "title": "The Walk Down",
-  "summary": "Scene 10. Waders that don't fit from the night lockup, Vetch's one-line briefing at Dock C, and the duty launch across the harbour to the old town.",
+  "summary": "Waders that don't fit, Vetch's one-line briefing at Dock C, and ten minutes on the duty launch across the harbour.",
   "goal": "They've kitted up, heard the job from Vetch, and crossed to the hatch on the old town's quay.",
   "howToPlay": "Quiet and a little funny. The waders don't fit. **Then the crossing: let them talk.**",
   "runsAbout": "10 minutes",
@@ -30,6 +30,7 @@
     {
       "id": "section-officer",
       "npcRef": "section-officer",
+      "label": "Section Officer Vetch",
       "role": "Waiting at Dock C to see them off.",
       "arrival": "announced",
       "brief": {
@@ -64,7 +65,8 @@
     {
       "id": "taka",
       "npcRef": "taka",
-      "role": "Sees them off at the lockup door, if it fits.",
+      "label": "Taka",
+      "role": "Sees them off at the lockup door.",
       "walkOn": true,
       "arrival": "quiet",
       "brief": {
@@ -113,7 +115,7 @@
       "mandatory": false,
       "delivery": "table",
       "npcRef": "taka",
-      "text": "If there's room for it, Taka <trig id=\"taka-sees-them-off\"/> catches them at the door: \"Told you. Waders.\" Nothing else.",
+      "text": "If there's room for it, Taka catches them at the door: \"Told you. Waders.\" Nothing else. <trig id=\"taka-sees-them-off\"/>",
       "when": {
         "condition": "there's room for it"
       },
@@ -134,7 +136,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "At Dock C, Vetch <trig id=\"vetch-at-dock-c\"/> gives them the job <trig id=\"drains-at-dock-c\"/> <trig id=\"drains-job-power\"/> <trig id=\"drains-job-feed\"/> <trig id=\"drains-job-report\"/> and puts them on the duty launch.",
+      "text": "At Dock C, Vetch gives them the job and puts them on the duty launch. <trig id=\"vetch-at-dock-c\"/> <trig id=\"drains-at-dock-c\"/> <trig id=\"drains-job-power\"/> <trig id=\"drains-job-feed\"/> <trig id=\"drains-job-report\"/>",
       "readAloud": "\"Power to the drainage line. Clear the compactor feed. Report to me when it runs.\" He ticks something on his clipboard. \"The launch will take you over. I'll be at the top.\"",
       "note": "If someone refuses to go: \"Noted.\" He writes it down, slowly. \"Report to the Deputy Director's office. Now. The rest of you, the launch.\"",
       "triggers": [

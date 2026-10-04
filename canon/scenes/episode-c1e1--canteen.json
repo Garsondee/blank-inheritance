@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "canteen",
   "title": "Canteen",
-  "summary": "Scene 9. Supper in the Long Hall. Taka claims the six as his table, then Vetch reads the evening's orders and gives Section Nine the storm drains.",
+  "summary": "Supper in the Long Hall. Taka claims the six as his table, then Vetch reads the evening's orders and gives Section Nine the storm drains.",
   "goal": "Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.",
   "howToPlay": "Loud and warm, then one flat turn. Let them eat and talk; bring Vetch in when the talk slows. **After his order, Taka gets the last word.**",
   "runsAbout": "20-30 minutes",
@@ -38,6 +38,7 @@
     {
       "id": "taka",
       "npcRef": "taka",
+      "label": "Taka",
       "role": "A candidate a year ahead, who takes them under his wing.",
       "arrival": "splash",
       "brief": {
@@ -88,6 +89,7 @@
     {
       "id": "section-officer",
       "npcRef": "section-officer",
+      "label": "Section Officer Vetch",
       "role": "Duty officer tonight, reading the evening's orders.",
       "arrival": "announced",
       "brief": {
@@ -122,6 +124,7 @@
     {
       "id": "pilot-track-student",
       "npcRef": "the-young-one",
+      "label": "A pilot-track candidate",
       "role": "A pilot-track candidate at the next table.",
       "walkOn": true,
       "arrival": "quiet",
@@ -159,7 +162,7 @@
       "mandatory": true,
       "delivery": "each",
       "npcRef": "taka",
-      "text": "Taka <trig id=\"taka-arrives\"/> arrives with two chairs, claims the six as his table, and asks each of them where they're properly from.",
+      "text": "Taka arrives with two chairs, claims the six as his table, and asks each of them where they're properly from. <trig id=\"taka-arrives\"/>",
       "direction": "Full warmth: he asks about each of them and listens. Warm by including them, never by labelling them.",
       "triggers": [
         {
@@ -178,7 +181,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last. <trig id=\"give-drains\"/>",
+      "text": "Vetch reads the evening's orders to the hall. Section Nine's is last. <trig id=\"section-officer-arrives\"/> <trig id=\"give-drains\"/>",
       "readAloud": "\"Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two.\" He looks up for the first time. \"Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.\"",
       "direction": "No choice and no appeal: he answers any argument by reading the order again, once, and goes.",
       "note": "If someone refuses outright: \"Noted.\" He writes it down, slowly. \"The Deputy Director's office, twenty-one hundred, instead of Dock C.\"\nIf someone missed supper: A runner finds them with a chit: the same order, word for word.\nSecret: He gave them the drains for the vial, or, if they came back empty-handed, for the laugh. He'll never say so.",

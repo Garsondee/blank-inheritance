@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "school-second-period",
   "title": "School: Second Period",
-  "summary": "Scene 6. Their first free period, as the Deputy Director promised: natural history, Hulda Brack's workshop induction, or the small-arms range. Each one pays off tonight.",
+  "summary": "Their first free period: natural history, Hulda Brack's workshop induction, or the small-arms range. Each pays off tonight.",
   "goal": "Each player has spent the period where they chose, and Section Nine leaves for the city with the docket.",
   "howToPlay": "Warm and quick: the first adults who are glad to see them. Each player picks a room; cut between them. Not rolling is always fine.",
   "runsAbout": "15-20 minutes",
@@ -14,12 +14,7 @@
     "where": "The school block and the Butts, the period after the stores.",
     "readAloud": "The timetable has nothing against second period but two words: own choice. Down the corridor, a door is propped open on a room that smells of seawater and preserving jars, and from the far end somebody is already shouting about fingers. Across the yard, a long roofed range is popping with small-arms fire.",
     "landmark": "The yard between the school block and the range.",
-    "carriesIn": [
-      {
-        "when": "After Kit Issue",
-        "then": "Someone has the docket in a pocket, and they're due in the city after this."
-      }
-    ],
+    "carriesIn": [],
     "position": {
       "locationRef": "main-school-complex",
       "state": "together",
@@ -30,6 +25,7 @@
     {
       "id": "natural-history-teacher",
       "npcRef": "school-natural-history-teacher",
+      "label": "The natural history teacher",
       "role": "Teaches natural history from thirty years of the city's drains and tide-line.",
       "arrival": "quiet",
       "brief": {
@@ -66,6 +62,7 @@
     {
       "id": "hulda-brack",
       "npcRef": "shop-boss",
+      "label": "Hulda Brack",
       "role": "Head of the machine shop, taking the safety induction herself.",
       "arrival": "announced",
       "brief": {
@@ -105,6 +102,7 @@
     {
       "id": "range-officer",
       "npcRef": "range-safety-officer",
+      "label": "The range officer",
       "role": "Runs the line at the Butts.",
       "arrival": "quiet",
       "brief": {

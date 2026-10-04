@@ -139,3 +139,13 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R10.** A table that wanders the city instead: a tram, the harbour, and somewhere a clock striking five; the docket still says nineteen hundred. The hearing check now also covers striking an officer, always at DC 17.
+
+## Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R4, R19.** A missed roll is added: reading the regulars rather than Manako (Society or Perception, DC 15, blind). It tells the table, on a success, that he matters in this district (`manako.district`, decided in D046), which the read-aloud only hints at. Nothing about who he is.
+- **R27.** How to play no longer repeats the beat's own "kind and useful" direction.

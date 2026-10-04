@@ -28,3 +28,7 @@ status: decided · source: D016, D017, D034 · known: few · told: later
 ## manako.messages-read
 Trainee messages are read: by the Directorate as routine policy, and by the Watcher, which reads what is typed. A player who messages Manako is read too.
 status: decided · source: D045 · known: few · told: later
+
+## manako.district
+Manako's tea house is in a district of the city where he has a lot of influence.
+status: decided · source: D046 · known: some · told: in:episode-c1e1--the-errand

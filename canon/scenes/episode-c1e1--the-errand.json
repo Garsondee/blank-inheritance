@@ -5,9 +5,9 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "the-errand",
   "title": "The Errand",
-  "summary": "Scene 7. Into the city with Vetch's docket. The instrument makers laugh and send them to Manako, who owns a tea house a few streets on, was hazed the same way once, and shows them how to win.",
+  "summary": "Into the city with the docket. The instrument makers laugh and send them to Manako, who was hazed the same way once and shows them how to win.",
   "goal": "They have been laughed at, met Manako, heard his plan for the vial, and chosen how to file it.",
-  "howToPlay": "Warm, funny and safe: a humiliation that turns into a win. Manako is kind and useful in every line. **Nothing here hints at who he really is.**",
+  "howToPlay": "Warm, funny and safe: a humiliation that turns into a win. **Nothing here hints at who he really is.**",
   "runsAbout": "30-40 minutes",
   "mode": "social",
   "intro": {
@@ -34,6 +34,7 @@
     {
       "id": "storekeeper",
       "npcRef": "the-storekeeper",
+      "label": "The instrument maker",
       "role": "Runs the instrument makers' workshop.",
       "arrival": "quiet",
       "brief": {
@@ -73,6 +74,7 @@
     {
       "id": "manako",
       "npcRef": "manako",
+      "label": "Manako",
       "role": "Owns the tea house. A chemist, long retired.",
       "arrival": "quiet",
       "brief": {
@@ -143,7 +145,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "storekeeper",
-      "text": "The instrument maker reads the docket twice and laughs. <trig id=\"docket-no-such-part\"/> On any result, she sends them on to Manako.",
+      "text": "The instrument maker reads the docket twice and laughs. On any result, she sends them on to Manako. <trig id=\"docket-no-such-part\"/>",
       "readAloud": "\"Love, we make the vials. There's nothing in the bubble. That's the whole point of the bubble. It's the bit that isn't there.\"",
       "note": "If anyone tries to talk her round: Offer the check: it decides how warmly she sends them on.",
       "challengeRef": "c1e1-the-errand",
@@ -185,7 +187,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "manako",
-      "text": "Manako <trig id=\"manako-at-his-table\"/> owns the tea house. He reads the docket before they finish explaining: \"Ah. They've sent you for the bubble.\"",
+      "text": "Manako owns the tea house. He reads the docket before they finish explaining: \"Ah. They've sent you for the bubble.\" <trig id=\"manako-at-his-table\"/>",
       "readAloud": "The tea house is small, warm and full: steam, low voices, a counter polished by a century of elbows. The regulars nod to the old man at the corner table as they pass, and his tea arrives without his asking.",
       "direction": "Kind, useful and openly bitter about the Directorate, at an even pace. He gives his name before he's asked.",
       "note": "Watch for: Every line of his is a leak risk. If unsure, have him talk chemistry.\nSecret: He founded Cicada. Nothing shows it here, because here he is only kind.",
@@ -204,6 +206,22 @@
       "gmFacts": [
         "manako.cicada"
       ]
+    },
+    {
+      "id": "read-the-regulars",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone watches the regulars rather than Manako, offer the check.",
+      "when": {
+        "condition": "someone watches the regulars"
+      },
+      "challengeRef": "c1e1-the-errand",
+      "checkRef": "read-the-regulars",
+      "facts": [
+        "manako.district"
+      ],
+      "gmFacts": []
     },
     {
       "id": "heard-the-name",
@@ -306,7 +324,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "manako",
-      "text": "He asks them to come back and say how it went. <trig id=\"docket-tell-manako\"/> If one was especially kind, he writes them his number on a napkin.",
+      "text": "He asks them to come back and say how it went. If one was especially kind, he writes them his number on a napkin. <trig id=\"docket-tell-manako\"/>",
       "note": "Do: Your call who, if anyone. No roll. Hand that player a note with the number.\nSecret: Trainee messages are read: by the Directorate, as routine, and by the Watcher.",
       "facts": [],
       "gmFacts": [

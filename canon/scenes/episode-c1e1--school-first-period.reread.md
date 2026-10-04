@@ -108,3 +108,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R23.** 15 minutes.
 - **For Ingram, while reading:** merging the choice into second period is my call; it changes which period is the
   first free choice.
+
+## Revision 2026-10-04: the Scene Runner pass
+
+Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in the live Scene Runner · state: awaiting Ingram's read
+
+- **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
+- **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
+- **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+- **R27.** The always-true carry-in is gone.

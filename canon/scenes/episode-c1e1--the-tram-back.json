@@ -5,7 +5,7 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "the-tram-back",
   "title": "The Train Back",
-  "summary": "Scene 8. The island train home across the causeway at dusk, with nobody needing anything from them, then their paper handed in at the stores before nineteen hundred.",
+  "summary": "A quiet ride home across the causeway at dusk, then the stores hatch before nineteen hundred.",
   "goal": "They've had a quiet ride together and handed in their paper before nineteen hundred.",
   "howToPlay": "Quiet and short. Two lines, then let them talk. **Then their paper goes in, the way they chose.**",
   "runsAbout": "10 minutes",
@@ -13,12 +13,7 @@
   "intro": {
     "where": "The island train across the causeway at dusk, then the stores hatch.",
     "readAloud": "The island train is four short carriages, half empty at this hour. Out of the window the city's lights are coming on behind you, and the causeway runs out ahead across the water.",
-    "carriesIn": [
-      {
-        "when": "After The Errand",
-        "then": "Someone has Manako's part number on the back of a bill."
-      }
-    ],
+    "carriesIn": [],
     "position": {
       "locationRef": "island-platforms",
       "state": "together",
@@ -29,6 +24,7 @@
     {
       "id": "nobu",
       "npcRef": "nobu",
+      "label": "Nobu",
       "role": "Closing the stores hatch for the night.",
       "walkOn": true,
       "arrival": "quiet",
@@ -75,7 +71,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "nobu",
-      "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes their paper without reading it. <trig id=\"docket-requisition-in\"/> <trig id=\"docket-in-time\"/> <trig id=\"close-docket\"/> File it the way they chose.",
+      "text": "At the stores hatch, Nobu takes their paper without reading it. File it the way they chose. <trig id=\"nobu-at-the-hatch\"/> <trig id=\"docket-requisition-in\"/> <trig id=\"docket-in-time\"/> <trig id=\"close-docket\"/>",
       "readAloud": "\"A vial? Medical countersigns those. It'll go up tonight. Next.\"",
       "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nIf they have no requisition: They hand in the docket or a receipt instead.\nIf they're late: The hatch is shut. They hand it to Vetch in person, and go on report.\nSecret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns it.",
       "triggers": [
