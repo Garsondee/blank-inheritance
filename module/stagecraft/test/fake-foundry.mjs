@@ -22,6 +22,16 @@ function setByPath(object, path, value) {
 
 const copy = (value) => (value === DEL ? DEL : structuredClone(value));
 
+/**
+ * Foundry writes into the options object a write is given (a `parent`, the updates), so each call needs its own, and a frozen
+ * one makes the call throw: "Cannot add property parent, object is not extensible", seen in the real thing 2026-10-04, when a
+ * shared frozen constant was passed to every chalk write and no stroke was ever kept. The stand-in does the same.
+ */
+function take(operation, parent) {
+  if (operation.parent !== undefined) throw new Error("these options were used by an earlier call; Foundry writes into them, so every call needs its own");
+  operation.parent = parent;
+}
+
 class FakeHooks {
   #map = new Map();
   #n = 0;
@@ -43,7 +53,8 @@ export class FakePage {
   }
   get isOwner() { return this.world.canWrite(this); }
   getFlag(ns, key) { return this.flags?.[ns]?.[key]; }
-  async update(changes) {
+  async update(changes, operation = {}) {
+    take(operation, this.parent);
     if (!this.isOwner) throw new Error("this user does not own that page");
     await tick();
     for (const [path, value] of Object.entries(changes)) setByPath(this, path, copy(value));
@@ -63,12 +74,14 @@ export class FakeEntry {
     this.world = world;
   }
   getFlag(ns, key) { return this.flags?.[ns]?.[key]; }
-  async update(changes) {
+  async update(changes, operation = {}) {
+    take(operation, null);
     await tick();
     for (const [path, value] of Object.entries(changes)) setByPath(this, path, value);
     this.world.hooks.callAll("updateJournalEntry", this);
   }
-  async deleteEmbeddedDocuments(type, ids) {
+  async deleteEmbeddedDocuments(type, ids, operation = {}) {
+    take(operation, this);
     if (type !== "JournalEntryPage") throw new Error(`unexpected embedded type ${type}`);
     await tick();
     const gone = this.pages.filter((p) => ids.includes(p.id));
@@ -76,7 +89,8 @@ export class FakeEntry {
     for (const page of gone) this.world.hooks.callAll("deleteJournalEntryPage", page);
     return gone;
   }
-  async createEmbeddedDocuments(type, list) {
+  async createEmbeddedDocuments(type, list, operation = {}) {
+    take(operation, this);
     if (type !== "JournalEntryPage") throw new Error(`unexpected embedded type ${type}`);
     if (!this.world.user.isGM && (this.ownership[this.world.user.id] ?? this.ownership.default) < OWNER) throw new Error("this user may not create pages here");
     await tick();

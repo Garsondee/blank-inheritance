@@ -49,7 +49,9 @@ const STRIP = "#stagecraft-stage .stagecraft-bar:not(.stagecraft-blocking)";
 const brief = (s) => JSON.stringify(s);
 const tilesOf = (layers) => JSON.stringify(Object.fromEntries(layers.map((l) => [l.by, l.tiles])));
 const inZone = (b) => !!b && b.x0 >= 0.515 && b.x1 <= 0.885 && b.y0 >= 0.195 && b.y1 <= 0.605;
-const close = (a, b) => Math.abs(a.inked - b.inked) <= Math.max(3, b.inked * 0.01);
+// The world keeps each tile as a lossy picture (chalk.md §11.3), and the painter's own wall is lossless until it is reloaded,
+// so the soft edges of magic chalk count a couple of percent differently afterwards. A missing tile is far more than that.
+const close = (a, b) => Math.abs(a.inked - b.inked) <= Math.max(3, b.inked * 0.03);
 
 /** The GM's strips, unfolded with a real click on their key if they are folded. */
 export async function openStrips(page) {

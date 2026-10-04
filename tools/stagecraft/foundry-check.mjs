@@ -55,6 +55,14 @@ const report = { checks: [], notes: [] };
 let restore = null;     // the world's own active scene, to put back last of all (drawing it can log errors of its own: missing map tiles)
 const check = (name, pass, detail = "") => { report.checks.push({ name, pass: !!pass, detail }); console.log(`${pass ? "PASS" : "FAIL"}  ${name}${detail ? "  " + detail : ""}`); };
 
+/**
+ * The lit stage is what this check is about. A computer left on Automatic is tested for speed a moment after its stage comes
+ * up, and may be moved to a lighter one; a machine busy with something else (a game on the same graphics card, say) would
+ * change what is being checked. The tests of that test are in the bench (bench/health-check.mjs). The module's own bench seam
+ * puts the test an hour off from the first moment of the page, so it is Automatic that is being checked, minus the test.
+ */
+const noSpeedTest = (p) => p.evaluateOnNewDocument(() => { globalThis.__stagecraftSpeed = { settle: 3600000 }; });
+
 const browser = await puppeteer.launch({
   executablePath: CHROME, headless: "new",
   args: ["--hide-scrollbars", "--force-device-scale-factor=1", "--window-size=1920,1080", "--use-angle=d3d11", "--ignore-gpu-blocklist", "--disable-background-timer-throttling", "--disable-renderer-backgrounding", "--disable-backgrounding-occluded-windows", "--js-flags=--expose-gc"],
@@ -62,11 +70,13 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 await installProbe(page);           // before Foundry's own scripts, so it hears the stage being built (chalk-probe.mjs)
+await noSpeedTest(page);
 /** What a console message really says: an Error passed to console.error arrives as a bare handle, so ask it for its stack. */
 async function describe(m) {
   let t = m.text();
   if (m.type() === "error" || m.type() === "warning") {
-    const parts = await Promise.all(m.args().map((a) => a.evaluate((v) => (v instanceof Error ? v.stack || v.message : typeof v === "string" ? v : "")).catch(() => "")));
+    // an error from Foundry's own code is not always `instanceof Error` here (another realm), so anything with a message counts
+    const parts = await Promise.all(m.args().map((a) => a.evaluate((v) => (typeof v === "string" ? v : v && typeof v === "object" && (v.stack || v.message) ? String(v.stack || v.message) : "")).catch(() => "")));
     const extra = parts.filter(Boolean).join(" ");
     if (extra) t = extra.length > t.length ? extra : t;
   }
@@ -147,6 +157,7 @@ try {
   check("the module is enabled in the world", active);
   check("its api is published", await page.evaluate(() => typeof game.modules.get("stagecraft")?.api?.version === "string"), await page.evaluate(() => game.modules.get("stagecraft")?.api?.version));
   if (!active) throw new Error("the module did not enable; see the console log below");
+
 
   /* -------------------------------------------------------------- 2. the skin and the scenes */
   const brassSource = readFileSync(path.join(repo, "design", "stagecraft", "lab", "brass-skin.mjs"), "utf8").replace(/^export const brass/m, "const brass");
@@ -392,6 +403,7 @@ try {
   const pp = await context.newPage();
   await pp.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
   await installProbe(pp);
+  await noSpeedTest(pp);
   pp.on("console", async (m) => { const t = await describe(m); if (m.type() === "error" || m.type() === "warning" || /stagecraft/i.test(t)) logs.push(`[player ${m.type()}] ${t.slice(0, 500)}`); });
   pp.on("pageerror", (e) => logs.push(`[player pageerror] ${e.message}`));
   try {

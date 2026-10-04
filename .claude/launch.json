@@ -43,6 +43,17 @@
       "port": 30000
     },
     {
+      "name": "foundry-local",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "foundryvtt/Foundry Virtual Tabletop/resources/app/main.js",
+        "--port=30000",
+        "--noupnp",
+        "--headless"
+      ],
+      "port": 30000
+    },
+    {
       "name": "foundry-blank-inheritance",
       "runtimeExecutable": "foundryvtt/Foundry Virtual Tabletop/Foundry Virtual Tabletop.exe",
       "runtimeArgs": [

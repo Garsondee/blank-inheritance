@@ -18,8 +18,12 @@ import { effectivePolicy, newestStep, trimSteps, validTileKey, wallGrid, HISTORY
 export const ENTRY_NAME = "Stagecraft chalk";
 export const FORMAT = 2;
 
-/** Chalk's writes ask Foundry to redraw nothing: nobody reads these pages in a window (chalk.md §11). */
-const QUIET = Object.freeze({ render: false });
+/**
+ * Chalk's writes ask Foundry to redraw nothing: nobody reads these pages in a window (chalk.md §11). A fresh object every
+ * time: Foundry writes into the options it is given (a `parent`), so a shared one, and above all a frozen one, makes every
+ * write throw (found 2026-10-04, the first time the store met a real Foundry since it was made quiet).
+ */
+const quiet = () => ({ render: false });
 
 /**
  * Take one key out of an object in a document update: Foundry 14's ForcedDeletion (`_del`) where it has one, the older
@@ -136,7 +140,7 @@ export class ChalkStore {
         await entry.createEmbeddedDocuments("JournalEntryPage", [{
           name: `chalk ${sceneId} ${by}`, type: "text", text: { content: "" },
           flags: { [NS]: { chalk: { v: FORMAT, scene: sceneId, by, since: step?.at ?? Date.now(), tiles: kept, history } } }
-        }], QUIET);
+        }], quiet());
         return true;
       }
       const data = page.getFlag(NS, "chalk");
@@ -153,7 +157,7 @@ export class ChalkStore {
         // journal goes to every client that joins, so a long campaign of graffiti must not grow without bound
         for (const old of trimSteps({ ...(data.history ?? {}), [step.id]: made }, { protect: step.id })) remove(update, `${root}.history`, old);
       }
-      await page.update(update, QUIET);
+      await page.update(update, quiet());
       return true;
     });
   }
@@ -186,10 +190,10 @@ export class ChalkStore {
         if (!old.length) continue;
         const update = {};
         for (const id of old) remove(update, `${root}.history`, id);
-        await page.update(update, QUIET);
+        await page.update(update, quiet());
         steps += old.length;
       }
-      if (doomed.length) await entry.deleteEmbeddedDocuments("JournalEntryPage", doomed, QUIET);
+      if (doomed.length) await entry.deleteEmbeddedDocuments("JournalEntryPage", doomed, quiet());
       return { steps, pages: doomed.length };
     });
   }
@@ -224,7 +228,7 @@ export class ChalkStore {
           if (before) update[`${root}.tiles.${key}`] = before;
           else if (data.tiles?.[key] !== undefined) remove(update, `${root}.tiles`, key);
         }
-        await layer.page.update(update, QUIET);
+        await layer.page.update(update, quiet());
         undone[layer.by] = held;
       }
       return { id: newest.id, layers: undone };
@@ -242,7 +246,7 @@ export class ChalkStore {
         const update = {};
         for (const key of Object.keys(data?.tiles ?? {})) remove(update, `${root}.tiles`, key);
         for (const id of Object.keys(data?.history ?? {})) remove(update, `${root}.history`, id);
-        if (Object.keys(update).length) await page.update(update, QUIET);
+        if (Object.keys(update).length) await page.update(update, quiet());
       }
     });
   }
