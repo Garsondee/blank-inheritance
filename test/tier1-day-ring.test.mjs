@@ -26,6 +26,8 @@ import {
   normalizeMoment,
   quarterAt,
   quarterIndex,
+  ringFlare,
+  ringNotches,
   ringSlices,
   ringState
 } from "../module/blank-inheritance/scripts/core/day-ring.mjs";
@@ -228,4 +230,46 @@ test("ringState passes geometry through, so the pod's size is one decision not t
   const state = ringState({ day: 1, quarter: "morning" }, { size: 200, thickness: 30 });
   const coords = state.slices[0].d.match(/-?\d+(\.\d+)?/g).map(Number);
   assert.ok(Math.max(...coords) > 100, "the geometry argument was ignored");
+});
+
+test("ringFlare: a first paint records the clock without flaring", () => {
+  assert.deepEqual(ringFlare(null, { day: 1, quarter: "morning" }), { key: "d1:morning", flare: false });
+});
+
+test("ringFlare: the same moment re-rendered does not flare, a new quarter or day does", () => {
+  assert.equal(ringFlare("d1:morning", { day: 1, quarter: "morning" }).flare, false);
+  assert.equal(ringFlare("d1:morning", { day: 1, quarter: "afternoon" }).flare, true);
+  assert.equal(ringFlare("d1:night", { day: 2, quarter: "morning" }).flare, true);
+});
+
+test("ringNotches: one notch an hour, a major index at each quarter boundary and a half mark at three hours", () => {
+  const notches = ringNotches({ size: 98, thickness: 2.8, perQuarter: 6, overhang: 1.1 });
+  assert.equal(notches.length, 24);
+  assert.deepEqual(notches.filter((n) => n.kind === "major").map((n) => n.deg), [0, 90, 180, 270]);
+  assert.deepEqual(notches.filter((n) => n.kind === "half").map((n) => n.deg), [45, 135, 225, 315]);
+  assert.equal(notches.filter((n) => n.kind === "hour").length, 16);
+  for (const n of notches) for (const v of [n.x1, n.y1, n.x2, n.y2]) assert.ok(Number.isFinite(v));
+});
+
+test("ringNotches: majors stand at the gaps, reaching past the band; hour marks stay in its outer part", () => {
+  const size = 98;
+  const thickness = 2.8;
+  const c = size / 2;
+  const radius = (x, y) => Math.hypot(x - c, y - c);
+  const notches = ringNotches({ size, thickness, perQuarter: 6, overhang: 1.1 });
+  const top = notches[0];
+  assert.equal(top.x1, c); // twelve o'clock, straight up
+  assert.ok(radius(top.x1, top.y1) < c - thickness, "a major reaches inside the band");
+  assert.ok(radius(top.x2, top.y2) > c, "and out past it");
+  for (const n of notches.filter((m) => m.kind === "hour")) {
+    assert.ok(radius(n.x1, n.y1) > c - thickness * 0.6, "an hour mark leaves the band's inner part clear for the kanji plates");
+    assert.ok(Math.abs(radius(n.x2, n.y2) - c) < 0.02);
+  }
+});
+
+test("ringNotches refuses geometry it cannot draw", () => {
+  assert.throws(() => ringNotches({ size: 0 }));
+  assert.throws(() => ringNotches({ size: 100, thickness: 60 }));
+  assert.throws(() => ringNotches({ perQuarter: 0 }));
+  assert.throws(() => ringNotches({ perQuarter: 2.5 }));
 });

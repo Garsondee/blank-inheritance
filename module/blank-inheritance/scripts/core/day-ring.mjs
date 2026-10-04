@@ -98,8 +98,19 @@ export function momentKey(moment) {
   return `d${day}:${quarter}`;
 }
 
+/**
+ * Whether the ring should flare for this render. The first render a client
+ * ever does (`lastKey` null) only records where the clock is: a page load is
+ * not a change of time of day. Any later render under a different quarter or
+ * day flares, whoever moved the clock (the Runner, the Admin panel, a Director).
+ */
+export function ringFlare(lastKey, moment) {
+  const key = momentKey(moment);
+  return { key, flare: lastKey !== null && lastKey !== key };
+}
+
 /* ---------------------------------------------------------------------- */
-/*  Geometry                                                               */
+/*  Geometry                                                             */
 /* ---------------------------------------------------------------------- */
 
 /** Polar to cartesian with 0° at twelve o'clock, increasing clockwise. */
@@ -159,6 +170,50 @@ export function ringSlices({ size = 100, thickness = 18, gapDeg = 5 } = {}) {
     ].join(" ");
     return { id: quarter.id, index, d, midDeg: (start + end) / 2, school: quarter.school };
   });
+}
+
+/**
+ * The clockface graduations cut into the ring (Ingram, 2026-10-04: "notches as
+ * if it were part of some great clockface", so the four arcs read as one day
+ * and not four buttons). One notch an hour, so `perQuarter` 6 makes a 24-hour
+ * dial: a MAJOR notch at each quarter boundary, standing in the gap between two
+ * arcs and reaching past the band on both sides; a HALF notch at three hours;
+ * the rest are minor hour marks cut only into the outer part of the band, so
+ * the inner part stays clear for the kanji plates at each arc's middle.
+ *
+ * Same coordinate space as ringSlices (a `size` box, centred at size/2).
+ *
+ * @returns {Array<{x1: number, y1: number, x2: number, y2: number, kind: "major"|"half"|"hour", deg: number}>}
+ */
+export function ringNotches({ size = 100, thickness = 18, perQuarter = 6, overhang = 1 } = {}) {
+  if (!(size > 0)) throw new Error(`ringNotches: size must be positive, got ${size}`);
+  if (!(thickness > 0 && thickness < size / 2)) {
+    throw new Error(`ringNotches: thickness must be above 0 and below half of size (${size / 2}), got ${thickness}`);
+  }
+  if (!(Number.isInteger(perQuarter) && perQuarter >= 1)) {
+    throw new Error(`ringNotches: perQuarter must be a positive integer, got ${perQuarter}`);
+  }
+  const c = size / 2;
+  const rOuter = c;
+  const rInner = c - thickness;
+  const step = 360 / QUARTERS.length / perQuarter;
+  const half = perQuarter % 2 === 0 ? perQuarter / 2 : null;
+
+  const notches = [];
+  for (let i = 0; i < QUARTERS.length * perQuarter; i += 1) {
+    const deg = i * step;
+    const within = i % perQuarter;
+    const kind = within === 0 ? "major" : within === half ? "half" : "hour";
+    const [from, to] = kind === "major"
+      ? [rInner - overhang, rOuter + overhang * 0.4]
+      : kind === "half"
+        ? [rInner + thickness * 0.15, rOuter]
+        : [rOuter - thickness * 0.55, rOuter];
+    const a = pointOn(c, c, from, deg);
+    const b = pointOn(c, c, to, deg);
+    notches.push({ x1: round(a.x), y1: round(a.y), x2: round(b.x), y2: round(b.y), kind, deg });
+  }
+  return notches;
 }
 
 /**

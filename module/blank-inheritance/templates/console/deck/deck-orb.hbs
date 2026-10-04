@@ -58,8 +58,14 @@
                 {{#each orb.bezel.slices}}
                 <path class="bi-orb__arc" d="{{this.d}}" data-state="{{this.state}}"></path>
                 {{/each}}
+                {{!-- The day's hour notches (core/day-ring.mjs#ringNotches): cut over the arcs so the four quarters read as one clockface. --}}
+                {{#each orb.bezel.notches}}
+                <line class="bi-orb__notch" data-kind="{{this.kind}}" x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}"></line>
+                {{/each}}
             </g>
         </svg>
+        {{!-- The time-of-day alarm's shock ring: invisible until deck.mjs#flareDayRing sets bi-orb--flare. --}}
+        <div class="bi-orb__flare" aria-hidden="true"></div>
         {{#if orb.bezel.hits.length}}
         <div class="bi-orb__hits">
             {{#each orb.bezel.hits}}

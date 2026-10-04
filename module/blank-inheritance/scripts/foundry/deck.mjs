@@ -41,7 +41,7 @@ import {
   ORB_FACE_TYPE,
   QUARTER_GLYPHS
 } from "../core/orb-geometry.mjs";
-import { quarterAt, quarterIndex, ringSlices, ringState } from "../core/day-ring.mjs";
+import { quarterAt, quarterIndex, ringFlare, ringNotches, ringSlices, ringState } from "../core/day-ring.mjs";
 import { actionListFor, actionRows } from "../core/deck-actions.mjs";
 import { initiativeKeyState, pageForIndex, turnCaptionName, turnKeyState } from "../core/deck-combat.mjs";
 import { buildTurnOrder } from "../core/cast.mjs";
@@ -246,6 +246,8 @@ function bezelFor(actor, { mode, canAdvance }) {
   return {
     ...common,
     kind: "day",
+    // Only the day gets hour notches: in a fight the same four arcs count actions.
+    notches: ringNotches({ size: ORB_BEZEL.size, thickness: ORB_BEZEL.thickness, perQuarter: 6, overhang: 1.1 }),
     slices: ring.slices.map((slice) => ({
       d: slice.d,
       index: slice.index,
@@ -677,6 +679,28 @@ const STEP_KEYS = Object.freeze({ ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, Arro
  * hover the render invalidated, repaint the instrument's window, start the
  * needle's sweep, and refit the panel.
  */
+/** The last time of day this client drew the ring at, so a change can be told from a first paint. */
+let lastRingKey = null;
+
+/**
+ * The quarter that just became current flares up like an alarm (three hard
+ * pulses and a shock ring off the bezel), then settles (bi-orb--flare).
+ * Only while the bezel is showing the day: in a fight it counts rounds, and the
+ * clock turning underneath must not light a round key. The key is recorded even
+ * then, so coming out of a fight does not replay a flare for a change already seen.
+ */
+function flareDayRing(root) {
+  const { key, flare } = ringFlare(lastRingKey, currentMoment());
+  lastRingKey = key;
+  if (!flare) return;
+  const deck = root.querySelector('.bi-orb-deck[data-bezel="day"]');
+  if (!deck) return;
+  deck.classList.remove("bi-orb--flare");
+  void deck.offsetWidth; // restart the animation if two changes land close together
+  deck.classList.add("bi-orb--flare");
+  setTimeout(() => deck.classList.remove("bi-orb--flare"), 4200);
+}
+
 export function afterDeckRender(app, { isGM, subjectId, onStep }) {
   const root = app.element;
   if (!root) return;
@@ -769,6 +793,7 @@ export function afterDeckRender(app, { isGM, subjectId, onStep }) {
     readout.hover = source ? previewFrom(source) : null;
   }
   paintOrbWindow(root);
+  flareDayRing(root);
 
   const needle = root.querySelector(".bi-orb__needle[data-needle-to]");
   if (needle) {
