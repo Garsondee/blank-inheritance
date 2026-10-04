@@ -249,6 +249,7 @@ export class StageHost {
       this.chalk?.wall?.flush?.();
       this.health?.frame(now, this.pace.scale(now));
       this.backend.draw(snap);
+      this.chalk?.afterDraw?.();             // a stroke that has ended is on the wall now: its wet ink (render/paint/wet.mjs) goes
       this.speed?.feed(now);                 // the start-up speed test times the pictures that are delivered (only a running test listens)
       this.frames++;
       // what covers the stage can change without the window changing (the deck folded away): the box keeps clear of it
@@ -306,8 +307,13 @@ export class StageHost {
     this.listeners.push([target, type, fn, opts]);
   }
 
+  /** The stage's place on the page, kept: asking for it at every pointer move made the browser work out the page's layout each time. */
+  #rect() {
+    return (this.rect ??= this.root.getBoundingClientRect());
+  }
+
   #local(e) {
-    const r = this.root.getBoundingClientRect();
+    const r = this.#rect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   }
 
@@ -315,7 +321,7 @@ export class StageHost {
    * A pointer event as chalk wants it: where (stage px), how hard (a pen's pressure), what kind of pointer, when, the keys
    * held, and whether a pen is being used by its eraser end (`flip`).
    */
-  #sample(e, r = this.root.getBoundingClientRect()) {
+  #sample(e, r = this.#rect()) {
     const flip = e.pointerType === "pen" && (e.button === 5 || (e.buttons & 32) !== 0);
     return { x: e.clientX - r.left, y: e.clientY - r.top, pressure: e.pressure, pointerType: e.pointerType, t: e.timeStamp, shift: e.shiftKey, alt: e.altKey, flip };
   }
@@ -325,6 +331,7 @@ export class StageHost {
     // the browser's own menu never opens over the stage: a right-click on a card is the card's menu
     this.#on(canvas, "contextmenu", (e) => e.preventDefault());
     this.#on(canvas, "pointerdown", (e) => {
+      this.rect = null;                       // looked at afresh at every press
       this.pace.poke(performance.now());
       this.tip?.hide();
       if (e.button === 2 && this.chalk?.inHand) { this.chalk.putAway(); return; }
@@ -400,9 +407,10 @@ export class StageHost {
       if (this.dragging || this.chalk?.inHand || e.buttons) this.pace.poke(performance.now());        // hovering alone needs no more than the easy rate
       if (this.chalk?.drawing) {
         // every sample the browser gathered since the last event, for the smoothest line a hand can make
-        const r = this.root.getBoundingClientRect();
+        const r = this.#rect();
         const all = e.getCoalescedEvents?.() ?? [];
         for (const ev of all.length ? all : [e]) this.chalk.extend(this.#sample(ev, r));
+        this.chalk.finishMove();              // the wet ink's tail reaches to where the pointer is now
       }
       if (this.chalk?.inHand) { this.tip?.hide(); this.chalk.hover(p); canvas.style.cursor = "none"; return; }
       if (!this.dragging) {
@@ -630,6 +638,7 @@ export class StageHost {
   #watchSize() {
     const fit = () => {
       if (!this.backend || !this.root) return;
+      this.rect = null;
       this.backend.resize(this.root.clientWidth, this.root.clientHeight, window.devicePixelRatio);
       this.#placeBox();
     };

@@ -13,6 +13,9 @@
  *     shape is filled with one click; a smudge drags paint; Alt-click takes a colour off the wall; ] makes the tip bigger;
  *   - two screens: a player's stroke shows on the GM's screen while it is being painted, and gives way to the kept paint;
  *     the player's Ctrl+Z takes it off the GM's screen too; a player's eraser cannot touch the GM's paint;
+ *   - wet ink (chalk.md §11.4): a stroke being painted is on a plain 2D layer over the stage the moment the pointer moves, its
+ *     tail reaches the pointer, it is held to the chalk zones, it lines up with the wall's paint to a pixel or two, it goes
+ *     when the wall shows the paint, and the stroke is kept only once the hand pauses;
  *   - the plain 2D picture shows paint too.
  *
  *   node tools/stagecraft/bench/chalk-check.mjs        (starts its own little web server on port 4194)
@@ -138,6 +141,59 @@ async function takeFromBox(page, which = 0) {
   return page.evaluate(() => window.bench.host.chalk.inHand);
 }
 
+/**
+ * The wet ink on the screen now: the paint's count, centre and extent in window pixels, from the two canvases over the stage
+ * (what has been put down, and the tail to the pointer).
+ */
+const wetNow = (page) => page.evaluate(() => {
+  const root = window.bench.host.root;
+  const out = { n: 0, cx: 0, cy: 0, x0: Infinity, x1: -Infinity, canvases: 0 };
+  let sx = 0;
+  let sy = 0;
+  for (const c of root.querySelectorAll("canvas.stagecraft-wet")) {
+    out.canvases++;
+    const k = c.width / Math.max(1, c.clientWidth);
+    const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+    for (let i = 3; i < d.length; i += 4) {
+      if (d[i] <= 40) continue;
+      const p = (i - 3) / 4;
+      const x = (p % c.width) / k;
+      const y = Math.floor(p / c.width) / k;
+      out.n++; sx += x; sy += y; out.x0 = Math.min(out.x0, x); out.x1 = Math.max(out.x1, x);
+    }
+  }
+  out.cx = out.n ? sx / out.n : null;
+  out.cy = out.n ? sy / out.n : null;
+  return out;
+});
+/** The sums of the painted pixels' places in a box of the wall (wall pixels), and the map to the window the wet ink uses. */
+const wallCentre = (page, box) => page.evaluate((bx) => {
+  const h = window.bench.host;
+  const w = h.chalk.wall;
+  w.flush();
+  const m = h.backend.wetMap(w.grid);
+  let n = 0;
+  let sx = 0;
+  let sy = 0;
+  for (const [key, tile] of w.composite) {
+    const g = /^c(\d+)r(\d+)$/.exec(key);
+    const tx = Number(g[1]) * w.grid.tile;
+    const ty = Number(g[2]) * w.grid.tile;
+    const d = tile.getContext("2d").getImageData(0, 0, tile.width, tile.height).data;
+    for (let i = 3; i < d.length; i += 4) {
+      if (d[i] <= 40) continue;
+      const p = (i - 3) / 4;
+      const wx = tx + (p % tile.width);
+      const wy = ty + Math.floor(p / tile.width);
+      if (wx < bx[0] * w.grid.w || wx > bx[2] * w.grid.w || wy < bx[1] * w.grid.h || wy > bx[3] * w.grid.h) continue;
+      sx += wx; sy += wy; n++;
+    }
+  }
+  return { n, sx, sy, m };
+}, box);
+/** The newest step kept in the world (a layer keeps only its last eight, so the count would not say). */
+const steps = (page) => page.evaluate(() => window.bench.host.chalk.store.layers(window.bench.scene.id).flatMap((l) => Object.keys(l.history)).sort().at(-1) ?? "");
+
 const hand = (page) => page.evaluate(() => { const c = window.bench.host.chalk; return { tool: c.inHand, colour: c.colour, size: c.sizes[c.inHand] }; });
 const kitShown = (page) => page.evaluate(() => { const k = document.querySelector(".stagecraft-kit"); return !!k && !k.hidden && k.getBoundingClientRect().width > 40; });
 const kept = (page, by = null) => page.evaluate((who) => window.bench.host.chalk.store.layers(window.bench.scene.id).filter((l) => !who || l.by === who).reduce((n, l) => n + Object.keys(l.tiles).length, 0), by);
@@ -189,6 +245,25 @@ try {
   await kit.page.mouse.move(paintSpot.x, paintSpot.y + 260);
   await sleep(300);
   check("and the tip goes when the pointer moves off the paint", (await kit.page.evaluate(() => document.querySelector(".stagecraft-tip.shown"))) === null);
+  // wet ink in a zones-only scene: a stroke that starts outside the back wall and comes in shows wet ink only inside it
+  await kit.page.evaluate(() => { const c = window.bench.host.chalk; c.setColour("#ffffff"); c.choose("chalk"); });
+  const zoneBox = await kit.page.evaluate(() => {
+    const z = window.bench.host.description.zones.find((q) => q.kind === "chalk");
+    const xs = z.shape.map((p) => p[0]);
+    const ys = z.shape.map((p) => p[1]);
+    return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  });
+  const midY = (zoneBox.y0 + zoneBox.y1) / 2;
+  const wetFrom = await viewportOf(kit.page, Math.max(0.02, zoneBox.x0 - 0.12), midY);
+  const wetTo = await viewportOf(kit.page, zoneBox.x0 + (zoneBox.x1 - zoneBox.x0) * 0.5, midY);
+  const zoneEdge = (await viewportOf(kit.page, zoneBox.x0, midY)).x;
+  await kit.page.mouse.move(wetFrom.x, wetFrom.y);
+  await kit.page.mouse.down();
+  for (let i = 1; i <= 30; i++) { await kit.page.mouse.move(wetFrom.x + ((wetTo.x - wetFrom.x) * i) / 30, wetFrom.y + ((wetTo.y - wetFrom.y) * i) / 30); await sleep(8); }
+  const zonedWet = await wetNow(kit.page);
+  await kit.page.mouse.up();
+  check("wet ink in a zones-only scene is held to the chalk zone, as the wall's paint is", zonedWet.n > 200 && zonedWet.x0 >= zoneEdge - 2, JSON.stringify({ n: zonedWet.n, from: Math.round(zonedWet.x0), zoneEdge: Math.round(zoneEdge) }));
+  await sleep(600);
   check("no page threw (Kit Issue)", kit.errors.length === 0, kit.errors.slice(0, 2).join(" | "));
   await kit.page.screenshot({ path: path.join(SHOTS, "chalk-kit-issue.jpg"), type: "jpeg", quality: 88 });
   await kit.page.close();
@@ -319,6 +394,47 @@ try {
   const s0 = (await hand(L)).size;
   for (let i = 0; i < 3; i++) await L.keyboard.press("]");
   check("] makes the tip bigger", (await hand(L)).size > s0, `${s0} -> ${(await hand(L)).size}`);
+  /* ---- wet ink: the stroke being painted is on a plain 2D layer over the stage (chalk.md §11.4) ---- */
+  await L.evaluate(() => { const c = window.bench.host.chalk; c.setColour("#ffffff"); c.choose("chalk"); });
+  await sleep(300);
+  const W0 = await viewportOf(L, 0.4, 0.8);
+  const W1 = await viewportOf(L, 0.74, 0.84);
+  const stepsBefore = await steps(L);
+  const inkBefore = await ink(L, [0.38, 0.77, 0.78, 0.88]);
+  const sumsBefore = await wallCentre(L, [0.38, 0.77, 0.78, 0.88]);
+  await L.mouse.move(W0.x, W0.y);
+  await L.mouse.down();
+  for (let i = 1; i <= 40; i++) { await L.mouse.move(W0.x + ((W1.x - W0.x) * i) / 40, W0.y + ((W1.y - W0.y) * i) / 40); await sleep(8); }
+  const wetHeld = await wetNow(L);
+  const wallHeld = await ink(L, [0.38, 0.77, 0.78, 0.88]);
+  check("a stroke being painted is on the wet layer over the stage the moment the pointer moves", wetHeld.canvases === 2 && wetHeld.n > 1500, JSON.stringify({ n: wetHeld.n, canvases: wetHeld.canvases }));
+  check("and the wall's tiles do not show it yet: the stage is not drawn again for every dab", wallHeld.inked === inkBefore.inked, JSON.stringify({ before: inkBefore.inked, held: wallHeld.inked }));
+  check("the wet ink reaches the pointer (its tail runs on to where the hand is)", Math.abs(wetHeld.x1 - W1.x) <= 8, `ink to ${wetHeld.x1?.toFixed(1)}, pointer at ${W1.x.toFixed(1)}`);
+  const heldCentre = { x: wetHeld.cx, y: wetHeld.cy };
+  await L.mouse.up();
+  await sleep(150);
+  const stepsSoon = await steps(L);
+  await sleep(500);
+  const wetGone = await wetNow(L);
+  const wallDone = await ink(L, [0.38, 0.77, 0.78, 0.88]);
+  check("when the pointer comes up the paint is on the wall and the wet ink is gone", wetGone.n === 0 && wallDone.inked > 1500, JSON.stringify({ wet: wetGone.n, wall: wallDone.inked }));
+  const sumsAfter = await wallCentre(L, [0.38, 0.77, 0.78, 0.88]);
+  const fresh = sumsAfter.n - sumsBefore.n;                                    // the pixels this stroke added: the centre of those is the stroke's
+  const centre = { x: sumsAfter.m.k * ((sumsAfter.sx - sumsBefore.sx) / fresh) + sumsAfter.m.bx, y: sumsAfter.m.k * ((sumsAfter.sy - sumsBefore.sy) / fresh) + sumsAfter.m.by };
+  check("the wet ink and the wall's paint line up to a few pixels (no jump when one takes over from the other)", Math.hypot(centre.x - heldCentre.x, centre.y - heldCentre.y) < 4, `wet ${heldCentre.x?.toFixed(1)},${heldCentre.y?.toFixed(1)}  wall ${centre.x?.toFixed(1)},${centre.y?.toFixed(1)}`);
+  check("the stroke is not written to the world at the instant the pointer comes up, but once the hand has paused", stepsSoon === stepsBefore && (await L.waitForFunction((n) => (window.bench.host.chalk.store.layers(window.bench.scene.id).flatMap((l) => Object.keys(l.history)).sort().at(-1) ?? "") > n, { timeout: 4000 }, stepsBefore).then(() => true, () => false)), `steps ${stepsBefore} -> ${stepsSoon} -> ${await steps(L)}`);
+  // a quick doodle: strokes close together; each wet ink is gone once the wall shows it, and a new stroke does not lose another's
+  for (let k = 0; k < 3; k++) {
+    const a = await viewportOf(L, 0.42 + k * 0.1, 0.66);
+    await L.mouse.move(a.x, a.y);
+    await L.mouse.down();
+    for (let i = 1; i <= 8; i++) await L.mouse.move(a.x + i * 6, a.y + i * 3);
+    await L.mouse.up();
+    await sleep(30);
+  }
+  await sleep(500);
+  const doodle = await ink(L, [0.38, 0.62, 0.78, 0.74]);
+  check("a quick doodle of short strokes ends up on the wall whole, and no wet ink is left over", doodle.inked > 250 && (await wetNow(L)).n === 0, JSON.stringify({ wall: doodle.inked, wet: (await wetNow(L)).n }));
   check("no page threw (the Paper Lantern)", lantern.errors.length === 0, lantern.errors.slice(0, 2).join(" | "));
   const p = await viewportOf(L, 0.5, 0.5);
   await L.mouse.move(p.x, p.y);

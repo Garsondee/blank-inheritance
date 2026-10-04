@@ -135,7 +135,7 @@ const cardOn = (p, id) => p.evaluate((cid) => {
 }, id);
 const sceneFlags = (p) => p.evaluate(() => canvas.scene?.flags?.stagecraft?.live ?? null);
 /** The stage's picture: its own canvas, not the chalk kit's colour picker or the ring round the pointer (canvases too). */
-const PICTURES = "#stagecraft-stage > canvas:not(.stagecraft-chalk-ring)";
+const PICTURES = "#stagecraft-stage > canvas:not(.stagecraft-chalk-ring):not(.stagecraft-wet)";
 
 try {
   /* -------------------------------------------------------------- 1. the module is there and enabled */

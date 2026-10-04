@@ -13,9 +13,11 @@ import { effectivePolicy, allowedAt, boxVisible, paintMask, wallGrid, toWall, PA
 import { TOOLS, STEADY, Stroke, Feel, lineDabs, dabBounds, hashSeed, cleanHex } from "../core/brush.mjs";
 import { pointInPolygon } from "../core/zones.mjs";
 import { RasterWall, encodeTile } from "../render/paint/wall.mjs";
+import { WetInk } from "../render/paint/wet.mjs";
+import { Quiet } from "../core/quiet.mjs";
 
 const SEND_EVERY = 45;               // milliseconds between the live sends of a stroke's samples
-const LIVE_TIMEOUT = 5000;           // a live stroke whose kept paint never comes is let go after this long
+const LIVE_TIMEOUT = 8000;           // a live stroke whose kept paint never comes is let go after this long (a stroke is kept once the hand pauses: core/quiet.mjs)
 const PREFS = "stagecraft.chalk.prefs";
 
 const newId = () => `${(game.user?.id ?? "x").slice(0, 6)}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -28,18 +30,31 @@ function savePrefs(prefs) {
   try { globalThis.localStorage?.setItem(PREFS, JSON.stringify(prefs)); } catch { /* a private window keeps nothing */ }
 }
 
+/** The wet ink for a controller's stage, where the picture can place it (the 3D one can): none otherwise. */
+function defaultWet(c) {
+  const host = c.host;
+  if (typeof host.backend?.wetMap !== "function" || typeof host.root?.append !== "function" || typeof document === "undefined") return null;
+  return new WetInk({ root: host.root, wall: c.wall, mapOf: () => host.backend?.wetMap?.(c.grid) ?? null });
+}
+
 export class ChalkController {
   /**
    * `makeWall(options)` makes the wall's pixels (render/paint/wall.mjs `RasterWall`) and `encode(canvas)` turns a tile
    * into a picture to keep; a test passes stand-ins. `send(message)` puts a message on the stage's channel, for the live
-   * copy of a stroke on other screens.
+   * copy of a stroke on other screens. `makeWet(controller)` makes the wet ink shown over the stage while a stroke is painted
+   * (render/paint/wet.mjs; none where the picture cannot place it, which is the plain 2D one), `quiet` is the moment of quiet
+   * a stroke waits for before it is read back and kept (core/quiet.mjs).
    */
-  constructor({ host, store, makeWall = (options) => new RasterWall(options), encode = encodeTile, send = () => {} }) {
+  constructor({ host, store, makeWall = (options) => new RasterWall(options), encode = encodeTile, send = () => {}, makeWet = defaultWet, quiet = new Quiet() }) {
     this.host = host;
     this.store = store;
     this.sceneId = host.scene.id;
     this.send = send;
     this.encode = encode;
+    this.makeWet = makeWet;
+    this.quiet = quiet;
+    this.wet = undefined;            // the wet ink, made when chalk is first taken (undefined: not yet; null: none here)
+    this.wetPending = null;          // a stroke that has ended, its wet ink still on the screen until the wall shows it
     this.pointerListeners = new Set();
     this.grid = wallGrid(host.description.painting);
     this.wall = makeWall({ grid: this.grid, onChange: (keys) => this.host.backend?.setChalkTiles?.(this.wall, keys) });
@@ -62,11 +77,18 @@ export class ChalkController {
       if (sceneId === null) { this.refresh(); this.sync(); }                  // the journal itself arrived or changed
       else if (sceneId === this.sceneId) this.#layerChanged(by);
     });
+    // leaving the page: what is waiting for the hand to pause goes now
+    this.onHide = () => this.quiet.release();
+    globalThis.addEventListener?.("pagehide", this.onHide);
   }
 
   stop() {
     this.unsubscribe?.();
+    globalThis.removeEventListener?.("pagehide", this.onHide);
     this.putAway();
+    this.wet?.dispose();
+    this.wet = undefined;
+    this.wetPending = null;
     for (const r of this.remote.values()) clearTimeout(r.timer);
     this.remote.clear();
     this.listeners.clear();
@@ -81,6 +103,8 @@ export class ChalkController {
   /** The backend was rebuilt: show the whole wall again. */
   reset() {
     this.putAway();
+    this.wetPending?.release();
+    this.wetPending = null;
     this.host.backend?.setChalkTiles?.(this.wall, new Set(this.wall.keys()), true);
   }
 
@@ -198,10 +222,21 @@ export class ChalkController {
     if (this.drawing) this.cancel();
     this.tool = tool;
     this.host.root?.classList.add("stagecraft-chalk");
+    if (TOOLS[tool].kind === "paint" || TOOLS[tool].kind === "spray") this.#ink();
     this.#tellHand();
   }
 
+  /** The wet ink for this stage, made (and warmed, so the graphics card has met each way it draws) the first time it is wanted. */
+  #ink() {
+    if (this.wet === undefined) {
+      this.wet = this.makeWet(this) ?? null;
+      if (this.wet) setTimeout(() => { try { this.wet?.warm?.(); } catch { /* the first stroke warms it instead */ } }, 0);
+    }
+    return this.wet;
+  }
+
   putAway() {
+    this.quiet.release();            // a stroke waiting for a pause is kept now
     if (this.drawing) this.cancel();
     this.tool = null;
     this.cursorZone = null;
@@ -340,8 +375,12 @@ export class ChalkController {
     const opts = { tool, size, steady: STEADY[this.steady], seed };
     const everyone = def.kind === "erase" && game.user.isGM === true;
     const magic = def.magic ? { ...this.magic } : null;
-    this.wall.begin({ id, by: game.user.id, tool, colour: this.colour, magic, everyone });
-    this.drawing = { id, stroke: new Stroke(opts), feel: new Feel(), opts, everyone, unsent: [], timer: null, at };
+    this.#releaseWet();              // a stroke just ended whose wet ink is still up: the wall shows it by now, near enough
+    let wet = def.kind === "paint" || def.kind === "spray" ? this.#ink() : null;
+    const wall = this.wall.begin({ id, by: game.user.id, tool, colour: this.colour, magic, everyone, wet: !!wet });
+    if (wet && !wet.begin(wall)) { wall.wet = false; wet = null; }          // nowhere to show it wet: the wall shows it as it goes
+    this.quiet.note();
+    this.drawing = { id, stroke: new Stroke(opts), feel: new Feel(), opts, everyone, unsent: [], timer: null, at, wet };
     this.send({ type: "chalk", op: "begin", scene: this.sceneId, id, tool, colour: this.colour, magic, everyone, size, steady: opts.steady, seed });
     this.extend(sample);
     return true;
@@ -356,9 +395,29 @@ export class ChalkController {
     const p = d.feel.pressure({ x: at.x, y: at.y, t: sample.t ?? performance.now(), pressure: sample.pressure, pointerType: sample.pointerType });
     const s = { x: Math.round(at.x * 10) / 10, y: Math.round(at.y * 10) / 10, p: Math.round(p * 100) / 100 };
     d.at = at;
-    this.wall.paint(d.id, d.stroke.add(s));
+    const dabs = d.stroke.add(s);
+    this.wall.paint(d.id, dabs);
+    d.wet?.add(dabs);
+    this.quiet.note();
     d.unsent.push(s);
     d.timer ??= setTimeout(() => this.#sendLive(), SEND_EVERY);
+  }
+
+  /** The pointer's samples for this event have all been given (`extend`): the wet ink's tail reaches to where the pointer is now. */
+  finishMove() {
+    const d = this.drawing;
+    if (d?.wet && d.at) d.wet.tail(d.at);
+  }
+
+  /** The stage drew a frame: if it now shows a stroke that ended, its wet ink is not wanted any more. */
+  afterDraw() {
+    this.#releaseWet();
+  }
+
+  #releaseWet() {
+    if (!this.wetPending) return;
+    this.wetPending.release();
+    this.wetPending = null;
   }
 
   #sendLive() {
@@ -378,13 +437,25 @@ export class ChalkController {
   end() {
     const d = this.drawing;
     if (!d) return Promise.resolve();
-    this.wall.paint(d.id, d.stroke.finish());
+    const rest = d.stroke.finish();
+    this.wall.paint(d.id, rest);
     clearTimeout(d.timer);
     this.#sendLive();
     this.drawing = null;
     this.lastEnd = d.at;
+    this.quiet.note();
     const box = dabBounds(this.wall.strokes.get(d.id)?.dabs ?? []);
-    return this.#keepStroke(this.#picturesOf(this.wall.commit(d.id)), d.id, box, d.opts.tool, { live: true });
+    if (d.wet) {                     // the last of the paint goes on the wet ink; the wall's tiles replace it at the next frame drawn
+      d.wet.add(rest);
+      d.wet.end();
+      this.wetPending = d.wet;
+    }
+    const changed = this.wall.commit(d.id);
+    // the others are told at once which layers to wait for before their live copy gives way to what is kept (the keeping
+    // itself waits for the hand to pause); if a layer turns out to have changed nothing they are told again
+    const announced = [...changed.keys()];
+    this.send({ type: "chalk", op: "end", scene: this.sceneId, id: d.id, layers: announced });
+    return this.#keepStroke(this.#picturesOf(changed), d.id, box, d.opts.tool, announced);
   }
 
   /** Escape in the middle of a stroke: it is thrown away. */
@@ -393,6 +464,7 @@ export class ChalkController {
     if (!d) return;
     clearTimeout(d.timer);
     this.drawing = null;
+    d.wet?.release();
     this.send({ type: "chalk", op: "cancel", scene: this.sceneId, id: d.id });
     const keys = this.wall.strokes.get(d.id)?.touched ?? new Set();
     this.wall.drop(d.id);
@@ -405,19 +477,23 @@ export class ChalkController {
    */
   #picturesOf(changed) {
     const sure = changed.painted === true;
-    return [...changed].map(([by, tiles]) => [by, [...tiles].map(([key, canvas]) => [key, Promise.resolve(this.encode(canvas, sure))])]);
+    // the snapshots are taken now; reading them back stalls the graphics card, so the encoder is given them once the hand pauses
+    const ready = changed.size ? this.quiet.whenQuiet() : null;
+    return [...changed].map(([by, tiles]) => [by, [...tiles].map(([key, canvas]) => [key, Promise.resolve(this.encode(canvas, sure, ready))])]);
   }
 
   /**
    * Keep a stroke's pictures (`#picturesOf`), strictly after every stroke before it, so the strokes of a quick hand are kept
    * in the order they were made and each step knows what its tiles held before it. `live`: the others were watching it
-   * being painted, and are told when it ends which layers to wait for.
+   * being painted, and were told when it ended which layers to wait for.
    */
-  #keepStroke(pictures, strokeId, box, tool, { live = false } = {}) {
+  #keepStroke(pictures, strokeId, box, tool, announced = null) {
     const run = this.keeping.then(async () => {
       const work = await this.#changesOf(pictures);
-      // the others are told which layers to wait for before their live copy gives way to what is kept
-      if (live) this.send({ type: "chalk", op: "end", scene: this.sceneId, id: strokeId, layers: work.map(([by]) => by) });
+      if (announced) {
+        const real = work.map(([by]) => by);
+        if (real.length !== announced.length) this.send({ type: "chalk", op: "end", scene: this.sceneId, id: strokeId, layers: real });
+      }
       await this.#keepChanges(work, strokeId, box, tool);
     });
     this.keeping = run.catch((err) => console.warn(`${NS} | chalk could not be kept`, err));
@@ -509,6 +585,7 @@ export class ChalkController {
   /** Take back this painter's own newest stroke (Ctrl+Z), wherever it went (a GM's rubbing out went on others' layers). */
   async undo() {
     if (this.drawing) this.cancel();
+    this.quiet.release();                                   // a stroke waiting for the hand to pause is kept now
     await this.keeping;                                     // a stroke still being kept is the newest: it is what goes
     const done = await this.store.undo(this.sceneId, { by: game.user.id });
     if (!done) return false;
@@ -518,6 +595,7 @@ export class ChalkController {
 
   /** Put back what the last undo took away (Ctrl+Shift+Z or Ctrl+Y). */
   async redo() {
+    this.quiet.release();
     await this.keeping;
     const layers = this.redoSteps.pop();
     if (!layers) return false;
@@ -549,7 +627,11 @@ export class ChalkController {
       this.wall.paint(message.id, dabs);
     } else if (message.op === "end") {
       const r = this.remote.get(message.id);
-      if (!r || r.ended) return;
+      if (r?.ended) {                                      // told again which layers really changed
+        if (Array.isArray(message.layers)) { r.layers = message.layers.filter((by) => typeof by === "string"); this.#settle(); }
+        return;
+      }
+      if (!r) return;
       this.wall.paint(message.id, r.stroke.finish());
       r.ended = true;
       r.layers = (Array.isArray(message.layers) ? message.layers : [r.by]).filter((by) => typeof by === "string");

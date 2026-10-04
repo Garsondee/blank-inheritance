@@ -564,3 +564,57 @@ the "before" pictures). Seven painters over a campaign of scenes would have made
 
 Foundry's socket takes messages up to 100 MB, so one big save is no risk; the cost was always the journal's total size.
 `chalk-check.mjs` proves the kept pictures are WebP with at most 64 alpha levels and a few KB a tile (44 checks).
+### 11.4 The ink keeps up with the hand (2026-10-04)
+
+> Chalk art system is good but still very laggy when drawing. Deep audit, what can we do?
+
+**The audit** was made in the real local Foundry (the adventure on, 2560 by 1271 at 1.5 times, an RX 6800 XT, a 144 Hz
+display), with real mouse strokes, by `tools/stagecraft/foundry-chalk-perf.mjs` (flags in its header). The bench's
+timings had been fine all along; they measured the wrong thing. What felt like lag was:
+
+- **Ink latency.** The paint tip trailed the pointer by 9 pixels at a slow stroke and 20 at a fast one before any display delay
+  (the curve runs a segment behind the hand, and the steadying string holds the brush back), and the paint then waited for
+  the lit 3D picture: a pointer sample waited a median 13.6 ms for the next of the stage's 60 draws a second, the draw took
+  7 to 10 ms of graphics card (p95 14), and the display came after that. The ring round the pointer is a page element that
+  follows at 144 Hz, so the ink visibly trailed it, by something like a hand's width at a fast stroke.
+- **A heavy stage draw.** 7.2 ms of graphics card at 3840 by 1906 with nothing being painted: film grain 1.3, bloom 2.1,
+  shadows 0.6, the scene and its multisampling about 3.3. The browser's graphics process is single-threaded and was the
+  bottleneck: uncapped it was 94 per cent busy at 72 draws a second.
+- **Hitches.** The first stroke of a session stalled about 100 ms (one 74 ms raster flush on the graphics card, then 36 ms,
+  with no slow JavaScript: the card meeting each way of drawing for the first time), and the end of every stroke cost three or
+  four draws of 21 to 28 ms (reading its tiles back from the card for the encoder).
+- **Not the cause:** chalk's own JavaScript (0.17 ms a sample, 0.12 ms to paint it), the journal write (6 to 19 ms), the
+  adventure's interface, Foundry's own canvas (stopped).
+
+**What was done**
+
+1. **Wet ink** (`render/paint/wet.mjs`, `core/wet.mjs`, `render/paint/stamp.mjs`). A stroke being painted is drawn on plain 2D
+   canvases over the stage at the moment the pointer moves, and the browser shows them in its next refresh whatever the 3D
+   picture is doing. It is the wall's own paint (the same stamping code, the same tips and spray specks, the wall's grain sitting
+   still on the wall, held to the chalk zones, a little under white as the 3D picture shows it) plus a short **tail** from the
+   last dab to the pointer, so the paint reaches the hand. The wall's tiles are not recomposited or uploaded while the stroke
+   is wet (the work that cost the card 2.7 to 4.3 ms a draw); at the end the stroke becomes the wall's paint, and the wet ink
+   goes at the first draw that shows it (`ChalkController#afterDraw`), so one takes over from the other without a gap (the
+   bench holds them to four pixels). Only the pencil, brush, chalk, magic chalk and spray are wet; the eraser, smudge and
+   fill are the wall's business, and the plain 2D picture has none. While it is wet it lies over the cards, magic chalk's glow
+   and sparkle appear when the pointer comes up, and it has none of the picture's bloom.
+2. **A cheaper stage.** Film grain and the output transform are one pass (they were two full-screen passes), and the bloom is
+   worked out at half the size each way (`render/three/post.mjs`). About 3.4 of the 7.2 ms.
+3. **Warm-up.** Each tool's stroke is painted once on a scratch wall while the stage loads (`RasterWall#warmUp`), and the wet
+   ink warms its own ways of drawing when chalk is first taken, so the graphics card has built what it needs before the first real stroke.
+4. **Keeping waits for a pause** (`core/quiet.mjs`). A stroke's tiles are snapshotted at once, but read back and encoded
+   (and written to the journal) when the hand has been still for 450 ms, at the latest 2.5 s on; Ctrl+Z, putting the chalk
+   away and leaving the page do not wait. The others are told at once, when the pointer comes up, which layers to wait for
+   (and again if a layer turns out to have changed nothing), and a live stroke is let go after 8 s, not 5.
+5. **Small things.** The stage's place on the page is kept instead of asked for at every pointer move (the browser worked out the
+   page's layout each time).
+
+**Not done, on purpose.** The dab spacing was left alone: the chalk's look is hers, and a wider spacing changes it. The eraser,
+smudge and fill are not wet.
+
+**Proved:** `module/stagecraft/test/{quiet,wet,chalk-controller}.test.mjs`; `tools/stagecraft/bench/chalk-check.mjs` (56
+checks: the wet ink is there the moment the pointer moves, the wall's tiles do not show it yet, it reaches the pointer, it is held
+to the zone, it lines up with the wall's paint, it is gone when the wall shows it, a stroke is kept only after the pause, a
+quick doodle ends up whole); the live check in the real Foundry. **Not yet measured:** the before and after timings, because the
+graphics card was held at about 99 per cent by a game while this was built. Run `node tools/stagecraft/foundry-chalk-perf.mjs
+--trace` on a free card (and `--breakdown` for the stage's draw) to put numbers beside the ones above.

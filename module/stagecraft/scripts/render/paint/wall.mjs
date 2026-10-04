@@ -15,14 +15,13 @@
  */
 
 import { tileRect, tilesFor, layerOrder } from "../../core/chalk.mjs";
-import { TOOLS, tipAlpha, rng, rainbowAt, dabBounds } from "../../core/brush.mjs";
+import { TOOLS, tipAlpha, rng, dabBounds, lineDabs } from "../../core/brush.mjs";
+import { stampDab, VARIANTS } from "./stamp.mjs";
 
 const TIP_PX = 96;                 // a tip is drawn once at this size and scaled for each dab
 const GRAIN_PX = 256;              // the wall's grain repeats every this many pixels
-const VARIANTS = 4;                // chalk tips come in a few shapes, so no two dabs bite alike
 const FILL_ALPHA = 48;             // paint at least this solid is a line a fill stops at
 const FILL_MOST = 0.3;             // a fill that would cover more of the wall than this is not filling a shape
-const RAINBOW_STEP = 15;           // magic chalk's rainbow moves on a step of hue every this many pixels (60 to a turn)
 const TIP_CACHE = 320;             // coloured tips kept at once
 const GLOW_SCALE = 4;              // magic chalk's glow is blurred at a quarter of the size: it is soft anyway
 
@@ -188,6 +187,11 @@ export class RasterWall {
     for (let v = 0; v < VARIANTS; v++) jobs.push(() => this.tips.shape("chalk", v));
     for (const tip of ["pencil", "round", "soft", "speck"]) jobs.push(() => this.tips.shape(tip, 0));
     for (const def of Object.values(TOOLS)) if (def.grain > 0) jobs.push(() => this.grain.canvas(def.grain));
+    // and one short stroke of each kind of painting on a scratch wall: the graphics card builds a program the first time it
+    // meets each way of drawing (a tip at an angle, grain, a zone's mask, a rub-out, a smudge, a blurred glow), and doing it at
+    // the first real stroke was a stall of a hundred milliseconds or more (chalk.md §11.4)
+    for (const tool of ["chalk", "magic", "pencil", "brush", "spray", "smudge", "eraser"]) jobs.push(() => this.#warmStroke(tool));
+    jobs.push(() => this.#warmDone());
     const idle = globalThis.requestIdleCallback ?? ((fn) => setTimeout(fn, 30));
     const next = () => {
       const job = jobs.shift();
@@ -196,6 +200,32 @@ export class RasterWall {
       idle(next);
     };
     idle(next);
+  }
+
+  /** One throw-away stroke of `tool` on a scratch wall that shares this wall's tips and grain. */
+  #warmStroke(tool) {
+    if (!this.warm) {
+      this.warm = new RasterWall({ grid: this.grid });
+      this.warm.tips = this.tips;
+      this.warm.grain = this.grain;
+      this.warm.setMask([[[0, 0], [1, 0], [1, 1], [0, 1]]]);          // the path a zone's mask takes
+    }
+    const w = this.warm;
+    const def = TOOLS[tool];
+    const id = `warm-${tool}`;
+    w.begin({ id, by: "warm", tool, colour: "#ffffff", magic: def.magic ? { glow: true, sparkle: true, rainbow: tool === "magic" } : null });
+    w.paint(id, lineDabs({ x: 80, y: 90, p: 0.8 }, { x: 330, y: 150, p: 0.8 }, { tool, size: Math.max(6, def.size.initial), seed: 3 }));
+    w.flush();
+    w.commit(id);
+    w.flush();
+  }
+
+  /** The scratch wall's last job: the way a tile is turned into a picture to keep, then the wall is forgotten. */
+  #warmDone() {
+    const tile = this.warm?.layers.get("warm")?.tiles.values().next().value;
+    if (tile) encodeTile(tile, true).catch(() => {});
+    this.warm?.clear();
+    this.warm = null;
   }
 
   /* ---------------------------------------------------------------- what to lay together, and when */
@@ -378,12 +408,12 @@ export class RasterWall {
    * Start a stroke. `by` is whose layer it goes into; `colour` "#rrggbb"; `magic` { rainbow, glow, sparkle } for magic
    * chalk; `opacity` how much a whole stroke can lay down; `everyone` lets an eraser rub out every layer (the GM's).
    */
-  begin({ id, by, tool = "chalk", colour = "#f2ecdc", opacity = null, magic = null, everyone = false, live = false }) {
+  begin({ id, by, tool = "chalk", colour = "#f2ecdc", opacity = null, magic = null, everyone = false, live = false, wet = false }) {
     const def = TOOLS[tool] ?? TOOLS.chalk;
     this.ensureLayer(by);
     const stroke = {
       id, by, tool, def, colour, magic: def.magic ? { rainbow: false, glow: false, sparkle: false, ...(magic ?? {}) } : null,
-      opacity: opacity ?? def.opacity, everyone: def.kind === "erase" && everyone, live,
+      opacity: opacity ?? def.opacity, everyone: def.kind === "erase" && everyone, live, wet,
       buffer: new Map(), processed: new Map(), stale: new Map(), touched: new Set(), dabs: [], carried: null
     };
     this.strokes.set(id, stroke);
@@ -415,54 +445,19 @@ export class RasterWall {
     s.touched.add(key);
     const had = s.stale.get(key);
     s.stale.set(key, had === undefined ? part : union(had, part));
-    this.#dirty(key, part);
+    if (!s.wet) this.#dirty(key, part);          // a wet stroke is shown by the wet ink until it ends (it is laid together at commit)
   }
 
   #stamp(s, dab) {
     const r = dab.size / 2;
     if (s.def.kind !== "erase" && !this.#inMask(dab.x, dab.y, r + 1)) return;      // all of it would be masked away
     const keys = tilesFor(this.grid, { x0: dab.x - r - 2, y0: dab.y - r - 2, x1: dab.x + r + 2, y1: dab.y + r + 2 });
-    // the rainbow's colour changes every RAINBOW_STEP pixels, so its tips can be kept rather than made afresh at every dab
-    const colour = s.def.kind === "erase" ? "#ffffff" : s.magic?.rainbow ? rainbowAt(s.colour, Math.round(dab.dist / RAINBOW_STEP) * RAINBOW_STEP) : s.colour;
-    if (s.def.kind === "spray") {
-      const rand = rng(dab.seed);
-      const n = Math.max(1, Math.round((s.def.particles ?? 30) * dab.flow));
-      const specks = [];
-      for (let i = 0; i < n; i++) {
-        const a = rand() * Math.PI * 2;
-        const d = r * Math.pow(rand(), 0.75);
-        specks.push({ x: dab.x + Math.cos(a) * d, y: dab.y + Math.sin(a) * d, size: 1.2 + rand() * 2.4, alpha: 0.3 + rand() * 0.6 });
-      }
-      const tip = this.tips.coloured("speck", 0, colour);
-      for (const key of keys) {
-        const rect = tileRect(this.grid, key);
-        const x = ctxOf(this.#bufferTile(s, key, rect));
-        for (const p of specks) {
-          if (p.x < rect.x - 4 || p.y < rect.y - 4 || p.x > rect.x + rect.w + 4 || p.y > rect.y + rect.h + 4) continue;
-          x.globalAlpha = p.alpha;
-          x.drawImage(tip, p.x - rect.x - p.size / 2, p.y - rect.y - p.size / 2, p.size, p.size);
-        }
-        x.globalAlpha = 1;
-        this.#touch(s, key, { x0: dab.x - r - 4 - rect.x, y0: dab.y - r - 4 - rect.y, x1: dab.x + r + 4 - rect.x, y1: dab.y + r + 4 - rect.y });
-      }
-      return;
-    }
-    const tipName = s.def.tip ?? "round";
-    const variant = tipName === "chalk" ? dab.seed % VARIANTS : 0;
-    const tip = this.tips.coloured(tipName, variant, colour);
-    const cos = dab.angle ? Math.cos(dab.angle) : 1;
-    const sin = dab.angle ? Math.sin(dab.angle) : 0;
     for (const key of keys) {
       const rect = tileRect(this.grid, key);
       const x = ctxOf(this.#bufferTile(s, key, rect));
-      const cx = dab.x - rect.x;
-      const cy = dab.y - rect.y;
-      x.setTransform(cos, sin, -sin, cos, cx, cy);
-      x.globalAlpha = dab.flow;
-      x.drawImage(tip, -r, -r, r * 2, r * 2);
-      x.setTransform(1, 0, 0, 1, 0, 0);
-      x.globalAlpha = 1;
-      this.#touch(s, key, { x0: cx - r - 2, y0: cy - r - 2, x1: cx + r + 2, y1: cy + r + 2 });
+      // put down exactly as the wet ink over the stage does (render/paint/stamp.mjs), so the two look alike
+      const box = stampDab(x, this.tips, s, dab, { k: 1, ox: -rect.x, oy: -rect.y }, { clip: { w: rect.w, h: rect.h } });
+      this.#touch(s, key, box);
     }
   }
 
@@ -857,7 +852,7 @@ export class RasterWall {
    */
   #recomposite(key, part = null) {
     const rect = tileRect(this.grid, key);
-    const strokes = [...this.strokes.values()].filter((s) => s.touched.has(key));
+    const strokes = [...this.strokes.values()].filter((s) => s.touched.has(key) && !s.wet);
     if (!strokes.length && !this.order.some((by) => this.layers.get(by)?.tiles.has(key))) {
       this.composite.delete(key);
       return;
@@ -1036,18 +1031,20 @@ function encoderWorker() {
  * A tile as a small picture to keep in the world (WebP where the browser can make one), or null when it has no paint.
  * Asynchronous, and kept off the main thread (chalk.md §11: making it there was a pause of a quarter to half a second when
  * the pointer came up): the tile is snapshotted the moment this is called, and read back and encoded by a worker. `sure`:
- * the tile is known to hold paint (`commit`'s `painted`), so nobody looks to find out.
+ * the tile is known to hold paint (`commit`'s `painted`), so nobody looks to find out. `ready` (optional, a promise): the
+ * worker is given the snapshot only once it resolves. The read-back stalls the graphics card for a few frames, so the controller
+ * holds it until the hand pauses (core/quiet.mjs); the snapshot itself is taken at once, so a later stroke cannot change it.
  */
-export function encodeTile(canvas, sure = false) {
+export function encodeTile(canvas, sure = false, ready = null) {
   if (!canvas) return Promise.resolve(null);
   const worker = encoderWorker();
-  if (!worker) return encodeHere(canvas, sure);
+  if (!worker) return encodeHere(canvas, sure, ready);
   const id = ++asked;
   const snapshot = createImageBitmap(canvas);         // the tile as it is now, whatever is painted on it next
   return new Promise((resolve) => {
     waiting.set(id, { done: resolve, fail: () => resolve(encodeNow(canvas)) });
-    snapshot.then((bitmap) => worker.postMessage({ id, bitmap, sure, quality: TILE_QUALITY, levels: ALPHA_LEVELS }, [bitmap]))
-      .catch(() => { waiting.delete(id); resolve(encodeHere(canvas, sure)); });
+    Promise.all([snapshot, ready]).then(([bitmap]) => worker.postMessage({ id, bitmap, sure, quality: TILE_QUALITY, levels: ALPHA_LEVELS }, [bitmap]))
+      .catch(() => { waiting.delete(id); resolve(encodeHere(canvas, sure, null)); });
   });
 }
 
@@ -1063,11 +1060,11 @@ function rounded(canvas) {
 }
 
 /** The same on the main thread, where there is no worker to do it. */
-function encodeHere(canvas, sure) {
+function encodeHere(canvas, sure, ready = null) {
   if (!sure && !painted(canvas)) return Promise.resolve(null);
-  const flat = rounded(canvas);
+  const flat = rounded(canvas);            // a copy, made now
   if (typeof flat.toBlob !== "function" || typeof FileReader === "undefined") return Promise.resolve(encodeNow(flat));
-  return new Promise((resolve) => {
+  return Promise.resolve(ready).then(() => new Promise((resolve) => {
     flat.toBlob((blob) => {
       if (!blob) { resolve(encodeNow(flat)); return; }
       const reader = new FileReader();
@@ -1075,7 +1072,7 @@ function encodeHere(canvas, sure) {
       reader.onerror = () => resolve(encodeNow(flat));
       reader.readAsDataURL(blob);
     }, "image/webp", TILE_QUALITY);
-  });
+  }));
 }
 
 function encodeNow(canvas) {

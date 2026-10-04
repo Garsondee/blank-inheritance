@@ -18,6 +18,7 @@ import { Post } from "./post.mjs";
 import { ChalkTiles, ChalkBox } from "./chalk.mjs";
 import { DEFAULT_BOX } from "../../core/chalk.mjs";
 import { samplePainting } from "../paint/wall.mjs";
+import { wallToWindow } from "../../core/wet.mjs";
 import { paintingGrid } from "../grade.mjs";
 import { lightAt } from "../../core/grade.mjs";
 import { makeTitleBlock } from "../titleblock.mjs";
@@ -319,6 +320,9 @@ export class ThreeBackend {
   setChalkBox(visible) { this.chalkBox?.setVisible(visible); }
   /** Stand the box of chalk at another point of the floor (fractions of the painting). */
   setChalkBoxAt(at) { if (this.rig) this.chalkBox?.moveTo(this.rig, at); }
+
+  /** The map from wall pixels to window pixels now, for the wet ink laid over the stage while a stroke is painted (core/wet.mjs). */
+  wetMap(grid) { return this.rig && this.view ? wallToWindow({ size: this.rig.size, map: this.rig.map, view: this.view }, grid) : null; }
 
   /** The painting's own colour at a point of it (fractions), as "#rrggbb": what the colour picker takes where there is no chalk. */
   paintingColour(fx, fy) { return samplePainting(this.paintingImage, fx, fy); }

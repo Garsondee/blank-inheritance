@@ -14,6 +14,21 @@ const { ChalkController } = await import("../scripts/foundry/chalk.mjs");
 const { describeScene } = await import("../scripts/core/scene.mjs");
 const { PALETTE, stepId } = await import("../scripts/core/chalk.mjs");
 const { TOOLS } = await import("../scripts/core/brush.mjs");
+const { Quiet } = await import("../scripts/core/quiet.mjs");
+
+/** No waiting for the hand to pause: most of these tests are about what is kept, not when (the pause has tests of its own below). */
+const impatient = () => ({ note() {}, whenQuiet: () => Promise.resolve(), release() {}, get pending() { return 0; } });
+
+/** A stand-in for the wet ink (render/paint/wet.mjs) that writes down what it is asked. */
+function fakeWet() {
+  const w = { calls: [], wet: true, release() { w.calls.push(["release"]); }, warm() { w.calls.push(["warm"]); }, dispose() {} };
+  w.begin = (stroke) => { w.calls.push(["begin", stroke.tool]); return w.accept !== false; };
+  w.add = (dabs) => { w.calls.push(["add", dabs.length]); };
+  w.tail = (to) => { w.calls.push(["tail", Math.round(to.x), Math.round(to.y)]); };
+  w.end = () => { w.calls.push(["end"]); };
+  w.names = () => w.calls.map((c) => c[0]);
+  return w;
+}
 
 // the stage is 1000 x 500 px and shows the whole painting; the back wall (the only chalk zone) is x 0.05..0.45, y 0.2..0.62.
 // The wall is 2880 x 1440 pixels in tiles of 240: 12 columns, 6 rows.
@@ -37,7 +52,7 @@ let hookLog;
 let sent;
 
 /** A fresh world, journal and stage for each table (never two alive at once: the globals are the latest one's). */
-async function table({ chalk = { mode: "zones" }, live = null, journal = true, gm = false } = {}) {
+async function table({ chalk = { mode: "zones" }, live = null, journal = true, gm = false, wet = null, quiet = impatient() } = {}) {
   world = installFoundry({ user: { id: "me", name: "Me", isGM: gm } });
   hookLog = [];
   sent = [];
@@ -52,7 +67,7 @@ async function table({ chalk = { mode: "zones" }, live = null, journal = true, g
     backend: recordingBackend(),
     root: { classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) } }
   };
-  const controller = new ChalkController({ host, store, makeWall: (o) => new FakeWall(o), encode: fakeEncode, send: (m) => sent.push(structuredClone(m)) });
+  const controller = new ChalkController({ host, store, makeWall: (o) => new FakeWall(o), encode: (canvas, sure, ready) => (ready ? ready.then(() => fakeEncode(canvas)) : fakeEncode(canvas)), send: (m) => sent.push(structuredClone(m)), makeWet: () => wet, quiet });
   controller.sync();
   controller.refresh();
   return { controller, store, entry, host, classes, wall: controller.wall };
@@ -417,4 +432,158 @@ test("stopping unsubscribes, so a scene that has gone never paints again", async
   world.hooks.callAll("createJournalEntryPage", t.entry.pages[0]);
   await settle();
   assert.equal(t.host.backend.shown.length, before);
+});
+
+
+test("wet ink: the stroke is shown at once on the wet layer and reaches the wall only when the pointer comes up", async () => {
+  const wet = fakeWet();
+  const t = await table({ chalk: { mode: "anywhere" }, wet });
+  t.controller.take("yellow");
+  await new Promise((r) => setTimeout(r, 5));
+  assert.equal(wet.calls.at(0)?.[0], "warm", "made ready when the chalk is taken, so the first stroke is not the first time the card draws it");
+  assert.equal(t.controller.begin(at(0.2, 0.3)), true);
+  const live = [...t.wall.strokes.values()][0];
+  assert.equal(live.wet, true, "the wall holds a wet stroke back from the picture while it is being painted");
+  for (const [x, y] of across(0.2, 0.3, 0.3).slice(1)) t.controller.extend(at(x, y));
+  t.controller.finishMove();
+  assert.ok(wet.names().includes("begin") && wet.names().filter((n) => n === "add").length > 3, "every sample's dabs go to the wet ink");
+  assert.deepEqual(wet.calls.at(-1), ["tail", 864, 432], "and its tail reaches to the pointer (wall pixels)");
+  const finishing = t.controller.end();
+  assert.deepEqual(wet.names().slice(-2), ["add", "end"], "the last of the paint, then the end");
+  assert.equal(t.wall.strokes.size, 0, "the stroke is laid in the wall at once");
+  assert.ok(!wet.names().includes("release"), "the wet ink stays up until the wall's tiles have been drawn");
+  t.controller.afterDraw();
+  assert.equal(wet.names().at(-1), "release", "the frame that shows the wall's paint takes the wet ink away");
+  await finishing;
+  await settle();
+  assert.ok(mine(t), "and it is kept all the same");
+  t.controller.stop();
+});
+
+test("wet ink: a new stroke does not wait for the last one's wet ink to go; Escape throws the wet ink away; nowhere to show it means the wall shows it", async () => {
+  const wet = fakeWet();
+  const t = await table({ chalk: { mode: "anywhere" }, wet });
+  t.controller.take("white");
+  await paint(t.controller, across(0.2, 0.3, 0.3));
+  const before = wet.names().filter((n) => n === "release").length;
+  assert.equal(t.controller.begin(at(0.5, 0.5)), true);
+  assert.equal(wet.names().filter((n) => n === "release").length, before + 1, "the earlier stroke's wet ink goes when the next begins (the wall shows it by now)");
+  t.controller.cancel();
+  assert.equal(wet.names().at(-1), "release", "Escape in the middle of a stroke clears it");
+  wet.accept = false;
+  assert.equal(t.controller.begin(at(0.6, 0.6)), true);
+  assert.equal([...t.wall.strokes.values()][0].wet, false, "no wet layer to show it on: the wall shows the stroke as it goes");
+  t.controller.cancel();
+  // the eraser, the smudge and the fill are the wall's business
+  t.controller.choose("eraser");
+  const calls = wet.calls.length;
+  assert.equal(t.controller.begin(at(0.5, 0.5)), true);
+  assert.equal(wet.calls.length, calls, "an eraser is never wet");
+  t.controller.cancel();
+  t.controller.stop();
+});
+
+test("no wet ink where the picture cannot place it (the plain 2D one, a bench): the wall shows paint as it always did", async () => {
+  const t = await table({ chalk: { mode: "anywhere" }, wet: null });
+  t.controller.take("white");
+  assert.equal(t.controller.begin(at(0.2, 0.3)), true);
+  assert.notEqual([...t.wall.strokes.values()][0].wet, true);
+  t.controller.extend(at(0.25, 0.3));
+  t.controller.finishMove();
+  t.controller.afterDraw();
+  await t.controller.end();
+  await settle();
+  assert.ok(mine(t));
+  t.controller.stop();
+});
+
+/** A clock that only moves when told, for a Quiet. */
+function stillness() {
+  const c = { t: 1000, timers: [] };
+  c.quiet = new Quiet({ rest: 450, most: 2500, now: () => c.t, later: (fn, ms) => { const id = { fn, at: c.t + ms }; c.timers.push(id); return id; }, cancel: (id) => { c.timers = c.timers.filter((x) => x !== id); } });
+  c.advance = async (ms) => {
+    const to = c.t + ms;
+    for (;;) {
+      const next = c.timers.filter((x) => x.at <= to).sort((a, b) => a.at - b.at)[0];
+      if (!next) break;
+      c.timers = c.timers.filter((x) => x !== next);
+      c.t = Math.max(c.t, next.at);
+      next.fn();
+      await settle();
+    }
+    c.t = to;
+    await settle();
+  };
+  return c;
+}
+
+test("a stroke is kept once the hand pauses, not at the instant the pointer comes up; the others are told at once what to wait for", async () => {
+  const clock = stillness();
+  const t = await table({ chalk: { mode: "anywhere" }, quiet: clock.quiet });
+  t.controller.take("yellow");
+  t.controller.begin(at(0.2, 0.3));
+  for (const [x, y] of across(0.2, 0.3, 0.3).slice(1)) t.controller.extend(at(x, y));
+  const done = t.controller.end();
+  await settle();
+  assert.equal(mine(t), undefined, "nothing is written to the world while the hand may paint again");
+  assert.deepEqual(sent.at(-1), { type: "chalk", op: "end", scene: "sc", id: sent.at(-1).id, layers: ["me"] }, "but the others hear at once");
+  assert.ok(Object.keys(t.wall.tilesOf("me")).length > 0, "and the paint is on the wall");
+  // a second stroke a moment later: still no writing, and the pause starts again
+  await clock.advance(300);
+  t.controller.begin(at(0.5, 0.5));
+  t.controller.extend(at(0.55, 0.5));
+  const second = t.controller.end();
+  await clock.advance(400);
+  assert.equal(mine(t), undefined, "the pause begins again after every stroke");
+  await clock.advance(100);
+  await Promise.all([done, second]);
+  await settle();
+  assert.equal(Object.keys(mine(t).history).length, 2, "both are kept, as the two steps they were, once the hand rested");
+  t.controller.stop();
+});
+
+test("the pause never holds a stroke for more than a few seconds, and Ctrl+Z or putting the chalk away does not wait for it", async () => {
+  const clock = stillness();
+  const t = await table({ chalk: { mode: "anywhere" }, quiet: clock.quiet });
+  t.controller.take("white");
+  t.controller.begin(at(0.2, 0.3));
+  t.controller.extend(at(0.25, 0.3));
+  const first = t.controller.end();
+  // a hand that never rests: a stroke every 200 ms
+  for (let i = 0; i < 14; i++) {
+    await clock.advance(200);
+    t.controller.begin(at(0.5, 0.2 + i * 0.01));
+    t.controller.extend(at(0.55, 0.2 + i * 0.01));
+    void t.controller.end();
+  }
+  await first;
+  await settle();
+  assert.ok(mine(t), "the first stroke was kept at the latest after the limit, rest or no rest");
+
+  const undo = t.controller.undo();                         // does not wait for a pause
+  await undo;
+  await settle();
+  t.controller.begin(at(0.3, 0.45));
+  t.controller.extend(at(0.35, 0.45));
+  const last = t.controller.end();
+  t.controller.putAway();
+  await last;
+  await settle();
+  assert.ok(Object.keys(mine(t).history).length >= 1, "putting the chalk away keeps what is waiting");
+  t.controller.stop();
+});
+
+test("a stroke that changed fewer layers than announced is announced again, so other screens do not wait for a layer that will not come", async () => {
+  const t = await table({ chalk: { mode: "zones" } });
+  t.controller.take("white");
+  t.wall.masked = true;
+  await paint(t.controller, across(0.6, 0.8, 0.3));
+  const ends = sent.filter((m) => m.op === "end");
+  assert.deepEqual(ends.map((m) => m.layers), [["me"], []], "first the layers the wall handed back, then the layers that really changed");
+  t.controller.receive({ type: "chalk", op: "begin", scene: "sc", id: "ana9", tool: "chalk", colour: "#ff0000", size: 9, steady: 0, seed: 7 }, "ana");
+  t.controller.receive({ type: "chalk", op: "end", scene: "sc", id: "ana9", layers: ["ana", "ghost"] }, "ana");
+  assert.ok(t.wall.strokes.has("ana9"), "waiting for two layers");
+  t.controller.receive({ type: "chalk", op: "end", scene: "sc", id: "ana9", layers: [] }, "ana");
+  assert.equal(t.wall.strokes.has("ana9"), false, "told again that nothing changed: the live copy goes");
+  t.controller.stop();
 });
