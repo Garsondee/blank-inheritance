@@ -452,6 +452,24 @@ export function emoteMotion(motion, t, seed = 0) {
 /** The point a turning emote turns about, as a share of its height from the top: low, near where it meets its card. */
 export const EMOTE_PIVOT = 0.7;
 
+/** How long an emote is shown each time, in seconds (in, held, faded out), and how often a kept one comes round again. */
+export const EMOTE_SHOWN = 5;
+export const EMOTE_EVERY = 6;
+
+/**
+ * An emote someone at the table chose for a card (from the card's menu), as it is written on the card: shown once (a
+ * reaction) or kept (it comes round again, as a regular's habit does, until it is cleared), starting at `t0` on the clock
+ * every screen shares. `chosen` says a person put it there, so a scene laid out again keeps it. `null` for the id clears
+ * whatever the card had, an authored habit included. An id that is not an emote gives null: nothing to write.
+ */
+export function chosenEmote(id, { keep = false, t0 = 0 } = {}) {
+  if (id === null) return { id: null, chosen: true };
+  if (typeof id !== "string" || !EMOTES[id]) return null;
+  const out = { id, t0: Math.round(t0 * 1000) / 1000, chosen: true };
+  if (!keep) out.once = true;
+  return out;
+}
+
 /**
  * Motions, as functions of time since the emote popped (seconds), returning a
  * transform and opacity. Pop: a quick overshoot. Then the emote's own life.

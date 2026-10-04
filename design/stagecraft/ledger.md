@@ -276,3 +276,12 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | R1 | Emotes that are more subtle, more stylish and less basic: a nib line, a thin keyline instead of a fat sticker edge | diorama.md §7 | 16, bench |
 | R2 | Manga facial expressions and emotional indicators: faces in a small balloon, and the marks a manga artist draws beside a head | diorama.md §7 | 16, bench |
 | R3 | Colours that fit the cards: the plate's ink and cream, the card's brass and a few muted spot colours, held by a test | diorama.md §7 | 16, bench |
+
+## S. Her fifteenth message: a right-click menu for cards (2026-10-04)
+
+*"How do I trigger specific emojis on cards? If we don't have something for this maybe a right click context menu for cards would be the perfect way to let me change things about them."* Built the same day (`module.md` §36).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| S1 | Trigger a specific emote on a card, live: shown once, or kept until cleared | module.md §36, diorama.md §7 | bench |
+| S2 | A right-click menu on a card to change things about it: the floor, a knock-down, a formation, its sheet | module.md §36 | bench |

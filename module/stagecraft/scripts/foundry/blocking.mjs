@@ -17,6 +17,7 @@ import { Stage } from "../core/stage.mjs";
 import { commitMoves, homeMoves, commitHomes } from "../core/sync.mjs";
 import { tidy } from "../core/marks.mjs";
 import { cleanBadges, sameBadges } from "../core/badges.mjs";
+import { chosenEmote } from "../core/emotes.mjs";
 import { moveMark, moveVertex, moveZone, addVertex, removeVertex, idOf } from "../core/staging.mjs";
 
 /** How far ahead a move is stamped to start, in seconds: long enough for every screen to hear of it first. */
@@ -229,6 +230,27 @@ export function setBadges(scene, id, badges) {
     return true;
   });
 }
+
+/**
+ * Put an emote on a card, chosen at the table (core/emotes.mjs `chosenEmote`): an emote's id, shown once, or with `keep` until
+ * it is cleared; `null` clears what the card has, an authored habit included. Written on its card in the published cast, like
+ * `down`, stamped to start a moment from now on the clock every screen shares, so they all show it together and a reload
+ * finds a kept one. Picking the same emote again shows it again. Resolves to whether anything was written.
+ */
+export function setEmote(scene, id, emote, { keep = false } = {}) {
+  if (!game.user?.isGM) return Promise.resolve(false);
+  const value = chosenEmote(emote, { keep, t0: sharedNow() + EMOTE_LEAD });
+  if (!value) return Promise.resolve(false);
+  return serially(async () => {
+    const cards = publishedCards(scene);
+    if (!cards.some((c) => c.id === id)) return false;
+    await scene.update({ [`flags.${NS}.published.cards`]: cards.map((c) => (c.id === id ? { ...c, emote: value } : c)) });
+    return true;
+  });
+}
+
+/** How far ahead an emote is stamped to start, in seconds: shorter than a move's, since a reaction should be quick. */
+export const EMOTE_LEAD = 0.25;
 
 /* ---------------------------------------------------------------- authored moments */
 

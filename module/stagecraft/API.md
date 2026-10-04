@@ -3,11 +3,11 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.10.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.11.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
 published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
 0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
-`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them; the `stagecraft.keep` hook says so); 0.9.0 added `api.blocking.setChalkBox` (the box of chalk somewhere else); 0.10.0 added `api.blocking.editStage` (move marks and the corners of zones) and the strip's "Edit stage".
+`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them; the `stagecraft.keep` hook says so); 0.9.0 added `api.blocking.setChalkBox` (the box of chalk somewhere else); 0.10.0 added `api.blocking.editStage` (move marks and the corners of zones) and the strip's "Edit stage"; 0.11.0 added `api.blocking.setEmote` and `api.emotes` (an emote on a card, shown once or kept, chosen at the table from the card's menu: a right-click on a card) and a card's `emote` and `actor`.
 
 ## api
 
@@ -35,6 +35,7 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.blocking.setSpeaker(scene, id)` | GM only. Give someone the floor (a card's id, or `null` to take it back): a pool of light at their feet, and everyone else on the stage turns to look at them. The GM can also Alt-click a card |
 | `api.blocking.setTurn(scene, id)` | GM only. Light a card as the one whose turn it is (a card's id, or `null` to put the light out): the pool of light of the speaker, but nobody else turns to look |
 | `api.blocking.setBadges(scene, id, badges)` | GM only. Put badges on a card: up to four short labels (16 characters each, text only) drawn down the top-left of its face on every screen and kept in its published card, so a reload finds them. An empty list takes them off. Nothing is written when nothing changed |
+| `api.blocking.setEmote(scene, id, emote, { keep })` | GM only. Put an emote on a card (an id from `api.emotes`): shown once, as a reaction, or with `keep: true` brought round every few seconds until it is cleared. `null` clears what the card has, a habit the scene gave it included. Written on its published card (`emote`), stamped to start a moment from now, so every screen shows it together and a reload finds a kept one; the same emote again shows it again. Resolves to whether it was written |
 | `api.blocking.setDown(scene, id, down)` | GM only. Knock a card down (a defeated foe, a character at 0 HP: it tips over backwards and lies on the floor, dimmed, going nowhere) or stand it back up. The GM can also Ctrl-click a card |
 | `api.blocking.registerMoments(provider)` | Offer a scene's authored blocking as buttons on the GM's strip: `provider(scene)` returns `[{ id, label, tip?, run(scene) }]`. Returns a function that takes it away |
 | `api.blocking.setCover(provider)` | Say what your own interface covers over the stage (a deck of controls along the bottom, a dial rising out of it): `provider()` returns shapes in window pixels as they are now, `{ rect: [x0, y0, x1, y1] }` or `{ circle: [cx, cy, r] }`. Formations then keep everyone clear of it: no more than the bottom 15% of a card under it, a card moved back up the stage if need be. Returns a function that takes it away |
@@ -42,6 +43,7 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.zoneKinds` | The zone kinds the module knows. Any other kind is treated as a trigger |
 | `api.chalkModes` | `off`, `zones`, `anywhere` |
 | `api.chalkTools` | The tools in the chalk kit: `chalk`, `magic`, `pencil`, `brush`, `spray`, `smudge`, `eraser`, `fill` |
+| `api.emotes` | The emotes a card can show, in the order its menu offers them: the faces (`laugh`, `pleased`, `smug`, `blush`, `determined`, `deadpan`, `wince`, `tear`, `shiver`, `dizzy`, `ko`), the balloons (`ellipsis`, `whisper`, `think`) and the marks (`surprise`, `question`, `shock`, `sweat`, `anger`, `sparkle`, `heart`, `music`, `sleep`, `gloom`, `idea`, `fume`, `soul`, `star`, `hand`, `bowl`) |
 
 ## Hooks
 
@@ -86,6 +88,8 @@ plus, for blocking:
 | `move` | `{ t0, gait }`: a move the GM made, starting at `t0` on the shared clock (seconds). A screen walks a card when it sees a `t0` it has not walked yet |
 | `enter` | `{ from: "left" \| "right" \| "back" \| "rise", t0, gait }`: the card walks on from that side, or rises out of the floor, when it first appears |
 | `down` | It is down: lying on the floor, dimmed, until the GM stands it up |
+| `emote` | `{ id, t0, once?, chosen? }`: an emote over its head (`api.emotes`), from `t0` on the shared clock. Without `once` it is a habit, shown for five seconds in every six; with `once` it is shown once and gone. `chosen` says a person put it there from the card's menu (a module laying a scene out again should keep it); `{ id: null, chosen: true }` is one cleared |
+| `actor` | A Foundry Actor's id: the card's menu offers that actor's sheet to anyone who may see it |
 
 **The words on a card.** A card's face has a title block: its `name` in a bold face and, under it, a line of `title` text (a
 role, a description). Both are laid out to fit the plate whatever they hold. A long name is kept on as few lines as it can be
@@ -105,6 +109,14 @@ things it does now and then while standing (`hop`, `nod`, `bow`, `shake`; `gestu
 A scene may also say `focus: [fx, fy]` (where formations gather by default) and `board: true` (the fight board is up when it
 opens). A zone may say `tags` (its rules as SF2E has them, shown on the board), `near` (the zones one Stride away) and
 `colour` (`[r, g, b]`, its wash on the board).
+
+## A card's menu
+
+A right-click on a card opens its menu. Anyone who may put an emote on it (a GM any card; a player one whose `owners`
+name them, or one that names no one, hands off or not) gets the emotes: one picked is shown once, or, with **Keep it up**
+on, kept until **Clear**. A player's pick goes to the acting GM's screen over the module's socket and is written there, so
+it needs a GM on. The GM also gets **Give them the floor** (`setSpeaker`), **Knock down** / **Stand up** (`setDown`) and
+**Choose for a formation** (a Shift-click), and, for a card with an `actor`, **Open their sheet**.
 
 ## The box of chalk
 

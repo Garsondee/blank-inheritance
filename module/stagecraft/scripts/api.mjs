@@ -9,10 +9,11 @@ import { isStageScene, readStage } from "./foundry/scene-data.mjs";
 import { FORMATIONS } from "./core/formations.mjs";
 import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
-import { publishMoves, arrange, backToPlaces, keepPlaces, setChalkBox, editStage, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
+import { publishMoves, arrange, backToPlaces, keepPlaces, setChalkBox, editStage, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, setEmote, registerMoments, registerCover } from "./foundry/blocking.mjs";
+import { EMOTE_ORDER } from "./core/emotes.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
 
-export const API_VERSION = "0.10.0";
+export const API_VERSION = "0.11.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -65,6 +66,8 @@ export function createApi({ skins, current }) {
       setBadges: (scene, id, badges) => setBadges(scene, id, badges),
       /** Knock a card down (a defeated foe, a character at 0 HP) or stand it back up. */
       setDown: (scene, id, down) => setDown(scene, id, down),
+      /** Put an emote on a card (an id from api.emotes), shown once, or with { keep: true } until cleared; null clears it. */
+      setEmote: (scene, id, emote, opts = {}) => setEmote(scene, id, emote, opts),
       /** Offer a scene's authored blocking as buttons on the GM's strip: provider(scene) -> [{ id, label, tip?, run(scene) }]. */
       registerMoments: (provider) => registerMoments(provider),
       /** Say what your own interface covers over the stage: provider() -> [{ rect: [x0, y0, x1, y1] } | { circle: [cx, cy, r] }], window pixels. */
@@ -76,6 +79,8 @@ export function createApi({ skins, current }) {
 
     zoneKinds: [...ZONE_KINDS],
     chalkModes: [...CHALK_MODES],
+    /** The emotes a card can show (its menu offers them all): what api.blocking.setEmote takes. */
+    emotes: [...EMOTE_ORDER],
     /** The tools in the chalk kit (chalk.md §5): what the `stagecraft.chalk` hook's `tool` can be. */
     chalkTools: [...TOOL_NAMES]
   };

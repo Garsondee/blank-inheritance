@@ -875,3 +875,32 @@ The last of the hand-staging pieces. **Edit stage** on the GM strip shows every 
 - **Comes home** with the kept places (§32): the bridge files only the marks and zones that differ from the stages file as it was written (`stageRecord`: put a mark back where its author had it and it leaves the file); `npm run stages` folds them into `kept-places.json` (replacing what was kept: a mark put back is gone), and `applyKept` lays them over the entry''s description by id (an unnamed one is numbered by its place, as `scene.mjs` does).
 
 Checks: `staging.test.mjs` (7), the bridge test, the interface test, and `bench/editor-check.mjs` (16, real mouse events: a player has none, the handles appear, a ring is dragged and ends where the pointer let go, a corner reshapes live and writes once, a zone is dragged to the corner of the painting and stays in, corners added and removed, never below three, editing survives the redraw). **Found on the way:** a handle redrawn when a click went nowhere never received the second click of a double-click.
+## 36. A card's menu: right-click a card (2026-10-04)
+
+Ingram: *"How do I trigger specific emojis on cards? If we don't have something for this maybe a right click context menu for
+cards would be the perfect way to let me change things about them."* There was no way but writing them into `stages.json`
+beforehand; now a right-click on a card opens its menu (`foundry/card-menu.mjs`, what it offers in `core/card-menu.mjs`).
+
+- **Emotes**, for anyone who may put one on the card: a GM any card, a player one of theirs (hands off or not: an emote moves
+  nothing). All thirty, faces, balloons and marks. Picked, one is shown once, as a reaction; with **Keep it up** on (remembered
+  on that machine) it comes round every few seconds until **Clear**, as a regular's habit does. Clear takes off a scene's own
+  habit too.
+- **For the GM**: **Give them the floor** / **Take back the floor**, **Knock down** / **Stand up**, **Choose for a formation**
+  (what Alt-, Ctrl- and Shift-click already did, now in plain sight), and **Open their sheet** for a card that names an
+  `actor` its viewer may see (the party's cards do).
+- **Written** on the card in the published cast (`api.blocking.setEmote`, interface 0.11.0; `api.emotes` lists them), stamped a
+  quarter of a second ahead on the shared clock so every screen shows it together; a kept one survives a reload. Only a GM may
+  write the scene, so a player's pick goes over the module's socket to the acting GM's screen, which checks the card is theirs
+  and writes it; with no GM on, the player is told so.
+- **The adventure's bridge keeps a chosen emote** (`chosen: true`) when it lays a scene out again, and puts a scene's habit back
+  only where nobody chose otherwise.
+- **A bug found doing it:** the stage timed emotes on its own clock, not the one every screen shares. A scene's habits only
+  worked because their `t0` is just where in the round they start; one stamped on the shared clock never showed. Emotes are now
+  timed on the shared clock, as walks are.
+- The 3D picture fetches a card's new emote picture when its emote changes (before, only the one it was built with).
+
+Checks: `card-menu.test.mjs` (12: who is offered what, where it opens, the stage showing a chosen emote once or kept, the GM's
+write, the GM's screen taking a player's pick and refusing one on someone else's card, a player's screen sending rather than
+writing), the bridge test, the interface test, `bench/menu-check.mjs` (26, real right-clicks on the bench as a GM and a player
+on two screens), and a card-menu section in `foundry-check.mjs` 7d (a real player in a real Foundry). The other real-pointer
+benches (host 26, editor 16, sizes 15, chalk 56) still pass.

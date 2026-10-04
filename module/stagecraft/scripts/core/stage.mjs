@@ -23,7 +23,7 @@ import { planWalk, walkAt, entrancePoint, floorDistance } from "./walks.mjs";
 import { describeRoutine, prepareRoutine, lifeAt, gestureAt } from "./life.mjs";
 import { arrange } from "./formations.mjs";
 import { spreadApart, cardRect, coveredShare, HIDDEN_AT_MOST } from "./visibility.mjs";
-import { EMOTES, emoteMotion } from "./emotes.mjs";
+import { EMOTES, EMOTE_SHOWN, EMOTE_EVERY, emoteMotion } from "./emotes.mjs";
 
 export const STEP = 1 / 120;
 
@@ -774,7 +774,8 @@ export class Stage {
         walking: !!c.walk || (c.living && Math.abs(c.stepLift) > 0.2),
         selected: !!selected?.has?.(c.id),
         speaking: this.speaker === c.id || this.turn === c.id,
-        emote: this.#emote(c, t)
+        // on the time every screen shares, as a move is: an emote chosen at the table is stamped on it, so all show it together
+        emote: this.#emote(c, now)
       });
       if (viewer !== null && c.holder === viewer) marks.push(...this.marksFor(c.id));
     }
@@ -804,8 +805,11 @@ export class Stage {
   #emote(c, t) {
     const e = c.person.emote;
     if (!e?.id) return null;
-    const age = (t - (e.t0 ?? 0)) % 6;
-    const opacity = age < 0 ? 0 : age < 0.2 ? age / 0.2 : age > 4.4 ? Math.max(0, 1 - (age - 4.4) / 0.6) : 1;
+    // a habit comes round every few seconds for as long as the card has it; a reaction (`once`) is shown once and is gone
+    const since = t - (e.t0 ?? 0);
+    if (e.once && (since < 0 || since > EMOTE_SHOWN)) return null;
+    const age = e.once ? since : since % EMOTE_EVERY;
+    const opacity = age < 0 ? 0 : age < 0.2 ? age / 0.2 : age > EMOTE_SHOWN - 0.6 ? Math.max(0, 1 - (age - (EMOTE_SHOWN - 0.6)) / 0.6) : 1;
     const pop = age < 0.3 ? 0.6 + 0.4 * Math.sin((age / 0.3) * Math.PI * 0.5) + 0.12 * Math.sin((age / 0.3) * Math.PI) : 1;
     // its own motion (a drip, a float, a wobble), out of step with the same emote on another card; none in the calm version
     const motion = this.calm || age < 0 ? null : emoteMotion(EMOTES[e.id]?.motion, age, hashSeed(c.id));

@@ -240,6 +240,8 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
         if (enter) card.enter = enter;
       }
     }
+    // an emote someone chose at the table from the card's menu (or one they cleared) stays: the habit does not come back over it
+    if (before?.emote?.chosen === true) card.emote = before.emote;
     out.push(card);
   }
   // a routine that talks to someone names them by key; on the stage they are their card. Someone not on the stage (not

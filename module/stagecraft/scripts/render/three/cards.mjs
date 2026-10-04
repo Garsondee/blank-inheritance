@@ -206,9 +206,10 @@ export class CardView {
 
   async setEmote(id) {
     if (this.emote) { this.emote.sprite.parent?.remove(this.emote.sprite); this.emote = null; }
+    this.wanted = id ?? null;
     if (!id) return;
     const tex = await this.ctx.emoteTexture(id);
-    if (!tex) return;
+    if (!tex || this.wanted !== id || this.emote || this.gone) return;     // another was asked for while this one loaded, or the card went
     const sprite = new THREE.Sprite(this.ctx.tracker.add(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })));
     sprite.renderOrder = 50;
     sprite.center.set(0.5, 1 - EMOTE_PIVOT);   // it turns about a point low down, near where it meets its card
@@ -217,6 +218,9 @@ export class CardView {
   }
 
   #poseEmote(c) {
+    // the card's emote changed (someone chose one from its menu, or cleared it): the new picture is fetched, once
+    const want = c.emote?.id ?? null;
+    if (want && want !== (this.wanted ?? null)) this.setEmote(want).catch(() => {});
     if (!this.emote) return;
     const e = c.emote;
     const sprite = this.emote.sprite;
@@ -237,6 +241,7 @@ export class CardView {
   }
 
   dispose() {
+    this.gone = true;
     this.root.parent?.remove(this.root);
     this.blob.parent?.remove(this.blob);
     if (this.emote) this.emote.sprite.parent?.remove(this.emote.sprite);

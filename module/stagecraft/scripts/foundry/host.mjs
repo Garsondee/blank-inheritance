@@ -21,6 +21,7 @@ import { SpeedTest } from "./speed.mjs";
 import { Pace, poseOf, moved } from "../core/pace.mjs";
 import { titleKey } from "../core/titleblock.mjs";
 import { HoverTip } from "./hover-tip.mjs";
+import { CardMenu } from "./card-menu.mjs";
 import { StageEditor, editorMemory } from "./stage-editor.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
@@ -96,6 +97,7 @@ export class StageHost {
     this.channel = openChannel((message, sender) => {
       if (message?.type === "chalk") this.chalk?.receive(message, sender);
       else if (message?.type === "health") { this.health?.receive(message); this.healthBoard?.receive(message, sender); }
+      else if (message?.type === "emote") this.menu?.receive(message, sender);
       else this.sync.receive(message, sender);
     });
 
@@ -118,6 +120,7 @@ export class StageHost {
     this.#boardKey();
     this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
     this.tip = new HoverTip(this);              // a card's full words, when the pointer rests on one that has more than its plate shows
+    this.menu = new CardMenu(this);             // a right-click on a card: its emotes, and for the GM a few things to change about it
 
     this.#watchSize();
     this.#watchPointer();
@@ -213,6 +216,7 @@ export class StageHost {
     this.healthBoard?.dispose();
     this.editor?.dispose();
     this.tip?.dispose();
+    this.menu?.dispose();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
@@ -318,11 +322,20 @@ export class StageHost {
 
   #watchPointer() {
     const canvas = this.backend.canvas;
+    // the browser's own menu never opens over the stage: a right-click on a card is the card's menu
+    this.#on(canvas, "contextmenu", (e) => e.preventDefault());
     this.#on(canvas, "pointerdown", (e) => {
       this.pace.poke(performance.now());
       this.tip?.hide();
       if (e.button === 2 && this.chalk?.inHand) { this.chalk.putAway(); return; }
       if (e.button === 2 && this.blocking?.disarm()) return;
+      // a right-click on a card opens its menu (foundry/card-menu.mjs): its emotes, and for the GM a few things to change
+      if (e.button === 2) {
+        const at = this.#local(e);
+        const hit = this.backend.pick(at.x, at.y);
+        if (hit?.kind === "card" && this.menu?.open(hit.id, e.clientX, e.clientY)) e.preventDefault();
+        return;
+      }
       // a pen's eraser end (button 5) rubs out while chalk is in hand
       if (e.button !== 0 && !(e.button === 5 && e.pointerType === "pen" && this.chalk?.inHand)) return;
       const p = this.#local(e);

@@ -443,6 +443,34 @@ try {
     const savedPlace = await page.evaluate(() => canvas.scene.flags.stagecraft.published.cards.find((c) => c.id === "yumiko"));
     check("and the GM's screen saved where it landed, in the scene", JSON.stringify(savedPlace.at) === JSON.stringify(droppedThere.place.at), JSON.stringify(savedPlace));
 
+    // ---- a card's menu (foundry/card-menu.mjs): a real right-click, the player's emotes going through the GM's screen
+    const menuOn = (p) => p.evaluate(() => {
+      const m = document.querySelector(".stagecraft-card-menu");
+      return m ? { emotes: m.querySelectorAll(".menu-emote").length, actions: [...m.querySelectorAll(".menu-action")].map((b) => b.dataset.action) } : null;
+    });
+    await pp.bringToFront();
+    const forMenu = await whereOn(pp, "yumiko");
+    await pp.mouse.click(forMenu.x, forMenu.y, { button: "right" });
+    await sleep(300);
+    const playerMenu = await menuOn(pp);
+    check("a player's right-click on a card they may hold opens its menu, with the emotes alone", playerMenu?.emotes === 30 && playerMenu.actions.length === 0, JSON.stringify(playerMenu));
+    const wince = await (await pp.$('.stagecraft-card-menu [data-emote="wince"]')).boundingBox();
+    await pp.mouse.click(wince.x + wince.width / 2, wince.y + wince.height / 2);
+    await sleep(900);
+    const chosen = await page.evaluate(() => canvas.scene.flags.stagecraft.published.cards.find((c) => c.id === "yumiko").emote);
+    check("the emote the player picks is written on the card by the GM's screen", chosen?.id === "wince" && chosen.chosen === true, JSON.stringify(chosen));
+    const showing = await Promise.all([page, pp].map((p) => p.evaluate(() => game.modules.get("stagecraft").api.stage().stage.snapshot().cards.find((c) => c.id === "yumiko").emote?.id ?? null)));
+    check("and it is shown on both screens", showing[0] === "wince" && showing[1] === "wince", JSON.stringify(showing));
+    await page.bringToFront();
+    const forGm = await whereOn(page, "yumiko");
+    await page.mouse.click(forGm.x, forGm.y, { button: "right" });
+    await sleep(300);
+    const gmMenu = await menuOn(page);
+    check("the GM's right-click opens the same menu with the GM's things too", gmMenu?.emotes === 30 && JSON.stringify(gmMenu.actions) === JSON.stringify(["floor", "down", "choose"]), JSON.stringify(gmMenu));
+    await page.keyboard.press("Escape");
+    await sleep(150);
+    check("and Escape closes it", (await menuOn(page)) === null);
+
     // hands off
     await page.bringToFront();
     await clickBar(page, "hands");

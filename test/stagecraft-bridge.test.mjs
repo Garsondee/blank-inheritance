@@ -683,3 +683,19 @@ test("every emote a stage gives someone is one Stagecraft draws, and it belongs 
     }
   }
 });
+
+test("an emote someone chose at the table (or cleared) is kept when the scene is laid out again; one the scene gave is the scene's", () => {
+  const withHabit = { ...def, emotes: { nobu: "music" } };
+  const cards = mirrorCards({ published: [member("summon-nobu")], def: withHabit });
+  assert.equal(cards[0].emote.id, "music", "the scene's habit");
+  assert.equal(cards[0].emote.chosen, undefined);
+  const chosen = { id: "laugh", t0: 1790995001.25, once: true, chosen: true };
+  for (const relayout of [false, true]) {
+    const again = mirrorCards({ published: [member("summon-nobu"), member("summon-x")], existing: [{ ...cards[0], emote: chosen }], def: withHabit, relayout, now: 1790995002 });
+    assert.deepEqual(again[0].emote, chosen, `a chosen emote survives${relayout ? " a fresh layout" : ""}`);
+  }
+  const cleared = mirrorCards({ published: [member("summon-nobu")], existing: [{ ...cards[0], emote: { id: null, chosen: true } }], def: withHabit });
+  assert.deepEqual(cleared[0].emote, { id: null, chosen: true }, "a habit cleared from the card's menu does not come back");
+  const habitAgain = mirrorCards({ published: [member("summon-nobu")], existing: [{ ...cards[0], emote: { id: "sleep", t0: 1 } }], def: withHabit });
+  assert.equal(habitAgain[0].emote.id, "music", "a habit the scene once gave is the scene's to change");
+});

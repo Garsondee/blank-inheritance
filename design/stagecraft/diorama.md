@@ -286,10 +286,13 @@ Also always on:
   *hanamaru*, which replaced a star; its id is still `star`), hand up, and hungry (a steaming bowl).
 - **Each has a motion:** a sweat drop drips, a vein pulses, hearts and notes float up, gloom lines fall, a bulb
   flickers on, a spiral spins. Each pops on with a little overshoot and lasts a few seconds.
-- **The wheel:** right-click (or hold E on) your own card and eight emotes ring it; one more click and the table sees
-  it. Each player picks their own eight.
-- **The GM** can pop an emote on any card, and **on the scenery** (the cat asleep on the radiator, plate 14).
-- **Sync:** one small message per emote, the same channel as the puppets (stagecraft §6.5).
+- **The card's menu (built 2026-10-04, `module.md` §36):** right-click a card of yours and every emote is there; one click
+  and the table sees it, once, or kept (**Keep it up**) until cleared. The GM can do it on any card, and the GM's menu also
+  gives the floor, knocks down, chooses for a formation and opens the sheet. It took the place of the wheel planned here (a
+  ring of eight chosen per player), which may still come back as a quicker way to the favourites.
+- **The GM** can pop an emote on any card; **on the scenery** (the cat asleep on the radiator, plate 14) is not built.
+- **Sync:** written on the card in the published cast, so every screen shows it together and a reload finds a kept one; a
+  player's pick goes through the GM's screen over the module's socket.
 - **The raised hand** (stagecraft §4.3) becomes the "hand up" emote, held until lowered.
 
 ### 7.1 What passes between cards

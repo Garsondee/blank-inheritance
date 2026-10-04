@@ -205,6 +205,22 @@
       "Engaged": "same position: engaged",
       "Near": "near: one Stride",
       "Far": "far: two Strides or more"
+    },
+    "Menu": {
+      "Faces": "Faces",
+      "Balloons": "Balloons",
+      "Marks": "Marks",
+      "Keep": "Keep it up",
+      "KeepTip": "On: the emote comes round again every few seconds until you clear it (a raised hand, someone asleep). Off: it is shown once.",
+      "Clear": "Clear",
+      "FloorGive": "Give them the floor",
+      "FloorTake": "Take back the floor",
+      "DownKnock": "Knock down",
+      "DownStand": "Stand up",
+      "Choose": "Choose for a formation",
+      "Unchoose": "Unchoose",
+      "Sheet": "Open their sheet",
+      "NoGM": "An emote is put on a card by the game master's screen, and no game master is on."
     }
   }
 }
