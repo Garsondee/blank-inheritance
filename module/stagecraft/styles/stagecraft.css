@@ -694,3 +694,47 @@
 #stagecraft-stage .stagecraft-board-key i.engaged { border-top-style: solid; }
 #stagecraft-stage .stagecraft-board-key i.near { border-top-style: dashed; }
 #stagecraft-stage .stagecraft-board-key i.far { border-top-style: dotted; opacity: 0.6; }
+
+/* The full words of a card, when the pointer rests on one that has more to say than its plate shows (foundry/hover-tip.mjs). */
+#stagecraft-stage .stagecraft-tip {
+  position: fixed;
+  z-index: 9;
+  max-width: min(360px, 80vw);
+  padding: 9px 13px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 214, 140, 0.38);
+  background: rgba(22, 15, 8, 0.95);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55);
+  color: #f4ead2;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 120ms;
+}
+
+#stagecraft-stage .stagecraft-tip.shown {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s;
+}
+
+#stagecraft-stage .stagecraft-tip .tip-name {
+  font: 700 16px/1.25 var(--font-primary, "Signika"), system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+#stagecraft-stage .stagecraft-tip .tip-text {
+  margin-top: 5px;
+  font: 500 14px/1.4 var(--font-primary, "Signika"), system-ui, sans-serif;
+  color: #e3d5b6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stagecraft-stage .stagecraft-tip { transition: none; transform: none; }
+}

@@ -14,6 +14,7 @@ import { makeRig, viewFor } from "../../core/rigspace.mjs";
 import { DEFAULT_BOX, PALETTE, tileRect, tilesFor } from "../../core/chalk.mjs";
 import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
 import { samplePainting } from "../paint/wall.mjs";
+import { makeTitleBlock } from "../titleblock.mjs";
 import { cutoutFade, CUTOUT_FADE, CUTOUT_FADE_MOST } from "../../core/visibility.mjs";
 import { cardPlacement, hitCard, floorAt, paintingAt, project, byDepth, toWindow, FOOT } from "./geometry.mjs";
 import { boxLayout, hitBox } from "./box.mjs";
@@ -124,7 +125,7 @@ export class FlatBackend {
     if (this.views.has(person.id) || this.adding.has(person.id) || this.disposed) return;
     this.adding.add(person.id);
     try {
-      const helpers = { loadImage: this.images.loadImage };
+      const helpers = this.#helpers();
       const [face, back] = await Promise.all([this.skin.face(person, helpers), this.skin.back(person, helpers)]);
       if (this.disposed) return;
       this.views.set(person.id, { id: person.id, person, face: this.#shrink(face), back: this.#shrink(back), w: this.skin.size.w, h: this.skin.size.h });
@@ -135,6 +136,25 @@ export class FlatBackend {
   }
 
   removeCard(id) { this.views.delete(id); }
+
+  /** What a skin is handed to draw with: the pictures it may want, and the title block's layout and drawing (render/titleblock.mjs). */
+  #helpers() {
+    this.titleBlock ??= makeTitleBlock();
+    return { loadImage: this.images.loadImage, titleBlock: this.titleBlock };
+  }
+
+  /** A card's words changed (a name learned, a line of text edited): its face is drawn again from the skin. */
+  async refreshCard(person) {
+    const view = this.views.get(person.id);
+    if (!view || this.disposed) return;
+    const merged = { ...view.person, ...person };
+    const helpers = this.#helpers();
+    const [face, back] = await Promise.all([this.skin.face(merged, helpers), this.skin.back(merged, helpers)]);
+    if (this.disposed || this.views.get(person.id) !== view) return;
+    view.person = merged;
+    view.face = this.#shrink(face);
+    view.back = this.#shrink(back);
+  }
 
   /** A skin draws a card at twice its size, for the sharp 3D picture. Here it is drawn once at the card's own size (well scaled, once), so every frame scales it by less. */
   #shrink(source) {

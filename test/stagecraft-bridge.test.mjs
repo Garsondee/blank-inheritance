@@ -465,6 +465,40 @@ test("a new card goes where its entry says, else to the next free slot, and two 
   assert.equal(cards[0].size, 1.5, "a size the entry gives");
 });
 
+test("a card's line of text comes from its entry's `titles`, or from the cast member's own, and follows a change to it", () => {
+  const withTitles = { ...def, titles: { nobu: "Quartermaster\nKit Issue", blank: "   " } };
+  const cards = mirrorCards({ published: [member("summon-nobu"), member("summon-blank"), member("summon-x"), member("summon-y", { title: "Her own line" })], def: withTitles });
+  assert.equal(cards[0].title, "Quartermaster\nKit Issue", "the entry gives it, line breaks and all");
+  assert.equal(cards[1].title, undefined, "a title of nothing is none");
+  assert.equal(cards[2].title, undefined, "nobody else has one");
+  assert.equal(cards[3].title, "Her own line", "a cast member may carry its own");
+  assert.equal(mirrorCards({ published: [member("summon-nobu", { title: "Overridden" })], def: withTitles })[0].title, "Quartermaster\nKit Issue", "the entry wins over the member");
+  // a card already on the stage follows a changed title, though it keeps where it was put
+  const first = mirrorCards({ published: [member("summon-nobu")], def });
+  const placed = [{ ...first[0], at: [0.3, 0.8], mark: "counter-1" }];
+  const later = mirrorCards({ published: [member("summon-nobu")], existing: placed, def: withTitles });
+  assert.equal(later[0].title, "Quartermaster\nKit Issue");
+  assert.deepEqual(later[0].at, [0.3, 0.8]);
+  assert.equal(mirrorCards({ published: [member("summon-nobu")], def: { ...withTitles, titles: {} } })[0].title, undefined, "and loses it when the entry drops it");
+});
+
+test("the bridge mirrors only the scenes the adventure built: a Stagecraft scene made any other way keeps its own cast", async () => {
+  const { ownsScene } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  assert.equal(ownsScene("e1-kit-issue"), true, "a scene its sync built carries a sourceId");
+  assert.equal(ownsScene(undefined), false, "one made by hand does not");
+  assert.equal(ownsScene(null), false);
+  assert.equal(ownsScene(""), false);
+  assert.equal(ownsScene("   "), false);
+  assert.equal(ownsScene(42), false);
+  // and the Foundry side asks before it mirrors a cast or puts the party on a stage (found 2026-10-04: a test scene's cards were cleared)
+  const bridge = readFileSync(path.join(root, "module", "blank-inheritance", "scripts", "foundry", "stagecraft-bridge.mjs"), "utf8");
+  for (const fn of ["mirrorScene", "ensureParty"]) {
+    const body = bridge.slice(bridge.indexOf(`export async function ${fn}(`));
+    const head = body.slice(0, body.indexOf("\n}\n"));
+    assert.match(head, /ownsScene\(scene\.getFlag\(MODULE_ID, "sourceId"\)\)/, `${fn} leaves a scene that is not the adventure's alone`);
+  }
+});
+
 test("members of the party are cards held by their players, in the front row", () => {
   const cards = mirrorCards({
     published: [member("summon-pc-a", { kind: "pc", actorId: "A1" }), member("summon-pc-b", { kind: "pc", actorId: "B1" })],

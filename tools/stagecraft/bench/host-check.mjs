@@ -35,7 +35,7 @@ const browser = await puppeteer.launch({
 });
 
 try {
-  const url = (seat) => `http://127.0.0.1:${PORT}/tools/stagecraft/bench/host.html?stage=haunt-the-paper-lantern&seat=${seat}`;
+  const url = (seat) => `http://127.0.0.1:${PORT}/tools/stagecraft/bench/host.html?stage=haunt-the-paper-lantern&seat=${seat}&titles=1`;
   const gm = await browser.newPage();
   const player = await browser.newPage();
   const errors = [];
@@ -141,6 +141,56 @@ try {
   await gm.$eval('.stagecraft-blocking [data-act="life"]', (bt) => bt.click());
   await sleep(400);
   check("the Life switch reaches the player", await player.evaluate(() => window.bench.host.stage.lifeOn === false));
+
+  /* a card's words change on the scene (a name learned, a line of text edited): its face is drawn again, on the same texture */
+  const renamed = await gm.evaluate(async () => {
+    const { host, scene } = window.bench;
+    const list = scene.flags.stagecraft.published.cards;
+    const card = list.find((c) => !c.pc);
+    const view = host.backend.views.get(card.id);
+    const before = view.faceTex.image;
+    const beforeUrl = before.toDataURL();
+    const texture = view.faceTex;
+    card.name = "Renamed Person\nwho was renamed on the scene, and has a good deal to say about it";
+    Hooks.callAll("updateScene", scene, { flags: { stagecraft: { published: { cards: list } } } });
+    await new Promise((r) => setTimeout(r, 1500));
+    const after = view.faceTex.image;
+    return { newCanvas: after !== before, differs: after.toDataURL() !== beforeUrl, sameTexture: view.faceTex === texture, name: host.stage.cards.get(card.id).person.name };
+  });
+  check("a card renamed on the scene is drawn again: its face texture gets a new picture, on the same texture", renamed.newCanvas && renamed.differs && renamed.sameTexture && /Renamed Person/.test(renamed.name), JSON.stringify(renamed));
+
+  /* a card with a line of text speaks when the pointer has rested on it: the whole of what its plate may have cut */
+  await gm.bringToFront();
+  const spot = await gm.evaluate(() => {
+    const { host, titled } = window.bench;
+    const c = host.stage.cards.get(titled);
+    for (let y = 260; y >= 40; y -= 12) {
+      const p = host.backend.project({ X: c.puppet.x, Y: y, Z: c.Z });
+      if (document.elementFromPoint(p.x, p.y)?.tagName === "CANVAS" && host.backend.pick(p.x, p.y)?.id === titled) return { x: p.x, y: p.y };
+    }
+    return null;
+  });
+  check("a point on the titled card can be reached by the pointer", !!spot, JSON.stringify(spot));
+  const shown = () => gm.evaluate(() => { const el = document.querySelector(".stagecraft-tip.shown"); if (!el) return null; const r = el.getBoundingClientRect(); return { text: el.textContent, inside: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight, events: getComputedStyle(el).pointerEvents }; });
+  await gm.mouse.move(spot.x - 4, spot.y - 4);
+  await gm.mouse.move(spot.x, spot.y);
+  await sleep(200);
+  const early = await shown();
+  await sleep(600);
+  const tip = await shown();
+  check("it says nothing at first, and its full words once the pointer has rested", early === null && tip && /read in full on hover/.test(tip.text), JSON.stringify({ early, tip }));
+  check("the tip stays inside the window and never takes a click", tip?.inside === true && tip?.events === "none", JSON.stringify(tip));
+  await gm.mouse.move(5, 5);
+  await sleep(300);
+  check("it goes when the pointer moves off the card", (await shown()) === null);
+  await gm.mouse.move(spot.x, spot.y);
+  await sleep(800);
+  check("it comes back when the pointer returns and rests", (await shown()) !== null);
+  await gm.mouse.down();
+  await sleep(250);
+  check("and goes at once when the card is taken hold of", (await shown()) === null);
+  await gm.mouse.up();
+  await sleep(300);
 
   /* a change that lands while the stage is still being built */
   const late = await browser.newPage();

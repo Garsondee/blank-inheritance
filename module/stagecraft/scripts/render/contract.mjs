@@ -9,6 +9,8 @@
  *   setQuality(tier)          "high" or "low"
  *   draw(snapshot, dt)        draw this moment. `snapshot` is Stage#snapshot()
  *   addCard(person) / removeCard(id)        the cast changed
+ *   refreshCard(person)       optional: a card's words changed (a name learned, a line of text edited): draw its face again.
+ *                             A skin is handed `helpers.titleBlock` (render/titleblock.mjs) to lay them out with
  *   pick(x, y)                what is under this point (viewport px): { kind: "card", id } or null
  *   floorAt(x, y, height)     the floor coordinates { x, z } of a viewport point, on a plane `height` above the floor
  *   project(world)            where a world point { X, Y, Z } falls, in viewport px: { x, y, k }

@@ -18,6 +18,7 @@ import { Post } from "./post.mjs";
 import { ChalkTiles, ChalkBox } from "./chalk.mjs";
 import { DEFAULT_BOX } from "../../core/chalk.mjs";
 import { samplePainting } from "../paint/wall.mjs";
+import { makeTitleBlock } from "../titleblock.mjs";
 
 const COMPILE_WAIT = 4000;           // ms a stage waits for its shaders to be built before it shows itself anyway
 
@@ -184,7 +185,8 @@ export class ThreeBackend {
     if (this.views.has(person.id) || this.adding.has(person.id) || this.disposed) return;
     this.adding.add(person.id);
     try {
-      const ctx = { tracker: this.tracker, images: this.images, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id) };
+      this.titleBlock ??= makeTitleBlock();
+      const ctx = { tracker: this.tracker, images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id) };
       const view = new CardView(person, this.skin, ctx, this.description.cardScale * (person.size ?? 1));
       await view.build();
       if (this.disposed) { view.dispose(); return; }
@@ -203,6 +205,13 @@ export class ThreeBackend {
     if (!v) return;
     v.dispose();
     this.views.delete(id);
+  }
+
+  /** A card's words changed (a name learned, a line of text edited): its face is drawn again from the skin. */
+  async refreshCard(person) {
+    const view = this.views.get(person.id);
+    if (!view || this.disposed) return;
+    await view.refresh(person);
   }
 
   #emoteTexture(id) {

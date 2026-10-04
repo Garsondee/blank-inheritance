@@ -160,7 +160,8 @@ try {
 
 
   /* -------------------------------------------------------------- 2. the skin and the scenes */
-  const brassSource = readFileSync(path.join(repo, "design", "stagecraft", "lab", "brass-skin.mjs"), "utf8").replace(/^export const brass/m, "const brass");
+  // the adventure's own skin, the one drawn at the table (the sketchbook's copy of it in lab/ is out of date)
+  const brassSource = readFileSync(path.join(repo, "module", "blank-inheritance", "scripts", "foundry", "stagecraft-brass-skin.mjs"), "utf8").replace(/^export const brass/m, "const brass");
   await page.evaluate((src) => { const brass = new Function(`${src}; return brass;`)(); game.modules.get("stagecraft").api.skins.register(brass); }, brassSource);
   check("a table can register its own skin through the api", await page.evaluate(() => game.modules.get("stagecraft").api.skins.list().includes("brass")));
 
@@ -669,7 +670,9 @@ try {
   // "JournalEntryPage ... does not exist" is a second GM connection (another session on this Foundry) clearing the same deleted
   // scene's chalk a moment before this one: harmless, and Foundry logs it itself
   // "Error creating WebGL context" is three.js saying so when the check takes the graphics context away on purpose
-  const errors = logs.filter((l) => /^\[(error|pageerror)\]/.test(l) && !/favicon|404|JournalEntryPage "[^"]+" does not exist|Error creating WebGL context/.test(l));
+  // "Failed to load audio element ... blank-inheritance-audio/" is the adventure's music cue on the world's active scene: those
+  // files live in the real server's data folder, not in a local test world's (and are not Stagecraft's to play)
+  const errors = logs.filter((l) => /^\[(error|pageerror)\]/.test(l) && !/favicon|404|JournalEntryPage "[^"]+" does not exist|Error creating WebGL context|Failed to load audio element "blank-inheritance-audio\//.test(l));
   check("no errors in the console", errors.length === 0, errors.slice(0, 4).join(" | "));
   if (logs.length) console.log("\nconsole:\n" + logs.slice(0, 30).join("\n"));
   if (!args.get("keep")) {

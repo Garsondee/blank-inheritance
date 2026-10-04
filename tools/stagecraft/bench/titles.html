@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stagecraft: card title blocks</title>
+<link rel="icon" href="data:,">
+<!-- The adventure's own fonts (Antonio, Rajdhani, Noto Sans JP, Special Elite) and Foundry's (Modesto Condensed, Signika), as they are at the table. -->
+<link rel="stylesheet" href="/module/blank-inheritance/styles/bi-fonts.css">
+<link rel="stylesheet" href="/foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/public/fonts/modesto-condensed/modesto-condensed.css">
+<link rel="stylesheet" href="/foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/public/fonts/signika/signika.css">
+<style>
+  body { margin: 0; padding: 18px 22px 40px; background: #1d1a16; color: #e8dcc2; font: 13px/1.4 system-ui, sans-serif; }
+  h2 { font: 600 15px system-ui, sans-serif; margin: 22px 0 8px; color: #f0c870; letter-spacing: 0.04em; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+  figure { margin: 0; }
+  figcaption { max-width: 280px; margin-top: 4px; font-size: 11px; color: #b9a982; }
+  canvas { display: block; background: #2b2620; border-radius: 6px; }
+  .real canvas { width: 196px; height: 328px; }       /* what the table sees: a card of 0.7 at a 1920-wide window */
+  .big canvas { width: 280px; height: 468px; }
+</style>
+</head>
+<body>
+<h1 style="font: 600 18px system-ui; margin: 0 0 4px;">Card title blocks</h1>
+<div id="out"></div>
+<script type="module" src="./titles.mjs"></script>
+</body>
+</html>

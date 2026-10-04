@@ -760,3 +760,60 @@ Chrome, with the Gamemaster user left without a password. The desktop app gives 
 Where it stands: 111 to 113 of 114 pass, and what varies from run to run is timing (the two screens agreeing on where a card
 was put down, the Ctrl+Z settling, the plain stage's count of draws) while a game uses the same graphics card. Look at the
 card's load (`Get-Counter '\GPU Engine(*engtype_3D)\Utilization Percentage'`) before reading a failure as a regression.
+
+## 28. Card title blocks (2026-10-04)
+
+Her note, that night: *"The cards have title blocks, but these don't work very intelligently. They can't handle large amounts of
+text, they handle line breaks poorly. They need a lot of work and improvement. A bolder font, a nice arrangement would allow us
+to display both their name and line of text underneath without issue."* What was wrong, from the code: the plate under a
+portrait was one line at a fixed size, drawn with `fillText`, so a long name ran off the card, a line break was drawn as a
+space, and there was nowhere to put a second line. The whole plate is now a layout, not a string.
+
+**What it does** (`ledger.md` group Q; the picture is `lab/shots/bench/title-blocks.png`, made by `bench/titles-check.mjs`):
+
+- **A name and a line of text under it.** A card's `name` and its `title` (a role, a description). With no `title`, a line break
+  in the name is the split: the first line is the name, the rest the line of text, which is how a second line has always been
+  given to a card, so labels already written that way just work. Breaks the author typed (a break, a typed `\n`, a `<br>`) are
+  kept.
+- **Fitted, not cut.** A name stays on as few lines as it can and still be large (one line at 0.7 of the largest size beats two
+  at the largest, so "Kiku Enomoto" is not stacked), then takes up to three; the line of text takes as few lines as it can; if
+  the text could be whole with the name a little smaller (never under 0.62 of its largest size), the name gives way; a text that
+  could not be whole at any size, a paragraph, is cut with an ellipsis and the name is not made smaller for it. A word wider than
+  the plate is broken where it must be.
+- **Lines broken as a reader would.** Between words, after a hyphen, and **balanced** (as CSS `text-wrap: balance`), so no short
+  word hangs alone. Japanese is broken between *words* where the browser's dictionary knows them (`Intl.Segmenter`: a line does not
+  end inside 放課後) and between characters where it does not, with **kinsoku**: never a closing mark, full stop or the long
+  vowel mark at the start of a line, never an opening bracket at the end.
+- **A plate as tall as its words need.** The skin asks the helper how tall the plate must be and gives the portrait what is left,
+  so "Tama" has a small plate and a long name with a line of text a taller one. The back's label does the same.
+- **A bolder face.** The default skin sets the name in Foundry's own Modesto Condensed and the text in Signika (both are in every
+  Foundry, nothing is shipped); the adventure's brass skin in Antonio and Rajdhani with Noto Sans JP behind them for Japanese
+  (all bundled with the adventure, OFL), and a stroke in the ink makes the name bolder than its font.
+- **Read in full on hover.** A card that has a line of text, or a name long enough to have been made small, shows all of it in a
+  small tip after the pointer has rested on it for a moment (`foundry/hover-tip.mjs`; never while a card is carried or chalk is in
+  hand). A card the size of a thumbnail cannot show a paragraph; this is where it is read.
+- **A changed name is drawn again.** A card's face was built once, so a name learned later (or a line edited) never showed until
+  a rebuild. The host now notices a changed `name` or `title` and the backend redraws that card's face and back on the same
+  textures (`refreshCard`).
+
+**Where it lives.** `core/titleblock.mjs` (pure: cleaning, the break rules, fitting; it is given a way to measure), `render/
+titleblock.mjs` (measures with the canvas and draws: the helper a skin is handed as `helpers.titleBlock`, interface 0.6.0),
+`foundry/hover-tip.mjs`, the default skin (`skins/paper.mjs`), the adventure's skin (`stagecraft-brass-skin.mjs`, which uses the
+helper where there is one and keeps its plain single line where there is not), and the adventure's bridge, which gives a card its
+text from the stage entry's `titles` (`{ "nobu": "Quartermaster" }`, beside `demeanours`) or from a cast member's own `title`.
+No lore was written for it: no card has a line of text until the GM writes one.
+
+**Tests.** `titleblock.test.mjs` (29: what was typed, the break rules, Japanese, fitting, and a seeded fuzz over awkward text
+that checks no line is wider than the plate, none is over the line limit, nothing is invented and nothing is out of order),
+`titleblock-render.test.mjs` (9), two in `flat-backend.test.mjs`, one in `test/stagecraft-bridge.test.mjs`, six more checks in
+`bench/host-check.mjs` (25: a rename redraws the real 3D texture; the tip waits, speaks, goes, comes back and goes when a card
+is taken hold of), and `bench/titles-check.mjs` (32: both skins, real fonts, nine awkward cards, the ink of what is drawn
+measured on the pixels so nothing can run off a plate and unmeasured fonts cannot hide).
+
+**Found on the way.** (1) The editor tool this was written with turns a plain `\uXXXX` in a file into the character itself: U+2028
+is a line end in a regular expression and broke one; every invisible or line-ending character in these files is written
+`\u{...}`. (2) The first look at the cards showed what the numbers had not: names stacked on two lines at the full size
+when one line a little smaller was better, a paragraph too small to read at the size the table sees, and a long name cut in
+the default skin where a third line would have shown it. (3) The tests found that a Japanese opening bracket could be left at
+the end of a line when the word it opens would not fit: a bracket and its word are now one unit, split only when the unit itself
+is wider than the plate, and the balancing search will not go narrower than the widest unit.

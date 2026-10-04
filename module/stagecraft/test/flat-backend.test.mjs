@@ -350,6 +350,42 @@ test("the still backdrop (painting, zones, chalk) is drawn once and copied every
   t.dom.restore();
 });
 
+test("a skin is handed the title block to lay a card's words out with, for the face and for the back", async () => {
+  const dom = installFakeDom();
+  const seen = [];
+  const spy = { ...paper, face: (p, h) => { seen.push(["face", h]); return paper.face(p, h); }, back: (p, h) => { seen.push(["back", h]); return paper.back(p, h); } };
+  const b = new FlatBackend({ images: { loadImage: async (src) => (src === scene.painting.src ? { width: 3072, height: 1536, src } : null) } });
+  b.mount(fakeElement(), { width: 800, height: 600 });
+  await b.load(scene, spy, PEOPLE);
+  assert.equal(seen.length, PEOPLE.length * 2);
+  for (const [, helpers] of seen) {
+    assert.equal(typeof helpers.loadImage, "function");
+    assert.equal(typeof helpers.titleBlock.fit, "function");
+    assert.equal(typeof helpers.titleBlock.draw, "function");
+  }
+  assert.equal(new Set(seen.map(([, h]) => h.titleBlock)).size, 1, "one title block maker for the whole stage");
+  dom.restore();
+});
+
+test("a card whose words change is drawn again, and only that card", async () => {
+  const t = await table();
+  const ana = t.backend.views.get("ana");
+  const others = [...t.backend.views.values()].filter((v) => v.id !== "ana");
+  const face = ana.face;
+  const back = ana.back;
+  await t.backend.refreshCard({ id: "ana", name: "Ana\nthe baker from the east gate" });
+  const after = t.backend.views.get("ana");
+  assert.notEqual(after.face, face, "a new face was drawn");
+  assert.notEqual(after.back, back, "and a new back");
+  assert.equal(after.person.name, "Ana\nthe baker from the east gate");
+  assert.equal(after.face.width, paper.size.w, "at the card's own size, as the first was");
+  assert.ok(others.every((v) => t.backend.views.get(v.id).face === v.face), "nobody else's face was touched");
+  await t.backend.refreshCard({ id: "nobody", name: "x" });          // not on the stage: nothing happens, nothing throws
+  t.backend.dispose?.();
+  await t.backend.refreshCard({ id: "ana", name: "late" });          // after the stage is gone: nothing happens either
+  t.dom.restore();
+});
+
 test("a card's picture is made once at its own size, however large the skin drew it", async () => {
   const t = await table();
   const v = t.backend.views.get("ana");

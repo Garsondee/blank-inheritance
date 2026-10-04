@@ -175,6 +175,9 @@ const published = [
 // the first player holds the first card of the party, as the adventure's bridge would arrange
 const cards = mirrorCards({ published, def: entry, now: Date.now() / 1000 - 600, ownersOf: (actorId) => (actorId === "pc-1" ? ["p1"] : []), npcOwners: ["gm"] })
   .map((c) => (c.pc ? { ...c, colour: PARTY.find(([, n]) => n === c.name)?.[2] ?? null } : c));
+// ?titles=1: the first person has a line of text under the name, so there is something for the hover tip to say
+const titled = params.get("titles") ? cards.find((c) => !c.pc) : null;
+if (titled) titled.title = "A line of text under the name, long enough that it is read in full on hover";
 const scene = new Scene("bench-scene", which, { stagecraft: { stage: descriptionFor(stages, entry), published: { cards, rev: 1 } } });
 game.scenes.push(scene);
 
@@ -211,4 +214,4 @@ if (params.get("midbuild")) {
 }
 const ok = await starting;
 document.getElementById("seat").textContent = `${seat === "gm" ? "Gamemaster" : "Player"} · ${which}${ok ? "" : " · could not start"}`;
-window.bench = { host, scene, ready: ok };
+window.bench = { host, scene, ready: ok, titled: titled?.id ?? null };

@@ -327,10 +327,12 @@ Two things the diorama can do that a stage of flat cards could not:
 
 *Plate 22.*
 
-- **The face:** the portrait in its brass moulding and the nameplate, as today; the room's light laid over it, and the
-  art undimmed (the lighting does the dimming now).
+- **The face:** the portrait in its brass moulding and the nameplate; the room's light laid over it, and the
+  art undimmed (the lighting does the dimming now). **The nameplate is the card's title block** (2026-10-04, `module.md`
+  §28): the name in a bold condensed face and, under it, a line of text; both are laid out to fit whatever they hold, the
+  plate is as tall as its words need and the portrait gives way, and what is cut is read in full on hover.
 - **Thickness:** a brass edge either side, seen when it turns.
-- **The back:** brass, rivets and a typed label with the name.
+- **The back:** brass, rivets and a typed label with the name (and the line of text), as tall as its words need.
 - **The foot:** a small brass stand; a player's carries their colour in enamel.
 - **The handle:** appears when a card is hovered or held (stagecraft §6); held, a card lifts off its foot.
 - **The keys** hide in the diorama and appear when you hover your own card: the scene is a picture first.

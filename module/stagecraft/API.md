@@ -3,18 +3,18 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.5.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.6.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
 published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
 0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
-`api.chalkTools` lists the tools.
+`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with.
 
 ## api
 
 | | |
 |---|---|
 | `api.version` | The interface's version, a string |
-| `api.skins.register(skin)` | Add a skin: everything that makes the cards and sticks look like something. A skin is `{ id, size: { w, h }, face(person, helpers), back(person, helpers), ... }`; see `scripts/skins/paper.mjs` for the default and the fields |
+| `api.skins.register(skin)` | Add a skin: everything that makes the cards and sticks look like something. A skin is `{ id, size: { w, h }, face(person, helpers), back(person, helpers), ... }`; see `scripts/skins/paper.mjs` for the default and the fields. `helpers` is `{ loadImage(src), titleBlock }`; `titleBlock.fit(person, style)` lays a card's name, and its line of text under it, out to fit a plate of a given width and says how tall the plate must be, and `titleBlock.draw(ctx, block, rect, look)` draws it (a skin written before 0.6.0 is simply not asked to use it) |
 | `api.skins.use(id)` | Choose the skin used when a scene does not name one |
 | `api.skins.list()` | The ids of the registered skins |
 | `api.scenes.isStage(scene)` | Does this Foundry scene carry a stage description? |
@@ -66,7 +66,7 @@ A Foundry scene is a stage scene when `flags.stagecraft.stage` holds a descripti
 
 ## A card
 
-A published card is `{ id, name, portrait?, colour?, size?, demeanour?, owners?, pc?, at | mark, yaw?, lean?, pitch? }`
+A published card is `{ id, name, title?, portrait?, colour?, size?, demeanour?, owners?, pc?, at | mark, yaw?, lean?, pitch? }`
 plus, for blocking:
 
 | Field | Means |
@@ -78,6 +78,14 @@ plus, for blocking:
 | `move` | `{ t0, gait }`: a move the GM made, starting at `t0` on the shared clock (seconds). A screen walks a card when it sees a `t0` it has not walked yet |
 | `enter` | `{ from: "left" \| "right" \| "back" \| "rise", t0, gait }`: the card walks on from that side, or rises out of the floor, when it first appears |
 | `down` | It is down: lying on the floor, dimmed, until the GM stands it up |
+
+**The words on a card.** A card's face has a title block: its `name` in a bold face and, under it, a line of `title` text (a
+role, a description). Both are laid out to fit the plate whatever they hold. A long name is kept on as few lines as it can be
+and still be large, broken between words (after a hyphen, between Japanese words, never leaving a closing mark at the start of
+a line) and made smaller before it is cut; the text under it is made smaller and then shorter and ends in an ellipsis; the
+plate grows to hold them, and the portrait gives way. The author's own line breaks are kept (a line break, a typed `\n` or a
+`<br>` in a name or a title); with no `title`, the first line of a name is the name and the rest is the line of text, which is
+how a second line has always been given to a card. Changing a published card's `name` or `title` draws its face again.
 
 **Life.** A routine is worked out from the time every screen shares, so the whole table sees the same people do the same
 things with no messages: `wander` (drifts about near home, `radius` a share of the painting's width), `visit` (goes between

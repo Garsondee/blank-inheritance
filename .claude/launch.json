@@ -49,7 +49,8 @@
         "foundryvtt/Foundry Virtual Tabletop/resources/app/main.js",
         "--port=30000",
         "--noupnp",
-        "--headless"
+        "--headless",
+        "--world=blank-inheritance-kuuhaku-souzoku"
       ],
       "port": 30000
     },

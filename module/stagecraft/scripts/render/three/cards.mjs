@@ -40,7 +40,7 @@ export class CardView {
     const T = ctx.tracker;
     const m = skin.materials ?? {};
     const brass = T.add(new THREE.MeshStandardMaterial({ color: m.body?.color ?? 0xe7dfcd, metalness: m.body?.metalness ?? 0, roughness: m.body?.roughness ?? 0.9 }));
-    const helpers = { loadImage: ctx.images.loadImage };
+    const helpers = this.#helpers();
     const [faceCanvas, backCanvas] = await Promise.all([skin.face(person, helpers), skin.back(person, helpers)]);
 
     this.leanG = new THREE.Group();
@@ -58,6 +58,7 @@ export class CardView {
     body.castShadow = true;
 
     const faceTex = T.add(canvasTexture(faceCanvas));
+    this.faceTex = faceTex;
     this.ghostTexture = faceTex;
     const face = T.mesh(new THREE.Mesh(
       new THREE.PlaneGeometry(W, H),
@@ -67,9 +68,10 @@ export class CardView {
     face.receiveShadow = true;
     this.faceMaterial = face.material;
 
+    this.backTex = T.add(canvasTexture(backCanvas));
     const back = T.mesh(new THREE.Mesh(
       new THREE.PlaneGeometry(W, H),
-      new THREE.MeshStandardMaterial({ map: T.add(canvasTexture(backCanvas)), roughness: m.back?.roughness ?? 0.62, metalness: m.back?.metalness ?? 0.35, transparent: true, alphaTest: 0.5 })
+      new THREE.MeshStandardMaterial({ map: this.backTex, roughness: m.back?.roughness ?? 0.62, metalness: m.back?.metalness ?? 0.35, transparent: true, alphaTest: 0.5 })
     ));
     back.position.set(0, H / 2, -(skin.thickness / 2 + 0.2));
     back.rotation.y = Math.PI;
@@ -98,6 +100,26 @@ export class CardView {
     this.root.traverse((o) => { o.userData.cardId = person.id; });
     this.pickables = [body, face, back, foot];
     return this;
+  }
+
+  /** What a skin is handed to draw with: the pictures it may want, and the title block's layout and drawing (render/titleblock.mjs). */
+  #helpers() {
+    return { loadImage: this.ctx.images.loadImage, titleBlock: this.ctx.titleBlock };
+  }
+
+  /**
+   * The card's words changed (a name was learned, a line of text edited): its face and back are drawn again, on the same
+   * textures, so nothing else about the card is touched.
+   */
+  async refresh(person) {
+    this.person = { ...this.person, ...person };
+    const helpers = this.#helpers();
+    const [face, back] = await Promise.all([this.skin.face(this.person, helpers), this.skin.back(this.person, helpers)]);
+    if (!this.faceTex || !this.backTex) return;
+    this.faceTex.image = face;
+    this.faceTex.needsUpdate = true;
+    this.backTex.image = back;
+    this.backTex.needsUpdate = true;
   }
 
   #buildStick(brass) {

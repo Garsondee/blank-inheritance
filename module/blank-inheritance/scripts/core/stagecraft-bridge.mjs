@@ -45,6 +45,14 @@ export function deckCover({ viewportWidth: vw, viewportHeight: vh, leftReserve =
   return [{ rect: [x0, y0, x1, y1] }, { circle: [cx, cy, r / s] }];
 }
 
+/**
+ * Does the adventure own this scene? Only the scenes its own sync built carry a `sourceId`, and only they have a cast the
+ * bridge mirrors into cards. A Stagecraft scene made any other way (by hand, or by Stagecraft's own staging editor) has a
+ * cast of its own and is left alone. Found 2026-10-04 by Stagecraft's live check, whose test scene had every card cleared the
+ * moment it was opened in a world where the adventure was on: the mirror of a cast that was not there.
+ */
+export const ownsScene = (sourceId) => typeof sourceId === "string" && sourceId.trim() !== "";
+
 /** The id a stage entry is looked up by: a protected person's real id (never published), else the id the stage files them under. */
 export function rawKeyOf(publishedMember, authoredMember = null) {
   return authoredMember?.nameKey ?? String(publishedMember?.portraitId ?? "").replace(/^summon-/, "");
@@ -187,6 +195,10 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
     const key = rawKeyOf(member, real.get(member.portraitId));
     const before = prior.get(member.portraitId);
     const card = { id: member.portraitId, name: member.label ?? member.portraitId };
+    // the line of text under the name on the card's plate: the stage entry's `titles` ({ "nobu": "Quartermaster" }), or the
+    // cast member's own; Stagecraft lays it out to fit and follows a change to it (a name with a line break in it does the same)
+    const title = def.titles?.[key] ?? member.title;
+    if (typeof title === "string" && title.trim()) card.title = title;
     if (member.img) card.portrait = member.img;
     const size = def.sizes?.[key];
     if (size) card.size = size;

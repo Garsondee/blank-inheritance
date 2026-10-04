@@ -12,7 +12,7 @@ import { ROUTINES } from "./core/life.mjs";
 import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
 
-export const API_VERSION = "0.5.0";
+export const API_VERSION = "0.6.0";
 
 export function createApi({ skins, current }) {
   return {

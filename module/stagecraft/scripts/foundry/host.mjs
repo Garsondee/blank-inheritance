@@ -19,6 +19,8 @@ import { ChalkKit } from "./chalk-kit.mjs";
 import { HealthMeter, HealthBoard } from "./health.mjs";
 import { SpeedTest } from "./speed.mjs";
 import { Pace, poseOf, moved } from "../core/pace.mjs";
+import { titleKey } from "../core/titleblock.mjs";
+import { HoverTip } from "./hover-tip.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
@@ -48,6 +50,7 @@ export class StageHost {
     this.speed = null;                     // the start-up speed test (speed.mjs)
     this.health = null;                    // how this screen is coping, and tells the GM (health.mjs)
     this.healthBoard = null;               // the GM's board of everyone's
+    this.tip = null;                       // a card's full words, on hover (hover-tip.mjs)
     this.pace = new Pace({ cap: foundryCap(), easing: powerSave() });   // how often to draw (core/pace.mjs)
     this.pose = null;                      // every card's pose at the last frame drawn, to see whether anything moved
     this.listeners = [];
@@ -111,6 +114,7 @@ export class StageHost {
     if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.healthBoard = new HealthBoard(this); this.#gmToggle(); }
     this.#boardKey();
     this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
+    this.tip = new HoverTip(this);              // a card's full words, when the pointer rests on one that has more than its plate shows
 
     this.#watchSize();
     this.#watchPointer();
@@ -204,11 +208,12 @@ export class StageHost {
     this.speed?.stop();
     this.health?.stop();
     this.healthBoard?.dispose();
+    this.tip?.dispose();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
     this.root?.remove();
-    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.bar = this.blocking = this.backend = this.root = null;
+    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.bar = this.blocking = this.backend = this.root = null;
   }
 
   /* ---------------------------------------------------------------- the loop */
@@ -311,6 +316,7 @@ export class StageHost {
     const canvas = this.backend.canvas;
     this.#on(canvas, "pointerdown", (e) => {
       this.pace.poke(performance.now());
+      this.tip?.hide();
       if (e.button === 2 && this.chalk?.inHand) { this.chalk.putAway(); return; }
       if (e.button === 2 && this.blocking?.disarm()) return;
       // a pen's eraser end (button 5) rubs out while chalk is in hand
@@ -381,8 +387,14 @@ export class StageHost {
         const all = e.getCoalescedEvents?.() ?? [];
         for (const ev of all.length ? all : [e]) this.chalk.extend(this.#sample(ev, r));
       }
-      if (this.chalk?.inHand) { this.chalk.hover(p); canvas.style.cursor = "none"; return; }
-      if (!this.dragging) { const h = this.backend.pick(p.x, p.y); canvas.style.cursor = h ? "grab" : "default"; return; }
+      if (this.chalk?.inHand) { this.tip?.hide(); this.chalk.hover(p); canvas.style.cursor = "none"; return; }
+      if (!this.dragging) {
+        const h = this.backend.pick(p.x, p.y);
+        canvas.style.cursor = h ? "grab" : "default";
+        this.tip?.hover(h?.kind === "card" ? h.id : null, e.clientX, e.clientY);
+        return;
+      }
+      this.tip?.hide();
       const at = this.backend.floorAt(p.x, p.y, this.dragging.height);
       if (at) this.sync.move(this.dragging.id, at.x - this.dragging.offX, at.z - this.dragging.offZ);
     });
@@ -402,7 +414,7 @@ export class StageHost {
     this.#on(canvas, "pointerup", release);
     this.#on(canvas, "pointercancel", release);
     // the ring round the pointer goes when the pointer leaves the stage
-    this.#on(canvas, "pointerleave", () => { if (this.chalk?.inHand && !this.chalk.drawing) this.chalk.hover(null); });
+    this.#on(canvas, "pointerleave", () => { this.tip?.hide(); if (this.chalk?.inHand && !this.chalk.drawing) this.chalk.hover(null); });
     // Escape throws away a stroke being painted, or puts the chalk back in the box. It is taken before Foundry sees it
     // (capture phase), or the same press would also open Foundry's game menu over the stage.
     this.#on(window, "keydown", (e) => {
@@ -543,7 +555,10 @@ export class StageHost {
     const rehomed = JSON.stringify(p.home ?? null) !== JSON.stringify(c.person.home ?? null);
     if (rehomed || JSON.stringify(p.life ?? null) !== JSON.stringify(c.person.life ?? null)) this.stage.setRoutine(p.id, p.life, rehomed && Array.isArray(p.home) ? p.home : null);
     this.stage.setDown(p.id, p.down === true);
-    c.person = { ...c.person, ...p, portrait: c.person.portrait };   // who may hold it, its name; the picture stays as built
+    const reworded = titleKey(p) !== titleKey(c.person);
+    c.person = { ...c.person, ...p, portrait: c.person.portrait };   // who may hold it, its name; the portrait stays as built
+    // its words changed (a name was learned, a line of text edited): the face is drawn again, as it would be at the first
+    if (reworded) this.backend?.refreshCard?.({ ...c.person })?.catch((err) => console.warn(`${NS} | could not redraw ${p.id}`, err));
     const move = p.move;
     if (move && Number.isFinite(move.t0) && move.t0 !== c.appliedMove) {
       c.appliedMove = move.t0;

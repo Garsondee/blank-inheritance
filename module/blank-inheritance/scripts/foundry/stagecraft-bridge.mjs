@@ -21,7 +21,7 @@ import { MODULE_ID } from "./stage-store.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, layoutOf } from "../core/stagecraft-bridge.mjs";
+import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -160,6 +160,7 @@ function ownersOf(actorId) {
 /** Make a scene's cards agree with the theatre-of-the-mind stage's published cast. */
 export async function mirrorScene(scene) {
   if (!scene?.flags?.[NS]?.stage || !actingGM()) return false;
+  if (!ownsScene(scene.getFlag(MODULE_ID, "sourceId"))) return false;          // not one of ours: its cast is its own
   const stages = await loadStages();
   const entry = entryFor(stages, scene.getFlag(MODULE_ID, "sourceId")) ?? {};
   const authored = await readAuthoredCast(scene.id);
@@ -180,6 +181,7 @@ export async function mirrorScene(scene) {
 /** The party's characters are on the stage: one card each, held by their player. */
 export async function ensureParty(scene) {
   if (!scene?.flags?.[NS]?.stage || !actingGM()) return;
+  if (!ownsScene(scene.getFlag(MODULE_ID, "sourceId"))) return;                // not one of ours: nobody is put on it
   const present = new Set((scene.getFlag(MODULE_ID, "stage")?.cast ?? []).map((m) => m.actorId).filter(Boolean));
   for (const user of game.users) {
     const actor = !user.isGM ? user.character : null;

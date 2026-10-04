@@ -1,4 +1,7 @@
 /**
+ * SUPERSEDED (2026-10-04): this sketchbook copy is out of date and nothing uses it. The skin the table sees is
+ * module/blank-inheritance/scripts/foundry/stagecraft-brass-skin.mjs, which has the adaptive title block.
+ *
  * The adventure's skin for Stagecraft: brass, enamel and a typed label. This is the campaign's own look, so it lives
  * with the campaign (here, in the sketchbook, until the adventure's bridge file takes it over) and is handed to the
  * module through the public api, never built into the module (module.md §7).
