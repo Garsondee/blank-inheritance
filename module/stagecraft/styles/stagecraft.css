@@ -739,11 +739,16 @@
   #stagecraft-stage .stagecraft-tip { transition: none; transform: none; }
 }
 
-/* ---------------------------------------------------------------- a card's menu: a right-click on a card (foundry/card-menu.mjs) */
+/* ---------------------------------------------------------------- a card's menu: a right-click on a card (foundry/card-menu.mjs)
+   On the page itself, not in the stage, and in the browser's top layer (a popover): over every window, panel and deck. The
+   popover's own defaults (centred, a frame, Canvas colours) are undone here. */
 
-#stagecraft-stage .stagecraft-card-menu {
+#stagecraft-card-menu {
   position: fixed;
-  z-index: 10;
+  inset: auto;
+  margin: 0;
+  overflow: visible;
+  z-index: calc(var(--z-index-notification, 99999) + 1);
   box-sizing: border-box;
   width: max-content;
   max-width: calc(100vw - 16px);
@@ -764,10 +769,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #stagecraft-stage .stagecraft-card-menu { animation: none; }
+  #stagecraft-card-menu { animation: none; }
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-name {
+#stagecraft-card-menu .menu-name {
   max-width: 300px;
   padding: 1px 4px 6px;
   margin-bottom: 2px;
@@ -779,7 +784,7 @@
   text-overflow: ellipsis;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-label {
+#stagecraft-card-menu .menu-label {
   margin: 6px 4px 2px;
   font-size: 9.5px;
   letter-spacing: 0.14em;
@@ -787,25 +792,25 @@
   color: #b9a882;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-emotes {
+#stagecraft-card-menu .menu-emotes {
   display: grid;
   grid-template-columns: repeat(8, 36px);
   gap: 2px;
 }
 
-#stagecraft-stage .stagecraft-card-menu button {
+#stagecraft-card-menu button {
   all: unset;
   box-sizing: border-box;
   cursor: pointer;
   color: #e8dcc4;
 }
 
-#stagecraft-stage .stagecraft-card-menu button:focus-visible {
+#stagecraft-card-menu button:focus-visible {
   outline: 2px solid #f0c978;
   outline-offset: 1px;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-emote {
+#stagecraft-card-menu .menu-emote {
   width: 36px;
   height: 36px;
   padding: 2px;
@@ -813,7 +818,7 @@
   border: 1px solid transparent;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-emote img {
+#stagecraft-card-menu .menu-emote img {
   display: block;
   width: 100%;
   height: 100%;
@@ -821,21 +826,21 @@
   transition: transform 90ms ease-out;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-emote:hover {
+#stagecraft-card-menu .menu-emote:hover {
   background: rgba(255, 226, 160, 0.12);
   border-color: rgba(255, 214, 140, 0.4);
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-emote:hover img {
+#stagecraft-card-menu .menu-emote:hover img {
   transform: scale(1.12);
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-emote.on {
+#stagecraft-card-menu .menu-emote.on {
   background: rgba(230, 201, 141, 0.22);
   border-color: #e6c98d;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-row {
+#stagecraft-card-menu .menu-row {
   display: flex;
   gap: 6px;
   margin-top: 8px;
@@ -843,15 +848,15 @@
   border-top: 1px solid rgba(255, 214, 140, 0.16);
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-keep,
-#stagecraft-stage .stagecraft-card-menu .menu-clear {
+#stagecraft-card-menu .menu-keep,
+#stagecraft-card-menu .menu-clear {
   padding: 4px 11px;
   border-radius: 999px;
   border: 1px solid rgba(230, 201, 141, 0.35);
   background: rgba(230, 201, 141, 0.08);
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-keep::before {
+#stagecraft-card-menu .menu-keep::before {
   content: "";
   display: inline-block;
   width: 8px;
@@ -862,17 +867,17 @@
   vertical-align: -1px;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-keep.on::before {
+#stagecraft-card-menu .menu-keep.on::before {
   background: #e6c98d;
   border-color: #e6c98d;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-keep:hover,
-#stagecraft-stage .stagecraft-card-menu .menu-clear:hover {
+#stagecraft-card-menu .menu-keep:hover,
+#stagecraft-card-menu .menu-clear:hover {
   background: rgba(230, 201, 141, 0.18);
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-actions {
+#stagecraft-card-menu .menu-actions {
   display: flex;
   flex-direction: column;
   margin-top: 7px;
@@ -880,20 +885,20 @@
   border-top: 1px solid rgba(255, 214, 140, 0.16);
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-actions:first-child,
-#stagecraft-stage .stagecraft-card-menu .menu-name + .menu-actions {
+#stagecraft-card-menu .menu-actions:first-child,
+#stagecraft-card-menu .menu-name + .menu-actions {
   margin-top: 0;
   border-top: none;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-action {
+#stagecraft-card-menu .menu-action {
   padding: 6px 8px;
   border-radius: 7px;
   font-size: 13px;
   color: #f4ead2;
 }
 
-#stagecraft-stage .stagecraft-card-menu .menu-action:hover {
+#stagecraft-card-menu .menu-action:hover {
   background: rgba(255, 226, 160, 0.12);
 }
 

@@ -898,6 +898,12 @@ beforehand; now a right-click on a card opens its menu (`foundry/card-menu.mjs`,
   worked because their `t0` is just where in the round they start; one stamped on the shared clock never showed. Emotes are now
   timed on the shared clock, as walks are.
 - The 3D picture fetches a card's new emote picture when its emote changes (before, only the one it was built with).
+- **On top of everything** (Ingram, the same day: *"The right click menu appears behind the other UI - we need this right click
+  context menu to be on top of everything else."*). The stage sits at the bottom of the page, under every window and panel, so
+  a menu put in it was drawn under the adventure's deck and the rest. It now goes on the page itself, in the browser's top layer
+  (a popover), with a z-index above Foundry's notifications as a fallback. `bench/menu-check.mjs` and the live check prove it
+  the way a pointer would: at the menu's middle and near each corner, the topmost thing on the page is the menu, even with a
+  page-wide cover added after it at Foundry's notification layer.
 
 Checks: `card-menu.test.mjs` (12: who is offered what, where it opens, the stage showing a chosen emote once or kept, the GM's
 write, the GM's screen taking a player's pick and refusing one on someone else's card, a player's screen sending rather than

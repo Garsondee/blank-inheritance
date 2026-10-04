@@ -39,7 +39,7 @@ const browser = await puppeteer.launch({
 const where = (page, id) => page.evaluate((cid) => {
   const h = window.bench.host;
   const c = h.stage.cards.get(cid);
-  for (let y = 320; y >= 40; y -= 12) {
+  for (let y = 320; y >= 4; y -= 6) {                          // low enough to find a card lying on the floor
     const p = h.backend.project({ X: c.puppet.x, Y: y, Z: c.Z });
     if (document.elementFromPoint(p.x, p.y)?.tagName === "CANVAS" && h.backend.pick(p.x, p.y)?.id === cid) return p;
   }
@@ -50,7 +50,11 @@ const menuOf = (page) => page.evaluate(() => {
   const m = document.querySelector(".stagecraft-card-menu");
   if (!m) return null;
   const r = m.getBoundingClientRect();
+    // on top of everything: at its middle and near each corner, what the pointer would meet is the menu itself
+    const at = [[0.5, 0.5], [0.08, 0.08], [0.92, 0.08], [0.08, 0.92], [0.92, 0.92]].map(([fx, fy]) => document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy));
+    const onTop = at.every((e) => !!e && m.contains(e));
   return {
+    onTop,
     name: m.querySelector(".menu-name")?.textContent, emotes: m.querySelectorAll(".menu-emote").length,
     actions: [...m.querySelectorAll(".menu-action")].map((b) => b.dataset.action), clear: !!m.querySelector(".menu-clear"),
     inside: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight
@@ -89,6 +93,11 @@ try {
   check("the GM's menu has every emote", menu?.emotes === 30, `${menu?.emotes}`);
   check("and the GM's own things: the floor, a knock-down, choosing for a formation", JSON.stringify(menu?.actions) === JSON.stringify(["floor", "down", "choose"]), JSON.stringify(menu?.actions));
   check("it opens inside the window", menu?.inside === true);
+  check("it is on top of everything on the page", menu?.onTop === true);
+  // the adventure's deck, a window, a notification: a cover over the whole page at Foundry's notification layer
+  await gm.evaluate(() => { const c = document.createElement("div"); c.id = "cover"; c.style.cssText = "position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.1)"; document.body.append(c); });
+  check("even over a page-wide cover put on after it, at Foundry's notification layer", (await menuOf(gm))?.onTop === true);
+  await gm.evaluate(() => document.getElementById("cover").remove());
   check("the browser's own menu does not open", (await gm.evaluate(() => window.__browserMenu)) === 0);
   await gm.keyboard.press("Escape");
   await sleep(150);
@@ -134,7 +143,9 @@ try {
   await press(gm, '[data-action="down"]');
   await sleep(400);
   check("Knock down knocks them down", (await emoteOn(gm, "summon-sanzo")) !== undefined && (await player.evaluate(() => window.bench.scene.flags.stagecraft.published.cards.find((c) => c.id === "summon-sanzo").down)) === true);
+  await sleep(1500);                                          // it has finished falling
   const lying = await where(gm, "summon-sanzo");
+  check("a card lying down can still be right-clicked", !!lying, JSON.stringify(lying));
   if (lying) { await rightClick(gm, lying); await press(gm, '[data-action="down"]'); await sleep(400); }
   check("and Stand up stands them up", (await gm.evaluate(() => window.bench.scene.flags.stagecraft.published.cards.find((c) => c.id === "summon-sanzo").down)) !== true);
 

@@ -446,7 +446,11 @@ try {
     // ---- a card's menu (foundry/card-menu.mjs): a real right-click, the player's emotes going through the GM's screen
     const menuOn = (p) => p.evaluate(() => {
       const m = document.querySelector(".stagecraft-card-menu");
-      return m ? { emotes: m.querySelectorAll(".menu-emote").length, actions: [...m.querySelectorAll(".menu-action")].map((b) => b.dataset.action) } : null;
+      if (!m) return null;
+      const r = m.getBoundingClientRect();
+      // on top of the adventure's interface, Foundry's windows and everything else: what the pointer would meet is the menu
+      const onTop = [[0.5, 0.5], [0.08, 0.08], [0.92, 0.08], [0.08, 0.92], [0.92, 0.92]].every(([fx, fy]) => m.contains(document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy)));
+      return { emotes: m.querySelectorAll(".menu-emote").length, actions: [...m.querySelectorAll(".menu-action")].map((b) => b.dataset.action), onTop };
     });
     await pp.bringToFront();
     const forMenu = await whereOn(pp, "yumiko");
@@ -454,6 +458,7 @@ try {
     await sleep(300);
     const playerMenu = await menuOn(pp);
     check("a player's right-click on a card they may hold opens its menu, with the emotes alone", playerMenu?.emotes === 30 && playerMenu.actions.length === 0, JSON.stringify(playerMenu));
+    check("and it is on top of everything on the player's screen", playerMenu?.onTop === true);
     const wince = await (await pp.$('.stagecraft-card-menu [data-emote="wince"]')).boundingBox();
     await pp.mouse.click(wince.x + wince.width / 2, wince.y + wince.height / 2);
     await sleep(900);
@@ -467,6 +472,7 @@ try {
     await sleep(300);
     const gmMenu = await menuOn(page);
     check("the GM's right-click opens the same menu with the GM's things too", gmMenu?.emotes === 30 && JSON.stringify(gmMenu.actions) === JSON.stringify(["floor", "down", "choose"]), JSON.stringify(gmMenu));
+    check("and it is on top of everything on the GM's screen, the adventure's interface included", gmMenu?.onTop === true);
     await page.keyboard.press("Escape");
     await sleep(150);
     check("and Escape closes it", (await menuOn(page)) === null);

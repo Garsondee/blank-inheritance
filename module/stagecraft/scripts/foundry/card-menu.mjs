@@ -12,6 +12,11 @@
  * reload finds a kept one. Only a GM may write the scene, so a player's pick goes over the module's socket to the acting GM's
  * screen, which checks the card is the player's and writes it. With no GM on, a player is told so.
  *
+ * It is drawn over everything on the page (Ingram, 2026-10-04: it opened behind the adventure's interface). The stage sits at
+ * the bottom of the page, under every window and panel, so the menu is not put in it: it goes on the page itself, in the
+ * browser's top layer (a popover, which nothing on the page can cover), with a z-index above Foundry's own notifications
+ * for a browser without popovers.
+ *
  * It closes on a pick, on Escape, on a press anywhere else, and when the stage goes.
  */
 
@@ -72,7 +77,8 @@ export class CardMenu {
     if (!menu) return false;
     this.card = id;
     this.el = this.#build(c.person, menu);
-    host.root.append(this.el);
+    document.body.append(this.el);
+    try { this.el.showPopover?.(); } catch { /* already shown, or no popovers here: the z-index holds it on top */ }
     const box = menuPlace(x, y, this.el.offsetWidth, this.el.offsetHeight, window.innerWidth, window.innerHeight);
     this.el.style.left = `${box.left}px`;
     this.el.style.top = `${box.top}px`;
@@ -115,7 +121,9 @@ export class CardMenu {
 
   #build(person, menu) {
     const el = document.createElement("div");
+    el.id = "stagecraft-card-menu";
     el.className = "stagecraft-card-menu";
+    el.setAttribute("popover", "manual");
     el.setAttribute("role", "menu");
     el.tabIndex = -1;
     el.addEventListener("contextmenu", (e) => e.preventDefault());
