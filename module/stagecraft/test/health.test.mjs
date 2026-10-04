@@ -85,7 +85,7 @@ test("a line for the board names the picture, the frame rate and, on hover, the 
   const entry = { report: makeReport(sample({ losses: 1, probe: 9.5 })), at: now - 3000 };
   const c = chipOf({ id: "u1", name: "Anne" }, entry, now);
   assert.deepEqual([c.id, c.name, c.level, c.text], ["u1", "Anne", "ok", "lit · 58 fps"]);
-  for (const part of ["Anne: the lit stage at 58 fps, longest frame 24 ms", "Graphics: NVIDIA GeForce RTX 3060", "Window: 2560 × 1271 at 1.5x", "Start-up test: a frame costs 9.5 ms", "Lost its graphics context 1 time"]) assert.ok(c.tip.includes(part), part);
+  for (const part of ["Anne: the lit stage at 58 fps, longest frame 24 ms", "Graphics: NVIDIA GeForce RTX 3060", "Window: 2560 × 1271 at 1.5x", "Start-up test: a picture every 9.5 ms", "Lost its graphics context 1 time"]) assert.ok(c.tip.includes(part), part);
   const away = chipOf({ id: "u2", name: "Bo" }, { report: makeReport(sample({ hidden: true })), at: now }, now);
   assert.equal(away.text, "lit · away");
   const none = chipOf({ id: "u3", name: "Cy" }, undefined, now);

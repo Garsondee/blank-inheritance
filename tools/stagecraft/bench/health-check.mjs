@@ -6,8 +6,9 @@
  *   - the GM's board lists everyone at the table, "no stage" for a player who has none, and fills in a player's picture and
  *     frame rate once their stage is up; opened, it asks everyone to report; it is the GM's alone;
  *   - left on Automatic, a computer is tested for a moment, found fine, and left alone (and not tested again);
- *   - a computer found slow twice is moved down to the lighter stage, one found to crawl goes to the plain stage at once, the
- *     finding is remembered by that browser's next page, and a player who chose a tier is never tested or moved;
+ *   - a computer found slow twice is moved down to the lighter stage, one found to crawl twice goes to the plain stage (a
+ *     single reading is only a doubt: a game on the same graphics card makes any computer look slow for a while), the finding
+ *     is remembered by that browser's next page for half a day, and a player who chose a tier is never tested or moved;
  *   - none of it throws, and the stage is never taken down by it.
  *
  * The limits are laid over by `globalThis.__stagecraftSpeed` (a bench-only seam) so a fast machine can be "slow" on demand.
@@ -100,7 +101,7 @@ try {
 
   // the limits themselves are unit-tested (test/speed.test.mjs); here a machine that is momentarily busy with something else
   // must not fail the path "a measured median under the limit is found fine", so that page is given generous ones
-  const fine = await open({ tier: "auto", fresh: true, speed: { ...quick, slowMs: 500, veryMs: 2000 } });
+  const fine = await open({ tier: "auto", fresh: true, speed: { ...quick, fineMs: 1000 } });
   await fine.bringToFront();
   await fine.waitForFunction(() => window.bench.host.speed?.last, { timeout: 15000 }).catch(() => {});
   const found = await fine.evaluate(() => window.bench.host.speed.last);
@@ -120,7 +121,10 @@ try {
   check("a player who chose their tier is never tested", await chosen.evaluate(() => window.bench.host.speed.wanted === false && window.bench.host.speed.last === null));
   await chosen.close();
 
-  const slow = await open({ tier: "auto", fresh: true, speed: { ...quick, slowMs: 0.2 } });
+  // every reading "slow" (a ratio of the display's pace that nothing can meet, and none that is a crawl) / every reading a crawl
+  const SLOW = { fineMs: 0, slowRatio: 0.01, veryRatio: 1000 };
+  const CRAWL = { fineMs: 0, slowRatio: 0.01, veryRatio: 0.02 };
+  const slow = await open({ tier: "auto", fresh: true, speed: { ...quick, ...SLOW } });
   await slow.bringToFront();
   await slow.waitForFunction(() => window.bench.host.speed.strikes === 1, { timeout: 15000 }).catch(() => {});
   const first = await slow.evaluate(() => ({ strikes: window.bench.host.speed.strikes, verdict: window.bench.host.speed.last?.verdict, backend: window.bench.host.backend.tier }));
@@ -136,14 +140,22 @@ try {
 
   const resumed = await open({ tier: "auto", speed: quick });
   check("the next page of that browser starts on the lighter stage at once", await resumed.evaluate(() => window.bench.host.backend.name === "three" && window.bench.host.backend.tier === "low"));
+  // a drop is remembered for half a day: one busy evening (a game on the same graphics card) must not decide for good
+  await resumed.evaluate(() => { const k = JSON.parse(localStorage.getItem("stagecraft.speed")); k.at -= 13 * 3600 * 1000; localStorage.setItem("stagecraft.speed", JSON.stringify(k)); });
   await resumed.close();
+  const aged = await open({ tier: "auto", speed: quick });
+  check("but a drop found thirteen hours ago is forgotten: it starts on the lit stage, and is to be tested afresh", await aged.evaluate(() => window.bench.host.backend.tier === "high" && window.bench.host.speed.wanted === true));
+  await aged.close();
 
-  const crawl = await open({ tier: "auto", fresh: true, speed: { ...quick, slowMs: 0.2, veryMs: 0.4 } });
+  const crawl = await open({ tier: "auto", fresh: true, speed: { ...quick, ...CRAWL } });
   await crawl.bringToFront();
+  await crawl.waitForFunction(() => window.bench.host.speed.strikes === 1, { timeout: 15000 }).catch(() => {});
+  const doubt = await crawl.evaluate(() => ({ strikes: window.bench.host.speed.strikes, verdict: window.bench.host.speed.last?.verdict, name: window.bench.host.backend.name, tier: window.bench.host.backend.tier }));
+  check("a first crawl is a doubt too, since a busy moment looks like one: nothing moves yet", doubt.verdict === "very-slow" && doubt.strikes === 1 && doubt.name === "three" && doubt.tier === "high", JSON.stringify(doubt));
   await crawl.waitForFunction(() => window.bench.host.backend.name === "flat", { timeout: 20000 }).catch(() => {});
   await sleep(500);
   const flat = await crawl.evaluate(() => ({ name: window.bench.host.backend.name, running: window.bench.host.running, cards: window.bench.host.stage.cards.size, canvases: document.querySelectorAll("#stagecraft-stage > canvas").length }));
-  check("a computer found to crawl goes straight to the plain stage, and the stage carries on", flat.name === "flat" && flat.running && flat.cards > 0 && flat.canvases >= 1, JSON.stringify(flat));
+  check("a second crawl a moment later sends a computer to the plain stage, and the stage carries on", flat.name === "flat" && flat.running && flat.cards > 0 && flat.canvases >= 1, JSON.stringify(flat));
   check("and the player is told", messages.some((m) => /too heavy/.test(m)));
   check("and what was found is kept: the plain stage", (await kept(crawl))?.tier === "flat");
   await crawl.close();

@@ -185,18 +185,19 @@ with six players; then whether it saves the GM time; then whether it is only del
 | # | What | Why | Status |
 |---|---|---|---|
 | 1 | **Chalk light in the world**: a byte budget and an age for history, lighter tile pictures, a tidy at the GM's login | The whole journal goes to every client that joins; fifteen strokes were 2.2 MB | **Done 2026-10-04** (`chalk.md` §11.3) |
-| 2 | **How each screen is coping**: a per-player health report to the GM, and a start-up speed test that picks the tier | Settles "what do the six players play on?" at the table instead of by guessing | **Done 2026-10-04** (`renderer.md` §9.1, `module.md` §25) |
+| 2 | **How each screen is coping**: a per-player health report to the GM, and a start-up speed test that picks the tier | Settles "what do the six players play on?" at the table instead of by guessing | **Done 2026-10-04** (`renderer.md` §9.1, `module.md` §25); **redone the same night** after its first real-Foundry run: it measured GPU latency, which a game on the same card inflated, and dropped a good machine to the plain stage on one reading (`renderer.md` §9.1) |
 | 3 | **Ease off when nothing moves**: respect Foundry's own limit on drawing speed, and draw slower when the stage is still | Fans and battery on players' laptops over a long session | **Done 2026-10-04** (`renderer.md` §9.2, `module.md` §26); it also found and fixed a 0.6 s stall when a card is first picked up |
-| 4 | **The stage at player sizes**: the kit, the box and the zones at 1366 by 768 and the like | Everything was verified on the GM's 2560 by 1271 screen | Next |
-| 5 | **A real Foundry for automated checks** (a test world, or a licence for the local one) | The live check has 53 checks and nowhere to run | Needs Ingram |
-| 6 | **A staging editor inside Foundry**: drag marks, homes, zones and the chalk box's spot; changes come home like her Scene Runner edits | The biggest time saver: scenes are staged by hand in `stages.json` today | Planned, large |
-| 7 | **A token bridge**: SF2E data drives the cards (0 HP knocks one down, conditions as badges, the turn lights a card) | Fights run themselves a little | Planned |
-| 8 | **Chalk moderation**: "who painted that?" on hover, and a button to wipe one player's layer | The store already supports the wipe | Planned, small |
-| 9 | **Stage effects waiting on her call**: footlights, the Watcher's tells, the feel extras (a trail behind a swung card, bowing, camera shake) | Look and feel | Needs Ingram |
-| 10 | **Staging features planned and unbuilt** (`stage.md`): channels, private reveals, the raised hand, time-of-day light, entrance and exit signatures, the roll call | Theatre of the mind, finer | Planned |
-| 11 | **Chalk extras**: dust and a scratch sound, lamplight on chalk, weathering, floor chalk | Delight | Planned |
-| 12 | **The accessible mirror**: keyboard and screen-reader access to the cards | Rises if any player needs it | Planned |
-| 13 | **The Draft, and releasing Stagecraft as its own module** (name, id, licence) | End goals, recorded | Recorded |
+| 4 | **Card title blocks** (her note, 2026-10-04): the plate under a card's portrait must take a lot of text and line breaks properly, in a bolder face and a nice arrangement, so a card shows its name with a line of text underneath without trouble | Today a long name runs off the card and a line break is drawn as a space; the plate is one fixed-size line | **Doing now**: her note, ledger group Q |
+| 5 | **The stage at player sizes**: the kit, the box and the zones at 1366 by 768 and the like | Everything was verified on the GM's 2560 by 1271 screen | Next |
+| 6 | **A real Foundry for automated checks** | The live check has 114 checks and had nowhere to run | **Built 2026-10-04**: the local Foundry is licensed, linked to the system and both modules, with a test world; it found a chalk bug that had reached the live server (`module.md` §27). Timing checks wobble while a game is using the same graphics card |
+| 7 | **A staging editor inside Foundry**: drag marks, homes, zones and the chalk box's spot; changes come home like her Scene Runner edits | The biggest time saver: scenes are staged by hand in `stages.json` today | Planned, large |
+| 8 | **A token bridge**: SF2E data drives the cards (0 HP knocks one down, conditions as badges, the turn lights a card) | Fights run themselves a little | Planned |
+| 9 | **Chalk moderation**: "who painted that?" on hover, and a button to wipe one player's layer | The store already supports the wipe | Planned, small |
+| 10 | **Stage effects waiting on her call**: footlights, the Watcher's tells, the feel extras (a trail behind a swung card, bowing, camera shake) | Look and feel | Needs Ingram |
+| 11 | **Staging features planned and unbuilt** (`stage.md`): channels, private reveals, the raised hand, time-of-day light, entrance and exit signatures, the roll call | Theatre of the mind, finer | Planned |
+| 12 | **Chalk extras**: dust and a scratch sound, lamplight on chalk, weathering, floor chalk | Delight | Planned |
+| 13 | **The accessible mirror**: keyboard and screen-reader access to the cards | Rises if any player needs it | Planned |
+| 14 | **The Draft, and releasing Stagecraft as its own module** (name, id, licence) | End goals, recorded | Recorded |
 
 ---
 

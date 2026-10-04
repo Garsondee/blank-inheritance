@@ -700,18 +700,21 @@ and builds the chalk tiles' program at load. The bench has `chalk-perf.mjs` (no 
 ## 25. The table measures itself (2026-10-04)
 
 From her goal that evening ("Proceed through as much as possible"), the second item of the priority list in `README.md`.
-`renderer.md` §9.1 has the design and the measurements. In the module: `core/speed.mjs` (the probe, the verdicts, the rule
-that a tier only drops on evidence and never rises), `core/health.mjs` (what a screen reports, what an incoming report is
-trusted to be, what the board says), `foundry/speed-store.mjs` (what the test found, kept in the browser for that graphics
-card), `foundry/speed.mjs` (the test the host runs on the first stage of a session), `foundry/health.mjs` (`HealthMeter` on
-every screen, `HealthBoard` on the GM's), `finish()` on the three.js backend (one pixel read back, so the whole cost
-of drawing can be timed), and the stored limit in `chosenTier()`. The module's channel now carries three kinds of message (cards in
-hand, strokes of chalk, health), told apart by their `type`. Tests: `speed.test.mjs` (8), `health.test.mjs` (8) and
-`tools/stagecraft/bench/health-check.mjs` (23 checks about the board and the test: the board as a GM and a player in two
-pages, the test finding a fast machine fine and leaving it alone, a "slow" machine moved down after two verdicts, a crawl
-sent to the plain stage, the finding remembered by the next page, a player who chose a tier never tested). The limits can be
-laid over in the bench (`globalThis.__stagecraftSpeed`), so a fast machine can be "slow" on demand; nothing sets it at a table.
-
+`renderer.md` §9.1 has the design and the measurements. In the module: `core/speed.mjs` (the probe of the gaps between
+delivered pictures, the display's own pace, the verdicts judged against it, the rule that a tier only drops on two readings
+that agree and never rises, and how long a drop is believed), `core/health.mjs` (what a screen reports, what an incoming
+report is trusted to be, what the board says), `foundry/speed-store.mjs` (what the test found, kept in the browser for that
+graphics card, a drop for half a day), `foundry/speed.mjs` (the test the host runs on the first stage of a session: it
+samples the display while the picture is being built, waits for Foundry to be ready, and starts over if the page is put
+away), `foundry/health.mjs` (`HealthMeter` on every screen, `HealthBoard` on the GM's), and the stored limit in
+`chosenTier()`. The module's channel now carries three kinds of message (cards in hand, strokes of chalk, health), told
+apart by their `type`. Tests: `speed.test.mjs` (11), `health.test.mjs` (8) and `tools/stagecraft/bench/health-check.mjs` (25
+checks about the board and the test: the board as a GM and a player in two pages, the test finding a fast machine fine and
+leaving it alone, a "slow" machine moved down after two readings, a first crawl only a doubt and a second one the plain
+stage, the finding remembered by the next page, a drop thirteen hours old forgotten, a player who chose a tier never tested).
+The limits can be laid over in the bench (`globalThis.__stagecraftSpeed`), so a fast machine can be "slow" on demand;
+nothing sets it at a table. **It was redone the night it was built:** the first version measured how long the graphics card
+took to finish a draw, and the first run in a real Foundry (§27) found a game on the same card made a good machine look slow.
 ## 26. Drawing only as often as it is needed, and nothing built at the first touch (2026-10-04)
 
 From the same goal, the third item of the priority list in `README.md`. `renderer.md` §9.2 has the design, the measurements and
@@ -722,9 +725,38 @@ chalk), `foundry/settings.mjs` (the player's `power` setting, *Ease off when sti
 Foundry's own `core.maxFPS` and performance mode), `foundry/health.mjs` (the health meter reads its frame rate through the
 pace), and `#compileFor` in the three.js backend (every shader built at load for the target it will be drawn into, and again
 for each card as it arrives; the wait is bounded at four seconds). Tests: `pace.test.mjs` (11, including a replay of the
-spring's tail) and the seven pace checks in `health-check.mjs` (30 in all: easing to about 30 a second, the first grab not
+spring's tail) and the seven pace checks in `health-check.mjs` (32 in all: easing to about 30 a second, the first grab not
 stalling, the full rate when a pointer is pressed, easy again once a card has landed, the player's cap obeyed with easing off
 turned off). The pace checks compare pictures drawn with pictures offered rather than counting against a fixed number, so a
 machine busy with something else cannot fail them; the one that finds a fast machine fine is given generous limits for the
 same reason. The bench's web server (`tools/induction-terminal/serve.py`) now listens with a backlog of 128: with Python's
 default of five, Windows refused one connection in about ten pages, and a module that fails to load kills the page.
+
+## 27. A real Foundry for the checks, and what it found (2026-10-04)
+
+Ingram licensed the local copy of Foundry that night ("feel free to create worlds to test in"), so the live check
+(`tools/stagecraft/foundry-check.mjs`, 114 checks) has somewhere to run again. How it is set up, so the next session does not
+rediscover it: `.claude/launch.json` has a `foundry-local` entry (a headless server on port 30000, started with
+`preview_start`); its data folder is `%LOCALAPPDATA%\FoundryVTT`; the sf2e system, `module/stagecraft` and
+`module/blank-inheritance` are linked into its `Data/systems` and `Data/modules` as junctions (a new module folder needs
+a restart of Foundry); the world `blank-inheritance-kuuhaku-souzoku` was made through Foundry's Setup screen in headless
+Chrome, with the Gamemaster user left without a password. The desktop app gives the programs it starts a private view of
+`%LOCALAPPDATA%`, which is why the local Foundry once looked unlicensed: everything about it is done from that same shell.
+
+**What the first real run found.**
+
+- **Chalk was never kept.** The chalk store's writes had been made quiet (no redraw) with one shared, frozen options object,
+  and Foundry writes into the options it is given, so every create threw "Cannot add property parent, object is not
+  extensible": strokes showed while they were painted and were never kept, on the live server too, for the hours between
+  that deploy and this run. Each write now gets its own object (`quiet()` in `foundry/chalk-store.mjs`). The bench could not
+  see it (its chalk store is in memory) and the stand-in Foundry the unit tests use took options without touching them; the
+  stand-in now writes into them and refuses ones that were used before, as the real thing effectively does, and with the old
+  constant put back a dozen chalk tests fail.
+- **The speed test dropped a good machine** (§25, `renderer.md` §9.1): a game was using 97% of the graphics card.
+- **The check's own pages** are kept out of the speed test through the bench seam (`globalThis.__stagecraftSpeed`), console
+  errors from Foundry's own code are now printed in full (they are not `instanceof Error` in the page), and the comparison
+  after a reload allows 3% (the world keeps lossy pictures, the painter's own wall is lossless until it is reloaded).
+
+Where it stands: 111 to 113 of 114 pass, and what varies from run to run is timing (the two screens agreeing on where a card
+was put down, the Ctrl+Z settling, the plain stage's count of draws) while a game uses the same graphics card. Look at the
+card's load (`Get-Counter '\GPU Engine(*engtype_3D)\Utilization Percentage'`) before reading a failure as a regression.

@@ -42,6 +42,7 @@ globalThis.ui = { notifications: { info: (m) => console.info(m), warn: (m) => co
 globalThis.CONST = { CANVAS_PERFORMANCE_MODES: { LOW: 1 } };
 globalThis.foundry = { utils: { getRoute: route }, applications: { api: { DialogV2: { confirm: async () => true } } } };
 globalThis.game = {
+  ready: true,                          // the start-up speed test waits for Foundry to be up
   user: me,
   users: Object.assign([...users], { get: (id) => users.find((u) => u.id === id), activeGM: users[0] }),
   i18n: { localize: lookup, format: (key, data) => String(lookup(key)).replace(/\{(\w+)\}/g, (_, k) => data?.[k] ?? "") },

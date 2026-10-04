@@ -98,6 +98,8 @@ export class StageHost {
     this.root.dataset.scene = this.scene.id;
     this.anchor.after(this.root);
 
+    // built before the picture, so it can see how fast the display refreshes while nothing of ours is drawing yet
+    this.speed = new SpeedTest(this);
     await this.#buildBackend();
     if (this.services.chalkStore) {
       this.chalk = new ChalkController({ host: this, store: this.services.chalkStore, send: (message) => this.channel?.send(message) });
@@ -109,7 +111,6 @@ export class StageHost {
     if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.healthBoard = new HealthBoard(this); this.#gmToggle(); }
     this.#boardKey();
     this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
-    this.speed = new SpeedTest(this);           // and, left on Automatic, a moment's test of whether it can hold the lit stage
 
     this.#watchSize();
     this.#watchPointer();
@@ -200,7 +201,7 @@ export class StageHost {
     this.chalk?.stop();
     this.kit?.dispose();
     this.chalk?.wall?.clear();
-    this.speed?.cancel();
+    this.speed?.stop();
     this.health?.stop();
     this.healthBoard?.dispose();
     this.bar?.dispose();
@@ -234,15 +235,8 @@ export class StageHost {
       // paint made since the last frame is laid together once, now, so it is on the screen in this frame
       this.chalk?.wall?.flush?.();
       this.health?.frame(now, this.pace.scale(now));
-      if (this.speed?.probe) {
-        // the start-up speed test: this frame's whole cost, the draw and the wait for the graphics card to have finished it
-        const t0 = performance.now();
-        this.backend.draw(snap);
-        this.backend.finish?.();
-        this.speed.feed(performance.now() - t0, now);
-      } else {
-        this.backend.draw(snap);
-      }
+      this.backend.draw(snap);
+      this.speed?.feed(now);                 // the start-up speed test times the pictures that are delivered (only a running test listens)
       this.frames++;
       // what covers the stage can change without the window changing (the deck folded away): the box keeps clear of it
       if (this.frames % 60 === 0) this.#placeBox();

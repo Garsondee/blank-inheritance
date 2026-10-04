@@ -103,7 +103,7 @@ export function chipOf({ id, name }, entry, now) {
     `${name}: the ${PICTURE_WORD[r.picture]} stage${r.fps == null ? ", not measured yet" : ` at ${fps}`}${r.worst != null ? `, longest frame ${r.worst} ms` : ""}`,
     r.gpu ? `Graphics: ${r.gpu}` : "Graphics: not known",
     `Window: ${r.size[0]} × ${r.size[1]} at ${r.dpr}x`,
-    r.probe != null ? `Start-up test: a frame costs ${r.probe} ms` : null,
+    r.probe != null ? `Start-up test: a picture every ${r.probe} ms` : null,
     r.losses ? `Lost its graphics context ${r.losses} time${r.losses === 1 ? "" : "s"}` : null,
     r.failures ? `${r.failures} frame${r.failures === 1 ? "" : "s"} failed` : null,
     r.hidden ? "The tab is in the background" : null

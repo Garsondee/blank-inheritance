@@ -573,24 +573,37 @@ graphics chip, which is the one case that matters and the one that is neither of
 ### 9.1 The table measures itself (2026-10-04)
 
 The machines nobody could measure from here (the integrated chip, the older laptop) are measured where they are: **the
-first stage a computer draws, left on Automatic, is its own test** (`core/speed.mjs`, `foundry/speed.mjs`). Two and a half
-seconds after the stage is up, 120 drawn pictures are timed, each as its draw *and the wait for the graphics card to have
-finished it* (one pixel is read back, `finish()` on the backend), which is what drawing really costs whatever the
-display's refresh rate. The first 30 are thrown away (shaders compile, pictures upload) and the median of the next 90 is judged:
+first stage a computer draws, left on Automatic, is its own test** (`core/speed.mjs`, `foundry/speed.mjs`). Four seconds
+after the stage is up *and Foundry is ready* (it is still starting before that), the stage is drawn as fast as it is allowed
+and the gaps between 90 of its pictures are measured; the first 30 are thrown away (shaders compile, pictures upload). What
+is judged is the rate at which pictures are **delivered**, against what the display and Foundry's own Maximum Framerate
+allow. The display's own pace is read while the stage is still being built and nothing of ours is drawing: a low quantile of
+the gaps between the browser's draw callbacks (the page is busy then, which only lengthens a gap), taken as the refresh rate it must be
+(a gap of 17.4 ms is a 60 Hz display, one of 25 ms a busy 60 Hz display).
 
-| Drawing costs (median) | Can hold | Verdict | What happens |
-|---|---|---|---|
-| under 20 ms | 50 pictures a second | ok | nothing, and the computer is never tested again |
-| 20 to 36 ms | 28 to 50 | slow | a doubt: tested again 45 seconds later, and only a second "slow" drops the tier one step (lit to low, low to plain) |
-| over 36 ms | under 28 | very slow | straight to the plain stage |
+| The median gap between pictures | Verdict | What happens |
+|---|---|---|
+| 20 ms or less (fifty a second or better) | ok | nothing, and the computer is never tested again |
+| more, up to 1.4 times what the display and Foundry's cap allow (nothing better than sixty a second is ever asked for) | ok | the same: 33 ms is fine on a display that shows thirty a second, or when Foundry was asked for thirty |
+| 1.4 to 2.2 times | slow | a doubt: tested again 45 seconds later, and two "slow" in a row drop the tier one step (lit to low, low to plain) |
+| over 2.2 times (under about 27 a second on a 60 Hz display) | very slow | a doubt too: two "very slow" in a row drop it to the plain stage |
 
-Measured on the bench with the processor slowed (an AMD Radeon RX 6800 XT, so a card that is no test at all): 5.7 ms at full
-speed, 9.2 ms at half, 18.2 ms at a quarter (still ok: about 55 a second) and 30 ms at a sixth (slow). What was found is kept in
-that browser for that graphics card (`stagecraft.speed`), so the next scene and the next session start at the right tier at
-once; a computer found fine is not tested again. **A tier is only ever lowered, never raised, and a player who chose a tier
-in the module's settings is never tested or moved**; choosing anything in that setting makes Automatic judge the computer
-afresh. The player is told once ("this computer found the lit stage heavy, so it is drawing the lighter one now").
+Measured on the bench (a display of about 145 Hz, the stage held to 60 a second): a healthy machine reads 12 to 14 ms.
 
+**A finding worth keeping.** The first version of this test timed a draw plus the wait for the graphics card to have finished
+it (one pixel read back), "which is what drawing really costs". The first run in a real Foundry, the same night, sent a
+Radeon RX 6800 XT to the plain stage. A game was using 97% of the same card: the lit stage "cost" 22 ms on the bench where it
+costs 6 (the processor's own part was 2.5 ms). That wait is latency, and anything else on the card inflates it while the
+pictures go on arriving. So the test now measures delivery, asks twice a minute apart (when whatever was busy has had time to
+finish), and **forgets a drop after half a day**, so one busy evening does not decide for good. It waits for Foundry to be
+ready too: a stage drawn while Foundry loads its compendium indexes measured 57 ms a picture. A page put away in the middle
+of a test begins it again when it is back.
+
+What was found is kept in that browser for that graphics card (`stagecraft.speed`), so the next scene and the next session
+start at the right tier at once; a computer found fine is not tested again. **A tier is only ever lowered, never raised
+within a session, and a player who chose a tier in the module's settings is never tested or moved**; choosing anything in
+that setting makes Automatic judge the computer afresh. The player is told once ("this computer found the lit stage heavy,
+so it is drawing the lighter one now").
 **And the GM sees it.** Every screen drawing a stage reports now and then (every 20 seconds, and at once when something
 changes) over the module's socket: which picture, its frame rate, its graphics card, its window, any lost context or failed
 pictures, and what the start-up test found (`core/health.mjs`, `foundry/health.mjs`). The GM's strip has a pill beside the

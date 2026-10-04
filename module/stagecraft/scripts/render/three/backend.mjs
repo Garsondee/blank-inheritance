@@ -311,18 +311,6 @@ export class ThreeBackend {
   /** The painting's own colour at a point of it (fractions), as "#rrggbb": what the colour picker takes where there is no chalk. */
   paintingColour(fx, fy) { return samplePainting(this.paintingImage, fx, fy); }
 
-  /**
-   * Wait for the graphics card to have finished what was just drawn: one pixel is read back, which cannot be answered
-   * until the whole frame is done. Only the start-up speed test asks (core/speed.mjs): a frame's real cost is the draw and
-   * this wait, whatever the display's refresh rate.
-   */
-  finish() {
-    const gl = this.renderer?.getContext?.();
-    if (!gl || this.disposed || this.contextLost) return;
-    this.finishPixel ??= new Uint8Array(4);
-    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.finishPixel);
-  }
-
   async capture() {
     if (this.post) this.post.render(0); else this.renderer.render(this.scene, this.camera);
     return new Promise((resolve) => this.canvas.toBlob(resolve, "image/png"));

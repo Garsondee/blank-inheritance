@@ -5,19 +5,24 @@
  * Nothing here is shared; it is a note this machine keeps for itself.
  */
 
-import { TIER_ORDER } from "../core/speed.mjs";
+import { SPEED, TIER_ORDER, dropStands } from "../core/speed.mjs";
 import { webglInfo } from "../render/choose.mjs";
 
 const KEY = "stagecraft.speed";
 
 const gpuNow = () => webglInfo().renderer || "unknown";
 
-/** What was found, if it was found for this graphics card: { ok } or { tier }, else null. */
-export function readSpeed() {
+/**
+ * What was found, if it was found for this graphics card: { ok } or { tier }, else null. A drop is only believed for half a
+ * day (core/speed.mjs `keepHours`): one busy evening (a game on the same card, a call) must not decide for good, so after
+ * that the computer is tested afresh. A finding that it runs well is kept.
+ */
+export function readSpeed({ now = Date.now(), limits = { ...SPEED, ...(globalThis.__stagecraftSpeed ?? {}) } } = {}) {
   try {
     const kept = JSON.parse(globalThis.localStorage?.getItem(KEY) ?? "null");
     if (!kept || kept.gpu !== gpuNow()) return null;
     if (kept.tier && !TIER_ORDER.includes(kept.tier)) return null;
+    if (kept.tier && !dropStands(kept.at, now, limits)) return null;
     return { ok: kept.ok === true, tier: kept.tier ?? null, at: kept.at ?? null };
   } catch {
     return null;

@@ -13,8 +13,6 @@
  *   floorAt(x, y, height)     the floor coordinates { x, z } of a viewport point, on a plane `height` above the floor
  *   project(world)            where a world point { X, Y, Z } falls, in viewport px: { x, y, k }
  *   capture(options)          a still image of the stage (a Blob)
- *   finish()                  optional: wait for the graphics card to have finished what was just drawn (the start-up speed
- *                             test times the whole cost of drawing, core/speed.mjs)
  *   stats()                   { calls, triangles, textures, geometries } for the tests and the HUD
  *   dispose()                 free everything this backend made
  *   capabilities              what it can do, by name; features ask this and never the backend's name

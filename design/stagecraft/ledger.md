@@ -257,3 +257,13 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | P1 | Chalk light in the world: a byte budget and an age for history, lighter tile pictures, a tidy at the GM's login | chalk.md §11.3 | bench |
 | P2 | The table measures itself: a start-up speed test picks the tier, and the GM sees how each screen is coping | renderer.md §9.1, module.md §25 | bench |
 | P3 | Ease off when nothing moves, obey Foundry's own cap on drawing speed, and nothing built at the first touch (no stall when a card is first picked up) | renderer.md §9.2, module.md §26 | bench |
+
+## Q. Her thirteenth message: card title blocks (2026-10-04)
+
+*"The cards have title blocks, but these don't work very intelligently. They can't handle large amounts of text, they handle line breaks poorly. They need a lot of work and improvement. A bolder font, a nice arrangement would allow us to display both their name and line of text underneath without issue."* Added to the list the same evening (`README.md`, item 4) and built after it (`module.md` §28).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| Q1 | A title block that takes a large amount of text: it fits it, and never runs off the card | module.md §28 | bench |
+| Q2 | Line breaks handled properly: hers are kept, the rest are made at good places, in Japanese too | module.md §28 | bench |
+| Q3 | A bolder font and a nice arrangement: a card shows its name and a line of text underneath without issue | module.md §28 | bench |
