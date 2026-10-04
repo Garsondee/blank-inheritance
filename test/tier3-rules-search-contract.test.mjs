@@ -1,8 +1,9 @@
-// Tier 3 — the Rules drawer wired into the Scene Runner (design/ux-doctrine.md
-// §10.7). core/rules-search.mjs's own scoring is tier1-rules-search.test.mjs;
-// this pins that scene-runner.mjs, panel.hbs and the section registry
-// actually expose it as a real, one-keystroke GM action, matching every
-// other tier3-*-contract.test.mjs in this project (source read, not mounted).
+// Tier 3 — the rules, wired (2026-10-04, D060). The Scene Runner's free search box went ("The rules search box isn't very
+// useful either", Ingram): the Runner now offers the rules its scene's own words name ("Rules in this scene",
+// core/scene-rules.mjs), each opening the system's own card or the SRD article, and the free search over the mirrored SRD
+// lives in the Palette, where a GM already types ("rule flanking"), with every glossary rule a Palette command of its own.
+// core/rules-search.mjs's scoring is tier1-rules-search.test.mjs; core/scene-rules.mjs is tier1-scene-rules.test.mjs. This
+// pins the wiring, read as source like every other tier3-*-contract test (ApplicationV2 at module scope).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,69 +14,60 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
 const moduleRoot = path.join(repoRoot, "module", "blank-inheritance");
-const runnerSrc = readFileSync(path.join(moduleRoot, "scripts", "foundry", "scene-runner.mjs"), "utf8");
-const panelHbs = readFileSync(path.join(moduleRoot, "templates", "runner", "panel.hbs"), "utf8");
-const css = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
-const briefSrc = readFileSync(path.join(moduleRoot, "scripts", "core", "scene-brief.mjs"), "utf8");
+const read = (...p) => readFileSync(path.join(moduleRoot, ...p), "utf8");
+const runnerSrc = read("scripts", "foundry", "scene-runner.mjs");
+const paletteSrc = read("scripts", "foundry", "director-palette.mjs");
+const paletteCore = read("scripts", "core", "director-palette.mjs");
+const paletteHbs = read("templates", "palette", "palette.hbs");
+const glossarySrc = read("scripts", "foundry", "rules-glossary.mjs");
+const panelHbs = read("templates", "runner", "panel.hbs");
+const css = read("styles", "bi-components.css");
+const en = JSON.parse(read("lang", "en.json"));
 
-test("scene-runner.mjs imports the real search function and index loader, not a stub", () => {
-  assert.match(runnerSrc, /import \{ searchRules \} from "\.\.\/core\/rules-search\.mjs"/);
-  assert.match(runnerSrc, /import \{ loadRulesIndex \} from "\.\/rules-index\.mjs"/);
+test("the Runner's search box is gone, with its key, its handlers and its styles", () => {
+  assert.doesNotMatch(panelHbs, /bi-runner__rules-input|data-section="rules"|focusRules|rules\.results/);
+  assert.doesNotMatch(runnerSrc, /#onSearchRules|#onFocusRules|#rulesQuery|searchRules|loadRulesIndex/);
+  assert.doesNotMatch(css, /\.bi-runner__rules-input|\.bi-rules__result/);
+  assert.equal(en.BLANKINHERITANCE.Runner.Rules, undefined, "the box's words outlived it");
 });
 
-test("the rules input is wired the same type-and-press-enter way as the note bar, not a data-action button", () => {
-  const wiring = runnerSrc.match(/const rulesInput = this\.element\.querySelector\("\.bi-runner__rules-input"\);[\s\S]*?\}\);/);
-  assert.ok(wiring, "the rules-input keydown listener is missing from _onRender");
-  assert.match(wiring[0], /event\.key !== "Enter"/);
-  assert.match(wiring[0], /SceneRunner\.#onSearchRules\.call\(this, event\)/);
+test("the Runner offers the rules its scene names: computed from the loaded scene and the glossary, one press each", () => {
+  assert.match(runnerSrc, /import \{ rulesInScene \} from "\.\.\/core\/scene-rules\.mjs"/);
+  assert.match(runnerSrc, /import \{ loadRulesGlossary, openRule \} from "\.\/rules-glossary\.mjs"/);
+  assert.match(runnerSrc, /sceneRules: \(this\._sceneRules = rulesInScene\(\{ brief, challenges, encounters: loaded\.encounters \?\? \{\}, subsystem \}, await loadRulesGlossary\(\)\)\)/);
+  assert.match(runnerSrc, /openRule:\s*SceneRunner\.#onOpenRule/);
+  const handler = runnerSrc.match(/static async #onOpenRule\(event, target\) \{[\s\S]*?\n {2}\}/)?.[0] ?? "";
+  assert.match(handler, /this\._sceneRules \?\? \[\]\)\.find\(\(r\) => r\.id === target\.dataset\.ruleId\)/, "a press opens the rule that was rendered, by its id");
+  assert.match(handler, /await openRule\(rule\)/);
+  const section = panelHbs.match(/\{\{#if sceneRules\.length\}\}[\s\S]*?\{\{\/if\}\}\n/)?.[0] ?? "";
+  assert.match(section, /data-action="openRule" data-rule-id="\{\{id\}\}"/);
+  assert.match(section, /class="bi-runner__rule" data-kind="\{\{kind\}\}"/, "coloured by what it is, through a data attribute (a built class name escapes the stylesheet check)");
+  assert.match(section, /data-tooltip="\{\{summary\}\}"/);
+  assert.match(section, /BLANKINHERITANCE\.Runner\.SceneRules\.Hint/, "the section says where any other rule is");
+  for (const k of ["creature", "condition", "action", "rule"]) assert.ok(css.includes(`.bi-runner__rule[data-kind="${k}"] {`), `a ${k} chip is not styled`);
 });
 
-test("#onSearchRules resolves the real index and stores results for the next render, and an empty query clears results rather than showing the last search stale", () => {
-  const handler = runnerSrc.match(/static async #onSearchRules\(event\) \{[\s\S]*?\n {2}\}/);
-  assert.ok(handler, "#onSearchRules is missing from scene-runner.mjs");
-  assert.match(handler[0], /query \? searchRules\(await loadRulesIndex\(\), query\) : \[\]/, "an empty query should clear results, not silently keep showing the previous search");
+test("a rule opens the system's own card by its UUID, or the SRD article from the shipped index, marked where it names the rule", () => {
+  const open = glossarySrc.match(/export async function openRule\(rule\) \{[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(open, /await fromUuid\(rule\.uuid\)/);
+  assert.match(open, /doc\.sheet\.render\(true\)/);
+  assert.match(open, /\(await loadRulesIndex\(\)\)\.find\(\(a\) => a\.id === rule\.srd\)/);
+  assert.match(glossarySrc, /\/\^RETRIEVAL NOTE:\/i/, "the mirror's retrieval note is never shown as the rule");
+  assert.match(glossarySrc, /data-here="1"/);
+  assert.match(glossarySrc, /const GLOSSARY_PATH = "data\/rules-glossary\.json"/);
 });
 
-test("_prepareContext exposes rules.query/rules.results in BOTH the no-scene-loaded and full-scene paths -- the drawer must work with nothing open", () => {
-  const noSceneReturn = runnerSrc.match(/if \(!loaded\) \{\s*return \{[\s\S]*?\};\s*\}/);
-  assert.ok(noSceneReturn, "the no-scene-loaded early return is missing");
-  assert.match(noSceneReturn[0], /rules:\s*\{\s*query:\s*this\.#rulesQuery,\s*results:\s*this\.#rulesResults\s*\}/);
-
-  const occurrences = runnerSrc.match(/rules:\s*\{\s*query:\s*this\.#rulesQuery,\s*results:\s*this\.#rulesResults\s*\}/g) ?? [];
-  assert.equal(occurrences.length, 2, "expected exactly two returns to expose rules.{query,results} -- the no-scene-loaded path and the full-scene path");
-});
-
-test("the Rules search is always on screen (2026-09-24), never a fold that has to be opened before it can be typed in", () => {
-  // It used to be a closed <details> in a single-column scroll. In the wide,
-  // columned runner it sits at the foot of the kit column, and the header's
-  // own Rules key (focusRules) brings it into view with the cursor in it.
-  assert.doesNotMatch(briefSrc, /\{\s*id:\s*"rules"/, "rules no longer has a fold state to remember");
-  const rulesBlock = panelHbs.match(/<section class="bi-runner__section bi-runner__rules" data-section="rules">[\s\S]*?<\/section>/);
-  assert.ok(rulesBlock, "the Rules section is missing or has become something other than an always-open section");
-  assert.doesNotMatch(rulesBlock[0], /<details/);
-  assert.match(panelHbs, /data-action="focusRules"/, "the header's one-press way to the search box is gone");
-  assert.match(runnerSrc, /focusRules:\s*SceneRunner\.#onFocusRules/);
-});
-
-test("panel.hbs renders the Rules section with results and an empty state, and stays balanced", () => {
-  assert.match(panelHbs, /data-section="rules"/);
-  assert.match(panelHbs, /class="bi-runner__rules-input"/);
-  assert.match(panelHbs, /value="\{\{rules\.query\}\}"/, "the input must echo back the last query after a re-render, or the GM loses sight of what they searched");
-  assert.match(panelHbs, /\{\{#each rules\.results\}\}/);
-  assert.match(panelHbs, /this\.pageCitation/, "a result must show its page citation -- doctrine's own 'an answer and a reference, not an article'");
-  assert.match(panelHbs, /BLANKINHERITANCE\.Runner\.Rules\.NoResults/);
-
-  const withoutComments = panelHbs.replace(/\{\{!--[\s\S]*?--\}\}/g, "");
-  const opens = (withoutComments.match(/\{\{#(if|each|unless)\b/g) ?? []).length;
-  const closes = (withoutComments.match(/\{\{\/(if|each|unless)\}\}/g) ?? []).length;
-  assert.equal(opens, closes, `panel.hbs has unbalanced Handlebars blocks (${opens} opens, ${closes} closes)`);
-});
-
-test(".bi-rules__result and its title/excerpt/citation children are real, styled CSS", () => {
-  assert.match(css, /\.bi-rules__results\s*\{/);
-  assert.match(css, /\.bi-rules__result\s*\{/);
-  assert.match(css, /\.bi-rules__result-title\s*\{/);
-  assert.match(css, /\.bi-rules__result-excerpt\s*\{/);
-  assert.match(css, /\.bi-rules__result-citation\s*\{/);
-  assert.match(css, /\.bi-runner__rules-input\s*\{/);
+test("the Palette searches the rules: 'rule <words>' pinned at the top, every glossary rule a command of its own, in a group of its own", () => {
+  assert.match(paletteSrc, /import \{ searchRules \} from "\.\.\/core\/rules-search\.mjs"/);
+  assert.match(paletteSrc, /import \{ loadRulesIndex \} from "\.\/rules-index\.mjs"/);
+  assert.match(paletteSrc, /const m = \/\^\(\?:rules\?\|srd\)\\s\+\(\.\+\)\$\/i\.exec/, "the typed shortcut is rule, rules or srd and some words");
+  assert.match(paletteSrc, /searchRules\(rulesIndex \?\? \[\], words, \{ limit: 5 \}\)/);
+  assert.match(paletteSrc, /return \[\.\.\.quickCommands\(this\.#query\), \.\.\.ruleSearchCommands\(this\.#query\), \.\.\.this\.#commands\];/);
+  assert.match(paletteSrc, /\.\.\.panelCommands\(\),\n {4}\.\.\.ruleCommands\(\)/);
+  assert.match(paletteSrc, /group: "rules"/);
+  assert.match(paletteCore, /\{ id: "rules", label: "Rules" \}\n\]\);/, "the rules group sorts last: typed for, never browsed");
+  // the index and the glossary are read before the first list is built, so the first keystroke already finds them
+  const prepare = paletteSrc.match(/async _prepareContext\(\) \{[\s\S]*?\n {2}\}/)?.[0] ?? "";
+  assert.ok(prepare.indexOf("loadRulesGlossary()") >= 0 && prepare.indexOf("loadRulesGlossary()") < prepare.indexOf("paletteModel("));
+  assert.match(paletteHbs, /<code>rule flanking<\/code>/, "the typed shortcut is shown with the others");
 });

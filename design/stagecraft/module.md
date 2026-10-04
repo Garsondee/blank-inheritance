@@ -944,3 +944,44 @@ Runner and Canvas contracts). Live, in the local Foundry on Kit Issue with real 
 left- and right-drag pans, no card menu from a right-drag, double-click and Home go home, and with the drawer open the page
 spans exactly from the drawer's edge (825.6 px) to the window's (1920), still zoomable there, back to the cover when shut. The
 real-pointer benches (host 26, editor 16, menu 29, sizes 15) still pass.
+
+## 38. The wings: who could still come on, on the GM's screen (2026-10-04)
+
+Ingram, with a screenshot of the Scene Runner's side column: *"At the moment I have to fold the scene runner out to see it
+(which takes effort each time) and we use a huge amount of space to do very little that is useful. Could scenes start with
+NPCs already in place, then reveal them in the main scene viewer content?"* Bringing people on had lived in the Runner's
+drawer (an On stage row and a Summon fold), away from the stage it changes. Now it is done on the stage itself
+(`foundry/wings.mjs`, what it shows in `core/wings.mjs`; interface 0.13.0).
+
+- **Who waits is the adventure's to say, not the stage's** (`api.wings.setProvider`): `{ people: [{ id, name, title?,
+  portrait?, at?, size?, way?, note? }], ways?: [{ id, label }] }`, asked when a stage starts, whenever its scene changes,
+  and on `api.wings.refresh()`. Someone with a card on the stage already is not shown: the card is them.
+- **The tray**, for a GM only, along the top of the stage under whatever strips are showing (it moves down when they
+  unfold) and centred in the part of the window the margins leave: a face for everyone waiting, a **Show on stage** key,
+  and a box that finds anyone else (`api.wings.setFinder`, eight at most).
+- **A faded card** stands where each waiting person with a place would stand, at the size their card would be (the stage's
+  own card size, depth growth and riser for that point), dashed and translucent, the nearer drawn over the farther. Seen
+  on that screen alone; never written to the scene and never sent. They step aside while chalk is in hand, a formation
+  waits for the floor or the stage is being edited, and the eye hides them (remembered on that machine).
+- **The same three hands everywhere** (a face, a faded card, something found): a **click** brings them on their own way;
+  a **right-click** asks how (the provider's ways, their own first); a **drag** onto the stage brings them on where they
+  are dropped, as a point of the painting. A drag let go anywhere but the stage, or put down with Escape, brings nobody.
+  Each raises `stagecraft.bring` `{ scene, id, way, at, found }` on the GM's screen; the stage puts nobody on itself, and
+  the person leaves the wings when the provider stops naming them (dimmed meanwhile).
+- **The card menu takes another module's own things** (`api.blocking.setCardActions`): `provider(scene, cardId, card)`
+  returns `[{ id, label, run() }]`, asked when a GM opens a card's menu and listed after the stage's own. A player's menu
+  never shows them.
+- **The adventure's answer** (`blank-inheritance/scripts/foundry/stagecraft-bridge.mjs`, D060): the people its scene's
+  brief names, at the stage entry's places, their own way their authored arrival (walk on, announced, splash); anyone in
+  any scene's cast, or any character or NPC in the world, from the finder; on a card's menu, **Send off** and **Tell the
+  table their name**; and a brief's `present` people are already standing there the first time its scene is opened. A
+  drop point is kept GM-side on the authored member (`stageAt`) and stands the new card there.
+
+Checks: `wings.test.mjs` (9: who waits made safe, several providers put together, the limits, someone on the stage no longer
+waiting, a faded card's box, a press becoming a carry, where the tray stands, what `stagecraft.bring` carries, the providers
+and finders as registered), a `card-menu.test.mjs` case (another module's things, the GM's alone), the interface test, and
+`tools/stagecraft/bench/wings-check.mjs` (33, real presses, right-clicks, drags and keys on the bench as a GM and a player:
+the tray and the faded card for the GM only and in their places, each hand raising what it means, a drop elsewhere and
+Escape raising nothing, the finder, the eye, someone whose card arrives leaving the wings, and another module's thing on a
+card's menu run for that card). The adventure's side: `tier1-stage-wings`, `tier2-present-corpus`,
+`tier3-stage-wings-contract`, and the bridge test.

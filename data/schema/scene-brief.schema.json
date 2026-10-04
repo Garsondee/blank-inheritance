@@ -1015,6 +1015,10 @@
             "type": "boolean",
             "description": "True for someone deliberately disposable — the panel renders them small and does not offer to stage a portrait. \"Give him three lines and never bring him back.\""
           },
+          "present": {
+            "type": "boolean",
+            "description": "True for someone already standing there when the scene is first opened (nobody has been put on its stage since the last reset to the start): placed quietly, before the party, on the scene the brief opens on, not its sub-scenes. Everyone else in the cast waits in the stage's wings, on the GM's screen only, where the GM brings them on: a click, a way from the right-click, or a drop on the floor (foundry/stagecraft-bridge.mjs, D060)."
+          },
           "brief": {
             "type": "object",
             "description": "The improvisation aid. Everything here is GM-only and permanently so — unlike npc.schema.json's socialProfile.facts, which are player-facing knowledge revealed through play. The two are complements: facts are what the table can learn, this is how you play the person.",

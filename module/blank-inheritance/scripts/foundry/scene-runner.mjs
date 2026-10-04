@@ -88,10 +88,10 @@ import { cachedAudio, loadAudio } from "./audio-store.mjs";
 import { openEquipmentPanel } from "./equipment-panel.mjs";
 import { fileHandout, handoutStates } from "./handouts.mjs";
 import { equipmentGrantsForScene } from "./equipment-state.mjs";
-import { loadRulesIndex } from "./rules-index.mjs";
-import { searchRules } from "../core/rules-search.mjs";
+import { rulesInScene } from "../core/scene-rules.mjs";
+import { loadRulesGlossary, openRule } from "./rules-glossary.mjs";
+import { portraitIdFor, primeStagePortraits, resetStageCastCache, stagePortraitFor, summonDescriptorFor, tellName } from "./stage-cast.mjs";
 import { registerRunnerThemeSetting, currentRunnerTheme, setRunnerTheme } from "./runner-theme.mjs";
-import { isDiagnosticName } from "../core/diagnostic-content.mjs";
 import { editSheet } from "../core/scene-edit-sheet.mjs";
 import { fieldKey, newItemId, normalizeText, parseFieldKey, resolvePath, sameValue } from "../core/scene-edits.mjs";
 import { loadSceneEdits, overlayScene, resetSceneEditsCache, saveSceneEdit, sceneEditsState } from "./scene-edits.mjs";
@@ -300,6 +300,7 @@ async function loadJson(dir, id) {
 export function resetSceneRunnerCache() {
   cache.clear();
   resetSceneEditsCache();
+  resetStageCastCache();
 }
 
 /**
@@ -584,116 +585,14 @@ async function advanceMomentToBrief(briefRef) {
   if (entry) await advanceMomentTo(entry);
 }
 
-/**
- * The stage portrait id for one of a brief's cast members.
- *
- * A cast member is authored content (an npcRef or a label), not an Actor, so
- * it gets the same `summon-<id>` shape the summon panel uses for real Actors
- * -- one namespace on the stage means "is this person already up?" is a single
- * lookup wherever they came from.
- */
-// stageIdFor lives in core/stage-names.mjs so the stage and this panel cannot
-// disagree: a protected person is filed under an opaque alias, everyone else
-// under their plain id. `rawStageId` is the plain id, for looking up art.
-
-/**
- * The plain-data description of a brief's cast member that `summonToStage`
- * takes. One place, so the Cast fold's Stage key and the `npc-enter` trigger
- * cannot drift apart on what a protected person is summoned with.
- */
-function summonDescriptorFor(member, sting) {
-  const descriptor = {
-    id: stageIdFor(member),
-    // The real name, GM-side only: the stage publishes `called` in its place
-    // until the table is told (core/stage-names.mjs#tableLabel). It is
-    // core's own displayName, not a second fallback chain: it is what the
-    // panel's heading uses, and a stage that labels someone differently from
-    // the script beside it is worse than either label alone.
-    name: displayName(member),
-    img: member.img ?? stagePortraitFor(rawStageId(member)),
-    isPc: false,
-    // The brief's own authored arrival tier (scene-brief.schema.json's
-    // `arrival`) fires Announced/Splash automatically on the beats that
-    // called for it; castMemberFromDescriptor falls back to "quiet" for
-    // null/undefined, same as a plain summon.
-    sting: sting || undefined
-  };
-  if (isNameProtected(member)) {
-    descriptor.called = member.called;
-    descriptor.nameKey = rawStageId(member);
-    descriptor.nameOnArrival = Boolean(member.nameOnArrival);
-  }
-  return descriptor;
-}
-
-/**
- * The id the STAGE stores them under.
- *
- * core/stage-layout.mjs#castMemberFromDescriptor prepends "summon-" to the
- * descriptor id itself, so the descriptor gets the RAW id and only this
- * function knows about the prefix. Passing an already-prefixed id produced
- * "summon-summon-shucks-mordant" — found live, first click.
- */
-function portraitIdFor(member) {
-  return `summon-${stageIdFor(member)}`;
-}
-
-/**
- * Which stage portraits the module actually ships, by id.
- *
- * Browsed once per page rather than per render, and per cast member it is a
- * plain Set lookup. A brief's cast member has no Actor to take an `img` from
- * — that is the whole difference between them and the summon panel's rows —
- * so without this they stage as a nameplate over an empty frame.
- */
-let stagePortraitIds = null;
-async function primeStagePortraits() {
-  if (stagePortraitIds) return stagePortraitIds;
-  stagePortraitIds = new Set(await listModuleImageIds("assets/stage"));
-  return stagePortraitIds;
-}
-
-function stagePortraitFor(id) {
-  return stagePortraitIds?.has(id) ? `modules/${MODULE_ID}/assets/stage/${id}.webp` : undefined;
-}
+// A brief cast member's stage descriptor, stage id and portrait (summonDescriptorFor, portraitIdFor,
+// stagePortraitFor) live in foundry/stage-cast.mjs (2026-10-04), shared with the stage's own wings
+// (foundry/stagecraft-bridge.mjs) so the two cannot build the same person two ways.
 
 /** Who is currently standing on the scene the table is looking at. */
 function stagedPortraitIds() {
   const cast = canvas?.scene?.getFlag(MODULE_ID, "stage")?.cast ?? [];
   return new Set(cast.map((m) => m.portraitId));
-}
-
-/**
- * Every real Actor worth offering to summon — party members first (what a
- * Director reaches for constantly), then every other character actor.
- *
- * Folded in here 2026-09-18 from what used to be its own standalone panel
- * ("a way to summon any character to any theatre of the mind scene", Ingram
- * 2026-09-17) — Ingram's own later call was that the summon UI belongs
- * inside the script a GM is already looking at, not a second floating
- * button. Distinct from the brief's own `cast` (portraitIdFor/stagedPortraitIds
- * above): this offers EVERY real Actor in the world, not just the ones this
- * scene's author named.
- *
- * isDiagnosticName excludes self-labelled scratch Actors (found live
- * 2026-09-19: the real world's "TEST FIXTURE — Map Journey PC" set and a "ZZ
- * TEST CHARACTER" left the GM scrolling past eight throwaway entries to reach
- * a real NPC) — the exact opposite of "as little prep as possible."
- */
-function summonableActors() {
-  const partyIds = new Set((game.actors.party?.members ?? []).map((a) => a.id));
-  const actors = game.actors.contents.filter((a) => a.type === "character" && !isDiagnosticName(a.name));
-  const onStage = stagedPortraitIds();
-  const row = (actor) => ({
-    id: actor.id,
-    name: actor.name,
-    img: actor.img,
-    isPc: actor.hasPlayerOwner,
-    onStage: onStage.has(`summon-${actor.id}`)
-  });
-  const party = actors.filter((a) => partyIds.has(a.id)).map(row);
-  const others = actors.filter((a) => !partyIds.has(a.id)).sort((a, b) => a.name.localeCompare(b.name)).map(row);
-  return { party, others };
 }
 
 /** The one check a beat names, out of its challenge's handful. */
@@ -702,20 +601,6 @@ function checkFor(beat, challenges) {
   if (!challenge) return null;
   const checks = challenge.checks ?? [];
   return (beat.checkRef ? checks.find((c) => c.id === beat.checkRef) : checks[0]) ?? null;
-}
-
-/**
- * Who the TABLE can see on the scene they are looking at, by name — the
- * published stage, whoever put them there (a brief's own cast, a summon, a
- * trigger in the prose, the stage's own controls). The runner lists them at
- * the top of its people column with a way to take each one off again, which
- * nothing in the old panel offered for a brief's own cast at all.
- */
-function onStageNow() {
-  const cast = canvas?.scene?.getFlag(MODULE_ID, "stage")?.cast ?? [];
-  return cast
-    .filter((member) => member?.portraitId)
-    .map((member) => ({ portraitId: member.portraitId, label: member.label ?? member.portraitId, isPc: member.kind === "pc" }));
 }
 
 /**
@@ -926,7 +811,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       spend: SceneRunner.#onSpend,
       cueScene: SceneRunner.#onCueScene,
       cutTo: SceneRunner.#onCutTo,
-      jumpToSummon: SceneRunner.#onJumpToSummon,
       openPalette: SceneRunner.#onOpenPalette,
       toggleTheme: SceneRunner.#onToggleTheme,
       stagePerson: SceneRunner.#onStagePerson,
@@ -950,8 +834,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       revealHandout: SceneRunner.#onRevealHandout,
       revealHandoutSolo: SceneRunner.#onRevealHandoutSolo,
       grantArtefact: SceneRunner.#onGrantArtefact,
-      summonActor: SceneRunner.#onSummonActor,
-      dismissActor: SceneRunner.#onDismissActor,
       fireTrigger: SceneRunner.#onFireTrigger,
       recordChoice: SceneRunner.#onRecordChoice,
       // One press puts a choicePoint to every player (foundry/choice-prompt.mjs).
@@ -966,7 +848,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       toggleShowAll: SceneRunner.#onToggleShowAll,
       unstagePerson: SceneRunner.#onUnstagePerson,
       useRoll: SceneRunner.#onUseRoll,
-      focusRules: SceneRunner.#onFocusRules,
+      // 2026-10-04: one rule the scene's own words name, opened as the system's own card or the SRD article.
+      openRule: SceneRunner.#onOpenRule,
       noteTag: SceneRunner.#onNoteTag,
       nudgeClock: SceneRunner.#onNudgeClock,
       // 2026-10-04 (D059): each character's own result on a beat everyone
@@ -1002,7 +885,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       templates: [
         `${TEMPLATE_ROOT}/person.hbs`,
         `${TEMPLATE_ROOT}/beat.hbs`,
-        `${TEMPLATE_ROOT}/summon-row.hbs`,
         `${TEMPLATE_ROOT}/edit.hbs`,
         `${TEMPLATE_ROOT}/edit-field.hbs`,
         `${TEMPLATE_ROOT}/edit-block.hbs`,
@@ -1070,13 +952,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       if (event.key !== "Enter") return;
       event.preventDefault();
       SceneRunner.#onNote.call(this, event);
-    });
-
-    const rulesInput = this.element.querySelector(".bi-runner__rules-input");
-    rulesInput?.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      SceneRunner.#onSearchRules.call(this, event);
     });
 
     // A beat's row and a person's name are role="button" rather than real
@@ -1277,10 +1152,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * "No scene chosen" panel; the toggle button is always visible either way.
    */
   #open = false;
-
-  /** The Rules drawer's own state (design/ux-doctrine.md §10.7) -- last query typed and what it found, kept across renders the same way #open is. */
-  #rulesQuery = "";
-  #rulesResults = [];
 
   /**
    * Whether the script is showing the edit sheet (design/scene-edits.md).
@@ -1562,13 +1433,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const loaded = briefId ? await loadScene(briefId) : null;
     this._scene = loaded;
 
-    // Summoning is a general GM action against whatever scene the table is
-    // looking at, independent of the brief's own content -- available even
-    // when no brief is loaded at all, exactly like the standalone panel this
-    // replaced always was.
-    const { party, others } = summonableActors();
-    const summon = { hasScene: !!canvas?.scene, sceneName: canvas?.scene?.name ?? null, party, others };
-
     // The scene list comes from the episode either way, so a GM who has
     // opened an episode but not yet picked a scene still gets somewhere to
     // click rather than a dead panel.
@@ -1592,9 +1456,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
         themeIsDark: currentRunnerTheme() === "dark",
         scenes,
         steps,
-        summon,
-        onStageNow: onStageNow(),
-        rules: { query: this.#rulesQuery, results: this.#rulesResults },
         episodeTitle: episode?.title ?? null,
         beats: [],
         cast: [],
@@ -1694,7 +1555,9 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // Where a note typed right now would land, shown next to the field so
       // the GM can see it before they commit rather than after.
       noteTarget: noteTargetFor(state.beats, runState),
-      rules: { query: this.#rulesQuery, results: this.#rulesResults },
+      // The rules this scene's own words name (2026-10-04, core/scene-rules.mjs): the creatures its fights bring, the
+      // conditions, actions and rules its beats, checks and clock mention, one press each. The free search is the Palette's.
+      sceneRules: (this._sceneRules = rulesInScene({ brief, challenges, encounters: loaded.encounters ?? {}, subsystem }, await loadRulesGlossary())),
       theme: currentRunnerTheme(),
       themeIsDark: currentRunnerTheme() === "dark",
       sections,
@@ -1794,14 +1657,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           stats: statDcs(member.brief?.statblock)
         };
       }),
-      onStageNow: onStageNow(),
       handouts: state.handouts.map((handout) => {
         const status = filed[handout.id] ?? { filed: false, table: false, userIds: [] };
         return { ...handout, filed: status.filed, filedToTable: status.table, filedCount: status.userIds.length };
       }),
       scenes,
       steps,
-      summon,
       open: this.#open,
       // The edit sheet (design/scene-edits.md): whether it is showing, how
       // many of her edits have not reached the repo yet (on the Edit key
@@ -2417,12 +2278,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     await recordRollResult(result, { force: true });
   }
 
-  /** The header's Rules key: bring the search box into view and put the cursor in it. */
-  static #onFocusRules() {
-    const input = this.element?.querySelector(".bi-runner__rules-input");
-    if (!input) return;
-    input.scrollIntoView({ behavior: "smooth", block: "center" });
-    input.focus({ preventScroll: true });
+  /** One of the scene's rules, pressed: the system's own card for it (a condition, an action, a creature), or the SRD article. */
+  static async #onOpenRule(event, target) {
+    const rule = (this._sceneRules ?? []).find((r) => r.id === target.dataset.ruleId);
+    if (rule) await openRule(rule);
   }
 
   /**
@@ -2688,12 +2547,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * Put one of the scene's own cast on the stage the table is looking at.
-   *
-   * #onSummonActor below does this for any real Actor in the world; this does
-   * it for the people the BRIEF names, who mostly have no Actor at all -- which
-   * is the common case in a theatre-of-the-mind scene and the one that
-   * previously meant leaving the script to go and find them.
+   * Put one of the scene's own cast on the stage the table is looking at,
+   * from their card in the script. The people the BRIEF names mostly have no
+   * Actor at all, which is the common case in a theatre-of-the-mind scene.
+   * The stage's own wings do the same from the stage itself, and find anyone
+   * else (foundry/stagecraft-bridge.mjs, 2026-10-04).
    */
   static async #onStagePerson(event, target) {
     const scene = canvas?.scene;
@@ -2712,39 +2570,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onRevealName(event, target) {
     const member = (this._scene?.brief?.cast ?? []).find((m) => m.id === target.dataset.castId);
     if (!member || !isNameProtected(member)) return;
-    await revealName(rawStageId(member), { announce: Boolean(event?.shiftKey) });
-    await recordLogEntry({
-      text: game.i18n.format("BLANKINHERITANCE.Runner.NameToldLog", { called: member.called, name: displayName(member) }),
-      nowIso: new Date().toISOString(),
-      scene: canvas?.scene?.name ?? null,
-      subject: `name:${rawStageId(member)}`
-    }).catch((err) => console.error("Blank Inheritance | Could not log that name being told:", err));
-    this.render({});
-  }
-
-  /**
-   * Summon ANY real Actor onto the stage — folded in 2026-09-18 from what
-   * used to be its own standalone panel+button (Ingram's own call: the
-   * summon UI belongs inside the script a GM is already looking at, not a
-   * second floating thing). Distinct from #onStagePerson above: this reaches
-   * every Actor in the world, not just the ones this scene's own brief named.
-   */
-  static async #onSummonActor(event, target) {
-    const actor = game.actors.get(target.dataset.actorId);
-    if (!actor || !canvas?.scene) return;
-    await summonToStage(canvas.scene, {
-      id: actor.id,
-      name: actor.name,
-      img: actor.img,
-      actorId: actor.id,
-      isPc: actor.hasPlayerOwner
-    });
-    this.render({});
-  }
-
-  static async #onDismissActor(event, target) {
-    if (!canvas?.scene) return;
-    await removeFromStage(canvas.scene, `summon-${target.dataset.actorId}`);
+    await tellName({ nameKey: rawStageId(member), called: member.called, name: displayName(member) }, { announce: Boolean(event?.shiftKey) });
     this.render({});
   }
 
@@ -2756,22 +2582,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * confirmation: doctrine §10.3's whole argument is that capture during a
    * scene has to cost nothing or it stops happening.
    */
-  /**
-   * design/ux-doctrine.md §10.7's Rules drawer: "a search box over the...
-   * locally mirrored SRD articles... buildable today and answers the
-   * rulebook's own first-listed GM priority, answering questions quickly and
-   * decisively." Same type-and-press-enter idiom as the note bar (§10.3:
-   * "Type. Press enter. Done.") -- one shape for both, rather than a second
-   * interaction a GM has to learn.
-   */
-  static async #onSearchRules(event) {
-    const input = this.element.querySelector(".bi-runner__rules-input");
-    const query = input?.value?.trim() ?? "";
-    this.#rulesQuery = query;
-    this.#rulesResults = query ? searchRules(await loadRulesIndex(), query) : [];
-    this.render({});
-  }
-
   static async #onNote(event) {
     const input = this.element.querySelector(".bi-runner__note-input");
     const text = input?.value?.trim();
@@ -2862,14 +2672,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onToggleTheme() {
     await setRunnerTheme(currentRunnerTheme() === "dark" ? "light" : "dark");
     this.render({});
-  }
-
-  /** Open the always-available Summon section and bring it into view — the header's own one-tap entry point into it, per Law 7. */
-  static #onJumpToSummon() {
-    const details = this.element.querySelector('.bi-runner__section[data-section="summon"]');
-    if (!details) return;
-    details.open = true;
-    details.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   /** The explicit act, from the foot of the running order where a GM finishes. */

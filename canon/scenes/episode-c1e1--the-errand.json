@@ -63,6 +63,7 @@
       "label": "The instrument maker",
       "role": "Runs the instrument makers' workshop.",
       "arrival": "quiet",
+      "present": true,
       "brief": {
         "wants": "Six uniforms away from her bench, nicely.",
         "opensWith": "She reads the docket twice, then laughs.",

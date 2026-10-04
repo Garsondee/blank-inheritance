@@ -109,3 +109,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **Carry-ins.** "If they filed loudly" and "If they filed quietly" now read the Errand's choice, so the Runner says which one applies. "If they came back empty-handed" is left to the GM: nothing recorded answers it.
+
+## Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1.** The pilot-track candidate at the next table is `present`: the table is there when the party sits down. Taka and Vetch keep their entrances.

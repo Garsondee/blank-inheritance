@@ -294,3 +294,15 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 |---|---|---|---|
 | T1 | Everyone pans and zooms their own view of a scene: the wheel, a drag on the bare stage, a right- or middle-drag; a double-click or Home goes back | module.md §37 | none |
 | T2 | When the Scene Runner opens, the stage glides to fit its whole width into what is left of the window, so nothing lies under the drawer | module.md §37 | none |
+
+## U. Her seventeenth message: people waiting on the stage, and a Scene Runner that does less (2026-10-04)
+
+*"Could scenes start with NPCs already in place, then reveal them in the main scene viewer content? UX / UI improvements, ideally we'd actually get rid of this folding out section or replace it with something that is much more useful."* Built the same day (`module.md` §38); the adventure's side is D060.
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| U1 | A scene's people wait on the stage itself, as faded cards where each would stand, seen by the GM alone; a click brings one on | module.md §38 | bench |
+| U2 | A tray of everyone still offstage, always there for the GM: a right-click chooses how they come on, a drag onto the floor where | module.md §38 | bench |
+| U3 | A box on the tray finds anyone else to bring on | module.md §38 | bench |
+| U4 | The GM's card menu gains another module's own things: send someone off, tell the table their name | module.md §38 | bench |
+| U5 | Someone already there when a scene first opens stands on the stage from the start | module.md §38 | none |

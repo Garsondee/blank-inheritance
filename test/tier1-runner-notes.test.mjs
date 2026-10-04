@@ -79,14 +79,15 @@ test("counts are per beat, for the running order's margin", () => {
 
 import { RUNNER_SECTIONS, sectionOpen, sectionStates } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
 
-test("the only remembered layout choices are the summon gallery, 'every beat in full' and what the table knows, all off by default", () => {
+test("the only remembered layout choices are 'every beat in full' and what the table knows, both off by default", () => {
   // Rebuilt 2026-09-24: the running order, the goal, the people and the
   // kit are always on screen now, and the opening, the ending, the beat
   // being run and the person it is about open by THEMSELVES at their own
   // moment (core/runner-view.mjs). What is left is what a GM chooses once.
-  // 2026-10-04 (D059) added the told-facts drawer, opened when a player asks.
-  assert.deepEqual(RUNNER_SECTIONS.map((s) => s.id).sort(), ["detail", "knows", "summon"]);
-  assert.ok(RUNNER_SECTIONS.every((s) => s.open === false), "a wall of portraits, every beat in full and every told fact are all things to ask for, not defaults");
+  // 2026-10-04 (D059) added the told-facts drawer, opened when a player asks; D060 took the summon gallery out (the
+  // stage's own wings bring anyone on).
+  assert.deepEqual(RUNNER_SECTIONS.map((s) => s.id).sort(), ["detail", "knows"]);
+  assert.ok(RUNNER_SECTIONS.every((s) => s.open === false), "every beat in full and every told fact are things to ask for, not defaults");
 });
 
 test("REGRESSION (2026-10-04): 'knows' is a KNOWN section, so the told-facts drawer starts folded", () => {
@@ -95,8 +96,8 @@ test("REGRESSION (2026-10-04): 'knows' is a KNOWN section, so the told-facts dra
 });
 
 test("a GM's own toggle beats the default, in both directions", () => {
-  assert.equal(sectionOpen("summon", {}), false, "closed by default");
-  assert.equal(sectionOpen("summon", { summon: true }), true, "opened by the GM stays open");
+  assert.equal(sectionOpen("knows", {}), false, "closed by default");
+  assert.equal(sectionOpen("knows", { knows: true }), true, "opened by the GM stays open");
   assert.equal(sectionOpen("detail", { detail: true }), true, "every beat in full, once asked for, stays asked for");
   assert.equal(sectionOpen("detail", { detail: false }), false);
 });
@@ -116,9 +117,9 @@ test("an unknown section opens rather than hiding itself", () => {
 });
 
 test("sectionStates answers for every section at once, for a template that cannot call a function", () => {
-  const states = sectionStates({ summon: true });
+  const states = sectionStates({ knows: true });
   assert.equal(Object.keys(states).length, RUNNER_SECTIONS.length);
-  assert.equal(states.summon, true, "the override is applied");
+  assert.equal(states.knows, true, "the override is applied");
   assert.equal(states.detail, false);
   assert.deepEqual(sectionStates(), sectionStates({}), "no overrides is the same as empty overrides");
 });

@@ -11,7 +11,9 @@
 //   2. Close Scene lived at the very bottom of a long scrollable document.
 //      It is now a real, fixed Tier-1 button in the header (Law 7).
 //   3. Summon required scrolling into the document and opening a fold. It
-//      now has a one-tap entry point in the same fixed row.
+//      had a one-tap entry point in the same fixed row until 2026-10-04
+//      (D060), when the stage's own wings took over bringing anyone on and
+//      the Summon fold, its key and the Rules key left the Runner.
 //
 // scene-runner.mjs and panel.hbs are read as source/markup rather than
 // mounted, matching every other tier3-*-contract.test.mjs in this project
@@ -50,11 +52,10 @@ test("the running order's own buttons call cueScene, not the old pickScene", () 
   assert.match(sceneButton[0], /data-action="cueScene"/, "the running order still points at the old two-step action");
 });
 
-test("Close Scene and Summon are real Tier-1 buttons in the fixed header, not inside the scrollable body", () => {
+test("Close Scene is a real Tier-1 button in the fixed header, not inside the scrollable body", () => {
   const head = panel.match(/<header class="bi-runner__head">[\s\S]*?<\/header>/);
   assert.ok(head, "the header block is missing from panel.hbs");
   assert.match(head[0], /class="bi-runner__tier1-btn bi-runner__tier1-btn--close"[\s\S]*?data-action="closeScene"/, "Close Scene is no longer a Tier-1 header button");
-  assert.match(head[0], /data-action="jumpToSummon"/, "Summon's one-tap header entry point is gone");
 
   // And the OLD locations are actually gone, not merely duplicated -- a
   // closebar at the bottom of the scroll AND a new header button would mean
@@ -62,13 +63,10 @@ test("Close Scene and Summon are real Tier-1 buttons in the fixed header, not in
   assert.doesNotMatch(panel, /bi-runner__closebar/, "the old bottom-of-scroll closebar is still in panel.hbs");
 });
 
-test("jumpToSummon opens the summon fold and scrolls it into view", () => {
-  assert.match(src, /jumpToSummon:\s*SceneRunner\.#onJumpToSummon/, "jumpToSummon is not wired as an action");
-  const fn = src.match(/static #onJumpToSummon\(\) \{[\s\S]*?\n {2}\}/);
-  assert.ok(fn, "#onJumpToSummon is missing from scene-runner.mjs");
-  assert.match(fn[0], /data-section="summon"/);
-  assert.match(fn[0], /\.open = true/);
-  assert.match(fn[0], /scrollIntoView/);
+test("the header carries no Summon or Rules key any more (D060): the stage's wings bring anyone on, the Palette searches the rules", () => {
+  const head = panel.match(/<header class="bi-runner__head">[\s\S]*?<\/header>/)[0];
+  assert.doesNotMatch(head, /data-action="(jumpToSummon|focusRules)"/);
+  assert.doesNotMatch(src, /#onJumpToSummon|#onFocusRules|jumpToSummon:|focusRules:/, "a handler for a key that no longer exists");
 });
 
 test("the Palette is demoted to a small, icon-only, visually secondary control at the end of the Tier-1 row", () => {

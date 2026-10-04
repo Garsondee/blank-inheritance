@@ -28,6 +28,7 @@
       "label": "Mister Ota",
       "role": "Teaches history, and local studies, which he loves.",
       "arrival": "quiet",
+      "present": true,
       "brief": {
         "wants": "For them to find their way round the city by the end of the week.",
         "opensWith": "\"Where do you think you are right now? Show me.\" The map is already down.",

@@ -155,3 +155,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **Carry-ins.** "If anyone has the tram map" names whoever critically succeeded at Learn the city or carries the map; "If anyone saw a violet mark on the road in" names whoever passed Recognise the mark.
+
+## Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1.** The instrument maker is `present`, outside her shop, which is what the stage shows. Manako still waits for his chip at the tea house.

@@ -4663,137 +4663,6 @@
 .bi-demo-runner__error { color: var(--bi-vu-red, #ff4d4d); margin: 0; }
 
 /* =====================================================================
-   SUMMON ANYONE — row styling only now (2026-09-18): the standalone panel
-   and its own floating button were retired, folded into the Scene Runner
-   (templates/runner/panel.hbs's own "summon" fold section) — Ingram's own
-   call that this belonged inside the script a GM is already looking at, not
-   a second floating thing. These rows are what that fold section renders.
-   ===================================================================== */
-/* The NPC/PC gallery ("Summon Anyone") — completely rebuilt 2026-09-19.
-   The previous version (above, in source history) used GLASS-register
-   tokens (--bi-bone, --bi-brass, --bi-font-legend) inside a panel that
-   actually renders on the runner's own light background — --bi-bone text
-   on the light theme's paper background measured close to 1:1 contrast,
-   which is the literal reason the names were reported as unreadable. Full
-   rebuild rather than a colour patch, per Ingram's own "needs a lot of
-   work" and the explicit brief this time: comprehension and rapid
-   first-order retrieval, not a specific register. */
-.bi-summon__scene {
-  margin: 0 0 14px;
-  font-family: var(--bi-font-condensed);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--sr-text-dim);
-}
-.bi-summon__scene b { color: var(--sr-text); font-weight: 700; }
-.bi-summon__scene--none { color: var(--bi-amber-dim); }
-.bi-summon__group-title {
-  margin: 16px 0 8px;
-  font-family: var(--bi-font-condensed);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--sr-text-faint);
-}
-.bi-summon__group-title:first-child { margin-top: 0; }
-
-/* A real grid of cards, not a thin list -- a face is the fastest thing a
-   GM recognises mid-scene, so it leads, at a size actually worth looking
-   at (64px, not the old 30px). */
-.bi-summon__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
-  gap: 10px;
-}
-.bi-summon__card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 8px;
-  background: var(--sr-bg-raised);
-  border: 1px solid var(--sr-border);
-  border-radius: var(--sr-radius);
-  box-shadow: var(--sr-shadow);
-  text-align: center;
-}
-.bi-summon__card--onstage { border-color: var(--sr-accent); box-shadow: 0 0 0 1px var(--sr-accent), var(--sr-shadow); }
-.bi-summon__portrait-well { position: relative; flex: none; }
-.bi-summon__portrait {
-  display: block;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--sr-bg-sunken);
-  box-shadow: 0 0 0 2px var(--sr-border-strong);
-}
-.bi-summon__card--onstage .bi-summon__portrait { box-shadow: 0 0 0 2px var(--sr-accent); }
-.bi-summon__onstage-badge {
-  position: absolute;
-  bottom: -3px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--sr-accent);
-  color: var(--sr-accent-ink);
-  font-family: var(--bi-font-condensed);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 1px 6px;
-  border-radius: 999px;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
-}
-.bi-summon__name {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--sr-text);
-  font-family: var(--bi-font-condensed);
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 2px;
-}
-.bi-summon__tag {
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-family: var(--bi-font-condensed);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.bi-summon__tag--pc { background: color-mix(in srgb, var(--bi-cyan) 20%, transparent); color: var(--bi-cyan-dim); }
-.bi-summon__tag--npc { background: var(--sr-bg-sunken); color: var(--sr-text-faint); }
-.bi-summon__action {
-  appearance: none;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 4px;
-  padding: 6px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--sr-border-strong);
-  background: var(--sr-bg-sunken);
-  color: var(--sr-text);
-  font-family: var(--bi-font-condensed);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.bi-summon__action:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 2px; }
-.bi-summon__action--summon { background: var(--sr-accent); border-color: var(--sr-accent); color: var(--sr-accent-ink); }
-.bi-summon__action--summon:hover { filter: brightness(1.1); }
-.bi-summon__action--dismiss:hover { background: var(--sr-border); }
-
-/* =====================================================================
    FORTUNE — campy flavour text, one key, no state worth persisting.
    ===================================================================== */
 .bi-fortune { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 18px; padding: 24px; text-align: center; }
@@ -7461,41 +7330,6 @@
 
 /* --- The people ---------------------------------------------------------- */
 
-/* Who the table can see, each with a way off. */
-.bi-runner__onstage .bi-runner__section-title { margin-bottom: 8px; }
-.bi-runner__onstage-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.bi-runner__onstage-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  height: 28px;
-  padding: 0 2px 0 11px;
-  border: 1px solid var(--sr-accent);
-  border-radius: 14px;
-  background: var(--sr-bg-raised);
-  color: var(--sr-text);
-  font-family: var(--bi-font-condensed);
-  font-size: 13px;
-  font-weight: 600;
-}
-.bi-runner__onstage-chip--pc { border-color: var(--sr-info); }
-.bi-runner__onstage-off {
-  appearance: none;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: none;
-  color: var(--sr-text-dim);
-  font-size: 16px;
-  line-height: 1;
-}
-.bi-runner__onstage-off:hover { background: var(--sr-bg-sunken); color: var(--sr-accent); }
-.bi-runner__onstage-off:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 1px; }
-.bi-runner__onstage-none { font-size: 13px; font-style: italic; color: var(--sr-text-faint); }
-
 /* The live clock, for the one scene in twenty-six that has one. Boxed in the
    warning colour: when a scene has a clock, it is the pressure the whole
    scene runs under. */
@@ -7701,29 +7535,40 @@
 .bi-runner__section--fold[open] > .bi-runner__section-title::before { content: "▾"; }
 .bi-runner__section--fold > .bi-runner__section-title:hover { color: var(--sr-accent); }
 
-/* The Rules drawer (design/ux-doctrine.md §10.7): type, press enter. Always
-   open at the foot of the kit; the header's Rules key scrolls to it. */
-.bi-runner__rules { padding-bottom: 6px; }
-.bi-runner__rules-input {
-  width: 100%;
-  height: 32px;
-  margin: 0 0 8px;
+/* Rules in this scene (2026-10-04, core/scene-rules.mjs): one chip per rule the
+   scene's own words name, coloured by what it is; a press opens the system's
+   own card (or the SRD article). */
+.bi-runner__scenerules .bi-runner__section-title { margin-bottom: 8px; }
+.bi-runner__rule-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 6px; }
+.bi-runner__rule {
+  appearance: none;
+  cursor: pointer;
+  height: 26px;
   padding: 0 10px;
   border: 1px solid var(--sr-border-strong);
-  border-radius: 6px;
-  outline: none;
-  background: var(--sr-bg);
+  border-left-width: 3px;
+  border-radius: 5px;
+  background: var(--sr-bg-raised);
   color: var(--sr-text);
-  font-family: var(--bi-font-document);
-  font-size: 13.5px;
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
-.bi-runner__rules-input:focus { border-color: var(--sr-focus); box-shadow: 0 0 0 1px var(--sr-focus); }
-.bi-runner__rules-input::placeholder { color: var(--sr-text-faint); }
-.bi-rules__results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
-.bi-rules__result { padding-left: 9px; border-left: 2px solid var(--sr-border); }
-.bi-rules__result-title { margin: 0; font-family: var(--bi-font-condensed); font-size: 14px; font-weight: 700; color: var(--sr-text); }
-.bi-rules__result-excerpt { margin: 2px 0; font-size: 13px; line-height: 1.45; color: var(--sr-text-dim); }
-.bi-rules__result-citation { margin: 0; font-size: 12px; font-style: italic; color: var(--sr-text-faint); }
+.bi-runner__rule:hover { background: var(--sr-bg-sunken); border-color: var(--sr-focus); }
+.bi-runner__rule:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 1px; }
+.bi-runner__rule[data-kind="creature"] { border-left-color: var(--sr-accent); }
+.bi-runner__rule[data-kind="condition"] { border-left-color: var(--sr-warn); }
+.bi-runner__rule[data-kind="action"] { border-left-color: var(--sr-info); }
+.bi-runner__rule[data-kind="rule"] { border-left-color: var(--sr-text-faint); font-style: italic; }
+
+/* An SRD article opened from a rule (foundry/rules-glossary.mjs#showArticle). */
+.bi-rule-article { max-height: 60vh; overflow-y: auto; padding-right: 6px; line-height: 1.5; }
+.bi-rule-article p { margin: 0 0 8px; }
+.bi-rule-article__head { margin: 12px 0 4px; font-size: 14px; }
+.bi-rule-article__source { font-size: 11.5px; font-style: italic; opacity: 0.7; }
+.bi-rule-article__here { padding: 4px 8px; border-left: 3px solid var(--color-warm-2, #c9593f); background: rgba(201, 89, 63, 0.12); }
+.bi-rule-article__link { margin: 8px 0 0; font-size: 12px; }
 
 /* --- The note bar ---------------------------------------------------------
    Doctrine §10.3: capture during a scene has to cost nothing. One field,

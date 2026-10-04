@@ -134,3 +134,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R4, R19.** A new optional check, Study the form (Perception, DC 15, blind): their name was typed before they arrived, on the same machine as their acceptance letter, with the same low, faint e. On a critical success, every form in the clerk's stack already has a name on it. It tells the table `directorate.forms-typed-ahead` (new, D059). The plant on Form 12-B stays: the GM says nothing unless someone looks.
+
+## Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1, R15.** The clerk is `present`: she is handing out Form 12-B when the queue arrives. Shucks Mordant still waits for his glimpse in the opening read-aloud.

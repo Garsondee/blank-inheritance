@@ -368,9 +368,7 @@ export function displayName(member) {
  * core/runner-view.mjs). Two choices are left that a GM makes once and
  * expects remembered:
  *
- *   summon — the gallery of every Actor in the world. Looked up
- *            occasionally, and a wall of portraits when open, so closed.
- *   detail — every beat's full detail at once, instead of one line each
+ *   detail —every beat's full detail at once, instead of one line each
  *            with the beat being run open. How a script is read the
  *            afternoon before, not how it is run, so off.
  *   knows  — what the table has been told so far this episode
@@ -380,7 +378,6 @@ export function displayName(member) {
  * A GM's own toggles persist, so this only decides the first render.
  */
 export const RUNNER_SECTIONS = Object.freeze([
-  { id: "summon", open: false },
   { id: "detail", open: false },
   { id: "knows", open: false }
 ]);

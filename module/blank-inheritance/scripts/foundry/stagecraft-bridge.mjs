@@ -14,14 +14,25 @@
  *   - a fired trigger can summon more people (the nest wakes: six centipedes);
  *   - on a scene Stagecraft draws, the older overlay of portrait frames is not mounted (stage.mjs asks `stagecraftDraws`);
  *   - the Scene Runner's drawer is a margin down the left of the GM's window: each screen's home view fits the stage into
- *     what is left, and opening, shutting or dragging the drawer glides the view there (Ingram, 2026-10-04).
+ *     what is left, and opening, shutting or dragging the drawer glides the view there (Ingram, 2026-10-04);
+ *   - the stage's wings, on the GM's screen (Ingram, 2026-10-04: "Could scenes start with NPCs already in place, then reveal
+ *     them in the main scene viewer content?"): everyone the scene's brief names who is not on the stage waits there, with
+ *     a faded card where each would stand, and the GM brings them on from the stage itself (a click, a way, or a drop on
+ *     the floor), finds anyone else from its box, and sends someone off or tells the table their name from a card's menu;
+ *   - the people a brief marks `present` are already standing there the first time its scene is opened.
  *
- * Players' screens need only the first and the last of these; the rest is the acting GM's.
+ * Players' screens need only the first and the margin; the rest is the GM's, and the writing the acting GM's.
  */
 
 import { MODULE_ID } from "./stage-store.mjs";
 import { fetchModuleJson, writeStorageJson } from "./io.mjs";
-import { readAuthoredCast, summonToStage } from "./stage.mjs";
+import { readAuthoredCast, readKnownNames, removeFromStage, summonToStage } from "./stage.mjs";
+import { briefOfScene, loadBrief, portraitIdFor, primeStagePortraits, stagePortraitFor, summonDescriptorFor, tellName } from "./stage-cast.mjs";
+import { deriveFoundryId } from "../core/ids.mjs";
+import { displayName } from "../core/scene-brief.mjs";
+import { isNameProtected, rawStageId } from "../core/stage-names.mjs";
+import { isDiagnosticName } from "../core/diagnostic-content.mjs";
+import { WAY_IDS, cardActionIds, findInCasts, presentOnOpen, waitingInWings, wayOf } from "../core/stage-wings.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
 import { drawerInset } from "./stage-camera.mjs";
@@ -38,6 +49,10 @@ Hooks.once("stagecraft.ready", (api) => {
   api?.blocking?.setCover?.(() => deckOnScreen());
   // the drawer covers the left of the GM's window (0 when shut, and always 0 for a player): home fits the stage beside it
   api?.view?.setMargins?.(() => ({ left: drawerInset() }));
+  // the wings (Stagecraft 0.13.0): who waits, anyone else, and the GM's own things on a card's menu
+  api?.wings?.setProvider?.((scene) => wingsOf(scene));
+  api?.wings?.setFinder?.((scene, query) => findAnyone(scene, query));
+  api?.blocking?.setCardActions?.((scene, cardId, card) => cardActions(scene, cardId, card));
 });
 
 /**
@@ -47,6 +62,164 @@ Hooks.once("stagecraft.ready", (api) => {
  */
 export function fitStageBesideRunner() {
   return game.modules.get(NS)?.api?.view?.home?.() === true;
+}
+
+/* ---------------------------------------------------------------- the wings */
+
+// every key written out in full, so test/tier0-architecture.test.mjs can prove each one is in lang/en.json
+const WAY_KEYS = { quiet: "BLANKINHERITANCE.Wings.Way.quiet", announced: "BLANKINHERITANCE.Wings.Way.announced", splash: "BLANKINHERITANCE.Wings.Way.splash" };
+
+/** The ways someone can come on, in the stage's own words: quietly, announced, or the splash. */
+const waysOffered = () => WAY_IDS.map((id) => ({ id, label: game.i18n.localize(WAY_KEYS[id]) }));
+
+/** What the GM's card menu needs to answer at once, per scene: the authored cast (the real ids) and the names already told. */
+const castMemory = new Map();
+async function rememberCast(scene) {
+  const [authored, known] = await Promise.all([readAuthoredCast(scene.id), readKnownNames()]);
+  castMemory.set(scene.id, { authored, known });
+}
+
+/**
+ * Who waits in the wings of a scene, for the GM's screen (Stagecraft's `api.wings`): everyone its brief names who is not on
+ * its stage now, at the place its stage entry gives them, with how they arrive by default. A protected person is shown by
+ * their real name (this is the GM's screen alone) with what the table calls them beside it.
+ */
+async function wingsOf(scene) {
+  if (!game.user?.isGM || !scene?.flags?.[NS]?.stage) return null;
+  const sourceId = scene.getFlag(MODULE_ID, "sourceId");
+  if (!ownsScene(sourceId)) return null;
+  const [brief, stages] = await Promise.all([briefOfScene(scene), loadStages(), primeStagePortraits().catch(() => null), rememberCast(scene).catch(() => null)]);
+  const def = entryFor(stages, sourceId) ?? {};
+  const published = scene.getFlag(MODULE_ID, "stage")?.cast ?? [];
+  const waiting = waitingInWings({ cast: brief?.cast ?? [], published, def, idOf: portraitIdFor, keyOf: rawStageId });
+  return {
+    people: waiting.map(({ id, member, at, size }) => ({
+      id,
+      name: displayName(member) ?? rawStageId(member),
+      title: [isNameProtected(member) ? game.i18n.format("BLANKINHERITANCE.Wings.Called", { called: member.called }) : "", member.role ?? ""].filter(Boolean).join(" · "),
+      portrait: member.img ?? stagePortraitFor(rawStageId(member)) ?? null,
+      at,
+      size,
+      way: wayOf(member.arrival) ?? "quiet"
+    })),
+    ways: waysOffered()
+  };
+}
+
+/** Every scene brief the world's scenes are built from, in the scene set's order: who the finder can find. */
+let everyBrief = null;
+function allBriefs() {
+  everyBrief ??= (async () => {
+    const set = await fetchModuleJson("data/campaign/campaign/scene-set.json").catch(() => null);
+    const refs = [...new Set((set?.scenes ?? []).map((s) => s.briefRef).filter(Boolean))];
+    return (await Promise.all(refs.map((ref) => loadBrief(ref)))).filter(Boolean);
+  })();
+  return everyBrief;
+}
+
+/** The ids of the Actors the world sync made for everyone a scene names (core/ids.mjs derives them), worked out once. */
+let castActorsPromise = null;
+function castActorIds(briefs) {
+  castActorsPromise ??= (async () => {
+    const keys = new Set(briefs.flatMap((b) => (b.cast ?? []).map((m) => rawStageId(m))));
+    return new Set(await Promise.all([...keys].map((k) => deriveFoundryId(k).catch(() => null))));
+  })();
+  return castActorsPromise;
+}
+
+/** What each id the finder last offered stands for, so `stagecraft.bring` can put them on the stage. */
+const foundIds = new Map();
+
+/**
+ * Anyone else the GM can bring on (the finder box on the wings): anyone in any scene's cast, as that scene knows them (their
+ * picture, a name held back), then any character or NPC in the world who is not one of them. Nobody already on this stage
+ * or in its wings, and none of the world's test fixtures.
+ */
+async function findAnyone(scene, query) {
+  if (!game.user?.isGM || !scene) return [];
+  const [briefs, own] = await Promise.all([allBriefs(), briefOfScene(scene), primeStagePortraits().catch(() => null)]);
+  const published = scene.getFlag(MODULE_ID, "stage")?.cast ?? [];
+  const exclude = new Set();
+  for (const m of published) { if (m.portraitId) exclude.add(m.portraitId); if (m.actorId) exclude.add(m.actorId); }
+  for (const m of own?.cast ?? []) exclude.add(portraitIdFor(m));
+  // an actor the sync made for someone a scene names is that person: they are offered from the scene, never by their actor
+  const castActors = await castActorIds(briefs);
+  const actors = game.actors.contents
+    .filter((a) => (a.type === "character" || a.type === "npc") && !isDiagnosticName(a.name) && !castActors.has(a.id))
+    .map((a) => ({ id: a.id, name: a.name, img: a.img, isPc: a.hasPlayerOwner }));
+  const hits = findInCasts({ query, briefs, actors, exclude, idOf: portraitIdFor, keyOf: rawStageId, nameOf: (m) => displayName(m) ?? rawStageId(m) });
+  foundIds.clear();
+  return hits.map((h) => {
+    if (h.kind === "cast") {
+      const id = `cast:${h.briefId}:${h.member.id}`;
+      foundIds.set(id, h);
+      return { id, name: displayName(h.member) ?? rawStageId(h.member), portrait: h.member.img ?? stagePortraitFor(rawStageId(h.member)) ?? null, note: h.briefTitle };
+    }
+    const id = `actor:${h.actor.id}`;
+    foundIds.set(id, h);
+    return { id, name: h.actor.name, portrait: h.actor.img ?? null, note: game.i18n.localize(h.actor.isPc ? "BLANKINHERITANCE.Wings.Pc" : "BLANKINHERITANCE.Wings.Npc") };
+  });
+}
+
+/**
+ * The GM brought someone on from the wings (Stagecraft's `stagecraft.bring`): the scene's own person through the same
+ * descriptor the Runner's Stage key and the entrance chips use, their own arrival unless a way was picked, and standing
+ * where they were dropped if they were; or whoever the finder found.
+ */
+export async function bringOn({ scene, id, way = null, at = null, found = false } = {}) {
+  if (!game.user?.isGM || !scene?.id || !id) return null;
+  const target = game.scenes.get(scene.id) ?? scene;
+  const sting = wayOf(way);
+  if (found) {
+    const hit = foundIds.get(id);
+    if (hit?.kind === "cast") return summonToStage(target, summonDescriptorFor(hit.member, sting ?? hit.member.arrival), { at });
+    if (hit?.kind === "actor") return summonToStage(target, { id: hit.actor.id, name: hit.actor.name, img: hit.actor.img, actorId: hit.actor.id, isPc: hit.actor.isPc, sting: sting ?? undefined }, { at });
+    return null;
+  }
+  const brief = await briefOfScene(target);
+  const member = (brief?.cast ?? []).find((m) => portraitIdFor(m) === id);
+  if (!member) return null;
+  return summonToStage(target, summonDescriptorFor(member, sting ?? member.arrival), { at });
+}
+
+/** The GM's own things on a card's menu (Stagecraft's `api.blocking.setCardActions`): send them off, tell their name. */
+function cardActions(scene, cardId, card) {
+  if (!game.user?.isGM || !scene) return [];
+  const published = scene.getFlag?.(MODULE_ID, "stage")?.cast ?? [];
+  const { authored = [], known = new Set() } = castMemory.get(scene.id) ?? {};
+  return cardActionIds({ cardId, card, published, authored, known }).map((id) => id === "send-off"
+    ? { id, label: game.i18n.localize("BLANKINHERITANCE.Wings.Menu.SendOff"), run: () => removeFromStage(game.scenes.get(scene.id) ?? scene, cardId) }
+    : { id, label: game.i18n.localize("BLANKINHERITANCE.Wings.Menu.TellName"), run: () => tellNameOf(scene, cardId) });
+}
+
+/** Tell the table the real name of someone on the stage, by their card. */
+async function tellNameOf(scene, cardId) {
+  const real = (await readAuthoredCast(scene.id)).find((m) => m.portraitId === cardId);
+  if (!real?.nameKey || !isNameProtected(real)) return null;
+  return tellName({ nameKey: real.nameKey, called: real.called, name: real.label });
+}
+
+/** Scenes whose present people are being put on now, so two hooks at once do not both do it. */
+const placing = new Set();
+
+/**
+ * The first time a scene is opened (nobody has been put on its stage since the last reset), the people its brief marks
+ * `present` are already standing there, brought on quietly before the party (D060).
+ */
+export async function placePresent(scene) {
+  if (!scene?.flags?.[NS]?.stage || !actingGM() || placing.has(scene.id)) return [];
+  if (!ownsScene(scene.getFlag(MODULE_ID, "sourceId"))) return [];
+  placing.add(scene.id);
+  try {
+    const brief = await briefOfScene(scene);
+    const staged = scene.getFlag(MODULE_ID, "stage") !== undefined;
+    const members = presentOnOpen({ cast: brief?.cast ?? [], kind: scene.getFlag(MODULE_ID, "kind") ?? null, staged });
+    if (members.length) await primeStagePortraits().catch(() => null);
+    for (const member of members) await summonToStage(scene, summonDescriptorFor(member, "quiet"));
+    return members;
+  } finally {
+    placing.delete(scene.id);
+  }
 }
 
 /** The deck's faceplate and its orb as they are on this screen now, in window pixels (nothing while it is not shown). */
@@ -73,7 +246,7 @@ function deckOnScreen() {
 export function stageTopControls() {
   const stage = document.getElementById("stagecraft-stage");
   const rects = [];
-  for (const el of stage?.querySelectorAll(".stagecraft-bar, .stagecraft-health, .stagecraft-gm-toggle") ?? []) {
+  for (const el of stage?.querySelectorAll(".stagecraft-bar, .stagecraft-health, .stagecraft-gm-toggle, .stagecraft-wings") ?? []) {
     if (el.hidden) continue;
     const r = el.getBoundingClientRect();
     if (r.width > 0 && r.height > 0 && r.top < window.innerHeight / 3) rects.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
@@ -102,6 +275,8 @@ export function loadStages() {
 export async function reloadStages() {
   stagesPromise = null;
   stagesLoaded = null;
+  everyBrief = null;                            // the finder reads the deployed briefs afresh
+  castActorsPromise = null;
   if (!game.user?.isGM || !stagecraftActive()) return;
   await loadStages();
   const touched = await applyStages();
@@ -332,13 +507,19 @@ export async function startStagecraftBridge() {
   // the theatre-of-the-mind stage's cast changed: the cards follow
   Hooks.on("updateScene", (scene, changes) => {
     if (changes?.flags?.[MODULE_ID]?.stage !== undefined) sync(scene);
+    // a scene cut to for the first time: its present people are there as the table arrives
+    if (changes?.active === true) placePresent(scene).catch((err) => console.warn(`${LOG} | could not put the present people on the stage`, err));
   });
+  // the GM brought someone on from the stage's wings
+  Hooks.on("stagecraft.bring", (event) => { bringOn(event).catch((err) => console.warn(`${LOG} | could not bring them on`, err)); });
   // a scene came into the world (the sync built it) or is opened: it gets its stage, its party and its cards
   Hooks.on("createScene", () => { applyStages().catch(() => {}); });
   Hooks.on("canvasReady", async (c) => {
     const scene = c?.scene ?? canvas?.scene;
     if (!scene) return;
     await applyStages().catch(() => {});
+    // present people first: whether the stage has been set yet is read before the party is put on it
+    await placePresent(game.scenes.get(scene.id)).catch((err) => console.warn(`${LOG} | could not put the present people on the stage`, err));
     await ensureParty(game.scenes.get(scene.id)).catch((err) => console.warn(`${LOG} | could not put the party on the stage`, err));
     await sync(game.scenes.get(scene.id));
   });
@@ -365,6 +546,7 @@ export async function startStagecraftBridge() {
   });
   Hooks.on("deleteCombat", () => { lightTurn(null).catch(() => {}); });
   if (canvas?.scene) {
+    await placePresent(canvas.scene).catch(() => {});
     await ensureParty(canvas.scene).catch(() => {});
     await sync(canvas.scene);
   }

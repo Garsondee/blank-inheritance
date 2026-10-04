@@ -105,3 +105,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The always-true carry-in (the docket in a pocket) is gone: the transition says it.
+
+## Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1.** The natural history teacher is `present`: the stage shows his specimen room. Hulda Brack and the range officer wait in the wings, for whoever goes to the workshop or the range.

@@ -150,6 +150,20 @@
       "Show": "Stage ▾",
       "Hide": "Stage ▴"
     },
+    "Wings": {
+      "Label": "Waiting in the wings",
+      "Title": "Waiting",
+      "Nobody": "Nobody waiting",
+      "Ghosts": "Show on stage",
+      "GhostsTip": "A faded card on the stage where each of them would stand, on your screen only",
+      "Find": "Bring on anyone…",
+      "FindLabel": "Find anyone to bring on",
+      "NoneFound": "Nobody by that name",
+      "Hands": "Click: bring them on · Right-click: how · Drag onto the stage: there",
+      "BringOn": "Bring {name} on",
+      "TheirWay": "Bring on: {way}",
+      "BringOnPlain": "Bring on"
+    },
     "Visit": {
       "At": "{name} · {zone}"
     },

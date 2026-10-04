@@ -147,10 +147,12 @@ function freeSlot(slots, cards) {
 }
 
 /**
- * Where a new card goes: the stage entry's own place for them if it names one, else the next free slot of their kind.
- * `cards` are the cards already placed (this pass included), so no two arrive on the same spot.
+ * Where a new card goes: where the GM dropped them from the stage's wings (`at`, the authored member's `stageAt`), else the
+ * stage entry's own place for them if it names one, else the next free slot of their kind. `cards` are the cards already
+ * placed (this pass included), so no two arrive on the same spot.
  */
-export function placeFor({ member, key, def, cards }) {
+export function placeFor({ member, key, def, cards, at = null }) {
+  if (Array.isArray(at) && at.length >= 2 && Number.isFinite(at[0]) && Number.isFinite(at[1])) return [at[0], at[1]];
   const named = def?.places?.[key];
   if (Array.isArray(named)) return [named[0], named[1]];
   if (member.kind === "pc") {
@@ -223,7 +225,7 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
     if ((before?.at || before?.mark) && !relayout) {
       for (const k of KEPT) if (before[k] !== undefined) card[k] = before[k];
     } else {
-      card.at = placeFor({ member, key, def, cards: out });
+      card.at = placeFor({ member, key, def, cards: out, at: real.get(member.portraitId)?.stageAt ?? null });
       const yaw = def.yaws?.[key] ?? (member.kind === "pc" ? partyYaw(def, card.at) : undefined);
       if (yaw !== undefined) card.yaw = yaw;
       // where the scene put them is home, the party's place in the wings included: the GM's Places button, and a moment

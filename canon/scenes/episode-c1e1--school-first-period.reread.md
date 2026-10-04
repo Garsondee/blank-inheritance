@@ -117,3 +117,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The always-true carry-in is gone.
+
+## Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1, R15.** Ota is `present`: the read-aloud has him already pulling the map down when they come in.

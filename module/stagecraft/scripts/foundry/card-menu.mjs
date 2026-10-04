@@ -7,6 +7,8 @@
  *     cleared. **Clear** takes off a kept one, a scene's authored habit included.
  *   - **For the GM**: give the card the floor or take it back, knock it down or stand it up, choose it for a formation (as
  *     a Shift-click does), and its sheet, for a card that names an actor its viewer may see.
+ *   - **Another module's own**, for the GM (`api.blocking.setCardActions`): what it offers for this card, after the stage's
+ *     (the adventure's "Send off" and "Tell their name"), each run when it is picked.
  *
  * An emote is written on the card in the published cast (blocking.mjs `setEmote`), so every screen shows it together and a
  * reload finds a kept one. Only a GM may write the scene, so a player's pick goes over the module's socket to the acting GM's
@@ -27,6 +29,31 @@ import { setEmote, setSpeaker, setDown } from "./blocking.mjs";
 
 const KEEP_KEY = "stagecraft.emoteKeep";
 const say = (key) => game.i18n.localize(`STAGECRAFT.Menu.${key}`);
+
+const actionProviders = new Set();
+
+/**
+ * Another module's own things for the GM to do to a card: provider(scene, cardId, card) -> [{ id, label, run() }], asked
+ * each time a GM opens a card's menu (so it must answer at once). Returns a function that takes it away.
+ */
+export function registerCardActions(provider) {
+  if (typeof provider !== "function") throw new TypeError("a card actions provider must be a function of the scene and the card");
+  actionProviders.add(provider);
+  return () => actionProviders.delete(provider);
+}
+
+/** What every provider offers for this card now: [{ id, label, run }]; one that throws offers nothing. */
+export function cardActionsFor(scene, id, card) {
+  const out = [];
+  for (const provider of actionProviders) {
+    try {
+      for (const a of provider(scene, id, card) ?? []) if (a && typeof a.id === "string" && typeof a.run === "function" && !out.some((o) => o.id === a.id)) out.push(a);
+    } catch (err) {
+      console.warn(`${NS} | a card actions provider failed`, err);
+    }
+  }
+  return out;
+}
 
 /** May this user put an emote on this card? A GM any card; a player one they may hold, whether or not hands are off. */
 export const mayEmote = (person, user) => !!person && !!user && canHold(person, user, { handsOff: false });
@@ -65,6 +92,8 @@ export class CardMenu {
     const c = host.stage?.cards.get(id);
     if (!c || host.dragging || host.chalk?.inHand) return false;
     const user = game.user;
+    // another module's own, for the GM: asked now, kept with the menu so a pick runs what was offered
+    this.extra = user?.isGM ? cardActionsFor(host.scene, id, c.person) : [];
     const menu = cardMenu({
       isGM: !!user?.isGM,
       mayEmote: mayEmote(c.person, user),
@@ -72,7 +101,8 @@ export class CardMenu {
       speaker: host.stage.speaker === id,
       down: !!c.downTo,
       chosen: !!host.selected?.has(id),
-      sheet: !!sheetOf(c.person, user)
+      sheet: !!sheetOf(c.person, user),
+      extra: this.extra.map((a) => ({ id: a.id, label: a.label }))
     });
     if (!menu) return false;
     this.card = id;
@@ -181,7 +211,7 @@ export class CardMenu {
       for (const a of menu.actions) {
         const b = this.#button("menu-action", () => this.#act(a.id));
         b.dataset.action = a.id;
-        b.textContent = say(this.#words(a));
+        b.textContent = a.label ?? say(this.#words(a));
         list.append(b);
       }
       el.append(list);
@@ -219,6 +249,11 @@ export class CardMenu {
     const c = id ? host.stage?.cards.get(id) : null;
     if (!c) return;
     const failed = (err) => console.warn(`${NS} | ${action} on ${id} failed`, err);
+    if (action.startsWith("extra:")) {
+      const own = this.extra?.find((a) => `extra:${a.id}` === action);
+      if (own) Promise.resolve().then(() => own.run()).catch(failed);
+      return;
+    }
     if (action === "floor") setSpeaker(host.scene, host.stage.speaker === id ? null : id).catch(failed);
     else if (action === "down") setDown(host.scene, id, !c.downTo).catch(failed);
     else if (action === "choose") {

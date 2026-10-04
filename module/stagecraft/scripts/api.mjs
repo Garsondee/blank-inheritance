@@ -13,8 +13,10 @@ import { publishMoves, arrange, backToPlaces, keepPlaces, setChalkBox, editStage
 import { EMOTE_ORDER } from "./core/emotes.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
 import { registerMargins } from "./foundry/margins.mjs";
+import { registerWings, registerFinder } from "./foundry/wings.mjs";
+import { registerCardActions } from "./foundry/card-menu.mjs";
 
-export const API_VERSION = "0.12.0";
+export const API_VERSION = "0.13.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -72,7 +74,23 @@ export function createApi({ skins, current }) {
       /** Offer a scene's authored blocking as buttons on the GM's strip: provider(scene) -> [{ id, label, tip?, run(scene) }]. */
       registerMoments: (provider) => registerMoments(provider),
       /** Say what your own interface covers over the stage: provider() -> [{ rect: [x0, y0, x1, y1] } | { circle: [cx, cy, r] }], window pixels. */
-      setCover: (provider) => registerCover(provider)
+      setCover: (provider) => registerCover(provider),
+      /** Add your own things to the GM's card menu: provider(scene, cardId, card) -> [{ id, label, run() }], answered at once. Returns a function that takes it away. */
+      setCardActions: (provider) => registerCardActions(provider)
+    },
+
+    /**
+     * Who waits in the wings (core/wings.mjs): the people a scene could still bring on, shown to the GM alone, as a tray along
+     * the top of the stage and a faded card where each would stand. Bringing one on raises `stagecraft.bring`; nothing is
+     * written or sent by the stage itself.
+     */
+    wings: {
+      /** provider(scene) -> { people: [{ id, name, title?, portrait?, at?, size?, way?, note? }], ways?: [{ id, label }] } (or a promise). Returns a function that takes it away. */
+      setProvider: (provider) => registerWings(provider),
+      /** finder(scene, query) -> [{ id, name, portrait?, note? }] (or a promise): anyone else the GM can find and bring on. Returns a function that takes it away. */
+      setFinder: (finder) => registerFinder(finder),
+      /** Ask the providers again, now (your own story changed). Resolves when the tray has been drawn again. */
+      refresh: () => current.host?.wings?.refresh() ?? Promise.resolve()
     },
 
     /**

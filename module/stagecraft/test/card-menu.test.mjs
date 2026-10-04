@@ -26,6 +26,15 @@ test("the menu offers the GM the emotes and the floor, a knock-down and a format
   assert.deepEqual(cardMenu({ mayEmote: false, sheet: true }).actions, [{ id: "sheet", on: false }], "a player sees a sheet they may see, even on a card not theirs");
 });
 
+test("another module's own things come after the stage's, on the GM's menu only, each once and with its own words", () => {
+  const extra = [{ id: "send-off", label: "Send off" }, { id: "send-off", label: "again" }, { id: "name", label: "  Tell their name " }, { id: "blank", label: " " }, { label: "no id" }];
+  const gm = cardMenu({ isGM: true, mayEmote: true, person: { id: "nobu" }, extra });
+  assert.deepEqual(gm.actions.slice(3), [{ id: "extra:send-off", on: false, label: "Send off" }, { id: "extra:name", on: false, label: "Tell their name" }]);
+  assert.deepEqual(cardMenu({ isGM: true, mayEmote: false, person: {}, sheet: true, extra: [{ id: "x", label: "X" }] }).actions.map((a) => a.id), [...CARD_ACTIONS, "extra:x"], "after the sheet");
+  assert.equal(cardMenu({ mayEmote: false, extra: [{ id: "x", label: "X" }] }), null, "a player is never offered them");
+  assert.deepEqual(cardMenu({ mayEmote: true, person: {}, extra: [{ id: "x", label: "X" }] }).actions, []);
+});
+
 test("Clear is offered for an emote the card keeps showing (a habit, or one kept), not for one shown once", () => {
   assert.equal(cardMenu({ mayEmote: true, person: { emote: { id: "music", t0: 2 } } }).kept, "music", "a scene's habit");
   assert.equal(cardMenu({ mayEmote: true, person: { emote: chosenEmote("hand", { keep: true, t0: 5 }) } }).kept, "hand");

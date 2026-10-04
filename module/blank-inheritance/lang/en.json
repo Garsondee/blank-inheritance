@@ -557,24 +557,10 @@
       "Temptations": "Tempt them with…",
       "TemptationUsed": "Said this",
       "TemptationUsedHint": "Mark that you actually said this out loud at the table, timestamped in the log. Reusable — click again any time you use it again.",
-      "Summon": {
-        "Title": "Summon anyone",
-        "OntoScene": "Summoning onto",
-        "NoScene": "No scene is open to summon onto.",
-        "Party": "Party",
-        "Others": "Others",
-        "Pc": "PC",
-        "Npc": "NPC",
-        "Summon": "Summon",
-        "Dismiss": "Dismiss",
-        "OnStage": "On stage"
+      "SceneRules": {
+        "Title": "Rules in this scene",
+        "Hint": "The system's own card for each. Any other rule: Ctrl+K, then rule and a word."
       },
-      "Rules": {
-        "Title": "Rules",
-        "Placeholder": "Search the SRD — press enter",
-        "NoResults": "Nothing found for that."
-      },
-      "SummonHint": "Put anyone in the world on the stage the table is looking at.",
       "Hide": "Hide the Scene Runner",
       "PickScene": "Pick a scene",
       "TimerHint": "How long this scene has been running, against how long the brief says it takes. It starts at the first thing you mark as done.",
@@ -587,9 +573,7 @@
       "CutHere": "Cut to this scene",
       "ShowAll": "Show every beat in full",
       "ShowNow": "Show just the current beat",
-      "OnStageNow": "On stage",
       "TakeOff": "Take them off the stage",
-      "NobodyOnStage": "Nobody yet",
       "ResizeHint": "Drag to resize. Double-click to go back to the default width.",
       "SceneOf": "Scene {n} of {total}",
       "Now": "Now",
@@ -1759,6 +1743,29 @@
       "NotebookPage": "Notebook page",
       "Track": "Track",
       "Close": "Close"
+    },
+    "Wings": {
+      "Way": {
+        "quiet": "Walk on quietly",
+        "announced": "Announce them",
+        "splash": "Splash"
+      },
+      "Called": "the table calls them “{called}”",
+      "Pc": "player character",
+      "Npc": "in the world",
+      "Menu": {
+        "SendOff": "Send off",
+        "TellName": "Tell the table their name"
+      }
+    },
+    "Rules": {
+      "CannotOpen": "Could not open {name}.",
+      "Close": "Close",
+      "Palette": {
+        "Group": "Rules",
+        "Search": "Search the rules: {query}",
+        "Article": "Rules: {title}"
+      }
     }
   }
 }

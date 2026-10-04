@@ -5,7 +5,8 @@
  * Anyone who may put an emote on the card (a GM any card, a player one that is theirs) gets the emotes: picked, one is shown
  * once, as a reaction; with "keep it up" on it comes round again every few seconds until it is cleared, as a regular's habit
  * does. The GM also gets a few things to change about the card: the floor, a knock-down, choosing it for a formation. Its
- * sheet is offered to whoever may open it.
+ * sheet is offered to whoever may open it. Another module may add the GM a few of its own (`api.blocking.setCardActions`:
+ * send someone off, tell the table their name), after the stage's.
  */
 
 import { EMOTES, EMOTE_ORDER } from "./emotes.mjs";
@@ -26,11 +27,13 @@ export const CARD_ACTIONS = Object.freeze(["floor", "down", "choose", "sheet"]);
  * @param o.down      the card is down
  * @param o.chosen    the card is chosen for a formation
  * @param o.sheet     the card has a sheet this viewer may open
+ * @param o.extra     another module's own things for the GM to do to this card: [{ id, label }] (a GM's menu only)
  * @returns null when there is nothing to offer this viewer, else
- *          { emotes: boolean, kept: emote id or null, actions: [{ id, on }] }
+ *          { emotes: boolean, kept: emote id or null, actions: [{ id, on, label? }] }
+ *          where an action of another module's is `extra:<its id>` with its own `label`
  *          where `kept` is an emote the card keeps showing (chosen and kept, or an authored habit): the one "Clear" takes off.
  */
-export function cardMenu({ isGM = false, mayEmote = false, person = null, speaker = false, down = false, chosen = false, sheet = false } = {}) {
+export function cardMenu({ isGM = false, mayEmote = false, person = null, speaker = false, down = false, chosen = false, sheet = false, extra = [] } = {}) {
   const actions = [];
   if (isGM) {
     actions.push({ id: "floor", on: !!speaker });
@@ -38,6 +41,15 @@ export function cardMenu({ isGM = false, mayEmote = false, person = null, speake
     actions.push({ id: "choose", on: !!chosen });
   }
   if (sheet) actions.push({ id: "sheet", on: false });
+  if (isGM) {
+    const seen = new Set();
+    for (const x of Array.isArray(extra) ? extra : []) {
+      const label = typeof x?.label === "string" ? x.label.trim() : "";
+      if (typeof x?.id !== "string" || !x.id || !label || seen.has(x.id)) continue;
+      seen.add(x.id);
+      actions.push({ id: `extra:${x.id}`, on: false, label });
+    }
+  }
   if (!mayEmote && !actions.length) return null;
   const e = person?.emote;
   return { emotes: !!mayEmote, kept: e?.id && !e.once && EMOTES[e.id] ? e.id : null, actions };

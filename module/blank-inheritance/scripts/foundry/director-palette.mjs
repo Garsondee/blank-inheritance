@@ -52,6 +52,10 @@ import { cachedAudio, loadAudio } from "./audio-store.mjs";
 import { applySoundscape, playMusicPool, runCue, stopAllAudio } from "./audio-director.mjs";
 import { openAdminPanel } from "./admin-panel.mjs";
 import { openLocationEditor } from "./location-editor.mjs";
+import { cachedRulesGlossary, loadRulesGlossary, openRule, showArticle } from "./rules-glossary.mjs";
+import { loadRulesIndex } from "./rules-index.mjs";
+import { searchRules } from "../core/rules-search.mjs";
+import { glossaryMatches } from "../core/scene-rules.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -137,6 +141,48 @@ function castCommands() {
         }
       ];
     });
+}
+
+/**
+ * The rules (2026-10-04): every condition, action and SRD rule the glossary knows, one command each, opening the system's
+ * own card for it (data/rules-glossary.json, foundry/rules-glossary.mjs). The Scene Runner offers the ones a scene names;
+ * this is every other one, by name.
+ */
+const RULE_ICON = { condition: "fa-solid fa-person-falling-burst", action: "fa-solid fa-person-running", rule: "fa-solid fa-book-open" };
+function ruleCommands() {
+  return (cachedRulesGlossary()?.entries ?? []).map((entry, i) => ({
+    id: `rule.${entry.id}`,
+    group: "rules",
+    order: i,
+    title: `Rule: ${entry.name}`,
+    hint: entry.kind === "rule" ? entry.citation ?? "SRD" : entry.kind,
+    icon: RULE_ICON[entry.kind] ?? "fa-solid fa-book",
+    keywords: ["rule", "rules", entry.kind],
+    run: () => openRule(entry)
+  }));
+}
+
+/** The rules index, once read: "rule <words>" searches it at every keystroke and cannot wait. */
+let rulesIndex = null;
+
+/**
+ * "rule <words>" (or "rules", "srd"): the SRD articles that answer it, and any condition or action by that name, pinned at
+ * the top like the other typed shortcuts. What the Scene Runner's search box used to do, where a GM already types.
+ */
+function ruleSearchCommands(query) {
+  const m = /^(?:rules?|srd)\s+(.+)$/i.exec(String(query ?? "").trim());
+  if (!m) return [];
+  const words = m[1].trim();
+  const named = glossaryMatches(cachedRulesGlossary(), words, 3).map((rule) => ({
+    id: `quick.rule.${rule.id}`, group: "quick", pinned: true, title: `Rule: ${rule.name}`, hint: rule.kind === "rule" ? rule.citation ?? "SRD" : rule.kind,
+    icon: RULE_ICON[rule.kind] ?? "fa-solid fa-book", run: () => openRule(rule)
+  }));
+  const terms = words.toLowerCase().split(/\s+/).filter(Boolean).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const articles = searchRules(rulesIndex ?? [], words, { limit: 5 }).map((hit) => ({
+    id: `quick.srd.${hit.id}`, group: "quick", pinned: true, title: `Rules: ${hit.title}`, hint: hit.pageCitation ?? null, icon: "fa-solid fa-book",
+    run: () => { const article = (rulesIndex ?? []).find((a) => a.id === hit.id); if (article) showArticle(article, { name: words, patterns: terms }); }
+  }));
+  return [...named, ...articles];
 }
 
 /** Soundscapes and cues, straight off the authored audio (design/audio-system.md). */
@@ -518,10 +564,9 @@ function offScriptCommands() {
 /** Panels, and the handful of Foundry-native things a GM reaches for constantly. */
 function panelCommands() {
   return [
-    // "Summon" folded into the Scene Runner itself 2026-09-18 (its own
-    // standalone panel retired) -- keywords cover both so it stays findable
-    // under the name the panel used to have.
-    { id: "panel.runner", group: "panel", order: 0, title: "Scene Runner", icon: "fa-solid fa-list-check", keywords: ["brief", "beats", "script", "summon", "cast", "stage"], run: () => toggleSceneRunner() },
+    // Summoning left the Scene Runner for the stage's own wings on 2026-10-04
+    // (D060); typing "summon" finds the cast commands above, one per Actor.
+    { id: "panel.runner", group: "panel", order: 0, title: "Scene Runner", icon: "fa-solid fa-list-check", keywords: ["brief", "beats", "script", "cast", "stage"], run: () => toggleSceneRunner() },
     // "Phone" was renamed Comms and rebuilt as the hand-held field set,
     // 2026-09-23 — the old name stays a keyword so it is still found by it.
     { id: "panel.comms", group: "panel", order: 1, title: "Comms", hint: "session log, radio, and the handset's apps", icon: "fa-solid fa-walkie-talkie", keywords: ["phone", "radio", "handset", "apps", "snake", "pet", "fortune"], run: () => togglePhone() },
@@ -582,7 +627,8 @@ export function directorCommands() {
     ...revealCommands(),
     ...checkCommands(),
     ...logCommands(),
-    ...panelCommands()
+    ...panelCommands(),
+    ...ruleCommands()
   ].map((c) => ({
     ...c,
     title: typeof c.title === "function" ? c.title() : c.title,
@@ -642,10 +688,15 @@ export class DirectorPalette extends HandlebarsApplicationMixin(ApplicationV2) {
   /** The world's commands (built once per opening) plus whatever the typed text itself asks for. */
   #allCommands() {
     if (!this.#commands.length) this.#commands = directorCommands();
-    return [...quickCommands(this.#query), ...this.#commands];
+    return [...quickCommands(this.#query), ...ruleSearchCommands(this.#query), ...this.#commands];
   }
 
   async _prepareContext() {
+    // the rules are read once per page, before the first list is built (ruleCommands, ruleSearchCommands)
+    if (!rulesIndex || !cachedRulesGlossary()) {
+      const [index] = await Promise.all([loadRulesIndex().catch(() => []), loadRulesGlossary()]);
+      rulesIndex = index;
+    }
     const model = paletteModel(this.#query, this.#allCommands(), { recents: recents(), selected: this.#selected });
     const picked = selection();
     return {

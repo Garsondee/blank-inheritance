@@ -3,11 +3,11 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.12.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.13.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
 published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
 0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
-`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them; the `stagecraft.keep` hook says so); 0.9.0 added `api.blocking.setChalkBox` (the box of chalk somewhere else); 0.10.0 added `api.blocking.editStage` (move marks and the corners of zones) and the strip's "Edit stage"; 0.11.0 added `api.blocking.setEmote` and `api.emotes` (an emote on a card, shown once or kept, chosen at the table from the card's menu: a right-click on a card) and a card's `emote` and `actor`; 0.12.0 freed the view (every screen pans and zooms its own: drag the bare stage, right- or middle-drag, the wheel; a double-click or the Home key goes home) and added `api.view.setMargins` and `api.view.home`.
+`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them; the `stagecraft.keep` hook says so); 0.9.0 added `api.blocking.setChalkBox` (the box of chalk somewhere else); 0.10.0 added `api.blocking.editStage` (move marks and the corners of zones) and the strip's "Edit stage"; 0.11.0 added `api.blocking.setEmote` and `api.emotes` (an emote on a card, shown once or kept, chosen at the table from the card's menu: a right-click on a card) and a card's `emote` and `actor`; 0.12.0 freed the view (every screen pans and zooms its own: drag the bare stage, right- or middle-drag, the wheel; a double-click or the Home key goes home) and added `api.view.setMargins` and `api.view.home`; 0.13.0 added the wings (`api.wings`: the people a scene could still bring on, shown to the GM as a tray and as faded cards where they would stand, and the `stagecraft.bring` hook when one is brought on) and `api.blocking.setCardActions` (your own things on the GM's card menu).
 
 ## api
 
@@ -39,6 +39,10 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.blocking.setDown(scene, id, down)` | GM only. Knock a card down (a defeated foe, a character at 0 HP: it tips over backwards and lies on the floor, dimmed, going nowhere) or stand it back up. The GM can also Ctrl-click a card |
 | `api.blocking.registerMoments(provider)` | Offer a scene's authored blocking as buttons on the GM's strip: `provider(scene)` returns `[{ id, label, tip?, run(scene) }]`. Returns a function that takes it away |
 | `api.blocking.setCover(provider)` | Say what your own interface covers over the stage (a deck of controls along the bottom, a dial rising out of it): `provider()` returns shapes in window pixels as they are now, `{ rect: [x0, y0, x1, y1] }` or `{ circle: [cx, cy, r] }`. Formations then keep everyone clear of it: no more than the bottom 15% of a card under it, a card moved back up the stage if need be. Returns a function that takes it away |
+| `api.blocking.setCardActions(provider)` | Add your own things to the GM's menu on a card (a right-click): `provider(scene, cardId, card)` returns `[{ id, label, run() }]` for that card, asked each time a GM opens its menu, so it must answer at once. They come after the stage's own, and `run()` is called when one is picked. A player's menu never shows them. Returns a function that takes it away |
+| `api.wings.setProvider(provider)` | Say who waits in the wings of a scene: `provider(scene)` returns (or resolves to) `{ people: [{ id, name, title?, portrait?, at?, size?, way?, note? }], ways?: [{ id, label }] }`. The GM's screen shows each person's face in a tray along the top of the stage and, for one with `at` (a point of the painting), a faded card standing there at the size they would be (`size` as a card's). `ways` are how someone can come on (`way` is a person's own); `note` is a line for the GM. Someone with a card on the stage already is not shown. Asked when a stage starts, whenever its scene changes, and on `api.wings.refresh()`. Nothing is written to the scene or sent to another screen. Returns a function that takes it away |
+| `api.wings.setFinder(finder)` | Let the GM find anyone else to bring on, from a box on the tray: `finder(scene, query)` returns (or resolves to) `[{ id, name, portrait?, note? }]`, eight at most shown. Returns a function that takes it away |
+| `api.wings.refresh()` | Ask the providers again, now (your own story changed while the scene did not). Resolves when the tray has been drawn again |
 | `api.view.setMargins(provider)` | Say what your own interface takes along the window's edges (a drawer down the left, say): `provider()` returns `{ left?, right?, top?, bottom? }` in window pixels as things are now. A screen's home view then fits the whole width of the stage into what is left, centred there, instead of covering the window. Returns a function that takes it away |
 | `api.view.home({ animate })` | Glide this screen's view home: the whole stage in sight, clear of the margins. Call it when your interface opened, shut or changed size (`animate: false` jumps). Each screen's view is its own and is never sent: everyone pans (a drag on the bare stage, a right- or middle-drag) and zooms (the wheel, about the pointer) as they like, and goes home with a double-click on the bare stage or the Home key. Returns whether a stage was there |
 | `api.stage()` | The stage on screen now as `{ stage, backend }`, or `null` |
@@ -69,6 +73,7 @@ Raised with `Hooks.callAll`. The first argument is the event; the second is the 
 | `stagecraft.keepBox` | The GM moved the box of chalk (`api.blocking.setChalkBox`): `{ scene, at }`, `at` in fractions of the painting. Raised once, on the GM's screen |
 | `stagecraft.keepStage` | The GM moved a mark or a zone (`api.blocking.editStage`): `{ scene, marks: [{ id, at }], zones: [{ id, shape, floor? }] }`, all of them as they are now. Raised once, on the GM's screen |
 | `stagecraft.chalk` | Someone on this screen painted on the wall, and it is kept: `{ type: "chalk", scene, by, tool, colour, bounds }`. `tool` is one of `api.chalkTools`, `colour` is `"#rrggbb"`, and `bounds` is where the stroke lay, `{ x0, y0, x1, y1 }` in fractions of the painting. Raised once per stroke, on the painter's own screen |
+| `stagecraft.bring` | The GM brought someone on from the wings: `{ scene, id, way, at, found }`. `id` is the provider's (or the finder's, with `found: true`); `way` is one of the provider's ways, or `null` for the person's own; `at` is the point of the painting `[fx, fy]` they were dropped on, or `null` for their own place. The stage puts nobody on itself: answer it by publishing their card. Raised once, on the GM's screen |
 | `stagecraft.settingsChanged` | A player changed one of their Stagecraft settings; the argument is its name |
 
 ## A stage scene
@@ -119,6 +124,17 @@ name them, or one that names no one, hands off or not) gets the emotes: one pick
 on, kept until **Clear**. A player's pick goes to the acting GM's screen over the module's socket and is written there, so
 it needs a GM on. The GM also gets **Give them the floor** (`setSpeaker`), **Knock down** / **Stand up** (`setDown`) and
 **Choose for a formation** (a Shift-click), and, for a card with an `actor`, **Open their sheet**.
+
+## The wings
+
+On the GM's screen only, while a stage scene is up, a tray stands along the top of the stage, under the GM's strips: a face
+for everyone `api.wings.setProvider` says is still waiting, and a box to find anyone else (`api.wings.setFinder`). For
+someone with a place, a faded card stands there too, at the size their card would be. On a face, a faded card or something
+found: a **click** brings them on their own way, a **right-click** asks how (the provider's `ways`), and a **drag** onto the
+stage brings them on where they are dropped. Each raises `stagecraft.bring`; the provider's module answers it by putting
+their card on the stage, and they leave the wings because the provider stops naming them. The tray's **Show on stage** key
+hides the faded cards (remembered on that machine); they also step aside while chalk is in hand, a formation waits for the floor or
+the stage is being edited.
 
 ## The box of chalk
 

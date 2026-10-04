@@ -141,6 +141,7 @@
       "label": "A pilot-track candidate",
       "role": "A pilot-track candidate at the next table.",
       "walkOn": true,
+      "present": true,
       "arrival": "quiet",
       "brief": {
         "wants": "Everyone to know his section got harbour patrol.",

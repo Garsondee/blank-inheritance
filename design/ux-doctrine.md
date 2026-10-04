@@ -1272,7 +1272,13 @@ Context-swapped, one at a time, in the right column:
 - **Rules** — a search box over the 205 locally mirrored SRD articles in `reference/srd/`. This is
   buildable today and answers the rulebook's own first-listed GM priority, *answering questions
   quickly and decisively*. Results are short, with the page citation, because a GM mid-scene needs
-  an answer and a reference, not an article.
+  an answer and a reference, not an article. **Superseded 2026-10-04 (D060):** Ingram found the box
+  little use ("The rules search box isn't very useful either"), because it asks the GM to think of
+  the word first. The Runner now offers **Rules in this scene**, every rule the scene's own words
+  name (its fight's creatures, the conditions and actions its beats, checks and clock mention, SRD
+  rules such as difficult terrain), each one press to the system's own card or the article
+  (`core/scene-rules.mjs`, generated glossary `data/rules-glossary.json`). The free search moved to
+  the Palette, where the GM already types: `rule flanking`.
 - **Cast** — every NPC's **Character Card** (`design/npc-social-intel.md`): full-visibility Facts
   list, current Attitude, and the reveal control that marks a Fact learned. For important
   conversations, the same card opens straight into the dialogue panel already specified in

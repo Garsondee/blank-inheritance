@@ -604,6 +604,19 @@ test("where a card was put down is kept when the cast is mirrored again, and a n
   assert.equal(sameCards(mirrorCards({ published: [member("summon-nobu")], existing: moved, def }), moved), true, "nothing to write when nothing changed");
 });
 
+test("someone dropped from the wings stands where they were dropped; a later plain summon goes back to their place (D060)", () => {
+  // the drop point is kept GM-side, on the authored member (`stageAt`, never published), and read only for a new card
+  const authored = [member("summon-nobu", { stageAt: [0.31, 0.88] })];
+  const cards = mirrorCards({ published: [member("summon-nobu")], authored, def });
+  assert.deepEqual(cards[0].at, [0.31, 0.88], "where they were dropped, not their place");
+  assert.deepEqual(cards[0].home, [0.31, 0.88], "and Places brings them back there");
+  assert.deepEqual(placeFor({ member: member("summon-nobu"), key: "nobu", def, cards: [], at: null }), [0.6, 0.64], "no drop: their place");
+  assert.deepEqual(placeFor({ member: member("summon-nobu"), key: "nobu", def, cards: [], at: ["x", 1] }), [0.6, 0.64], "a drop that is not a point is no drop");
+  const kept = mirrorCards({ published: [member("summon-nobu")], authored: [member("summon-nobu", { stageAt: [0.9, 0.9] })], existing: cards, def });
+  assert.deepEqual(kept[0].at, [0.31, 0.88], "a card already on the stage keeps where it is");
+  assert.equal(JSON.stringify(publishedCast(authored, new Set())).includes("stageAt"), false, "the drop point is never published");
+});
+
 test("someone who leaves the published cast leaves the stage", () => {
   const first = mirrorCards({ published: [member("summon-a"), member("summon-b")], def });
   const after = mirrorCards({ published: [member("summon-b")], existing: first, def });

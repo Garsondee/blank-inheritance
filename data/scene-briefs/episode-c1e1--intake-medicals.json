@@ -100,6 +100,7 @@
       "label": "The records clerk",
       "role": "Records clerk, Intake.",
       "arrival": "quiet",
+      "present": true,
       "brief": {
         "wants": "Every form filled in correctly, once.",
         "opensWith": "The box they've got wrong, before their name.",

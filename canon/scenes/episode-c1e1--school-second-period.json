@@ -28,6 +28,7 @@
       "label": "The natural history teacher",
       "role": "Teaches natural history from thirty years of the city's drains and tide-line.",
       "arrival": "quiet",
+      "present": true,
       "brief": {
         "wants": "Anyone, at all, to be interested.",
         "opensWith": "A jar pressed into the nearest hands: \"Hold that. Both hands. It's heavier than it looks.\"",

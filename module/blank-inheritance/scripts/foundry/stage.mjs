@@ -231,11 +231,18 @@ async function protectedArt(sourcePath, id) {
  * duplicating them (same portraitId, matching setRevealed's own update
  * pattern) — a Director re-summoning is "bring them back", not "add a
  * second copy of them".
+ *
+ * `at` is a point of the painting the GM dropped them on from the stage's
+ * wings (2026-10-04): a Stagecraft scene stands their new card there instead
+ * of at their authored place (core/stagecraft-bridge.mjs#placeFor). It is kept
+ * GM-side on the authored member (`stageAt`, never published), and every
+ * summon writes it afresh, so a later plain summon goes back to the place.
  */
-export async function summonToStage(scene, descriptor, { side = null } = {}) {
+export async function summonToStage(scene, descriptor, { side = null, at = null } = {}) {
   if (!game.user.isGM || !scene || !descriptor?.id) return null;
   const member = castMemberFromDescriptor(descriptor);
   if (side) member.side = side;
+  member.stageAt = Array.isArray(at) && at.length >= 2 && at.every?.((n) => Number.isFinite(n)) ? [at[0], at[1]] : null;
   // A protected person's picture is shown under an opaque file name, because
   // `assets/stage/<npc id>.webp` is a name in all but spelling. If the copy
   // cannot be made the frame shows its silhouette rather than the real path.

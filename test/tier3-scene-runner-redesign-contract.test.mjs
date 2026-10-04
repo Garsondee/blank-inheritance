@@ -31,7 +31,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,7 +42,6 @@ const themeSrc = readFileSync(path.join(moduleRoot, "scripts", "foundry", "runne
 const runnerSrc = readFileSync(path.join(moduleRoot, "scripts", "foundry", "scene-runner.mjs"), "utf8");
 const closeSrc = readFileSync(path.join(moduleRoot, "scripts", "foundry", "scene-close.mjs"), "utf8");
 const panelHbs = readFileSync(path.join(moduleRoot, "templates", "runner", "panel.hbs"), "utf8");
-const summonRowHbs = readFileSync(path.join(moduleRoot, "templates", "runner", "summon-row.hbs"), "utf8");
 const closeHbs = readFileSync(path.join(moduleRoot, "templates", "console", "scene-close.hbs"), "utf8");
 const css = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
 const en = JSON.parse(readFileSync(path.join(moduleRoot, "lang", "en.json"), "utf8"));
@@ -121,19 +120,15 @@ test("scene-close.hbs renders highlights only when there is one, with a fallback
   assert.equal(opens, closes, `scene-close.hbs has unbalanced Handlebars blocks (${opens} opens, ${closes} closes)`);
 });
 
-test("the Summon gallery template is a card, not the old cramped row, and never reintroduces a GLASS-register class", () => {
-  assert.match(summonRowHbs, /class="bi-summon__card/);
-  assert.match(summonRowHbs, /class="bi-summon__portrait-well"/);
-  assert.match(summonRowHbs, /bi-summon__onstage-badge/);
-  assert.doesNotMatch(summonRowHbs, /bi-term-key/, "bi-term-key is a GLASS-register class and must not survive on a PAPER-background gallery");
+test("the Summon gallery is gone with its template and its styles (2026-10-04, D060): the stage's own wings bring anyone on", () => {
+  assert.ok(!existsSync(path.join(moduleRoot, "templates", "runner", "summon-row.hbs")), "templates/runner/summon-row.hbs is still there");
+  assert.doesNotMatch(panelHbs, /summon-row\.hbs|data-section="summon"/);
+  assert.doesNotMatch(css, /\.bi-summon__/, "the gallery's styles outlived it");
 });
 
 test("every new class this pass introduces is real, styled CSS -- not markup pointing at a rule that doesn't exist", () => {
   for (const selector of [
     ".bi-runner__theme-toggle",
-    ".bi-summon__card",
-    ".bi-summon__portrait-well",
-    ".bi-summon__onstage-badge",
     ".bi-scene-close__recap",
     ".bi-scene-close__recap-title",
     ".bi-scene-close__highlight-tag",
@@ -154,7 +149,6 @@ test("en.json carries every localisation key this pass introduced", () => {
   const runner = en.BLANKINHERITANCE.Runner;
   const close = en.BLANKINHERITANCE.SceneClose;
   assert.equal(typeof runner.ThemeToggle, "string");
-  assert.equal(typeof runner.Summon.OnStage, "string");
   assert.equal(typeof close.RecapTitle, "string");
   assert.equal(typeof close.HighlightsLabel, "string");
   assert.equal(typeof close.HighlightsEmpty, "string");

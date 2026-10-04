@@ -123,3 +123,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The where line repeated the read-aloud; it now carries the one staging fact (Section Nine sits together at the front), and the carry-in that said it is gone. "Drop any part but the last two" now says paragraphs. Shucks keeps his protected name here too: the table sees Doctor Mordant until the Name key is pressed.
+
+## Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1, R15.** The read-aloud puts a line of staff on the platform as the intake files in, so the three of them with no entrance of their own (Shucks Mordant, Hulda Brack, the comms officer) are `present`: standing on the stage when the scene first opens. The Deputy Director still steps up at the address, and Vetch still collects Section Nine at the door.

@@ -41,7 +41,10 @@ export const COMMAND_GROUPS = Object.freeze([
   { id: "check", label: "Checks" },
   { id: "log", label: "Log" },
   { id: "panel", label: "Panels" },
-  { id: "table", label: "The table" }
+  { id: "table", label: "The table" },
+  // Every condition, action and SRD rule the glossary knows (2026-10-04, data/rules-glossary.json), each opening the
+  // system's own card. Last: a GM types for these, never browses them. "rule <words>" searches the SRD as well.
+  { id: "rules", label: "Rules" }
 ]);
 
 const GROUP_ORDER = new Map(COMMAND_GROUPS.map((g, i) => [g.id, i]));

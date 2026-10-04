@@ -244,8 +244,10 @@ test("every result is listed on its beat, and any of them can be used instead wi
 /*  People                                                           */
 /* ---------------------------------------------------------------- */
 
-test("who is on stage is listed with a way off; a brief's own cast can finally be taken off the stage from the runner", () => {
-  assert.match(panel, /\{\{#each onStageNow\}\}[\s\S]*?data-action="unstagePerson" data-portrait-id="\{\{portraitId\}\}"/);
+test("a brief's own cast can be taken off the stage from the runner; who is on it is the stage's own business (D060)", () => {
+  // the On stage row went in D060: the stage shows who is on it, the GM's card menu sends anyone off, and the wings hold
+  // everyone still to come
+  assert.doesNotMatch(panel, /onStageNow|bi-runner__onstage/);
   assert.match(fnBody("onUnstagePerson"), /removeFromStage\(scene, portraitId\)/);
   assert.match(src, /unstagePerson:\s*SceneRunner\.#onUnstagePerson/);
 });
@@ -292,7 +294,7 @@ test("every class the rebuild introduced is real CSS", () => {
     "bi-runner__cols", "bi-runner__script", "bi-runner__side", "bi-runner__people", "bi-runner__kit",
     "bi-runner__beat-row", "bi-runner__beat-summary", "bi-runner__beat-chips", "bi-runner__beat--now", "bi-runner__now",
     "bi-runner__outcome", "bi-runner__outcome--picked", "bi-runner__outcome-text", "bi-runner__rolls",
-    "bi-runner__bookend", "bi-runner__onstage-chip", "bi-runner__unstage", "bi-runner__grip", "bi-runner__note-tag",
+    "bi-runner__bookend", "bi-runner__unstage", "bi-runner__grip", "bi-runner__note-tag",
     "bi-runner__elsewhere", "bi-runner__meter-seg", "bi-runner__fight"
   ]) {
     assert.ok(new RegExp(`\\.${cls}[\\s,{:.\\[]`).test(css), `.${cls} has no rule in bi-components.css`);

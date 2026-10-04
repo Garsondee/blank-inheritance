@@ -26,10 +26,18 @@
       script    — the goal, then the scene in the order it is run: the
                   opening, one line per beat with the beat being run open,
                   the ending, and Close this scene again at the foot
-      people    — who is on stage, the clock, what to tempt them with, and a
+      people    — the party, the clock, what to tempt them with, and a
                   card per cast member (the one the current beat is about
                   opens by itself, so their voice sits beside the line)
-      kit       — handouts, things they keep, summon anyone, the rules
+      kit       — handouts, things they keep, what the table knows, and
+                  the rules this scene's words name
+
+    Who is on the stage, and anyone else to bring on, are the stage's own
+    business now (2026-10-04): the GM sees the scene's people waiting in the
+    wings on the stage itself and brings them on there
+    (foundry/stagecraft-bridge.mjs), and the free rules search is the
+    Palette's ("rule flanking"). The On stage row, the Summon fold and the
+    Rules box that used to be here are gone.
       composer  — the note bar, always at the foot
 
     Below ~760px of drawer the columns stack into one scroll; above ~1320px
@@ -78,12 +86,6 @@
                     {{#if editPending}}<span class="bi-runner__edit-count" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.PendingHint'}}">{{editPending}}</span>{{/if}}
                 </button>
                 {{/if}}
-                <button type="button" class="bi-runner__tier1-btn" data-action="jumpToSummon" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.SummonHint'}}">
-                    <i class="fa-solid fa-masks-theater"></i> {{localize "BLANKINHERITANCE.Runner.Summon.Title"}}
-                </button>
-                <button type="button" class="bi-runner__tier1-btn" data-action="focusRules" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Rules.Placeholder'}}">
-                    <i class="fa-solid fa-book"></i> {{localize "BLANKINHERITANCE.Runner.Rules.Title"}}
-                </button>
                 <button type="button" class="bi-runner__theme-toggle" data-action="toggleTheme"
                     title="{{localize 'BLANKINHERITANCE.Runner.ThemeToggle'}}"
                     aria-label="{{localize 'BLANKINHERITANCE.Runner.ThemeToggle'}}">
@@ -613,20 +615,6 @@
                 </section>
                 {{/if}}
 
-                {{!-- Who the table can see right now, whoever put them there,
-                      each with a way to take them off again. --}}
-                <section class="bi-runner__onstage">
-                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.OnStageNow"}}</h3>
-                    <div class="bi-runner__onstage-row">
-                        {{#each onStageNow}}
-                        <span class="bi-runner__onstage-chip{{#if isPc}} bi-runner__onstage-chip--pc{{/if}}">{{label}}<button type="button" class="bi-runner__onstage-off" data-action="unstagePerson" data-portrait-id="{{portraitId}}" aria-label="{{localize 'BLANKINHERITANCE.Runner.TakeOff'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.TakeOff'}}">&times;</button></span>
-                        {{else}}
-                        <span class="bi-runner__onstage-none">{{localize "BLANKINHERITANCE.Runner.NobodyOnStage"}}</span>
-                        {{/each}}
-                        <button type="button" class="bi-runner__linkbtn" data-action="jumpToSummon">+ {{localize "BLANKINHERITANCE.Runner.Summon.Title"}}</button>
-                    </div>
-                </section>
-
                 {{#if clock}}
                 <section class="bi-runner__section bi-runner__clockbox">
                     <h3 class="bi-runner__section-title">{{clock.name}}</h3>
@@ -688,7 +676,7 @@
                 {{/if}}
             </div>
 
-            {{!-- KIT: what can be handed over, anyone else, and the rules. --}}
+            {{!-- KIT: what can be handed over, what the table knows, and the rules the scene names. --}}
             <div class="bi-runner__kit">
                 {{#if handouts.length}}
                 <section class="bi-runner__section">
@@ -741,7 +729,7 @@
                       every fact told so far this episode, scene by scene, from
                       the beats already ticked -- the same answer every time a
                       player asks what was said about the founders. Folded,
-                      and remembered per GM, like the summon gallery. --}}
+                      and remembered per GM. --}}
                 {{#if told.count}}
                 <details class="bi-runner__section bi-runner__section--fold bi-runner__knows" data-section="knows"{{#if sections.knows}} open{{/if}}>
                     <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Knows.Title"}} <span class="bi-runner__count">{{told.count}}</span></summary>
@@ -754,56 +742,26 @@
                 </details>
                 {{/if}}
 
-                {{!-- Summon anyone, onto whatever scene the table is looking
-                      at -- a general GM action independent of the loaded
-                      brief, so it works with no brief open at all. Folded in
-                      2026-09-18 from what used to be its own floating panel. --}}
-                <details class="bi-runner__section bi-runner__section--fold" data-section="summon"{{#if sections.summon}} open{{/if}}>
-                    <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Summon.Title"}}</summary>
-                    {{#if summon.hasScene}}
-                    <p class="bi-summon__scene">{{localize "BLANKINHERITANCE.Runner.Summon.OntoScene"}} <b>{{summon.sceneName}}</b></p>
-                    {{else}}
-                    <p class="bi-summon__scene bi-summon__scene--none">{{localize "BLANKINHERITANCE.Runner.Summon.NoScene"}}</p>
-                    {{/if}}
-                    {{#if summon.party.length}}
-                    <h4 class="bi-summon__group-title">{{localize "BLANKINHERITANCE.Runner.Summon.Party"}}</h4>
-                    <ul class="bi-summon__list">
-                        {{#each summon.party}}{{> "modules/blank-inheritance/templates/runner/summon-row.hbs"}}{{/each}}
-                    </ul>
-                    {{/if}}
-                    {{#if summon.others.length}}
-                    <h4 class="bi-summon__group-title">{{localize "BLANKINHERITANCE.Runner.Summon.Others"}}</h4>
-                    <ul class="bi-summon__list">
-                        {{#each summon.others}}{{> "modules/blank-inheritance/templates/runner/summon-row.hbs"}}{{/each}}
-                    </ul>
-                    {{/if}}
-                </details>
-
-                {{!-- design/ux-doctrine.md §10.7's Rules drawer: a search box
-                      over the locally mirrored SRD, answering "the rulebook's
-                      own first-listed GM priority... answering questions
-                      quickly and decisively." Always open now -- a search box
-                      that has to be unfolded before it can be typed in is a
-                      box nobody uses mid-scene. --}}
-                <section class="bi-runner__section bi-runner__rules" data-section="rules">
-                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Rules.Title"}}</h3>
-                    <input type="text" class="bi-runner__rules-input" autocomplete="off" value="{{rules.query}}"
-                        placeholder="{{localize 'BLANKINHERITANCE.Runner.Rules.Placeholder'}}"
-                        aria-label="{{localize 'BLANKINHERITANCE.Runner.Rules.Placeholder'}}">
-                    {{#if rules.results.length}}
-                    <ul class="bi-rules__results">
-                        {{#each rules.results}}
-                        <li class="bi-rules__result">
-                            <p class="bi-rules__result-title">{{this.title}}</p>
-                            <p class="bi-rules__result-excerpt">{{this.excerpt}}</p>
-                            {{#if this.pageCitation}}<p class="bi-rules__result-citation">{{this.pageCitation}}</p>{{/if}}
-                        </li>
+                {{!-- RULES IN THIS SCENE (2026-10-04, core/scene-rules.mjs):
+                      every rule this scene's own words name -- the creatures
+                      its fight brings, the conditions and actions its beats,
+                      checks and clock mention, the SRD rules (difficult
+                      terrain, afflictions) -- one press each, opening the
+                      system's own card or the article. It replaced a search
+                      box ("The rules search box isn't very useful either",
+                      Ingram); the free search is the Palette's. --}}
+                {{#if sceneRules.length}}
+                <section class="bi-runner__section bi-runner__scenerules">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.SceneRules.Title"}} <span class="bi-runner__count">{{sceneRules.length}}</span></h3>
+                    <div class="bi-runner__rule-chips">
+                        {{#each sceneRules}}
+                        <button type="button" class="bi-runner__rule" data-kind="{{kind}}" data-action="openRule" data-rule-id="{{id}}"
+                            data-tooltip="{{summary}}"{{#if citation}} aria-description="{{citation}}"{{/if}}>{{name}}</button>
                         {{/each}}
-                    </ul>
-                    {{else}}
-                    {{#if rules.query}}<p class="bi-legend">{{localize "BLANKINHERITANCE.Runner.Rules.NoResults"}}</p>{{/if}}
-                    {{/if}}
+                    </div>
+                    <p class="bi-legend">{{localize "BLANKINHERITANCE.Runner.SceneRules.Hint"}}</p>
                 </section>
+                {{/if}}
             </div>
         </aside>
     </div>

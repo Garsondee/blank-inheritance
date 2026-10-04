@@ -117,6 +117,7 @@
       "called": "Doctor Mordant",
       "role": "On the platform, looking rumpled.",
       "walkOn": true,
+      "present": true,
       "brief": {
         "wants": "To get back to his clinic.",
         "voice": {
@@ -131,6 +132,7 @@
       "label": "Hulda Brack",
       "role": "Head of the machine shop, on the platform.",
       "walkOn": true,
+      "present": true,
       "brief": {
         "wants": "To be back on her shop floor, where things make sense.",
         "voice": {
@@ -145,6 +147,7 @@
       "label": "The comms officer",
       "role": "The radio voice off the plot room, on the platform.",
       "walkOn": true,
+      "present": true,
       "brief": {
         "wants": "To see who this year's intake are.",
         "voice": {

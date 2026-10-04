@@ -25,6 +25,7 @@ import { CardMenu } from "./card-menu.mjs";
 import { StageEditor, editorMemory } from "./stage-editor.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
+import { Wings } from "./wings.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, turnOf, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
 import { boxSpot, boxClear, DEFAULT_BOX } from "../core/chalk.mjs";
 import { homeLook, viewOf, clampLook, zoomAt, panBy, wheelFactor, tweenLook, sameLook } from "../core/look.mjs";
@@ -123,6 +124,8 @@ export class StageHost {
       this.#placeBox();
     }
     if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.healthBoard = new HealthBoard(this); this.editor = new StageEditor(this); if (editorMemory.on) this.editor.toggle(true); this.#gmToggle(); }
+    // the people who could still come on, for the GM alone: a tray under the strips and a faded card where each would stand
+    if (game.user.isGM) this.wings = new Wings(this);
     this.#boardKey();
     this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
     this.tip = new HoverTip(this);              // a card's full words, when the pointer rests on one that has more than its plate shows
@@ -221,13 +224,14 @@ export class StageHost {
     this.health?.stop();
     this.healthBoard?.dispose();
     this.editor?.dispose();
+    this.wings?.dispose();
     this.tip?.dispose();
     this.menu?.dispose();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
     this.root?.remove();
-    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.bar = this.blocking = this.editor = this.backend = this.root = null;
+    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.bar = this.blocking = this.editor = this.wings = this.backend = this.root = null;
   }
 
   /* ---------------------------------------------------------------- the loop */
@@ -256,11 +260,12 @@ export class StageHost {
       this.chalk?.wall?.flush?.();
       this.health?.frame(now, this.pace.scale(now));
       this.backend.draw(snap);
+      this.wings?.frame();                   // the GM's faded cards stand where the picture now puts their places
       this.chalk?.afterDraw?.();             // a stroke that has ended is on the wall now: its wet ink (render/paint/wet.mjs) goes
       this.speed?.feed(now);                 // the start-up speed test times the pictures that are delivered (only a running test listens)
       this.frames++;
       // what covers the stage can change without the window changing (the deck folded away): the box keeps clear of it
-      if (this.frames % 60 === 0) this.#placeBox();
+      if (this.frames % 60 === 0) { this.#placeBox(); this.wings?.place(); }
       for (const e of this.stage.drain()) {
         if (e.type === "visit") this.#visitCaption(e);
         Hooks.callAll(`stagecraft.${e.type}`, e, this);
@@ -487,6 +492,13 @@ export class StageHost {
     }, true);
   }
 
+  /** The point of the painting under a point of the window (client pixels): where someone dropped from the wings stands. */
+  paintingPointAt(clientX, clientY) {
+    if (!this.root || !this.backend) return null;
+    const r = this.root.getBoundingClientRect();
+    return this.#paintingPoint({ x: clientX - r.left, y: clientY - r.top });
+  }
+
   /** The point of the painting under a viewport point, through the floor (fractions), or null above the horizon. */
   #paintingPoint(p) {
     const at = this.backend.floorAt(p.x, p.y, 0);
@@ -667,6 +679,7 @@ export class StageHost {
       open = !open;
       try { globalThis.localStorage?.setItem(KEY, open ? "1" : "0"); } catch { /* not kept: fine */ }
       show();
+      this.wings?.place();                    // the tray stands under whatever strips are showing now
     });
     this.root.append(button);
     show();
@@ -758,6 +771,7 @@ export class StageHost {
       if (this.look && !this.tween) { const { w, h } = this.#extent(); this.look = clampLook(this.look, w, h, marginsNow()); }
       this.#applyLook();
       this.#placeBox();
+      this.wings?.place();
     };
     this.resizeObserver = new ResizeObserver(fit);
     this.resizeObserver.observe(this.root);
@@ -798,6 +812,7 @@ export class StageHost {
     this.blocking?.refresh();
     this.editor?.refresh();
     this.#syncCast();
+    this.wings?.refresh();                    // who still waits: the provider's story may have moved on with the scene
     // hands off: a player who is carrying a card puts it down now
     if (handsOff(this.scene) && !game.user.isGM && this.dragging) {
       this.sync.release(this.dragging.id);
