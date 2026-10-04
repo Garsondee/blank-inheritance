@@ -292,3 +292,30 @@ test("checkLabel: slugs for a normal check, the any-skill label for an anySkill 
   assert.equal(checkLabel({ anySkill: true, skillOptions: [] }, 15, "Any skill"), "Any skill 15");
   assert.equal(checkLabel({ anySkill: true }, null), "Any skill");
 });
+
+/* ---------------------------------------------------------------- */
+/*  2026-10-04 (D059): an any-skill check as one compact card        */
+/* ---------------------------------------------------------------- */
+
+import { anySkillCard } from "../module/blank-inheritance/scripts/core/roll-intent.mjs";
+
+test("an any-skill check is one heading and one short labelled link per skill, each still a tagged check", () => {
+  const html = anySkillCard({ skillOptions: ["acrobatics", "athletics"], dc: 15, options: ["bi-runner:episode-x:the-beat"], labels: { athletics: "Athletics!" } });
+  assert.match(html, /^<div class="bi-anyskill">/);
+  assert.match(html, /<p class="bi-anyskill__head">DC 15 · Roll the skill you named<\/p>/);
+  assert.match(html, /@Check\[acrobatics\|dc:15\|options:bi-runner:episode-x:the-beat\]\{Acrobatics\}/, "a missing label falls back to the slug's own label");
+  assert.match(html, /@Check\[athletics\|dc:15\|options:bi-runner:episode-x:the-beat\]\{Athletics!\}/);
+  assert.doesNotMatch(html, / or /, "no wall of 'or'");
+});
+
+test("a secret any-skill card leaves the DC out of its heading and posts every link blind", () => {
+  const html = anySkillCard({ skillOptions: ["society"], dc: 17, secret: true, heading: "Roll it" });
+  assert.match(html, /<p class="bi-anyskill__head">Roll it<\/p>/);
+  assert.match(html, /@Check\[society\|dc:17\|traits:secret\]\{Society\}/);
+});
+
+test("a label cannot break out of sf2e's inline label, and the heading is escaped", () => {
+  const html = anySkillCard({ skillOptions: ["stealth"], dc: 12, labels: { stealth: "Ste}al[th]" }, heading: "<b>x</b>" });
+  assert.match(html, /\{Stealth\}/);
+  assert.match(html, /&lt;b&gt;x&lt;\/b&gt;/);
+});

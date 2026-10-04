@@ -260,3 +260,23 @@ test("sceneHighlights: `anchor` is no longer a highlight tag -- Anchors were CUT
   const entries = [{ tag: "anchor", text: "An old Anchor line.", at: "2026-09-19T20:00:00Z", context: { scene: "Kit Issue" } }];
   assert.deepEqual(sceneHighlights(entries, "Kit Issue"), []);
 });
+
+/* ---------------------------------------------------------------- */
+/*  2026-10-04 (D059): the scene's write-down questions, at close    */
+/* ---------------------------------------------------------------- */
+
+import { writeDownEntries } from "../module/blank-inheritance/scripts/core/scene-close.mjs";
+
+test("each answered write-down question becomes one log entry keyed by its place; a blank answer writes nothing", () => {
+  const entries = writeDownEntries(
+    ["How they ended the fight, and who did what.", "Injuries carried into the night.", "Who has a theory about Rand."],
+    ["They drove them off; Aiko held the walkway.", "   ", "Ben thinks Rand is a ghost."],
+    { briefRef: "episode-c1e1--flood-tunnel" }
+  );
+  assert.deepEqual(entries, [
+    { text: "How they ended the fight, and who did what: They drove them off; Aiko held the walkway.", subject: "writedown::episode-c1e1--flood-tunnel::0" },
+    { text: "Who has a theory about Rand: Ben thinks Rand is a ghost.", subject: "writedown::episode-c1e1--flood-tunnel::2" }
+  ]);
+  assert.deepEqual(writeDownEntries(["Q?"], []), [], "nothing answered, nothing written: no answer can ever block the close");
+  assert.deepEqual(writeDownEntries(null, null), []);
+});

@@ -170,7 +170,7 @@ test("the beat being run is marked, and opening a later beat to read ahead does 
 });
 
 test("each degree of success shows its AUTHORED consequence and records it in the same press (never shown before 2026-09-24)", () => {
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/)?.[0];
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/)?.[0];
   assert.match(decorate, /consequence: check\.outcomes\?\.\[degree\] \?\? null/);
   const outcomes = beatHbs.match(/\{\{#each outcomes\}\}[\s\S]*?\{\{\/each\}\}/)?.[0];
   assert.ok(outcomes);
@@ -204,9 +204,17 @@ test("how to play it and how it ends reach the GM with their bold rendered, not 
 test("every check the runner posts is tagged with its brief and beat (or topic)", () => {
   // 2026-10-04 (D058): the call also carries the check's own `secret` flag, so a check whose critical failure is a
   // belief rolls blind (core/roll-intent.mjs#enricherFor).
-  assert.match(fnBody("onPostCheck"), /enrichersFor\(\{ skillOptions: checkSkills\(check\), dc, secret: check\.secret === true, options: rollTagFor\(brief\.id, beat\.id\) \}\)/);
-  assert.match(fnBody("onFireTrigger"), /options: rollTagFor\(brief\.id, beatId\)/);
-  assert.match(fnBody("onPostTopicCheck"), /options: rollTagFor\(brief\.id, topicKey\)/);
+  // 2026-10-04 (D059): all three post through one checkMessageContent, which tags with the brief and the key it is
+  // given and carries the secret flag, whichever shape the check posts as.
+  assert.match(fnBody("onPostCheck"), /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: beat\.id \}\)/);
+  assert.match(fnBody("onFireTrigger"), /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: beatId \}\)/);
+  assert.match(fnBody("onPostTopicCheck"), /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: topicKey \}\)/);
+  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(content, "checkMessageContent is missing");
+  assert.match(content, /const options = rollTagFor\(briefId, key\);/);
+  assert.match(content, /const secret = check\.secret === true;/);
+  assert.match(content, /anySkillCard\(\{ skillOptions: skills, dc, options, secret,/);
+  assert.match(content, /enrichersFor\(\{ skillOptions: checkSkills\(check\), dc, secret, options \}\)/);
   const tagFor = src.match(/function rollTagFor\(briefId, key\) \{[\s\S]*?\n\}/)?.[0];
   assert.match(tagFor, /catch/, "an id that cannot be tagged must still post the check, untagged");
 });
@@ -319,9 +327,13 @@ test("the clock has the GM's own +/- keys, clamped by the pool itself, logged, a
 // runner posts a check must go through checkSkills, or that check posts an
 // empty chat message and the player has nothing to click.
 test("every check the runner posts goes through checkSkills, so an any-skill check is never an empty message", () => {
-  const posts = src.match(/enrichersFor\(\{ skillOptions: [^,]+,/g) ?? [];
+  // 2026-10-04 (D059): the beat, topic and trigger post sites all go through checkMessageContent, and both of its
+  // shapes take their skills from checkSkills.
+  const posts = src.match(/ChatMessage\.create\(\{ content: checkMessageContent\(check, /g) ?? [];
   assert.ok(posts.length >= 3, "expected the beat, topic and trigger post sites");
-  for (const site of posts) assert.match(site, /skillOptions: checkSkills\(check\),/, site);
+  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0];
+  assert.match(content, /const skills = checkSkills\(check\);/);
+  assert.match(content, /enrichersFor\(\{ skillOptions: checkSkills\(check\),/);
   assert.match(src, /import \{[^}]*checkSkills[^}]*\} from "\.\.\/core\/roll-intent\.mjs"/);
 });
 

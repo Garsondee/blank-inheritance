@@ -97,3 +97,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The always-true carry-in is gone; the small moment's results no longer each end "the player tells us how".
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Objective chips.** At the hatch, the requisition and being in by nineteen hundred never tick themselves when the beat is marked done (`auto: false`): either can go the other way. Closing the docket does, and asks for the Record's paragraph.

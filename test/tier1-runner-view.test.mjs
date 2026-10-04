@@ -295,3 +295,48 @@ test("the pointer's position becomes that share, clamped the same way", () => {
   assert.equal(widthFractionFrom(2500, 2560), RUNNER_WIDTH_RANGE.max);
   assert.equal(widthFractionFrom(100, 0), null);
 });
+
+/* ---------------------------------------------------------------- */
+/*  2026-10-04 (D059): what a GM needs while listening               */
+/* ---------------------------------------------------------------- */
+
+import { conditionLabelShown, goalOpen, scenePosition, statDcs } from "../module/blank-inheritance/scripts/core/runner-view.mjs";
+
+test("the goal box is full before the scene starts and one line once it runs; the GM's press wins", () => {
+  assert.equal(goalOpen("opening"), true);
+  assert.equal(goalOpen("running"), false);
+  assert.equal(goalOpen("ending"), false);
+  assert.equal(goalOpen("running", true), true, "opened by hand stays open");
+  assert.equal(goalOpen("opening", false), false, "folded by hand stays folded");
+});
+
+test("a condition label is shown only when the beat's own line does not already say it", () => {
+  assert.equal(conditionLabelShown("someone studies the water first", "If anyone studies the water before touching anything, offer the check."), false, "a line opening on If carries its own condition");
+  assert.equal(conditionLabelShown("there's time", "If there's time, Nobu logs personal effects."), false);
+  assert.equal(conditionLabelShown("the compactor is running", "The compactor is running, so say it out loud."), false, "a line containing the label says it");
+  assert.equal(conditionLabelShown("someone asks Nobu for something extra", "Offer the check to whoever asks properly."), true);
+  assert.equal(conditionLabelShown(null, "anything"), false);
+  assert.equal(conditionLabelShown("x", 'If x <trig id="a"/>'), false, "a chip in the line does not hide its If");
+});
+
+test("a cast member's stopgap DCs are read out of their stat line, with the level", () => {
+  const vetch = statDcs("Proposed: level 3, an officer, non-combat. Perception DC 19, Will DC 19, Deception DC 19. Striking him ends in a hearing, not a fight.");
+  assert.equal(vetch.level, 3);
+  assert.deepEqual(vetch.dcs, [{ label: "Perception", dc: 19 }, { label: "Will", dc: 19 }, { label: "Deception", dc: 19 }]);
+  assert.deepEqual(statDcs(null), { level: null, dcs: [] });
+  assert.deepEqual(statDcs("Perception DC 18, Perception DC 20").dcs.length, 1, "each DC once");
+});
+
+test("the header numbers the scene the way the running order's buttons do (Episode One counts from 0)", () => {
+  const steps = episodeSteps(
+    [
+      { order: 0, title: "From Up Here", briefRef: "a" },
+      { order: 1, title: "The Road In", briefRef: "b" },
+      { order: 2, title: "Intake Medicals", briefRef: "c" },
+      { order: 11, title: "Flood Tunnel", briefRef: "d" }
+    ],
+    { currentBriefId: "c" }
+  );
+  assert.deepEqual(scenePosition(steps), { n: 2, total: 11 }, "the button says 2, and so does the header");
+  assert.equal(scenePosition(episodeSteps([{ order: 1, briefRef: "x" }], { currentBriefId: "nowhere" })), null);
+});

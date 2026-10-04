@@ -391,7 +391,8 @@
       },
       "Counters": "{count} flagged for review",
       "Confirmed": "Scene closed.",
-      "ConfirmedFlagged": "Scene closed and flagged for review."
+      "ConfirmedFlagged": "Scene closed and flagged for review.",
+      "WriteDownLabel": "Write down"
     },
     "Settings": {
       "ThemeEnabled": {
@@ -485,7 +486,7 @@
       "Toggle": "Scene Runner",
       "NoScene": "No scene chosen yet. Pick where to start:",
       "Cast": "Who is here",
-      "Beats": "What has to happen",
+      "Beats": "Running order",
       "Handouts": "To hand over",
       "CarryForward": "Carry forward",
       "Progress": "Required beats done",
@@ -521,7 +522,7 @@
       "CritFailure": "Crit fail",
       "Goal": "Scene Goals",
       "Intro": "Entering the Scene",
-      "Landmark": "Orbit:",
+      "Landmark": "Landmark:",
       "HoldInReserve": "Held in reserve — what do I notice?",
       "Outro": "Getting out",
       "TransitionScatterRisk": "Could split the party",
@@ -794,6 +795,42 @@
         "Up": "Warmer",
         "Down": "Cooler",
         "LoweredByFaction": "faction only; personally"
+      },
+      "BeatsDoneHint": "Beats done, of every beat in the scene. The header counts the required ones.",
+      "BackToNowHint": "Back to the beat you're running",
+      "Blind": "Rolled blind",
+      "BlindHint": "Posted blind: the player sees no number, only you do.",
+      "AnySkillHeading": "Roll the skill you named",
+      "AutoFired": "Done with the beat: {what}",
+      "ClockRose": "{name} rose to {value} of {limit}.",
+      "ClockAuto": "Rises each round",
+      "ClockAutoHint": "When a round of this fight ends, the scene's clock goes up one by itself. Untick it for the simpler fight.",
+      "Carries": {
+        "Nobody": "nobody",
+        "Applies": "applies"
+      },
+      "PartyStrip": {
+        "Title": "The party",
+        "Hp": "Hit points",
+        "Hero": "Hero Points"
+      },
+      "Knows": {
+        "Title": "What the table knows"
+      },
+      "FightSetup": {
+        "Button": "Set up the fight",
+        "Again": "Set it up again",
+        "Hint": "Brings the creatures in from the compendium, puts them and the party in the combat tracker, and rolls the creatures' initiative where only you see it. Players roll their own.",
+        "InTracker": "In the combat tracker",
+        "Round": "round",
+        "Folder": "Fight: {name}",
+        "NoSource": "Could not find {name} in the compendium ({uuid}).",
+        "Nothing": "Nothing in this fight can be set up from the compendium: {missing}.",
+        "InitiativeFailed": "The creatures are in the tracker, but their initiative could not be rolled. Roll it from the tracker.",
+        "Done": "{name}: {count} in the combat tracker with the party. Begin it from the tracker when everyone has rolled.",
+        "Missing": "Not set up (no compendium entry): {missing}.",
+        "Logged": "Set up the fight: {name}.",
+        "Failed": "Could not set up the fight: {reason}"
       }
     },
     "Induction": {

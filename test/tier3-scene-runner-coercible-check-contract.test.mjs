@@ -66,7 +66,9 @@ test("#onPostTopicCheck posts a real inline check the same way #onPostCheck does
   // stay the same way (the assertion was stale from 2026-09-26's big commit).
   // 2026-10-04 (D058): it also passes the check's own `secret` flag, so a check whose critical failure is a belief
   // rolls blind here exactly as it does from a beat.
-  assert.match(fn[0], /ChatMessage\.create\(\{ content: enrichersFor\(\{ skillOptions: checkSkills\(check\), dc, secret: check\.secret === true, options: rollTagFor\(brief\.id, topicKey\) \}\) \}\)/, "no longer posts a real sf2e inline check the same way #onPostCheck does");
+  // 2026-10-04 (D059): through the one shared checkMessageContent, which tags the roll with brief + topic key and
+  // posts the check's own secret flag (tier3-scene-runner-rebuild-contract.test.mjs pins its body).
+  assert.match(fn[0], /ChatMessage\.create\(\{ content: checkMessageContent\(check, \{ dc, briefId: brief\.id, key: topicKey \}\) \}\)/, "no longer posts a real sf2e inline check the same way #onPostCheck does");
   // The key it tags with must be the SAME key #onRecordTopicOutcome and
   // #decorateCoercibleTopic build, or a rolled result would land nowhere.
   assert.match(fn[0], /const topicKey = `\$\{target\.dataset\.castId\}:coercible:\$\{Number\(target\.dataset\.topicIndex\)\}`;/);

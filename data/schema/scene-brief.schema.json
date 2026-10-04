@@ -286,6 +286,27 @@
               "then": {
                 "type": "string",
                 "description": "What is different here because of it."
+              },
+              "tag": {
+                "type": "string",
+                "description": "Two or three words for the Scene Runner's party strip, beside each character it applies to (\"Knows centipedes\", \"+2 panels\", \"No lamp\"). Optional: without it the carry-in still names its characters on its own line."
+              },
+              "who": {
+                "type": "object",
+                "description": "Whom it applies to, looked up in the record (core/runner-party.mjs). {briefRef, beatRef, degrees}: their own result on that beat (default: success and critical success). {briefRef, beatRef, options}: their own pick on that beat's choice, or the table's choice when nobody was asked. {condition}: a condition slug on their sheet now (\"fatigued\"). {hasItem} or {lacksItem}: words matched against the names of what they carry. {arrival}: the destination id they arrived by in The Road In. {anyOf}: any of several of these. Without it the line is read out as written.",
+                "properties": {
+                  "briefRef": { "type": "string" },
+                  "beatRef": { "type": "string" },
+                  "topicKey": { "type": "string", "description": "A conversation check on a person's card, <castId>:coercible:<n>." },
+                  "degrees": { "type": "array", "items": { "enum": ["criticalSuccess", "success", "failure", "criticalFailure"] } },
+                  "options": { "type": "array", "items": { "type": "string" } },
+                  "condition": { "type": "string" },
+                  "hasItem": { "type": "array", "items": { "type": "string" } },
+                  "lacksItem": { "type": "array", "items": { "type": "string" } },
+                  "arrival": { "type": "string" },
+                  "anyOf": { "type": "array", "items": { "type": "object" } }
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false
@@ -373,6 +394,7 @@
               "act": { "enum": ["give", "tick", "reveal", "strike", "close"], "description": "objective only. What the chip does to the objective (design/objectives.md): give it, tick or reveal or strike out one part, or close it." },
               "objectiveRef": { "type": "string", "description": "objective only. A canon/objectives/ id." },
               "partRef": { "type": "string", "description": "objective only, for tick, reveal and strike. A part id in that objective." },
+              "auto": { "type": "boolean", "description": "objective only. Set false and marking the beat done never fires this chip by itself (core/beat-autofire.mjs): for a part that depends on how it went, like being in by nineteen hundred or wearing the waders. Every other objective chip fires when its beat is marked done (on a pass, for a check) or, for a give, when the beat's handout is shown." },
               "solo": {
                 "type": "boolean"
               }
@@ -790,6 +812,7 @@
               "act": { "enum": ["give", "tick", "reveal", "strike", "close"], "description": "objective only. What the chip does to the objective (design/objectives.md): give it, tick or reveal or strike out one part, or close it." },
               "objectiveRef": { "type": "string", "description": "objective only. A canon/objectives/ id." },
               "partRef": { "type": "string", "description": "objective only, for tick, reveal and strike. A part id in that objective." },
+              "auto": { "type": "boolean", "description": "objective only. Set false and marking the beat done never fires this chip by itself (core/beat-autofire.mjs): for a part that depends on how it went, like being in by nineteen hundred or wearing the waders. Every other objective chip fires when its beat is marked done (on a pass, for a check) or, for a give, when the beat's handout is shown." },
               "solo": {
                 "type": "boolean"
               }
@@ -1538,6 +1561,7 @@
                 "act": { "enum": ["give", "tick", "reveal", "strike", "close"], "description": "objective only. What the chip does to the objective (design/objectives.md): give it, tick or reveal or strike out one part, or close it." },
                 "objectiveRef": { "type": "string", "description": "objective only. A canon/objectives/ id." },
                 "partRef": { "type": "string", "description": "objective only, for tick, reveal and strike. A part id in that objective." },
+                "auto": { "type": "boolean", "description": "objective only. Set false and marking the beat done never fires this chip by itself (core/beat-autofire.mjs): for a part that depends on how it went, like being in by nineteen hundred or wearing the waders. Every other objective chip fires when its beat is marked done (on a pass, for a check) or, for a give, when the beat's handout is shown." },
                 "solo": {
                   "type": "boolean",
                   "description": "reveal-handout / note only. Mirrors an ordinary beat's own delivery:\"solo\" — pushed to one player privately rather than the whole table."

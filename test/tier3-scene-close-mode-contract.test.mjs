@@ -45,7 +45,8 @@ test("both scene-runner.mjs call sites that open the close dialogue pass the lea
 
 test("the dialogue is TOLD which scene it is closing, and never guesses -- setContext carries brief, title and mode together", () => {
   assert.match(closeSrc, /setContext\(\{ briefRef = null, title = null, mode = null,/, "setContext no longer accepts brief/title/mode");
-  assert.match(closeSrc, /this\.#context = \{ briefRef, title, mode, reactionPrompts \}/, "setContext no longer stores what it was told");
+  // 2026-10-04 (D059): it also stores the scene's own write-down questions.
+  assert.match(closeSrc, /this\.#context = \{ briefRef, title, mode, reactionPrompts, writeDown: /, "setContext no longer stores what it was told");
   assert.match(closeSrc, /mode: this\.#context\.mode/, "#onVerdict no longer forwards mode into confirmSceneClosure");
 });
 

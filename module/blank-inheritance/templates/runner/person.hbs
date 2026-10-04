@@ -22,6 +22,13 @@
             <span class="bi-runner__person-name">{{displayName}}</span>
             {{#if role}}<span class="bi-runner__person-role">{{role}}</span>{{/if}}
             {{#if inBeat}}<span class="bi-runner__person-flag">{{localize "BLANKINHERITANCE.Runner.InThisBeat"}}</span>{{/if}}
+            {{!-- The stopgap DCs, on the folded card (2026-10-04): the number
+                  is beside the name the moment a player lies to them. --}}
+            {{#if stats.dcs.length}}
+            <span class="bi-runner__person-dcs" data-tooltip="{{brief.statblock}}">
+                {{#each stats.dcs}}<span class="bi-runner__person-dc">{{label}} <b>{{dc}}</b></span>{{/each}}
+            </span>
+            {{/if}}
         </div>
         {{!-- Straight onto the stage the table is looking at. Most of a
               brief's cast have no Actor at all, which is exactly the case the
@@ -90,6 +97,10 @@
             {{/each}}
         </ul>
         {{/if}}
+
+        {{!-- The stat line as written, for what the pills cannot say
+              ("Striking him ends in a hearing, not a fight."). --}}
+        {{#if brief.statblock}}<p class="bi-runner__person-stats">{{brief.statblock}}</p>{{/if}}
 
         {{#if brief.coercible.length}}
         <p class="bi-runner__topics-title">{{localize "BLANKINHERITANCE.Runner.Coercible"}}</p>

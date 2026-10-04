@@ -19,7 +19,7 @@
  *   }
  */
 
-import { FALLBACK_SKILL_SLUGS, isSafeSlug } from "./skills.mjs";
+import { FALLBACK_SKILL_SLUGS, isSafeSlug, labelForSlug } from "./skills.mjs";
 
 /**
  * Whether a plain click on the CONSOLE shows sf2e's roll-modifiers dialog:
@@ -165,6 +165,35 @@ export function enricherFor({ slug, dc = null, options = [], secret = false } = 
  */
 export function enrichersFor({ skillOptions = [], dc = null, options = [], secret = false } = {}) {
   return skillOptions.map((slug) => enricherFor({ slug, dc, options, secret })).join(" or ");
+}
+
+/**
+ * An any-skill check as ONE compact card (2026-10-04).
+ *
+ * Posted the old way, an any-skill check was eighteen full inline checks
+ * joined by "or" ("DC 15 Acrobatics Check or DC 15 Arcana Check or ...") --
+ * a wall of chat for a moment that is one player naming one skill (found
+ * posting The Road In's small problem in the live Runner). This is a single
+ * heading saying what to do, then the eighteen skills as short labelled links
+ * (sf2e's own `@Check[...]{Label}` inline label, gamesystems/sf2e/sf2e.mjs's
+ * enricher pattern), each still a real, tagged check so the result records
+ * itself against its beat. A secret check's heading leaves the DC out: the
+ * player rolls blind.
+ *
+ * `labels` maps a slug to the word printed on its link; a missing one falls
+ * back to core/skills.mjs#labelForSlug. `heading` is the localised line ("Roll the
+ * skill you named"), and the DC is put in front of it for an open check.
+ */
+export function anySkillCard({ skillOptions = [], dc = null, options = [], secret = false, labels = {}, heading = "Roll the skill you named" } = {}) {
+  const escape = (value) => String(value ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const label = (slug) => {
+    const text = labels?.[slug] ?? labelForSlug(slug);
+    // The inline label ends at the first "}" and may not hold "[" or "]".
+    return String(text).replace(/[{}[\]]/g, "");
+  };
+  const links = skillOptions.map((slug) => `${enricherFor({ slug, dc, options, secret })}{${label(slug)}}`).join(" ");
+  const head = secret || dc === null || dc === undefined ? escape(heading) : `DC ${dc} · ${escape(heading)}`;
+  return `<div class="bi-anyskill"><p class="bi-anyskill__head">${head}</p><p class="bi-anyskill__skills">${links}</p></div>`;
 }
 
 /**

@@ -109,3 +109,23 @@ test("a trigger's authored label can itself contain characters that would break 
   assert.ok(!html.includes('title="Open the "locked"'), "an unescaped quote would break out of the attribute");
   assert.ok(html.includes("&quot;locked&quot;"), "the quote is escaped inside the attribute instead");
 });
+
+/* ---------------------------------------------------------------- */
+/*  2026-10-04 (D059): pressed chips, and what kind each chip is     */
+/* ---------------------------------------------------------------- */
+
+test("a chip already pressed shows a tick and the fired class; every chip says what kind it is", () => {
+  const triggers = [
+    { id: "taka-enters", kind: "npc-enter", npcRef: "taka", label: "Taka arrives" },
+    { id: "give-drains", kind: "objective", act: "give", objectiveRef: "c1e1-storm-drains", label: "Give: drains" }
+  ];
+  const text = 'Taka arrives. <trig id="taka-enters"/> <trig id="give-drains"/>';
+  const { html } = decorateInlineTriggers(text, triggers, "b1", { fired: new Set(["give-drains"]) });
+  assert.match(html, /data-trigger-id="taka-enters" data-kind="npc-enter"/);
+  assert.match(html, /data-trigger-id="give-drains" data-kind="objective" data-act="give"/);
+  assert.match(html, /class="bi-trig bi-trig--warn bi-trig--fired"/, "the pressed give chip is marked");
+  assert.doesNotMatch(html, /class="bi-trig bi-trig--good bi-trig--fired"/, "the entrance was not pressed");
+  assert.match(html, /<span class="bi-trig__glyph" aria-hidden="true">✓<\/span> Give: drains/);
+  const plain = decorateInlineTriggers(text, triggers, "b1").html;
+  assert.doesNotMatch(plain, /bi-trig--fired/, "no fired set, nothing marked");
+});

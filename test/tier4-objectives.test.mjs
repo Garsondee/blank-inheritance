@@ -238,3 +238,54 @@ test("the admin reset clears every page and undo puts them back with their own i
   assert.deepEqual([...objectivesEntry().pages.keys()].sort(), snap.map((p) => p._id).sort());
   assert.equal(await restoreObjectives(snap), 0, "undo twice changes nothing");
 });
+
+/* ------------------------------------------------------------------ */
+/*  2026-10-04 (D059): the Runner fires chips by itself                */
+/* ------------------------------------------------------------------ */
+
+import { undoObjectiveAct } from "../module/blank-inheritance/scripts/foundry/objectives-runner.mjs";
+
+test("a Give the Runner fires with a handout shown or a beat marked done does not ask again", async () => {
+  await ensureObjectives();
+  mock.world.confirmAnswer = false;
+  const confirmsBefore = mock.world.confirms.length;
+  assert.equal(await runObjectiveTrigger({ act: "give", objectiveRef: "c1e1-storm-drains" }, { scene: "Canteen", confirm: false, quiet: true }), true);
+  assert.equal(mock.world.confirms.length, confirmsBefore, "showing the handout or ticking the beat was the deliberate act");
+  assert.equal(objectivesEntry().pages.size, 1);
+  const noticesBefore = mock.world.notifications.length;
+  assert.equal(await runObjectiveTrigger({ act: "give", objectiveRef: "c1e1-storm-drains" }, { confirm: false, quiet: true }), false, "already given");
+  assert.equal(mock.world.notifications.length, noticesBefore, "quiet: the Runner says once what it did");
+});
+
+test("a quiet chip on an objective not yet given changes nothing and adds no notification of its own", async () => {
+  await ensureObjectives();
+  const before = mock.world.notifications.length;
+  assert.equal(await runObjectiveTrigger({ act: "tick", objectiveRef: "c1e1-storm-drains", partRef: "waders" }, { quiet: true }), false);
+  assert.equal(mock.world.notifications.length, before);
+});
+
+test("un-marking a beat undoes what its tick did: a ticked part is unticked and a closed objective reopens", async () => {
+  await ensureObjectives();
+  await giveObjective("c1e1-storm-drains");
+  await actOnObjective("c1e1-storm-drains", "tick", { partId: "waders" });
+  assert.equal(await undoObjectiveAct({ objectiveRef: "c1e1-storm-drains", partRef: "waders", undo: "untick" }), true);
+  const part = pageForObjective("c1e1-storm-drains").getFlag(MODULE_ID, OBJECTIVE_FLAG).parts.find((p) => p.id === "waders");
+  assert.equal(part.state, "open");
+  await actOnObjective("c1e1-storm-drains", "close", { record: "Done." });
+  assert.equal(await undoObjectiveAct({ objectiveRef: "c1e1-storm-drains", undo: "reopen" }), true);
+  assert.equal(objectiveStates()[0].status, "active");
+  assert.equal(await undoObjectiveAct({ objectiveRef: "c1e1-the-docket", undo: "untick", partRef: "collect" }), false, "an objective never given has nothing to undo");
+  assert.equal(await undoObjectiveAct({ objectiveRef: "c1e1-storm-drains", undo: null }), false, "a give cannot be taken back");
+});
+
+test("re-ticking a beat never asks for a closed objective's Record again; a chip the GM presses still does", async () => {
+  await ensureObjectives();
+  await giveObjective("c1e1-report-for-enrolment");
+  await actOnObjective("c1e1-report-for-enrolment", "close", { record: "Done." });
+  const before = prompts.length;
+  assert.equal(await runObjectiveTrigger({ act: "close", objectiveRef: "c1e1-report-for-enrolment" }, { confirm: false, quiet: true }), false);
+  assert.equal(prompts.length, before, "fired by a tick, a closed objective is left alone");
+  mock.world.promptAnswer = null;
+  await runObjectiveTrigger({ act: "close", objectiveRef: "c1e1-report-for-enrolment" });
+  assert.equal(prompts.length, before + 1, "pressed by hand, it still asks: the GM may be rewriting the Record");
+});

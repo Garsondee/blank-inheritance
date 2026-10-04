@@ -28,7 +28,7 @@ const beatHbs = readFileSync(path.join(moduleRoot, "templates", "runner", "beat.
 const css = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
 
 test("a check's bySkill map is decorated onto the beat as a real array the template can iterate", () => {
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
   assert.ok(decorate, "#decorateBeat is missing from scene-runner.mjs");
   assert.match(decorate[0], /bySkill:\s*check\.bySkill/, "check.bySkill is no longer read off the raw challenge data");
   assert.match(decorate[0], /Object\.entries\(check\.bySkill\)/, "bySkill is no longer converted to a template-iterable shape");

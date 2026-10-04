@@ -17,7 +17,11 @@
     "carriesIn": [
       {
         "when": "If anyone arrived by ferry",
-        "then": "The launch puts in at the Old Landing, where they came off the ferry. It looks different at night."
+        "then": "The launch puts in at the Old Landing, where they came off the ferry. It looks different at night.",
+        "tag": "Came by ferry",
+        "who": {
+          "arrival": "ferry"
+        }
       }
     ],
     "position": {
@@ -105,7 +109,8 @@
           "act": "tick",
           "objectiveRef": "c1e1-storm-drains",
           "partRef": "wear-them",
-          "label": "Drains: wearing them"
+          "label": "Drains: wearing them",
+          "auto": false
         }
       ]
     },
@@ -190,9 +195,12 @@
       "mandatory": true,
       "delivery": "each",
       "text": "Read the crossing, then ask each player what their character does with the ten minutes.",
-      "readAloud": "The launch is cold and loud and smells of oil. Behind you are the island's lights, and Hangar Two's doors standing open under floodlights, with a Frame inside on its gantry. Ahead, the old town is dark down at the waterline. The crew don't talk. It's ten minutes across black water.",
+      "readAloud": "The launch is cold and loud and smells of oil. Behind you are the island's lights, and Hangar Two's doors standing open under floodlights, with a Frame inside on its gantry. Ahead, the old town is dark down at the waterline. The crew don't talk. It's ten minutes across black water.\n\nAcross the water, every dog in the old town is barking, all of them at one dark street near the waterline. Then they stop, all at once.",
+      "note": "Plant: It's the side street the dogs wouldn't walk down this afternoon. Say nothing about it.\nSecret: The Watcher's swarm is thick on that street tonight.",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [
+        "watcher.animals"
+      ]
     }
   ],
   "artefacts": [],

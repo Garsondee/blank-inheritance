@@ -41,16 +41,17 @@ test("decorateInlineTriggers is imported and actually used to build decoratedTex
     /import \{[^}]*\bdecorateInlineTriggers\b[^}]*\} from "\.\.\/core\/inline-triggers\.mjs"/,
     "no longer imports the parser"
   );
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
   assert.ok(decorate, "#decorateBeat is missing from scene-runner.mjs");
-  assert.match(decorate[0], /decorateInlineTriggers\(beat\.text, beat\.triggers, beat\.id\)/, "beat.text is no longer run through the trigger parser");
-  assert.match(decorate[0], /decorateInlineTriggers\(beat\.readAloud, beat\.triggers, beat\.id\)/, "beat.readAloud is no longer run through the trigger parser");
+  // 2026-10-04 (D059): the parser is also told which chips have fired, so they show a tick.
+  assert.match(decorate[0], /decorateInlineTriggers\(beat\.text, beat\.triggers, beat\.id, \{ fired \}\)/, "beat.text is no longer run through the trigger parser");
+  assert.match(decorate[0], /decorateInlineTriggers\(beat\.readAloud, beat\.triggers, beat\.id, \{ fired \}\)/, "beat.readAloud is no longer run through the trigger parser");
   assert.match(decorate[0], /decoratedText/);
   assert.match(decorate[0], /decoratedReadAloud/);
 });
 
 test("#decorateBeat decorates choicePoint options with isPicked, the same convention outcomes already uses", () => {
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
   assert.match(decorate[0], /isPicked:\s*beat\.choice === option\.id/);
 });
 
@@ -82,7 +83,13 @@ test("#onFireTrigger dispatches every kind to the SAME existing function its non
 
   assert.match(body, /case "post-check":/);
   assert.match(body, /checkFor\(\{ challengeRef: beat\?\.challengeRef, checkRef: trigger\.checkRef \}, challenges\)/, "post-check no longer resolves the check through the shared checkFor helper");
-  assert.match(body, /await ChatMessage\.create\(\{ content: enrichersFor\(/, "post-check no longer posts through the real enrichersFor/ChatMessage path");
+  // 2026-10-04 (D059): every check posts through one shared checkMessageContent, which builds sf2e's own inline checks
+  // (enrichersFor, or anySkillCard's compact card for an any-skill check).
+  assert.match(body, /await ChatMessage\.create\(\{ content: checkMessageContent\(check, /, "post-check no longer posts through the shared checkMessageContent/ChatMessage path");
+  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(content, "checkMessageContent is missing");
+  assert.match(content, /enrichersFor\(/, "an ordinary check no longer posts sf2e's own inline checks");
+  assert.match(content, /anySkillCard\(/, "an any-skill check no longer posts the compact card");
 
   assert.match(body, /case "note":/);
 });
@@ -101,7 +108,7 @@ test("a false mechanical log record is worse than a missing one (§2.5): reveal-
   const revealCase = handler.match(/case "reveal-handout": \{[\s\S]*?\n {6}\}/);
   assert.ok(revealCase, "reveal-handout case is missing");
   assert.match(revealCase[0], /const revealed = await revealHandout\(/);
-  assert.match(revealCase[0], /if \(revealed\) await logFired\(\);/, "reveal-handout logs unconditionally, even when the GM cancels the confirm dialog");
+  assert.match(revealCase[0], /if \(revealed\) \{\s*await logFired\(\);/, "reveal-handout logs unconditionally, even when the GM cancels the confirm dialog");
 
   const postCheckCase = handler.match(/case "post-check": \{[\s\S]*?\n {6}\}/);
   assert.ok(postCheckCase, "post-check case is missing");
@@ -170,7 +177,7 @@ test("the Ask-the-players actions are wired into the registry, and every choiceP
   assert.match(src, /askPlayers:\s*SceneRunner\.#onAskPlayers/);
   assert.match(src, /closePrompt:\s*SceneRunner\.#onClosePrompt/);
   assert.match(src, /cancelPrompt:\s*SceneRunner\.#onCancelPrompt/);
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
   assert.match(decorate[0], /promptOptions\(beat\.choicePoint/, "the Runner no longer builds its options through the shared promptOptions");
   assert.doesNotMatch(decorate[0], /allowsInventedOption/, "'Something else' must be offered whether or not allowsInventedOption is set");
   assert.match(decorate[0], /BLANKINHERITANCE\.Runner\.ChoiceInvented/, "the GM's guidance for adjudicating 'Something else' is no longer shown");

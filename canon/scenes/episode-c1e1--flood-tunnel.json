@@ -17,31 +17,130 @@
     "carriesIn": [
       {
         "when": "If anyone passed natural history",
-        "then": "They know giant centipedes when they see one: give them the Recall Knowledge result free."
+        "then": "They know giant centipedes when they see one: give them the Recall Knowledge result free.",
+        "tag": "Knows centipedes",
+        "who": {
+          "briefRef": "episode-c1e1--school-second-period",
+          "beatRef": "natural-history",
+          "degrees": [
+            "success",
+            "criticalSuccess"
+          ]
+        }
       },
       {
         "when": "If one critically succeeded there",
-        "then": "A show of force works for them: Demoralize by sight alone (no language penalty, Will DC 12), and a hurt, frightened centipede breaks for the grate."
+        "then": "A show of force works for them: Demoralize by sight alone (no language penalty, Will DC 12), and a hurt, frightened centipede breaks for the grate.",
+        "tag": "Show of force",
+        "who": {
+          "briefRef": "episode-c1e1--school-second-period",
+          "beatRef": "natural-history",
+          "degrees": [
+            "criticalSuccess"
+          ]
+        }
       },
       {
         "when": "If Taka warned anyone",
-        "then": "They know something lives under the water before anyone touches a panel."
+        "then": "They know something lives under the water before anyone touches a panel.",
+        "tag": "Taka warned them",
+        "who": {
+          "anyOf": [
+            {
+              "briefRef": "episode-c1e1--canteen",
+              "beatRef": "ask-taka",
+              "degrees": [
+                "success",
+                "criticalSuccess"
+              ]
+            },
+            {
+              "briefRef": "episode-c1e1--canteen",
+              "topicKey": "taka:coercible:0",
+              "degrees": [
+                "success",
+                "criticalSuccess"
+              ]
+            }
+          ]
+        }
       },
       {
         "when": "If anyone passed the workshop induction",
-        "then": "+2 circumstance on panel work: powering the line and overriding the compactor."
+        "then": "+2 circumstance on panel work: powering the line and overriding the compactor.",
+        "tag": "+2 on panels",
+        "who": {
+          "briefRef": "episode-c1e1--school-second-period",
+          "beatRef": "workshop",
+          "degrees": [
+            "success",
+            "criticalSuccess"
+          ]
+        }
       },
       {
         "when": "If anyone qualified on the range",
-        "then": "+1 circumstance on their first ranged Strike."
+        "then": "+1 circumstance on their first ranged Strike.",
+        "tag": "+1 first shot",
+        "who": {
+          "briefRef": "episode-c1e1--school-second-period",
+          "beatRef": "the-range",
+          "degrees": [
+            "success",
+            "criticalSuccess"
+          ]
+        }
       },
       {
         "when": "If anyone has no handlamp",
-        "then": "They see only what the others' lamps light."
+        "then": "They see only what the others' lamps light.",
+        "tag": "No lamp",
+        "who": {
+          "lacksItem": [
+            "handlamp",
+            "flashlight"
+          ]
+        }
       },
       {
         "when": "If anyone is Fatigued from today",
-        "then": "It applies now."
+        "then": "It applies now.",
+        "tag": "Fatigued",
+        "who": {
+          "anyOf": [
+            {
+              "condition": "fatigued"
+            },
+            {
+              "briefRef": "episode-c1e1--school-first-period",
+              "beatRef": "local-studies",
+              "degrees": [
+                "criticalFailure"
+              ]
+            },
+            {
+              "briefRef": "episode-c1e1--school-second-period",
+              "beatRef": "natural-history",
+              "degrees": [
+                "criticalFailure"
+              ]
+            },
+            {
+              "briefRef": "episode-c1e1--school-second-period",
+              "beatRef": "workshop",
+              "degrees": [
+                "criticalFailure"
+              ]
+            },
+            {
+              "briefRef": "episode-c1e1--school-second-period",
+              "beatRef": "the-range",
+              "degrees": [
+                "criticalFailure"
+              ]
+            }
+          ]
+        }
       }
     ],
     "position": {

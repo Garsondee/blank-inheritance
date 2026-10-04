@@ -13458,3 +13458,237 @@
 .bi-story__also { margin: 0.1em 0; font-size: 0.82em; color: #b7b2a4; }
 .bi-story__linked { list-style: none; margin: 0.2em 0 0.4em; padding: 0; font-size: 0.85em; }
 .bi-story__linked label { display: flex; align-items: center; gap: 0.4em; cursor: pointer; }
+
+/* =====================================================================
+   THE SCENE RUNNER: what a GM needs while listening (2026-10-04, D059)
+   ---------------------------------------------------------------------
+   Built from running every scene of Episode One in the live Runner:
+   the beat being run kept findable, the goal folded once the scene
+   starts, the party with what is live for each of them, carry-ins that
+   name their characters, each player's own result, the fight set up in
+   one press, blind checks marked, the table's told facts, and the close
+   dialogue asking the scene's own write-down questions.
+   ===================================================================== */
+
+/* "Back to now": sticky at the top of the script while the beat being run
+   is out of sight (foundry/scene-runner.mjs#watchNow). */
+.bi-runner__nowpill {
+  appearance: none;
+  cursor: pointer;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--sr-now);
+  border-radius: var(--sr-radius);
+  background: var(--sr-now-bg);
+  color: var(--sr-text);
+  font-family: var(--bi-font-document);
+  font-size: 13.5px;
+  text-align: left;
+  box-shadow: var(--sr-shadow);
+}
+.bi-runner__nowpill[hidden] { display: none; }
+.bi-runner__nowpill:hover { filter: brightness(1.08); }
+.bi-runner__nowpill:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 2px; }
+.bi-runner__nowpill-text { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-runner__nowpill-up,
+.bi-runner__nowpill-down { flex: none; color: var(--sr-now); }
+.bi-runner__nowpill[data-direction="up"] .bi-runner__nowpill-down,
+.bi-runner__nowpill:not([data-direction="up"]) .bi-runner__nowpill-up { display: none; }
+
+/* The goal: read in full before the scene starts, one line once it runs. */
+.bi-runner__goal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  outline: none;
+}
+.bi-runner__goal-head:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 2px; }
+.bi-runner__goal-head .bi-runner__goal-label { margin-bottom: 5px; }
+.bi-runner__goalbox:not(.bi-runner__goalbox--folded) > .bi-runner__goal-head .bi-runner__chevron { transform: rotate(180deg); }
+.bi-runner__goalbox--folded { padding: 7px 12px; }
+.bi-runner__goalbox--folded .bi-runner__goal-head .bi-runner__goal-label { margin-bottom: 2px; }
+.bi-runner__goalbox--folded .bi-runner__goal {
+  font-size: 13.5px;
+  color: var(--sr-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A carry-in names whom it applies to; one that applies to nobody steps back. */
+.bi-runner__carries--applies { border-left-style: solid; border-left-color: var(--sr-now); color: var(--sr-text); }
+.bi-runner__carries--nobody { opacity: 0.5; }
+.bi-runner__carries-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding: 0 7px;
+  border-radius: 9px;
+  background: var(--sr-now);
+  color: var(--sr-now-ink);
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.bi-runner__carries-who--none { background: var(--sr-bg-sunken); color: var(--sr-text-faint); }
+
+/* The party: one line each, off the live sheets. */
+.bi-runner__partystrip { margin-bottom: 14px; }
+.bi-runner__pc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.bi-runner__pc {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 3px;
+  padding: 4px 6px;
+  border: 1px solid var(--sr-border);
+  border-radius: var(--sr-radius);
+  background: var(--sr-bg-raised);
+}
+.bi-runner__pc-portrait,
+.bi-runner__pc-initial { width: 26px; height: 26px; border-radius: 50%; background: var(--sr-bg-sunken); box-shadow: 0 0 0 1px var(--sr-border-strong); }
+.bi-runner__pc-portrait { display: block; object-fit: cover; object-position: 50% 15%; }
+.bi-runner__pc-initial { display: grid; place-items: center; font-family: var(--bi-font-condensed); font-size: 13px; font-weight: 700; color: var(--sr-text-dim); }
+.bi-runner__pc-name { min-width: 0; font-family: var(--bi-font-condensed); font-size: 14px; font-weight: 700; color: var(--sr-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-runner__pc-hp,
+.bi-runner__pc-hero { font-family: var(--bi-font-condensed); font-size: 12.5px; font-weight: 600; color: var(--sr-text-dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bi-runner__pc-hp > i { color: var(--sr-good); font-size: 10.5px; }
+.bi-runner__pc-hp--low { color: var(--sr-accent); }
+.bi-runner__pc-hp--low > i { color: var(--sr-accent); }
+.bi-runner__pc-hero > i { color: var(--sr-now); font-size: 10.5px; }
+.bi-runner__pc-marks { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.bi-runner__pc-mark {
+  padding: 0 7px;
+  border: 1px solid var(--sr-now);
+  border-radius: 9px;
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sr-text);
+  white-space: nowrap;
+}
+.bi-runner__pc-mark--condition { border-color: var(--sr-accent); color: var(--sr-accent); }
+
+/* Each player's own result on a beat everyone rolls. */
+.bi-runner__per-player { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-runner__per-player-row { display: flex; align-items: center; gap: 4px; }
+.bi-runner__per-player-name { flex: 1 1 auto; min-width: 0; font-family: var(--bi-font-condensed); font-size: 13px; font-weight: 700; color: var(--sr-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-runner__per-player-degree {
+  appearance: none;
+  cursor: pointer;
+  flex: none;
+  min-width: 34px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--sr-border);
+  border-radius: 4px;
+  background: var(--sr-bg-raised);
+  color: var(--sr-text-dim);
+  font-family: var(--bi-font-condensed);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.bi-runner__per-player-degree:hover { border-color: var(--sr-border-strong); color: var(--sr-text); }
+.bi-runner__per-player-degree:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 1px; }
+.bi-runner__per-player-degree--picked[data-degree="criticalSuccess"],
+.bi-runner__per-player-degree--picked[data-degree="success"] { border-color: var(--sr-good); background: var(--sr-good); color: var(--sr-good-ink); }
+.bi-runner__per-player-degree--picked[data-degree="failure"] { border-color: var(--sr-warn); background: var(--sr-warn); color: var(--sr-warn-ink); }
+.bi-runner__per-player-degree--picked[data-degree="criticalFailure"] { border-color: var(--sr-accent); background: var(--sr-accent); color: var(--sr-accent-ink); }
+
+/* A check posted blind. */
+.bi-runner__tag--blind { border-color: var(--sr-info); color: var(--sr-info); }
+.bi-runner__chip--check > .fa-eye-slash { margin-left: 2px; }
+
+/* The fight card: stat lines, the one key that sets it up, the clock. */
+.bi-runner__fight-list > li { margin: 2px 0; }
+.bi-runner__fight-stats { display: block; margin-top: 2px; font-family: var(--bi-font-condensed); font-size: 12.5px; color: var(--sr-text-dim); }
+.bi-runner__fight .bi-runner__actions { margin-top: 8px; }
+.bi-runner__clock-auto {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--sr-border-strong);
+  border-radius: 999px;
+  background: var(--sr-bg);
+  color: var(--sr-text-dim);
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 700;
+}
+.bi-runner__clock-auto[aria-pressed="true"] { border-color: var(--sr-warn); color: var(--sr-text); }
+.bi-runner__clock-auto:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 2px; }
+
+/* A person's stopgap DCs, beside the name on the folded card. */
+.bi-runner__person-dcs { display: flex; flex-wrap: wrap; gap: 3px 8px; margin-top: 2px; }
+.bi-runner__person-dc { font-family: var(--bi-font-condensed); font-size: 12px; color: var(--sr-text-dim); white-space: nowrap; }
+.bi-runner__person-dc > b { color: var(--sr-text); font-variant-numeric: tabular-nums; }
+.bi-runner__person-stats { margin: 0; font-family: var(--bi-font-condensed); font-size: 12.5px; color: var(--sr-text-dim); }
+
+/* What the table has been told so far. */
+.bi-runner__knows { margin-top: 4px; }
+.bi-runner__knows-scene { margin: 10px 0 4px; font-family: var(--bi-font-condensed); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sr-text-dim); }
+.bi-runner__knows-list { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; }
+.bi-runner__knows-fact { font-size: 13px; line-height: 1.45; color: var(--sr-text); }
+
+/* A chip already pressed, by hand or by its beat's tick. */
+.bi-trig--fired { opacity: 0.62; border-style: dashed; }
+.bi-trig--fired:hover { opacity: 1; }
+
+/* The beat being run: an entrance still to happen asks to be pressed. The
+   timing is the GM's (D059), so it is highlighted, never fired. */
+.bi-runner__beat--now .bi-trig[data-kind="npc-enter"]:not(.bi-trig--fired) {
+  background: color-mix(in srgb, var(--sr-good) 16%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sr-good) 35%, transparent);
+  animation: bi-runner-entrance 1.8s ease-in-out infinite;
+}
+@keyframes bi-runner-entrance {
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sr-good) 35%, transparent); }
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--sr-good) 12%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bi-runner__beat--now .bi-trig[data-kind="npc-enter"]:not(.bi-trig--fired) { animation: none; }
+}
+
+/* An any-skill check in chat: one heading, then the skills as short links. */
+.bi-anyskill__head { margin: 0 0 4px; font-weight: 700; }
+.bi-anyskill__skills { margin: 0; display: flex; flex-wrap: wrap; gap: 3px 4px; line-height: 1.5; }
+/* sf2e draws each inline check as a block, with the DC (GM's eyes only) and a
+   repost icon: eighteen of those stack eighteen lines tall in the chat column.
+   Inside this card the heading already says the DC, so each link is just its
+   skill, and they wrap three or four to a row. */
+.chat-message .bi-anyskill__skills a.inline-check,
+.bi-anyskill__skills a.inline-check { display: inline-flex; align-items: center; gap: 3px; margin: 0; padding: 0 5px; font-size: 12px; white-space: nowrap; }
+.bi-anyskill__skills a.inline-check [data-visibility],
+.bi-anyskill__skills a.inline-check .repost { display: none; }
+
+/* The close dialogue's write-down questions: in the scrolling recap column. */
+.bi-scene-close__writedown { display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--sr-border); }
+.bi-scene-close__writedown-item { display: flex; flex-direction: column; gap: 3px; }
+.bi-scene-close__writedown-q { font-size: 12.5px; color: var(--sr-text); }
+.bi-scene-close__writedown-input {
+  height: 28px;
+  padding: 3px 8px;
+  border: 1px solid var(--sr-border);
+  border-radius: var(--sr-radius);
+  background: var(--sr-bg-raised);
+  color: var(--sr-text);
+  font-family: var(--bi-font-document);
+  font-size: 13px;
+}
+.bi-scene-close__writedown-input:focus { outline: none; border-color: var(--sr-focus); box-shadow: 0 0 0 1px var(--sr-focus); }

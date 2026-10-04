@@ -128,3 +128,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The first-thing fragment repeated the read-aloud's opening, and the always-true carry-in repeated the queue beat; both gone. The read-aloud's two chips moved to the end of their paragraphs, so it reads aloud cleanly.
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R4, R19.** A new optional check, Study the form (Perception, DC 15, blind): their name was typed before they arrived, on the same machine as their acceptance letter, with the same low, faint e. On a critical success, every form in the clerk's stack already has a name on it. It tells the table `directorate.forms-typed-ahead` (new, D059). The plant on Form 12-B stays: the GM says nothing unless someone looks.

@@ -89,14 +89,19 @@ function escapeAttr(value) {
  * to qualify the DOM dataset — trigger `id`s are scoped to their own beat,
  * the same scoping `checkRef` already uses inside a `challengeRef`.
  */
-function renderTriggerChip(trigger, beatId) {
+function renderTriggerChip(trigger, beatId, fired = null) {
   const meta =
     (trigger.kind === "objective" ? OBJECTIVE_ACT_META[trigger.act] : null) ?? TRIGGER_KIND_META[trigger.kind] ?? TRIGGER_KIND_META.note;
   const label = trigger.label ?? trigger.id;
+  // A chip already pressed (or fired by its beat's tick, core/beat-autofire.mjs)
+  // says so with a tick, so the GM can see at a glance what has happened
+  // (2026-10-04). It can still be pressed: an entrance may need re-staging.
+  const done = Boolean(fired?.has?.(trigger.id));
+  const act = trigger.kind === "objective" && trigger.act ? ` data-act="${escapeAttr(trigger.act)}"` : "";
   return (
-    `<button type="button" class="bi-trig bi-trig--${meta.key}" data-action="fireTrigger" ` +
-    `data-beat-id="${escapeAttr(beatId)}" data-trigger-id="${escapeAttr(trigger.id)}" ` +
-    `title="${escapeAttr(label)}"><span class="bi-trig__glyph" aria-hidden="true">${meta.glyph}</span> ${escapeHtml(label)}</button>`
+    `<button type="button" class="bi-trig bi-trig--${meta.key}${done ? " bi-trig--fired" : ""}" data-action="fireTrigger" ` +
+    `data-beat-id="${escapeAttr(beatId)}" data-trigger-id="${escapeAttr(trigger.id)}" data-kind="${escapeAttr(trigger.kind ?? "note")}"${act} ` +
+    `title="${escapeAttr(label)}"><span class="bi-trig__glyph" aria-hidden="true">${done ? "✓" : meta.glyph}</span> ${escapeHtml(label)}</button>`
   );
 }
 
@@ -111,12 +116,14 @@ function renderTriggerChip(trigger, beatId) {
  *     a real authoring error worth surfacing at build/test time even though
  *     the rendered panel already shows it loudly.
  *
+ * `fired` (a Set of trigger ids) marks chips already pressed with a tick.
+ *
  * `triggers` may be omitted or empty — a beat with no `triggers[]` array
  * simply renders every `<trig>` token (there should be none) as unknown,
  * and ordinary prose with no tokens at all passes through unchanged but for
  * HTML-escaping, exactly matching today's `{{text}}` behaviour.
  */
-export function decorateInlineTriggers(text, triggers = [], beatId = "") {
+export function decorateInlineTriggers(text, triggers = [], beatId = "", { fired = null } = {}) {
   const source = String(text ?? "");
   const byId = new Map((triggers ?? []).map((t) => [t.id, t]));
   const used = [];
@@ -132,7 +139,7 @@ export function decorateInlineTriggers(text, triggers = [], beatId = "") {
     const trigger = byId.get(id);
     if (trigger) {
       used.push(id);
-      html += renderTriggerChip(trigger, beatId);
+      html += renderTriggerChip(trigger, beatId, fired);
     } else {
       unknownIds.push(id);
       html += `<span class="bi-trig bi-trig--error" role="img" aria-label="Unknown trigger">⚠ trig:${escapeHtml(id)}</span>`;

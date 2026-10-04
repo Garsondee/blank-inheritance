@@ -52,7 +52,7 @@ export const BEAT_STATES = Object.freeze({
 
 /** A run with nothing done yet. Shape is the contract for the stored world setting. */
 export function emptyRunState() {
-  return { ticked: {}, spent: [], opened: [], granted: [], topics: {}, adjust: {} };
+  return { ticked: {}, spent: [], opened: [], granted: [], topics: {}, adjust: {}, results: {} };
 }
 
 function runStateOf(runState) {
@@ -73,7 +73,13 @@ function runStateOf(runState) {
     // compactor grinds another round, -1 when the table buys time back. A
     // clock whose subsystem authors no spends (the Compactor Cycle has none)
     // had no way to move at all in the runner before this.
-    adjust: runState?.adjust && typeof runState.adjust === "object" ? runState.adjust : {}
+    adjust: runState?.adjust && typeof runState.adjust === "object" ? runState.adjust : {},
+    // Each character's own result on a beat, by actor id (2026-10-04): a beat
+    // the whole table rolls ("each" delivery, the school periods) used to keep
+    // one degree, and a later scene's carry-ins need names ("whoever passed
+    // natural history"). Kept apart from `ticked`, which stays the one result
+    // a branch reads (core/runner-party.mjs reads these).
+    results: runState?.results && typeof runState.results === "object" ? runState.results : {}
   };
 }
 
@@ -367,12 +373,16 @@ export function displayName(member) {
  *   detail — every beat's full detail at once, instead of one line each
  *            with the beat being run open. How a script is read the
  *            afternoon before, not how it is run, so off.
+ *   knows  — what the table has been told so far this episode
+ *            (core/table-knows.mjs, 2026-10-04). Opened when a player asks
+ *            "what did they say about the founders?", so closed.
  *
  * A GM's own toggles persist, so this only decides the first render.
  */
 export const RUNNER_SECTIONS = Object.freeze([
   { id: "summon", open: false },
-  { id: "detail", open: false }
+  { id: "detail", open: false },
+  { id: "knows", open: false }
 ]);
 
 const SECTION_DEFAULTS = new Map(RUNNER_SECTIONS.map((s) => [s.id, s.open]));
@@ -451,7 +461,10 @@ export function expectedMinutes(runsAbout) {
  */
 export function pacing({ startedAt = null, now = null, runsAbout = null } = {}) {
   const expected = expectedMinutes(runsAbout);
-  if (!startedAt) return { started: false, expected, elapsedMinutes: null, state: "unstarted", label: expected ? `${expected.low}–${expected.high} min` : null };
+  // "about 15 minutes" is one number, not a range of 15 to 15: the header used
+  // to print "9–9 min" (found in the live Runner, 2026-10-04).
+  const span = expected ? (expected.low === expected.high ? `${expected.low}` : `${expected.low}–${expected.high}`) : null;
+  if (!startedAt) return { started: false, expected, elapsedMinutes: null, state: "unstarted", label: span ? `${span} min` : null };
 
   const startMs = Date.parse(startedAt);
   const nowMs = now ? Date.parse(now) : Date.now();
@@ -463,7 +476,7 @@ export function pacing({ startedAt = null, now = null, runsAbout = null } = {}) 
   else if (elapsedMinutes < expected.low) state = "early";
   else if (elapsedMinutes > expected.high) state = "over";
 
-  const label = expected ? `${elapsedMinutes} min · ${expected.low}–${expected.high}` : `${elapsedMinutes} min`;
+  const label = span ? `${elapsedMinutes} min · ${span}` : `${elapsedMinutes} min`;
   // `isOver` as a precomputed boolean, not a state string the template
   // interpolates into a class name: the tier-0 class lint strips Handlebars
   // before it looks, so `bi-runner__pace--{{state}}` would be invisible to it

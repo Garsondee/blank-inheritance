@@ -103,3 +103,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Carry-ins.** "If they filed loudly" and "If they filed quietly" now read the Errand's choice, so the Runner says which one applies. "If they came back empty-handed" is left to the GM: nothing recorded answers it.

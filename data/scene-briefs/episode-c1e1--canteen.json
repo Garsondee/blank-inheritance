@@ -17,11 +17,25 @@
     "carriesIn": [
       {
         "when": "If they filed loudly",
-        "then": "Half the hall has heard. People grin at Section Nine on the way past, and Taka already knows."
+        "then": "Half the hall has heard. People grin at Section Nine on the way past, and Taka already knows.",
+        "who": {
+          "briefRef": "episode-c1e1--the-errand",
+          "beatRef": "how-to-file-it",
+          "options": [
+            "loudly"
+          ]
+        }
       },
       {
         "when": "If they filed quietly",
-        "then": "Nobody knows yet, except Vetch."
+        "then": "Nobody knows yet, except Vetch.",
+        "who": {
+          "briefRef": "episode-c1e1--the-errand",
+          "beatRef": "how-to-file-it",
+          "options": [
+            "quietly"
+          ]
+        }
       },
       {
         "when": "If they came back empty-handed",

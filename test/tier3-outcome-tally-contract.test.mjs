@@ -38,7 +38,7 @@ test("#onRecordOutcome logs one entry per NEW degree recorded, keyed by outcomeL
 });
 
 test("#decorateBeat computes check.tally from the real session log, using the same DEGREE_LABELS order as the outcome buttons", () => {
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
   assert.ok(decorate);
   assert.match(decorate[0], /outcomeTally\(entries, beat\.id\)/, "tally is no longer derived from the real log entries passed into decorateBeat");
   assert.match(decorate[0], /DEGREE_LABELS\.map/, "tally no longer reuses the same label vocabulary as the outcome-recording buttons");

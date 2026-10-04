@@ -81,6 +81,10 @@ status: decided · source: D002, D011, D020, D038 · known: few · told: later
 Form 12-B, the intake screening form, asks for mother's maiden name twice: in box 4, and again in box 19, in capitals.
 status: decided · source: D038 · known: some · told: in:episode-c1e1--intake-medicals
 
+## directorate.forms-typed-ahead
+Every candidate's Form 12-B is typed with their name before they arrive, on the same admissions typewriter as their acceptance letter. Its lower-case e strikes low and faint.
+status: accepted · source: D059 · known: few · told: in:episode-c1e1--intake-medicals
+
 ## directorate.missing-pilot-search
 On intake morning, staff are quietly hunting for a pilot who hasn't turned up. A careful listener can catch the name Nozomi.
 status: decided · source: D011 · known: few · told: in:episode-c1e1--intake-medicals

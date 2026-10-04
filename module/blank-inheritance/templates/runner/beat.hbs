@@ -52,7 +52,7 @@
         <div class="bi-runner__beat-chips">
             {{#if recorded}}<span class="bi-runner__chip bi-runner__chip--recorded" data-degree="{{recordedDegree}}" data-tooltip="{{recorded}}">{{recorded}}</span>{{/if}}
             {{#if npcName}}<span class="bi-runner__chip bi-runner__chip--npc">{{npcName}}</span>{{/if}}
-            {{#if check}}<span class="bi-runner__chip bi-runner__chip--check" data-tooltip="{{check.name}} — {{check.label}}"><i class="fa-solid fa-dice-d20"></i> {{#if check.dc}}{{check.dc}}{{else}}{{localize "BLANKINHERITANCE.Runner.Check"}}{{/if}}</span>{{/if}}
+            {{#if check}}<span class="bi-runner__chip bi-runner__chip--check" data-tooltip="{{check.name}} — {{check.label}}{{#if check.secret}} · {{localize 'BLANKINHERITANCE.Runner.BlindHint'}}{{/if}}"><i class="fa-solid fa-dice-d20"></i> {{#if check.dc}}{{check.dc}}{{else}}{{localize "BLANKINHERITANCE.Runner.Check"}}{{/if}}{{#if check.secret}} <i class="fa-solid fa-eye-slash" aria-label="{{localize 'BLANKINHERITANCE.Runner.Blind'}}"></i>{{/if}}</span>{{/if}}
             {{#if encounter}}<span class="bi-runner__chip bi-runner__chip--fight"><i class="fa-solid fa-burst"></i> {{localize "BLANKINHERITANCE.Runner.Fight"}}</span>{{/if}}
             {{#if handout}}<span class="bi-runner__chip"><i class="fa-regular fa-file-lines"></i> {{localize "BLANKINHERITANCE.Runner.Handout"}}</span>{{/if}}
             {{#if noteCount}}<span class="bi-runner__chip" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.NotesHere'}}"><i class="fa-solid fa-pen"></i> {{noteCount}}</span>{{/if}}
@@ -142,14 +142,29 @@
 
         {{!-- A beat that IS a fight: what is coming and how hard, from the
               encounter file itself. --}}
+        {{!-- 2026-10-04: each creature's stat line, and one key that sets the
+              whole fight up (foundry/fight-setup.mjs): the creatures from the
+              compendium, a combat with the party, their initiative rolled for
+              the GM. The scene's clock can rise by itself as rounds end. --}}
         {{#if encounter}}
         <div class="bi-runner__fight">
             <p class="bi-runner__fight-name"><i class="fa-solid fa-burst"></i> {{encounter.name}}{{#if encounter.threat}} <span class="bi-runner__fight-threat">{{encounter.threat}}</span>{{/if}}</p>
             <ul class="bi-runner__fight-list">
                 {{#each encounter.creatures}}
-                <li>{{count}}&times; {{name}}{{#if level}} <span class="bi-runner__fight-level">L{{level}}</span>{{/if}}</li>
+                <li>{{count}}&times; {{name}}{{#if level}} <span class="bi-runner__fight-level">L{{level}}</span>{{/if}}{{#if statline}}<span class="bi-runner__fight-stats">{{statline}}</span>{{/if}}</li>
                 {{/each}}
             </ul>
+            <div class="bi-runner__actions">
+                {{#if encounter.canSetUp}}
+                <button type="button" class="bi-runner__stamp bi-runner__stamp--primary" data-action="setUpFight" data-beat-id="{{id}}"
+                    title="{{localize 'BLANKINHERITANCE.Runner.FightSetup.Hint'}}"><i class="fa-solid fa-swords"></i> {{#if encounter.isSetUp}}{{localize "BLANKINHERITANCE.Runner.FightSetup.Again"}}{{else}}{{localize "BLANKINHERITANCE.Runner.FightSetup.Button"}}{{/if}}</button>
+                {{/if}}
+                {{#if encounter.isSetUp}}<span class="bi-runner__held">{{localize "BLANKINHERITANCE.Runner.FightSetup.InTracker"}}{{#if encounter.round}} · {{localize "BLANKINHERITANCE.Runner.FightSetup.Round"}} {{encounter.round}}{{/if}}</span>{{/if}}
+                {{#if encounter.hasClock}}
+                <button type="button" class="bi-runner__clock-auto" data-action="toggleClockAuto" aria-pressed="{{encounter.clockAuto}}"
+                    title="{{localize 'BLANKINHERITANCE.Runner.ClockAutoHint'}}"><i class="fa-solid {{#if encounter.clockAuto}}fa-square-check{{else}}fa-square{{/if}}"></i> {{localize "BLANKINHERITANCE.Runner.ClockAuto"}}</button>
+                {{/if}}
+            </div>
         </div>
         {{/if}}
 
@@ -168,6 +183,10 @@
             <div class="bi-runner__check-head">
                 <span class="bi-runner__check-name" title="{{check.title}}">{{check.name}}</span>
                 <span class="bi-runner__check-skills">{{check.skills}}{{#if check.dc}} · DC {{check.dc}}{{/if}}</span>
+                {{!-- Posted blind (sf2e's secret trait): the player sees no
+                      number, only the GM does. Said here so a player asking
+                      "what did I get?" is expected, not a bug. --}}
+                {{#if check.secret}}<span class="bi-runner__tag bi-runner__tag--blind" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.BlindHint'}}"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.Runner.Blind"}}</span>{{/if}}
                 <button type="button" class="bi-runner__stamp{{#if isInsight}} bi-runner__stamp--insight{{/if}}" data-action="postCheck"
                     data-beat-id="{{id}}" title="{{check.title}}"><i class="fa-solid fa-dice-d20"></i> {{localize "BLANKINHERITANCE.Runner.PostCheck"}}</button>
             </div>
@@ -186,6 +205,24 @@
                 </button>
                 {{/each}}
             </div>
+            {{!-- A beat every player rolls in turn (2026-10-04): each one's
+                  own result beside their name, filled by their roll or one
+                  press here, and kept for the scenes after that name them
+                  (core/runner-party.mjs). --}}
+            {{#if perPlayer.length}}
+            <ul class="bi-runner__per-player">
+                {{#each perPlayer}}
+                <li class="bi-runner__per-player-row">
+                    <span class="bi-runner__per-player-name">{{name}}</span>
+                    {{#each degrees}}
+                    <button type="button" class="bi-runner__per-player-degree{{#if isPicked}} bi-runner__per-player-degree--picked{{/if}}" data-degree="{{degree}}"
+                        data-action="recordPlayerResult" data-beat-id="{{../../id}}" data-actor-id="{{../actorId}}" aria-pressed="{{isPicked}}"
+                        data-tooltip="{{label}}" aria-label="{{../name}}: {{label}}">{{short}}</button>
+                    {{/each}}
+                </li>
+                {{/each}}
+            </ul>
+            {{/if}}
             {{!-- Who has rolled it, read back out of the chat log. The first
                   result recorded itself; any other can be used instead with
                   one press (foundry/scene-runner.mjs#recordRollResult). --}}

@@ -47,7 +47,9 @@ import {
 import {
   beatDetailOpen,
   checkResultFrom,
+  conditionLabelShown,
   episodeSteps,
+  goalOpen,
   isTopicKey,
   nowBeatId,
   resultsByKey,
@@ -55,20 +57,28 @@ import {
   runnerPhase,
   runnerRollOption,
   runnerWidthCss,
+  scenePosition,
   sceneStartedAt,
   shouldAutoRecord,
+  statDcs,
   toggleDetail,
   widthFractionFrom
 } from "../core/runner-view.mjs";
+import { carryInsWithNames, partyStrip, perPlayerRows, withResult, PASSING } from "../core/runner-party.mjs";
+import { chipsToFireOnDone, chipsToFireOnHandout, firedTriggerIds, undoFor } from "../core/beat-autofire.mjs";
+import { toldCount, toldSoFar } from "../core/table-knows.mjs";
+import { clockStepOnRound, creatureLines, roundEnded } from "../core/fight-setup.mjs";
+import { combatForFight, setUpFight } from "./fight-setup.mjs";
+import { partyMemberRecords } from "./runner-party.mjs";
 import { decorateInlineTriggers, escapeHtml } from "../core/inline-triggers.mjs";
 import { renderProse } from "../core/emphasis.mjs";
 import { parseNoteLines } from "../core/note-lines.mjs";
-import { checkLabel, checkSkills, enrichersFor } from "../core/roll-intent.mjs";
+import { anySkillCard, checkLabel, checkSkills, enrichersFor } from "../core/roll-intent.mjs";
 import { needsTravel } from "../core/travel-trigger.mjs";
 import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
 import { currentEntries, recordLogEntry } from "./session-log.mjs";
-import { runObjectiveTrigger } from "./objectives-runner.mjs";
+import { runObjectiveTrigger, undoObjectiveAct } from "./objectives-runner.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { readKnownNames, removeFromStage, revealName, summonToStage } from "./stage.mjs";
 import { isNameProtected, knownSet, rawStageId, stageIdFor } from "../core/stage-names.mjs";
@@ -87,7 +97,7 @@ import { fieldKey, newItemId, normalizeText, parseFieldKey, resolvePath, sameVal
 import { loadSceneEdits, overlayScene, resetSceneEditsCache, saveSceneEdit, sceneEditsState } from "./scene-edits.mjs";
 import { currentMoment, setMoment } from "./campaign-state.mjs";
 import { QUARTER_IDS, normalizeMoment, quarterIndex } from "../core/day-ring.mjs";
-import { cityRoster, cityState, hasPawns, onCitySceneClosed, participantsFor, reassignCityPlayer, sendPartyTo } from "./city-state.mjs";
+import { cityArrivals, cityRoster, cityState, hasPawns, onCitySceneClosed, participantsFor, reassignCityPlayer, sendPartyTo } from "./city-state.mjs";
 import { promptOptions, recordedChoiceLabel, settlePrompt } from "../core/choice-prompt.mjs";
 import { choiceTallyFor, closeChoicePrompt, openChoicePrompt } from "./choice-prompt.mjs";
 import { spectrumOf } from "../core/scene-spectrum.mjs";
@@ -134,6 +144,9 @@ const DEGREE_LABELS = Object.freeze([
   ["failure", "BLANKINHERITANCE.Runner.Failure"],
   ["criticalFailure", "BLANKINHERITANCE.Runner.CritFailure"]
 ]);
+
+/** The per-player row's four small keys: best to worst, the same order. */
+const DEGREE_SHORT = Object.freeze({ criticalSuccess: "✓✓", success: "✓", failure: "✗", criticalFailure: "✗✗" });
 
 const SETTING_EPISODE = "runnerEpisode";
 const SETTING_BRIEF = "runnerBrief";
@@ -369,18 +382,48 @@ async function loadScene(briefId) {
   return { brief: shown.brief, deployedBrief: brief, episode, subsystem, challenges: shown.challenges, encounters, edits: shown };
 }
 
-/** The part of an encounter file worth a line on the beat that starts it. */
-function encounterSummary(encounter) {
+/**
+ * The part of an encounter file worth a line on the beat that starts it: what
+ * is coming, how hard, each creature's stat line (2026-10-04: the card used to
+ * say only "6x Giant Centipede L-1"), and whether the fight is set up yet.
+ */
+function encounterSummary(encounter, { clockAuto = true, hasClock = false } = {}) {
   if (!encounter) return null;
+  const creatures = creatureLines(encounter);
+  const combat = combatForFight(encounter.id);
   return {
+    id: encounter.id,
     name: encounter.name ?? encounter.id,
     threat: encounter.intendedThreatLevel ?? null,
-    creatures: (encounter.creatures ?? []).map((c) => ({
-      count: c.count ?? 1,
-      name: c.name ?? c.creatureRef ?? "?",
-      level: c.level ?? null
-    }))
+    creatures,
+    canSetUp: creatures.some((c) => c.canSetUp),
+    isSetUp: Boolean(combat),
+    round: combat?.round ?? null,
+    hasClock,
+    clockAuto
   };
+}
+
+/**
+ * What a check posts to chat. An any-skill check is one compact card, the
+ * eighteen skills as short labelled links (core/roll-intent.mjs#anySkillCard);
+ * any other check is its skills' inline checks joined by "or". Both carry the
+ * runner's roll tag, so a result records itself against its beat.
+ */
+function checkMessageContent(check, { dc, briefId, key }) {
+  const options = rollTagFor(briefId, key);
+  const secret = check.secret === true;
+  if (check.anySkill) {
+    const skills = checkSkills(check);
+    const labels = Object.fromEntries(
+      skills.map((slug) => {
+        const key18 = CONFIG?.PF2E?.skills?.[slug]?.label ?? null;
+        return [slug, key18 ? game.i18n.localize(key18) : null];
+      }).filter(([, label]) => label)
+    );
+    return anySkillCard({ skillOptions: skills, dc, options, secret, labels, heading: game.i18n.localize("BLANKINHERITANCE.Runner.AnySkillHeading") });
+  }
+  return enrichersFor({ skillOptions: checkSkills(check), dc, secret, options });
 }
 
 /**
@@ -743,25 +786,27 @@ async function recordRollResult(result, { force = false } = {}) {
   const stamp = { at, degree: result.degree, via: "roll", actorId: result.actorId, by: result.name, messageId: result.messageId };
   const who = result.name ? `${result.name}: ` : "";
 
-  if (isTopicKey(result.key)) {
-    const recorded = state.topics?.[result.key] ?? null;
-    if (recorded?.messageId === result.messageId && recorded?.degree === result.degree) return false;
-    if (!force && !shouldAutoRecord(result, recorded)) return false;
-    await writeRunState(briefId, { ...state, topics: { ...state.topics, [result.key]: stamp } });
-    await recordLogEntry({
-      text: `${who}${result.degree} on a conversation check.`,
-      nowIso: at,
-      scene: canvas?.scene?.name ?? null,
-      subject: outcomeLogSubject(result.key, result.degree)
-    }).catch((err) => console.error("Blank Inheritance | Could not log that rolled outcome:", err));
-  } else {
+  if (!isTopicKey(result.key)) {
     const scene = await loadScene(briefId);
     const beat = (scene?.brief?.beats ?? []).find((b) => b.id === result.key);
     if (!beat) return false;
+    // Every character's own result, whoever rolled first (2026-10-04): a
+    // later scene's carry-ins name them (core/runner-party.mjs). A reroll by
+    // the same character replaces theirs.
+    let results = state.results ?? {};
+    const mine = results?.[result.key]?.[result.actorId];
+    if (result.actorId && !(mine?.messageId === result.messageId && mine?.degree === result.degree)) {
+      results = withResult(results, result.key, result.actorId, { degree: result.degree, name: result.name, at, via: "roll", messageId: result.messageId });
+    }
     const recorded = state.ticked?.[result.key] ?? null;
-    if (recorded?.messageId === result.messageId && recorded?.degree === result.degree) return false;
-    if (!force && !shouldAutoRecord(result, recorded)) return false;
-    await writeRunState(briefId, { ...state, ticked: { ...state.ticked, [result.key]: stamp } });
+    const same = recorded?.messageId === result.messageId && recorded?.degree === result.degree;
+    if (same || (!force && !shouldAutoRecord(result, recorded))) {
+      if (results === (state.results ?? {})) return false;
+      await writeRunState(briefId, { ...state, results });
+      refreshSceneRunner();
+      return true;
+    }
+    await writeRunState(briefId, { ...state, results, ticked: { ...state.ticked, [result.key]: stamp } });
     fireBeatAudio(briefId, result.key);
     const check = checkFor(beat, scene?.challenges ?? {});
     await recordLogEntry({
@@ -772,9 +817,94 @@ async function recordRollResult(result, { force = false } = {}) {
     }).catch((err) => console.error("Blank Inheritance | Could not log that rolled outcome:", err));
     // Open on the consequence, exactly as a clicked degree does.
     active?.markResolved(result.key);
+    refreshSceneRunner();
+    await beatAutomation(briefId, result.key, recorded, stamp);
+    refreshSceneRunner();
+    return true;
   }
+
+  // A conversation check on a person's card keeps one result, with who rolled it.
+  const recorded = state.topics?.[result.key] ?? null;
+  if (recorded?.messageId === result.messageId && recorded?.degree === result.degree) return false;
+  if (!force && !shouldAutoRecord(result, recorded)) return false;
+  await writeRunState(briefId, { ...state, topics: { ...state.topics, [result.key]: stamp } });
+  await recordLogEntry({
+    text: `${who}${result.degree} on a conversation check.`,
+    nowIso: at,
+    scene: canvas?.scene?.name ?? null,
+    subject: outcomeLogSubject(result.key, result.degree)
+  }).catch((err) => console.error("Blank Inheritance | Could not log that rolled outcome:", err));
   refreshSceneRunner();
   return true;
+}
+
+/**
+ * One press per moment (core/beat-autofire.mjs, D059). When a beat becomes
+ * done -- a tick, a pass recorded or rolled, a choice settled -- its objective
+ * chips nobody has pressed fire by themselves, and what they did is kept on
+ * the beat's own stamp (`ticked[beatId].fired`). When it stops being done
+ * (un-ticked, or re-recorded as a failure) exactly those are undone. A pass
+ * re-recorded as another pass keeps what it fired.
+ *
+ * An auto-fired chip is logged under its own subject (`::auto::`), not as a
+ * press (`::trigger::`), so un-ticking and ticking again fires it again; a
+ * chip the GM pressed by hand is never fired twice and never undone.
+ */
+async function beatAutomation(briefId, beatId, before, after) {
+  if (!game.user?.isGM || !briefId || !beatId) return [];
+  const firing = (tick) => Boolean(tick) && (!tick.degree || PASSING.includes(tick.degree));
+  const wasFiring = firing(before);
+  const nowFiring = firing(after);
+  const sceneName = canvas?.scene?.name ?? null;
+  const said = [];
+
+  const keepOnStamp = async (fired) => {
+    const latest = runStateFor(briefId);
+    const tick = latest.ticked?.[beatId];
+    if (!tick) return;
+    const next = { ...tick };
+    if (fired?.length) next.fired = fired;
+    else delete next.fired;
+    await writeRunState(briefId, { ...latest, ticked: { ...latest.ticked, [beatId]: next } });
+  };
+
+  if (wasFiring && !nowFiring && before?.fired?.length) {
+    for (const entry of undoFor(before.fired)) {
+      if (await undoObjectiveAct(entry, { scene: sceneName })) said.push(`↺ ${entry.label ?? entry.id}`);
+    }
+    await keepOnStamp(null);
+  } else if (wasFiring && nowFiring && before?.fired?.length && !after?.fired) {
+    await keepOnStamp(before.fired);
+  } else if (nowFiring && !wasFiring) {
+    const loaded = await loadScene(briefId);
+    const beat = (loaded?.brief?.beats ?? []).find((b) => b.id === beatId);
+    // Every objective chip on the beat is offered, pressed or not: the store
+    // is idempotent (a second give or tick changes nothing and says so), so a
+    // chip the GM already pressed by hand changes nothing here, and is never
+    // put on the stamp to be undone.
+    const chips = chipsToFireOnDone(beat, { degree: after?.degree ?? null });
+    const fired = [];
+    for (const chip of chips) {
+      let changed = false;
+      try {
+        changed = await runObjectiveTrigger(chip, { scene: sceneName ?? loaded?.brief?.title ?? null, confirm: false, quiet: true });
+      } catch (err) {
+        console.error(`Blank Inheritance | Could not fire "${chip.id}" for beat "${beatId}":`, err);
+      }
+      if (!changed) continue;
+      fired.push({ id: chip.id, act: chip.act, objectiveRef: chip.objectiveRef, partRef: chip.partRef ?? null, label: chip.label ?? chip.id });
+      said.push(chip.label ?? chip.id);
+      recordLogEntry({
+        text: chip.label ?? chip.id,
+        nowIso: new Date().toISOString(),
+        scene: sceneName,
+        subject: `${beatId}::auto::${chip.id}`
+      }).catch((err) => console.error("Blank Inheritance | Could not log that objective:", err));
+    }
+    if (fired.length) await keepOnStamp(fired);
+  }
+  if (said.length) ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.AutoFired", { what: said.join(" · ") }));
+  return said;
 }
 
 /* ---------------------------------------------------------------- */
@@ -839,6 +969,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       focusRules: SceneRunner.#onFocusRules,
       noteTag: SceneRunner.#onNoteTag,
       nudgeClock: SceneRunner.#onNudgeClock,
+      // 2026-10-04 (D059): each character's own result on a beat everyone
+      // rolls, a fight set up in one press, and its clock rising by itself.
+      recordPlayerResult: SceneRunner.#onRecordPlayerResult,
+      setUpFight: SceneRunner.#onSetUpFight,
+      toggleClockAuto: SceneRunner.#onToggleClockAuto,
+      jumpToNow: SceneRunner.#onJumpToNow,
       // The edit sheet (design/scene-edits.md). Typing is saved by the
       // fields' own listeners (#bindEditSheet); these are its buttons.
       toggleEdit: SceneRunner.#onToggleEdit,
@@ -962,6 +1098,49 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     this.#startTimer();
     if (this.#editing) this.#bindEditSheet();
+    else this.#watchNow(context);
+  }
+
+  /** The beat being run, for the "back to now" pill and the teleprompter scroll. */
+  #nowWatch = { briefId: null, nowId: null, observer: null };
+
+  /**
+   * Keep the beat being run findable (2026-10-04). When the marker moves on
+   * (the GM ticked the beat they were on), the next one is scrolled into
+   * view if it is not already, the way a teleprompter scrolls; when the GM
+   * scrolls away to read ahead, a pill at the top of the script says where
+   * "now" is and takes them back with one press. Found running Episode One:
+   * the beat to run next sat below the bottom edge of a 1600x900 screen.
+   */
+  #watchNow(context) {
+    this.#nowWatch.observer?.disconnect?.();
+    this.#nowWatch.observer = null;
+    const pill = this.element.querySelector("[data-now-pill]");
+    const nowEl = this.element.querySelector(".bi-runner__beat--now");
+    const briefId = context?.id ?? null;
+    const nowId = nowEl?.dataset?.beatId ?? null;
+    const moved = this.#nowWatch.briefId === briefId && Boolean(this.#nowWatch.nowId) && Boolean(nowId) && this.#nowWatch.nowId !== nowId;
+    this.#nowWatch.briefId = briefId;
+    this.#nowWatch.nowId = nowId;
+    if (pill) pill.hidden = true;
+    if (!nowEl) return;
+    const script = this.element.querySelector(".bi-runner__script");
+    const scroller = script && getComputedStyle(script).overflowY === "auto" ? script : this.element.querySelector(".bi-runner__cols");
+    if (moved && scroller) {
+      const box = nowEl.getBoundingClientRect();
+      const view = scroller.getBoundingClientRect();
+      if (box.top < view.top || box.bottom > view.bottom) nowEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    if (!pill || typeof IntersectionObserver !== "function") return;
+    this.#nowWatch.observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        pill.hidden = entry.isIntersecting;
+        pill.dataset.direction = entry.boundingClientRect.top < (entry.rootBounds?.top ?? 0) ? "up" : "down";
+      },
+      { root: scroller ?? null, threshold: 0.01 }
+    );
+    this.#nowWatch.observer.observe(nowEl);
   }
 
   /**
@@ -1006,6 +1185,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     super._onClose?.(options);
     clearInterval(this.#timer);
     this.#timer = null;
+    this.#nowWatch.observer?.disconnect?.();
+    this.#nowWatch.observer = null;
   }
 
   /** Whether the first render has fitted everything around the drawer yet. */
@@ -1457,7 +1638,18 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     if (view.focusId && view.focusId !== nowId) view.focusId = null;
     const phase = runnerPhase(state.progress, runState);
     const rolls = resultsByKey(tableRollResults(briefId));
-    const decorated = state.beats.map((beat) => this.#withView(this.#decorateBeat(beat, brief, challenges, entries), { nowId, view, sections, runState, rolls }));
+    // The party, read off the sheets, and whom each carry-in into this scene
+    // applies to, looked up in the record (core/runner-party.mjs, 2026-10-04).
+    let members = [];
+    try {
+      members = partyMemberRecords();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not read the party for the Scene Runner:", err);
+    }
+    const carryIns = carryInsWithNames(state.intro?.carriesIn ?? [], { runs, members, arrivals: cityArrivals() });
+    const decorated = state.beats.map((beat) =>
+      this.#withView(this.#decorateBeat(beat, brief, challenges, entries, runState), { nowId, view, sections, runState, rolls, members, hasClock: Boolean(subsystem) })
+    );
     // The City (design/world-map-destinations.md §7): who went where on the way
     // into this scene. A beat tagged for destinations shows the players who are
     // there; a beat for a destination nobody chose is not shown at all.
@@ -1493,7 +1685,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // examination room" is one click rather than a hunt through the sidebar.
       backdrops,
       tableElsewhere,
-      position: position >= 0 ? game.i18n.format("BLANKINHERITANCE.Runner.SceneOf", { n: position + 1, total: steps.length }) : null,
+      // In the running order's own numbers: Episode One counts from 0, the
+      // cold open, so "Scene 3 of 12" sat beside a button marked 2.
+      position: position >= 0 ? (() => {
+        const at = scenePosition(steps);
+        return at ? game.i18n.format("BLANKINHERITANCE.Runner.SceneOf", { n: at.n, total: at.total }) : null;
+      })() : null,
       // Where a note typed right now would land, shown next to the field so
       // the GM can see it before they commit rather than after.
       noteTarget: noteTargetFor(state.beats, runState),
@@ -1514,6 +1711,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       howToPlayHtml: brief.howToPlay ? renderProse(brief.howToPlay, escapeHtml) : null,
       introOpen: view.bookends.intro ?? phase === "opening",
       outroOpen: view.bookends.outro ?? phase === "ending",
+      // Read before the scene starts, then one line (core/runner-view.mjs#goalOpen).
+      goalOpen: goalOpen(phase, view.bookends.goal ?? null),
+      // The "back to now" pill's words: the beat being run, without its chips.
+      nowLine: nowBeat ? String(nowBeat.text ?? "").replace(/<trig\b[^>]*\/>/gi, "").replace(/\s+/g, " ").trim() : null,
+      partyStrip: partyStrip(members, carryIns),
+      told: await this.#toldContext(scenes, briefId),
       showAll: sections.detail === true,
       // `scenes`/`open` LAST, after the spread: sceneRunnerState has no
       // scenes or open-state of its own, but either growing one later must
@@ -1534,7 +1737,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // outro after finding Shucks's own intro needed exactly this) -- same
       // decoration a beat's text/readAloud already gets, just scoped as
       // beatId "intro" since there is no real beat to attach it to.
-      intro: state.intro ? { ...state.intro, decoratedReadAloud: this.#decorateSceneReadAloud(state.intro, "intro") } : null,
+      intro: state.intro ? { ...state.intro, carriesIn: carryIns, decoratedReadAloud: this.#decorateSceneReadAloud(state.intro, "intro", entries) } : null,
       // Law 15 ("recording is a side effect of doing, never a separate
       // task"): found live 2026-09-19, an outro's own writeDown prompts
       // asked the GM to recall things by memory (what each player picked)
@@ -1545,7 +1748,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       outro: state.outro
         ? {
             ...state.outro,
-            decoratedReadAloud: this.#decorateSceneReadAloud(state.outro, "outro"),
+            decoratedReadAloud: this.#decorateSceneReadAloud(state.outro, "outro", entries),
             alreadyLogged: entries.filter((e) => e.context?.scene === canvas?.scene?.name).map((e) => ({ text: e.text, tag: e.tag ?? null })),
             // #178, the same Law 15 fix as alreadyLogged above, for the
             // specific case a writeDown prompt asks about equipment: real
@@ -1585,7 +1788,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           // line has a name to hold back, and the key reads "named" once told.
           nameProtected: isNameProtected(member),
           nameKnown: isNameProtected(member) ? namesTold.has(rawStageId(member)) : true,
-          initial: String(member.displayName ?? "?").trim().charAt(0).toUpperCase() || "?"
+          initial: String(member.displayName ?? "?").trim().charAt(0).toUpperCase() || "?",
+          // The stopgap DCs in the card's head, beside the name, for the moment
+          // a player lies to them or leans on them (core/runner-view.mjs#statDcs).
+          stats: statDcs(member.brief?.statblock)
         };
       }),
       onStageNow: onStageNow(),
@@ -1608,12 +1814,34 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
+   * What the table has been told so far this episode (core/table-knows.mjs):
+   * the told facts' words (data/campaign/told-facts.json, generated by the
+   * story build) and every beat ticked in every scene of the episode so far.
+   */
+  async #toldContext(scenes = [], briefId = null) {
+    try {
+      const file = await loadJson("campaign", "told-facts");
+      const facts = file?.facts ?? {};
+      const briefs = {};
+      for (const scene of scenes) {
+        const doc = scene.briefRef === briefId ? this._scene?.brief : await loadJson("scene-briefs", scene.briefRef);
+        if (doc) briefs[scene.briefRef] = doc;
+      }
+      const groups = toldSoFar({ order: scenes, briefs, runs: allRuns(), facts });
+      return { groups, count: toldCount(groups) };
+    } catch (err) {
+      console.error("Blank Inheritance | Could not gather what the table has been told:", err);
+      return { groups: [], count: 0 };
+    }
+  }
+
+  /**
    * The redesign's per-beat view fields, on top of #decorateBeat's content
    * ones: whether this is the beat the GM is on, whether its detail is open,
    * who it is about, what was recorded and by whom, and every result the
    * table has rolled against it.
    */
-  #withView(beat, { nowId, view, sections, runState, rolls }) {
+  #withView(beat, { nowId, view, sections, runState, rolls, members = [], hasClock = false }) {
     const tick = runState.ticked?.[beat.id] ?? null;
     const degreeLabel = (degree) => {
       const entry = DEGREE_LABELS.find(([key]) => key === degree);
@@ -1631,7 +1859,17 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       choiceAsk: beat.choicePoint ? this.#askContext(beat.id) : null,
       recorded,
       recordedDegree: beat.degree ?? null,
-      encounter: beat.encounterRef ? encounterSummary(this._scene?.encounters?.[beat.encounterRef]) : null,
+      encounter: beat.encounterRef
+        ? encounterSummary(this._scene?.encounters?.[beat.encounterRef], { clockAuto: runState.clockAuto !== false, hasClock: hasClock && Boolean(beat.subsystemRef) })
+        : null,
+      // A beat every player rolls in turn: each one's own result, one press
+      // each, beside their name (core/runner-party.mjs#perPlayerRows).
+      perPlayer: beat.check && beat.delivery === "each" && members.length
+        ? perPlayerRows(members, runState, beat.id).map((row) => ({
+            ...row,
+            degrees: DEGREE_LABELS.map(([degree, key]) => ({ degree, label: game.i18n.localize(key), short: DEGREE_SHORT[degree], isPicked: row.degree === degree }))
+          }))
+        : null,
       rolls: (rolls.get(beat.id) ?? []).map((result) => ({
         ...result,
         label: degreeLabel(result.degree),
@@ -1663,8 +1901,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * "intro"/"outro", standing in for a beatId in both the chip's own dataset
    * and the log's structured subject -- there is no real beat to scope by.
    */
-  #decorateSceneReadAloud(section, sectionId) {
-    const { html, unknownIds } = decorateInlineTriggers(section?.readAloud, section?.triggers, sectionId);
+  #decorateSceneReadAloud(section, sectionId, entries = []) {
+    const { html, unknownIds } = decorateInlineTriggers(section?.readAloud, section?.triggers, sectionId, { fired: firedTriggerIds(entries, sectionId) });
     for (const id of unknownIds) {
       console.error(`Blank Inheritance | This brief's ${sectionId} names trigger "${id}" in its readAloud, which isn't in ${sectionId}.triggers[].`);
     }
@@ -1680,8 +1918,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * would be invisible to it, and an undefined modifier class fails silently
    * as unstyled markup rather than as an error.
    */
-  #decorateBeat(beat, brief, challenges, entries = []) {
+  #decorateBeat(beat, brief, challenges, entries = [], runState = null) {
     const check = checkFor(beat, challenges);
+    // Chips pressed by hand (the log) and chips its own tick fired
+    // (core/beat-autofire.mjs) both show a tick on the chip.
+    const fired = firedTriggerIds(entries, beat.id);
+    for (const entry of runState?.ticked?.[beat.id]?.fired ?? []) fired.add(entry.id);
     const handout = beat.handoutRef ? (brief.handouts ?? []).find((h) => h.id === beat.handoutRef) ?? null : null;
 
     const baseDc = check?.dc?.value ?? null;
@@ -1699,9 +1941,9 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     // panel itself (inline-triggers.mjs's own doctrine), but a typo is still
     // worth a console line too, the same courtesy #onOpenGmTool gives a bad
     // toolId, since a GM mid-scene may not be looking at the exact word.
-    const { html: decoratedText, unknownIds: unknownInText } = decorateInlineTriggers(beat.text, beat.triggers, beat.id);
+    const { html: decoratedText, unknownIds: unknownInText } = decorateInlineTriggers(beat.text, beat.triggers, beat.id, { fired });
     const { html: decoratedReadAloud, unknownIds: unknownInReadAloud } = beat.readAloud
-      ? decorateInlineTriggers(beat.readAloud, beat.triggers, beat.id)
+      ? decorateInlineTriggers(beat.readAloud, beat.triggers, beat.id, { fired })
       : { html: null, unknownIds: [] };
     for (const id of [...unknownInText, ...unknownInReadAloud]) {
       console.error(`Blank Inheritance | Beat "${beat.id}" text names trigger "${id}", which isn't in this beat's own triggers[].`);
@@ -1757,7 +1999,9 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // which checks are free to offer -- failure never costs anything on
       // one of these, unlike an ordinary check.
       isInsight: check?.insight === true,
-      whenLabel: beat.when?.condition ?? null,
+      // Only when the line does not already say it ("If anyone studies the
+      // water..." under "someone studies the water first" read it twice).
+      whenLabel: conditionLabelShown(beat.when?.condition, beat.text) ? beat.when.condition : null,
       handout,
       // Four, never five. A plain Failure with no listed effect is what
       // reads as "neutral" at a table; SF2E has no fifth rung.
@@ -1779,6 +2023,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
         ? {
             name: check.name ?? check.id,
             dc,
+            // Posted with sf2e's secret trait: the player rolls blind and only
+            // the GM sees the number (D058). Said on the beat, so the GM knows
+            // why a player sees no result.
+            secret: check.secret === true,
             skills: check.anySkill ? game.i18n.localize("BLANKINHERITANCE.Runner.AnySkill") : (check.skillOptions ?? []).join(" / "),
             label: checkLabel(check, dc, game.i18n.localize("BLANKINHERITANCE.Runner.AnySkill")),
             // The GM sees what was done to the number; the players never will.
@@ -1865,8 +2113,9 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const beatId = target.dataset.beatId;
     const state = runStateFor(briefId);
     const ticked = { ...state.ticked };
+    const before = ticked[beatId] ?? null;
 
-    if (ticked[beatId]) {
+    if (before) {
       delete ticked[beatId];
     } else {
       ticked[beatId] = { at: new Date().toISOString() };
@@ -1885,6 +2134,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     view.opened = view.opened.filter((id) => id !== beatId);
     view.resolvedId = null;
     this.render({});
+    // Its objective chips fire, or are undone (D059, core/beat-autofire.mjs).
+    if ((await beatAutomation(briefId, beatId, before, ticked[beatId] ?? null)).length) this.render({});
   }
 
   /**
@@ -1909,6 +2160,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const degree = target.dataset.degree;
     const state = runStateFor(briefId);
     const ticked = { ...state.ticked };
+    const before = ticked[beatId] ?? null;
 
     if (ticked[beatId]?.degree === degree) {
       delete ticked[beatId];
@@ -1938,6 +2190,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     await writeRunState(briefId, { ...state, ticked });
     this.render({});
+    if ((await beatAutomation(briefId, beatId, before, ticked[beatId] ?? null)).length) this.render({});
   }
 
   /**
@@ -1954,6 +2207,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const optionId = target.dataset.optionId;
     const state = runStateFor(briefId);
     const ticked = { ...state.ticked };
+    const before = ticked[beatId] ?? null;
 
     // Deciding it by hand ends any question still open on this beat: two
     // answers to one choice must never both stand.
@@ -1981,6 +2235,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     await writeRunState(briefId, { ...state, ticked });
     this.render({});
+    if ((await beatAutomation(briefId, beatId, before, ticked[beatId] ?? null)).length) this.render({});
   }
 
   /**
@@ -2021,6 +2276,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     const state = runStateFor(briefId);
+    const before = state.ticked?.[beatId] ?? null;
     const ticked = { ...state.ticked, [beatId]: { at: new Date().toISOString(), choice: settled.choice, picks: settled.picks } };
     fireBeatAudio(briefId, beatId);
     this.#viewFor(briefId).resolvedId = beatId;
@@ -2043,6 +2299,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     await writeRunState(briefId, { ...state, ticked });
     this.render({});
+    if ((await beatAutomation(briefId, beatId, before, ticked[beatId])).length) this.render({});
   }
 
   /** Take the question off every screen and record nothing. */
@@ -2108,7 +2365,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Open or fold the opening or the ending section, overriding its own phase for the rest of this scene. */
   static #onToggleBookend(event, target) {
     const section = target.dataset.section;
-    if (section !== "intro" && section !== "outro") return;
+    if (section !== "intro" && section !== "outro" && section !== "goal") return;
     const view = this.#viewFor(currentBriefId());
     view.bookends = { ...view.bookends, [section]: target.getAttribute("aria-expanded") !== "true" };
     this.render({});
@@ -2308,7 +2565,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           users = [user];
         }
         const revealed = await revealHandout(trigger.handoutRef, this._scene, users);
-        if (revealed) await logFired();
+        if (revealed) {
+          await logFired();
+          await this.#giveWithHandout(trigger.handoutRef, beatId);
+          this.render({});
+        }
         return;
       }
       case "gm-tool": {
@@ -2333,7 +2594,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           hiddenAdjustment(brief.gmModifiers ?? [], { challengeRef: beat?.challengeRef, locationKey: brief.sceneRef })
         );
         try {
-          await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, secret: check.secret === true, options: rollTagFor(brief.id, beatId) }) });
+          await ChatMessage.create({ content: checkMessageContent(check, { dc, briefId: brief.id, key: beatId }) });
           await logFired();
         } catch (err) {
           console.error("Blank Inheritance | Could not post that check:", err);
@@ -2571,7 +2832,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     // open and carries forward").
     if (leaving && shouldOfferClose(runStateFor(leaving))) {
       const brief = this._scene?.brief?.id === leaving ? this._scene.brief : null;
-      openSceneCloseDialogue({ briefRef: leaving, title: brief?.title ?? leaving, mode: brief?.mode ?? null, reactionPrompts: brief?.reactionPrompts ?? [] });
+      openSceneCloseDialogue({ briefRef: leaving, title: brief?.title ?? leaving, mode: brief?.mode ?? null, reactionPrompts: brief?.reactionPrompts ?? [], writeDown: brief?.outro?.writeDown ?? [] });
     }
 
     // THEN move the table, if the new brief has a built Scene at all — a
@@ -2617,7 +2878,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       briefRef: currentBriefId(),
       title: this._scene?.brief?.title ?? null,
       mode: this._scene?.brief?.mode ?? null,
-      reactionPrompts: this._scene?.brief?.reactionPrompts ?? []
+      reactionPrompts: this._scene?.brief?.reactionPrompts ?? [],
+      // The ending's own "Write down" questions, asked where the GM is already
+      // writing about the scene (2026-10-04).
+      writeDown: this._scene?.brief?.outro?.writeDown ?? []
     });
   }
 
@@ -2731,7 +2995,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       // Tagged with this brief and beat, so the result a player rolls from it
       // records itself here (the createChatMessage hook below).
-      await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, secret: check.secret === true, options: rollTagFor(brief.id, beat.id) }) });
+      await ChatMessage.create({ content: checkMessageContent(check, { dc, briefId: brief.id, key: beat.id }) });
       this.render({});
     } catch (err) {
       console.error("Blank Inheritance | Could not post that check:", err);
@@ -2759,7 +3023,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const topicKey = `${target.dataset.castId}:coercible:${Number(target.dataset.topicIndex)}`;
 
     try {
-      await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, secret: check.secret === true, options: rollTagFor(brief.id, topicKey) }) });
+      await ChatMessage.create({ content: checkMessageContent(check, { dc, briefId: brief.id, key: topicKey }) });
     } catch (err) {
       console.error("Blank Inheritance | Could not post that check:", err);
       ui.notifications.warn(String(err?.message ?? err));
@@ -2843,7 +3107,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onRevealHandout(event, target) {
     const revealed = await revealHandout(target.dataset.handoutId, this._scene, null);
-    if (revealed) this.render({});
+    if (revealed) {
+      await this.#giveWithHandout(target.dataset.handoutId, target.dataset.beatId ?? null);
+      this.render({});
+    }
     return revealed;
   }
 
@@ -2851,8 +3118,137 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const user = await pickOnePlayer();
     if (!user) return false;
     const revealed = await revealHandout(target.dataset.handoutId, this._scene, [user]);
-    if (revealed) this.render({});
+    if (revealed) {
+      await this.#giveWithHandout(target.dataset.handoutId, target.dataset.beatId ?? null);
+      this.render({});
+    }
     return revealed;
+  }
+
+  /**
+   * Showing a beat's handout gives the objective that beat gives (D059): the
+   * acceptance letter IS the enrolment order, and the docket IS the errand.
+   * Found starting The Road In: three presses and a confirm, and the letter
+   * shown with no objective given. The handout's own confirm was the
+   * deliberate act, so the give does not ask again. Logged as a press of the
+   * chip, so the chip shows it happened.
+   */
+  async #giveWithHandout(handoutId, beatId = null) {
+    const brief = this._scene?.brief;
+    if (!brief || !handoutId) return [];
+    // Offered whether or not the chip was pressed before: a second give
+    // changes nothing (the store is idempotent) and is not logged.
+    const { beat, chips } = chipsToFireOnHandout(brief.beats ?? [], handoutId, { beatId });
+    if (!beat) return [];
+    const said = [];
+    for (const chip of chips) {
+      let changed = false;
+      try {
+        changed = await runObjectiveTrigger(chip, { scene: canvas?.scene?.name ?? brief.title ?? null, confirm: false, quiet: true });
+      } catch (err) {
+        console.error(`Blank Inheritance | Could not give "${chip.objectiveRef}" with its handout:`, err);
+      }
+      if (!changed) continue;
+      said.push(chip.label ?? chip.id);
+      await recordLogEntry({
+        text: chip.label ?? chip.id,
+        nowIso: new Date().toISOString(),
+        scene: canvas?.scene?.name ?? null,
+        subject: triggerLogSubject(beat.id, chip.id)
+      }).catch((err) => console.error("Blank Inheritance | Could not log that objective:", err));
+    }
+    if (said.length) ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.AutoFired", { what: said.join(" · ") }));
+    return said;
+  }
+
+  /**
+   * One character's own result on a beat everyone rolls (2026-10-04): the
+   * per-player row beside their name. Pressing the degree they already have
+   * clears it. The first result on a beat with none also marks the beat done
+   * at that degree, the same as the first roll that records itself.
+   */
+  static async #onRecordPlayerResult(event, target) {
+    const briefId = currentBriefId();
+    const { beatId, actorId, degree } = target.dataset;
+    if (!briefId || !beatId || !actorId || !degree) return;
+    const state = runStateFor(briefId);
+    const current = state.results?.[beatId]?.[actorId]?.degree ?? null;
+    const name = game.actors?.get(actorId)?.name ?? "?";
+    const at = new Date().toISOString();
+    const clearing = current === degree;
+    const results = withResult(state.results, beatId, actorId, clearing ? null : { degree, name, at, via: "hand" });
+    const before = state.ticked?.[beatId] ?? null;
+    let ticked = state.ticked;
+    let after = before;
+    if (!clearing && !before) {
+      after = { at, degree, via: "hand", actorId, by: name };
+      ticked = { ...state.ticked, [beatId]: after };
+      fireBeatAudio(briefId, beatId);
+    }
+    await writeRunState(briefId, { ...state, results, ticked });
+    // Stay open on the row: the next player's result is one press away, and a
+    // beat that folded after the first would hide the rest of the round.
+    this.#viewFor(briefId).resolvedId = beatId;
+    if (!clearing) {
+      const beat = this.#beat(beatId);
+      const check = beat ? checkFor(beat, this._scene?.challenges ?? {}) : null;
+      await recordLogEntry({
+        text: `${name}: ${degree} on ${check?.name ?? beat?.text ?? beatId}.`,
+        nowIso: at,
+        scene: canvas?.scene?.name ?? null,
+        subject: outcomeLogSubject(beatId, degree)
+      }).catch((err) => console.error("Blank Inheritance | Could not log that result:", err));
+    }
+    this.render({});
+    if (after !== before && (await beatAutomation(briefId, beatId, before, after)).length) this.render({});
+  }
+
+  /**
+   * Set up the beat's fight (foundry/fight-setup.mjs): the creatures from the
+   * compendium, a combat with the party, the creatures' initiative rolled for
+   * the GM only, and the tracker opened. A second press finds the same fight.
+   */
+  static async #onSetUpFight(event, target) {
+    const briefId = currentBriefId();
+    const beat = this.#beat(target.dataset.beatId);
+    const encounter = beat?.encounterRef ? this._scene?.encounters?.[beat.encounterRef] : null;
+    if (!encounter) return;
+    this.#focus(beat.id);
+    const clockAuto = runStateFor(briefId).clockAuto !== false;
+    try {
+      const combat = await setUpFight(encounter, { briefId, beatId: beat.id, clockAuto });
+      if (combat) {
+        await recordLogEntry({
+          text: game.i18n.format("BLANKINHERITANCE.Runner.FightSetup.Logged", { name: encounter.name ?? encounter.id }),
+          nowIso: new Date().toISOString(),
+          scene: canvas?.scene?.name ?? null,
+          subject: `${beat.id}::fight`
+        }).catch(() => {});
+      }
+    } catch (err) {
+      console.error("Blank Inheritance | Could not set up the fight:", err);
+      ui.notifications.error(game.i18n.format("BLANKINHERITANCE.Runner.FightSetup.Failed", { reason: err?.message ?? String(err) }));
+    }
+    this.render({});
+  }
+
+  /**
+   * Whether the scene's clock rises by itself as rounds end (the compactor's
+   * own rule, "the GM advances it"). On by default; off for a table that wants
+   * the simpler fight, which the subsystem itself allows.
+   */
+  static async #onToggleClockAuto() {
+    const briefId = currentBriefId();
+    const state = runStateFor(briefId);
+    const next = !(state.clockAuto !== false);
+    await writeRunState(briefId, { ...state, clockAuto: next });
+    this.render({});
+  }
+
+  /** The "back to now" pill: the beat being run, scrolled into view. */
+  static #onJumpToNow() {
+    const nowEl = this.element?.querySelector(".bi-runner__beat--now");
+    nowEl?.scrollIntoView({ block: "start", behavior: "smooth" });
   }
 
   #beat(beatId) {
@@ -3238,6 +3634,53 @@ Hooks.on("createChatMessage", (message) => {
     })
     .catch((err) => console.error("Blank Inheritance | Could not record that roll against its beat:", err));
 });
+
+/**
+ * The compactor rises by itself (2026-10-04): when a round of a fight set up
+ * from the Runner ends, the clock of the scene it was set up from goes up one
+ * (core/fight-setup.mjs#roundEnded, #clockStepOnRound), logged like a nudge by
+ * hand, with the new threshold said out loud when one is crossed. Off when
+ * the GM switched it off on the fight card. Only the active GM writes.
+ */
+Hooks.on("updateCombat", (combat, changed, options = {}) => {
+  if (!game.user?.isGM || !("round" in (changed ?? {}))) return;
+  const activeGm = game.users?.activeGM;
+  if (activeGm && activeGm.id !== game.user.id) return;
+  const fight = combat?.getFlag?.(MODULE_ID, "fight");
+  if (!fight?.briefId) return;
+  // The fight card says which round it is, so it is redrawn after any round
+  // change, whether or not the clock moved.
+  const work = roundEnded(changed.round, { direction: options?.direction ?? 1 }) ? advanceClockForRound(fight.briefId, changed.round) : Promise.resolve();
+  work
+    .catch((err) => console.error("Blank Inheritance | Could not move the scene's clock for the new round:", err))
+    .finally(() => {
+      if (active?.open) refreshSceneRunner();
+    });
+});
+
+async function advanceClockForRound(briefId, round) {
+  const state = runStateFor(briefId);
+  if (state.clockAuto === false) return;
+  const loaded = await loadScene(briefId);
+  const subsystem = loaded?.subsystem;
+  const clock = subsystem ? clockState(subsystem, state) : null;
+  const step = clockStepOnRound(clock);
+  if (!step) return;
+  const adjust = { ...(state.adjust ?? {}), [clock.poolId]: (Number(state.adjust?.[clock.poolId]) || 0) + step };
+  await writeRunState(briefId, { ...state, adjust });
+  const after = clockState(subsystem, { ...state, adjust });
+  const crossed = after.latest && after.latest !== clock.latest && after.latest.atValue !== clock.latest?.atValue ? after.latest : null;
+  await recordLogEntry({
+    text: `${after.name}: ${clock.current} → ${after.current} (round ${round}).`,
+    nowIso: new Date().toISOString(),
+    scene: canvas?.scene?.name ?? null,
+    subject: `clock::${clock.poolId}`
+  }).catch((err) => console.error("Blank Inheritance | Could not log that clock change:", err));
+  ui.notifications.info(
+    game.i18n.format("BLANKINHERITANCE.Runner.ClockRose", { name: after.name, value: after.current, limit: after.limit }) + (crossed ? ` ${crossed.effect}` : "")
+  );
+  refreshSceneRunner();
+}
 
 /** A deleted roll leaves the beat's list of results. */
 Hooks.on("deleteChatMessage", (message) => {

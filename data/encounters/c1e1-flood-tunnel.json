@@ -16,6 +16,8 @@
       "name": "Giant Centipede",
       "level": -1,
       "count": 6,
+      "compendium": "Compendium.sf2e.tales-from-the-vast-bestiary.Actor.a1sE7bci1Tv2ef8h",
+      "statline": "AC 15 · HP 8 · Fort +7, Ref +6, Will +2 · Perception +6, darkvision · Speed 30, climb 30 · Mandibles +6 (finesse), 1d4-1 piercing plus venom (Fortitude DC 14)",
       "build": "Ships with the system, in the Tales from the Vast bestiary (numbers read from the shipped pack): AC 15, HP 8, Fort +7, Ref +6, Will +2 (a Demoralize is against Will DC 12), Perception +6 with darkvision, Speed 30 and climb 30. Mandibles +6 (finesse), 1d4-1 piercing, plus Giant Centipede Venom: Fortitude DC 14, maximum 6 rounds; stage 1, 1d4 poison; stage 2, 1d4 poison and off-guard; stage 3, 1d4 poison, clumsy 1 and fatigued (each 1 round).\n\nThey see in the dark and climb as fast as they walk, so the walkways are dry high ground, not a refuge. Speed 30 across a flooded floor of difficult terrain is the room's whole shape: they cross the water faster than anyone in waders. No reskin: they are exactly what they look like."
     }
   ],

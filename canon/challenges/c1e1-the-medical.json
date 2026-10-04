@@ -10,6 +10,27 @@
   "levelContext": 1,
   "checks": [
     {
+      "id": "study-the-form",
+      "name": "Study the form",
+      "skillOptions": [
+        "perception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "secret": true,
+      "outcomes": {
+        "criticalSuccess": "As success, and every form in the clerk's stack already has a name typed on it. The whole intake was ready before anyone reached the gate.",
+        "success": "Their name was typed before they arrived, on the same machine as their acceptance letter: the same lower-case e, striking low and faint.",
+        "failure": "A form with their name on it. Somebody is efficient.",
+        "criticalFailure": "They decide the clerk typed it while they queued, and admire her speed."
+      },
+      "repeatable": false
+    },
+    {
       "id": "overhear-the-search",
       "name": "Overhear the staff",
       "skillOptions": [

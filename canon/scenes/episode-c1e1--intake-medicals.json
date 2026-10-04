@@ -169,6 +169,22 @@
       ]
     },
     {
+      "id": "study-the-form",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone studies the typed name on their form, offer the check.",
+      "when": {
+        "condition": "someone studies their form"
+      },
+      "challengeRef": "c1e1-the-medical",
+      "checkRef": "study-the-form",
+      "facts": [
+        "directorate.forms-typed-ahead"
+      ],
+      "gmFacts": []
+    },
+    {
       "id": "overhear-the-search",
       "kind": "check",
       "mandatory": false,

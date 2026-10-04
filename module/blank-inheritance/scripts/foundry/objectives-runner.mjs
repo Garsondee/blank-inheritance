@@ -11,6 +11,12 @@
  *   tick, reveal, strike   no question: the GM pressed the chip at the moment it happened. Nothing for a tick
  *           (D057 §9: a sound on give and close only).
  *
+ * The Runner also fires a beat's chips by itself (core/beat-autofire.mjs, D059): a give when the beat's handout is
+ * shown, every chip when the beat is marked done. Then `confirm: false` skips give's question (showing the
+ * handout, or ticking the beat, WAS the deliberate act) and `quiet: true` keeps each chip from adding its own
+ * notification; the Runner says once what it did. Un-marking the beat undoes what marking it did
+ * (`undoObjectiveAct`).
+ *
  * Returns true when something changed, so the Runner logs only what really happened.
  */
 
@@ -47,21 +53,23 @@ async function pickPlayer() {
   return user ? { userId: user.id, name: user.character?.name ?? user.name } : null;
 }
 
-async function give(id, scene) {
+async function give(id, scene, { confirm = true, quiet = false } = {}) {
   const doc = await loadAuthored(id);
   if (!doc) {
     ui.notifications.warn(L("BLANKINHERITANCE.Objectives.Runner.Missing", { id }));
     return false;
   }
   if (pageForObjective(id)) {
-    ui.notifications.info(L("BLANKINHERITANCE.Objectives.Runner.AlreadyGiven", { title: doc.title }));
+    if (!quiet) ui.notifications.info(L("BLANKINHERITANCE.Objectives.Runner.AlreadyGiven", { title: doc.title }));
     return false;
   }
-  const ok = await foundry.applications.api.DialogV2.confirm({
-    window: { title: L("BLANKINHERITANCE.Objectives.Runner.GiveTitle") },
-    content: `<p>${L("BLANKINHERITANCE.Objectives.Runner.GiveConfirm", { title: `<strong>${esc(doc.title)}</strong>`, giver: esc(doc.giver?.name) })}</p>`
-  }).catch(() => false);
-  if (!ok) return false;
+  if (confirm) {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: L("BLANKINHERITANCE.Objectives.Runner.GiveTitle") },
+      content: `<p>${L("BLANKINHERITANCE.Objectives.Runner.GiveConfirm", { title: `<strong>${esc(doc.title)}</strong>`, giver: esc(doc.giver?.name) })}</p>`
+    }).catch(() => false);
+    if (!ok) return false;
+  }
   const owner = doc.scope === "character" ? await pickPlayer() : null;
   if (doc.scope === "character" && !owner) return false;
   const result = await giveObjective(id, { scene, owner });
@@ -86,17 +94,33 @@ async function close(id, scene) {
 }
 
 /** The dispatcher's one entry point. */
-export async function runObjectiveTrigger(trigger, { scene = null } = {}) {
+export async function runObjectiveTrigger(trigger, { scene = null, confirm = true, quiet = false } = {}) {
   const { act, objectiveRef: id, partRef } = trigger ?? {};
   if (!game.user.isGM || !id) return false;
-  if (act === "give") return give(id, scene);
+  if (act === "give") return give(id, scene, { confirm, quiet });
   if (!pageForObjective(id)) {
-    ui.notifications.warn(L("BLANKINHERITANCE.Objectives.Runner.NotGiven"));
+    if (!quiet) ui.notifications.warn(L("BLANKINHERITANCE.Objectives.Runner.NotGiven"));
     return false;
   }
-  if (act === "close") return close(id, scene);
+  if (act === "close") {
+    // Fired by a beat's tick, an objective already closed is left alone:
+    // re-ticking the beat must not ask for its Record's paragraph again.
+    if (quiet && pageForObjective(id)?.getFlag?.("blank-inheritance", "objective")?.status !== "active") return false;
+    return close(id, scene);
+  }
   if (!["tick", "reveal", "strike"].includes(act)) return false;
   const next = await actOnObjective(id, act, { partId: partRef, scene });
-  if (!next) ui.notifications.info(L("BLANKINHERITANCE.Objectives.Runner.NoChange"));
+  if (!next && !quiet) ui.notifications.info(L("BLANKINHERITANCE.Objectives.Runner.NoChange"));
+  return Boolean(next);
+}
+
+/**
+ * Undo one act a beat's own tick fired (core/beat-autofire.mjs#undoFor): untick a ticked or struck part, or reopen a
+ * closed objective. Never asks: un-marking the beat was the deliberate act. Returns true when something changed.
+ */
+export async function undoObjectiveAct({ objectiveRef, partRef = null, undo } = {}, { scene = null } = {}) {
+  if (!game.user.isGM || !objectiveRef || !undo) return false;
+  if (!pageForObjective(objectiveRef)) return false;
+  const next = await actOnObjective(objectiveRef, undo, { partId: partRef, scene });
   return Boolean(next);
 }

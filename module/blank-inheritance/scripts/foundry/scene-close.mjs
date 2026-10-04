@@ -23,7 +23,7 @@
  * bookkeeping, not something a player screen ever needs.
  */
 
-import { canCloseScene, summarizeClosure, openSetups, sceneHighlights, ENDING_OPTIONS, VERDICT_OPTIONS } from "../core/scene-close.mjs";
+import { canCloseScene, summarizeClosure, openSetups, sceneHighlights, writeDownEntries, ENDING_OPTIONS, VERDICT_OPTIONS } from "../core/scene-close.mjs";
 import { recordLogEntry, currentEntries } from "./session-log.mjs";
 import { runnerThemeContext } from "./runner-theme.mjs";
 
@@ -78,8 +78,8 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
   /** Both optional, both nullable, neither able to block the close -- see core/scene-close.mjs#canCloseScene. */
   #ending = null;
   #carriesForward = false;
-  /** Which authored scene this is closing, when it was opened from one. `mode` rides onto the log entry as context; `reactionPrompts` become the review agenda for a flagged verdict, and are empty for an ad-hoc close with no brief. */
-  #context = { briefRef: null, title: null, mode: null, reactionPrompts: [] };
+  /** Which authored scene this is closing, when it was opened from one. `mode` rides onto the log entry as context; `reactionPrompts` become the review agenda for a flagged verdict, and are empty for an ad-hoc close with no brief. `writeDown` is the scene's own list of what the write-up needs (2026-10-04), asked here. */
+  #context = { briefRef: null, title: null, mode: null, reactionPrompts: [], writeDown: [] };
 
   static DEFAULT_OPTIONS = {
     id: "bi-scene-close",
@@ -131,13 +131,20 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
       highlights: sceneHighlights(currentEntries(), canvas?.scene?.name ?? null),
       // How many scenes this session has already flagged, so the GM can see
       // the review pile they are adding to. Real state, not a mock.
-      reviewCount: currentCounters().reviewFlags
+      reviewCount: currentCounters().reviewFlags,
+      // The scene's own "Write down" questions, each with a box. Asked here
+      // because inside the Runner's ending they went unanswered: this is the
+      // one moment the GM is already writing about the scene. Every one is
+      // optional, and in the recap column, which is the one part of this
+      // dialogue allowed to scroll, so they can never push the verdicts off
+      // the screen.
+      writeDown: (this.#context.writeDown ?? []).map((text, index) => ({ text, index }))
     };
   }
 
   /** Told, not guessed: the runner knows which brief it is closing, and that brief's own `mode`/reactionPrompts. */
-  setContext({ briefRef = null, title = null, mode = null, reactionPrompts = [] } = {}) {
-    this.#context = { briefRef, title, mode, reactionPrompts };
+  setContext({ briefRef = null, title = null, mode = null, reactionPrompts = [], writeDown = [] } = {}) {
+    this.#context = { briefRef, title, mode, reactionPrompts, writeDown: Array.isArray(writeDown) ? writeDown.filter((w) => typeof w === "string" && w.trim()) : [] };
     return this;
   }
 
@@ -164,6 +171,19 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
     const notesField = this.element.querySelector("[data-scene-close-notes]");
     const verdict = target.dataset.verdictId;
     if (!canCloseScene({ verdict }).ok) return;
+
+    // The write-down answers go into the log first, one line each, so the
+    // closure's own line is the last thing the scene's record says.
+    const answers = [];
+    for (const field of this.element.querySelectorAll("[data-writedown-index]")) answers[Number(field.dataset.writedownIndex)] = field.value ?? "";
+    for (const entry of writeDownEntries(this.#context.writeDown, answers, { briefRef: this.#context.briefRef })) {
+      await recordLogEntry({
+        text: entry.text,
+        nowIso: new Date().toISOString(),
+        scene: this.#context.title ?? canvas?.scene?.name ?? null,
+        subject: entry.subject
+      }).catch((err) => console.error("Blank Inheritance | Could not log a write-down answer:", err));
+    }
 
     const result = await confirmSceneClosure({
       verdict,
@@ -192,10 +212,10 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
   }
 }
 
-export function openSceneCloseDialogue({ briefRef = null, title = null, mode = null, reactionPrompts = [] } = {}) {
+export function openSceneCloseDialogue({ briefRef = null, title = null, mode = null, reactionPrompts = [], writeDown = [] } = {}) {
   if (!game.user?.isGM) return null;
   const dialogue = new SceneCloseDialogue();
-  dialogue.setContext({ briefRef, title, mode, reactionPrompts });
+  dialogue.setContext({ briefRef, title, mode, reactionPrompts, writeDown });
   dialogue.render({ force: true });
   return dialogue;
 }

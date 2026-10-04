@@ -58,6 +58,12 @@ export function registerCitySettings(onChange = () => {}) {
   game.settings.register(MODULE_ID, SETTING, { scope: "world", config: false, type: Object, default: emptyCityState(), onChange });
 }
 
+/** How each player arrived (The Road In's departure): user id -> destination id ("ferry"). Empty until they have. */
+export function cityArrivals() {
+  const arrivals = cityState().arrivals;
+  return arrivals && typeof arrivals === "object" ? arrivals : {};
+}
+
 export function cityState() {
   const stored = game.settings.get(MODULE_ID, SETTING);
   return { ...emptyCityState(), ...(stored && typeof stored === "object" ? stored : {}) };
@@ -344,7 +350,10 @@ export async function goCityDeparture({ choice = null } = {}) {
       for (const m of roster) pawns[m.userId] = { placeRef: starts[m.userId] };
     }
     await writePrivate({});
-    await writeState({ ...cityState(), pawns, departure: null, groups: [], queue: [], currentKey: null, lastAssignment: assignment });
+    // How each player came to Kurose, kept for good (2026-10-04): later scenes
+    // name who it applies to ("if anyone arrived by ferry", The Walk Down), and
+    // `lastAssignment` is overwritten by the very next departure.
+    await writeState({ ...cityState(), pawns, departure: null, groups: [], queue: [], currentKey: null, lastAssignment: assignment, arrivals: { ...(cityState().arrivals ?? {}), ...assignment } });
     const scene = target?.briefRef ? sceneForBrief(target.briefRef) : null;
     if (scene) await cue(scene.id);
     return { assignment };

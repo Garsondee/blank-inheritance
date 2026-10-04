@@ -149,3 +149,9 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R4, R19.** A missed roll is added: reading the regulars rather than Manako (Society or Perception, DC 15, blind). It tells the table, on a success, that he matters in this district (`manako.district`, decided in D046), which the read-aloud only hints at. Nothing about who he is.
 - **R27.** How to play no longer repeats the beat's own "kind and useful" direction.
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Carry-ins.** "If anyone has the tram map" names whoever critically succeeded at Learn the city or carries the map; "If anyone saw a violet mark on the road in" names whoever passed Recognise the mark.

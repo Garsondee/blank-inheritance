@@ -17,11 +17,37 @@
     "carriesIn": [
       {
         "when": "If anyone has the tram map",
-        "then": "They find the workshop without asking anyone."
+        "then": "They find the workshop without asking anyone.",
+        "tag": "Tram map",
+        "who": {
+          "anyOf": [
+            {
+              "briefRef": "episode-c1e1--school-first-period",
+              "beatRef": "local-studies",
+              "degrees": [
+                "criticalSuccess"
+              ]
+            },
+            {
+              "hasItem": [
+                "tram map"
+              ]
+            }
+          ]
+        }
       },
       {
         "when": "If anyone saw a violet mark on the road in",
-        "then": "They may recognise the next one."
+        "then": "They may recognise the next one.",
+        "tag": "Saw the mark",
+        "who": {
+          "briefRef": "episode-c1e1--the-road-in",
+          "beatRef": "a-mark-at-head-height",
+          "degrees": [
+            "success",
+            "criticalSuccess"
+          ]
+        }
       }
     ],
     "position": {

@@ -138,3 +138,10 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Carry-ins.** All seven now name the characters they apply to, from what is already recorded (each player's own result in natural history, the workshop and the range; Taka's check, by the beat or on his card; who carries a lamp; who is Fatigued, on the sheet or from a critical failure today). Each has a short tag for the Runner's party strip.
+- **The fight.** The encounter names its creature's shipped compendium entry and carries a one-line stat block, so Set up the fight brings in six centipedes, puts them and the party in the combat tracker and rolls their initiative where only the GM sees it. The compactor's Encroachment rises by itself at the end of each round, as the subsystem's own rule says, unless the GM switches it off on the fight card.

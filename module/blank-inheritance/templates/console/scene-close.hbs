@@ -47,6 +47,23 @@
               suggestion (§10.3a) — in one card so the GM reads before they
               decide. Scrolls inside itself; never grows the dialogue. --}}
         <section class="bi-scene-close__recap">
+            {{!-- The scene's own "Write down" questions (2026-10-04), one box
+                  each, every one optional. Here, in the column that scrolls,
+                  so however many a scene asks the verdicts stay on screen. --}}
+            {{#if writeDown.length}}
+            <div class="bi-scene-close__writedown">
+                <div class="bi-scene-close__label">
+                    {{localize "BLANKINHERITANCE.SceneClose.WriteDownLabel"}}
+                    <span class="bi-scene-close__optional">{{localize "BLANKINHERITANCE.SceneClose.Optional"}}</span>
+                </div>
+                {{#each writeDown}}
+                <label class="bi-scene-close__writedown-item">
+                    <span class="bi-scene-close__writedown-q">{{this.text}}</span>
+                    <input type="text" class="bi-scene-close__writedown-input" data-writedown-index="{{this.index}}" autocomplete="off">
+                </label>
+                {{/each}}
+            </div>
+            {{/if}}
             <p class="bi-scene-close__recap-title">{{localize "BLANKINHERITANCE.SceneClose.RecapTitle"}}</p>
 
             <div class="bi-scene-close__label">{{localize "BLANKINHERITANCE.SceneClose.HighlightsLabel"}}</div>

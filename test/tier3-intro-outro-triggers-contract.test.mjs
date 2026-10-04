@@ -39,13 +39,15 @@ test("the schema declares triggers[] on both intro and outro, same item shape as
 });
 
 test("#decorateSceneReadAloud exists and both intro/outro context building call it, scoped by their own section id", () => {
-  const fn = src.match(/#decorateSceneReadAloud\(section, sectionId\) \{[\s\S]*?\n {2}\}/);
+  // 2026-10-04 (D059): it is also handed the session log, so a chip already pressed in the opening shows a tick.
+  const fn = src.match(/#decorateSceneReadAloud\(section, sectionId, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
   assert.ok(fn, "#decorateSceneReadAloud is missing from scene-runner.mjs");
-  assert.match(fn[0], /decorateInlineTriggers\(section\?\.readAloud, section\?\.triggers, sectionId\)/);
+  assert.match(fn[0], /decorateInlineTriggers\(section\?\.readAloud, section\?\.triggers, sectionId, \{ fired: firedTriggerIds\(entries, sectionId\) \}\)/);
   assert.match(fn[0], /console\.error/, "an unknown trigger id in intro/outro prose should fail loudly, same as a beat's own");
 
-  assert.match(src, /intro:\s*state\.intro \? \{ \.\.\.state\.intro, decoratedReadAloud: this\.#decorateSceneReadAloud\(state\.intro, "intro"\) \} : null/);
-  assert.match(src, /decoratedReadAloud:\s*this\.#decorateSceneReadAloud\(state\.outro, "outro"\)/);
+  // The opening also carries its carry-ins with the names they apply to (core/runner-party.mjs).
+  assert.match(src, /intro:\s*state\.intro \? \{ \.\.\.state\.intro, carriesIn: carryIns, decoratedReadAloud: this\.#decorateSceneReadAloud\(state\.intro, "intro", entries\) \} : null/);
+  assert.match(src, /decoratedReadAloud:\s*this\.#decorateSceneReadAloud\(state\.outro, "outro", entries\)/);
 });
 
 test("#onFireTrigger resolves a trigger against intro.triggers/outro.triggers when beatId is \"intro\"/\"outro\" (no real beat exists for those ids)", () => {

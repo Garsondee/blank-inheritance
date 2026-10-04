@@ -99,3 +99,12 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R7.** Taka's role said "if it fits" in a scene about waders that don't; now plain.
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R19.** The crossing's read-aloud ends with the old town's dogs, all barking at one dark street near the waterline, then stopping at once. The plant is the side street the dogs wouldn't walk down in The Errand; the secret is the Watcher's swarm, thick there tonight (`watcher.animals`, relied on, never told). No roll: this scene stays the episode's relax beat.
+- **R15, R21.** Both added sentences are full sentences, read aloud at the end of the crossing.
+- **Objective chips.** Wearing the waders never ticks itself when the beat is marked done (`auto: false`): some won't wear them. Drawing them, reaching Dock C and the three jobs do.
+- **Carry-in.** "If anyone arrived by ferry" now names who, from The Road In's arrivals.

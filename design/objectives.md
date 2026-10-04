@@ -122,6 +122,13 @@ creation), read-only for players like a given one.
   the authored suggestion already in the box). Each logs only when something changed and fires the existing
   `blankInheritance.triggerFired` hook. A soft cue (Foundry's own interface channel, so each player's volume rules) on
   give and close only (D057 §9). `scripts/foundry/objectives-runner.mjs`.
+- **One press per moment (D059, 2026-10-04)**: the chips also fire by themselves when the GM does the larger thing.
+  Showing a beat's handout gives the objective that beat gives, without asking again (the handout's own confirm was
+  the deliberate act). Marking a beat done fires its objective chips nobody has pressed, in authored order, and a
+  check beat only on a pass; un-marking it undoes what that did (a tick or strike is unticked, a close reopened; a
+  give or reveal stays, because the players have seen it). A chip whose part depends on how it went is authored
+  `auto: false` and only fires when pressed (Episode One: the requisition and being in by nineteen hundred at the
+  hatch, wearing the waders). Entrances, name reveals and handouts never fire by a tick. `scripts/core/beat-autofire.mjs`.
 - **Store**: one JournalEntry, "Objectives" (`sourceId: party-objectives`, no `sourceHash`, so world sync leaves it
   alone), default OWNER so players may add pages; one page per objective, its state in
   `flags.blank-inheritance.objective`, plus a readable copy for Foundry's own journal view. Given pages: OBSERVER.

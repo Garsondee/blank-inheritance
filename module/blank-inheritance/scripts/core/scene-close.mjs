@@ -187,6 +187,36 @@ export function sceneHighlights(entries = [], sceneName, { limit = 8 } = {}) {
     .map((e) => ({ tag: e.tag, text: e.text }));
 }
 
+/**
+ * The scene's own "Write down" questions, answered in the close dialogue
+ * (2026-10-04), as log entries ready for core/log-entry.mjs.
+ *
+ * Each brief's ending lists what the session write-up needs ("How they ended
+ * the fight, and who did what.", "Who has a theory about Rand.") -- folded
+ * inside the ending section, where nobody answered them mid-session. The
+ * close dialogue now asks them at the one moment the GM is already writing
+ * about the scene. Every one is optional: an empty answer writes nothing, and
+ * none can stop the close (this file's one governing rule).
+ *
+ * One entry per answer, keyed by the question's place in the list, so the
+ * write-up can find "the answer to question 2 of the Flood Tunnel" without
+ * matching prose.
+ */
+export function writeDownEntries(prompts = [], answers = [], { briefRef = null } = {}) {
+  if (!Array.isArray(prompts) || !Array.isArray(answers)) return [];
+  const out = [];
+  prompts.forEach((prompt, index) => {
+    const answer = typeof answers[index] === "string" ? answers[index].trim() : "";
+    const question = typeof prompt === "string" ? prompt.trim() : "";
+    if (!answer || !question) return;
+    out.push({
+      text: `${question.replace(/[.?!:]+$/, "")}: ${answer}`,
+      subject: briefRef ? `writedown::${briefRef}::${index}` : `writedown::${index}`
+    });
+  });
+  return out;
+}
+
 function findOption(options, id) {
   return options.find((o) => o.id === id) ?? null;
 }

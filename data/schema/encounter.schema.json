@@ -25,7 +25,10 @@
           "creatureRef": { "type": ["string", "null"], "description": "id of a creature.schema.json file, if built." },
           "name": { "type": "string" },
           "level": { "type": "integer", "description": "Combat level, for XP-budget purposes even if creatureRef isn't set yet." },
-          "count": { "type": "integer", "default": 1 }
+          "count": { "type": "integer", "default": 1 },
+          "compendium": { "type": ["string", "null"], "description": "The shipped compendium entry this creature is, as a Foundry UUID (Compendium.sf2e.<pack>.Actor.<id>). The Scene Runner's Set up the fight key (foundry/fight-setup.mjs) brings in one Actor per count from it. test/tier3-fight-setup-contract.test.mjs checks it resolves in the shipped packs." },
+          "statline": { "type": ["string", "null"], "description": "One line the fight card prints, so the GM runs a turn without opening a sheet: AC, HP, saves, Perception, speed, strikes. The contract test holds its numbers to the compendium entry." },
+          "build": { "type": "string", "description": "Notes on what the creature is and how it was chosen." }
         }
       }
     },

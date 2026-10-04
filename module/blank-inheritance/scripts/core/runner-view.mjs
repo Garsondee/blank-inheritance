@@ -141,9 +141,81 @@ export function sceneStartedAt(runState = null) {
   return earliest;
 }
 
+/**
+ * Whether the goal box shows in full (2026-10-04).
+ *
+ * It is read before the scene starts and is then in the way: at 1600x900 the
+ * full box and the opening pushed the first beat to the bottom edge of the
+ * screen (found running Episode One in the live Runner). Open while nothing
+ * has happened; one line (the goal) once the scene is running. The GM's own
+ * press wins either way, like the opening's and the ending's.
+ */
+export function goalOpen(phase, override = null) {
+  if (typeof override === "boolean") return override;
+  return phase === "opening";
+}
+
+/**
+ * Whether a GM-judged beat's condition label is worth printing.
+ *
+ * The label ("someone studies the water first") sits above the beat's own
+ * line, and most such lines already open by saying it ("If anyone studies the
+ * water before touching anything, offer the check."). Printing both read the
+ * same condition twice (found in the live Runner, 2026-10-04). A line that
+ * opens on If, When, Once, Unless or Before already carries its condition;
+ * so does one that contains the label's words.
+ */
+export function conditionLabelShown(condition, text) {
+  const label = String(condition ?? "").trim();
+  if (!label) return false;
+  const line = String(text ?? "").replace(/<trig\b[^>]*\/>/gi, "").trim();
+  if (/^(if|when|once|unless|before|whenever)\b/i.test(line)) return false;
+  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+  return !norm(line).includes(norm(label));
+}
+
+/**
+ * The stopgap DCs a cast member's card carries (2026-10-04).
+ *
+ * Until the NPC generator exists, a speaking NPC's `statblock` is one line of
+ * prose with the numbers in it ("Proposed: level 3, an officer, non-combat.
+ * Perception DC 19, Will DC 19, Deception DC 19."). The card shows them as
+ * a row of small pills, so the moment a player lies to him the number is
+ * beside his name. An unreadable line returns nothing and the card shows
+ * the prose instead.
+ */
+export function statDcs(statblock) {
+  const text = String(statblock ?? "");
+  const out = [];
+  const seen = new Set();
+  const pattern = /\b([A-Z][a-z]+(?: [A-Z][a-z]+)?) DC (\d+)\b/g;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    const label = match[1];
+    if (seen.has(label)) continue;
+    seen.add(label);
+    out.push({ label, dc: Number(match[2]) });
+  }
+  const level = /\blevel (-?\d+)\b/i.exec(text);
+  return { level: level ? Number(level[1]) : null, dcs: out };
+}
+
 /* ---------------------------------------------------------------- */
 /*  The episode, and the rooms                                       */
 /* ---------------------------------------------------------------- */
+
+/**
+ * "Scene N of M" in the header, in the SAME numbers as the running order's
+ * own buttons (2026-10-04). Episode One numbers its scenes from 0 (the cold
+ * open), so the header used to say "Scene 3 of 12" beside a button marked 2.
+ * Null when the scene being read is not in the episode.
+ */
+export function scenePosition(steps = []) {
+  const current = steps.find((step) => step.isCurrent);
+  if (!current) return null;
+  const last = steps.reduce((max, step) => Math.max(max, Number(step.order) || 0), 0);
+  return { n: current.order, total: last };
+}
 
 /**
  * The episode's running order as a row of steps.

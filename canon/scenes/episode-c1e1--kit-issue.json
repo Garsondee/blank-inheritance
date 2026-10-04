@@ -17,7 +17,16 @@
     "carriesIn": [
       {
         "when": "If anyone failed local studies",
-        "then": "They're last in at the counter."
+        "then": "They're last in at the counter.",
+        "tag": "Last at the counter",
+        "who": {
+          "briefRef": "episode-c1e1--school-first-period",
+          "beatRef": "local-studies",
+          "degrees": [
+            "failure",
+            "criticalFailure"
+          ]
+        }
       }
     ],
     "position": {
@@ -193,6 +202,23 @@
       "gmFacts": [
         "nobu.off-book"
       ]
+    },
+    {
+      "id": "the-stamp",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone looks closely at an extra Nobu gave them, offer the check.",
+      "when": {
+        "condition": "someone looks closely at an extra"
+      },
+      "challengeRef": "c1e1-kit-issue",
+      "checkRef": "the-stamp",
+      "note": "If anyone asks Nobu about it: \"Issue never arrives on time.\" He doesn't deny it.",
+      "facts": [
+        "nobu.off-book"
+      ],
+      "gmFacts": []
     },
     {
       "id": "test-the-fit",

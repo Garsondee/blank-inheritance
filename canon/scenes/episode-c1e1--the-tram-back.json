@@ -87,7 +87,8 @@
           "act": "tick",
           "objectiveRef": "c1e1-the-docket",
           "partRef": "requisition",
-          "label": "Docket: requisition in"
+          "label": "Docket: requisition in",
+          "auto": false
         },
         {
           "id": "docket-in-time",
@@ -95,7 +96,8 @@
           "act": "tick",
           "objectiveRef": "c1e1-the-docket",
           "partRef": "back-by-1900",
-          "label": "Docket: in by 19:00"
+          "label": "Docket: in by 19:00",
+          "auto": false
         },
         {
           "id": "close-docket",

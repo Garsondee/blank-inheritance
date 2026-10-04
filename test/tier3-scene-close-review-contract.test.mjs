@@ -142,8 +142,8 @@ test("both scene-runner.mjs call sites that open the close dialogue pass the lea
   assert.ok(closeSceneFn, "#onCloseScene is missing from scene-runner.mjs");
   assert.match(closeSceneFn[0], /reactionPrompts:\s*this\._scene\?\.brief\?\.reactionPrompts/, "the explicit Close Scene button no longer passes the current brief's reactionPrompts");
 
-  assert.match(closeSrc, /setContext\(\{ briefRef = null, title = null, mode = null, reactionPrompts = \[\] \}/, "setContext no longer accepts reactionPrompts");
-  assert.match(closeSrc, /export function openSceneCloseDialogue\(\{ briefRef = null, title = null, mode = null, reactionPrompts = \[\] \}/, "openSceneCloseDialogue no longer accepts/forwards reactionPrompts");
+  assert.match(closeSrc, /setContext\(\{ briefRef = null, title = null, mode = null, reactionPrompts = \[\](?:, writeDown = \[\])? \}/, "setContext no longer accepts reactionPrompts");
+  assert.match(closeSrc, /export function openSceneCloseDialogue\(\{ briefRef = null, title = null, mode = null, reactionPrompts = \[\](?:, writeDown = \[\])? \}/, "openSceneCloseDialogue no longer accepts/forwards reactionPrompts");
 });
 
 test("the 0-10 rating grid is GONE, not hidden behind a flag -- it is what made the dialogue unusable", () => {

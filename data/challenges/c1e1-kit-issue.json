@@ -6,7 +6,7 @@
     "status": "drafted"
   },
   "name": "Kit Issue",
-  "description": "Two optional checks at the stores counter.",
+  "description": "Three optional checks at the stores counter.",
   "levelContext": 1,
   "checks": [
     {
@@ -50,6 +50,28 @@
         "criticalFailure": "Comically tangled, and everyone politely ignores it."
       },
       "repeatable": true
+    },
+    {
+      "id": "the-stamp",
+      "name": "Look closely at the extra",
+      "skillOptions": [
+        "crafting",
+        "perception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "insight": true,
+      "secret": true,
+      "outcomes": {
+        "criticalSuccess": "As success, and the stamp names a chandler on the old town's waterfront, with a price pencilled beside it in Nobu's own hand.",
+        "success": "Under the fresh Directorate paint is a ships' chandler's stamp. This didn't come out of Directorate stores.",
+        "failure": "Issue kit, freshly painted.",
+        "criticalFailure": "They decide it's old navy surplus, repainted, and tell anyone who asks."
+      },
+      "repeatable": false
     }
   ],
   "resolutionMode": "narrative-only",
@@ -60,5 +82,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--kit-issue"
   ],
-  "notes": "Neither check costs anything mechanical."
+  "notes": "None of the three checks costs anything mechanical."
 }

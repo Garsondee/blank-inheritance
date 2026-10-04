@@ -30,7 +30,13 @@ test("#onPostCheck posts every skill in skillOptions, not just the first", () =>
   // offers" (the whole skillOptions list, or every skill for an any-skill
   // check). This assertion still named the older inline form after the
   // source moved to it, and failed at HEAD from 2026-09-26's big commit.
-  assert.match(fn[0], /enrichersFor\(\{\s*skillOptions:\s*checkSkills\(check\)/, "no longer builds the posted content from the FULL skillOptions list");
+  // 2026-10-04 (D059): it posts through the shared checkMessageContent, whose ordinary shape is enrichersFor over
+  // checkSkills(check) and whose any-skill shape is the compact card over the same list.
+  assert.match(fn[0], /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: beat\.id \}\)/, "no longer posts through the shared checkMessageContent");
+  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(content, /enrichersFor\(\{\s*skillOptions:\s*checkSkills\(check\)/, "no longer builds the posted content from the FULL skillOptions list");
+  assert.match(content, /const skills = checkSkills\(check\);/, "the any-skill card no longer offers every skill");
+  assert.doesNotMatch(content, /checkSkills\(check\)\s*\[0\]/, "still slices out only the first skill option somewhere");
   assert.doesNotMatch(fn[0], /skillOptions\s*\?\?\s*\[\]\s*\)\s*\[0\]/, "still slices out only the first skill option somewhere");
   assert.doesNotMatch(fn[0], /checkSkills\(check\)\s*\[0\]/, "still slices out only the first skill option somewhere");
   assert.match(src, /import \{[^}]*\benrichersFor\b[^}]*\} from "\.\.\/core\/roll-intent\.mjs"/, "no longer imports the multi-skill enricher builder");

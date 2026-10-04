@@ -632,3 +632,11 @@ test("The Road In asks each player for their opening, then rolls their small pro
   const outcomes = Object.values(check.outcomes).join(" ").toLowerCase();
   assert.doesNotMatch(outcomes, /\blose\b|\bspend\b|cost them|\bslice\b/, "a bad roll here is a story, never a cost");
 });
+
+test("emptyRunState carries a results bag for each character's own result, apart from ticked (2026-10-04, D059)", () => {
+  const state = emptyRunState();
+  assert.deepEqual(state.results, {});
+  assert.notEqual(state.results, state.ticked);
+  // A run stored before the bag existed still reads as a beat that is simply not done.
+  assert.equal(beatState({ id: "x" }, { ticked: {} }), BEAT_STATES.ACTIVE);
+});

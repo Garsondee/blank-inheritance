@@ -106,3 +106,11 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R16.** The shopping direction now says the Locker is self-serve: players shop while Nobu talks.
 - **R1, R11.** An optional round, if there is time: Nobu logs personal effects ("Anything you brought that you couldn't leave? It goes in the book."). It answers the letter's "bring nothing you cannot leave", and gives each player a line about who their character is before the day takes over.
+
+## Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R4, R19.** A new optional check, The stamp (Crafting or Perception, DC 15, blind): a player who looks closely at an extra from Nobu finds a ships' chandler's stamp under the fresh Directorate paint. On a critical success the stamp names a waterfront chandler, with a price pencilled beside it in Nobu's hand. It tells the table `nobu.off-book`, accepted in D059 and now told here.
+- **R8.** If they ask him about it: "Issue never arrives on time." He doesn't deny it.
+- **Carry-in.** "If anyone failed local studies" now names who (their own result on Learn the city), and shows Last at the counter beside them in the Runner's party strip.

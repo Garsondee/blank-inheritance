@@ -226,12 +226,34 @@
                   The summary and how to play it sit under it; `howToPlay`
                   carries the one bold instruction the author marked as the
                   one that breaks the scene if missed. --}}
+            {{!-- "Back to now" (2026-10-04): shown only while the beat being
+                  run is scrolled out of sight (foundry/scene-runner.mjs
+                  #watchNow), sticky at the top of the script. One press. --}}
+            {{#if nowLine}}
+            <button type="button" class="bi-runner__nowpill" data-now-pill data-action="jumpToNow" hidden
+                data-tooltip="{{localize 'BLANKINHERITANCE.Runner.BackToNowHint'}}">
+                <span class="bi-runner__now">{{localize "BLANKINHERITANCE.Runner.Now"}}</span>
+                <span class="bi-runner__nowpill-text">{{nowLine}}</span>
+                <i class="fa-solid fa-arrow-down bi-runner__nowpill-down" aria-hidden="true"></i>
+                <i class="fa-solid fa-arrow-up bi-runner__nowpill-up" aria-hidden="true"></i>
+            </button>
+            {{/if}}
+
+            {{!-- Read in full before the scene starts; once it is running,
+                  one line, the goal, and a press opens it again
+                  (core/runner-view.mjs#goalOpen). At 1600x900 the full box
+                  and the opening pushed the beat to run below the screen. --}}
             {{#if goal}}
-            <section class="bi-runner__goalbox">
-                <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.Goal"}}</p>
+            <section class="bi-runner__goalbox{{#unless goalOpen}} bi-runner__goalbox--folded{{/unless}}">
+                <div class="bi-runner__goal-head" data-action="toggleBookend" data-section="goal" role="button" tabindex="0" aria-expanded="{{goalOpen}}">
+                    <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.Goal"}}</p>
+                    <i class="fa-solid fa-chevron-down bi-runner__chevron"></i>
+                </div>
                 <p class="bi-runner__goal">{{goal}}</p>
+                {{#if goalOpen}}
                 {{#if summary}}<p class="bi-runner__summary">{{summary}}</p>{{/if}}
                 {{#if howToPlayHtml}}<p class="bi-runner__howto">{{{howToPlayHtml}}}</p>{{/if}}
+                {{/if}}
             </section>
             {{/if}}
 
@@ -419,8 +441,11 @@
                     {{#if intro.firstThing}}<p class="bi-runner__note">{{intro.firstThing}}</p>{{/if}}
                     {{#if intro.decoratedReadAloud}}<div class="bi-runner__read">{{{intro.decoratedReadAloud}}}</div>{{/if}}
                     {{#if intro.landmark}}<p class="bi-runner__landmark"><b>{{localize "BLANKINHERITANCE.Runner.Landmark"}}</b> {{intro.landmark}}</p>{{/if}}
+                    {{!-- Each carry-in names whom it applies to, looked up in
+                          the record (core/runner-party.mjs, 2026-10-04); a
+                          line the record says applies to nobody is dimmed. --}}
                     {{#each intro.carriesIn}}
-                    <p class="bi-runner__carries"><b>{{when}}</b> — {{then}}</p>
+                    <p class="bi-runner__carries{{#if isNobody}} bi-runner__carries--nobody{{/if}}{{#if applies}} bi-runner__carries--applies{{/if}}"><b>{{when}}</b> — {{then}}{{#if namesText}} <span class="bi-runner__carries-who"><i class="fa-solid fa-user" aria-hidden="true"></i> {{namesText}}</span>{{/if}}{{#if isNobody}} <span class="bi-runner__carries-who bi-runner__carries-who--none">{{localize "BLANKINHERITANCE.Runner.Carries.Nobody"}}</span>{{/if}}{{#if (eq state "applies")}} <span class="bi-runner__carries-who">{{localize "BLANKINHERITANCE.Runner.Carries.Applies"}}</span>{{/if}}</p>
                     {{/each}}
                     {{#if intro.holdInReserve}}
                     <details class="bi-runner__reserve">
@@ -440,7 +465,7 @@
             {{#if beats.length}}
             <section class="bi-runner__section bi-runner__order">
                 <div class="bi-runner__order-head">
-                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}} <span class="bi-runner__count">{{progress.done}}/{{progress.total}}</span></h3>
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}} <span class="bi-runner__count" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.BeatsDoneHint'}}">{{progress.done}}/{{progress.total}}</span></h3>
                     <button type="button" class="bi-runner__linkbtn" data-action="toggleShowAll" aria-pressed="{{showAll}}">
                         {{#if showAll}}{{localize "BLANKINHERITANCE.Runner.ShowNow"}}{{else}}{{localize "BLANKINHERITANCE.Runner.ShowAll"}}{{/if}}
                     </button>
@@ -561,6 +586,33 @@
         <aside class="bi-runner__side">
             {{!-- PEOPLE: who is here, and what keeps the table moving. --}}
             <div class="bi-runner__people">
+                {{!-- THE PARTY (2026-10-04): one line each, read off the
+                      sheets every render -- hit points, Hero Points, the
+                      conditions on them, and the short tag of every carry-in
+                      into this scene that applies to them. The GM runs the
+                      drains without remembering who passed what. --}}
+                {{#if partyStrip.length}}
+                <section class="bi-runner__section bi-runner__partystrip">
+                    <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.PartyStrip.Title"}}</h3>
+                    <ul class="bi-runner__pc-list">
+                        {{#each partyStrip}}
+                        <li class="bi-runner__pc">
+                            {{#if img}}<img class="bi-runner__pc-portrait" src="{{img}}" alt="">{{else}}<span class="bi-runner__pc-initial" aria-hidden="true">{{initial}}</span>{{/if}}
+                            <span class="bi-runner__pc-name">{{name}}</span>
+                            {{#if hp}}<span class="bi-runner__pc-hp{{#if hp.isLow}} bi-runner__pc-hp--low{{/if}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.PartyStrip.Hp'}}"><i class="fa-solid fa-heart" aria-hidden="true"></i> {{hp.value}}/{{hp.max}}</span>{{/if}}
+                            {{#if heroPoints}}<span class="bi-runner__pc-hero" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.PartyStrip.Hero'}}"><i class="fa-solid fa-star" aria-hidden="true"></i> {{heroPoints}}</span>{{/if}}
+                            {{#if (or conditions.length tags.length)}}
+                            <span class="bi-runner__pc-marks">
+                                {{#each conditions}}<span class="bi-runner__pc-mark bi-runner__pc-mark--condition">{{this}}</span>{{/each}}
+                                {{#each tags}}<span class="bi-runner__pc-mark">{{this}}</span>{{/each}}
+                            </span>
+                            {{/if}}
+                        </li>
+                        {{/each}}
+                    </ul>
+                </section>
+                {{/if}}
+
                 {{!-- Who the table can see right now, whoever put them there,
                       each with a way to take them off again. --}}
                 <section class="bi-runner__onstage">
@@ -683,6 +735,23 @@
                     </article>
                     {{/each}}
                 </section>
+                {{/if}}
+
+                {{!-- WHAT THE TABLE KNOWS (2026-10-04, core/table-knows.mjs):
+                      every fact told so far this episode, scene by scene, from
+                      the beats already ticked -- the same answer every time a
+                      player asks what was said about the founders. Folded,
+                      and remembered per GM, like the summon gallery. --}}
+                {{#if told.count}}
+                <details class="bi-runner__section bi-runner__section--fold bi-runner__knows" data-section="knows"{{#if sections.knows}} open{{/if}}>
+                    <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Knows.Title"}} <span class="bi-runner__count">{{told.count}}</span></summary>
+                    {{#each told.groups}}
+                    <p class="bi-runner__knows-scene">{{title}}</p>
+                    <ul class="bi-runner__knows-list">
+                        {{#each items}}<li class="bi-runner__knows-fact">{{text}}</li>{{/each}}
+                    </ul>
+                    {{/each}}
+                </details>
                 {{/if}}
 
                 {{!-- Summon anyone, onto whatever scene the table is looking
