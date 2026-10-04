@@ -85,6 +85,13 @@ export class ThreeBackend {
     this.#size(width, height, ratio);
   }
 
+  /** Look at the stage through another view (core/look.mjs `viewOf`): this screen panned or zoomed. */
+  setView(view) {
+    if (this.disposed || !view) return;
+    this.view = view;
+    if (this.rig) aimCamera(this.camera, this.rig, this.view);
+  }
+
   setQuality(tier) {
     if (tier === this.tier) return;
     this.tier = tier;

@@ -32,7 +32,7 @@ import { installDeckFitting, noteRoll, resetActionPips } from "./foundry/deck.mj
 import { loadSessionLog } from "./foundry/session-log.mjs";
 import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
 import { ensureStageVault, summonToStage, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
-import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
+import { syncCameraToScene } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
 import { buildSceneSet, quarantineStrayScenes, retireDuplicateScenes, retireOrphanedScenes, retireTemporaryScenes } from "./foundry/scene-build.mjs";
 import { ensureWorldSyncMacro, registerWorldSyncSettings, runWorldSync, startWorldSync } from "./foundry/world-sync.mjs";
@@ -735,18 +735,14 @@ Hooks.on("canvasReady", () => {
     console.error("Blank Inheritance | Could not re-assert the admin key:", err);
   }
 
-  // The stage, and the camera lock that makes a staged scene a picture rather
-  // than a map. Both are no-ops on an ordinary scene, and syncCameraToScene
-  // actively UNDOES the lock when leaving one -- a prototype override left in
-  // place after the GM switches to a battle map would freeze the camera on a
-  // map people need to pan.
+  // The stage, and where a staged scene's camera starts (framed beside the
+  // Scene Runner if it is open). Both are no-ops on an ordinary scene. The
+  // camera is never pinned (2026-10-04): everyone pans and zooms freely.
   try {
     syncStage();
     syncCameraToScene();
   } catch (err) {
     console.error("Blank Inheritance | Could not sync the stage to this scene:", err);
-    // Never leave the camera pinned because our own code threw on the way in.
-    unlockCamera();
   }
 
   // Seed THIS client's memory of who is already on stage, before any diff is

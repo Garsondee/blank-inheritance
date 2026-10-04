@@ -219,8 +219,9 @@ function applyRunnerWidth() {
  * Everything that sits beside the drawer, fitted to where its edge is now:
  * the deck (fitDeck measures the drawer directly), the session rail (which
  * runs from Foundry's left column, and that column moves with the drawer) and
- * a staged scene's camera (which centres the picture in the part of the
- * screen the GM can actually see).
+ * the scene's camera, staged or Stagecraft: it glides to fit the whole width
+ * of the picture into the part of the screen the GM can actually see
+ * (Ingram, 2026-10-04), and from there the GM pans and zooms freely.
  *
  * Run once immediately and once more after Foundry's left column has
  * finished its own 250ms slide (bi-foundry-bridge.css), because the rail
@@ -234,6 +235,7 @@ function relayoutAroundRunner({ settle = true } = {}) {
   fitDeck();
   import("./session-rail.mjs").then((m) => m.fitRail?.()).catch(() => {});
   import("./stage-camera.mjs").then((m) => m.refitStageCamera?.()).catch(() => {});
+  import("./stagecraft-bridge.mjs").then((m) => m.fitStageBesideRunner?.()).catch(() => {});
   if (settle) setTimeout(() => relayoutAroundRunner({ settle: false }), 320);
 }
 

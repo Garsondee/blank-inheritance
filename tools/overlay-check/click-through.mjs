@@ -226,8 +226,8 @@ try {
   await join(USER);
   await installHelpers();
 
-  // A plain scene has no Stagecraft stage and is not one of the adventure's own staged scenes: stage-camera.mjs pins those, so the wheel and
-  // the right-button drag are dead on them by design and could not tell us whether the drawer swallowed them.
+  // A plain scene has no Stagecraft stage and is not one of the adventure's own staged scenes: those are framed beside the drawer when it
+  // opens (stage-camera.mjs), which would move the camera under the check and blur whether the drawer swallowed the wheel and the drag.
   sceneId = await page.evaluate((wanted) => {
     const free = game.scenes.contents.filter((s) => !s.flags?.stagecraft?.stage && !s.getFlag("blank-inheritance", "stage")).sort((a, b) => a.name.localeCompare(b.name));
     return (typeof wanted === "string" ? game.scenes.getName(wanted) : free.find((s) => s.background?.src) ?? free[0])?.id ?? null;

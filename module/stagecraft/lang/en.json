@@ -42,7 +42,8 @@
       "nod": "Nod (card in hand)",
       "bow": "Bow (card in hand)",
       "shake": "Shake its head (card in hand)",
-      "turn": "Turn its back (card in hand)"
+      "turn": "Turn its back (card in hand)",
+      "home": "Show the whole stage (after panning or zooming)"
     },
     "Bar": {
       "Label": "Stage controls",

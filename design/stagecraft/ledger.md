@@ -285,3 +285,12 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 |---|---|---|---|
 | S1 | Trigger a specific emote on a card, live: shown once, or kept until cleared | module.md §36, diorama.md §7 | bench |
 | S2 | A right-click menu on a card to change things about it: the floor, a knock-down, a formation, its sheet | module.md §36 | bench |
+
+## T. Her sixteenth message: a free camera, and room beside the Scene Runner (2026-10-04)
+
+*"We currently lock the camera position and zoom during scenes but that's a bad idea. Let's free the user to pan and zoom in and out again. Also, when the scene runner is opened it would be great if the camera zoomed out and repositioned the scene so that it fits as best as possible in the width remaining."* Built the same day (`module.md` §37).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| T1 | Everyone pans and zooms their own view of a scene: the wheel, a drag on the bare stage, a right- or middle-drag; a double-click or Home goes back | module.md §37 | none |
+| T2 | When the Scene Runner opens, the stage glides to fit its whole width into what is left of the window, so nothing lies under the drawer | module.md §37 | none |

@@ -12,8 +12,9 @@ import { ROUTINES } from "./core/life.mjs";
 import { publishMoves, arrange, backToPlaces, keepPlaces, setChalkBox, editStage, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, setEmote, registerMoments, registerCover } from "./foundry/blocking.mjs";
 import { EMOTE_ORDER } from "./core/emotes.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
+import { registerMargins } from "./foundry/margins.mjs";
 
-export const API_VERSION = "0.11.0";
+export const API_VERSION = "0.12.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -72,6 +73,17 @@ export function createApi({ skins, current }) {
       registerMoments: (provider) => registerMoments(provider),
       /** Say what your own interface covers over the stage: provider() -> [{ rect: [x0, y0, x1, y1] } | { circle: [cx, cy, r] }], window pixels. */
       setCover: (provider) => registerCover(provider)
+    },
+
+    /**
+     * Where this screen looks (core/look.mjs). Everyone pans and zooms their own view; home is the whole stage, fitted
+     * clear of what your own interface takes along the window's edges.
+     */
+    view: {
+      /** Say what your interface takes along each edge: provider() -> { left?, right?, top?, bottom? }, window pixels, as now. Returns a function that takes it away. */
+      setMargins: (provider) => registerMargins(provider),
+      /** Glide this screen's view home (call it when your interface opened, shut or changed size); { animate: false } jumps. Returns whether a stage was there. */
+      home: (opts = {}) => current.host?.home(opts) === true
     },
 
     /** The stage on screen now, or null: { stage, backend }. */

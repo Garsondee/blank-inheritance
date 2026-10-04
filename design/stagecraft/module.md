@@ -910,3 +910,37 @@ write, the GM's screen taking a player's pick and refusing one on someone else's
 writing), the bridge test, the interface test, `bench/menu-check.mjs` (26, real right-clicks on the bench as a GM and a player
 on two screens), and a card-menu section in `foundry-check.mjs` 7d (a real player in a real Foundry). The other real-pointer
 benches (host 26, editor 16, sizes 15, chalk 56) still pass.
+
+## 37. A free view: pan and zoom, and room beside the drawer (2026-10-04)
+
+Ingram: *"We currently lock the camera position and zoom during scenes but that's a bad idea. Let's free the user to pan and
+zoom in and out again. Also, when the scene runner is opened it would be great if the camera zoomed out and repositioned the
+scene so that it fits as best as possible in the width remaining. Scene which is under the scene runner is inaccessible."*
+
+- **Every screen has its own view** (`core/look.mjs`): a look `{ s, cx, cy }`, never sent and never saved in the scene. Both
+  pictures already drew through one `view`, so a look only has to become a view (`viewOf`) and the backends take it
+  (`setView`, now part of the renderer contract). Picking, the floor under the pointer, chalk, marks, captions and the stage
+  editor's handles all read that view, so they follow it without changes of their own.
+- **The hands:** the wheel zooms about the pointer (the point under it stays under it); a left-drag on the bare stage, a
+  right-drag anywhere but a card (a right-click on a card is still its menu), or a middle-drag pans; a double-click on the bare
+  stage or the **Home** key (a Foundry keybinding, so it can be changed) glides home. A press is a click until it has moved four
+  pixels. Zoom runs from half the size that shows the whole page to four times the cover, and a pan always leaves a fifth of the
+  page on the screen.
+- **Home** is the cover the stage always had, unless another module says its interface takes an edge of the window
+  (`api.view.setMargins`, interface 0.12.0). Then the page's whole width is fitted into what is left and centred there:
+  nothing lies under the interface, at the cost of a band above and below. `api.view.home()` glides there (420 ms, the scale
+  by ratio so a long zoom does not rush). The adventure's bridge gives the Scene Runner's drawer as the left margin and calls
+  `home()` whenever the drawer opens, shuts or is dragged; a player has no drawer and keeps the plain cover.
+- **What stays put while a screen pans:** the box of chalk's place and the cover a formation keeps faces clear of are worked out
+  at the home view, so the box does not hop about and a zoomed-in GM still lays a formation out for the table's screens.
+- The adventure's older staged scenes (drawn by Foundry, not Stagecraft) were pinned by replacing `Canvas#_constrainView`. That
+  override is gone: they are framed once when drawn and glide to fit beside the drawer through Foundry's public `pan` and
+  `animatePan`, and Foundry's own wheel and drag work on them as on any map.
+
+Checks: `look.test.mjs` (9: home is the old cover with no margins and fits the width beside one, the point under the pointer
+stays put, the limits, the pan never loses the page, the wheel, the glide), a `flat-backend.test.mjs` case (picking and
+projection follow a new view), the keys and interface tests, the adventure's camera tests (`tier1-camera-fit`, the Scene
+Runner and Canvas contracts). Live, in the local Foundry on Kit Issue with real wheel, drags and keys: zoom about the pointer,
+left- and right-drag pans, no card menu from a right-drag, double-click and Home go home, and with the drawer open the page
+spans exactly from the drawer's edge (825.6 px) to the window's (1920), still zoomable there, back to the cover when shut. The
+real-pointer benches (host 26, editor 16, menu 29, sizes 15) still pass.

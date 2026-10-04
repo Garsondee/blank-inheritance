@@ -31,4 +31,11 @@ export function registerKeys(getHost) {
       precedence: CONST.KEYBINDING_PRECEDENCE.PRIORITY      // asked first, so a held card gets its key before the game does (N is the notes key, T is target)
     });
   }
+  // the view back home: the whole stage in sight (core/look.mjs). Only on a stage; anywhere else the key is passed on.
+  game.keybindings.register(NS, "home", {
+    name: "STAGECRAFT.Keys.home",
+    editable: [{ key: "Home" }],
+    onDown: () => getHost()?.home() === true,
+    restricted: false
+  });
 }

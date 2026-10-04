@@ -6,6 +6,8 @@
  *   unmount()                 give it back
  *   async load(description, skin, people)   build the painting, rig, set pieces, lights and the first cards
  *   resize(width, height, ratio)            the place changed size
+ *   setView(view)             look through another view (core/look.mjs `viewOf`): the screen panned or zoomed. `resize`
+ *                             puts the plain cover (rigspace.mjs `viewFor`) back until a view is given again
  *   setQuality(tier)          "high" or "low"
  *   draw(snapshot, dt)        draw this moment. `snapshot` is Stage#snapshot()
  *   addCard(person) / removeCard(id)        the cast changed
@@ -34,7 +36,7 @@ export const CAPABILITIES = Object.freeze([
   "lights", "shadows", "post", "particles", "marks", "zoneOutlines", "chalk", "camera", "capture", "footlights"
 ]);
 
-const METHODS = ["mount", "unmount", "load", "resize", "setQuality", "draw", "addCard", "removeCard", "pick", "floorAt", "project", "capture", "stats", "dispose"];
+const METHODS = ["mount", "unmount", "load", "resize", "setView","setQuality", "draw", "addCard", "removeCard", "pick", "floorAt", "project", "capture", "stats", "dispose"];
 
 /** Throws a plain sentence if an object is not a backend. Used by the registry and by tests. */
 export function assertBackend(b, name = "backend") {

@@ -413,3 +413,24 @@ test("an emote is drawn with its motion: a waving hand is turned, and in the cal
   assert.equal(turnOfEmote(), 0);
   t.dom.restore();
 });
+
+test("a screen that pans and zooms sees the stage through its own view: picking and projecting follow it", async () => {
+  const { homeLook, zoomAt, viewOf } = await import("../scripts/core/look.mjs");
+  const t = await table();
+  t.backend.draw(t.snapshot());
+  const id = PEOPLE[0].id;
+  const before = t.winOf(id);
+  assert.equal(t.backend.pick(before.x, before.y)?.id, id);
+  // twice as close, about the window's middle: the card's middle moves twice as far from it
+  const look = zoomAt(homeLook(1280, 720), 1280, 720, 640, 360, 2);
+  t.backend.setView(viewOf(1280, 720, look));
+  t.backend.draw(t.snapshot());
+  const after = t.winOf(id);
+  assert.ok(Math.abs((after.x - 640) - 2 * (before.x - 640)) < 0.5, `x: ${before.x} -> ${after.x}`);
+  assert.ok(Math.abs((after.y - 360) - 2 * (before.y - 360)) < 0.5, `y: ${before.y} -> ${after.y}`);
+  if (after.x > 0 && after.x < 1280 && after.y > 0 && after.y < 720) assert.equal(t.backend.pick(after.x, after.y)?.id, id, "picked where it is now drawn");
+  // a resize goes back to the plain cover until the view is given again
+  t.backend.resize(1280, 720, 2);
+  assert.deepEqual(t.winOf(id), before);
+  t.dom.restore();
+});

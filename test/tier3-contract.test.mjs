@@ -319,17 +319,13 @@ test("buildJournalEntryData: every field path it writes exists on Foundry's real
   }
 });
 
-test("the undocumented Canvas internals the stage camera depends on still exist", (t) => {
-  // foundry/stage-camera.mjs replaces Canvas#_constrainView, which is marked
-  // `@internal`. That is a deliberate, load-bearing choice — it is the ONE
-  // choke point every pan and zoom in the application routes through, and the
-  // alternatives (a hook that cannot cancel and fires a frame late; overriding
-  // seven separate input handlers) are worse. But undocumented API can move.
-  //
-  // The failure mode without this test is silent and awful: the override
-  // simply never gets called, the camera comes unstuck, and players start
-  // dragging a theatre-of-the-mind scene around with nothing anywhere saying
-  // why. This is the canary.
+test("the Canvas camera calls the stage camera uses still exist", (t) => {
+  // foundry/stage-camera.mjs used to replace Canvas#_constrainView to pin a
+  // staged scene's camera. Since 2026-10-04 nothing is pinned (Ingram: "free
+  // the user to pan and zoom in and out again"); the camera is only framed,
+  // through the public Canvas#pan and Canvas#animatePan, when a staged scene
+  // is drawn and when the Scene Runner opens, shuts or is dragged. This is the
+  // canary for those two.
   if (!existsSync(foundryAppRoot)) {
     t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
     return;
@@ -340,23 +336,17 @@ test("the undocumented Canvas internals the stage camera depends on still exist"
   const source = readFileSync(board, "utf8");
 
   assert.match(
-    source, /_constrainView\(\{\s*x,\s*y,\s*scale\s*\}\)/,
-    "Canvas#_constrainView is gone or has a different signature — foundry/stage-camera.mjs replaces it " +
-      "to pin the camera, and a renamed method means the override silently never runs"
+    source, /\n {2}pan\(\{\s*x,\s*y,\s*scale\s*\}/,
+    "Canvas#pan({x, y, scale}) is gone or has a different signature — foundry/stage-camera.mjs frames a staged scene with it"
   );
   assert.match(
-    source, /this\.stage\.pivot\.set\(/,
-    "Canvas#pan no longer sets stage.pivot directly — re-check that _constrainView is still the choke point"
+    source, /\n {2}async animatePan\(\{/,
+    "Canvas#animatePan is gone — foundry/stage-camera.mjs glides a staged scene beside the Scene Runner with it"
   );
-  assert.match(
-    source, /const constrained = this\._constrainView\(/,
-    "Canvas#pan no longer routes through _constrainView — the override would no longer catch anything"
+  assert.doesNotMatch(
+    readFileSync(path.join(repoRoot, "module", "blank-inheritance", "scripts", "foundry", "stage-camera.mjs"), "utf8"), /_constrainView\s*=/,
+    "the stage camera overrides Canvas#_constrainView again: that pinned the camera, which Ingram asked to be freed (2026-10-04)"
   );
-
-  // CONFIG.Canvas.minZoom/maxZoom are deliberately NOT used and deliberately
-  // not asserted: pinning them baked the stage cover scale into the NEXT
-  // scene's dimensions, because those are computed at board.mjs:1157 before
-  // any hook a module can listen on. See foundry/stage-camera.mjs.
 
   // The other half of the staged scene: the background lives on the embedded
   // Level document, not on the Scene. Getting this wrong renders no picture

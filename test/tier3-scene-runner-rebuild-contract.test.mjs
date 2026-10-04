@@ -67,24 +67,35 @@ test("the GM can drag the edge; the width is theirs (client scope) and is writte
   assert.match(src, /grip\?\.addEventListener\("dblclick", \(\) => game\.settings\.set\(MODULE_ID, SETTING_WIDTH, 0\)/, "double-click must go back to the default");
 });
 
-test("opening, shutting or dragging the drawer refits the deck, the session rail and a staged camera -- once now and once after Foundry's own 250ms slide", () => {
+test("opening, shutting or dragging the drawer refits the deck, the session rail and the scene's camera (staged or Stagecraft) -- once now and once after Foundry's own 250ms slide", () => {
   const relayout = src.match(/function relayoutAroundRunner\(\{ settle = true \} = \{\}\) \{[\s\S]*?\n\}/)?.[0];
   assert.ok(relayout, "relayoutAroundRunner is missing");
   assert.match(relayout, /fitDeck\(\)/);
   assert.match(relayout, /import\("\.\/session-rail\.mjs"\)\.then\(\(m\) => m\.fitRail\?\.\(\)\)/, "the rail never refitted when the drawer opened -- it only listened for window resizes");
   assert.match(relayout, /import\("\.\/stage-camera\.mjs"\)\.then\(\(m\) => m\.refitStageCamera\?\.\(\)\)/);
+  assert.match(relayout, /import\("\.\/stagecraft-bridge\.mjs"\)\.then\(\(m\) => m\.fitStageBesideRunner\?\.\(\)\)/, "a Stagecraft scene must glide to fit beside the drawer too");
   assert.match(relayout, /setTimeout\(\(\) => relayoutAroundRunner\(\{ settle: false \}\), 3\d\d\)/);
   assert.match(fnBody("onToggle"), /relayoutAroundRunner\(\)/);
 });
 
-test("a staged scene's camera covers the band beside the drawer, centred there -- the players' own camera is untouched", () => {
-  assert.match(camera, /import \{ coverFrame \} from "\.\.\/core\/camera-fit\.mjs"/);
-  const override = camera.match(/proto\._constrainView = function biStageConstrainView\(\) \{[\s\S]*?\n {2}\};/)?.[0];
-  assert.ok(override, "the camera override is missing");
-  assert.match(override, /leftInset: drawerInset\(\)/);
-  const inset = camera.match(/function drawerInset\(\) \{[\s\S]*?\n\}/)?.[0];
+test("a staged scene's camera is never pinned: it is only framed (beside the drawer when open) and the viewer pans and zooms freely", () => {
+  // Ingram, 2026-10-04: "We currently lock the camera position and zoom during scenes but that's a bad idea."
+  assert.doesNotMatch(camera, /_constrainView\s*=/, "Canvas#_constrainView must not be overridden: that was the lock");
+  assert.match(camera, /import \{ stageFrame \} from "\.\.\/core\/camera-fit\.mjs"/);
+  assert.match(camera, /leftInset: drawerInset\(\)/);
+  const inset = camera.match(/export function drawerInset\(\) \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(inset, "drawerInset is missing or no longer exported (the Stagecraft bridge reads it too)");
   assert.match(inset, /querySelector\("\.bi-runner-shell--open"\)\) return 0;/, "a shut drawer (and every player, who has none) must see the plain full-window cover");
-  assert.match(camera, /export function refitStageCamera\(\)/);
+  const refit = camera.match(/export function refitStageCamera\(\) \{[\s\S]*?\n\}/)?.[0];
+  assert.match(refit, /canvas\.animatePan\(/, "the refit glides through Foundry's public pan; it does not pin");
+  assert.match(camera, /export function syncCameraToScene\(\) \{[\s\S]*?canvas\.pan\(frame\)/);
+});
+
+test("a Stagecraft scene learns the drawer's width as a margin, and glides home beside it when the drawer moves", () => {
+  const sc = read("scripts", "foundry", "stagecraft-bridge.mjs");
+  assert.match(sc, /import \{ drawerInset \} from "\.\/stage-camera\.mjs"/);
+  assert.match(sc, /api\?\.view\?\.setMargins\?\.\(\(\) => \(\{ left: drawerInset\(\) \}\)\)/);
+  assert.match(sc, /export function fitStageBesideRunner\(\) \{\s*return game\.modules\.get\(NS\)\?\.api\?\.view\?\.home\?\.\(\) === true;/);
 });
 
 test("the stage lays its portraits out BESIDE an open drawer, not under it (players have no drawer and are untouched)", () => {

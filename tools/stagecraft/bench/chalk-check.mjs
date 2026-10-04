@@ -192,6 +192,20 @@ const wallCentre = (page, box) => page.evaluate((bx) => {
   return { n, sx, sy, m };
 }, box);
 /** The newest step kept in the world (a layer keeps only its last eight, so the count would not say). */
+/** The mean brightness of a screenshot (base64 PNG), worked out in the page. */
+const brightness = (page, b64) => page.evaluate(async (b) => {
+  const im = new Image();
+  im.src = "data:image/png;base64," + b;
+  await im.decode();
+  const c = document.createElement("canvas");
+  c.width = im.width; c.height = im.height;
+  const x = c.getContext("2d");
+  x.drawImage(im, 0, 0);
+  const d = x.getImageData(0, 0, c.width, c.height).data;
+  let sum = 0;
+  for (let i = 0; i < d.length; i += 4) sum += d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11;
+  return sum / (d.length / 4);
+}, b64);
 const steps = (page) => page.evaluate(() => window.bench.host.chalk.store.layers(window.bench.scene.id).flatMap((l) => Object.keys(l.history)).sort().at(-1) ?? "");
 
 const hand = (page) => page.evaluate(() => { const c = window.bench.host.chalk; return { tool: c.inHand, colour: c.colour, size: c.sizes[c.inHand] }; });
@@ -402,12 +416,28 @@ try {
   const stepsBefore = await steps(L);
   const inkBefore = await ink(L, [0.38, 0.77, 0.78, 0.88]);
   const sumsBefore = await wallCentre(L, [0.38, 0.77, 0.78, 0.88]);
+  const strip = { x: Math.round(W0.x), y: Math.round(W0.y - 14), width: Math.round(W1.x - W0.x), height: Math.round(W1.y - W0.y + 28) };
+  const lumBefore = await brightness(L, await L.screenshot({ clip: strip, encoding: "base64" }));
   await L.mouse.move(W0.x, W0.y);
   await L.mouse.down();
   for (let i = 1; i <= 40; i++) { await L.mouse.move(W0.x + ((W1.x - W0.x) * i) / 40, W0.y + ((W1.y - W0.y) * i) / 40); await sleep(8); }
   const wetHeld = await wetNow(L);
+  // what a person sees: the page, photographed while the button is still down (found live 2026-10-04: the wet canvases had no
+  // style, so they were drawn on but never over the stage, and the chalk appeared only when the button came up)
+  const lumHeld = await brightness(L, await L.screenshot({ clip: strip, encoding: "base64" }));
+  const geometry = await L.evaluate(() => {
+    const root = window.bench.host.root;
+    const r = root.getBoundingClientRect();
+    return [...root.querySelectorAll("canvas.stagecraft-wet")].map((c) => {
+      const b = c.getBoundingClientRect();
+      const cs = getComputedStyle(c);
+      return { position: cs.position, events: cs.pointerEvents, z: Number(cs.zIndex), fills: Math.abs(b.width - r.width) < 1 && Math.abs(b.height - r.height) < 1 && Math.abs(b.x - r.x) < 1 && Math.abs(b.y - r.y) < 1 };
+    });
+  });
   const wallHeld = await ink(L, [0.38, 0.77, 0.78, 0.88]);
   check("a stroke being painted is on the wet layer over the stage the moment the pointer moves", wetHeld.canvases === 2 && wetHeld.n > 1500, JSON.stringify({ n: wetHeld.n, canvases: wetHeld.canvases }));
+  check("the wet canvases lie over the stage, filling it, taking no clicks, above the picture", geometry.length === 2 && geometry.every((g) => g.position === "absolute" && g.events === "none" && g.fills && g.z >= 1), JSON.stringify(geometry));
+  check("and on the screen the chalk is there while the button is still down (the page photographed, not a canvas read)", lumHeld > lumBefore + 5, `mean brightness of the stroke's strip ${lumBefore.toFixed(1)} -> ${lumHeld.toFixed(1)}`);
   check("and the wall's tiles do not show it yet: the stage is not drawn again for every dab", wallHeld.inked === inkBefore.inked, JSON.stringify({ before: inkBefore.inked, held: wallHeld.inked }));
   check("the wet ink reaches the pointer (its tail runs on to where the hand is)", Math.abs(wetHeld.x1 - W1.x) <= 8, `ink to ${wetHeld.x1?.toFixed(1)}, pointer at ${W1.x.toFixed(1)}`);
   const heldCentre = { x: wetHeld.cx, y: wetHeld.cy };

@@ -53,40 +53,37 @@ test("a caller-supplied opts object overrides every default independently", () =
 });
 
 /* ---------------------------------------------------------------- */
-/*  coverFrame -- a staged scene beside the Scene Runner (2026-09-24) */
+/*  stageFrame -- a staged scene, and beside the Scene Runner          */
+/*  (2026-09-24; width fit beside the drawer since 2026-10-04)         */
 /* ---------------------------------------------------------------- */
 
-import { coverFrame } from "../module/blank-inheritance/scripts/core/camera-fit.mjs";
+import { stageFrame } from "../module/blank-inheritance/scripts/core/camera-fit.mjs";
 
 test("with nothing covering the window it is the plain cover fit every player gets", () => {
   // A 2:1 picture on a 16:9 window: height-bound, centred on the picture.
-  const frame = coverFrame({ sceneWidth: 4000, sceneHeight: 2000, viewportWidth: 2560, viewportHeight: 1440 });
+  const frame = stageFrame({ sceneWidth: 4000, sceneHeight: 2000, viewportWidth: 2560, viewportHeight: 1440 });
   assert.equal(frame.scale, Math.max(2560 / 4000, 1440 / 2000));
   assert.equal(frame.x, 2000);
   assert.equal(frame.y, 1000);
 });
 
-test("beside an open drawer the picture covers the band the GM can see, centred in it", () => {
+test("beside an open drawer the picture's whole width fits the band the GM can see, centred in it -- nothing lies under the drawer", () => {
   const inset = 1100;
-  const frame = coverFrame({ sceneWidth: 4000, sceneHeight: 2000, viewportWidth: 2560, viewportHeight: 1440, leftInset: inset });
-  assert.equal(frame.scale, Math.max((2560 - inset) / 4000, 1440 / 2000));
-  // The picture's centre (scene x 2000) must land at the middle of the visible
-  // band on screen: screen x = window centre + (sceneX - pivotX) * scale.
-  const screenX = 2560 / 2 + (2000 - frame.x) * frame.scale;
-  assert.ok(Math.abs(screenX - (inset + (2560 - inset) / 2)) < 1e-9, `picture centre lands at ${screenX}`);
-});
-
-test("a narrow visible band that is taller than it is wide still covers it -- no letterbox", () => {
-  const frame = coverFrame({ sceneWidth: 1000, sceneHeight: 1000, viewportWidth: 1600, viewportHeight: 1000, leftInset: 1200 });
-  assert.ok(frame.scale * 1000 >= 1000 && frame.scale * 1000 >= 400);
+  const frame = stageFrame({ sceneWidth: 4000, sceneHeight: 2000, viewportWidth: 2560, viewportHeight: 1440, leftInset: inset });
+  assert.equal(frame.scale, (2560 - inset) / 4000);
+  // screen x = window centre + (sceneX - pivotX) * scale
+  const screen = (sx) => 2560 / 2 + (sx - frame.x) * frame.scale;
+  assert.ok(Math.abs(screen(0) - inset) < 1e-9, `the picture's left edge lands at ${screen(0)}, not the drawer's edge`);
+  assert.ok(Math.abs(screen(4000) - 2560) < 1e-9, `the picture's right edge lands at ${screen(4000)}`);
+  assert.ok(frame.scale < Math.max(2560 / 4000, 1440 / 2000), "zoomed out from the cover");
 });
 
 test("an inset wider than the window is clamped rather than dividing by zero or flipping the picture", () => {
-  const frame = coverFrame({ sceneWidth: 1000, sceneHeight: 500, viewportWidth: 800, viewportHeight: 600, leftInset: 5000 });
+  const frame = stageFrame({ sceneWidth: 1000, sceneHeight: 500, viewportWidth: 800, viewportHeight: 600, leftInset: 5000 });
   assert.ok(Number.isFinite(frame.x) && Number.isFinite(frame.scale) && frame.scale > 0);
 });
 
 test("a degenerate scene or window answers null instead of NaN", () => {
-  assert.equal(coverFrame({ sceneWidth: 0, sceneHeight: 100, viewportWidth: 100, viewportHeight: 100 }), null);
-  assert.equal(coverFrame({ sceneWidth: 100, sceneHeight: 100, viewportWidth: 0, viewportHeight: 100 }), null);
+  assert.equal(stageFrame({ sceneWidth: 0, sceneHeight: 100, viewportWidth: 100, viewportHeight: 100 }), null);
+  assert.equal(stageFrame({ sceneWidth: 100, sceneHeight: 100, viewportWidth: 0, viewportHeight: 100 }), null);
 });

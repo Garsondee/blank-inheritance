@@ -12,7 +12,9 @@
  *     bridge.mjs), so reveals, concealment and the names the table has not been told all keep working as they did;
  *   - the party's characters are given cards, held by their players;
  *   - a fired trigger can summon more people (the nest wakes: six centipedes);
- *   - on a scene Stagecraft draws, the older overlay of portrait frames is not mounted (stage.mjs asks `stagecraftDraws`).
+ *   - on a scene Stagecraft draws, the older overlay of portrait frames is not mounted (stage.mjs asks `stagecraftDraws`);
+ *   - the Scene Runner's drawer is a margin down the left of the GM's window: each screen's home view fits the stage into
+ *     what is left, and opening, shutting or dragging the drawer glides the view there (Ingram, 2026-10-04).
  *
  * Players' screens need only the first and the last of these; the rest is the acting GM's.
  */
@@ -22,6 +24,7 @@ import { fetchModuleJson, writeStorageJson } from "./io.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
+import { drawerInset } from "./stage-camera.mjs";
 import { STAGECRAFT_ID as NS, STAGES_PATH, KEPT_PATH, applyKept, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, placesRecord, withKept, stageRecord, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
@@ -33,7 +36,18 @@ Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
 Hooks.once("stagecraft.ready", (api) => {
   api?.blocking?.registerMoments?.((scene) => momentButtons(scene));
   api?.blocking?.setCover?.(() => deckOnScreen());
+  // the drawer covers the left of the GM's window (0 when shut, and always 0 for a player): home fits the stage beside it
+  api?.view?.setMargins?.(() => ({ left: drawerInset() }));
 });
+
+/**
+ * The Scene Runner opened, shut or was dragged wider (foundry/scene-runner.mjs relayoutAroundRunner): the stage on screen
+ * glides to fit the whole width of its picture into the part of the window the GM can see ("scene which is under the scene
+ * runner is inaccessible", Ingram, 2026-10-04). Nothing is held there: the GM pans and zooms freely from it.
+ */
+export function fitStageBesideRunner() {
+  return game.modules.get(NS)?.api?.view?.home?.() === true;
+}
 
 /** The deck's faceplate and its orb as they are on this screen now, in window pixels (nothing while it is not shown). */
 function deckOnScreen() {

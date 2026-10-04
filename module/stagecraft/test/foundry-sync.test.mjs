@@ -76,7 +76,9 @@ test("a held card gets its keys before the game does, and with nothing held ever
   const performed = [];
   let host = { dragging: null, perform: (verb) => performed.push(verb) };
   registerKeys(() => host);
-  assert.deepEqual([...registered.keys()], ["hop", "nod", "bow", "shake", "turn"]);
+  assert.deepEqual([...registered.keys()], ["hop", "nod", "bow", "shake", "turn", "home"]);
+  const home = registered.get("home");
+  registered.delete("home");                 // the view's key, below; the rest are the held card's
   for (const def of registered.values()) {
     assert.equal(def.ns, "stagecraft");
     assert.equal(def.precedence, 0, "asked before the game's own keys: N is the notes key, T is target, Space pauses");
@@ -90,5 +92,13 @@ test("a held card gets its keys before the game does, and with nothing held ever
   assert.deepEqual(performed, ["hop", "nod", "bow", "shake", "turn"]);
   host = null;
   assert.equal(registered.get("hop").onDown(), false, "no stage at all: the key is the game's");
+  // Home brings the view back to the whole stage; with no stage it is passed on
+  assert.deepEqual(home.editable, [{ key: "Home" }]);
+  assert.equal(home.restricted, false, "every screen has its own view");
+  assert.equal(home.onDown(), false, "no stage: the key is the game's");
+  let homed = 0;
+  host = { dragging: null, home: () => { homed++; return true; } };
+  assert.equal(home.onDown(), true);
+  assert.equal(homed, 1);
   delete globalThis.CONST;
 });

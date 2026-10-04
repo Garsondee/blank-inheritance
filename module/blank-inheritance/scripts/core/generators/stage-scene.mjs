@@ -64,9 +64,10 @@ export function buildStageSceneData(source, id, backgroundPath, { width = 1920, 
     shiftX: 0,
     shiftY: 0,
 
-    // Where the camera starts. foundry/stage-camera.mjs pins it there anyway,
-    // but `initial` is what a client sees for the instant before the lock
-    // applies, and a scene that flashes off-centre reads as a bug.
+    // Where the camera starts. foundry/stage-camera.mjs frames it on draw
+    // anyway (beside the Scene Runner if it is open), but `initial` is what a
+    // client sees for the instant before that, and a scene that flashes
+    // off-centre reads as a bug.
     initial: { x: Math.round(width / 2), y: Math.round(height / 2) },
 
     grid: { type: GRIDLESS, size: 100 },

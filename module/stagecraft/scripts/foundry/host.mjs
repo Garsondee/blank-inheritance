@@ -27,6 +27,8 @@ import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, turnOf, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
 import { boxSpot, boxClear, DEFAULT_BOX } from "../core/chalk.mjs";
+import { homeLook, viewOf, clampLook, zoomAt, panBy, wheelFactor, tweenLook, sameLook } from "../core/look.mjs";
+import { marginsNow } from "./margins.mjs";
 
 export class StageHost {
   constructor({ scene, skins, anchor, services = {}, onFatal = null }) {
@@ -46,6 +48,9 @@ export class StageHost {
     this.services = services;              // shared across stages: { chalkStore }
     this.userId = game.user.id;
     this.dragging = null;
+    this.look = null;                      // where this screen looks (core/look.mjs), or null for home; never shared
+    this.tween = null;                     // a glide home under way: { from, to, t0, ms }
+    this.panning = null;                   // a drag that moves the view: { id, x, y, look, moved }
     this.selected = new Set();             // the GM's selection (shift-click): what a formation moves
     this.running = false;
     this.frames = 0;
@@ -73,7 +78,8 @@ export class StageHost {
     this.people = readCast(this.scene);
     // walks, routines and entrances run on the time every screen shares, so they agree everywhere
     // what the screen's own furniture covers (another module's deck along the bottom), so formations keep faces clear of it
-    const cover = () => (this.root && this.backend?.view ? coverOnPage(coverShapes(), this.root.getBoundingClientRect(), this.backend.view) : []);
+    // (at the home view, so a GM who has zoomed in still lays a formation out for the table's screens, not their own)
+    const cover = () => (this.root && this.backend?.view ? coverOnPage(coverShapes(), this.root.getBoundingClientRect(), this.homeView()) : []);
     this.stage = new Stage(description, this.people, { card: this.skins.get(description.skin).size, clock: sharedNow, cover });
     this.stage.setLife(lifeOn(this.scene));
     this.stage.setBoard(boardOn(this.scene));
@@ -237,6 +243,7 @@ export class StageHost {
     // before one is due is let go, and the engine simply takes a longer step at the next
     if (!this.pace.due(now)) { this.raf = requestAnimationFrame(this.#frame); return; }
     const alive = this.guard.run(() => {
+      if (this.tween) this.#glide(now);
       const dt = (now - this.last) / 1000;
       this.last = now;
       this.sync.tick();
@@ -336,13 +343,17 @@ export class StageHost {
       this.tip?.hide();
       if (e.button === 2 && this.chalk?.inHand) { this.chalk.putAway(); return; }
       if (e.button === 2 && this.blocking?.disarm()) return;
-      // a right-click on a card opens its menu (foundry/card-menu.mjs): its emotes, and for the GM a few things to change
+      // a right-click on a card opens its menu (foundry/card-menu.mjs): its emotes, and for the GM a few things to change;
+      // anywhere else, a right-drag moves the view, as it does on Foundry's own canvas
       if (e.button === 2) {
         const at = this.#local(e);
         const hit = this.backend.pick(at.x, at.y);
-        if (hit?.kind === "card" && this.menu?.open(hit.id, e.clientX, e.clientY)) e.preventDefault();
+        if (hit?.kind === "card") { if (this.menu?.open(hit.id, e.clientX, e.clientY)) e.preventDefault(); return; }
+        this.#startPan(e);
         return;
       }
+      // the middle button moves the view wherever it is pressed
+      if (e.button === 1) { this.#startPan(e); return; }
       // a pen's eraser end (button 5) rubs out while chalk is in hand
       if (e.button !== 0 && !(e.button === 5 && e.pointerType === "pen" && this.chalk?.inHand)) return;
       const p = this.#local(e);
@@ -392,6 +403,8 @@ export class StageHost {
         if (this.chalk.begin(sample)) { canvas.setPointerCapture(e.pointerId); this.chalk.hover(p); }
         return;
       }
+      // a press on the bare stage takes hold of the view: drag to look somewhere else
+      if (!hit) { this.#startPan(e); return; }
       if (hit?.kind !== "card") return;
       if (!this.sync.grab(hit.id)) return;          // not yours to hold, or someone has it already
       // The hand is wherever the pointer's ray meets the plane through the point that was grabbed, so the card does not jump.
@@ -403,6 +416,7 @@ export class StageHost {
       e.preventDefault();
     });
     this.#on(canvas, "pointermove", (e) => {
+      if (this.panning?.id === e.pointerId) { this.#pan(e); return; }
       const p = this.#local(e);
       if (this.dragging || this.chalk?.inHand || e.buttons) this.pace.poke(performance.now());        // hovering alone needs no more than the easy rate
       if (this.chalk?.drawing) {
@@ -426,6 +440,7 @@ export class StageHost {
     });
     const release = (e) => {
       this.pace.poke(performance.now());
+      if (this.panning?.id === e.pointerId) { this.panning = null; canvas.style.cursor = "default"; return; }
       if (this.chalk?.drawing) {
         if (e.type === "pointercancel") this.chalk.cancel();
         else this.chalk.end().catch((err) => console.warn(`${NS} | chalk stroke failed`, err));
@@ -439,6 +454,22 @@ export class StageHost {
     };
     this.#on(canvas, "pointerup", release);
     this.#on(canvas, "pointercancel", release);
+    // the wheel zooms about the pointer: the point of the stage under it stays under it
+    this.#on(canvas, "wheel", (e) => {
+      e.preventDefault();
+      this.tip?.hide();
+      const p = this.#local(e);
+      const { w, h } = this.#extent();
+      this.#setLook(zoomAt(this.lookNow(), w, h, p.x, p.y, wheelFactor(e.deltaY, e.deltaMode), marginsNow()));
+    }, { passive: false });
+    // a double-click on the bare stage goes home: the whole stage back in view
+    this.#on(canvas, "dblclick", (e) => {
+      if (this.chalk?.inHand || this.blocking?.armed) return;
+      const p = this.#local(e);
+      if (this.backend.pick(p.x, p.y)) return;
+      e.preventDefault();
+      this.home();
+    });
     // the ring round the pointer goes when the pointer leaves the stage
     this.#on(canvas, "pointerleave", () => { this.tip?.hide(); if (this.chalk?.inHand && !this.chalk.drawing) this.chalk.hover(null); });
     // Escape throws away a stroke being painted, or puts the chalk back in the box. It is taken before Foundry sees it
@@ -468,6 +499,88 @@ export class StageHost {
   perform(verb) {
     this.pace.poke(performance.now());
     if (this.dragging) this.sync.verb(this.dragging.id, verb);
+  }
+
+  /* ---------------------------------------------------------------- the view (core/look.mjs) */
+
+  /** The stage's size on the page, in window pixels. */
+  #extent() {
+    return { w: this.root?.clientWidth || window.innerWidth, h: this.root?.clientHeight || window.innerHeight };
+  }
+
+  /** The home look on this screen now: the whole stage, clear of whatever another module's interface takes (margins.mjs). */
+  #home() {
+    const { w, h } = this.#extent();
+    return homeLook(w, h, marginsNow());
+  }
+
+  /** Where this screen is looking now: its own look, or home. */
+  lookNow() {
+    return this.look ?? this.#home();
+  }
+
+  /** The view at home: for what must not move as this screen pans (the box of chalk, the cover a formation keeps clear of). */
+  homeView() {
+    const { w, h } = this.#extent();
+    return viewOf(w, h, this.#home());
+  }
+
+  /** Hand the backend the view of the look now. */
+  #applyLook() {
+    if (!this.backend) return;
+    const { w, h } = this.#extent();
+    this.backend.setView(viewOf(w, h, this.lookNow()));
+    this.pace.poke(performance.now());
+  }
+
+  /** Look somewhere chosen by hand (a drag, the wheel): any glide home stops where it is. */
+  #setLook(look) {
+    this.tween = null;
+    this.look = look;
+    this.#applyLook();
+  }
+
+  #startPan(e) {
+    this.tween = null;
+    this.panning = { id: e.pointerId, x: e.clientX, y: e.clientY, look: this.lookNow(), moved: false };
+    this.backend.canvas.setPointerCapture?.(e.pointerId);
+    e.preventDefault();
+  }
+
+  /** The view follows the hand; a press that has not yet moved four pixels is still only a click. */
+  #pan(e) {
+    const pan = this.panning;
+    const dx = e.clientX - pan.x;
+    const dy = e.clientY - pan.y;
+    if (!pan.moved && Math.hypot(dx, dy) < 4) return;
+    if (!pan.moved) { pan.moved = true; this.tip?.hide(); this.backend.canvas.style.cursor = "grabbing"; }
+    const { w, h } = this.#extent();
+    this.#setLook(panBy(pan.look, dx, dy, w, h, marginsNow()));
+  }
+
+  /**
+   * Go home: the whole stage in view, clear of what another module's interface covers. It glides there unless
+   * `animate` is false. Called by `api.view.home()` (the GM's drawer opened, shut or was dragged wider), a double-click
+   * on the bare stage and the Home key. Resolves nothing; returns whether there was a stage to move.
+   */
+  home({ animate = true } = {}) {
+    if (!this.backend || !this.root) return false;
+    const from = this.lookNow();
+    const to = this.#home();
+    this.panning = null;
+    if (!animate || sameLook(from, to)) { this.tween = null; this.look = null; this.#applyLook(); return true; }
+    this.tween = { from, to, t0: performance.now(), ms: 420 };
+    this.look = from;
+    this.pace.poke(performance.now());
+    return true;
+  }
+
+  /** One step of a glide home; at its end the screen is at home and follows it (a window resized, a margin changed). */
+  #glide(now) {
+    const { from, to, t0, ms } = this.tween;
+    const u = (now - t0) / ms;
+    if (u >= 1) { this.tween = null; this.look = null; } else this.look = tweenLook(from, to, Math.max(0, u));
+    this.#applyLook();
   }
 
   /* ---------------------------------------------------------------- hands, shared */
@@ -611,7 +724,8 @@ export class StageHost {
     if (!this.chalk || !this.root || !backend?.setChalkBoxAt || !backend.view || !this.stage?.rig) return;
     const rig = this.stage.rig;
     const rect = this.root.getBoundingClientRect();
-    const view = backend.view;
+    // worked out at the home view, so the box stays put while this screen pans and zooms
+    const view = this.homeView();
     const cover = coverOnPage([...coverShapes(), ...this.#foundryBars()], rect, view);
     const screen = { x0: view.ox, y0: view.oy, x1: view.ox + view.visW, y1: view.oy + view.visH };
     const home = this.description.chalk?.box ?? DEFAULT_BOX;
@@ -640,6 +754,9 @@ export class StageHost {
       if (!this.backend || !this.root) return;
       this.rect = null;
       this.backend.resize(this.root.clientWidth, this.root.clientHeight, window.devicePixelRatio);
+      // a look chosen by hand is kept where it can be; home is simply worked out again for the new size
+      if (this.look && !this.tween) { const { w, h } = this.#extent(); this.look = clampLook(this.look, w, h, marginsNow()); }
+      this.#applyLook();
       this.#placeBox();
     };
     this.resizeObserver = new ResizeObserver(fit);
@@ -707,6 +824,7 @@ export class StageHost {
     this.backend.dispose();
     await this.#buildBackend();
     if (!this.running || !this.backend) return;          // the scene was torn down while the new picture was loading
+    this.#applyLook();                      // the new picture looks where this screen was looking
     this.chalk?.reset();                    // the new wall is empty; draw it all again from the store
     this.chalk?.sync();
     this.chalk?.refresh();

@@ -44,7 +44,7 @@ test("the three.js backend meets the renderer contract", { skip }, async () => {
   assert.equal(tierSettings("low").shadows, false);
   assert.equal(tierSettings("high").post, true);
   assert.throws(() => assertBackend({}, "empty"), /does not provide/);
-  assert.throws(() => assertBackend({ ...Object.fromEntries(["mount", "unmount", "load", "resize", "setQuality", "draw", "addCard", "removeCard", "pick", "floorAt", "project", "capture", "stats", "dispose"].map((k) => [k, () => {}])), capabilities: { magic: true } }), /unknown capability/);
+  assert.throws(() => assertBackend({ ...Object.fromEntries(["mount", "unmount", "load", "resize", "setView", "setQuality", "draw", "addCard", "removeCard", "pick", "floorAt", "project", "capture", "stats", "dispose"].map((k) => [k, () => {}])), capabilities: { magic: true } }), /unknown capability/);
 });
 
 test("the camera maths puts the vanishing point where the painting's horizon is, in any viewport", { skip }, async () => {

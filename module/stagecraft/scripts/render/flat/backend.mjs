@@ -96,6 +96,17 @@ export class FlatBackend {
     this.#size(width, height, ratio);
   }
 
+  /**
+   * Look at the stage through another view (core/look.mjs `viewOf`): this screen panned or zoomed. What is kept at the
+   * old view (the backdrop, the cut-outs, the box of chalk's layout) is drawn again at the new one.
+   */
+  setView(view) {
+    if (this.disposed || !view) return;
+    this.view = view;
+    this.occluderBitmaps = null;
+    this.boxCache = null;
+  }
+
   setQuality() { /* there is only one flat quality */ }
   setCalm(calm) { this.calm = !!calm; }
   setZoneSetting(setting) { this.zoneSetting = setting; this.zoneKey = ""; }
@@ -214,7 +225,7 @@ export class FlatBackend {
     const { rig, view, ratio } = this;
     const board = snapshot.board ?? null;
     const zones = this.description.zones.length ? zoneKey(this.description.zones, snapshot.zones, this.zoneSetting, t, board) : "";
-    const key = `${this.canvas.width}x${this.canvas.height}|${zones}|${this.revision}|${this.hidden ? 1 : 0}`;
+    const key = `${this.canvas.width}x${this.canvas.height}|${view.s},${view.ox},${view.oy}|${zones}|${this.revision}|${this.hidden ? 1 : 0}`;
     if (this.backdrop && key === this.backdropKey) {
       // only some tiles of chalk changed (someone is painting): those places are drawn again, nothing else
       if (this.chalkDirty.size) this.#backdropTiles();
