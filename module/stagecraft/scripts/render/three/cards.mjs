@@ -15,6 +15,7 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { DEG, canvasTexture } from "./support.mjs";
 import { faceOf } from "../badges.mjs";
 import { easeLight } from "../../core/grade.mjs";
+import { EMOTE_PIVOT } from "../../core/emotes.mjs";
 
 const GAMMA = 1.5;
 
@@ -210,6 +211,7 @@ export class CardView {
     if (!tex) return;
     const sprite = new THREE.Sprite(this.ctx.tracker.add(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })));
     sprite.renderOrder = 50;
+    sprite.center.set(0.5, 1 - EMOTE_PIVOT);   // it turns about a point low down, near where it meets its card
     this.emote = { id, sprite };
     this.ctx.scene.add(sprite);
   }
@@ -222,8 +224,16 @@ export class CardView {
     sprite.visible = e.opacity > 0.01;
     sprite.material.opacity = e.opacity;
     const grow = c.grow ?? 1;
-    sprite.position.set(c.x + 74 * this.s * grow, c.lift + this.stickLen * c.grip + this.h * this.s * grow * c.breathe + 36 * grow, c.z + 30);
-    sprite.scale.set(96 * e.pop * grow, 96 * e.pop * grow, 1);
+    const size = 96 * e.pop * grow;
+    // its own motion: a drift (in the emote's own box, a hundred to its width, y down) and a turn (clockwise, in degrees)
+    const unit = 0.96 * grow;
+    sprite.position.set(
+      c.x + 74 * this.s * grow + (e.x ?? 0) * unit,
+      c.lift + this.stickLen * c.grip + this.h * this.s * grow * c.breathe + 36 * grow - (e.y ?? 0) * unit - (EMOTE_PIVOT - 0.5) * size,
+      c.z + 30
+    );
+    sprite.scale.set(size, size, 1);
+    sprite.material.rotation = -(e.r ?? 0) * DEG;
   }
 
   dispose() {

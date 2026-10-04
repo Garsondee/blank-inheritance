@@ -267,3 +267,12 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | Q1 | A title block that takes a large amount of text: it fits it, and never runs off the card | module.md §28 | bench |
 | Q2 | Line breaks handled properly: hers are kept, the rest are made at good places, in Japanese too | module.md §28 | bench |
 | Q3 | A bolder font and a nice arrangement: a card shows its name and a line of text underneath without issue | module.md §28 | bench |
+## R. Her fourteenth message: emotes that fit the cards (2026-10-04)
+
+*"The Stagecraft cards have emojis, but I'd like you to do a pass across them and make them fit the aesthetics of the cards better. More subtle, more stylish and less basic. Think about replacing some with more manga like facial expression and emotional indicators. Make the colors fit better with the cards."* Redrawn the same day (`diorama.md` §7): thirty emotes, eleven of them faces.
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| R1 | Emotes that are more subtle, more stylish and less basic: a nib line, a thin keyline instead of a fat sticker edge | diorama.md §7 | 16, bench |
+| R2 | Manga facial expressions and emotional indicators: faces in a small balloon, and the marks a manga artist draws beside a head | diorama.md §7 | 16, bench |
+| R3 | Colours that fit the cards: the plate's ink and cream, the card's brass and a few muted spot colours, held by a test | diorama.md §7 | 16, bench |

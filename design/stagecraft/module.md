@@ -237,7 +237,7 @@ plain data and functions, registered through `skins.register`.
 
 - **The module ships one skin**, plain and fully licensed (CC0), so it works out of the box: a paper card, a wooden
   stick, a neutral caption.
-- **The adventure ships its own**: brass and enamel, the typewriter name caption, the sticker emotes in the campaign's
+- **The adventure ships its own**: brass and enamel, the typewriter name caption, the emotes in the campaign's
   print style. It is the adventure's art and stays in the adventure.
 - A skin may draw in canvas (the three.js backend turns the canvas into a texture) and supplies an HTML version for the
   flat backend. The spike's `paintFace` and `paintBack` are the shape of the first.

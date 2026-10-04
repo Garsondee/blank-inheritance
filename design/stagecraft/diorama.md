@@ -30,8 +30,9 @@ a camera that match its own perspective. Cards stand on that floor in real 3D, l
   their tops; snow and blossom settle on them; rain splashes off them.
 - **They are alive when nobody touches them.** Each character has a demeanour (calm, nervous, proud, slouching,
   bouncy, sly) that sets how they breathe, sway and fidget, and everyone glances at whoever is speaking.
-- **They have emotes.** Twenty-four symbols from manga's own vocabulary (the sweat drop, the popping vein, gloom
-  lines, the lightbulb), drawn in the campaign's print style, popped from a wheel on your own card.
+- **They have emotes.** Thirty, from manga's own vocabulary: the marks drawn beside a head (the sweat drop, the
+  popping vein, the gloom cloud) and the little faces of a corner panel (^ ^, > <, the half-lidded stare), printed in
+  the card's own ink, cream and brass and popped from a wheel on your own card.
 - **They can track a challenge.** A path of slots across the floor (an obstacle course, a climb, a chase), a sign over
   each station, and everyone's card standing on how far they've got.
 
@@ -264,12 +265,25 @@ Also always on:
 
 *Plate 16 is the full set; plates 13 to 20 use them in scenes; plate 24 is the wheel.*
 
-- **The style:** manga's own symbols, which the table already reads at a glance, drawn in the campaign's print voice:
-  an ink line, flat colour from the palette, a cream sticker edge so they read on any picture, and an ink shadow
-  printed a touch out of register like a 1950s magazine (`emotes.mjs`).
-- **The set (24):** surprise, question, what?!, sweat, anger (the popping vein), sparkle, fond (a heart), humming,
-  asleep, gloom, idea, fuming, dizzy, the awkward "…", laughing, shiver, tears, blush, psst, thinking, doomed (a little
-  skull), well done (a star), hand up, and hungry (a steaming bowl).
+- **The style** (redrawn 2026-10-04, Ingram: *"more subtle, more stylish and less basic… more manga like facial
+  expression and emotional indicators. Make the colors fit better with the cards"*): manga's own symbols, which the
+  table already reads at a glance, printed the way the cards are made (`emotes.mjs`). The ink is the title plate's
+  warm umber, the paper is the plate's cream, and each emote takes at most one muted spot colour from the card and the
+  paintings: the card's brass edge, a lacquer persimmon, the tiles' sea-green, a rain slate. The pen swells and tapers like
+  a nib; a spot colour is printed a hair out of register with its ink, as a two-colour magazine was; a thin cream
+  keyline (not the old fat sticker edge) keeps a mark readable on a dark painting. Nothing is set in type: an SVG drawn
+  as an image cannot reach a web font, so "psst" and "Zzz" are drawn with the pen. A test holds the palette, the box
+  and the no-type rule.
+- **Faces (11)**, the deformed expressions of a corner panel, each in a small cream balloon whose tail points at the
+  card (the same cream and ink as the plate under the portrait): laughing (^ ^ and an open laugh), pleased, smug
+  (half-lidded, sidelong, a cat's mouth), flustered (hatched blush), fired up, unimpressed (the half-lidded stare),
+  argh! (> < and gritted teeth), tears (two streams spilling out of the balloon), shiver (the pale lines down the
+  forehead, chattering teeth), dizzy (spiral eyes) and out cold (x x).
+- **Balloons (3):** the awkward "…", psst (a whisper balloon, dashed as manga dashes one), thinking.
+- **Marks (16)**, drawn beside a head: surprise, question, what?!, sweat, anger (the popping vein), sparkle, fond (a
+  heart with its beat), humming, asleep, gloom (a rain cloud), idea, fuming (two puffs of a temper, each with its
+  curl), done for (the soul leaving the body, which replaced a little skull), well done (the teacher's red-pencil
+  *hanamaru*, which replaced a star; its id is still `star`), hand up, and hungry (a steaming bowl).
 - **Each has a motion:** a sweat drop drips, a vein pulses, hearts and notes float up, gloom lines fall, a bulb
   flickers on, a spiral spins. Each pops on with a little overshoot and lasts a few seconds.
 - **The wheel:** right-click (or hold E on) your own card and eight emotes ring it; one more click and the table sees

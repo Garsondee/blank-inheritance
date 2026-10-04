@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node --test test/ module/stagecraft/test/",
     "build:stagecraft": "npm --prefix module/stagecraft run build",
-    "test:stagecraft": "node --test module/stagecraft/test/ test/stagecraft-docs.test.mjs test/stagecraft-feel.test.mjs test/stagecraft-boundary.test.mjs test/stagecraft-bridge.test.mjs",
+    "test:stagecraft": "node --test \"module/stagecraft/test/*.test.mjs\" test/stagecraft-docs.test.mjs test/stagecraft-feel.test.mjs test/stagecraft-boundary.test.mjs test/stagecraft-bridge.test.mjs",
     "check:stagecraft": "node tools/stagecraft/foundry-check.mjs",
     "weak:stagecraft": "node tools/stagecraft/weak-machine.mjs",
     "bench:stagecraft": "node tools/stagecraft/bench/host-check.mjs",

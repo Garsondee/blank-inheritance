@@ -9,7 +9,7 @@
  * chalk cannot tell them apart. Where a card is, where a click lands and where the floor is come from `geometry.mjs`.
  */
 
-import { EMOTES } from "../../core/emotes.mjs";
+import { EMOTES, EMOTE_PIVOT } from "../../core/emotes.mjs";
 import { makeRig, viewFor } from "../../core/rigspace.mjs";
 import { DEFAULT_BOX, PALETTE, tileRect, tilesFor } from "../../core/chalk.mjs";
 import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
@@ -589,9 +589,14 @@ export class FlatBackend {
       const s = c.scale ?? 1;
       const at = project(rig, view, { X: c.x + 74 * s, Y: (c.lift ?? 0) + (this.skin.stick?.length ?? 134) * s * (c.grip ?? 0) + v.h * s * (c.breathe ?? 1) + 36, Z: c.z + 30 });
       const size = 96 * e.pop * at.k * view.s;
-      this.#set([1, 0, 0, 1, 0, 0]);
+      // its own motion: a drift (in the emote's own box, a hundred to its width, y down) and a turn about a point low down
+      const unit = 0.96 * at.k * view.s;
+      const turn = ((e.r ?? 0) * Math.PI) / 180;
+      const px = at.x + (e.x ?? 0) * unit;
+      const py = at.y + (e.y ?? 0) * unit + (EMOTE_PIVOT - 0.5) * size;
+      this.#set([Math.cos(turn), Math.sin(turn), -Math.sin(turn), Math.cos(turn), px, py]);
       ctx.globalAlpha = e.opacity;
-      ctx.drawImage(img, at.x - size / 2, at.y - size / 2, size, size);
+      ctx.drawImage(img, -size / 2, -EMOTE_PIVOT * size, size, size);
       ctx.globalAlpha = 1;
     }
   }

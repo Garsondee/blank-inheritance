@@ -448,7 +448,7 @@ nothing else in this document changes.
  ├─ wall            invisible, except where it takes a footlight shadow
  ├─ lights          one spot light per lantern, window or fire; footlights; the bang's flash
  ├─ cards           per card: root > lean > hinge > facing > { body, face, back, foot, enamel }, and a stick
- ├─ emotes          one sprite each, drawn from the sticker art
+ ├─ emotes          one sprite each, drawn from the emote art
  ├─ particles       dust, sparks, embers, rain, snow; one draw call per kind
  └─ post            bloom → vignette and grain → output
 ```

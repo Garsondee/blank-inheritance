@@ -1854,7 +1854,7 @@ DIO_PLATES["dio-conditions"] = () => {
 /** The emote sheet: every symbol, drawn for the campaign. */
 DIO_PLATES.emotes = () => {
   const root = screen(null, { plain: true });
-  title(root, "16", "The emotes", "Manga's own symbols, drawn in the campaign's print style: an ink line, flat colour, a cream sticker edge, and a shadow printed a touch out of register. Each has its own motion.");
+  title(root, "16", "The emotes", "Manga's own faces and marks, printed as the cards are made: the plate's umber ink and cream, one muted spot colour a hair out of register, a nib that swells and tapers. Each has its own motion.");
   const sheet = el("div", "emote-sheet");
   root.append(sheet);
   EMOTE_ORDER.forEach((id, i) => {

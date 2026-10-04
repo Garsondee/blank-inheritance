@@ -673,3 +673,13 @@ test("the story's people are the GMs' to move: their cards name the GMs, a playe
   assert.deepEqual(cards[1].owners, ["userA"]);
   assert.equal(mirrorCards({ published: [member("summon-nobu")], def })[0].owners, undefined, "with no GM named there is no restriction to write");
 });
+
+test("every emote a stage gives someone is one Stagecraft draws, and it belongs to someone on that stage", async () => {
+  const { EMOTES } = await import("../module/stagecraft/scripts/core/emotes.mjs");
+  for (const [id, entry] of Object.entries(stages.stages)) {
+    for (const [who, emote] of Object.entries(entry.emotes ?? {})) {
+      assert.ok(EMOTES[emote], `${id}: ${who} is given "${emote}", which is not an emote`);
+      assert.ok(who in (entry.places ?? {}), `${id}: ${who} has an emote but no place on the stage`);
+    }
+  }
+});

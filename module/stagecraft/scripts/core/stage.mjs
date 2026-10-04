@@ -23,6 +23,7 @@ import { planWalk, walkAt, entrancePoint, floorDistance } from "./walks.mjs";
 import { describeRoutine, prepareRoutine, lifeAt, gestureAt } from "./life.mjs";
 import { arrange } from "./formations.mjs";
 import { spreadApart, cardRect, coveredShare, HIDDEN_AT_MOST } from "./visibility.mjs";
+import { EMOTES, emoteMotion } from "./emotes.mjs";
 
 export const STEP = 1 / 120;
 
@@ -96,6 +97,7 @@ export class Stage {
     this.board = false;             // the GM's fight board: zones drawn plainly, with who is in each
     this.speaker = null;            // who has the floor: lit, and everyone else turns to look at them
     this.turn = null;               // whose turn it is: lit, and nobody turns
+    this.calm = false;              // the calm version: emotes pop on and fade, and do not move
     this.slots = new Map();         // zone id -> the places a card can dock in it (worked out when first wanted)
     for (const p of people) this.addCard(p);
   }
@@ -336,6 +338,9 @@ export class Stage {
 
   /** Whose turn it is (a fight's initiative): lit like the speaker, but nobody else turns to look. */
   setTurn(id) { this.turn = id && this.cards.has(id) ? id : null; }
+
+  /** The calm version (a player's choice, or reduced motion): an emote stays still, with no shake, drift or flicker. */
+  setCalm(calm) { this.calm = !!calm; }
 
   /**
    * Where a card let go inside a fight position docks while the board is up (stage.md §8.3): the nearest place in that
@@ -802,7 +807,10 @@ export class Stage {
     const age = (t - (e.t0 ?? 0)) % 6;
     const opacity = age < 0 ? 0 : age < 0.2 ? age / 0.2 : age > 4.4 ? Math.max(0, 1 - (age - 4.4) / 0.6) : 1;
     const pop = age < 0.3 ? 0.6 + 0.4 * Math.sin((age / 0.3) * Math.PI * 0.5) + 0.12 * Math.sin((age / 0.3) * Math.PI) : 1;
-    return { id: e.id, age, opacity, pop };
+    // its own motion (a drip, a float, a wobble), out of step with the same emote on another card; none in the calm version
+    const motion = this.calm || age < 0 ? null : emoteMotion(EMOTES[e.id]?.motion, age, hashSeed(c.id));
+    if (!motion) return { id: e.id, age, opacity, pop, x: 0, y: 0, r: 0 };
+    return { id: e.id, age, opacity: opacity * motion.o, pop: pop * motion.s, x: motion.x, y: motion.y, r: motion.r };
   }
 
   /**

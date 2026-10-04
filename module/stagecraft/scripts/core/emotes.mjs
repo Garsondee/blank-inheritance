@@ -7,7 +7,7 @@
  * waterfall of tears).
  *
  * They are drawn to sit beside a card, so they are printed the way the cards are made: the umber ink of the title
- * plates, the plates' cream, and one muted spot colour taken from the card and the paintings (the frame's brass, a
+ * plates, the plates' cream, and one muted spot colour taken from the card and the paintings (the card's brass edge, a
  * lacquer persimmon, the tiles' sea-green, a rain slate). The pen swells and tapers like a nib. A spot colour is
  * printed a hair out of register with the ink, as a two-colour magazine was; a thin cream keyline keeps a mark readable
  * on a dark painting; and the faces sit in a small cream balloon with a tail towards the card, the same cream and ink as
@@ -23,8 +23,8 @@ const INK = "#241a0f";          // the plate's ink: a warm umber black
 const PAPER = "#f2e8cc";        // the plate's cream
 const SHADE = "#dbcca2";        // the plate where it darkens towards the foot
 const GLINT = "#fffaee";        // a highlight
-const BRASS = "#c39a4e";        // the frame
-const GILT = "#ead08e";         // the frame where the light catches it
+const BRASS = "#c39a4e";        // the card's brass edge
+const GILT = "#ead08e";         // the brass where the light catches it
 const LACQUER = "#b04a32";      // persimmon lacquer: a temper, a heart, the teacher's red pencil
 const ROSE = "#dd977f";         // a blush
 const SEA = "#9cc8c2";          // the tiles and the harbour: sweat, tears, a chill
@@ -151,12 +151,12 @@ function silhouette(m, colour, grow) {
 }
 
 /**
- * Print a list of marks: a cream keyline under every outer mark, a soft ink shadow, an optional coloured echo of the
+ * Print a list of marks: a cream keyline under every outer mark (`key` wide), a soft ink shadow, an optional coloured echo of the
  * ink (a glyph printed twice, a little apart), then each mark in turn, its colour a hair out of register with its ink.
  */
-function print(marks, { echo = null, shadow = true } = {}) {
+function print(marks, { echo = null, shadow = true, key: keyline = KEY } = {}) {
   const outer = marks.filter((m) => !m.inner);
-  const key = outer.filter((m) => !m.bare).map((m) => silhouette(m, PAPER, KEY)).join("");
+  const key = outer.filter((m) => !m.bare).map((m) => silhouette(m, PAPER, keyline)).join("");
   const shade = shadow ? `<g opacity=".26" transform="translate(${SHADOW})">${outer.map((m) => silhouette(m, INK, 0)).join("")}</g>` : "";
   const inks = outer.filter((m) => m.fill === INK || (!m.fill && m.stroke === INK));
   const echoed = echo ? `<g transform="translate(${ECHO})">${inks.map((m) => silhouette(m, echo, 0)).join("")}</g>` : "";
@@ -382,10 +382,10 @@ export const EMOTES = Object.freeze({
   })() },
   fume: { kind: "mark", label: "Fuming", motion: "rise", svg: print([
     // the steam of a temper: two puffs blown out of the head, each with its curl, and the streaks behind them
-    ink(straight([14, 98], [28, 80], 1, 2.4, 3.2)), ink(straight([24, 100], [36, 86], 1, 2, 2.6)),
-    body(thoughtCloud([38, 70], 15, 12, 6), PAPER, 2.6), inner(pen(spiral([38, 71], 1, 6.4, 1.3, 180), 2.4)),
-    ink(straight([44, 50], [56, 38], 1, 2.4, 3.2)),
-    body(thoughtCloud([70, 30], 21, 17, 7), PAPER, 2.8), inner(pen(spiral([70, 31], 1.2, 9.4, 1.35, 180), 2.8))
+    ink(straight([4, 100], [16, 84], 1, 2.6, 3.4)), ink(straight([14, 103], [24, 91], 1, 2.2, 2.8)),
+    body(thoughtCloud([31, 70], 19, 15.5, 6), PAPER, 3), inner(pen(spiral([31, 71], 1.2, 8.4, 1.3, 180), 3)),
+    ink(straight([42, 46], [52, 35], 1, 2.6, 3.4)),
+    body(thoughtCloud([70, 27], 26, 21, 7), PAPER, 3.2), inner(pen(spiral([70, 28], 1.4, 11.8, 1.35, 180), 3.2))
   ]) },
   soul: { kind: "mark", label: "Done for", motion: "rise", svg: print([
     body("M47 27 C47 14 59 8 69 11 C80 14 83 29 77 39 C71 49 59 52 51 60 C43 68 41 77 30 86 C31 77 34 71 32 65 C30 57 36 51 42 45 C46 39 47 34 47 27 Z", PAPER, 2.8),
@@ -395,7 +395,7 @@ export const EMOTES = Object.freeze({
   ], { echo: SEA }) },
   star: { kind: "mark", label: "Well done", motion: "pulse", svg: print([
     pen(spiral([50, 50], 2, 17, 1.9), 3.8, LACQUER), pen(petals([50, 50], 27, 6), 3.8, LACQUER)
-  ], { shadow: false }) },
+  ], { shadow: false, key: 1.3 }) },
   hand: { kind: "mark", label: "Hand up", motion: "wave", svg: print([
     body("M37 92 L37 61 C33 57 26 51 24 45 C22 39 27 35 31 38 L38 45 L38 22 C38 15 44 12 49.5 12.5 C55 12 59 14 60.5 18 C64.5 16 71 18.5 71 25 L71 63 C71 77 66 86 61 92 Z", PAPER, 3.2),
     inner(pen("M49.5 14 L49.5 43", 2.2)), inner(pen("M60.5 19 L60.5 45", 2.2)),
@@ -424,28 +424,41 @@ export const EMOTE_ORDER = Object.freeze([
 export const WHEEL = Object.freeze(["surprise", "laugh", "sweat", "heart", "anger", "idea", "ellipsis", "whisper"]);
 
 /**
+ * An emote's own motion, t seconds after it popped on: an offset (x, y, in the units of the 100 box, y down), a turn
+ * (r, degrees, clockwise), a scale and an opacity. `seed` puts two of the same emote out of step. A drift slows after
+ * its first moments, so a heart that floats or a puff that rises stays beside its card for the whole time it is shown.
+ */
+export function emoteMotion(motion, t, seed = 0) {
+  const ph = (seed % 97) / 97;
+  let x = 0, y = 0, r = 0, s = 1, o = 1;
+  switch (motion) {
+    case "drip": y = Math.min(14, t * 6); break;
+    case "pulse": s = 1 + 0.1 * Math.max(0, Math.sin(t * 13 + ph * 6)); break;
+    case "float": y = -(14 * Math.min(t, 1.5) + 5 * Math.max(0, t - 1.5)); x = 4 * Math.sin(t * 3 + ph * 6); break;
+    case "twinkle": s = 1 + 0.08 * Math.sin(t * 9 + ph * 6); r = 6 * Math.sin(t * 4 + ph); break;
+    case "fall": y = Math.min(10, t * 5); break;
+    case "flicker": o = t < 0.6 ? (Math.sin(t * 60) > -0.3 ? 1 : 0.35) : 1; break;
+    case "rise": y = -(10 * Math.min(t, 2) + 4 * Math.max(0, t - 2)); s = 1 + 0.05 * Math.min(t, 2); break;
+    case "spin": r = t * 140; break;
+    case "bob": y = 3 * Math.sin(t * 4 + ph * 6); break;
+    case "shake": x = t < 0.9 ? 3 * Math.sin(t * 46) * (1 - t / 0.9) : 0; break;
+    case "tilt": r = 12 * Math.sin(t * 3 + ph); break;
+    case "wave": r = 14 * Math.sin(t * 9) * Math.exp(-t * 0.8); break;
+    default: break;   // "still": it pops on and stays put
+  }
+  return { x, y, r, s, o };
+}
+
+/** The point a turning emote turns about, as a share of its height from the top: low, near where it meets its card. */
+export const EMOTE_PIVOT = 0.7;
+
+/**
  * Motions, as functions of time since the emote popped (seconds), returning a
  * transform and opacity. Pop: a quick overshoot. Then the emote's own life.
  */
 export function emotePose(motion, t, seed = 0, life = 3.2) {
   const pop = t < 0.28 ? (() => { const u = t / 0.28; return Math.sin(u * Math.PI * 0.62) * (1 + 0.25 * Math.sin(u * Math.PI)); })() : 1;
   const out = Math.max(0, Math.min(1, (life - t) / 0.4));
-  const ph = (seed % 97) / 97;
-  let x = 0, y = 0, r = 0, s = 1, o = 1;
-  switch (motion) {
-    case "drip": y = Math.min(14, t * 6); break;
-    case "pulse": s = 1 + 0.1 * Math.max(0, Math.sin(t * 13 + ph * 6)); break;
-    case "float": y = -t * 14; x = 4 * Math.sin(t * 3 + ph * 6); break;
-    case "twinkle": s = 1 + 0.08 * Math.sin(t * 9 + ph * 6); r = 6 * Math.sin(t * 4 + ph); break;
-    case "fall": y = Math.min(10, t * 5); break;
-    case "flicker": o = t < 0.6 ? (Math.sin(t * 60) > -0.3 ? 1 : 0.35) : 1; break;
-    case "rise": y = -t * 10; s = 1 + t * 0.05; break;
-    case "spin": r = t * 140; break;
-    case "bob": y = 3 * Math.sin(t * 4 + ph * 6); break;
-    case "shake": x = t < 0.9 ? 3 * Math.sin(t * 46) * (1 - t / 0.9) : 0; break;
-    case "tilt": r = 12 * Math.sin(t * 3 + ph) ; break;
-    case "wave": r = 14 * Math.sin(t * 9) * Math.exp(-t * 0.8); break;
-    default: break;   // "still": it pops on and stays put
-  }
+  const { x, y, r, s, o } = emoteMotion(motion, t, seed);
   return { x, y, r, s: s * pop, o: o * out };
 }

@@ -78,6 +78,7 @@ export class StageHost {
     this.stage.setBoard(boardOn(this.scene));
     this.stage.setSpeaker(speakerOf(this.scene));
     this.stage.setTurn(turnOf(this.scene));
+    this.stage.setCalm(isCalm());
     // a move already published was made before this screen was here: the card stands where it went, nothing to walk
     for (const p of this.people) { const c = this.stage.cards.get(p.id); if (c) c.appliedMove = p.move?.t0 ?? null; }
     for (const p of this.stage.problems) console.warn(`${NS} | ${p}`);
@@ -626,7 +627,7 @@ export class StageHost {
 
   #watchSettings() {
     this.hooks.push(["stagecraft.settingsChanged", Hooks.on("stagecraft.settingsChanged", (which) => {
-      if (which === "calm") this.backend?.setCalm(isCalm());
+      if (which === "calm") { this.backend?.setCalm(isCalm()); this.stage?.setCalm(isCalm()); }
       if (which === "power") this.pace.easing = powerSave();
       if (which === "zones") this.backend?.setZoneSetting(zoneSetting());
       if (which === "tier") ui.notifications?.info(game.i18n.localize("STAGECRAFT.Notify.TierNextScene"));

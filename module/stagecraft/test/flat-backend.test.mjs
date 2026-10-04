@@ -394,3 +394,22 @@ test("a card's picture is made once at its own size, however large the skin drew
   assert.notEqual(v.face, v.back);
   t.dom.restore();
 });
+
+test("an emote is drawn with its motion: a waving hand is turned, and in the calm version it is not", async () => {
+  const people = [{ id: "ana", name: "Ana", at: [0.3, 0.9], emote: { id: "hand", t0: 0 } }];
+  const t = await table({ people });
+  await new Promise((r) => setTimeout(r, 5));               // the emote's picture loads
+  const turnOfEmote = () => {
+    t.screen().log.length = 0;
+    t.backend.draw(t.snapshot());
+    const log = t.screen().log;
+    const at = log.findIndex((e) => e.call === "drawImage" && String(e.args[0]?._src ?? "").startsWith("data:image/svg+xml"));
+    assert.ok(at > 0, "the emote is drawn");
+    const transform = log.slice(0, at).reverse().find((e) => e.call === "setTransform");
+    return transform.args[1];                                // the sine of the turn, times the pixel ratio
+  };
+  assert.ok(Math.abs(turnOfEmote()) > 0.05, "half a second in, the hand is mid-wave");
+  t.stage.setCalm(true);
+  assert.equal(turnOfEmote(), 0);
+  t.dom.restore();
+});
