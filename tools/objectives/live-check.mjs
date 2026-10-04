@@ -170,6 +170,25 @@ try {
   check("Manako's request is not on the page before it is revealed", required === 0);
   await player.screenshot({ path: path.join(SHOTS, "03-player-updated.png") });
 
+  /* --- the GM's board in the Console ------------------------------------------------------------------------- */
+  await gm.evaluate(async () => { const m = await import("/modules/blank-inheritance/scripts/foundry/console-window.mjs"); m.mountConsoleWindow(); m.openConsoleTab("objectives"); }); // join() closed it
+  await gm.waitForSelector(".bi-objboard__cols", { timeout: 10000 }).catch(() => null);
+  await sleep(1200);
+  const board = await gm.evaluate(() => {
+    const cols = [...document.querySelectorAll(".bi-objboard__col")];
+    const parts = [...document.querySelectorAll(".bi-objboard__ob .bi-objboard__parts li")].map((li) => li.querySelector(".bi-objboard__where")?.textContent.trim());
+    return { cols: cols.length, just: cols[0]?.querySelectorAll("li").length ?? 0, wheres: parts, toGive: [...document.querySelectorAll(".bi-objboard__col:nth-child(2) > .bi-objboard__parts li")].map((li) => li.textContent.replace(/\s+/g, " ").trim()) };
+  });
+  check("the GM's board shows three columns, what just happened, and where each open part is ticked", board.cols === 3 && board.just >= 4 && board.wheres.includes("The Tram Back"), JSON.stringify(board));
+  check("the board lists what is still to give, with its scene", board.toGive.some((t) => /storm drain/i.test(t) && /Canteen/.test(t)), JSON.stringify(board.toGive));
+  await gm.screenshot({ path: path.join(SHOTS, "07-gm-board.png") });
+  await click(gm, '.bi-objboard__row--head[data-objective-id="c1e1-the-docket"]');
+  await gm.waitForSelector("#bi-journal .bi-journal__row.is-sel", { timeout: 8000 }).catch(() => null);
+  const opened = await gm.evaluate(() => document.querySelector("#bi-journal .bi-journal__row.is-sel")?.dataset.objectiveId ?? null);
+  check("a row on the board opens that objective in the Journal", opened === "c1e1-the-docket", String(opened));
+  await gm.evaluate(() => { for (const app of foundry.applications.instances.values()) if (app.id === "bi-journal") app.close(); });
+  await gm.evaluate(async () => { const m = await import("/modules/blank-inheritance/scripts/foundry/console-window.mjs"); m.mountConsoleWindow(); m.openConsoleTab("objectives"); }); // join() closed it
+
   /* --- the Journal, by J; tabs by E and Q ---------------------------------------------------------------------- */
   await player.mouse.click(960, 400); // focus the board, not a field
   await player.keyboard.press("KeyJ");

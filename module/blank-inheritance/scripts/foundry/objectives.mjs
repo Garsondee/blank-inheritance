@@ -42,6 +42,8 @@ export function registerObjectives() {
     refreshObjectivesTracker();
     refreshJournal();
     scheduleObjectivesExport();
+    // the GM's board in the Console (lazy: the Console imports half the module)
+    if (game.user.isGM) import("./console-window.mjs").then((m) => m.refreshConsoleWindow()).catch(() => {});
   };
   Hooks.on("createJournalEntryPage", (page) => {
     if (isObjectivePage(page)) onObjectivePageCreated(page);

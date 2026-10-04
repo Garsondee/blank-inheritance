@@ -1,0 +1,61 @@
+{{!-- The GM's objectives board (design/objectives.md §6; the 9 September design's three columns): what has just
+      happened, what is up next and which scene's chip moves it, and what nothing scheduled will move. A row opens the
+      objective in the Journal. --}}
+<div class="bi-objboard">
+    <div class="bi-objboard__head">
+        <span class="bi-objboard__count">{{localize "BLANKINHERITANCE.Objectives.Board.Counts" open=counts.open toGive=counts.toGive mightGo=counts.mightGo}}</span>
+        {{#if scene}}<span class="bi-objboard__here">{{localize "BLANKINHERITANCE.Objectives.Board.From"}} {{scene}}</span>{{/if}}
+        <button type="button" class="bi-objboard__journal" data-action="openObjective">{{localize "BLANKINHERITANCE.Objectives.Board.OpenJournal"}}</button>
+    </div>
+    <div class="bi-objboard__cols">
+        <section class="bi-objboard__col">
+            <h3 class="bi-objboard__h">{{localize "BLANKINHERITANCE.Objectives.Board.Just"}}</h3>
+            {{#if justHappened.length}}
+            <ol class="bi-objboard__list">
+                {{#each justHappened}}
+                <li><button type="button" class="bi-objboard__row" data-action="openObjective" data-objective-id="{{objectiveId}}">
+                    <span class="bi-objboard__glyph" data-kind="{{kind}}">{{glyph}}</span>
+                    <span class="bi-objboard__text{{#if hand}} is-hand{{/if}}">{{text}}<span class="bi-objboard__sub">{{objective}}{{#if scene}} · {{scene}}{{/if}}</span></span>
+                </button></li>
+                {{/each}}
+            </ol>
+            {{else}}<p class="bi-objboard__empty">{{localize "BLANKINHERITANCE.Objectives.Board.JustEmpty"}}</p>{{/if}}
+        </section>
+        <section class="bi-objboard__col">
+            <h3 class="bi-objboard__h">{{localize "BLANKINHERITANCE.Objectives.Board.Next"}}</h3>
+            {{#each upNext}}
+            <div class="bi-objboard__ob">
+                <button type="button" class="bi-objboard__row bi-objboard__row--head" data-action="openObjective" data-objective-id="{{objectiveId}}">
+                    <span class="bi-objboard__text{{#if hand}} is-hand{{/if}}">{{title}}<span class="bi-objboard__sub">{{giver}}{{#if owner}} · {{owner}}{{/if}}</span></span>
+                    {{#if deadline}}<span class="bi-obj__due{{#if (or (eq dueState "due") (eq dueState "past"))}} is-urgent{{/if}}">{{deadline}}</span>{{/if}}
+                </button>
+                <ul class="bi-objboard__parts">
+                    {{#each parts}}
+                    <li data-hidden="{{hidden}}" data-stalled="{{stalled}}"><span class="bi-obj__dia" data-optional="{{optional}}" aria-hidden="true"></span><span>{{text}}{{#if hidden}} <span class="bi-obj__tag bi-obj__tag--opt">{{localize "BLANKINHERITANCE.Objectives.Board.Hidden"}}</span>{{/if}}</span><span class="bi-objboard__where">{{#if scene}}{{scene}}{{else}}{{localize "BLANKINHERITANCE.Objectives.Board.NoScene"}}{{/if}}</span></li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/each}}
+            {{#if toGive.length}}
+            <h4 class="bi-objboard__h4">{{localize "BLANKINHERITANCE.Objectives.Board.ToGive"}}</h4>
+            <ul class="bi-objboard__parts">
+                {{#each toGive}}<li><span class="bi-objboard__glyph" data-kind="given">◆</span><span>{{title}}<span class="bi-objboard__sub">{{giver}}</span></span><span class="bi-objboard__where">{{scene}}</span></li>{{/each}}
+            </ul>
+            {{/if}}
+            {{#unless (or upNext.length toGive.length)}}<p class="bi-objboard__empty">{{localize "BLANKINHERITANCE.Objectives.Board.NextEmpty"}}</p>{{/unless}}
+        </section>
+        <section class="bi-objboard__col">
+            <h3 class="bi-objboard__h">{{localize "BLANKINHERITANCE.Objectives.Board.Might"}}</h3>
+            {{#if mightGo.length}}
+            <ol class="bi-objboard__list">
+                {{#each mightGo}}
+                <li><button type="button" class="bi-objboard__row" data-action="openObjective" data-objective-id="{{objectiveId}}">
+                    <span class="bi-objboard__flag" data-kind="{{kind}}">{{localize labelKey}}</span>
+                    <span class="bi-objboard__text{{#if hand}} is-hand{{/if}}">{{text}}<span class="bi-objboard__sub">{{title}}</span></span>
+                </button></li>
+                {{/each}}
+            </ol>
+            {{else}}<p class="bi-objboard__empty">{{localize "BLANKINHERITANCE.Objectives.Board.MightEmpty"}}</p>{{/if}}
+        </section>
+    </div>
+</div>

@@ -109,3 +109,16 @@ test("the player's deck has the Journal key", () => {
   assert.match(deck, /data-action="openJournal"/);
   assert.match(read("scripts/foundry/command-bar.mjs"), /openJournal: CommandBar\.#onOpenJournal/);
 });
+
+test("the GM's objectives board is a GM-only Console tab, and its rows open the Journal", () => {
+  const consoleSrc = read("scripts/foundry/console-window.mjs");
+  const directorOnly = consoleSrc.match(/const DIRECTOR_ONLY_TABS = \[[\s\S]*?\];/)?.[0] ?? "";
+  assert.match(directorOnly, /id: "objectives"/, "the board is in the GM's tabs, never a player's");
+  assert.doesNotMatch(consoleSrc.match(/const SHEET_TABS = \[[\s\S]*?\];/)?.[0] ?? "", /objectives/);
+  assert.match(consoleSrc, /openObjective: ConsoleWindow\.#onOpenObjective/);
+  assert.match(consoleSrc, /openJournal\(\{ tab: "objectives", select: /);
+  const tpl = read("templates/console/window/tab-objectives.hbs");
+  assert.match(tpl, /data-action="openObjective"/);
+  assert.match(journal, /select\(objectiveId\)/);
+  assert.match(wiring, /refreshConsoleWindow\(\)/, "the board repaints when an objective changes");
+});

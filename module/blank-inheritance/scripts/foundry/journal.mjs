@@ -108,6 +108,12 @@ export class Journal extends HandlebarsApplicationMixin(ApplicationV2) {
     return this.#tab;
   }
 
+  /** Show one objective (the GM's board opens a row here). */
+  select(objectiveId) {
+    this.#selectedId = objectiveId;
+    this.#writing = false;
+  }
+
   showTab(tab) {
     if (TABS.includes(tab)) this.#tab = tab;
     return this.render();
@@ -325,8 +331,9 @@ export class Journal extends HandlebarsApplicationMixin(ApplicationV2) {
 
 let active = null;
 
-export function openJournal({ tab = null } = {}) {
+export function openJournal({ tab = null, select = null } = {}) {
   if (!active) active = new Journal();
+  if (select) active.select(select);
   if (tab) active.showTab(tab);
   if (active.rendered) {
     active.bringToFront();

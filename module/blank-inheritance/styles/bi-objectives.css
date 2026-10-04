@@ -298,3 +298,48 @@
   #bi-objectives .bi-obj__lamp.is-lit { animation: none; }
 }
 .bi-journal__partbtn { display: block !important; width: 100% !important; text-align: left; padding: 0 !important; }
+
+/* =====================================================================
+   THE GM'S BOARD — the Console's Objectives tab (design/objectives.md §6)
+   Three columns read at a glance: just happened, up next, might go.
+   ===================================================================== */
+.bi-objboard { display: flex; flex-direction: column; gap: 10px; min-height: 0; height: 100%; color: var(--bi-bone); font-family: var(--bi-font-body); --bi-obj-ink-glass: #a9bde3; }
+.bi-objboard button { font: inherit; color: inherit; background: none; border: 0; box-shadow: none; width: auto; height: auto; line-height: inherit; margin: 0; padding: 0; cursor: pointer; text-align: left; }
+.bi-objboard button:focus-visible { outline: 2px solid var(--bi-amber); outline-offset: 2px; }
+.bi-objboard__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: #a99f88; }
+.bi-objboard__count { font-family: var(--bi-font-readout); }
+.bi-objboard__here { color: #8f8672; }
+.bi-objboard__journal { margin-left: auto !important; font-family: var(--bi-font-legend); font-weight: 600; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; padding: 5px 10px !important; border: 1px solid #39413d !important; border-radius: 5px; }
+.bi-objboard__journal:hover { border-color: var(--bi-brass) !important; }
+.bi-objboard__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; min-height: 0; flex: 1; }
+.bi-objboard__col { min-width: 0; min-height: 0; overflow: auto; padding: 10px 12px; border: 1px solid #1d2321; border-radius: 8px; background: rgb(11 14 13 / 70%); }
+.bi-objboard__h { margin: 0 0 8px; font-family: var(--bi-font-legend); font-weight: 600; font-size: 10.5px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--bi-brass); border: 0; }
+.bi-objboard__h4 { margin: 14px 0 4px; font-family: var(--bi-font-legend); font-weight: 600; font-size: 9.5px; letter-spacing: 0.24em; text-transform: uppercase; color: #8f8672; }
+.bi-objboard__list { list-style: none; margin: 0; padding: 0; }
+.bi-objboard__row { display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: baseline; width: 100% !important; padding: 6px 4px !important; border-bottom: 1px solid #171c1a !important; }
+.bi-objboard__row:hover .bi-objboard__text { color: #fff; }
+.bi-objboard__row--head { grid-template-columns: minmax(0, 1fr) auto; }
+.bi-objboard__text { font-size: 13px; color: var(--bi-bone); min-width: 0; }
+.bi-objboard__text.is-hand { font-family: var(--bi-font-hand); color: var(--bi-obj-ink-glass); }
+.bi-objboard__sub { display: block; font-family: var(--bi-font-body); font-size: 11.5px; color: #8f8672; }
+.bi-objboard__glyph { font-family: var(--bi-font-readout); width: 14px; text-align: center; color: var(--bi-bone); }
+.bi-objboard__glyph[data-kind="given"], .bi-objboard__glyph[data-kind="written"] { color: var(--bi-amber); }
+.bi-objboard__glyph[data-kind="tick"] { color: var(--bi-phosphor); }
+.bi-objboard__glyph[data-kind="reveal"] { color: var(--bi-cyan); }
+.bi-objboard__glyph[data-kind="strike"], .bi-objboard__glyph[data-kind="failed"] { color: #e5573b; }
+.bi-objboard__ob { margin-bottom: 10px; }
+.bi-objboard__parts { list-style: none; margin: 2px 0 0 4px; padding: 0 0 0 10px; border-left: 1px solid #2a312e; }
+.bi-objboard__parts li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 4px 0; font-size: 12.5px; color: var(--bi-bone); }
+.bi-objboard__parts .bi-obj__dia { margin-top: 0; }
+.bi-objboard__parts .bi-obj__dia[data-optional="true"] { background: transparent; border-color: #a99f88; }
+.bi-objboard__parts li[data-hidden="true"] { color: #a99f88; font-style: italic; }
+.bi-objboard__parts li[data-hidden="true"] .bi-obj__dia { border-style: dashed; background: transparent; }
+.bi-objboard__parts li[data-stalled="true"] .bi-objboard__where { color: #e58a74; }
+.bi-objboard__where { font-family: var(--bi-font-readout); font-size: 10.5px; color: #8f8672; white-space: nowrap; }
+.bi-objboard__flag { font-family: var(--bi-font-legend); font-weight: 600; font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 5px 2px; border-radius: 2px; border: 1px solid #39413d; color: #a99f88; white-space: nowrap; }
+.bi-objboard__flag[data-kind="overdue"] { color: #1a1205; background: var(--bi-amber); border-color: var(--bi-amber); }
+.bi-objboard__flag[data-kind="skipped"] { color: var(--bi-amber); border-color: var(--bi-amber-dim); }
+.bi-objboard__flag[data-kind="stalled"] { color: #e58a74; border-color: #61170b; }
+.bi-objboard__flag[data-kind="players"] { color: #a9bde3; border-style: dashed; border-color: #6d84ad; }
+.bi-objboard__empty { margin: 0; font-size: 12.5px; color: #8f8672; }
+@media (max-width: 900px) { .bi-objboard__cols { grid-template-columns: minmax(0, 1fr); } }

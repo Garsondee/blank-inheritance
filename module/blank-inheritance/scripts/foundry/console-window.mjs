@@ -36,6 +36,8 @@ import { openInductionTerminal } from "./induction-terminal.mjs";
 import { openAdminPanel } from "./admin-panel.mjs";
 import { selectCastRow } from "./cast.mjs";
 import { refreshCommandBar } from "./command-bar.mjs";
+import { objectivesBoardData } from "./objectives-board.mjs";
+import { openJournal } from "./journal.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const MODULE_ID = "blank-inheritance";
@@ -75,6 +77,10 @@ async function buildGearTab() {
     feats: actor ? sheetFeats(actor) : [],
     credits: actor ? creditsOnHand(actor) : 0
   };
+}
+
+async function buildObjectivesTab() {
+  return objectivesBoardData();
 }
 
 async function buildPartyTab() {
@@ -132,6 +138,8 @@ const SHEET_TABS = [
 ];
 const DIRECTOR_ONLY_TABS = [
   { id: "party", labelKey: "BLANKINHERITANCE.Console.Window.Tab.Party", faIcon: "fa-solid fa-people-group", template: `${TEMPLATE_ROOT}/tab-party.hbs`, build: buildPartyTab },
+  // The GM's objectives board (design/objectives.md): just happened, up next, might go.
+  { id: "objectives", labelKey: "BLANKINHERITANCE.Console.Window.Tab.Objectives", faIcon: "fa-solid fa-diamond", template: `${TEMPLATE_ROOT}/tab-objectives.hbs`, build: buildObjectivesTab },
   { id: "hub", labelKey: "BLANKINHERITANCE.Console.Window.Tab.Hub", faIcon: "fa-solid fa-grid-2", template: `${TEMPLATE_ROOT}/tab-hub.hbs`, build: buildHubTab },
   { id: "log", labelKey: "BLANKINHERITANCE.Console.Window.Tab.Log", faIcon: "fa-solid fa-clipboard-list", template: `${TEMPLATE_ROOT}/tab-log.hbs`, build: buildLogTab }
 ];
@@ -160,7 +168,8 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       castSpell: ConsoleWindow.#onCastSpell,
       openHubTile: ConsoleWindow.#onOpenHubTile,
       selectPartyRow: ConsoleWindow.#onSelectPartyRow,
-      setLogFilter: ConsoleWindow.#onSetLogFilter
+      setLogFilter: ConsoleWindow.#onSetLogFilter,
+      openObjective: ConsoleWindow.#onOpenObjective
     }
   };
 
@@ -273,6 +282,11 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
    * both filter rows share this one handler, told apart by data-axis, rather
    * than two near-identical handlers for what is the same interaction twice.
    */
+/** A row on the objectives board opens that objective in the Journal (or the Journal itself, from the header). */
+  static #onOpenObjective(_event, target) {
+    openJournal({ tab: "objectives", select: target.dataset.objectiveId ?? null });
+  }
+
   static #onSetLogFilter(_event, target) {
     if (target.dataset.axis === "scene") this.#logSceneFilter = target.dataset.value ?? "";
     else this.#logTypeFilter = target.dataset.value ?? "";

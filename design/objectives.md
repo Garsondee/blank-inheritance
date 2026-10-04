@@ -136,6 +136,7 @@ creation), read-only for players like a given one.
 - **Deploy**: `data/objectives/` is in `SYNCED_CAMPAIGN_DIRS`.
 - **Sign-Off**: checklist v7 adds M28 (the giver is on stage saying it, at the chip) and M29 (every chip sits where it
   happens and reveals no choice early).
+- **The GM's board** (built 2026-10-04): the Console's **Objectives** tab, GM only, three columns read between beats. **Just happened**: every change, newest first (given, written, ticked, revealed, struck, learned, closed). **Up next**: each open objective's open required parts with the scene whose chip ticks each one (from the Runner's current scene on, in play order), the hidden parts still to come with the scene that reveals them (the GM's eyes only), and **Still to give**. **Might go**: Overdue (a deadline passed while open), Not given (its giving scene went by), No scene left (a required part no later chip ticks), Theirs (the players' own, theirs to drive) and Loose ends. A row opens that objective in the Journal. `scripts/core/objectives-board.mjs` (pure), `scripts/foundry/objectives-board.mjs`, `templates/console/window/tab-objectives.hbs`.
 - **Not to confuse**: `subsystem.schema.json`'s `objectives[]` is Infiltration's obstacle list, a different thing.
 
 ---
@@ -180,9 +181,10 @@ Manako's way, a requisition against the docket, is revealed in its place. Person
 - `test/tier2-objectives-canon.test.mjs`: every canon rule fires on a broken copy of the real model.
 - `test/tier4-objectives.test.mjs`: the store and the Runner's acts against the mock journal, including the ownership
   regression found live.
+- `test/tier1-objectives-board.test.mjs`: the GM's board against Episode One's real briefs.
 - `test/tier3-objectives-contract.test.mjs`: the wiring (handlers, mounting, keys, dispatcher, deploy, Stagecraft).
 - **Live**: `node tools/objectives/live-check.mjs` drives the local Foundry with a GM and a real player in two browsers:
-  19 checks, screenshots in `design/ui/shots/objectives/`. First run, 2026-10-04, found two real bugs (the Journal's
+  23 checks (the GM's board included), screenshots in `design/ui/shots/objectives/`. First run, 2026-10-04, found two real bugs (the Journal's
   tab action collided with ApplicationV2's own `tab`; the ownership repair locked a writer out of their own Section Nine
   objective), both fixed and covered.
 
@@ -190,7 +192,7 @@ Manako's way, a requisition against the docket, is revealed in its place. Person
 
 ## 10. Not built yet
 
-- The Console's GM board (Just happened, Up next, Might go) and a session-start line on what's open.
+- A session-start line on what's open (the board covers it in play).
 - A GM form field for giving a live objective to one character (the GM's form makes Section Nine's).
 - Adding a learned line to the log from the Runner (the log is in the state and the Journal shows it; no chip writes it
   yet).

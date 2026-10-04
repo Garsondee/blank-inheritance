@@ -117,7 +117,8 @@
           "Gear": "Gear",
           "Party": "Party",
           "Hub": "Hub",
-          "Log": "Log"
+          "Log": "Log",
+          "Objectives": "Objectives"
         },
         "Hub": {
           "DirectorPanel": "Director's Panel",
@@ -1616,6 +1617,27 @@
         "CloseOk": "Close it",
         "NotGiven": "That objective has not been given yet.",
         "NoChange": "Nothing to change: that is already done."
+      },
+      "Board": {
+        "Counts": "{open} open · {toGive} to give · {mightGo} to watch",
+        "From": "From",
+        "OpenJournal": "Open the Journal",
+        "Just": "Just happened",
+        "JustEmpty": "Nothing yet. Every objective given, ticked, revealed, struck or closed lands here.",
+        "Next": "Up next",
+        "NextEmpty": "Nothing open and nothing left to give in this episode.",
+        "ToGive": "Still to give",
+        "Hidden": "Hidden",
+        "NoScene": "No scene ticks it",
+        "Might": "Might go",
+        "MightEmpty": "Nothing has gone quiet.",
+        "Flag": {
+          "overdue": "Overdue",
+          "stalled": "No scene left",
+          "players": "Theirs",
+          "loose": "Loose end",
+          "skipped": "Not given"
+        }
       }
     },
     "Journal": {
