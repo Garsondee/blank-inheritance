@@ -1,0 +1,55 @@
+{
+  "kind": "bi-haunt-attitudes",
+  "version": 1,
+  "writtenAt": "2026-10-04T11:42:52.199Z",
+  "places": {
+    "the-bathhouse-447": {
+      "attitudes": {
+        "kazue": "indifferent"
+      },
+      "history": [
+        {
+          "at": "2026-10-04T11:42:38.145Z",
+          "regular": "kazue",
+          "name": "Kazue Tsurumi",
+          "from": "indifferent",
+          "to": "friendly",
+          "why": "shifted by hand"
+        },
+        {
+          "at": "2026-10-04T11:42:41.876Z",
+          "regular": "kazue",
+          "name": "Kazue Tsurumi",
+          "from": "friendly",
+          "to": "helpful",
+          "why": "shifted by hand"
+        },
+        {
+          "at": "2026-10-04T11:42:49.794Z",
+          "regular": "kazue",
+          "name": "Kazue Tsurumi",
+          "from": "helpful",
+          "to": "friendly",
+          "why": "shifted by hand"
+        },
+        {
+          "at": "2026-10-04T11:42:50.614Z",
+          "regular": "kazue",
+          "name": "Kazue Tsurumi",
+          "from": "friendly",
+          "to": "indifferent",
+          "why": "shifted by hand"
+        }
+      ],
+      "unlocked": [],
+      "broken": {},
+      "names": {
+        "kazue": {
+          "name": "Kazue Tsurumi",
+          "role": "the attendant, who runs the bathhouse like a ship"
+        }
+      }
+    }
+  },
+  "factions": {}
+}
