@@ -1,14 +1,18 @@
 <div class="bi-obj" data-size="{{model.size}}" {{#if hidden}}hidden{{/if}}>
   {{#if model.folded}}
+  <div class="bi-obj__tabrow">
+  <button type="button" class="bi-obj__grip" title="{{localize "BLANKINHERITANCE.Objectives.GripHint"}}" aria-label="{{localize "BLANKINHERITANCE.Objectives.GripLabel"}}"><span aria-hidden="true">⋮⋮</span></button>
   <button type="button" class="bi-obj__tab" data-action="cycleSize" title="{{localize "BLANKINHERITANCE.Objectives.Unfold"}}">
     <span class="bi-obj__lamp{{#if model.lit}} is-lit{{/if}}" aria-hidden="true"></span>
     <span class="bi-obj__label">{{localize "BLANKINHERITANCE.Objectives.Title"}}</span>
     <span class="bi-obj__count">{{model.count}}</span>
     {{#if model.tracked.deadline.label}}<span class="bi-obj__due{{#if model.tracked.dueUrgent}} is-urgent{{/if}}">{{model.tracked.deadline.label}}</span>{{/if}}
   </button>
+  </div>
   {{else}}
   <div class="bi-obj__panel">
     <header class="bi-obj__head">
+      <button type="button" class="bi-obj__grip" title="{{localize "BLANKINHERITANCE.Objectives.GripHint"}}" aria-label="{{localize "BLANKINHERITANCE.Objectives.GripLabel"}}"><span aria-hidden="true">⋮⋮</span></button>
       <span class="bi-obj__lamp{{#if model.lit}} is-lit{{/if}}" aria-hidden="true"></span>
       <button type="button" class="bi-obj__title" data-action="cycleSize" title="{{localize "BLANKINHERITANCE.Objectives.CycleHint"}}">{{localize "BLANKINHERITANCE.Objectives.Title"}} <span class="bi-obj__kanji">任務</span></button>
       <span class="bi-obj__switch" role="group" aria-label="{{localize "BLANKINHERITANCE.Objectives.SizeLabel"}}">

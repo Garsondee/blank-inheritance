@@ -372,6 +372,40 @@ export function trackerModel(states = [], { userId = null, isGM = false, tracked
 }
 
 /* ------------------------------------------------------------------ */
+/*  Where the tracker sits                                             */
+/* ------------------------------------------------------------------ */
+
+/** The least a dragged tracker keeps between itself and each screen edge. */
+export const PLACE_MARGIN = 4;
+
+/**
+ * A place is how far the tracker's top-right corner is from the screen's top and right edges: the tracker is anchored
+ * there, so it grows leftwards as it unfolds. Clamped so the whole box stays on screen, however the window is resized
+ * or the tracker unfolded afterwards. Anything unusable (a malformed setting) is null: use the automatic place.
+ */
+export function clampPlace(place, { viewW = 0, viewH = 0, boxW = 0, boxH = 0 } = {}) {
+  const right = Number(place?.right);
+  const top = Number(place?.top);
+  if (!Number.isFinite(right) || !Number.isFinite(top) || viewW <= 0 || viewH <= 0) return null;
+  const maxRight = Math.max(PLACE_MARGIN, viewW - boxW - PLACE_MARGIN);
+  const maxTop = Math.max(PLACE_MARGIN, viewH - boxH - PLACE_MARGIN);
+  return { right: Math.round(Math.min(Math.max(right, PLACE_MARGIN), maxRight)), top: Math.round(Math.min(Math.max(top, PLACE_MARGIN), maxTop)) };
+}
+
+/** A saved place from its setting string, or null. */
+export function parsePlace(raw) {
+  try {
+    const p = JSON.parse(String(raw ?? ""));
+    return Number.isFinite(Number(p?.right)) && Number.isFinite(Number(p?.top)) ? { right: Number(p.right), top: Number(p.top) } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** A drag: where the corner was, plus how far the pointer moved (right is measured from the right edge, so it goes the other way). */
+export const dragPlace = (start, dx, dy) => ({ right: start.right - dx, top: start.top + dy });
+
+/* ------------------------------------------------------------------ */
 /*  The Journal                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -532,6 +566,7 @@ export function exportPayload(states = [], { users = [], now = 0 } = {}) {
         said: s.said,
         why: s.why,
         title: s.title,
+        deadline: s.deadline?.label ?? null,
         status: s.status,
         parts: s.parts.map((p) => ({ id: p.id, need: p.need, text: p.text, state: p.state })),
         givenAt: s.givenAt,

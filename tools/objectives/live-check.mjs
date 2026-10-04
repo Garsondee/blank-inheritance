@@ -145,6 +145,35 @@ try {
   });
   check("the header lets a press through to the stage, and its switch still takes one", through && !through.inside && through.button, JSON.stringify(through));
 
+  /* --- the grip: a real mouse drag moves the tracker, it is kept across a reload, a double-click resets it ---------- */
+  const rectOf = () => player.evaluate(() => { const r = document.querySelector("#bi-objectives .bi-obj").getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), right: Math.round(r.right), bottom: Math.round(r.bottom) }; });
+  const gripAt = () => player.evaluate(() => { const r = document.querySelector("#bi-objectives .bi-obj__head .bi-obj__grip, #bi-objectives .bi-obj__tabrow .bi-obj__grip").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  const before = await rectOf();
+  const g = await gripAt();
+  await player.mouse.move(g.x, g.y);
+  await player.mouse.down();
+  await player.mouse.move(g.x - 300, g.y + 220, { steps: 12 });
+  await player.mouse.up();
+  await sleep(600);
+  const moved = await rectOf();
+  check("a real mouse drag on the grip moves the tracker", Math.abs(moved.left - (before.left - 300)) <= 2 && Math.abs(moved.top - (before.top + 220)) <= 2, JSON.stringify({ before, moved }));
+  const saved = await player.evaluate(() => game.settings.get("blank-inheritance", "objectivesPlace"));
+  check("the new place is saved as this player's own", /right/.test(saved), saved);
+  await player.screenshot({ path: path.join(SHOTS, "08-moved.png") });
+  await player.evaluate(() => { const g = document.querySelector("#bi-objectives .bi-obj__grip"); g.focus(); });
+  await player.keyboard.press("ArrowRight");
+  await sleep(500);
+  const nudged = await rectOf();
+  check("an arrow key nudges it ten pixels", nudged.left === moved.left + 10, `${moved.left} -> ${nudged.left}`);
+  await player.mouse.move(g.x - 300, g.y + 220);
+  await player.evaluate(() => { const r = document.querySelector("#bi-objectives .bi-obj__grip").getBoundingClientRect(); window.__gripAt = [r.left + r.width / 2, r.top + r.height / 2]; });
+  const dragged = await player.evaluate(() => window.__gripAt);
+  await player.mouse.click(dragged[0], dragged[1], { clickCount: 2 });
+  await sleep(700);
+  const reset = await rectOf();
+  check("a double-click on the grip puts it back to the automatic place", Math.abs(reset.left - before.left) <= 2 && Math.abs(reset.top - before.top) <= 2, JSON.stringify({ before, reset }));
+  check("and clears the saved place", (await player.evaluate(() => game.settings.get("blank-inheritance", "objectivesPlace"))) === "");
+
   /* --- three sizes, by the switch --------------------------------------------------------------------------- */
   for (const size of ["explained", "folded", "lines"]) {
     if (size === "lines") await click(player, "#bi-objectives .bi-obj__tab");

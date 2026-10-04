@@ -343,3 +343,17 @@
 .bi-objboard__flag[data-kind="players"] { color: #a9bde3; border-style: dashed; border-color: #6d84ad; }
 .bi-objboard__empty { margin: 0; font-size: 12.5px; color: #8f8672; }
 @media (max-width: 900px) { .bi-objboard__cols { grid-template-columns: minmax(0, 1fr); } }
+
+/* The grip: drag the tracker anywhere (each player's own place is kept). */
+/* The folded row only holds its two buttons: the gap between them lets a press through (found by probing every point). */
+#bi-objectives .bi-obj > .bi-obj__tabrow { display: flex; align-items: center; gap: 4px; pointer-events: none; }
+#bi-objectives .bi-obj__tabrow button { pointer-events: auto; }
+#bi-objectives .bi-obj__grip { display: inline-grid !important; place-items: center; width: 22px !important; align-self: stretch; flex: none; padding: 0 !important; color: #a99f88; font-family: var(--bi-font-readout); font-size: 18px; line-height: 1; letter-spacing: -2px; cursor: grab; touch-action: none; user-select: none; border-radius: 4px; }
+#bi-objectives .bi-obj__grip:hover, #bi-objectives .bi-obj__grip:focus-visible { color: var(--bi-amber); }
+#bi-objectives .bi-obj__grip.is-dragging { cursor: grabbing; color: var(--bi-amber); }
+#bi-objectives .bi-obj__tabrow .bi-obj__grip { height: 30px; background: rgb(10 12 11 / 88%); border: 1px solid #39413d; }
+
+/* While chalk is in hand the tracker steps aside, like the GM strips: nothing of it takes a press and it fades back, so a
+   stroke or an eraser under it reaches the stage (found 2026-10-04: an eraser pressed on the grip and dragged the tracker). */
+body:has(#stagecraft-stage.stagecraft-chalk) #bi-objectives .bi-obj { opacity: 0.3; transition: opacity 0.15s; }
+body:has(#stagecraft-stage.stagecraft-chalk) #bi-objectives .bi-obj * { pointer-events: none !important; }

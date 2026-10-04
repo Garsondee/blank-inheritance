@@ -1638,7 +1638,9 @@
           "loose": "Loose end",
           "skipped": "Not given"
         }
-      }
+      },
+      "GripHint": "Drag to move. Arrow keys nudge it, double-click puts it back.",
+      "GripLabel": "Move the objectives"
     },
     "Journal": {
       "WindowTitle": "Journal",

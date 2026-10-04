@@ -98,7 +98,9 @@ test("REGRESSION: only the tracker's controls take a press, and it drops below t
   for (const rule of [
     "#bi-objectives .bi-obj > .bi-obj__panel { pointer-events: none; }",
     "#bi-objectives .bi-obj__panel .bi-obj__body { pointer-events: auto; }",
-    "#bi-objectives .bi-obj > .bi-obj__ribbon { pointer-events: none; }"
+    "#bi-objectives .bi-obj > .bi-obj__ribbon { pointer-events: none; }",
+    "#bi-objectives .bi-obj > .bi-obj__tabrow { display: flex; align-items: center; gap: 4px; pointer-events: none; }",
+    "#bi-objectives .bi-obj__tabrow button { pointer-events: auto; }"
   ]) assert.ok(css.includes(rule), `missing: ${rule}`);
   assert.ok(tracker.includes("for (const r of stageTopControls().rects) if (r.right > span[0] && r.left < span[1]) top = Math.max(top, r.bottom + 8);"));
   assert.ok(bridge.includes("export function stageTopControls()"));
@@ -121,4 +123,27 @@ test("the GM's objectives board is a GM-only Console tab, and its rows open the 
   assert.match(tpl, /data-action="openObjective"/);
   assert.match(journal, /select\(objectiveId\)/);
   assert.match(wiring, /refreshConsoleWindow\(\)/, "the board repaints when an objective changes");
+});
+
+test("the tracker has a grip: drag, arrow keys, double-click to reset, saved per player, and it wins over the automatic place", () => {
+  assert.equal((read("templates/objectives/tracker.hbs").match(/class="bi-obj__grip"/g) ?? []).length, 2, "one on the tab, one in the header");
+  for (const needle of [
+    'SETTING_PLACE = "objectivesPlace"',
+    "game.settings.register(MODULE_ID, SETTING_PLACE, { ...client,", // client scope: each player's own, never reset
+    "setPointerCapture(event.pointerId)",
+    'addEventListener("dblclick", () => resetPlace())',
+    "if (own && applyPlace(own)) return;" // a dragged place beats the automatic rules
+  ]) assert.ok(tracker.includes(needle), `missing: ${needle}`);
+  assert.ok(/\.bi-obj__grip \{[^}]*touch-action: none;/.test(css), "a touch drag must not scroll the page");
+});
+
+// Found 2026-10-04 by the chalk session: an eraser stroke starting under the grip dragged the tracker instead of erasing.
+test("REGRESSION: while chalk is in hand nothing of the tracker takes a press, and it fades back", () => {
+  for (const rule of [
+    "body:has(#stagecraft-stage.stagecraft-chalk) #bi-objectives .bi-obj { opacity: 0.3; transition: opacity 0.15s; }",
+    "body:has(#stagecraft-stage.stagecraft-chalk) #bi-objectives .bi-obj * { pointer-events: none !important; }"
+  ]) assert.ok(css.includes(rule), `missing: ${rule}`);
+  // the class Stagecraft puts on its stage while chalk is in hand (module/stagecraft/styles/stagecraft.css)
+  const stagecraftCss = readFileSync(path.join(repoRoot, "module", "stagecraft", "styles", "stagecraft.css"), "utf8");
+  assert.ok(stagecraftCss.includes("#stagecraft-stage.stagecraft-chalk"));
 });

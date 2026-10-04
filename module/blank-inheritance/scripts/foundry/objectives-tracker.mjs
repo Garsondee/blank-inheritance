@@ -14,7 +14,7 @@
  * chat pop-up column, whichever comes first, by the same rule as the rail.
  */
 
-import { SIZES, nextSize, trackerModel } from "../core/objectives.mjs";
+import { SIZES, clampPlace, dragPlace, nextSize, parsePlace, trackerModel } from "../core/objectives.mjs";
 import { currentMoment } from "./campaign-state.mjs";
 import { objectiveStates } from "./objectives-store.mjs";
 import { stageTopControls } from "./stagecraft-bridge.mjs";
@@ -26,6 +26,8 @@ const TEMPLATE = `modules/${MODULE_ID}/templates/objectives/tracker.hbs`;
 export const SETTING_SIZE = "objectivesSize";
 export const SETTING_TRACKED = "objectivesTracked";
 export const SETTING_SEEN = "objectivesLastSeen";
+/** Where this player dragged the tracker to: JSON {right, top}, or empty for the automatic place. */
+export const SETTING_PLACE = "objectivesPlace";
 /** How long the lamp stays lit after something changes, before this player counts as having seen it. */
 const SEEN_AFTER_MS = 12000;
 const SIZE_KEYS = Object.freeze({
@@ -40,6 +42,7 @@ export function registerObjectivesTrackerSettings() {
   game.settings.register(MODULE_ID, SETTING_SIZE, { ...client, type: String, default: "lines" });
   game.settings.register(MODULE_ID, SETTING_TRACKED, { ...client, type: String, default: "" });
   game.settings.register(MODULE_ID, SETTING_SEEN, { ...client, type: String, default: "" });
+  game.settings.register(MODULE_ID, SETTING_PLACE, { ...client, type: String, default: "" });
 }
 
 const getSetting = (key, fallback) => {
@@ -95,10 +98,58 @@ export class ObjectivesTracker extends HandlebarsApplicationMixin(ApplicationV2)
   _onRender(context, options) {
     super._onRender?.(context, options);
     fitObjectivesTracker();
+    this.#wireGrips();
     // The lamp stays lit long enough to be noticed, then this player has seen it.
     clearTimeout(this.#seenTimer);
     if (context.model?.lit) {
       this.#seenTimer = setTimeout(() => game.settings.set(MODULE_ID, SETTING_SEEN, new Date().toISOString()), SEEN_AFTER_MS);
+    }
+  }
+
+  /**
+   * The grip moves the tracker: press and drag (real pointer events, captured so a fast drag cannot lose it), arrow keys
+   * nudge it (Shift for more), a double-click or Home puts it back to the automatic place. The new spot is saved when
+   * the drag ends, so each player's own survives a reload.
+   */
+  #wireGrips() {
+    for (const grip of this.element.querySelectorAll(".bi-obj__grip")) {
+      grip.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) return;
+        const box = hostBox();
+        if (!box) return;
+        event.preventDefault();
+        grip.setPointerCapture(event.pointerId);
+        const start = { right: window.innerWidth - box.right, top: box.top };
+        const from = { x: event.clientX, y: event.clientY };
+        grip.classList.add("is-dragging");
+        const move = (e) => applyPlace(dragPlace(start, e.clientX - from.x, e.clientY - from.y));
+        const done = async (e) => {
+          grip.removeEventListener("pointermove", move);
+          grip.removeEventListener("pointerup", done);
+          grip.removeEventListener("pointercancel", done);
+          grip.classList.remove("is-dragging");
+          if (grip.hasPointerCapture?.(e.pointerId)) grip.releasePointerCapture(e.pointerId);
+          await savePlace();
+        };
+        grip.addEventListener("pointermove", move);
+        grip.addEventListener("pointerup", done);
+        grip.addEventListener("pointercancel", done);
+      });
+      grip.addEventListener("dblclick", () => resetPlace());
+      grip.addEventListener("keydown", async (event) => {
+        const step = event.shiftKey ? 40 : 10;
+        const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+        if (event.key === "Home") {
+          event.preventDefault();
+          await resetPlace();
+        } else if (moves[event.key]) {
+          event.preventDefault();
+          const box = hostBox();
+          if (!box) return;
+          applyPlace(dragPlace({ right: window.innerWidth - box.right, top: box.top }, ...moves[event.key]));
+          await savePlace();
+        }
+      });
     }
   }
 
@@ -127,8 +178,40 @@ export class ObjectivesTracker extends HandlebarsApplicationMixin(ApplicationV2)
  * Where the tracker may sit: the top right, left of the sidebar and of the chat pop-up column (a long whisper fills it
  * from the top), and for the GM under the session rail. Two properties on <body>, the deck's and the rail's pattern.
  */
+/** The tracker's whole box on screen now (every size, ribbons included), or null. */
+function hostBox() {
+  const r = document.querySelector("#bi-objectives .bi-obj")?.getBoundingClientRect();
+  return r && r.width > 0 && r.height > 0 ? r : null;
+}
+
+/** Put the tracker at a place now (clamped to the screen), without saving it. Returns what was applied, or null. */
+function applyPlace(place) {
+  const box = hostBox();
+  const clamped = clampPlace(place, { viewW: window.innerWidth, viewH: window.innerHeight, boxW: box?.width ?? 0, boxH: box?.height ?? 0 });
+  if (!clamped) return null;
+  document.body.style.setProperty("--bi-obj-right", `${clamped.right}px`);
+  document.body.style.setProperty("--bi-obj-top", `${clamped.top}px`);
+  return clamped;
+}
+
+/** Save where the tracker is now as this player's own place. */
+async function savePlace() {
+  const box = hostBox();
+  if (!box) return;
+  await game.settings.set(MODULE_ID, SETTING_PLACE, JSON.stringify({ right: Math.round(window.innerWidth - box.right), top: Math.round(box.top) }));
+}
+
+/** Back to the automatic place: top right, clear of the sidebar, the chat column and the stage's own controls. */
+async function resetPlace() {
+  await game.settings.set(MODULE_ID, SETTING_PLACE, "");
+  fitObjectivesTracker();
+}
+
 export function fitObjectivesTracker() {
   const style = document.body.style;
+  // This player's own place, if they dragged it somewhere, wins over every automatic rule below.
+  const own = parsePlace(getSetting(SETTING_PLACE, ""));
+  if (own && applyPlace(own)) return;
   const edges = ["sidebar", "chat-notifications"]
     .map((id) => document.getElementById(id)?.getBoundingClientRect())
     .filter((r) => r && r.width > 0)

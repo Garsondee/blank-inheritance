@@ -15,14 +15,17 @@ import {
   OBJECTIVE_FLAG,
   OBJECTIVES_SOURCE_ID,
   PART,
+  PLACE_MARGIN,
   SIZES,
   STATUS,
   applyAct,
   canEdit,
   canSee,
+  clampPlace,
   changesSince,
   deadlineState,
   defaultTracked,
+  dragPlace,
   draftToState,
   entryOwnershipRepair,
   exportPayload,
@@ -34,6 +37,7 @@ import {
   pageCreateData,
   pageHtml,
   pageOwnership,
+  parsePlace,
   progress,
   recordModel,
   shownSize,
@@ -237,4 +241,25 @@ test("the harvest export names writers, keeps closing paragraphs, and is in givi
   assert.deepEqual(out.objectives.map((o) => o.id), [ENROL.id, own.id]);
   assert.equal(out.objectives[0].record, "Enrolled.");
   assert.equal(out.objectives[1].writer, "Kim");
+});
+
+test("a dragged place is clamped so the whole tracker stays on screen, however the window changes", () => {
+  const view = { viewW: 1920, viewH: 1080, boxW: 380, boxH: 300 };
+  assert.deepEqual(clampPlace({ right: 100, top: 50 }, view), { right: 100, top: 50 });
+  assert.deepEqual(clampPlace({ right: -500, top: -20 }, view), { right: PLACE_MARGIN, top: PLACE_MARGIN }, "past the top right edge");
+  assert.deepEqual(clampPlace({ right: 5000, top: 5000 }, view), { right: 1920 - 380 - PLACE_MARGIN, top: 1080 - 300 - PLACE_MARGIN }, "past the bottom left");
+  assert.deepEqual(clampPlace({ right: 1600, top: 10 }, { ...view, viewW: 800 }), { right: 800 - 380 - PLACE_MARGIN, top: 10 }, "the window shrank");
+  assert.deepEqual(clampPlace({ right: 10, top: 10 }, { viewW: 300, viewH: 200, boxW: 380, boxH: 300 }), { right: PLACE_MARGIN, top: PLACE_MARGIN }, "a box larger than the screen still has a place");
+  assert.equal(clampPlace({ right: "x", top: 1 }, view), null);
+  assert.equal(clampPlace({ right: 1, top: 1 }, { viewW: 0, viewH: 0 }), null);
+});
+
+test("a saved place round-trips, and anything malformed means the automatic place", () => {
+  assert.deepEqual(parsePlace(JSON.stringify({ right: 40, top: 12 })), { right: 40, top: 12 });
+  for (const bad of ["", "nope", "{}", '{"right":"a","top":1}', null, undefined]) assert.equal(parsePlace(bad), null, String(bad));
+});
+
+test("dragging the pointer left and down moves the corner away from the right edge and down", () => {
+  assert.deepEqual(dragPlace({ right: 14, top: 12 }, -100, 40), { right: 114, top: 52 });
+  assert.deepEqual(dragPlace({ right: 114, top: 52 }, 100, -40), { right: 14, top: 12 });
 });
