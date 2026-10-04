@@ -14,6 +14,9 @@ import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { DEG, canvasTexture } from "./support.mjs";
 import { faceOf } from "../badges.mjs";
+import { easeLight } from "../../core/grade.mjs";
+
+const GAMMA = 1.5;
 
 export class CardView {
   /**
@@ -169,7 +172,14 @@ export class CardView {
     this.grown = grow;
     // down: the face dims, as a fallen piece does on a board
     const dim = 1 - 0.45 * (c.down ?? 0);
-    if (this.faceMaterial && this.lastDim !== dim) { this.faceMaterial.color.setScalar(dim); this.lastDim = dim; }
+    // and it stands in the light of the painting under it: dimmer in a dark corner, warmer under a lantern
+    const lit = this.ctx.lightAt?.(c.x, c.z);
+    if (lit) this.light = easeLight(this.light, lit);
+    if (this.faceMaterial) {
+      const l = this.light ?? [1, 1, 1];
+      // the grade is how the card should look on screen; the material multiplies in linear light, and the scene's lights are bright, so it is raised to a power first
+      this.faceMaterial.color.setRGB(dim * l[0] ** GAMMA, dim * l[1] ** GAMMA, dim * l[2] ** GAMMA);
+    }
     this.blob.position.set(c.x, 0.6, c.z);
     if (c.selected) {
       // chosen by the GM for a formation: the shadow under it becomes a warm glow

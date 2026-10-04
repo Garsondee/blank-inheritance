@@ -853,3 +853,13 @@ Checks: `test/stagecraft-bridge.test.mjs` (the record, the filing, the overlay, 
 ## 33. The chalk box's spot (2026-10-04)
 
 "Box here" on the GM strip, then a click on the floor, puts the box of chalk there (`api.blocking.setChalkBox(scene, [fx, fy])`, interface 0.9.0). It is written into the scene's description (`chalk.box`, where an author would have put it), the stage is drawn again from it, and `stagecraft.keepBox` is raised. It comes home exactly as kept places do (§32): the bridge files it in `storage/stage-places.json` beside them (a keep of the places and a move of the box each leave the other alone), `npm run stages` folds it into `kept-places.json` (`box`), and the bridge lays it over the entry's `description.chalk.box`, so a redeploy no longer puts the box back. Checks: `badges.test.mjs` (the write, the refusals, the hook), the bridge test (filed, laid over, folded), the interface test, and `bench/sizes-check.mjs` (the strip still fits).
+
+## 34. Cards stand in the painting's light (2026-10-04)
+
+A lighting pass over every scene (shot with `tools/stagecraft/bench/shoot.mjs --rest` and laid out with `tools/stagecraft/contact-sheet.py`) found one thing wrong in all of them: a card was lit the same everywhere, a cream plate at one brightness in a sunlit classroom and in a dark tunnel, so it looked pasted on. Rather than hand-tune twenty-eight scenes' lights, a card now takes the light of the painting under its feet:
+
+- `core/grade.mjs` (pure): the painting as a 48-column grid of colours; `lightAt(grid, fx, fy, { strength })` gives what to multiply the card's face by, from how bright the painting is where it stands (never below 0.4, so a card in the blackest corner can still be read) and which way its colour leans (cold in a teal tunnel, warm under a lantern, and nothing for almost-black, which has no colour). `easeLight` moves it a share at a time, so a card walking across a painting never flickers.
+- `render/grade.mjs` shrinks the painting once into the grid (null if it cannot be read: then nothing is graded). The 3D picture sets the face material's colour from it (raised to a power, because the material multiplies in linear light and the scene's lights are bright: without it a quarter of the light was invisible); the plain picture multiplies a tint over the face.
+- A scene may say `grade` in its description: 0 turns it off, 1 is the default, up to 1.5.
+
+Before and after pictures are in `lab/shots/light-before` and `light-after` (gitignored: they show Ingram's art). Checks: `grade.test.mjs` (7), and the existing real-browser checks still pass. **A judgement call for her:** how dark the dark scenes' cards go is one number (`GRADE.floor`, 0.4) and one power (`GAMMA`, 1.5); the pictures are in the folder.

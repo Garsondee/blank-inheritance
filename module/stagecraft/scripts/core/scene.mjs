@@ -127,6 +127,8 @@ export function describeScene(raw) {
     ambient: Math.max(0, num(r.ambient, 1.7)),
     lights, occluders, zones, marks, chalk,
     marksOnly: r.marksOnly === true,
+    // how far a card takes on the light of the painting under it (0 none, 1 the default, more is more)
+    grade: Math.max(0, Math.min(1.5, num(r.grade, 1))),
     footlights: r.footlights === true,
     // where the GM's formations gather people when nobody points somewhere else: the counter, the middle of the room
     focus: isPoint(r.focus) ? [r.focus[0], r.focus[1]] : null,

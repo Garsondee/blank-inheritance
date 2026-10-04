@@ -16,6 +16,8 @@ import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from
 import { samplePainting } from "../paint/wall.mjs";
 import { makeTitleBlock } from "../titleblock.mjs";
 import { faceOf } from "../badges.mjs";
+import { paintingGrid } from "../grade.mjs";
+import { lightAt, easeLight } from "../../core/grade.mjs";
 import { cutoutFade, CUTOUT_FADE, CUTOUT_FADE_MOST } from "../../core/visibility.mjs";
 import { cardPlacement, hitCard, floorAt, paintingAt, project, byDepth, toWindow, FOOT } from "./geometry.mjs";
 import { boxLayout, hitBox } from "./box.mjs";
@@ -108,6 +110,7 @@ export class FlatBackend {
     if (!painting) throw new Error(`the painting "${description.painting.src}" could not be loaded`);
     if (this.disposed) return;
     this.painting = painting;
+    this.grade = paintingGrid(painting);               // the colours of the painting, coarsely: a card takes the light it stands in
     const [iw, ih] = this.rig.size;
     this.zoneLayer = layer(iw, ih);
     this.impact = impactCanvas();
@@ -495,7 +498,23 @@ export class FlatBackend {
       ctx.fillStyle = `rgba(0,0,0,${(0.45 * c.down).toFixed(3)})`;
       ctx.fillRect(-W / 2, -H, W, H);
     }
+    if (!ghost) this.#grade(v, c, W, H);
     if (ghost) ctx.globalAlpha = 1;
+  }
+
+  /** The card takes the light of the painting under it (core/grade.mjs), as a multiply over its face: dim in the dark, warm under a lantern. */
+  #grade(v, c, W, H) {
+    if (!this.grade) return;
+    const [fx, fy] = this.rig.fractionOf(c.x, c.z);
+    v.light = easeLight(v.light, lightAt(this.grade, fx, fy, { strength: this.description?.grade ?? 1 }));
+    const [r, g, b] = v.light.map((n) => Math.round(Math.max(0, Math.min(1, n)) * 255));
+    if (r > 250 && g > 250 && b > 250) return;
+    const { ctx } = this;
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(-W / 2, -H, W, H);
+    ctx.restore();
   }
 
   #drawBox(layout) {

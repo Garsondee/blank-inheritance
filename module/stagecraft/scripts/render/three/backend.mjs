@@ -18,6 +18,8 @@ import { Post } from "./post.mjs";
 import { ChalkTiles, ChalkBox } from "./chalk.mjs";
 import { DEFAULT_BOX } from "../../core/chalk.mjs";
 import { samplePainting } from "../paint/wall.mjs";
+import { paintingGrid } from "../grade.mjs";
+import { lightAt } from "../../core/grade.mjs";
 import { makeTitleBlock } from "../titleblock.mjs";
 
 const COMPILE_WAIT = 4000;           // ms a stage waits for its shaders to be built before it shows itself anyway
@@ -112,6 +114,7 @@ export class ThreeBackend {
     if (!painting) throw new Error(`the painting "${description.painting.src}" could not be loaded`);
     if (this.disposed) return;
     this.paintingImage = painting;
+    this.grade = paintingGrid(painting);               // the colours of the painting, coarsely: a card takes the light it stands in
 
     aimCamera(this.camera, this.rig, this.view);
     this.#environment(painting);
@@ -186,7 +189,7 @@ export class ThreeBackend {
     this.adding.add(person.id);
     try {
       this.titleBlock ??= makeTitleBlock();
-      const ctx = { tracker: this.tracker, images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id) };
+      const ctx = { tracker: this.tracker, images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id), lightAt: (x, z) => this.#lightAt(x, z) };
       const view = new CardView(person, this.skin, ctx, this.description.cardScale * (person.size ?? 1));
       await view.build();
       if (this.disposed) { view.dispose(); return; }
@@ -319,6 +322,13 @@ export class ThreeBackend {
 
   /** The painting's own colour at a point of it (fractions), as "#rrggbb": what the colour picker takes where there is no chalk. */
   paintingColour(fx, fy) { return samplePainting(this.paintingImage, fx, fy); }
+
+  /** What a card at stage position (x, z) is multiplied by to stand in the painting's light there (core/grade.mjs). */
+  #lightAt(x, z) {
+    if (!this.grade || !this.rig) return null;
+    const [fx, fy] = this.rig.fractionOf(x, z);
+    return lightAt(this.grade, fx, fy, { strength: this.description.grade ?? 1 });
+  }
 
   async capture() {
     if (this.post) this.post.render(0); else this.renderer.render(this.scene, this.camera);
