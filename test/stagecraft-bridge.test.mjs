@@ -426,6 +426,23 @@ test("a character at 0 HP is down on the stage: their card carries their actor, 
   assert.equal(again[0].down, true);
 });
 
+test("a character's conditions are badges on their card, and the fight's turn finds the card to light", async () => {
+  const { badgesByConditions, cardOfCombatant } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  assert.deepEqual(badgesByConditions([{ name: "Frightened", value: 2 }, { name: "Prone" }, { name: " Dying ", value: 1 }, { name: "" }, { name: "Wounded", value: 0 }]), ["Frightened 2", "Prone", "Dying 1", "Wounded"]);
+  assert.deepEqual(badgesByConditions([]), [], "no conditions: the badges are taken off");
+  assert.equal(badgesByConditions(undefined), null, "nothing to read: no guess");
+  const cards = mirrorCards({ published: [member("summon-pc-a", { kind: "pc", actorId: "A1" }), member("summon-nobu")], def });
+  assert.equal(cardOfCombatant(cards, { actorId: "A1", name: "whoever" }).id, "summon-pc-a", "a party member by their actor");
+  const nobu = cards[1];
+  assert.equal(cardOfCombatant(cards, { actorId: "Z9", name: ` ${nobu.name.toUpperCase()} ` }).id, nobu.id, "anyone else by the name they go by");
+  assert.equal(cardOfCombatant(cards, { actorId: "Z9", name: "Nobody" }), null);
+  assert.equal(cardOfCombatant(cards, {}), null);
+  // badges survive the cast being mirrored again, like a card that is down
+  const again = mirrorCards({ published: [member("summon-pc-a", { kind: "pc", actorId: "A1" })], existing: [{ ...cards[0], badges: ["Prone"] }], def });
+  assert.deepEqual(again[0].badges, ["Prone"]);
+  assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("updateCombat"/, "the bridge listens for the turn");
+  assert.match(read("foundry/stagecraft-bridge.mjs"), /"createItem", "updateItem", "deleteItem"/, "and for conditions coming and going");
+});
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {
   const { momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
   const cards = [{ id: "c1", home: [0.2, 0.9] }, { id: "c2", home: [0.5, 0.9] }, { id: "pc", pc: true, at: [0.5, 0.95] }];

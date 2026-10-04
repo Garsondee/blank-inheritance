@@ -9,10 +9,10 @@ import { isStageScene, readStage } from "./foundry/scene-data.mjs";
 import { FORMATIONS } from "./core/formations.mjs";
 import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
-import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
+import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
 
-export const API_VERSION = "0.6.0";
+export const API_VERSION = "0.7.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -53,6 +53,10 @@ export function createApi({ skins, current }) {
       setBoard: (scene, on) => setBoard(scene, on),
       /** Give someone the floor (a card's id; null takes it back): lit, and everyone turns to look at them. */
       setSpeaker: (scene, id) => setSpeaker(scene, id),
+      /** Light a card as the one whose turn it is (a card's id; null puts the light out): nobody turns to look. */
+      setTurn: (scene, id) => setTurn(scene, id),
+      /** Put badges on a card (a few short labels shown on its face, e.g. conditions); an empty list takes them off. */
+      setBadges: (scene, id, badges) => setBadges(scene, id, badges),
       /** Knock a card down (a defeated foe, a character at 0 HP) or stand it back up. */
       setDown: (scene, id, down) => setDown(scene, id, down),
       /** Offer a scene's authored blocking as buttons on the GM's strip: provider(scene) -> [{ id, label, tip?, run(scene) }]. */

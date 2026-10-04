@@ -23,6 +23,8 @@
  * into the character itself by some editors' tools, and U+2028 is a line end in a regular expression.)
  */
 
+import { cleanBadges } from "./badges.mjs";
+
 export const TITLE = Object.freeze({
   nameChars: 160,       // a name longer than this is cut: nobody reads more than this on a card
   textChars: 360,
@@ -83,8 +85,8 @@ export function tipFor(person, { long = 18 } = {}) {
   return { name, text };
 }
 
-/** What would make a card's face look different if it changed: its words. (A card's face is drawn once, and again when this does.) */
-export const titleKey = (person) => JSON.stringify([person?.name ?? null, person?.title ?? null]);
+/** What would make a card's face look different if it changed: its words and its badges. (A card's face is drawn once, and again when this does.) */
+export const titleKey = (person) => JSON.stringify([person?.name ?? null, person?.title ?? null, cleanBadges(person?.badges)]);
 
 /* ------------------------------------------------------------------ where a line may end */
 

@@ -95,6 +95,7 @@ export class Stage {
     this.lifeOn = true;             // the GM's "Life" switch: routines run
     this.board = false;             // the GM's fight board: zones drawn plainly, with who is in each
     this.speaker = null;            // who has the floor: lit, and everyone else turns to look at them
+    this.turn = null;               // whose turn it is: lit, and nobody turns
     this.slots = new Map();         // zone id -> the places a card can dock in it (worked out when first wanted)
     for (const p of people) this.addCard(p);
   }
@@ -332,6 +333,9 @@ export class Stage {
 
   /** Who has the floor (a card's id, or null): they are lit, and the people on the stage turn their heads to them. */
   setSpeaker(id) { this.speaker = id && this.cards.has(id) ? id : null; }
+
+  /** Whose turn it is (a fight's initiative): lit like the speaker, but nobody else turns to look. */
+  setTurn(id) { this.turn = id && this.cards.has(id) ? id : null; }
 
   /**
    * Where a card let go inside a fight position docks while the board is up (stage.md §8.3): the nearest place in that
@@ -764,7 +768,7 @@ export class Stage {
         held: c.holder !== null, holder: c.holder, mark: c.mark,
         walking: !!c.walk || (c.living && Math.abs(c.stepLift) > 0.2),
         selected: !!selected?.has?.(c.id),
-        speaking: this.speaker === c.id,
+        speaking: this.speaker === c.id || this.turn === c.id,
         emote: this.#emote(c, t)
       });
       if (viewer !== null && c.holder === viewer) marks.push(...this.marksFor(c.id));

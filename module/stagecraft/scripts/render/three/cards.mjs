@@ -13,6 +13,7 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { DEG, canvasTexture } from "./support.mjs";
+import { faceOf } from "../badges.mjs";
 
 export class CardView {
   /**
@@ -41,7 +42,7 @@ export class CardView {
     const m = skin.materials ?? {};
     const brass = T.add(new THREE.MeshStandardMaterial({ color: m.body?.color ?? 0xe7dfcd, metalness: m.body?.metalness ?? 0, roughness: m.body?.roughness ?? 0.9 }));
     const helpers = this.#helpers();
-    const [faceCanvas, backCanvas] = await Promise.all([skin.face(person, helpers), skin.back(person, helpers)]);
+    const [faceCanvas, backCanvas] = await Promise.all([faceOf(skin, person, helpers), skin.back(person, helpers)]);
 
     this.leanG = new THREE.Group();
     this.hinge = new THREE.Group();
@@ -114,7 +115,7 @@ export class CardView {
   async refresh(person) {
     this.person = { ...this.person, ...person };
     const helpers = this.#helpers();
-    const [face, back] = await Promise.all([this.skin.face(this.person, helpers), this.skin.back(this.person, helpers)]);
+    const [face, back] = await Promise.all([faceOf(this.skin, this.person, helpers), this.skin.back(this.person, helpers)]);
     if (!this.faceTex || !this.backTex) return;
     this.faceTex.image = face;
     this.faceTex.needsUpdate = true;

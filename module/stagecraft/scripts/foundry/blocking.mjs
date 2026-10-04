@@ -16,6 +16,7 @@ import { NS, publishedCards, readStage, readCast } from "./scene-data.mjs";
 import { Stage } from "../core/stage.mjs";
 import { commitMoves, homeMoves } from "../core/sync.mjs";
 import { tidy } from "../core/marks.mjs";
+import { cleanBadges, sameBadges } from "../core/badges.mjs";
 
 /** How far ahead a move is stamped to start, in seconds: long enough for every screen to hear of it first. */
 export const LEAD = 0.45;
@@ -122,6 +123,39 @@ export const speakerOf = (scene) => scene?.flags?.[NS]?.live?.speaker ?? null;
 
 /** Give someone the floor (they are lit and everyone turns to them), or take it back with null. */
 export const setSpeaker = (scene, id) => scene.update({ [`flags.${NS}.live.speaker`]: typeof id === "string" ? id : null });
+
+/** Whose turn it is in a scene: a card's id, or null. */
+export const turnOf = (scene) => scene?.flags?.[NS]?.live?.turn ?? null;
+
+/** Light a card as the one whose turn it is (a fight's initiative), or put the light out with null. Nobody turns to look. */
+export function setTurn(scene, id) {
+  if (!game.user?.isGM) return Promise.resolve(false);
+  const to = typeof id === "string" ? id : null;
+  if (turnOf(scene) === to) return Promise.resolve(false);
+  return scene.update({ [`flags.${NS}.live.turn`]: to }).then(() => true);
+}
+
+/**
+ * Put badges on a card (core/badges.mjs: a few short labels, shown on its face on every screen): written on its card in the
+ * published cast, like `down`, so a reload finds them. An empty list takes them off. Nothing is written when nothing changed.
+ */
+export function setBadges(scene, id, badges) {
+  if (!game.user?.isGM) return Promise.resolve(false);
+  const clean = cleanBadges(badges);
+  return serially(async () => {
+    const cards = publishedCards(scene);
+    const card = cards.find((c) => c.id === id);
+    if (!card || sameBadges(card.badges, clean)) return false;
+    const next = cards.map((c) => {
+      if (c.id !== id) return c;
+      const out = { ...c };
+      if (clean.length) out.badges = clean; else delete out.badges;
+      return out;
+    });
+    await scene.update({ [`flags.${NS}.published.cards`]: next });
+    return true;
+  });
+}
 
 /* ---------------------------------------------------------------- authored moments */
 

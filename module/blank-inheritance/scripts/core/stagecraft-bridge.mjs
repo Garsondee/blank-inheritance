@@ -163,7 +163,7 @@ export function placeFor({ member, key, def, cards }) {
 }
 
 /** What Stagecraft writes on a card that the next mirror must keep: where it was put or sent, and how it stands there. */
-const KEPT = ["at", "mark", "yaw", "lean", "pitch", "still", "packed", "move", "home", "homeYaw", "enter", "down"];
+const KEPT = ["at", "mark", "yaw", "lean", "pitch", "still", "packed", "move", "home", "homeYaw", "enter", "down", "badges"];
 
 /** An entrance as a stage entry gives it ("left", or { from, gait }), stamped with when it starts. */
 function entranceOf(spec, now) {
@@ -232,6 +232,7 @@ export function mirrorCards({ published = [], authored = [], existing = [], def 
         // laid out afresh while already on the stage: it walks over to its new place (and stays down if it was down)
         if (Number.isFinite(now)) card.move = { t0: Math.round(now * 1000) / 1000, gait: "walk" };
         if (before.down === true) card.down = true;
+        if (Array.isArray(before.badges) && before.badges.length) card.badges = before.badges;
       } else {
         const enter = entranceOf(def.enter?.[key], now);
         if (enter) card.enter = enter;
@@ -305,6 +306,30 @@ export function formationRequest(formation, cards, keyOf) {
 export function downByHp(actorData) {
   const hp = actorData?.system?.attributes?.hp?.value;
   return Number.isFinite(hp) ? hp <= 0 : null;
+}
+
+/**
+ * The badges an actor's conditions make: "Frightened 2", "Prone", "Dying 1". `conditions` is [{ name, value? }], as the
+ * foundry side reads them off the actor's condition items (sf2e keeps a valued condition's number in `system.value.value`).
+ * A condition's own name is already in the player's language. Null when there is nothing to read, so nothing is changed on a guess.
+ */
+export function badgesByConditions(conditions) {
+  if (!Array.isArray(conditions)) return null;
+  return conditions
+    .filter((c) => typeof c?.name === "string" && c.name.trim())
+    .map((c) => (Number.isFinite(c.value) && c.value > 0 ? `${c.name.trim()} ${c.value}` : c.name.trim()));
+}
+
+/**
+ * The card of whoever's turn it is, on a stage's published cast: a party member's by their actor, anyone else's by their name
+ * (a foe is called the same in the fight tracker as on its card). Null when nobody on the stage is taking the turn.
+ */
+export function cardOfCombatant(cards, { actorId = null, name = null } = {}) {
+  const byActor = actorId ? cardOfActor(cards, actorId) : null;
+  if (byActor) return byActor;
+  const want = typeof name === "string" ? name.trim().toLowerCase() : "";
+  if (!want) return null;
+  return cards.find((c) => String(c.name ?? "").trim().toLowerCase() === want) ?? null;
 }
 
 /** The card of a party member's actor on a stage's published cast, or null. */

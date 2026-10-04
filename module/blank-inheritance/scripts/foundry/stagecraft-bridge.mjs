@@ -21,7 +21,7 @@ import { MODULE_ID } from "./stage-store.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
+import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -218,6 +218,27 @@ async function fallByHp(actor) {
   await game.modules.get(NS)?.api?.blocking?.setDown?.(scene, card.id, down);
 }
 
+/** A party member's conditions changed: their card wears them as badges ("Frightened 2", "Prone"). */
+async function badgeByConditions(actor) {
+  const scene = canvas?.scene;
+  if (!scene?.flags?.[NS]?.stage || !actingGM() || !actor) return;
+  const items = actor.itemTypes?.condition ?? actor.items?.filter?.((i) => i.type === "condition");
+  const badges = badgesByConditions(items ? [...items].map((i) => ({ name: i.name, value: i.system?.value?.isValued ? i.system.value.value : null })) : null);
+  if (badges === null) return;
+  const card = cardOfActor(scene.flags?.[NS]?.published?.cards ?? [], actor.id);
+  if (!card) return;
+  await game.modules.get(NS)?.api?.blocking?.setBadges?.(scene, card.id, badges);
+}
+
+/** The fight's turn moved on: the card of whoever's turn it is is lit, and the light goes out when the fight ends. */
+async function lightTurn(combat) {
+  const scene = canvas?.scene;
+  if (!scene?.flags?.[NS]?.stage || !actingGM()) return;
+  const who = combat?.started ? combat.combatant : null;
+  const card = who ? cardOfCombatant(scene.flags?.[NS]?.published?.cards ?? [], { actorId: who.actorId, name: who.name }) : null;
+  await game.modules.get(NS)?.api?.blocking?.setTurn?.(scene, card?.id ?? null);
+}
+
 /* ---------------------------------------------------------------- start */
 
 /** Called once the world is ready. */
@@ -251,6 +272,14 @@ export async function startStagecraftBridge() {
     if (changes?.system?.attributes?.hp === undefined) return;
     fallByHp(actor).catch((err) => console.warn(`${LOG} | could not knock ${actor?.name} down`, err));
   });
+  // conditions on a character are badges on their card; the fight's turn lights a card
+  const conditionChanged = (item) => { if (item?.type === "condition" && item.parent?.documentName === "Actor") badgeByConditions(item.parent).catch((err) => console.warn(`${LOG} | could not badge ${item.parent?.name}`, err)); };
+  for (const hook of ["createItem", "updateItem", "deleteItem"]) Hooks.on(hook, conditionChanged);
+  Hooks.on("updateCombat", (combat, changes) => {
+    if (changes?.turn === undefined && changes?.round === undefined && changes?.started === undefined) return;
+    lightTurn(combat).catch((err) => console.warn(`${LOG} | could not light the turn`, err));
+  });
+  Hooks.on("deleteCombat", () => { lightTurn(null).catch(() => {}); });
   if (canvas?.scene) {
     await ensureParty(canvas.scene).catch(() => {});
     await sync(canvas.scene);

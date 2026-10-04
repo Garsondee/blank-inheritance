@@ -159,6 +159,26 @@ try {
   });
   check("a card renamed on the scene is drawn again: its face texture gets a new picture, on the same texture", renamed.newCanvas && renamed.differs && renamed.sameTexture && /Renamed Person/.test(renamed.name), JSON.stringify(renamed));
 
+  /* conditions as badges, and the turn lit: written on the scene, drawn on the face on every screen */
+  const badged = await gm.evaluate(async () => {
+    const { host, scene } = window.bench;
+    const list = scene.flags.stagecraft.published.cards;
+    const card = list.find((c) => !c.pc && c.id !== host.stage.speaker);   // the bench scene already has a speaker, who is lit anyway
+    const view = host.backend.views.get(card.id);
+    const beforeUrl = view.faceTex.image.toDataURL();
+    card.badges = ["Frightened 2", "Prone"];
+    scene.flags.stagecraft.live = { ...(scene.flags.stagecraft.live ?? {}), turn: card.id };
+    Hooks.callAll("updateScene", scene, { flags: { stagecraft: { published: { cards: list }, live: { turn: card.id } } } });
+    await new Promise((r) => setTimeout(r, 1500));
+    const lit = host.stage.snapshot().cards.find((c) => c.id === card.id).speaking;
+    const url = view.faceTex.image.toDataURL();
+    card.badges = [];
+    scene.flags.stagecraft.live.turn = null;
+    Hooks.callAll("updateScene", scene, { flags: { stagecraft: { published: { cards: list }, live: { turn: null } } } });
+    await new Promise((r) => setTimeout(r, 1500));
+    return { drawn: url !== beforeUrl, lit, unlit: host.stage.snapshot().cards.find((c) => c.id === card.id).speaking === false, gone: view.faceTex.image.toDataURL() === beforeUrl };
+  });
+  check("badges are drawn on a card's face, the turn lights it, and both go again", badged.drawn && badged.lit && badged.unlit && badged.gone, JSON.stringify(badged));
   /* a card with a line of text speaks when the pointer has rested on it: the whole of what its plate may have cut */
   await gm.bringToFront();
   const spot = await gm.evaluate(() => {

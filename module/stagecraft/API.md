@@ -3,11 +3,11 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.6.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.7.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
 published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
 0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
-`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with.
+`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns).
 
 ## api
 
@@ -30,6 +30,8 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.blocking.setLife(scene, on)` | GM only. Routines run (on, the default) or everyone stands where they are |
 | `api.blocking.setBoard(scene, on)` | GM only. The fight board: positions (zones of kind `area`) drawn plainly, with who is in each and the range bands. While it is up, a card put down inside a position docks in a free place in it |
 | `api.blocking.setSpeaker(scene, id)` | GM only. Give someone the floor (a card's id, or `null` to take it back): a pool of light at their feet, and everyone else on the stage turns to look at them. The GM can also Alt-click a card |
+| `api.blocking.setTurn(scene, id)` | GM only. Light a card as the one whose turn it is (a card's id, or `null` to put the light out): the pool of light of the speaker, but nobody else turns to look |
+| `api.blocking.setBadges(scene, id, badges)` | GM only. Put badges on a card: up to four short labels (16 characters each, text only) drawn down the top-left of its face on every screen and kept in its published card, so a reload finds them. An empty list takes them off. Nothing is written when nothing changed |
 | `api.blocking.setDown(scene, id, down)` | GM only. Knock a card down (a defeated foe, a character at 0 HP: it tips over backwards and lies on the floor, dimmed, going nowhere) or stand it back up. The GM can also Ctrl-click a card |
 | `api.blocking.registerMoments(provider)` | Offer a scene's authored blocking as buttons on the GM's strip: `provider(scene)` returns `[{ id, label, tip?, run(scene) }]`. Returns a function that takes it away |
 | `api.blocking.setCover(provider)` | Say what your own interface covers over the stage (a deck of controls along the bottom, a dial rising out of it): `provider()` returns shapes in window pixels as they are now, `{ rect: [x0, y0, x1, y1] }` or `{ circle: [cx, cy, r] }`. Formations then keep everyone clear of it: no more than the bottom 15% of a card under it, a card moved back up the stage if need be. Returns a function that takes it away |

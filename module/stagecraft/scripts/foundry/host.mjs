@@ -23,7 +23,7 @@ import { titleKey } from "../core/titleblock.mjs";
 import { HoverTip } from "./hover-tip.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
-import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
+import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, turnOf, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
 import { boxSpot, boxClear, DEFAULT_BOX } from "../core/chalk.mjs";
 
 export class StageHost {
@@ -76,6 +76,7 @@ export class StageHost {
     this.stage.setLife(lifeOn(this.scene));
     this.stage.setBoard(boardOn(this.scene));
     this.stage.setSpeaker(speakerOf(this.scene));
+    this.stage.setTurn(turnOf(this.scene));
     // a move already published was made before this screen was here: the card stands where it went, nothing to walk
     for (const p of this.people) { const c = this.stage.cards.get(p.id); if (c) c.appliedMove = p.move?.t0 ?? null; }
     for (const p of this.stage.problems) console.warn(`${NS} | ${p}`);
@@ -504,6 +505,7 @@ export class StageHost {
     }
     // after the cards: someone who has just arrived may be the one given the floor
     this.stage.setSpeaker(speakerOf(this.scene));
+    this.stage.setTurn(turnOf(this.scene));
   }
 
   /**

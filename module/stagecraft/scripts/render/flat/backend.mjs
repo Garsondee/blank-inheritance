@@ -15,6 +15,7 @@ import { DEFAULT_BOX, PALETTE, tileRect, tilesFor } from "../../core/chalk.mjs";
 import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
 import { samplePainting } from "../paint/wall.mjs";
 import { makeTitleBlock } from "../titleblock.mjs";
+import { faceOf } from "../badges.mjs";
 import { cutoutFade, CUTOUT_FADE, CUTOUT_FADE_MOST } from "../../core/visibility.mjs";
 import { cardPlacement, hitCard, floorAt, paintingAt, project, byDepth, toWindow, FOOT } from "./geometry.mjs";
 import { boxLayout, hitBox } from "./box.mjs";
@@ -126,7 +127,7 @@ export class FlatBackend {
     this.adding.add(person.id);
     try {
       const helpers = this.#helpers();
-      const [face, back] = await Promise.all([this.skin.face(person, helpers), this.skin.back(person, helpers)]);
+      const [face, back] = await Promise.all([faceOf(this.skin, person, helpers), this.skin.back(person, helpers)]);
       if (this.disposed) return;
       this.views.set(person.id, { id: person.id, person, face: this.#shrink(face), back: this.#shrink(back), w: this.skin.size.w, h: this.skin.size.h });
       if (person.emote?.id) this.#emoteImage(person.emote.id);
@@ -149,7 +150,7 @@ export class FlatBackend {
     if (!view || this.disposed) return;
     const merged = { ...view.person, ...person };
     const helpers = this.#helpers();
-    const [face, back] = await Promise.all([this.skin.face(merged, helpers), this.skin.back(merged, helpers)]);
+    const [face, back] = await Promise.all([faceOf(this.skin, merged, helpers), this.skin.back(merged, helpers)]);
     if (this.disposed || this.views.get(person.id) !== view) return;
     view.person = merged;
     view.face = this.#shrink(face);
