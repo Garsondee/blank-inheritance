@@ -63,6 +63,7 @@ const LABEL = Object.freeze({
   bySkill: "BLANKINHERITANCE.Runner.Edit.Field.BySkill",
   choiceLabel: "BLANKINHERITANCE.Runner.Edit.Field.ChoiceLabel",
   choiceOption: "BLANKINHERITANCE.Runner.Edit.Field.ChoiceOption",
+  choiceBlurb: "BLANKINHERITANCE.Runner.Edit.Field.ChoiceBlurb",
   choiceConsequence: "BLANKINHERITANCE.Runner.Edit.Field.ChoiceConsequence",
   endsWhen: "BLANKINHERITANCE.Runner.Edit.Field.EndsWhen",
   transitionLine: "BLANKINHERITANCE.Runner.Edit.Field.TransitionLine",
@@ -401,6 +402,7 @@ function beatBlock({ beat, index, beats, file, field, challenges, marks, notesAt
     for (const option of beat.choicePoint.options ?? []) {
       if (!option?.id) continue;
       choiceFields.push(field(file, [...pbase, "options", { id: option.id }, "label"], option.label, FIELD_KINDS.LINE, LABEL.choiceOption));
+      choiceFields.push(field(file, [...pbase, "options", { id: option.id }, "blurb"], option.blurb, FIELD_KINDS.LINE, LABEL.choiceBlurb));
       choiceFields.push(field(file, [...pbase, "options", { id: option.id }, "consequence"], option.consequence, FIELD_KINDS.PROSE, LABEL.choiceConsequence));
     }
     choice = { fields: choiceFields };

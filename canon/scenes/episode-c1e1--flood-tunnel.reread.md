@@ -77,3 +77,19 @@ D043, D046) as secrets.
   card.
 - **"Somewhere new" stands at the covered market** on The City, blurred, because a marker needs a place. Players see
   where it is, not what.
+
+## Revision 2026-10-04: the group splits, and the Runner now asks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** The job was in two places (the panels on the platform, the jam on the flooded floor) with the
+  ladder as a third, and it was only prose. It is now one beat, `split-the-job`, with a choice: the GM presses Ask the
+  players, each player picks, and the party comes back together when the nest wakes. "Something else" is added to every
+  choice automatically. The ladder line moved from `the-room`'s note into the ladder option, so it is said once. The
+  fight's three endings gained a short line each for the players' screen.
+- **R1, R2.** The beat earns its place: it decides who is at the panels (where the workshop's +2 applies) and who is
+  on the floor when the nest wakes, which the fight then uses.
+- **R10.** A player who won't go down is the ladder option, no longer a note.
+- **R16, R17.** One direction, none negative.
+- **R27.** The ladder rule appears once. The panels and the jam are still described by their own beats.
+- **R12.** The players' lines (`blurb`) name no check, no DC and no consequence; the GM's line stays GM-only.

@@ -144,18 +144,36 @@ test("beat.hbs renders decoratedText/decoratedReadAloud as trusted HTML (triple-
   assert.match(beatHbs, /\{\{#if decoratedReadAloud\}\}<div class="bi-runner__read">\{\{\{decoratedReadAloud\}\}\}<\/div>\{\{\/if\}\}/);
 });
 
-test("beat.hbs renders a choicePoint as a distinct block with per-option recordChoice buttons and an invented-option hint", () => {
-  const block = beatHbs.match(/\{\{#if choicePoint\}\}[\s\S]*?<\/div>\s*\{\{\/if\}\}/);
+test("beat.hbs renders a choicePoint as a distinct block: ONE Ask-the-players button, with per-option recordChoice buttons folded under it", () => {
+  // From the block's opening to the fold that closes it (the first `</div>{{/if}}`
+  // is the Ask button's own, so the end is the fold, not the first div).
+  const block = beatHbs.match(/\{\{#if choicePoint\}\}[\s\S]*?<\/details>/);
   assert.ok(block, "no choicePoint block in beat.hbs");
   assert.match(block[0], /class="bi-runner__choice"/);
   assert.match(block[0], /\{\{choicePoint\.label\}\}/);
-  assert.match(block[0], /\{\{#each choicePoint\.options\}\}/);
-  assert.match(block[0], /data-action="recordChoice"/);
-  assert.match(block[0], /data-beat-id="\{\{\.\.\/id\}\}"/);
-  assert.match(block[0], /data-option-id="\{\{id\}\}"/);
-  assert.match(block[0], /bi-runner__choice-option--picked/);
-  assert.match(block[0], /\{\{#if choicePoint\.allowsInventedOption\}\}/);
-  assert.match(block[0], /BLANKINHERITANCE\.Runner\.ChoiceInvented/);
+  // The one button the GM presses, and the two that govern it while it is open.
+  assert.match(block[0], /data-action="askPlayers"/);
+  assert.match(block[0], /data-action="closePrompt"/);
+  assert.match(block[0], /data-action="cancelPrompt"/);
+  assert.equal((block[0].match(/data-action="askPlayers"/g) ?? []).length, 1, "there must be exactly one Ask button");
+  // Deciding it by hand is still possible, under the fold.
+  const fold = block[0].match(/<details[\s\S]*?<\/details>/);
+  assert.ok(fold, "the by-hand option buttons are no longer folded under the Ask button");
+  assert.match(fold[0], /\{\{#each choicePoint\.options\}\}/);
+  assert.match(fold[0], /data-action="recordChoice"/);
+  assert.match(fold[0], /data-beat-id="\{\{\.\.\/id\}\}"/);
+  assert.match(fold[0], /data-option-id="\{\{id\}\}"/);
+  assert.match(fold[0], /bi-runner__choice-option--picked/);
+});
+
+test("the Ask-the-players actions are wired into the registry, and every choicePoint shows 'Something else' (never gated on allowsInventedOption)", () => {
+  assert.match(src, /askPlayers:\s*SceneRunner\.#onAskPlayers/);
+  assert.match(src, /closePrompt:\s*SceneRunner\.#onClosePrompt/);
+  assert.match(src, /cancelPrompt:\s*SceneRunner\.#onCancelPrompt/);
+  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\]\) \{[\s\S]*?\n {2}\}/);
+  assert.match(decorate[0], /promptOptions\(beat\.choicePoint/, "the Runner no longer builds its options through the shared promptOptions");
+  assert.doesNotMatch(decorate[0], /allowsInventedOption/, "'Something else' must be offered whether or not allowsInventedOption is set");
+  assert.match(decorate[0], /BLANKINHERITANCE\.Runner\.ChoiceInvented/, "the GM's guidance for adjudicating 'Something else' is no longer shown");
 });
 
 test("beat.hbs still has balanced Handlebars blocks after the decorated-text and choicePoint changes", () => {

@@ -98,3 +98,15 @@ knock at the side door and "it isn't secret, it's private" all come from that.
 - **The ticket half could be a Papers handout** (`personal: true`, with the character's name in Tamsin's hand), so the
   invitation is something the players physically keep. Not added: it needs the handout pipeline's own checks.
 - **The glamour dilemma's man** has grey-green scales and gold eyes, and no ancestry is named.
+
+## Revision 2026-10-04: the finale is a choice
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** The finale's split (a hand up, stay seated, or slip out before it) is now a choice the GM puts to
+  the table with one button, so the GM sees who put a hand up and Tamsin's pick is made from real hands. The same
+  sentence in the notes ("They leave before the finale...") was removed, because the option now says it.
+- **Not changed, on purpose.** Where each player sits is open narration with no fixed menu (only two seats are written),
+  so it stays a question. The glamour-song dilemma is an event card, which cannot carry a choice yet.
+- **R1, R2.** The pick decides the volunteer, the Perception bonus and the quarter-HP-only leaver.
+- **R27.** The leave-early rule is said once, in the option.

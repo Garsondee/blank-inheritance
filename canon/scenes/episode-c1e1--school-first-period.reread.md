@@ -78,3 +78,10 @@ D056), `shucks.revealed-early`,
 - **The history teacher's name, Ota,** is a proposal.
 - **The names are told in Episode One now.** `founders.names` and `founders.pictures` moved from "later" to this
   lesson, as D048 suggested; D056 records the change.
+
+## Revision 2026-10-04: a line for the players' screen
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
+players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.

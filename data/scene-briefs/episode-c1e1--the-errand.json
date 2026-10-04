@@ -244,11 +244,13 @@
           {
             "id": "quietly",
             "label": "Quietly.",
+            "blurb": "File it without drawing attention.",
             "consequence": "A receipt for Vetch, and nobody else the wiser."
           },
           {
             "id": "loudly",
             "label": "So people see.",
+            "blurb": "File it somewhere people will notice.",
             "consequence": "Filed where it's noticed: the base has heard by supper."
           }
         ],

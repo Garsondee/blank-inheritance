@@ -112,6 +112,8 @@ test("a choice, a person, a handout and the lists are all on the sheet", () => {
   assert.deepEqual(choose.choice.fields.map((f) => f.key.split("::")[1]), [
     "beats[choose].choicePoint.label",
     "beats[choose].choicePoint.options[light].label",
+    // The line the players see on their button (core/choice-prompt.mjs), then the GM's own.
+    "beats[choose].choicePoint.options[light].blurb",
     "beats[choose].choicePoint.options[light].consequence"
   ]);
   const person = sheet.sections.find((s) => s.id === "people").blocks[0];

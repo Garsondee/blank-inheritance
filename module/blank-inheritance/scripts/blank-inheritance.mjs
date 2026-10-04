@@ -55,6 +55,7 @@ import {
   registerCityConversation,
   registerCitySettings
 } from "./foundry/city-state.mjs";
+import { registerChoicePromptConversation, registerChoicePromptSettings, syncChoicePromptWindow } from "./foundry/choice-prompt.mjs";
 import { registerPawnGuards } from "./foundry/city-pawns.mjs";
 import { repairActorOwnership } from "./foundry/ownership-repair.mjs";
 import { mountCityLayer, onCityPan, onCityTokenMoved, refreshCityLayer } from "./foundry/city-layer.mjs";
@@ -285,6 +286,14 @@ Hooks.once("init", () => {
   });
   registerPawnGuards();
 
+  // A choicePoint put to the table (Ingram, 2026-10-04): the open question and
+  // each player's pick, one GM-written world setting. A player's window follows
+  // it on every client; the Scene Runner shows the GM the live picks.
+  registerChoicePromptSettings(() => {
+    syncChoicePromptWindow();
+    refreshSceneRunner();
+  });
+
   // The admin panel: its record of the last reset and of the test party
   // (world), and the GM's own autopilot switches (client).
   registerAdminSettings(() => refreshAdminPanel());
@@ -462,6 +471,14 @@ Hooks.once("ready", async () => {
     registerCityConversation(() => refreshCityLayer());
   } catch (err) {
     console.error("Blank Inheritance | Could not open the departures conversation:", err);
+  }
+
+  // Choice prompts: players send their picks to the active GM (CONFIG.queries),
+  // and a player who reloads mid-question gets the window back.
+  try {
+    registerChoicePromptConversation();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the choice-prompt conversation:", err);
   }
 
   // The admin panel's stand-in players act only on the active GM's client

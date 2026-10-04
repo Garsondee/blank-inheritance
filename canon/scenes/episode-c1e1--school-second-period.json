@@ -108,11 +108,13 @@
           {
             "id": "natural-history",
             "label": "Natural history: a room full of jars.",
+            "blurb": "A lesson on the creatures of the region.",
             "consequence": "A teacher very glad to see them, and what lives in the drains."
           },
           {
             "id": "the-range",
             "label": "The range: the Butts.",
+            "blurb": "Fire your new weapon for the first time.",
             "consequence": "Their new weapon, fired for the first time."
           }
         ],

@@ -93,19 +93,50 @@
               ux-doctrine.md Law 21) -- deliberately a louder, bordered block
               rather than an inline chip, since a real fork is rarer and
               higher-stakes than an ordinary trigger. --}}
+        {{!-- ONE button (Ingram, 2026-10-04): "Ask the players" puts the
+              question on every player's screen, with a button for each option
+              and an always-present "Something else" (core/choice-prompt.mjs).
+              While it is open this block shows who has picked what and the
+              single press that closes it and records the split. The old
+              per-option buttons survive folded away, for deciding it by hand
+              (nobody connected, a test run, a table that already said). --}}
         {{#if choicePoint}}
         <div class="bi-runner__choice">
             <p class="bi-runner__choice-label">{{choicePoint.label}}</p>
-            <div class="bi-runner__choice-options">
-                {{#each choicePoint.options}}
-                <button type="button" class="bi-runner__choice-option{{#if isPicked}} bi-runner__choice-option--picked{{/if}}"
-                    data-action="recordChoice" data-beat-id="{{../id}}" data-option-id="{{id}}"
-                    {{#if consequence}}title="{{consequence}}"{{/if}}>{{label}}{{#if consequence}}<span class="bi-runner__choice-consequence">{{consequence}}</span>{{/if}}</button>
-                {{/each}}
+            {{#if choiceAsk.isOpen}}
+            <div class="bi-runner__ask">
+                <p class="bi-runner__ask-progress">{{choiceAsk.progress}}</p>
+                <ul class="bi-runner__ask-rows">
+                    {{#each choiceAsk.rows}}
+                    <li class="bi-runner__ask-row{{#if done}} bi-runner__ask-row--done{{/if}}">
+                        <span class="bi-runner__ask-who">{{name}}</span>
+                        <span class="bi-runner__ask-pick">{{#if label}}{{label}}{{else}}{{localize "BLANKINHERITANCE.ChoicePrompt.Undecided"}}{{/if}}</span>
+                    </li>
+                    {{/each}}
+                </ul>
+                <div class="bi-runner__actions">
+                    <button type="button" class="bi-runner__stamp bi-runner__stamp--primary" data-action="closePrompt" data-beat-id="{{id}}"
+                        title="{{localize 'BLANKINHERITANCE.ChoicePrompt.CloseAndRecordHint'}}"><i class="fa-solid fa-check"></i> {{localize "BLANKINHERITANCE.ChoicePrompt.CloseAndRecord"}}</button>
+                    <button type="button" class="bi-runner__stamp" data-action="cancelPrompt" data-beat-id="{{id}}"
+                        title="{{localize 'BLANKINHERITANCE.ChoicePrompt.CancelHint'}}">{{localize "BLANKINHERITANCE.ChoicePrompt.Cancel"}}</button>
+                </div>
             </div>
-            {{#if choicePoint.allowsInventedOption}}
-            <p class="bi-runner__choice-invented">{{localize "BLANKINHERITANCE.Runner.ChoiceInvented"}}</p>
+            {{else}}
+            <div class="bi-runner__actions">
+                <button type="button" class="bi-runner__stamp bi-runner__stamp--primary" data-action="askPlayers" data-beat-id="{{id}}"
+                    title="{{localize 'BLANKINHERITANCE.ChoicePrompt.AskHint'}}"><i class="fa-solid fa-signs-post"></i> {{localize "BLANKINHERITANCE.ChoicePrompt.Ask"}}</button>
+            </div>
             {{/if}}
+            <details class="bi-runner__choice-fold">
+                <summary class="bi-runner__choice-fold-summary">{{localize "BLANKINHERITANCE.ChoicePrompt.RecordItYourself"}}</summary>
+                <div class="bi-runner__choice-options">
+                    {{#each choicePoint.options}}
+                    <button type="button" class="bi-runner__choice-option{{#if isPicked}} bi-runner__choice-option--picked{{/if}}"
+                        data-action="recordChoice" data-beat-id="{{../id}}" data-option-id="{{id}}"
+                        {{#if consequence}}title="{{consequence}}"{{/if}}>{{label}}{{#if takers}} <span class="bi-runner__choice-takers">· {{takers}}</span>{{/if}}{{#if consequence}}<span class="bi-runner__choice-consequence">{{consequence}}</span>{{/if}}</button>
+                    {{/each}}
+                </div>
+            </details>
         </div>
         {{/if}}
 

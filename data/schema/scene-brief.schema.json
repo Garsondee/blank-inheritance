@@ -1406,12 +1406,19 @@
                       "type": "string",
                       "description": "The option, stated plainly, in terms the GM can say out loud."
                     },
+                    "blurb": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "One plain line shown to the players on this option's button when the GM presses Ask the players. Player-safe: it must spoil nothing (never name the right answer or a hidden reaction). The GM-only counterpart is `consequence`, which is never shown to a player."
+                    },
                     "consequence": {
                       "type": [
                         "string",
                         "null"
                       ],
-                      "description": "What it actually does — GM-facing; not necessarily told to the players before they choose."
+                      "description": "What it actually does — GM-facing; never shown to the players (the Ask the players window shows `blurb` instead)."
                     }
                   },
                   "additionalProperties": false

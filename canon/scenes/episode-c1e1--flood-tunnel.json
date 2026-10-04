@@ -85,7 +85,6 @@
       "mandatory": true,
       "delivery": "table",
       "text": "Let them look round before anyone touches the panels.",
-      "note": "If someone won't go down: They wait at the ladder and can come down any time. The job doesn't wait for them.",
       "facts": [],
       "gmFacts": []
     },
@@ -100,6 +99,39 @@
       },
       "challengeRef": "c1e1-flood-tunnel",
       "checkRef": "read-the-water",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "split-the-job",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "each",
+      "text": "The job is in two places. Each player says where they work: the panels, the jam, or waiting at the ladder.",
+      "choicePoint": {
+        "label": "The job is in two places. Where do you work?",
+        "options": [
+          {
+            "id": "panels",
+            "label": "The panels: power the line",
+            "blurb": "Up on the dry platform, at the panels.",
+            "consequence": "Out of the water, on the platform, and the panel work is theirs: the workshop's +2 applies here. They are on high ground when the nest wakes."
+          },
+          {
+            "id": "jam",
+            "label": "The feed: clear the jam",
+            "blurb": "Down on the floor, working the packed feed.",
+            "consequence": "Down on the flooded floor in dim light, working the jam. When the nest wakes they are standing in difficult terrain, near the grate."
+          },
+          {
+            "id": "ladder",
+            "label": "Wait at the ladder",
+            "blurb": "Hold at the top and come down when you like.",
+            "consequence": "They wait at the ladder and can come down any time. The job doesn't wait for them."
+          }
+        ],
+        "allowsInventedOption": true
+      },
       "facts": [],
       "gmFacts": []
     },
@@ -142,16 +174,19 @@
           {
             "id": "kill",
             "label": "Kill the nest",
+            "blurb": "Fight until the last centipede is dead.",
             "consequence": "A straight fight, until the last centipede is dead."
           },
           {
             "id": "drive-off",
             "label": "Drive them off",
+            "blurb": "Hurt them until the rest run.",
             "consequence": "Losses and a show of force send the rest down the grate."
           },
           {
             "id": "find-another-way",
             "label": "Use the room",
+            "blurb": "Turn the room against them.",
             "consequence": "The compactor, the grate or the water does it."
           }
         ],

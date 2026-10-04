@@ -401,7 +401,31 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "each",
-      "text": "Ask each player, one at a time: \"Kaede has three jobs: the bench, the pit and the crane. Which one does your character take, and how do they go about it?\" Give them a moment to picture it before they answer.",
+      "text": "Each player takes one of Kaede's three jobs: the bench, the pit or the crane. Then ask how their character goes about it, and give them a moment to picture it.",
+      "choicePoint": {
+        "label": "Kaede has three jobs tonight. Which one does your character take?",
+        "options": [
+          {
+            "id": "the-bench",
+            "label": "The bench: scrape the bearing",
+            "blurb": "Fit the knee's bronze bearing by hand.",
+            "consequence": "Their station is the knee's bearing shell, scraped to fit by hand: Crafting against the level DC, with Kaede watching the work."
+          },
+          {
+            "id": "the-pit",
+            "label": "The pit: catch the knee",
+            "blurb": "Catch the knee as it comes down on the chain.",
+            "consequence": "Their station is the knee itself coming down on the chain: Athletics against the level DC, and a bad swing costs 1d6 bludgeoning. Joji calls the distances."
+          },
+          {
+            "id": "the-crane",
+            "label": "The crane: up with Nkiru",
+            "blurb": "Ride the crane with Nkiru.",
+            "consequence": "Their station is the crane, where Nkiru times every lift with a song and may point at them for the next line."
+          }
+        ],
+        "allowsInventedOption": true
+      },
       "facts": [],
       "gmFacts": []
     },

@@ -7378,6 +7378,24 @@
 .bi-runner__choice-option--picked .bi-runner__choice-consequence { color: var(--sr-accent-ink); opacity: 0.85; }
 .bi-runner__choice-invented { margin: 8px 0 0; font-family: var(--bi-font-condensed); font-size: 12.5px; font-style: italic; color: var(--sr-text-faint); }
 
+/* The one button (2026-10-04): "Ask the players", and while the question is
+   open on their screens, who has picked what and the press that closes it.
+   The per-option buttons fold away under it, for deciding by hand. */
+.bi-runner__stamp--primary { background: var(--sr-accent); border-color: var(--sr-accent); color: var(--sr-accent-ink); padding: 6px 15px; font-size: 13px; }
+.bi-runner__ask { display: grid; gap: 8px; }
+.bi-runner__ask-progress { margin: 0; font-family: var(--bi-font-condensed); font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--sr-text-dim); }
+.bi-runner__ask-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.bi-runner__ask-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--sr-text-faint); }
+.bi-runner__ask-row--done { color: var(--sr-text); }
+.bi-runner__ask-who { font-weight: 700; }
+.bi-runner__ask-pick { text-align: right; }
+.bi-runner__choice-fold { margin-top: 8px; }
+.bi-runner__choice-fold-summary { cursor: pointer; font-family: var(--bi-font-condensed); font-size: 12px; letter-spacing: 0.04em; color: var(--sr-text-faint); list-style: none; }
+.bi-runner__choice-fold-summary::-webkit-details-marker { display: none; }
+.bi-runner__choice-fold-summary:hover { color: var(--sr-accent); }
+.bi-runner__choice-fold[open] > .bi-runner__choice-fold-summary { margin-bottom: 8px; }
+.bi-runner__choice-takers { font-weight: 400; opacity: 0.85; }
+
 /* What the GM wrote while this was happening, read back out of the log. */
 .bi-runner__jotted { list-style: none; margin: 0; padding: 0 0 0 10px; border-left: 2px solid var(--sr-accent); }
 .bi-runner__jot { font-family: var(--bi-font-document); font-size: 13px; line-height: 1.45; color: var(--sr-text-dim); }
@@ -11699,6 +11717,78 @@
   font-size: 12px;
   color: var(--bi-bone-dim);
 }
+/* --- The choice window (foundry/choice-prompt.mjs) ----------------------
+   A GM's "Ask the players" puts this on every player's screen: the question,
+   a plate per option, and "Something else" last, set apart by a dashed edge.
+   Your own pick is filled; who else has picked what shows under each plate. */
+.bi-choice {
+  display: grid;
+  gap: 10px;
+  padding: 4px 2px 2px;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-body);
+}
+.bi-choice__question {
+  margin: 0;
+  font-family: var(--bi-font-condensed);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.bi-choice__intro { margin: 0; font-size: 13.5px; line-height: 1.4; color: var(--bi-bone-dim); }
+.bi-choice__options { display: grid; gap: 9px; }
+.bi-choice__option {
+  appearance: none;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  justify-items: start;
+  gap: 4px;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 12px 15px 13px;
+  border: none;
+  border-radius: 10px;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.35;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--bi-ns-black-hi) 0%, var(--bi-ns-black) 60%, var(--bi-ns-black-lo) 100%);
+  color: var(--bi-ns-legend);
+  box-shadow: inset 0 0 0 1px var(--bi-ns-outline), 0 2px 6px rgb(0 0 0 / 45%);
+  transition: none;
+}
+.bi-choice__option:hover { background: linear-gradient(180deg, #37393d 0%, var(--bi-ns-black-hi) 60%, var(--bi-ns-black) 100%); color: var(--bi-ns-cap); }
+.bi-choice__option:active { box-shadow: inset 0 1px 4px rgb(0 0 0 / 55%); }
+.bi-choice__option:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+.bi-choice__option--else { background: transparent; box-shadow: inset 0 0 0 1.5px var(--bi-ns-outline); border: 1.5px dashed var(--bi-bone-dim); }
+.bi-choice__option--mine,
+.bi-choice__option--mine:hover {
+  background: linear-gradient(180deg, #eef1f2 0%, #cdd3d6 55%, #b4bbbf 100%);
+  color: var(--bi-ns-ink);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 48%), inset 0 2px 0 rgb(255 255 255 / 85%), 0 2px 6px rgb(0 0 0 / 45%);
+}
+.bi-choice__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--bi-font-condensed);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.bi-choice__detail { font-size: 13px; }
+.bi-choice__option--mine .bi-choice__detail { color: var(--bi-ns-ink-soft); }
+.bi-choice__takers { font-size: 12px; opacity: 0.8; }
+.bi-choice__progress { margin: 0; font-family: var(--bi-font-condensed); font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--bi-bone-dim); }
+.bi-choice__hint { margin: 0; font-size: 12px; color: var(--bi-bone-dim); }
+
 /* The GM's confirm window: a file the check found missing, named. */
 .bi-opening-confirm__missing {
   margin: 8px 0 0;

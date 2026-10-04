@@ -405,8 +405,32 @@
       "mandatory": true,
       "delivery": "solo",
       "readAloud": "The lights go down to a single beam. The tall woman made of light who has been on stage all night lets herself go out like a candle, and the one left standing there is a gnome in a patched coat, a little over three feet tall, with copper hair and ink on her fingers. \"I need,\" says Tamsin Oddwater, \"one volunteer.\"",
-      "text": "Take the raised hands, and let Tamsin pick one volunteer, or two if the table is enjoying it; her doors say whom she favours. Ask the volunteer, word for word: \"Where would you go tonight, if you could go anywhere at all?\" Describe the hall becoming that place around them, then roll the volunteer's check (the rest).",
+      "text": "Ask who puts a hand up, then let Tamsin pick one volunteer, or two if the table is enjoying it; her doors say whom she favours. Ask the volunteer, word for word: \"Where would you go tonight, if you could go anywhere at all?\" Describe the hall becoming that place around them, then roll the volunteer's check (the rest).",
       "direction": "If nobody puts a hand up, Tamsin picks Mrs Handa, who has volunteered every year for thirty years, and the hall becomes a beach at dawn.",
+      "choicePoint": {
+        "label": "Tamsin needs one volunteer. What does your character do?",
+        "options": [
+          {
+            "id": "hand-up",
+            "label": "Put a hand up",
+            "blurb": "Offer to be the volunteer.",
+            "consequence": "Tamsin may pick them: the volunteer's gamble in the rest, a Will save (or Performance if they play it to the crowd) for temporary Hit Points, or a lasting Stupefied 1 on a critical failure."
+          },
+          {
+            "id": "stay-seated",
+            "label": "Watch from your seat",
+            "blurb": "Stay where you are and watch the finale.",
+            "consequence": "They watch the finale from the bench and take the ordinary +1 status bonus to Perception until their next rest."
+          },
+          {
+            "id": "slip-out",
+            "label": "Slip out before the finale",
+            "blurb": "Leave before it starts.",
+            "consequence": "They leave before the finale: the quarter HP, and no Perception bonus."
+          }
+        ],
+        "allowsInventedOption": true
+      },
       "facts": [],
       "gmFacts": []
     },
@@ -619,5 +643,5 @@
   "carryForward": [],
   "temptations": [],
   "reactionPrompts": [],
-  "notes": "WHAT THIS IS. A private magic show. Showy magic is frowned on in Kurose except in an emergency, so shows like this run behind blankets: a guilty pleasure, and most people in the city have been to at least one. The Oddwater Company is exactly what it looks like: two honest performers, a lantern, and a hired hall.\n\nTHE BOOK AND THE TICKET HALVES. Tamsin writes each character's name, and where to send word, in her book, and gives each of them half a ticket. That is the company's invitation list. Keep a note of who is on it.\n\nIF THE GROUP DO SOMETHING ELSE. They cast a spell of their own during the show: Tamsin weaves it into the act if she can (Performance or Arcana at her Will DC to make it look planned, and she goes up a step) or stops the show to ask them not to, and goes down a step. They try to read or take the book: Thievery against Tamsin's Perception DC; caught, she goes to unfriendly and Daisuke to hostile. They heckle: Tamsin sends a rain cloud to follow the heckler for the rest of the act, and Mrs Handa goes down a step. They leave before the finale: the quarter HP, and no Perception bonus. They split up across the hall: run each bench as its own small event."
+  "notes": "WHAT THIS IS. A private magic show. Showy magic is frowned on in Kurose except in an emergency, so shows like this run behind blankets: a guilty pleasure, and most people in the city have been to at least one. The Oddwater Company is exactly what it looks like: two honest performers, a lantern, and a hired hall.\n\nTHE BOOK AND THE TICKET HALVES. Tamsin writes each character's name, and where to send word, in her book, and gives each of them half a ticket. That is the company's invitation list. Keep a note of who is on it.\n\nIF THE GROUP DO SOMETHING ELSE. They cast a spell of their own during the show: Tamsin weaves it into the act if she can (Performance or Arcana at her Will DC to make it look planned, and she goes up a step) or stops the show to ask them not to, and goes down a step. They try to read or take the book: Thievery against Tamsin's Perception DC; caught, she goes to unfriendly and Daisuke to hostile. They heckle: Tamsin sends a rain cloud to follow the heckler for the rest of the act, and Mrs Handa goes down a step. They split up across the hall: run each bench as its own small event."
 }

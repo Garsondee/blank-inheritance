@@ -87,6 +87,8 @@ import { loadSceneEdits, overlayScene, resetSceneEditsCache, saveSceneEdit, scen
 import { currentMoment, setMoment } from "./campaign-state.mjs";
 import { QUARTER_IDS, normalizeMoment, quarterIndex } from "../core/day-ring.mjs";
 import { cityRoster, cityState, hasPawns, onCitySceneClosed, participantsFor, reassignCityPlayer, sendPartyTo } from "./city-state.mjs";
+import { promptOptions, recordedChoiceLabel, settlePrompt } from "../core/choice-prompt.mjs";
+import { choiceTallyFor, closeChoicePrompt, openChoicePrompt } from "./choice-prompt.mjs";
 import { spectrumOf } from "../core/scene-spectrum.mjs";
 import {
   applyRest,
@@ -819,6 +821,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       dismissActor: SceneRunner.#onDismissActor,
       fireTrigger: SceneRunner.#onFireTrigger,
       recordChoice: SceneRunner.#onRecordChoice,
+      // One press puts a choicePoint to every player (foundry/choice-prompt.mjs).
+      askPlayers: SceneRunner.#onAskPlayers,
+      closePrompt: SceneRunner.#onClosePrompt,
+      cancelPrompt: SceneRunner.#onCancelPrompt,
       useTemptation: SceneRunner.#onUseTemptation,
       // The 2026-09-24 redesign's own controls.
       toggleBeatDetail: SceneRunner.#onToggleBeatDetail,
@@ -1612,13 +1618,14 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     let recorded = null;
     if (beat.degree) recorded = tick?.by ? `${degreeLabel(beat.degree)} · ${tick.by}` : degreeLabel(beat.degree);
-    else if (beat.choice) recorded = (beat.choicePoint?.options ?? []).find((o) => o.id === beat.choice)?.label ?? beat.choice;
+    else if (beat.choice) recorded = recordedChoiceLabel(beat.choicePoint?.options, tick);
     const member = beat.npcRef ? castFor(this._scene?.brief, beat.npcRef) : null;
     return {
       ...beat,
       isNow: beat.id === nowId,
       isOpen: beatDetailOpen(beat.id, { nowId, resolvedId: view.resolvedId, opened: view.opened, closed: view.closed, showAll: sections.detail === true, done: beat.isDone }),
       npcName: member ? displayName(member) : null,
+      choiceAsk: beat.choicePoint ? this.#askContext(beat.id) : null,
       recorded,
       recordedDegree: beat.degree ?? null,
       encounter: beat.encounterRef ? encounterSummary(this._scene?.encounters?.[beat.encounterRef]) : null,
@@ -1627,6 +1634,22 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
         label: degreeLabel(result.degree),
         isRecorded: Boolean(tick?.messageId && tick.messageId === result.messageId)
       }))
+    };
+  }
+
+  /**
+   * What the beat's choice block shows while the question is open on the
+   * players' screens: how many have picked, and one row per player saying what
+   * they chose (or that they have not). `isOpen: false` is the idle block, the
+   * single "Ask the players" button.
+   */
+  #askContext(beatId) {
+    const tally = choiceTallyFor(currentBriefId(), beatId);
+    if (!tally) return { isOpen: false };
+    return {
+      isOpen: true,
+      progress: game.i18n.format("BLANKINHERITANCE.ChoicePrompt.ProgressGM", { done: tally.done, total: tally.total }),
+      rows: tally.rows.map((row) => ({ name: row.name, label: row.label, done: row.done, color: row.color }))
     };
   }
 
@@ -1699,14 +1722,21 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
         html: renderProse(line.text, escapeHtml),
         isSecret: line.kind === "secret"
       })),
+      // The authored options plus "Something else", always last and always
+      // there (core/choice-prompt.mjs). Each one that was picked carries who
+      // took it, so the table's split is readable after the prompt is closed.
       choicePoint: beat.choicePoint
-        ? {
-            ...beat.choicePoint,
-            options: (beat.choicePoint.options ?? []).map((option) => ({
-              ...option,
-              isPicked: beat.choice === option.id
-            }))
-          }
+        ? (() => {
+            const nameOf = (userId) => game.users?.get(userId)?.character?.name ?? game.users?.get(userId)?.name ?? "?";
+            const options = promptOptions(beat.choicePoint, { elseConsequence: game.i18n.localize("BLANKINHERITANCE.Runner.ChoiceInvented") });
+            return {
+              ...beat.choicePoint,
+              options: options.map((option) => {
+                const takers = Object.entries(beat.picks ?? {}).filter(([, id]) => id === option.id).map(([userId]) => nameOf(userId));
+                return { ...option, isPicked: beat.choice === option.id || takers.length > 0, takers: takers.join(", ") };
+              })
+            };
+          })()
         : null,
       // What the GM wrote down while this beat was happening. Read back out of
       // the session log by subject -- the log is the record, and the runner
@@ -1922,6 +1952,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const state = runStateFor(briefId);
     const ticked = { ...state.ticked };
 
+    // Deciding it by hand ends any question still open on this beat: two
+    // answers to one choice must never both stand.
+    if (choiceTallyFor(briefId, beatId)) await closeChoicePrompt();
+
     if (ticked[beatId]?.choice === optionId) {
       delete ticked[beatId];
     } else {
@@ -1943,6 +1977,74 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     await writeRunState(briefId, { ...state, ticked });
+    this.render({});
+  }
+
+  /**
+   * The one button: put this beat's choicePoint to every player (a window on
+   * each screen, foundry/choice-prompt.mjs). Ingram, 2026-10-04: the GM
+   * presses one button and the players pick, with "Something else" always
+   * offered last. Asking again replaces any question already open.
+   */
+  static async #onAskPlayers(event, target) {
+    const beatId = target.dataset.beatId;
+    const beat = this.#beat(beatId);
+    if (!beat?.choicePoint) return;
+    await openChoicePrompt({ briefId: currentBriefId(), beatId, choicePoint: beat.choicePoint });
+    this.render({});
+  }
+
+  /**
+   * Stop taking picks and record who went where: `ticked[beatId]` carries the
+   * most-picked option as `choice` (what the run state has always held) and
+   * the whole split as `picks`, and the log gets one line per option anyone
+   * took, naming them. Nobody having picked records nothing.
+   */
+  static async #onClosePrompt(event, target) {
+    const briefId = currentBriefId();
+    const beatId = target.dataset.beatId;
+    const tally = choiceTallyFor(briefId, beatId);
+    if (!tally) {
+      this.render({});
+      return;
+    }
+    const prompt = tally.prompt;
+    await closeChoicePrompt();
+    const settled = settlePrompt(prompt);
+    if (!settled) {
+      ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.ChoicePrompt.NobodyPicked"));
+      this.render({});
+      return;
+    }
+
+    const state = runStateFor(briefId);
+    const ticked = { ...state.ticked, [beatId]: { at: new Date().toISOString(), choice: settled.choice, picks: settled.picks } };
+    fireBeatAudio(briefId, beatId);
+    this.#viewFor(briefId).resolvedId = beatId;
+
+    const nameOf = (userId) => game.users.get(userId)?.character?.name ?? game.users.get(userId)?.name ?? "?";
+    for (const option of prompt.options) {
+      const names = Object.entries(settled.picks).filter(([, id]) => id === option.id).map(([userId]) => nameOf(userId));
+      if (names.length === 0) continue;
+      try {
+        await recordLogEntry({
+          text: `${option.label} (${names.join(", ")})${prompt.question ? ` — ${prompt.question}` : ""}.`,
+          nowIso: new Date().toISOString(),
+          scene: canvas?.scene?.name ?? null,
+          subject: choiceLogSubject(beatId, option.id)
+        });
+      } catch (err) {
+        console.error("Blank Inheritance | Could not log that choice:", err);
+      }
+    }
+
+    await writeRunState(briefId, { ...state, ticked });
+    this.render({});
+  }
+
+  /** Take the question off every screen and record nothing. */
+  static async #onCancelPrompt(event, target) {
+    if (choiceTallyFor(currentBriefId(), target.dataset.beatId)) await closeChoicePrompt();
     this.render({});
   }
 

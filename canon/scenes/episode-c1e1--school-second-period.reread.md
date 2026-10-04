@@ -67,3 +67,10 @@ tonight; critical success, a little more (the centipedes' weak nerve; the range 
 ## For Ingram, while reading
 
 - **The range officer** is the base's existing Range Safety Officer, here running the small-arms line.
+
+## Revision 2026-10-04: a line for the players' screen
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
+players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.

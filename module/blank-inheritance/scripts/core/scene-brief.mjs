@@ -170,7 +170,10 @@ export function beatsWithState(brief, runState) {
     // Which choicePoint option was picked, if any -- same "latest wins,
     // stored on the beat's own ticked entry" shape as `degree` above, so a
     // GM re-opening the panel later sees which way a resolved choice went.
-    choice: runStateOf(runState).ticked[beat.id]?.choice ?? null
+    choice: runStateOf(runState).ticked[beat.id]?.choice ?? null,
+    // Who picked which option when the table was asked (core/choice-prompt.mjs):
+    // userId -> option id. Null when the GM decided it by hand.
+    picks: runStateOf(runState).ticked[beat.id]?.picks ?? null
   }));
 }
 

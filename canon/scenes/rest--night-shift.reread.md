@@ -103,3 +103,15 @@ These are mine, not yet yours, and none is cited as a fact yet:
 live, and the night's deck beat always runs (it is the menu). Wording only otherwise: no meaning changed.
 
 **Added after the re-read (2026-09-29, attitude as a promise, upgrades and setbacks):** All three regulars join repair-crews. Kaede sets the Earn Income task level by attitude (level 1 at friendly, level 0 with no pay on a failure at unfriendly, no income at hostile); Joji closes the pit at hostile. Upgrades: A bench of their own and The shortcut written down. Setbacks: Short on the sheet (temporary, from the sheet on the door) and No night shift (permanent). No danger event. Nothing already in the scene was changed. Waiting for Ingram's read with the rest.
+
+## Revision 2026-10-04: the three jobs are a choice
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** `your-hands` already asked each player to take the bench, the pit or the crane, which splits the
+  group for the night and brings it back together at the two o'clock break. It is now a choice with three options, so
+  the GM presses one button and every player picks. Each option's GM line names its check as the events already do
+  (the bearing, the knee on the chain, Nkiru's song); the players' line names nothing.
+- **R1, R2.** The pick tells the GM which station each player is at, so the events can be drawn for the right person.
+- **R10.** "They split up" in the notes is now the beat itself.
+- **R27.** The notes keep the "draw for each in turn" instruction; the options hold only what each job is.

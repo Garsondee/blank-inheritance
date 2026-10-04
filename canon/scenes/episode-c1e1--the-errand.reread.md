@@ -101,3 +101,10 @@ are there. A table that tries it gets a closed door and a cold district, and he 
 
 - **Siting:** the tea house's district and the workshop a few streets from it are still yours to place.
 - **The part number on a bill** is an artefact the players keep: Manako's handwriting.
+
+## Revision 2026-10-04: a line for the players' screen
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
+players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.

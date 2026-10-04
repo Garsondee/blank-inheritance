@@ -1,0 +1,34 @@
+{{!--
+    The question a GM puts to the table (foundry/choice-prompt.mjs#ChoicePromptWindow),
+    shown on every player's screen when the GM presses "Ask the players" on a
+    beat that carries a choicePoint.
+
+    One big button per option, in the order core/choice-prompt.mjs#promptOptions
+    gives them: the authored options, then "Something else", always last. Each
+    says what it leads to and, as players pick, who has picked it. Pressing
+    your own pick again takes it back.
+
+    The modifier classes are literal words inside {{#if}} blocks rather than a
+    built `--{{x}}`, so tier0-architecture's class lint can see them.
+    Must render exactly ONE top-level element.
+--}}
+<div class="bi-choice">
+    {{#if question}}
+    <p class="bi-choice__question">{{question}}</p>
+    <p class="bi-choice__intro">{{intro}}</p>
+    <div class="bi-choice__options">
+        {{#each options}}
+        <button type="button" class="bi-choice__option{{#if this.isElse}} bi-choice__option--else{{/if}}{{#if this.isMine}} bi-choice__option--mine{{/if}}"
+            data-action="pick" data-option-id="{{this.id}}" aria-pressed="{{this.isMine}}">
+            <span class="bi-choice__label">{{#if this.isMine}}<i class="fa-solid fa-check" aria-hidden="true"></i> {{/if}}{{this.label}}</span>
+            {{#if this.blurb}}<span class="bi-choice__detail">{{this.blurb}}</span>{{/if}}
+            {{#if this.takers}}<span class="bi-choice__takers"><i class="fa-solid fa-user-group" aria-hidden="true"></i> {{this.takers}}</span>{{/if}}
+        </button>
+        {{/each}}
+    </div>
+    <p class="bi-choice__progress">{{progress}}</p>
+    <p class="bi-choice__hint">{{hint}}</p>
+    {{else}}
+    <p class="bi-choice__intro">{{localize "BLANKINHERITANCE.ChoicePrompt.Closed"}}</p>
+    {{/if}}
+</div>

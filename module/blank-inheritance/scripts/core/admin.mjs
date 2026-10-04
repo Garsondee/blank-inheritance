@@ -28,6 +28,7 @@
  */
 
 import { normalizeMoment } from "./day-ring.mjs";
+import { emptyPromptState } from "./choice-prompt.mjs";
 import { emptyCityState, eligible, isChoosing, STATUS, takers } from "./departures.mjs";
 import { offersAt } from "./commitments.mjs";
 import { rollTagFromOptions } from "./runner-view.mjs";
@@ -46,6 +47,7 @@ export const RESET_SETTINGS = Object.freeze([
   "campaignMoment",
   "commitments",
   "cityState",
+  "choicePrompt",
   "runnerEpisode",
   "runnerBrief",
   "runnerRuns",
@@ -91,6 +93,7 @@ export function resetValues(start) {
     campaignMoment: normalizeMoment(start?.moment ?? {}),
     commitments: [],
     cityState: emptyCityState(),
+    choicePrompt: emptyPromptState(),
     runnerEpisode: start?.episodeId ?? START_EPISODE_ID,
     runnerBrief: start?.briefId ?? "",
     runnerRuns: {},

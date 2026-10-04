@@ -117,6 +117,31 @@ Corrected once the actual CSS was checked rather than assumed: `design/visual-id
 
 **`choicePoint` gets a different treatment entirely, deliberately louder** — per Law 21 ("a mandatory event must be visually unmistakable"), a real disclosed choice is rarer and higher-stakes than an inline trigger, and should read as a distinct bordered block below the relevant text, not a chip inside it: the label, then one button per option in the existing neutral/`--go` style, then a visible "or something else entirely" affordance when `allowsInventedOption` is true. This was already the schema's own intent (`choicePoint` was designed as a block-level thing, not inline) — Build Item 1 below just makes it actually appear.
 
+### 2.4a The choice prompt — one button, every player picks (2026-10-04)
+
+Ingram, 2026-10-04, on the Local Studies / Workshop Induction split: it "needs to be a single button the GM presses which brings up the choices for players to pick something. We always include a third choice button that players can opt for which covers things that went unexpectedly." And, once built: every place the group is offered a choice, above all where it **splits and comes back together**, must use it, now and going forward.
+
+**How it works.** A beat that carries a `choicePoint` shows the GM one **Ask the players** button. Pressing it opens a window on every player's screen: the question, a button per option, and **Something else**, always last, whether or not `allowsInventedOption` is set (that flag no longer decides it). Players see each other's picks arrive and can change or take back their own. The Runner shows the GM who has picked what. **Close and record** stores the most-picked option as the beat's `choice` and the whole split as `picks`, and logs one line per option naming who took it. The old per-option GM buttons are folded away under it, for deciding by hand. Code: `core/choice-prompt.mjs`, `foundry/choice-prompt.mjs`, the one world setting `choicePrompt` (cleared by an admin reset).
+
+**Two texts per option, never confused.** `consequence` is the GM's: what it does, often the right answer or a hidden reaction. It is never shown to a player and never put in the shared record. `blurb` is the players': one plain line on their button, written to spoil nothing, no check, no DC, no number. Every canon option must carry one (`test/tier2-choice-prompt-corpus.test.mjs`).
+
+**The 2026-10-04 audit of every scene** (24 canon scenes, 15 old Episode Two drafts) found the group offered a choice or split in these places:
+
+| scene | where | state |
+|---|---|---|
+| School: First Period / Second Period | each player picks a room | already a choice; blurbs added |
+| The Errand | how to file the requisition | already a choice; blurbs added |
+| Flood Tunnel Clearance | the panels, the jam, or the ladder | **was prose; now `split-the-job`.** The fight's ending was already a choice |
+| The Night Shift | the bench, the pit or the crane | **was a prose question; now a choice** |
+| The Magic Show | hand up, stay seated, slip out at the finale | **was prose; now a choice** |
+| Flood Tunnel's night, The Road In | where to spend the night, how to arrive | The City's departure picker, the right tool for a move *between* scenes |
+
+**Recorded gaps, not fixed here.**
+- **Haunt event cards cannot host a choice.** `choicePoint` exists on `beats[]` only; `events[]` has `additionalProperties: false`. The night rests' real group decisions (the dilemma events: the bathhouse offer, the petition, the lockers, the padlock, the new boy's report, the shrine's letter, the Magic Show's glamour song) and their danger events (press or retreat), plus the Rumour Mill's expedition and the Roof's padlock splits, live in event cards. Supporting them means `events[].choicePoint`, and options that carry their own attitude shifts so the pick drives the ▲▼ buttons (today a dilemma's `shifts` hard-code one branch and the note says "reverse by hand"). That is a design call for Ingram, not an edit.
+- **The Episode Two drafts** (outside canon, due to be rebuilt scene by scene) have gaps the audit listed: The Board's `book-it`, First Contact's route off the road, The Hammer's comms beat, Familiarisation's second question (which machine). When each is rebuilt in canon it carries a choice from the start. Their existing choices need blurbs then.
+- **"Say nothing, don't prompt" beats.** Three drafts tell the GM to let silence do the work (a refused credit, the hold-or-go decision, the comms beat). The button is itself a prompt, so there the GM presses it only after the silence.
+- Two small mismatches the audit noticed in passing: The Paper Lantern is not among Flood Tunnel's night destinations, and the departure has no capacity field (the Met Office holds two, the Night Shift three, in prose only).
+
 ### 2.5 What this deliberately does not do
 
 No trigger silently changes campaign state without the log entry (Law 12). No trigger fires on page load or on a timer — every one is a GM click (Law 17, "confirm anything the players will see," extended here to cover anything the *log* will see too, on the theory that a false mechanical record is worse than a missing one). No trigger recomputes sf2e's own math. Nothing here is mandatory to use — a scene brief with zero `triggers[]` renders and runs exactly as it does today; this is additive.

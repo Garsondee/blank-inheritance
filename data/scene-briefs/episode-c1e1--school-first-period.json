@@ -123,11 +123,13 @@
           {
             "id": "local-studies",
             "label": "Local studies: the city on a wall map.",
+            "blurb": "Learn where everything is and how to get there.",
             "consequence": "Where everything is, how to get there, and who founded the place."
           },
           {
             "id": "workshop",
             "label": "Workshop induction: the machine shop.",
+            "blurb": "Tools, machines and hands-on work.",
             "consequence": "Tools, hands, and a very loud woman with horns."
           }
         ],
