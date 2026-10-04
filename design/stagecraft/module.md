@@ -449,9 +449,11 @@ the adventure's Blank Inheritance world, a stage scene with eight cards):
 4. **A language file is expanded into nested objects**, so a word that is also the start of another key is lost. A test now
    guards the file.
 5. **Escape is also Foundry's key** (the game menu). Chalk in hand takes it in the capture phase.
-6. **The adventure's closed Scene Runner is an invisible box that swallows clicks** over the top left of every scene
-   (verified on a plain Foundry canvas too). That is the adventure's CSS; a task to fix it was raised. A stage scene must
-   keep what has to be clicked clear of it, and of the deck (`rig.lift` raises the whole painting; the live scene uses 250).
+6. **The adventure's closed Scene Runner was an invisible box that swallowed clicks** over the top left of every scene
+   (verified on a plain Foundry canvas too). That was the adventure's CSS, and it was fixed on 2026-10-03 (dca93ae):
+   the host is click-through, and the open shell and the toggle opt back in. Only the GM's screen ever had the box:
+   a player's client never builds the Runner. A stage scene must still keep what has to be clicked clear of the deck
+   (`rig.lift` raises the whole painting; the live scene uses 250).
 7. **The occluders of a scene hide whatever stands behind them**, including the box of chalk; a scene sets `chalk.box`.
 8. **Foundry's page ownership is inherited from the entry**, so "a player writes only their own pages" is a convention the
    module keeps, not a rule Foundry enforces.

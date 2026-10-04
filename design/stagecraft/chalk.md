@@ -362,10 +362,12 @@ fields `chalk.mode`, `chalk.lock`, `chalk.box`.
    (82% across, 84% down) is only a fallback.
 5. **A painting is cropped to fit the screen**, so a spot near its edge can fall off a 16:9 screen. The default box is well
    inside the middle.
-6. **The adventure's closed Scene Runner swallows clicks.** `#bi-scene-runner` is an empty, invisible box, 826 by 744
-   pixels at the top left, with `pointer-events: auto`, so a real click anywhere in that area reaches neither Stagecraft
-   nor Foundry's own canvas (verified on a plain scene). That is the adventure's CSS, not this module's; a task to fix it
-   was raised. The test scene keeps its chalk zone clear of it until it is fixed.
+6. **The adventure's closed Scene Runner swallowed clicks (fixed 2026-10-03).** `#bi-scene-runner` was an empty,
+   invisible box, 826 by 744 pixels at the top left, with `pointer-events: auto`, so a real click anywhere in that area
+   reached neither Stagecraft nor Foundry's own canvas (verified on a plain scene). That was the adventure's CSS,
+   not this module's. dca93ae made the host click-through, and the open shell and the toggle opt back in;
+   `test/tier3-scene-runner-click-through-contract.test.mjs` holds it. Only the GM's screen ever had the box:
+   a player's client never builds the Runner.
 7. **Players can write pages of other players' in an Owner-default entry**: Foundry's page ownership inherits from the
    entry, so "players write only their own pages" is a convention the module keeps (a player's eraser touches only their own
    strokes), not a rule Foundry enforces. Nothing secret is kept there, by design.
