@@ -72,6 +72,15 @@
         "Title": "Wipe the chalk wall",
         "Ask": "Clear everything drawn on this scene? This cannot be undone."
       },
+      "WipeOne": {
+        "Label": "Wipe one…",
+        "Tip": "Clear what one person has drawn, and leave the rest.",
+        "Title": "Wipe one person's chalk",
+        "Ask": "Whose chalk should go? Everyone else's stays.",
+        "Who": "{name} ({tiles} pieces)",
+        "Cancel": "Cancel",
+        "None": "Nobody has drawn on this scene."
+      },
       "Hide": {
         "Label": "Hide wall",
         "Tip": "Put the drawings out of sight for everyone without losing them."
@@ -124,7 +133,8 @@
       "NotHere": "Chalk leaves no mark here",
       "FillOpen": "That shape is open: close it up, then fill it",
       "FillOnPaint": "Click inside a shape, not on its lines",
-      "Picked": "Colour {colour}"
+      "Picked": "Colour {colour}",
+      "PaintedBy": "Painted by {name}"
     },
     "Kit": {
       "Label": "Chalk tools",

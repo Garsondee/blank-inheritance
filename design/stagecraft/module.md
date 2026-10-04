@@ -817,3 +817,9 @@ when one line a little smaller was better, a paragraph too small to read at the 
 the default skin where a third line would have shown it. (3) The tests found that a Japanese opening bracket could be left at
 the end of a line when the word it opens would not fit: a bracket and its word are now one unit, split only when the unit itself
 is wider than the plate, and the balancing search will not go narrower than the widest unit.
+
+## 29. The stage at player sizes, and chalk moderation (2026-10-04)
+
+**Sizes.** `tools/stagecraft/bench/sizes-check.mjs` opens the host bench at five window sizes (down to 1366 by 768), takes the chalk, and asserts that every panel (the kit, the GM toggle, the blocking strip, the health report, the board key, the chalk hint) is inside the window and that none overlaps another. 15 checks, real browser.
+
+**Moderation.** For the GM only: with no card held and no chalk in hand, a pointer resting on paint says "Painted by <name>" (`Wall#whoAt` reads the topmost layer whose pixel there is solid; `Chalk#painterAt` turns the id into a name). The strip gained **Wipe one…**: a dialog listing each painter with their tile count (`Chalk#painters`), which calls the store's existing `wipe(scene, { by })`, so one person's layer goes and the rest stays. The hover tip is now generic (`hover` for cards, `hoverWall` for paint). Checks: `bench/chalk-check.mjs` (48), `tools/stagecraft/chalk-checks.mjs` (strip now has seven buttons, for the live Foundry).

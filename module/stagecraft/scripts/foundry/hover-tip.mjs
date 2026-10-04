@@ -1,34 +1,53 @@
 /**
- * The full words of a card, on hover. A card's title block fits its name and the line of text under it to a plate the size of
- * a thumbnail, and a long text is cut there; held over a card for a moment, the pointer reads all of it, in the page's own
- * type (the browser breaks the lines, in any language). Only a card that has more to say than its plate shows gets one
- * (core/titleblock.mjs `tipFor`), never while a card is being carried or chalk is in hand, and it goes when the pointer
- * moves off, presses, or the stage is torn down.
+ * Words on hover. Two kinds, both after the pointer has rested a moment and never while a card is carried or chalk is in hand:
+ *
+ *   - **A card's full words.** A card's title block fits its name and the line of text under it to a plate the size of a
+ *     thumbnail, and a long text is cut there; held over such a card (core/titleblock.mjs `tipFor`) the pointer reads all of it.
+ *   - **Who painted that.** For the GM, held over chalk on the wall: the name of whoever painted it ("who did that?").
+ *
+ * It goes when the pointer moves to something else, presses, or the stage is torn down.
  */
 
 import { tipFor } from "../core/titleblock.mjs";
 
-const DELAY = 450;          // ms the pointer rests on a card before it speaks
+const DELAY = 450;          // ms the pointer rests before it speaks
 const GAP = 16;             // px between the pointer and the tip
 
 export class HoverTip {
   constructor(host) {
     this.host = host;
     this.el = null;
-    this.id = null;
+    this.key = null;
+    this.say = null;
     this.timer = null;
   }
 
-  /** The pointer is over card `id` (or over nothing, `null`) at these page coordinates. */
+  /** The pointer is over a card (`id`) at these page coordinates, or over nothing (`null`). */
   hover(id, x, y) {
-    if (id !== this.id) {
+    this.#over(id, x, y, () => tipFor(this.host.stage?.cards.get(id)?.person));
+  }
+
+  /**
+   * The pointer is over the wall at these page coordinates, in stage pixels `p`: it says who painted what is there, if the
+   * viewer is the GM and there is paint. Keyed by a coarse cell of the wall, so moving on to other paint speaks again.
+   */
+  hoverWall(p, x, y) {
+    if (!game.user.isGM || !this.host.chalk) return this.#over(null, x, y);
+    this.#over(`wall:${Math.round(p.x / 24)}:${Math.round(p.y / 24)}`, x, y, () => {
+      const who = this.host.chalk.painterAt(p);
+      return who ? { name: game.i18n.format("STAGECRAFT.Chalk.PaintedBy", { name: who }), text: "" } : null;
+    });
+  }
+
+  #over(key, x, y, say = null) {
+    this.at = { x, y };
+    if (key !== this.key) {
       this.hide();
-      this.id = id;
-      if (id) this.timer = setTimeout(() => this.#show(x, y), DELAY);
-      this.at = { x, y };
+      this.key = key;
+      this.say = say;
+      if (key) this.timer = setTimeout(() => this.#show(), DELAY);
       return;
     }
-    this.at = { x, y };
     if (this.el?.classList.contains("shown")) this.#place(x, y);
   }
 
@@ -36,7 +55,7 @@ export class HoverTip {
   hide() {
     clearTimeout(this.timer);
     this.timer = null;
-    this.id = null;
+    this.key = null;
     this.el?.classList.remove("shown");
   }
 
@@ -46,11 +65,11 @@ export class HoverTip {
     this.el = null;
   }
 
-  #show(x, y) {
+  #show() {
     this.timer = null;
     const host = this.host;
-    if (!this.id || !host.running || host.dragging || host.chalk?.inHand) return;
-    const tip = tipFor(host.stage?.cards.get(this.id)?.person);
+    if (!this.key || !host.running || host.dragging || host.chalk?.inHand) return;
+    const tip = this.say?.();
     if (!tip) return;
     if (!this.el) {
       this.el = document.createElement("div");
@@ -70,7 +89,7 @@ export class HoverTip {
       this.el.append(text);
     }
     this.el.classList.add("shown");
-    this.#place(this.at?.x ?? x, this.at?.y ?? y);
+    this.#place(this.at.x, this.at.y);
   }
 
   /** Beside the pointer, below and to the right of it, and kept inside the window. */

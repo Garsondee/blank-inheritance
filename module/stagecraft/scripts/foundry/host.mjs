@@ -391,7 +391,8 @@ export class StageHost {
       if (!this.dragging) {
         const h = this.backend.pick(p.x, p.y);
         canvas.style.cursor = h ? "grab" : "default";
-        this.tip?.hover(h?.kind === "card" ? h.id : null, e.clientX, e.clientY);
+        if (h?.kind === "card" || !this.chalk) this.tip?.hover(h?.kind === "card" ? h.id : null, e.clientX, e.clientY);
+        else this.tip?.hoverWall(p, e.clientX, e.clientY);          // the GM over chalk: who painted it
         return;
       }
       this.tip?.hide();

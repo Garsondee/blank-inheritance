@@ -305,6 +305,21 @@ export class ChalkController {
     return at ? toWall(this.grid, at.x, at.y) : null;
   }
 
+  /** The name of whoever painted what is under a point of the stage (stage px), or null: for the GM's "who painted that?". */
+  painterAt(p) {
+    const at = this.#wallPoint(p);
+    const by = at ? this.wall.whoAt(at.x, at.y) : null;
+    return by ? (game.users.get(by)?.name ?? by) : null;
+  }
+
+  /** Who has painted on this scene, with how much: [{ by, name, tiles }], the most first, for the GM's "wipe one". */
+  painters() {
+    return this.store.layers(this.sceneId)
+      .map((l) => ({ by: l.by, name: game.users.get(l.by)?.name ?? l.by, tiles: Object.keys(l.tiles).length }))
+      .filter((l) => l.tiles > 0)
+      .sort((a, b) => b.tiles - a.tiles);
+  }
+
   /**
    * The pointer went down with chalk in hand. `sample` is { x, y (window px), pressure, pointerType, t, shift, alt, flip }.
    * Alt picks a colour; Shift draws a straight line from where the last stroke ended; the fill fills at once; a pen turned

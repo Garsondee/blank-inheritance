@@ -170,6 +170,25 @@ try {
   // kept a moment later: its pictures are made by a worker, which the first stroke of a page has to start
   await kit.page.waitForFunction(() => window.bench.host.chalk.store.layers(window.bench.scene.id).some((l) => Object.keys(l.tiles).length), { timeout: 5000 }).catch(() => {});
   check("it is kept, and the 3D picture shows it", (await kept(kit.page)) > 0 && (await kit.page.evaluate(() => window.bench.host.backend.chalkTiles.tiles.size)) > 0);
+  // the GM's moderation: who painted what is at a place on the wall, and who has painted here at all
+  const who = await kit.page.evaluate(() => {
+    const h = window.bench.host;
+    const g = h.chalk.grid;
+    return { on: h.chalk.wall.whoAt(0.55 * g.w, 0.225 * g.h), off: h.chalk.wall.whoAt(0.05 * g.w, 0.95 * g.h), painters: h.chalk.painters().map((p) => [p.by, p.name, p.tiles > 0]) };
+  });
+  check("the wall says who painted what is at a place on it, and nobody where there is nothing", who.on === who.painters[0]?.[0] && who.off === null, JSON.stringify(who));
+  check("and the GM can list who has painted here, by name", who.painters.length === 1 && who.painters[0][2] === true && typeof who.painters[0][1] === "string");
+  // with the chalk put away, the pointer resting on the paint says who painted it; away from it, nothing
+  await kit.page.evaluate(() => window.bench.host.chalk.putAway());
+  const paintSpot = await viewportOf(kit.page, 0.55, 0.225);
+  await kit.page.mouse.move(paintSpot.x - 3, paintSpot.y - 2);
+  await kit.page.mouse.move(paintSpot.x, paintSpot.y);
+  await sleep(900);
+  const said = await kit.page.evaluate(() => document.querySelector(".stagecraft-tip.shown")?.textContent ?? null);
+  check("the pointer resting on the paint says who painted it", /Painted by \S/.test(said ?? ""), String(said));
+  await kit.page.mouse.move(paintSpot.x, paintSpot.y + 260);
+  await sleep(300);
+  check("and the tip goes when the pointer moves off the paint", (await kit.page.evaluate(() => document.querySelector(".stagecraft-tip.shown"))) === null);
   check("no page threw (Kit Issue)", kit.errors.length === 0, kit.errors.slice(0, 2).join(" | "));
   await kit.page.screenshot({ path: path.join(SHOTS, "chalk-kit-issue.jpg"), type: "jpeg", quality: 88 });
   await kit.page.close();

@@ -15,7 +15,7 @@ import { nextOverride } from "../core/chalk.mjs";
 
 const t = (key, data) => (data ? game.i18n.format(`STAGECRAFT.Bar.${key}`, data) : game.i18n.localize(`STAGECRAFT.Bar.${key}`));
 
-const BUTTONS = ["hands", "mode", "freeze", "undo", "wipe", "hide"];
+const BUTTONS = ["hands", "mode", "freeze", "undo", "wipe", "wipeone", "hide"];
 
 export class StageBar {
   constructor(host) {
@@ -60,6 +60,7 @@ export class StageBar {
     set("freeze", t("Freeze.Label"), { on: policy.locked, tip: t("Freeze.Tip") });
     set("undo", t("Undo.Label"), { tip: t("Undo.Tip"), disabled: !chalk.store.ready });
     set("wipe", t("Wipe.Label"), { tip: t("Wipe.Tip"), disabled: !chalk.store.ready });
+    set("wipeone", t("WipeOne.Label"), { tip: t("WipeOne.Tip"), disabled: !chalk.store.ready });
     set("hide", t("Hide.Label"), { on: this.#live.chalkHidden === true, tip: t("Hide.Tip") });
   }
 
@@ -91,6 +92,20 @@ export class StageBar {
         yes: { default: false }
       });
       if (yes) await store.wipe(scene.id);
+    } else if (act === "wipeone") {
+      // one person's layer goes, and the rest stays: a button for each who has drawn here
+      const who = chalk.painters();
+      if (!who.length) { ui.notifications?.info(t("WipeOne.None")); return; }
+      const pick = await foundry.applications.api.DialogV2.wait({
+        window: { title: t("WipeOne.Title") },
+        content: `<p>${t("WipeOne.Ask")}</p>`,
+        buttons: [
+          ...who.map((w) => ({ action: w.by, label: t("WipeOne.Who", { name: w.name, tiles: w.tiles }), icon: "fa-solid fa-eraser" })),
+          { action: "", label: t("WipeOne.Cancel"), default: true }
+        ],
+        rejectClose: false
+      });
+      if (pick) await store.wipe(scene.id, { by: pick });
     }
     this.refresh();
   }

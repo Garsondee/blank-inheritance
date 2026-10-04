@@ -93,7 +93,7 @@ export async function gmChalk(t) {
   check("the GM's strips start folded behind one small key", s.strip.key && s.strip.keyShown && !s.strip.shown, brief(s.strip));
   const key = await openStrips(gm);
   s = await chalkState(gm);
-  check("a real click on the key unfolds the GM's strip: six buttons", !!key?.reachable && s.strip.shown && s.strip.buttons.length === 6, brief({ key, buttons: s.strip.buttons }));
+  check("a real click on the key unfolds the GM's strip: seven buttons", !!key?.reachable && s.strip.shown && s.strip.buttons.length === 7, brief({ key, buttons: s.strip.buttons }));
   check("the box of chalk is out on the stage (this scene lets players chalk its back wall)", s.box === true);
   const blocked = await unreachable(gm);
   check("every stick in the box, the magic stick and the eraser can be reached by a real click", blocked.length === 0, blocked.join("; "));

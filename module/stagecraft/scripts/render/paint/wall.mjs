@@ -828,6 +828,21 @@ export class RasterWall {
     return `#${[d[0], d[1], d[2]].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
   }
 
+  /** Who painted what is at a point of the wall: the painter of the topmost layer with paint there, or null. */
+  whoAt(x, y) {
+    this.flush();
+    const key = tilesFor(this.grid, { x0: x, y0: y, x1: x, y1: y })[0];
+    if (!key) return null;
+    const rect = tileRect(this.grid, key);
+    for (const by of [...this.order].reverse()) {
+      const tile = this.layers.get(by)?.tiles.get(key);
+      if (!tile) continue;
+      const d = ctxOf(tile).getImageData(Math.floor(x - rect.x), Math.floor(y - rect.y), 1, 1).data;
+      if (d[3] >= 60) return by;
+    }
+    return null;
+  }
+
   /* ---------------------------------------------------------------- the whole wall */
 
   /** A tile-sized canvas kept for laying a layer under an eraser, without making one each time. */
