@@ -390,7 +390,7 @@ export function placesRecord(homes, keyOf, pcIds = new Set()) {
 /** The file of kept places in storage/, with one scene's record put in (a later keep of the same scene replaces it). */
 export function withKept(file, sourceId, record, now) {
   const scenes = { ...(file?.scenes ?? {}) };
-  scenes[sourceId] = { ...record, keptAt: now };
+  scenes[sourceId] = { ...(scenes[sourceId] ?? {}), ...record, keptAt: now };   // a keep of the places leaves the chalk box's spot, and the other way round
   return { kind: "bi-stage-places", version: 1, scenes };
 }
 /**
@@ -404,7 +404,9 @@ export function applyKept(stages, kept) {
   for (const [id, k] of Object.entries(kept.scenes)) {
     const entry = out.stages[id];
     if (!entry) continue;
-    out.stages[id] = { ...entry, places: { ...(entry.places ?? {}), ...(k.places ?? {}) }, yaws: { ...(entry.yaws ?? {}), ...(k.yaws ?? {}) } };
+    const next = { ...entry, places: { ...(entry.places ?? {}), ...(k.places ?? {}) }, yaws: { ...(entry.yaws ?? {}), ...(k.yaws ?? {}) } };
+    if (Array.isArray(k.box) && entry.description) next.description = { ...entry.description, chalk: { ...(entry.description.chalk ?? {}), box: [k.box[0], k.box[1]] } };
+    out.stages[id] = next;
   }
   return out;
 }
@@ -419,6 +421,11 @@ export function foldKept(existing, filed) {
   for (const [id, rec] of Object.entries(filed?.scenes ?? {})) {
     const before = scenes[id] ?? { places: {}, yaws: {} };
     const next = { places: { ...(before.places ?? {}) }, yaws: { ...(before.yaws ?? {}) } };
+    if (Array.isArray(before.box)) next.box = before.box;
+    if (Array.isArray(rec.box)) {
+      if (JSON.stringify(next.box) !== JSON.stringify(rec.box)) lines.push(`${id}: the box of chalk stands at ${JSON.stringify(rec.box)}${next.box ? ` (was ${JSON.stringify(next.box)})` : ""}`);
+      next.box = rec.box;
+    }
     for (const [key, at] of Object.entries(rec.places ?? {})) {
       if (JSON.stringify(next.places[key]) !== JSON.stringify(at)) lines.push(`${id}: ${key} stands at ${JSON.stringify(at)}${before.places?.[key] ? ` (was ${JSON.stringify(before.places[key])})` : ""}`);
       next.places[key] = at;

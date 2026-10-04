@@ -4,7 +4,7 @@
  *
  * The bridge files `stage-places.json` into the module's storage/ whenever the GM presses Keep places on a stage scene. This
  * reads it (read-only, the same way tools/haunts and tools/scene-edits read the server) into `harvest/stage-places/`, which is
- * tracked, and folds it into `module/blank-inheritance/stagecraft/kept-places.json`, which the bridge lays over stages.json
+ * tracked, and folds it (the places, and where the GM put the box of chalk) into `module/blank-inheritance/stagecraft/kept-places.json`, which the bridge lays over stages.json
  * (so her places win, and a deploy no longer sends everyone back to the old ones). The stages file itself is not rewritten:
  * it is hand-formatted, and the overlay keeps what she did separate from what was authored.
  *

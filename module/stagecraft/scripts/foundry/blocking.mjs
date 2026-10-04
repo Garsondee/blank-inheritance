@@ -95,6 +95,22 @@ export function keepPlaces(scene, current = null, ids = null) {
   });
 }
 
+/**
+ * Put the box of chalk somewhere else on the floor: `at` is a point of the painting (fractions). It is written into the
+ * scene's description (`chalk.box`), where the scene's author would have put it, and the stage is drawn again from it.
+ * Returns whether it was written. (GM only.)
+ */
+export async function setChalkBox(scene, at) {
+  if (!game.user?.isGM) return false;
+  if (!Array.isArray(at) || at.length !== 2 || !at.every((n) => Number.isFinite(n) && n >= 0 && n <= 1)) return false;
+  const box = [Math.round(at[0] * 1000) / 1000, Math.round(at[1] * 1000) / 1000];
+  const now = scene?.flags?.[NS]?.stage?.chalk?.box;
+  if (Array.isArray(now) && now[0] === box[0] && now[1] === box[1]) return false;
+  await scene.update({ [`flags.${NS}.stage.chalk.box`]: box });
+  Hooks.callAll("stagecraft.keepBox", { scene: scene.id, at: box });
+  return true;
+}
+
 /** Every loose card to its nearest free mark (stage.md §8.10), walking. */
 export async function tidyUp(scene, current = null) {
   const stage = stageFor(scene, current);

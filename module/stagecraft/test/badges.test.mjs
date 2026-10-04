@@ -90,3 +90,18 @@ test("setBadges writes badges on the published card, once, and takes them off wi
     assert.equal(turnOf(scene), null);
   }
 });
+
+test("setChalkBox writes the box into the scene's description once, refuses a bad point, and says so with a hook", async () => {
+  const { installFoundry } = await import("./fake-foundry.mjs");
+  const world = installFoundry({ user: { id: "gm", name: "GM", isGM: true } });
+  const { setChalkBox } = await import("../scripts/foundry/blocking.mjs");
+  const heard = [];
+  world.hooks.on?.("stagecraft.keepBox", (e) => heard.push(e));
+  const scene = { id: "s1", flags: { stagecraft: { stage: { chalk: { mode: "zones" } } } }, async update(d) { for (const [k, v] of Object.entries(d)) { const path = k.split("."); let o = this; while (path.length > 1) o = o[path.shift()] ??= {}; o[path[0]] = v; } } };
+  assert.equal(await setChalkBox(scene, [0.31234, 0.9]), true);
+  assert.deepEqual(scene.flags.stagecraft.stage.chalk, { mode: "zones", box: [0.312, 0.9] }, "written beside the rest of the chalk description");
+  assert.equal(await setChalkBox(scene, [0.312, 0.9]), false, "the same spot: nothing written");
+  assert.equal(await setChalkBox(scene, [1.5, 0.2]), false);
+  assert.equal(await setChalkBox(scene, null), false);
+  assert.equal(heard.length, 1);
+});

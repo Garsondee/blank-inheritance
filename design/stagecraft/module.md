@@ -837,7 +837,7 @@ Checks: `module/stagecraft/test/badges.test.mjs` (6), a bridge test in `test/sta
 
 Scenes are staged by hand in `stages.json`; the editor is how that moves into Foundry, in slices. The first is the cheapest useful one: **stage the cards by hand (drag them, a formation, anything), then press Keep places.** Where the cards stand (the selected ones, or everyone, after a confirmation) becomes their `home` and `homeYaw` in the published cast, so "Places" now goes back to there. `core/sync.mjs#commitHomes` is the pure part (nothing changes, and nothing is written, for a card already home); `foundry/blocking.mjs#keepPlaces` writes it; `api.blocking.keepPlaces(scene, ids?)` is the public face (interface 0.8.0). Checks: a unit test of `commitHomes`, the interface test, and `bench/sizes-check.mjs` (the wider strip still fits at every size).
 
-**Not yet:** dragging marks and zones and the chalk box's spot. (Bringing kept homes home is §32.)
+**Not yet:** dragging marks and zones. (Bringing kept homes home is §32; the chalk box's spot is §33.)
 
 ## 32. Kept places come home (2026-10-04)
 
@@ -849,3 +849,7 @@ A kept home lives in the scene's published cast on the server, so on its own a r
 4. The bridge lays that file over `stages.json` when it reads it (`applyKept`: hers win key by key, the rest stays), so the next deploy lays the scene out by her places. `stages.json` itself is not rewritten (it is hand-formatted, and the overlay keeps what she did apart from what was authored).
 
 Checks: `test/stagecraft-bridge.test.mjs` (the record, the filing, the overlay, the fold), `test/stage-places.test.mjs` (the tool). Not yet run against a real server: the write to `storage/` uses the same `writeStorageJson` the haunts use, and the pull the same inbox the haunts and scene edits use.
+
+## 33. The chalk box's spot (2026-10-04)
+
+"Box here" on the GM strip, then a click on the floor, puts the box of chalk there (`api.blocking.setChalkBox(scene, [fx, fy])`, interface 0.9.0). It is written into the scene's description (`chalk.box`, where an author would have put it), the stage is drawn again from it, and `stagecraft.keepBox` is raised. It comes home exactly as kept places do (§32): the bridge files it in `storage/stage-places.json` beside them (a keep of the places and a move of the box each leave the other alone), `npm run stages` folds it into `kept-places.json` (`box`), and the bridge lays it over the entry's `description.chalk.box`, so a redeploy no longer puts the box back. Checks: `badges.test.mjs` (the write, the refusals, the hook), the bridge test (filed, laid over, folded), the interface test, and `bench/sizes-check.mjs` (the strip still fits).

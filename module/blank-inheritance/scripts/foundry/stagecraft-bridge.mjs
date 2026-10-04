@@ -240,6 +240,15 @@ async function fileKept({ scene: sceneId, homes }) {
   await writeStorageJson("", KEPT_FILE, withKept(file, sourceId, record, new Date().toISOString()));
 }
 
+/** The GM moved the box of chalk: its spot is filed with the kept places, to become the scene entry's `chalk.box`. */
+async function fileBox({ scene: sceneId, at }) {
+  const scene = game.scenes.get(sceneId);
+  const sourceId = scene?.getFlag?.(MODULE_ID, "sourceId");
+  if (!sourceId || !actingGM() || !Array.isArray(at)) return;
+  const file = await fetchModuleJson(`storage/${KEPT_FILE}`, { fresh: true }).catch(() => null);
+  await writeStorageJson("", KEPT_FILE, withKept(file, sourceId, { box: at }, new Date().toISOString()));
+}
+
 /** A party member's conditions changed: their card wears them as badges ("Frightened 2", "Prone"). */
 async function badgeByConditions(actor) {
   const scene = canvas?.scene;
@@ -298,6 +307,7 @@ export async function startStagecraftBridge() {
   const conditionChanged = (item) => { if (item?.type === "condition" && item.parent?.documentName === "Actor") badgeByConditions(item.parent).catch((err) => console.warn(`${LOG} | could not badge ${item.parent?.name}`, err)); };
   for (const hook of ["createItem", "updateItem", "deleteItem"]) Hooks.on(hook, conditionChanged);
   Hooks.on("stagecraft.keep", (event) => { fileKept(event).catch((err) => console.warn(`${LOG} | could not file the kept places`, err)); });
+  Hooks.on("stagecraft.keepBox", (event) => { fileBox(event).catch((err) => console.warn(`${LOG} | could not file the chalk box`, err)); });
   Hooks.on("updateCombat", (combat, changes) => {
     if (changes?.turn === undefined && changes?.round === undefined && changes?.started === undefined) return;
     lightTurn(combat).catch((err) => console.warn(`${LOG} | could not light the turn`, err));

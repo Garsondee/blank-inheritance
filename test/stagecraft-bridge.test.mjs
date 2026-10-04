@@ -465,6 +465,23 @@ test("places the GM kept become a stage entry's places, are filed, laid over the
   assert.deepEqual(foldKept(kept, filed).lines, [], "folding the same keep again changes nothing");
   assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("stagecraft\.keep"/);
 });
+test("the chalk box's spot is filed with the kept places, laid over the entry's description, and folded home", async () => {
+  const { withKept, applyKept, foldKept } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  const places = withKept(null, "e1-kit-issue", { places: { nobu: [0.6, 0.6] }, yaws: {} }, "T1");
+  const both = withKept(places, "e1-kit-issue", { box: [0.3, 0.9] }, "T2");
+  assert.deepEqual(both.scenes["e1-kit-issue"].places, { nobu: [0.6, 0.6] }, "moving the box does not forget the places");
+  assert.deepEqual(both.scenes["e1-kit-issue"].box, [0.3, 0.9]);
+  assert.deepEqual(withKept(both, "e1-kit-issue", { places: { nobu: [0.7, 0.7] }, yaws: {} }, "T3").scenes["e1-kit-issue"].box, [0.3, 0.9], "nor does a keep of places forget the box");
+  const stages = { stages: { "e1-kit-issue": { description: { skin: "brass", chalk: { mode: "zones" } }, places: {} } } };
+  const laid = applyKept(stages, both);
+  assert.deepEqual(laid.stages["e1-kit-issue"].description.chalk, { mode: "zones", box: [0.3, 0.9] }, "the box goes into the description's chalk, beside what is there");
+  assert.equal(stages.stages["e1-kit-issue"].description.chalk.box, undefined);
+  const { kept, lines } = foldKept({ scenes: { "e1-kit-issue": { places: {}, yaws: {}, box: [0.5, 0.5] } } }, both);
+  assert.deepEqual(kept.scenes["e1-kit-issue"].box, [0.3, 0.9]);
+  assert.ok(lines.some((l) => /the box of chalk stands at \[0\.3,0\.9\] \(was \[0\.5,0\.5\]\)/.test(l)));
+  assert.deepEqual(foldKept(kept, both).lines, []);
+  assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("stagecraft\.keepBox"/);
+});
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {
   const { momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
   const cards = [{ id: "c1", home: [0.2, 0.9] }, { id: "c2", home: [0.5, 0.9] }, { id: "pc", pc: true, at: [0.5, 0.95] }];

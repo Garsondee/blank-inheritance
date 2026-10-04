@@ -120,6 +120,11 @@
         "Label": "Places",
         "Tip": "Everyone you have moved walks back to where the scene put them, and back to what they were doing."
       },
+      "Box": {
+        "Label": "Box here",
+        "Tip": "Press, then click the floor where the box of chalk should stand in this scene.",
+        "Armed": "Box of chalk: click the floor where it goes"
+      },
       "Keep": {
         "Label": "Keep places",
         "Tip": "Where they stand now (the selected cards, or everyone) is where the scene puts them from now on, and where Places sends them back to.",
