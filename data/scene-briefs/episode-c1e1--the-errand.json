@@ -129,7 +129,7 @@
       "mandatory": true,
       "delivery": "table",
       "text": "Read the city as they come off the train, then let them find the instrument makers.",
-      "note": "Plant: A side street the dogs won't walk down, and a roof with no pigeons on it. Say nothing about it.\nIf they pass the harbour square: The gnoll statue, with HYUCK on the plaque.\nSecret: Animals hear the Watcher's swarm as a high buzzing, and it's thick on that street.",
+      "note": "Plant: A side street the dogs won't walk down, and a roof with no pigeons on it. Say nothing about it.\nIf they pass the harbour square: The gnoll statue, with HYUCK on the plaque.\nIf they wander instead: A tram, the harbour, and somewhere a clock striking five. The docket still says nineteen hundred.\nSecret: Animals hear the Watcher's swarm as a high buzzing, and it's thick on that street.",
       "facts": [
         "hyuck.statue"
       ],

@@ -90,3 +90,9 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R12.** The chandlers are a secret, not told.
 - **For Ingram, while reading:** the chandlers are mine. Equipment stays live at this counter, as decided on
   2026-09-09; the Locker is self-serve, so players shop while Nobu talks.
+
+## Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.

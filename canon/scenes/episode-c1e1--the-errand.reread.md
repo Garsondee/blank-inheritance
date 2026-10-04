@@ -133,3 +133,9 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **For Ingram, while reading:** what a hearing costs is my proposal, answering D053's open question: on report;
   extra duty at five the next morning on a failure (they start the day Fatigued); and on a critical failure their next
   refusal goes over his head. A character later proven right has it written off, in his hand.
+
+## Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R10.** A table that wanders the city instead: a tram, the harbour, and somewhere a clock striking five; the docket still says nineteen hundred. The hearing check now also covers striking an officer, always at DC 17.

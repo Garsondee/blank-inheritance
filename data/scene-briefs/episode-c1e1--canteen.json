@@ -82,7 +82,7 @@
             "\"Right. Who's from furthest away? Go on.\""
           ]
         },
-        "statblock": "Proposed: level 2, a candidate, can fight."
+        "statblock": "Proposed: level 2, a candidate, can fight. Perception DC 18, Will DC 18, Deception DC 17."
       }
     },
     {
@@ -116,7 +116,7 @@
             "\"Section Nine.\" He looks up. \"Yes, you. There's only one of you.\""
           ]
         },
-        "statblock": "Proposed: level 3, an officer, non-combat."
+        "statblock": "Proposed: level 3, an officer, non-combat. Perception DC 19, Will DC 19, Deception DC 19. Striking him ends in a hearing, not a fight."
       }
     },
     {
@@ -181,7 +181,7 @@
       "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last. <trig id=\"give-drains\"/>",
       "readAloud": "\"Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two.\" He looks up for the first time. \"Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.\"",
       "direction": "No choice and no appeal: he answers any argument by reading the order again, once, and goes.",
-      "note": "If someone refuses outright: \"Noted.\" He writes it down, slowly. \"The Deputy Director's office, twenty-one hundred, instead of Dock C.\"\nSecret: He gave them the drains for the vial, or, if they came back empty-handed, for the laugh. He'll never say so.",
+      "note": "If someone refuses outright: \"Noted.\" He writes it down, slowly. \"The Deputy Director's office, twenty-one hundred, instead of Dock C.\"\nIf someone missed supper: A runner finds them with a chit: the same order, word for word.\nSecret: He gave them the drains for the vial, or, if they came back empty-handed, for the laugh. He'll never say so.",
       "triggers": [
         {
           "id": "section-officer-arrives",

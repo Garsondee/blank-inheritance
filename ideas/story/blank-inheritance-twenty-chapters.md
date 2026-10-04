@@ -559,6 +559,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **For Ingram, while reading:** the Hero Point (in place of XP), the blank track and Shucks's "It wandered off" are
   mine.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has had a private moment with Shucks and been told their screen came back irregular, and the six could find out it was all of them.
@@ -679,7 +685,7 @@ Secret: Candidates with the marker are streamed together as routine. Six in one 
 - What each told him, and who he took to.
 - Who noticed the hand, the search or the name.
 
-*Scene hash 9c9d53f36798fe9e.*
+*Scene hash dcdf6dde295a5735.*
 
 ### Scene 3: Assembly *(Written in detail · waiting for your read)*
 
@@ -792,6 +798,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R15, R21.** The intro's first two sentences are joined, so it reads aloud as three.
 - **For Ingram, while reading:** the intake of about forty, and the Deputy Director's three new lines, are mine.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.
@@ -874,7 +886,7 @@ Secret: It's Rupiah, a founder, high in the administration, here to watch and no
 - Who caught the Deputy Director's name.
 - Who read the charter, and who watched the platform.
 
-*Scene hash d71fdc46f08387d5.*
+*Scene hash 29cfac21e4dcaf84.*
 
 ### Scene 4: School: First Period *(Written in detail · waiting for your read)*
 
@@ -1131,6 +1143,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **For Ingram, while reading:** the chandlers are mine. Equipment stays live at this counter, as decided on
   2026-09-09; the Locker is self-serve, so players shop while Nobu talks.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has their uniform and kit, and Vetch has handed Section Nine the docket in person.
@@ -1196,7 +1214,7 @@ Secret: There's no such part. Vetch sends every new section for the bubble in a 
 - What each player bought, and any extra Nobu gave.
 - Who holds the docket.
 
-*Scene hash 401eeb3dad0b5f71.*
+*Scene hash 953150bd8ed01e15.*
 
 ### Scene 6: School: Second Period *(Written in detail · waiting for your read)*
 
@@ -1495,6 +1513,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
   extra duty at five the next morning on a failure (they start the day Fatigued); and on a critical failure their next
   refusal goes over his head. A character later proven right has it written off, in his hand.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R10.** A table that wanders the city instead: a tram, the harbour, and somewhere a clock striking five; the docket still says nineteen hundred. The hearing check now also covers striking an officer, always at DC 17.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have been laughed at, met Manako, heard his plan for the vial, and chosen how to file it.
@@ -1508,6 +1532,7 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 *GM:* Plant: A side street the dogs won't walk down, and a roof with no pigeons on it. Say nothing about it.
 If they pass the harbour square: The gnoll statue, with HYUCK on the plaque.
+If they wander instead: A tram, the harbour, and somewhere a clock striking five. The docket still says nineteen hundred.
 Secret: Animals hear the Watcher's swarm as a high buzzing, and it's thick on that street.
 
 *Facts:* tells the table `hyuck.statue`; GM only `watcher.animals`.
@@ -1626,7 +1651,7 @@ If the order was badly given: He takes it up with Vetch himself, never in front 
 - How they're filing the requisition.
 - Who heard what he said about the Directorate.
 
-*Scene hash 085f856a33f4f1e7.*
+*Scene hash 205e5d870f504d4c.*
 
 ### Scene 8: The Train Back *(Written in detail · waiting for your read)*
 
@@ -1713,6 +1738,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **For Ingram, while reading:** "whatever paper goes in" and the routing to Medical are mine. Not renamed: the
   soundscape's title and some older design notes, which still say Tram.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R10.** If they're late, the hatch is shut: they hand it to Vetch in person, and go on report. The no-requisition line is shorter, so the note stays inside its budget.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've had a quiet ride together and handed in their paper before nineteen hundred.
@@ -1742,7 +1773,8 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 *GM:* If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.
 If they chose loudly: It's read out in the queue and pinned to the section board.
-If they came back empty-handed, or bought a vial: They hand in the docket, or the receipt, the same way.
+If they have no requisition: They hand in the docket or a receipt instead.
+If they're late: The hatch is shut. They hand it to Vetch in person, and go on report.
 Secret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns it.
 
 *Facts:* tells the table `directorate.vials-to-medical`; GM only `shucks.rand`, `shucks.rand-signs`, `shucks.rand-reads-the-desk`, `shucks.rand-signs-whatever`.
@@ -1755,7 +1787,7 @@ Secret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns
 - Anything said on the ride worth calling back.
 - What they handed in, and how.
 
-*Scene hash d1a01b734c0f5085.*
+*Scene hash 2f9c58e32a8bf195.*
 
 ### Scene 9: Canteen *(Written in detail · waiting for your read)*
 
@@ -1848,6 +1880,13 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R8, R10.** The radio, the track and refusing are covered.
 - **R12.** Taka's radio line is ordinary, and performs no avoidance.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R10.** A character who missed supper still gets the order: a runner finds them with a chit, word for word.
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.
@@ -1877,6 +1916,7 @@ Secret: She is Shinobu Kudo, and he is her father. She comes back into the story
 *Direction:* No choice and no appeal: he answers any argument by reading the order again, once, and goes.
 
 *GM:* If someone refuses outright: "Noted." He writes it down, slowly. "The Deputy Director's office, twenty-one hundred, instead of Dock C."
+If someone missed supper: A runner finds them with a chit: the same order, word for word.
 Secret: He gave them the drains for the vial, or, if they came back empty-handed, for the laugh. He'll never say so.
 
 *Facts:* tells the table `section-officer.the-drains`; GM only `section-officer.drains-for-the-vial`.
@@ -1915,7 +1955,7 @@ Secret: He gave them the drains for the vial, or, if they came back empty-handed
 - Who took to Taka, and who he took to.
 - Anything Taka told them about the drains.
 
-*Scene hash 21ffd96f4dc45741.*
+*Scene hash 77908f20223d6a98.*
 
 ### Scene 10: The Walk Down *(Written in detail · waiting for your read)*
 
@@ -2004,6 +2044,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R15, R21.** The crossing's read-aloud is full sentences throughout.
 - **For Ingram, while reading:** the Frame on the gantry is mine.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've kitted up, heard the job from Vetch, and crossed to the hatch on the old town's quay.
@@ -2038,7 +2084,7 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 - Anything said on the crossing worth calling back.
 
-*Scene hash ff61fd54683d7de3.*
+*Scene hash 766287026676f5a8.*
 
 ### Scene 11: Flood Tunnel Clearance *(Written in detail · waiting for your read)*
 
@@ -2167,6 +2213,12 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R13.** `shucks.rand-signs-whatever` (provisional) as a secret.
 - **For Ingram, while reading:** the hearing being reopened when someone comes back hurt is mine.
 
+#### Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.
+
 #### The scene, as the GM runs it
 
 **What it's for.** The line runs, the nest is dealt with their way, Vetch has asked about Rand, and each player has picked a rest.
@@ -2264,7 +2316,7 @@ Secret: Rand is Shucks's own right hand, loose in the city. It signed tonight, a
 - Injuries carried into the night.
 - Who has a theory about Rand.
 
-*Scene hash 89e4783e4c593404.*
+*Scene hash a8fcd4300efa622c.*
 
 ### Scene 1: The General Hospital *(Written in detail · waiting for your read)*
 

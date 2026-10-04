@@ -82,3 +82,9 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
   `shucks.rand-signs-whatever` (provisional) as secrets.
 - **For Ingram, while reading:** "whatever paper goes in" and the routing to Medical are mine. Not renamed: the
   soundscape's title and some older design notes, which still say Tram.
+
+## Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R10.** If they're late, the hatch is shut: they hand it to Vetch in person, and go on report. The no-requisition line is shorter, so the note stays inside its budget.

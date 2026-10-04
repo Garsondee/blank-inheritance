@@ -88,3 +88,10 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
   - **Both checks roll blind.**
 - **R8, R10.** The radio, the track and refusing are covered.
 - **R12.** Taka's radio line is ordinary, and performs no avoidance.
+
+## Revision 2026-10-04: closing the route's leaks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R10.** A character who missed supper still gets the order: a runner finds them with a chit, word for word.
+- **R9.** Until the NPC generator exists, the speaking NPCs' cards carry stopgap DCs from GM Core's creature tables (moderate Perception, Will and Deception for their proposed level): Vetch 19/19/19, Nobu and Taka 18/18/17, the Deputy Director 26/29/26, Shucks 39/36/37. Striking Vetch ends in a hearing, not a fight.

@@ -74,7 +74,7 @@
             "\"Shucks said you were sharp this morning. Don't make him a liar.\""
           ]
         },
-        "statblock": "Proposed: level 2, a quartermaster, non-combat."
+        "statblock": "Proposed: level 2, a quartermaster, non-combat. Perception DC 18, Will DC 18, Deception DC 17."
       }
     },
     {
@@ -105,7 +105,7 @@
             "\"Back to me by nineteen hundred. Not a minute after.\""
           ]
         },
-        "statblock": "Proposed: level 3, an officer, non-combat."
+        "statblock": "Proposed: level 3, an officer, non-combat. Perception DC 19, Will DC 19, Deception DC 19. Striking him ends in a hearing, not a fight."
       }
     }
   ],

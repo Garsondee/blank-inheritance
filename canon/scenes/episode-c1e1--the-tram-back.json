@@ -77,7 +77,7 @@
       "npcRef": "nobu",
       "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes their paper without reading it. <trig id=\"docket-requisition-in\"/> <trig id=\"docket-in-time\"/> <trig id=\"close-docket\"/> File it the way they chose.",
       "readAloud": "\"A vial? Medical countersigns those. It'll go up tonight. Next.\"",
-      "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nIf they came back empty-handed, or bought a vial: They hand in the docket, or the receipt, the same way.\nSecret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns it.",
+      "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nIf they have no requisition: They hand in the docket or a receipt instead.\nIf they're late: The hatch is shut. They hand it to Vetch in person, and go on report.\nSecret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns it.",
       "triggers": [
         {
           "id": "nobu-at-the-hatch",
