@@ -16,6 +16,7 @@ import { consoleLayout, resolveMode, SEATS } from "../core/console-model.mjs";
 import { actorForSeat, rollInitiative } from "./rolls.mjs";
 import { togglePhone } from "./phone.mjs";
 import { toggleNotebook } from "./notebook.mjs";
+import { toggleJournal } from "./journal.mjs";
 import { openConsoleTab, toggleConsoleWindow } from "./console-window.mjs";
 import { afterDeckRender, deckChecksFor, deckOrbFor, fitDeck, toggleActionPip } from "./deck.mjs";
 
@@ -99,6 +100,7 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       openComms: CommandBar.#onOpenComms,
       openNotebook: CommandBar.#onOpenNotebook,
+      openJournal: CommandBar.#onOpenJournal,
       openConsole: CommandBar.#onOpenConsole,
       openConsoleTab: CommandBar.#onOpenConsoleTab,
       toggleActionPip: CommandBar.#onToggleActionPip,
@@ -211,6 +213,11 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
   /** The Notes pill: the party's shared notebook, on either seat. */
   static #onOpenNotebook() {
     toggleNotebook();
+  }
+
+  /** The Journal pill: objectives, papers, people and the record (design/objectives.md). */
+  static #onOpenJournal() {
+    toggleJournal();
   }
 
   static #onOpenConsole() {

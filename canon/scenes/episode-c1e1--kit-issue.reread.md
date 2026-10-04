@@ -67,3 +67,8 @@ only stops that player asking again today.
 ## For Ingram, while reading
 
 - **The docket handout** is new: a stores docket on the Directorate's letterhead, typed.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

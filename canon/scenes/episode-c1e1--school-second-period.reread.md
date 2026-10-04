@@ -74,3 +74,8 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
 players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

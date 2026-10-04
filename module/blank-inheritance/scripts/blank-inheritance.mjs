@@ -101,6 +101,7 @@ import { mountSessionRail, noteSceneActivated, refreshSessionRail, registerSessi
 import { playOpeningForTable, registerOpeningSocket, registerOpeningTitleSettings } from "./foundry/opening-titles.mjs";
 import { playersWhoCanBrowseFiles } from "./core/file-exposure.mjs";
 import { registerNotebook, startNotebook } from "./foundry/notebook.mjs";
+import { registerObjectives, remountObjectives, startObjectives } from "./foundry/objectives.mjs";
 import { createLocationEditorMacroIfMissing, openLocationEditor, registerLocationEditorHooks } from "./foundry/location-editor.mjs";
 import { registerLocationDrawKeybindings, registerLocationDrawLayer } from "./foundry/location-draw-layer.mjs";
 import { reloadStages, startStagecraftBridge } from "./foundry/stagecraft-bridge.mjs";
@@ -234,6 +235,9 @@ Hooks.once("init", () => {
   // The party notebook: the N key, and the hooks that keep it (and its harvest
   // export) current. Every client, because every player writes in it.
   registerNotebook();
+  // Objectives (design/objectives.md, D057): the tracker's own settings, the O and J keys, and the hooks that keep
+  // the tracker, the Journal and the harvest export current. Every client.
+  registerObjectives();
 
   // The campaign clock is a world setting, so its onChange fires on EVERY
   // client -- which is what makes a segment transition arrive at the whole
@@ -370,6 +374,12 @@ Hooks.once("ready", async () => {
       await startNotebook();
     } catch (err) {
       console.error("Blank Inheritance | Could not open the party notebook:", err);
+    }
+    // Objectives: the GM makes sure the entry exists (and repairs page ownership); every client mounts the tracker.
+    try {
+      await startObjectives();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not start the objectives:", err);
     }
     // Name protection cannot reach the server's file browser (see
     // core/file-exposure.mjs), so a GM is told once per login if anyone at the
@@ -711,6 +721,12 @@ Hooks.on("canvasReady", () => {
     mountSessionRail();
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the session rail:", err);
+  }
+
+  try {
+    remountObjectives();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the objectives tracker:", err);
   }
 
   try {

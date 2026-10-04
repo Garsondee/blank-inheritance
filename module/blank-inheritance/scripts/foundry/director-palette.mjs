@@ -39,6 +39,7 @@ import { toggleSoundDesk } from "./sound-desk.mjs";
 import { toggleSceneRunner } from "./scene-runner.mjs";
 import { togglePhone } from "./phone.mjs";
 import { toggleNotebook } from "./notebook.mjs";
+import { toggleJournal } from "./journal.mjs";
 import { openConsoleTab, toggleConsoleWindow } from "./console-window.mjs";
 import { toggleDemoRunner } from "./demo-runner.mjs";
 import { openApprovalsDesk } from "./approvals-desk.mjs";
@@ -530,6 +531,8 @@ function panelCommands() {
     // The Director's deck is full (a seventh key pushed the last one off its row), so the GM reaches the
     // notebook here, from the N key, and by clicking any portrait.
     { id: "panel.notebook", group: "panel", order: 5, title: "Notebook", hint: "the party's shared notes (N)", icon: "fa-solid fa-book-open", keywords: ["notes", "notebook", "journal", "people", "write", "articles"], run: () => toggleNotebook() },
+    // The Journal: objectives (every one, every character's), papers, people and the Record (design/objectives.md). J too.
+    { id: "panel.journal", group: "panel", order: 5, title: "Journal", hint: "objectives, papers, people and the Record (J)", icon: "fa-solid fa-book-bookmark", keywords: ["journal", "objectives", "orders", "record", "quests", "tracker"], run: () => toggleJournal() },
     { id: "panel.director", group: "panel", order: 6, title: "Director's Panel", hint: "cue a scene with its transition", icon: "fa-solid fa-clapperboard", keywords: ["director", "cue", "scenes", "transition"], run: () => openDirectorPanel() },
     { id: "panel.approvals", group: "panel", order: 7, title: "Approvals Desk", hint: "grade drafted content", icon: "fa-solid fa-stamp", keywords: ["approve", "grade", "review", "desk", "drafted"], run: () => openApprovalsDesk() },
     { id: "panel.equipment", group: "panel", order: 8, title: "Equipment Locker", hint: "Kit Issue's inventory", icon: "fa-solid fa-toolbox", keywords: ["equipment", "kit", "gear", "locker", "items"], run: () => openEquipmentPanel() },

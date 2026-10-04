@@ -1,0 +1,68 @@
+<div class="bi-obj" data-size="{{model.size}}" {{#if hidden}}hidden{{/if}}>
+  {{#if model.folded}}
+  <button type="button" class="bi-obj__tab" data-action="cycleSize" title="{{localize "BLANKINHERITANCE.Objectives.Unfold"}}">
+    <span class="bi-obj__lamp{{#if model.lit}} is-lit{{/if}}" aria-hidden="true"></span>
+    <span class="bi-obj__label">{{localize "BLANKINHERITANCE.Objectives.Title"}}</span>
+    <span class="bi-obj__count">{{model.count}}</span>
+    {{#if model.tracked.deadline.label}}<span class="bi-obj__due{{#if model.tracked.dueUrgent}} is-urgent{{/if}}">{{model.tracked.deadline.label}}</span>{{/if}}
+  </button>
+  {{else}}
+  <div class="bi-obj__panel">
+    <header class="bi-obj__head">
+      <span class="bi-obj__lamp{{#if model.lit}} is-lit{{/if}}" aria-hidden="true"></span>
+      <button type="button" class="bi-obj__title" data-action="cycleSize" title="{{localize "BLANKINHERITANCE.Objectives.CycleHint"}}">{{localize "BLANKINHERITANCE.Objectives.Title"}} <span class="bi-obj__kanji">任務</span></button>
+      <span class="bi-obj__switch" role="group" aria-label="{{localize "BLANKINHERITANCE.Objectives.SizeLabel"}}">
+        {{#each sizes}}<button type="button" class="bi-obj__det{{#if on}} is-on{{/if}}" data-action="setSize" data-size="{{id}}" title="{{label}}" aria-label="{{label}}" aria-pressed="{{on}}"></button>{{/each}}
+      </span>
+      <button type="button" class="bi-obj__key" data-action="openJournal" title="{{localize "BLANKINHERITANCE.Objectives.OpenJournal"}}">J</button>
+    </header>
+    {{#if model.empty}}
+    <p class="bi-obj__empty">{{localize "BLANKINHERITANCE.Objectives.NothingOpen"}}</p>
+    {{/if}}
+
+    {{#if model.lines}}
+    <ol class="bi-obj__lines">
+      {{#each model.items}}
+      <li><button type="button" class="bi-obj__line{{#if isTracked}} is-tracked{{/if}}" data-action="track" data-objective-id="{{id}}" title="{{localize "BLANKINHERITANCE.Objectives.TrackHint"}}">
+        <span class="bi-stamp-mark" data-kind="{{kind}}" aria-hidden="true">{{kindMark}}</span>
+        <span class="bi-obj__line-title{{#if hand}} is-hand{{/if}}">{{title}}{{#if isNew}} <span class="bi-obj__tag bi-obj__tag--new">{{localize "BLANKINHERITANCE.Objectives.New"}}</span>{{else if isUpdated}} <span class="bi-obj__tag bi-obj__tag--upd">{{localize "BLANKINHERITANCE.Objectives.Updated"}}</span>{{/if}}</span>
+        <span class="bi-obj__pips" aria-label="{{progress.done}} / {{progress.total}}">{{#each pips}}<span class="bi-obj__pip{{#if done}} is-done{{/if}}"></span>{{/each}}</span>
+        {{#if deadline.label}}<span class="bi-obj__due{{#if dueUrgent}} is-urgent{{/if}}">{{deadline.label}}</span>{{/if}}
+      </button></li>
+      {{/each}}
+    </ol>
+    {{/if}}
+
+    {{#if model.explained}}
+    <div class="bi-obj__body">
+      {{#each model.items}}
+      <article class="bi-obj__ob{{#if isTracked}} is-tracked{{/if}}">
+        <div class="bi-obj__kicker">
+          <span class="bi-stamp-mark" data-kind="{{kind}}" aria-hidden="true">{{kindMark}}</span>
+          <span class="bi-obj__kind">{{localize kindLabelKey}}</span>
+          {{#if hand}}<span class="bi-obj__tag bi-obj__tag--hand">{{localize "BLANKINHERITANCE.Objectives.WrittenByPlayer"}}</span>{{/if}}
+          <span class="bi-obj__giver">{{giver.name}}{{#if ownerLabel}} · {{ownerLabel}}{{/if}}</span>
+        </div>
+        <button type="button" class="bi-obj__ob-title{{#if hand}} is-hand{{/if}}" data-action="track" data-objective-id="{{id}}"><span>{{title}}</span>{{#if deadline.label}}<span class="bi-obj__due{{#if dueUrgent}} is-urgent{{/if}}">{{deadline.label}}</span>{{/if}}</button>
+        {{#if said}}<p class="bi-obj__said{{#if hand}} is-hand{{/if}}">“{{said}}”</p>{{/if}}
+        <ul class="bi-obj__parts">
+          {{#each parts}}
+          <li class="bi-obj__part{{#if isDone}} is-done{{/if}}{{#if isStruck}} is-struck{{/if}}" data-need="{{need}}">
+            <span class="bi-obj__dia" aria-hidden="true"></span>
+            <span class="bi-obj__part-text{{#if ../hand}} is-hand{{/if}}">{{text}}{{#unless isRequired}} <span class="bi-obj__tag bi-obj__tag--opt">{{localize "BLANKINHERITANCE.Objectives.Optional"}}</span>{{/unless}}{{#if isNew}} <span class="bi-obj__tag bi-obj__tag--new">{{localize "BLANKINHERITANCE.Objectives.New"}}</span>{{/if}}{{#if earned}} <span class="bi-obj__tag bi-obj__tag--earned">{{localize "BLANKINHERITANCE.Objectives.Earned"}}</span>{{/if}}{{#if by}} <span class="bi-obj__by">· {{by}}</span>{{/if}}</span>
+            {{#if isStruck}}{{#if strikeNote}}<span class="bi-obj__strike">✕ {{strikeNote}}</span>{{/if}}{{else}}{{#unless isDone}}{{#if detail}}<span class="bi-obj__detail">{{detail}}</span>{{/if}}{{/unless}}{{/if}}
+          </li>
+          {{/each}}
+        </ul>
+        {{#if deadline.cost}}<p class="bi-obj__cost"><span class="bi-stamp-mark" data-kind="order" aria-hidden="true">命</span><span>{{deadline.cost}}</span></p>{{/if}}
+        {{#if more}}<p class="bi-obj__more">? {{localize "BLANKINHERITANCE.Objectives.More"}}</p>{{/if}}
+      </article>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
+  {{#each model.ribbons}}
+  <div class="bi-obj__ribbon" data-kind="{{kind}}" role="status"><b>{{localize labelKey}}</b><span>{{#if (eq kind "new")}}{{localize "BLANKINHERITANCE.Objectives.From"}} {{giver}}{{else}}{{title}}{{/if}}</span></div>
+  {{/each}}
+</div>

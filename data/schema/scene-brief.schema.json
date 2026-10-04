@@ -327,7 +327,8 @@
                   "reveal-handout",
                   "gm-tool",
                   "post-check",
-                  "note"
+                  "note",
+                  "objective"
                 ]
               },
               "npcRef": {
@@ -369,6 +370,9 @@
               "label": {
                 "type": "string"
               },
+              "act": { "enum": ["give", "tick", "reveal", "strike", "close"], "description": "objective only. What the chip does to the objective (design/objectives.md): give it, tick or reveal or strike out one part, or close it." },
+              "objectiveRef": { "type": "string", "description": "objective only. A canon/objectives/ id." },
+              "partRef": { "type": "string", "description": "objective only, for tick, reveal and strike. A part id in that objective." },
               "solo": {
                 "type": "boolean"
               }
@@ -740,7 +744,8 @@
                   "reveal-handout",
                   "gm-tool",
                   "post-check",
-                  "note"
+                  "note",
+                  "objective"
                 ]
               },
               "npcRef": {
@@ -782,6 +787,9 @@
               "label": {
                 "type": "string"
               },
+              "act": { "enum": ["give", "tick", "reveal", "strike", "close"], "description": "objective only. What the chip does to the objective (design/objectives.md): give it, tick or reveal or strike out one part, or close it." },
+              "objectiveRef": { "type": "string", "description": "objective only. A canon/objectives/ id." },
+              "partRef": { "type": "string", "description": "objective only, for tick, reveal and strike. A part id in that objective." },
               "solo": {
                 "type": "boolean"
               }
@@ -1477,7 +1485,8 @@
                     "reveal-handout",
                     "gm-tool",
                     "post-check",
-                    "note"
+                    "note",
+                    "objective"
                   ],
                   "description": "npc-enter/npc-exit call the existing stage functions with this cast member's id. reveal-name tells the table that cast member's real name (they need a `called` line, or there is nothing to tell). reveal-handout calls the existing handout reveal. gm-tool calls the existing GM_TOOLS registry by toolId — not a second registry. post-check posts the existing sf2e @Check enricher for checkRef. note writes a plain log line with no other side effect, for a moment worth marking with nothing mechanical attached."
                 },
@@ -1526,6 +1535,9 @@
                   "type": "string",
                   "description": "Short GM-facing text — the button's tooltip and what the log entry says happened. \"Taka arrives\", not \"npc-enter: taka\"."
                 },
+                "act": { "enum": ["give", "tick", "reveal", "strike", "close"], "description": "objective only. What the chip does to the objective (design/objectives.md): give it, tick or reveal or strike out one part, or close it." },
+                "objectiveRef": { "type": "string", "description": "objective only. A canon/objectives/ id." },
+                "partRef": { "type": "string", "description": "objective only, for tick, reveal and strike. A part id in that objective." },
                 "solo": {
                   "type": "boolean",
                   "description": "reveal-handout / note only. Mirrors an ordinary beat's own delivery:\"solo\" — pushed to one player privately rather than the whole table."

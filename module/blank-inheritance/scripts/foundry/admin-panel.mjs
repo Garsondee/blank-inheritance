@@ -69,6 +69,7 @@ const STEP_KEYS = Object.freeze({
   social: "BLANKINHERITANCE.Admin.Step.social",
   travel: "BLANKINHERITANCE.Admin.Step.travel",
   notebook: "BLANKINHERITANCE.Admin.Step.notebook",
+  objectives: "BLANKINHERITANCE.Admin.Step.objectives",
   chat: "BLANKINHERITANCE.Admin.Step.chat",
   combats: "BLANKINHERITANCE.Admin.Step.combats",
   induction: "BLANKINHERITANCE.Admin.Step.induction",
@@ -81,7 +82,8 @@ const OPTION_KEYS = Object.freeze({
   endCombats: "BLANKINHERITANCE.Admin.Option.endCombats",
   cutToStart: "BLANKINHERITANCE.Admin.Option.cutToStart",
   deleteInductionCharacters: "BLANKINHERITANCE.Admin.Option.deleteInductionCharacters",
-  clearNotebook: "BLANKINHERITANCE.Admin.Option.clearNotebook"
+  clearNotebook: "BLANKINHERITANCE.Admin.Option.clearNotebook",
+  clearObjectives: "BLANKINHERITANCE.Admin.Option.clearObjectives"
 });
 
 const STRATEGY_KEYS = Object.freeze({

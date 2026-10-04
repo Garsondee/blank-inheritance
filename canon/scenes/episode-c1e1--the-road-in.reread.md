@@ -80,3 +80,8 @@ typewriter, Form 1-A.
 - **The violet marks' meaning** is mine, provisional: Cicada's people mark walls where crowds wait, as places to show
   a crowd something one day.
 - **`minkai.government`** is still open; the letter now avoids it.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

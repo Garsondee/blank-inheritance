@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "objective.schema.json",
+  "title": "Objective",
+  "description": "Something a person in the world wants done, given to the party in a scene (design/objectives.md). The RULE: every objective has a giver, is shown in the giver's own words, makes sense from the giver's side, and marks each part required or optional. Authored in canon/objectives/ and copied to data/objectives/ by `node tools/story/story.mjs build`. The Scene Runner gives, ticks, reveals, strikes and closes it through `objective` triggers in a scene's beats. Only the player-facing fields are ever written onto the Foundry page: `want`, `notes` and any part still hidden stay here.",
+  "type": "object",
+  "required": ["id", "type", "episodeRef", "kind", "scope", "giver", "given", "said", "title", "brief", "want", "parts", "closes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Same as the file name. The c1e1- prefix is the Chapter and Episode it belongs to." },
+    "type": { "const": "objective" },
+    "episodeRef": { "type": "string", "description": "The episode it belongs to. An episode gives at most four group objectives." },
+    "kind": {
+      "enum": ["order", "request", "own"],
+      "description": "Who gave it. order: the chain of command (a direct order carries D053's weight). request: anyone else asked, and it can be turned down. own: a character decided it (players write these; the story rarely does)."
+    },
+    "direct": { "type": "boolean", "description": "order only. Given in person by a superior, so refusing it is the serious offence the Deputy Director warns about (D053). A direct order must state its cost." },
+    "scope": { "enum": ["group", "character"], "description": "group: the whole section. character: one character's, resolved at play to whoever it was given to." },
+    "giver": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "npcRef": { "type": ["string", "null"], "description": "The giver's cast npcRef in the giving scene. Null for a giver who is only a signature on a paper." },
+        "name": { "type": "string", "description": "What the table calls them when it is given. The tracker shows this." },
+        "via": { "type": "string", "description": "How it came: \"in person\", \"by letter, Form 1-A\"." },
+        "faction": { "enum": ["directorate", "neutral", "party"], "description": "The colour of their ring: vermilion, amber or cyan, the token-ring colours." }
+      }
+    },
+    "given": {
+      "type": "object",
+      "required": ["sceneRef"],
+      "additionalProperties": false,
+      "properties": {
+        "sceneRef": { "type": "string", "description": "The canon scene that gives it. That scene must hold a `give` trigger for it." },
+        "handoutRef": { "type": ["string", "null"], "description": "When it came on paper: the handout in that scene. Its words are checked against the handout's body." }
+      }
+    },
+    "said": { "type": "string", "description": "The giver's own words as they gave it, quoted on the tracker. Each part between \" … \" must appear word for word in the giving scene (or its handout)." },
+    "title": { "type": "string", "description": "Short and imperative, as the party would say it: \"Clear the storm drain\"." },
+    "brief": { "type": "string", "description": "One sentence: what the party understands is wanted, from the giver's side." },
+    "want": {
+      "type": "object",
+      "required": ["motivation", "gm"],
+      "additionalProperties": false,
+      "description": "GM only. Never written onto the Foundry page.",
+      "properties": {
+        "motivation": { "enum": ["knowledge", "comfort", "reputation", "serenity", "protection", "conquest", "wealth", "ability", "equipment"], "description": "The giver's underlying concern, from the nine (design/quests-objectives-and-threads.md §2)." },
+        "stated": { "type": "string", "description": "What they say it is for, if they say." },
+        "gm": { "type": "string", "description": "What they actually want." }
+      }
+    },
+    "deadline": {
+      "type": ["object", "null"],
+      "required": ["label", "day", "quarter"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "description": "As the chip shows it: \"19:00\", \"MON\"." },
+        "day": { "type": "integer", "minimum": 1, "description": "The campaign day (the orb's Day N)." },
+        "quarter": { "enum": ["morning", "afternoon", "evening", "night"], "description": "The quarter it falls in. The chip turns solid when the world reaches it." },
+        "cost": { "type": "string", "description": "What missing it costs, in the world's words. Required for a direct order (doctrine Law 19)." }
+      }
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "need", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "need": { "enum": ["required", "optional"] },
+          "text": { "type": "string" },
+          "detail": { "type": "string", "description": "What is needed, where and from whom: the explained view. Only what the table has been told." },
+          "by": { "type": "string", "description": "Whose idea this part is, when it isn't the giver's: \"Manako's idea\", \"Taka\"." },
+          "hidden": { "type": "boolean", "description": "Not on the page until a `reveal` trigger adds it, so a player's browser never holds it early." },
+          "earned": { "type": "boolean", "description": "Only revealed when a roll earns it. Shown with an EARNED tag." },
+          "strikeNote": { "type": "string", "description": "For a part a `strike` trigger crosses out: why, as the table learns it." }
+        }
+      }
+    },
+    "moreHint": { "type": "boolean", "description": "Show \"There may be more to this\" while any part is hidden. Off by default: the hint can give a twist away." },
+    "closes": { "type": "string", "description": "What counts as done, plainly enough to recognise at the table." },
+    "suggestedRecord": { "type": "string", "description": "A draft of the paragraph for the Record. The GM writes the real one when closing it." },
+    "facts": { "type": "array", "items": { "type": "string" }, "description": "Canon facts its player-facing words tell. Each must be told by the giving scene." },
+    "notes": { "type": "string", "description": "GM notes. Never written onto the page." }
+  }
+}

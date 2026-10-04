@@ -63,3 +63,8 @@ character does with the ten minutes).
 ## For Ingram, while reading
 
 - **Siting:** Dock C and the night lockup need a place on the island.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

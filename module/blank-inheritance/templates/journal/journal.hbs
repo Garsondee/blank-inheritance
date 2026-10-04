@@ -1,0 +1,184 @@
+<div class="bi-journal">
+  <nav class="bi-journal__tabs" role="tablist">
+    <span class="bi-journal__cap" aria-hidden="true">Q</span>
+    {{#each tabs}}<button type="button" role="tab" class="bi-journal__tab{{#if on}} is-on{{/if}}" data-action="showTab" data-tab="{{id}}" aria-selected="{{on}}">{{label}}</button>{{/each}}
+    <span class="bi-journal__cap" aria-hidden="true">E</span>
+  </nav>
+
+  {{#if (eq tab "objectives")}}
+  <div class="bi-journal__body">
+    <div class="bi-journal__left">
+      <div class="bi-journal__tele"><span class="bar"></span><span>{{localize "BLANKINHERITANCE.Journal.Section"}}</span><span class="ok">OK</span><span class="end">{{tele.day}} · {{tele.quarter}}</span></div>
+      {{#if selected}}
+      <p class="bi-journal__kicker">{{#if selected.ownerName}}{{selected.ownerName}}{{else}}{{localize "BLANKINHERITANCE.Journal.ForSection"}}{{/if}}</p>
+      <p class="bi-journal__big{{#if selected.hand}} is-hand{{/if}}">{{selected.title}}</p>
+      {{else}}
+      <p class="bi-journal__kicker">{{localize "BLANKINHERITANCE.Journal.ForSection"}}</p>
+      <p class="bi-journal__big">{{localize "BLANKINHERITANCE.Journal.NothingOpen"}}</p>
+      {{/if}}
+      <div class="bi-journal__hatch" aria-hidden="true"></div>
+      <p class="bi-journal__label">{{localize "BLANKINHERITANCE.Objectives.Title"}}</p>
+      {{#if objectives.empty}}<p class="bi-journal__sub">{{localize "BLANKINHERITANCE.Journal.EmptyHint"}}</p>{{/if}}
+      {{#each objectives.groups}}
+      <p class="bi-journal__group">{{localize labelKey}}</p>
+      {{#each items}}
+      <button type="button" class="bi-journal__row{{#if isSelected}} is-sel{{/if}}" data-action="select" data-objective-id="{{id}}">
+        <span class="bi-stamp-mark" data-kind="{{kind}}" aria-hidden="true">{{kindMark}}</span>
+        <span class="bi-journal__row-title{{#if hand}} is-hand{{/if}}">{{title}}{{#if isOthers}} <span class="bi-obj__by">· {{ownerName}}</span>{{/if}}</span>
+        <span class="bi-journal__row-meta">{{#if isTracked}}<span class="bi-obj__tag bi-obj__tag--tracked">{{localize "BLANKINHERITANCE.Journal.Tracked"}}</span>{{/if}}{{#if deadline.label}}<span class="bi-obj__due{{#if dueUrgent}} is-urgent{{/if}}">{{deadline.label}}</span>{{/if}}</span>
+      </button>
+      {{#if isSelected}}
+      <ul class="bi-journal__tree">
+        {{#each parts}}
+        <li class="bi-journal__part{{#if isDone}} is-done{{/if}}{{#if isStruck}} is-struck{{/if}}" data-need="{{need}}">
+          <span class="bi-obj__dia" aria-hidden="true"></span>
+          <button type="button" class="bi-journal__partbtn" data-action="pick" data-part-id="{{id}}"><span class="bi-journal__part-text{{#if ../hand}} is-hand{{/if}}">{{text}}</span>
+            {{#if (or (not isRequired) isNew earned by)}}<span class="bi-journal__sub">{{#unless isRequired}}<span class="bi-obj__tag bi-obj__tag--opt">{{localize "BLANKINHERITANCE.Objectives.Optional"}}</span> {{/unless}}{{#if isNew}}<span class="bi-obj__tag bi-obj__tag--new">{{localize "BLANKINHERITANCE.Objectives.New"}}</span> {{/if}}{{#if earned}}<span class="bi-obj__tag bi-obj__tag--earned">{{localize "BLANKINHERITANCE.Objectives.Earned"}}</span> {{/if}}{{#if by}}<span class="bi-obj__by">{{by}}</span>{{/if}}</span>{{/if}}
+          </button>
+          {{#if ../editable}}{{#unless isStruck}}<button type="button" class="bi-journal__tick" data-action="tickPart" data-part-id="{{id}}">{{#if isDone}}{{localize "BLANKINHERITANCE.Journal.Untick"}}{{else}}{{localize "BLANKINHERITANCE.Journal.Tick"}}{{/if}}</button>{{/unless}}{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+      {{#if more}}<div class="bi-journal__more"><span>?</span><span>{{localize "BLANKINHERITANCE.Objectives.More"}}</span></div>{{/if}}
+      {{/if}}
+      {{/each}}
+      {{/each}}
+      <div class="bi-journal__actions"><button type="button" class="bi-journal__btn" data-action="write">＋ {{localize "BLANKINHERITANCE.Journal.WriteYourOwn"}}</button></div>
+      <div class="bi-journal__end"><span class="sq"></span><span>›</span><span class="ijo">以上</span><span>{{localize "BLANKINHERITANCE.Journal.EndOfBrief"}}</span>{{#if selected.isOrder}}<img src="{{mark}}" alt="">{{/if}}</div>
+    </div>
+
+    <div class="bi-journal__right">
+      {{#if writing}}
+      <div class="bi-journal__form">
+        <div class="bi-journal__form-head"><b>{{localize "BLANKINHERITANCE.Journal.Form.Head"}}</b><span>{{tele.day}} · {{tele.quarter}}</span></div>
+        <datalist id="bi-journal-givers">
+          {{#if form.self}}<option value="{{form.self}}"></option>{{/if}}
+          {{#each form.party}}<option value="{{this}}"></option>{{/each}}
+          {{#each form.met}}<option value="{{this}}"></option>{{/each}}
+        </datalist>
+        <div class="bi-journal__fld"><label for="bi-journal-giver">{{localize "BLANKINHERITANCE.Journal.Form.Giver"}}</label>
+          <input type="text" id="bi-journal-giver" name="giver" list="bi-journal-givers" value="{{form.draft.giver}}" placeholder="{{#if form.self}}{{form.self}}{{else}}{{localize "BLANKINHERITANCE.Journal.Form.GiverPlaceholder"}}{{/if}}">
+          <label class="bi-journal__check"><input type="checkbox" name="wasOrder" {{#if form.draft.wasOrder}}checked{{/if}}> {{localize "BLANKINHERITANCE.Journal.Form.WasOrder"}}</label>
+        </div>
+        <div class="bi-journal__fld"><label for="bi-journal-said">{{localize "BLANKINHERITANCE.Journal.Form.Said"}} <span class="hint">{{localize "BLANKINHERITANCE.Journal.Form.IfAnything"}}</span></label><input type="text" id="bi-journal-said" name="said" value="{{form.draft.said}}"></div>
+        <div class="bi-journal__fld"><label for="bi-journal-why">{{localize "BLANKINHERITANCE.Journal.Form.Why"}}</label><input type="text" id="bi-journal-why" name="why" value="{{form.draft.why}}"></div>
+        <div class="bi-journal__fld"><span class="lbl">{{localize "BLANKINHERITANCE.Journal.Form.Must"}}</span>
+          <div class="bi-journal__reqline"><span class="bi-obj__dia" aria-hidden="true"></span><input type="text" name="req1" value="{{form.draft.req1}}" aria-label="{{localize "BLANKINHERITANCE.Journal.Form.Must"}}"></div>
+          <div class="bi-journal__reqline"><span class="bi-obj__dia" aria-hidden="true"></span><input type="text" name="req2" value="{{form.draft.req2}}" aria-label="{{localize "BLANKINHERITANCE.Journal.Form.Must"}}"></div>
+        </div>
+        <div class="bi-journal__fld"><span class="lbl">{{localize "BLANKINHERITANCE.Journal.Form.Could"}} <span class="hint">{{localize "BLANKINHERITANCE.Objectives.Optional"}}</span></span>
+          <div class="bi-journal__reqline bi-journal__reqline--optional"><span class="bi-obj__dia" aria-hidden="true"></span><input type="text" name="opt1" value="{{form.draft.opt1}}" aria-label="{{localize "BLANKINHERITANCE.Journal.Form.Could"}}"></div>
+        </div>
+        <div class="bi-journal__fld"><label for="bi-journal-by">{{localize "BLANKINHERITANCE.Journal.Form.By"}} <span class="hint">{{localize "BLANKINHERITANCE.Journal.Form.IfItMatters"}}</span></label><input type="text" id="bi-journal-by" name="by" value="{{form.draft.by}}"></div>
+        {{#if form.canBeMine}}{{#unless form.isGM}}
+        <div class="bi-journal__fld"><span class="lbl">{{localize "BLANKINHERITANCE.Journal.Form.Whose"}}</span>
+          <div class="bi-journal__radios"><label><input type="radio" name="scope" value="mine" {{#unless (eq form.draft.scope "group")}}checked{{/unless}}> {{localize "BLANKINHERITANCE.Journal.Form.Mine"}}</label><label><input type="radio" name="scope" value="group" {{#if (eq form.draft.scope "group")}}checked{{/if}}> {{localize "BLANKINHERITANCE.Journal.Form.Section"}}</label></div>
+        </div>
+        <div class="bi-journal__fld"><span class="lbl">{{localize "BLANKINHERITANCE.Journal.Form.Who"}}</span>
+          <div class="bi-journal__radios"><label><input type="radio" name="visibility" value="all" {{#unless (eq form.draft.visibility "owner")}}checked{{/unless}}> {{localize "BLANKINHERITANCE.Journal.Form.Everyone"}}</label><label><input type="radio" name="visibility" value="owner" {{#if (eq form.draft.visibility "owner")}}checked{{/if}}> {{localize "BLANKINHERITANCE.Journal.Form.OnlyMe"}}</label></div>
+          <p class="bi-journal__honest">{{localize "BLANKINHERITANCE.Journal.Form.Honest"}}</p>
+        </div>
+        {{/unless}}{{/if}}
+        <div class="bi-journal__go">
+          <button type="submit" class="bi-journal__file">{{localize "BLANKINHERITANCE.Journal.Form.File"}}</button>
+          <button type="button" class="bi-journal__cancel" data-action="cancelWrite">{{localize "BLANKINHERITANCE.Journal.Form.Cancel"}}</button>
+          {{#if form.errors.length}}<ul class="bi-journal__errs" aria-live="polite">{{#each form.errors}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
+        </div>
+      </div>
+      {{else if selected}}
+      <div class="bi-journal__tele"><span class="bar"></span><span>{{selected.kindLabel}}</span><span>→</span><span>{{selected.giver.name}}</span><span class="ok">{{#if selected.direct}}{{localize "BLANKINHERITANCE.Journal.Direct"}}{{else}}{{localize "BLANKINHERITANCE.Journal.Filed"}}{{/if}}</span></div>
+      <p class="bi-journal__dtitle{{#if selected.hand}} is-hand{{/if}}">{{selected.title}}</p>
+      <div class="bi-journal__giver">
+        <span class="bi-journal__face" data-faction="{{selected.giver.faction}}">{{selected.faceText}}</span>
+        <div><div class="bi-journal__giver-name">{{selected.giver.name}}</div><div class="bi-journal__giver-where">{{selected.kindLabel}}{{#if selected.giver.via}} · {{selected.giver.via}}{{/if}}{{#if selected.givenAt.scene}} · {{selected.givenAt.scene}}{{/if}}</div></div>
+      </div>
+      <div class="bi-journal__slip{{#if selected.hand}} is-hand{{/if}}">
+        <span class="bi-journal__seal" data-kind="{{selected.kind}}" aria-hidden="true">{{selected.kindMark}}</span>
+        <p class="bi-journal__slip-from">{{#if selected.hand}}{{localize "BLANKINHERITANCE.Journal.InTheirWords"}}{{else}}{{localize "BLANKINHERITANCE.Journal.AsGiven"}}{{/if}}</p>
+        {{#if selected.said}}<p>“{{selected.said}}”</p>{{/if}}
+        {{#if selected.why}}<p>{{localize "BLANKINHERITANCE.Journal.Why"}} {{selected.why}}</p>{{/if}}
+        {{#if selected.brief}}{{#unless selected.said}}<p>{{selected.brief}}</p>{{/unless}}{{/if}}
+      </div>
+      <p class="bi-journal__h">{{localize "BLANKINHERITANCE.Journal.Needed"}}</p>
+      <ul class="bi-journal__need">
+        {{#each selected.parts}}
+        <li class="{{#unless isRequired}}is-optional{{/unless}}{{#if isDone}} is-done{{/if}}{{#if isStruck}} is-struck{{/if}}{{#if isPick}} is-pick{{/if}}"><span class="bi-obj__dia" aria-hidden="true"></span>
+          <span><span class="bi-journal__need-t">{{text}}{{#unless isRequired}} <span class="bi-obj__tag bi-obj__tag--opt">{{localize "BLANKINHERITANCE.Objectives.Optional"}}</span>{{/unless}}</span>
+          <span class="bi-journal__need-d">{{#if isStruck}}✕ {{strikeNote}}{{else if isDone}}{{localize "BLANKINHERITANCE.Journal.Done"}}{{else if detail}}{{detail}}{{else if isRequired}}{{localize "BLANKINHERITANCE.Journal.Required"}}{{/if}}{{#if by}} <span class="bi-obj__by">{{by}}</span>{{/if}}</span></span></li>
+        {{/each}}
+      </ul>
+      {{#if selected.deadline.cost}}<p class="bi-journal__cost"><span class="bi-stamp-mark" data-kind="order" aria-hidden="true">命</span><span>{{selected.deadline.cost}}</span></p>{{/if}}
+      <p class="bi-journal__h">{{localize "BLANKINHERITANCE.Journal.Learned"}}</p>
+      {{#if selected.log.length}}
+      <ul class="bi-journal__log">{{#each selected.log}}<li><time>{{scene}}</time><span>{{text}}</span></li>{{/each}}</ul>
+      {{else}}<p class="bi-journal__sub">{{localize "BLANKINHERITANCE.Journal.LearnedNone"}}</p>{{/if}}
+      <div class="bi-journal__links">
+        <button type="button" class="bi-journal__link" data-action="track" data-objective-id="{{selected.id}}"><b>T</b>{{localize "BLANKINHERITANCE.Journal.TrackThis"}}</button>
+        <button type="button" class="bi-journal__link" data-action="openPlan"><b>{{localize "BLANKINHERITANCE.Journal.Notebook"}}</b>{{localize "BLANKINHERITANCE.Journal.OurPlan"}}</button>
+      </div>
+      {{#if selected.editable}}
+      <div class="bi-journal__actions">
+        <button type="button" class="bi-journal__btn" data-action="closeOwn">{{localize "BLANKINHERITANCE.Journal.CloseIt"}}</button>
+        {{#if selected.ownEditable}}<button type="button" class="bi-journal__btn bi-journal__btn--danger" data-action="deleteOwn">{{localize "BLANKINHERITANCE.Journal.Delete"}}</button>{{/if}}
+      </div>
+      {{/if}}
+      {{/if}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if (eq tab "record")}}
+  <div class="bi-journal__single">
+    <p class="bi-journal__kicker" style="text-align:center;margin-top:0">{{localize "BLANKINHERITANCE.Journal.StorySoFar"}}</p>
+    {{#if record.empty}}<p class="bi-journal__empty">{{localize "BLANKINHERITANCE.Journal.RecordEmpty"}}</p>{{/if}}
+    <div class="bi-journal__record">
+      {{#each record.entries}}
+      <article class="bi-journal__sheet">
+        <div class="bi-journal__sheet-head"><span class="bi-stamp-mark" data-kind="{{kind}}" aria-hidden="true">{{kindMark}}</span><span>{{#if failed}}{{localize "BLANKINHERITANCE.Journal.Failed"}}{{else if withdrawn}}{{localize "BLANKINHERITANCE.Journal.Withdrawn"}}{{else}}{{localize "BLANKINHERITANCE.Journal.Closed"}}{{/if}}{{#if closedAt.scene}} · {{closedAt.scene}}{{/if}}</span><span>· {{giver.name}}</span>{{#if ../isGM}}<button type="button" class="bi-journal__tick" data-action="reopen" data-objective-id="{{id}}" style="margin-left:auto">{{localize "BLANKINHERITANCE.Journal.Reopen"}}</button>{{/if}}</div>
+        <p class="bi-journal__sheet-title{{#if hand}} is-hand{{/if}}">{{title}}</p>
+        {{#if record}}<p class="bi-journal__para">{{record}}</p>{{else}}<p class="bi-journal__para bi-journal__para--none">{{localize "BLANKINHERITANCE.Journal.NoParagraph"}}</p>{{/if}}
+      </article>
+      {{/each}}
+    </div>
+    {{#if record.looseEnds.length}}
+    <div class="bi-journal__loose"><b>{{localize "BLANKINHERITANCE.Journal.LooseEnds"}}</b><ul>{{#each record.looseEnds}}<li>◇ {{text}} <span class="bi-obj__by">· {{by}}, {{from}}</span></li>{{/each}}</ul></div>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{#if (eq tab "papers")}}
+  <div class="bi-journal__single">
+    {{#unless papers.length}}<p class="bi-journal__empty">{{localize "BLANKINHERITANCE.Journal.PapersEmpty"}}</p>{{/unless}}
+    <div class="bi-journal__grid">
+      {{#each papers}}
+      <button type="button" class="bi-journal__paper" data-action="openPaper" data-entry-id="{{id}}">
+        <div class="bi-journal__paper-face"><div class="org">特別対策本部</div>{{excerpt}}</div>
+        <p class="bi-journal__paper-cap">{{name}}</p>
+      </button>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if (eq tab "people")}}
+  <div class="bi-journal__single">
+    {{#unless people.length}}<p class="bi-journal__empty">{{localize "BLANKINHERITANCE.Journal.PeopleEmpty"}}</p>{{/unless}}
+    <div class="bi-journal__grid">
+      {{#each people}}
+      <button type="button" class="bi-journal__person" data-action="openPerson" data-page-id="{{id}}">
+        {{#if img}}<img src="{{img}}" alt="">{{else}}<span class="bi-journal__face" data-faction="neutral">{{faceText}}</span>{{/if}}
+        <span><span class="bi-journal__person-name">{{name}}</span>
+          {{#if gave.length}}<span class="bi-journal__person-gave" style="display:block"><b>{{localize "BLANKINHERITANCE.Journal.Gave"}}</b>{{#each gave}}{{this}}{{#unless @last}} · {{/unless}}{{/each}}</span>{{/if}}
+          <span class="bi-journal__person-nb" style="display:block">{{localize "BLANKINHERITANCE.Journal.NotebookPage"}} ›</span></span>
+      </button>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  <footer class="bi-journal__foot">
+    <span><span class="bi-journal__cap">T</span>{{localize "BLANKINHERITANCE.Journal.Track"}}</span>
+    <span><span class="bi-journal__cap">W</span>{{localize "BLANKINHERITANCE.Journal.WriteYourOwn"}}</span>
+    <span><span class="bi-journal__cap">J</span>{{localize "BLANKINHERITANCE.Journal.Close"}}</span>
+  </footer>
+</div>

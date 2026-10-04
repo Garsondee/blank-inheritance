@@ -89,6 +89,7 @@ export const STYLESHEETS = Object.freeze([
   "styles/bi-agreement.css",
   "styles/bi-papers.css",
   "styles/bi-notebook.css",
+  "styles/bi-objectives.css",
   "styles/bi-foundry-bridge.css"
 ]);
 

@@ -161,7 +161,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "deputy-director",
-      "text": "The Deputy Director <trig id=\"deputy-director-steps-up\"/> gives the address. Read it as a speech; drop any part but the last two.",
+      "text": "The Deputy Director <trig id=\"deputy-director-steps-up\"/> gives the address. Read it as a speech; drop any part but the last two. <trig id=\"enrolment-instructions\"/>",
       "readAloud": "My name is Seiichi Takamine. It will be on a great many documents you sign this year, so you may as well hear it said once, by me.\n\nYou have joined Tokubetsu Taisaku Honbu, the Special Countermeasures Headquarters, which this city calls the Directorate. We exist to be ready. We keep the sirens, the shelters and the drills, and on most days we keep the harbour, the drains and the heavy lifting this city can't do without. In a hundred and fifty years the alarm has never once been real. That is a promise, and it is not a guarantee.\n\nYou will find we are two things at once. We are a school, so you will sit lessons. We are a service, so you will drill, carry orders and stand watches. In the mornings you will be taught. In the afternoons, once your section officer releases you, the time is yours: the gymnasium, the range, the library, or a lesson you choose yourselves. Spend it well. Nobody here will spend it for you.\n\nWe have a great many rules, and you will break most of them by accident before the month is out. Two you should know today. If you are out after curfew, that is a small thing: it will be written down, and you will be told off. If you are given a direct order and you refuse it, that is not a small thing. It is the most serious thing you can do here, and you will explain yourself to someone like me.\n\nThat is all. Your section officers have your postings. Welcome to the Directorate. I am glad you are here.",
       "note": "Do: Afterwards he takes questions, and answers plainly.",
       "triggers": [
@@ -170,6 +170,14 @@
           "kind": "npc-enter",
           "npcRef": "deputy-director",
           "label": "The Deputy Director steps up"
+        },
+        {
+          "id": "enrolment-instructions",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-report-for-enrolment",
+          "partRef": "instructions",
+          "label": "Enrolment: instructions given"
         }
       ],
       "facts": [

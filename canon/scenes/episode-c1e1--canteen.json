@@ -170,7 +170,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last.",
+      "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last. <trig id=\"give-drains\"/>",
       "readAloud": "\"Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two.\" He looks up for the first time. \"Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.\"",
       "direction": "No choice and no appeal: he answers any argument by reading the order again, once, and goes.",
       "note": "Secret: He gave them the drains for the vial. He'll never say so.",
@@ -180,6 +180,13 @@
           "kind": "npc-enter",
           "npcRef": "section-officer",
           "label": "Vetch arrives"
+        },
+        {
+          "id": "give-drains",
+          "kind": "objective",
+          "act": "give",
+          "objectiveRef": "c1e1-storm-drains",
+          "label": "Give: Clear the storm drain"
         }
       ],
       "facts": [
@@ -209,10 +216,20 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "taka",
-      "text": "The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word.",
+      "text": "The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word. <trig id=\"drains-wear-them\"/>",
       "readAloud": "\"Storm drains.\" Taka is quiet for a moment, which is new. \"Wear the waders. Trust me.\"",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [],
+      "triggers": [
+        {
+          "id": "drains-wear-them",
+          "kind": "objective",
+          "act": "reveal",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "wear-them",
+          "label": "Drains: Taka's advice"
+        }
+      ]
     },
     {
       "id": "ask-taka",

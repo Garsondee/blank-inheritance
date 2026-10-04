@@ -68,6 +68,7 @@ import { needsTravel } from "../core/travel-trigger.mjs";
 import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
 import { currentEntries, recordLogEntry } from "./session-log.mjs";
+import { runObjectiveTrigger } from "./objectives-runner.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { readKnownNames, removeFromStage, revealName, summonToStage } from "./stage.mjs";
 import { isNameProtected, knownSet, rawStageId, stageIdFor } from "../core/stage-names.mjs";
@@ -2336,6 +2337,14 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           console.error("Blank Inheritance | Could not post that check:", err);
           ui.notifications.warn(String(err?.message ?? err));
         }
+        return;
+      }
+      case "objective": {
+        // design/objectives.md: give, tick, reveal, strike or close one. Give and close ask first; a press that
+        // changes nothing (a second Give, a tick already made) is not logged.
+        const changed = await runObjectiveTrigger(trigger, { scene: canvas?.scene?.name ?? brief?.title ?? null });
+        if (changed) await logFired();
+        this.render({});
         return;
       }
       case "note":

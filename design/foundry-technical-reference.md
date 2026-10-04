@@ -233,6 +233,19 @@ A control left with zero visible tools after the hook runs is deleted entirely. 
 ### Module public API — convention only, not core-supported
 `game.modules.get(id).api = {...}` works only because the `Module` class doesn't seal its properties — it is **not** a declared schema field, not validated, not typed by core. Fine to use as the standard pattern, just don't treat it as a guaranteed contract.
 
+### Three things found building the objectives (2026-10-04, design/objectives.md), proven live
+- **ApplicationV2 already has a `tab` action** (it changes a tab group and wants `data-tab` *and* `data-group`). A window
+  of ours with its own `actions: { tab: ... }` and `data-action="tab"` buttons gets Foundry's instead: "You must pass both
+  the tab and tab group identifier". Name the action anything else (`showTab`).
+- **A player cannot set `ownership`** on a document they create or update: `DocumentOwnershipField`'s own comment says
+  "Server-side sanitization rules prevent changing ownership". A player may create a `JournalEntryPage` (the test is
+  OWNER on the parent, `journal-entry-page.mjs#canCreate`), but its level must be applied by a GM's client afterwards.
+  When that repair raises levels, set a key the state does not name to the *default*, not to NONE: the server gives the
+  creator their own OWNER entry, and an explicit NONE would lock them out of their own page.
+- **Foundry's keybindings listen on `window`, in the bubble phase** (`keyboard-manager.mjs`). A window that wants Q, E,
+  T or W for itself while it is in front can take them in the document's capture phase and `stopPropagation()`. A
+  listener on the window's own element loses its keys whenever a re-render drops focus.
+
 ---
 
 ## 4. sf2e data model

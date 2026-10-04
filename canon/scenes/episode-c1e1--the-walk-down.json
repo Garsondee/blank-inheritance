@@ -80,9 +80,27 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Every pair of waders is the wrong size. Let whoever looks first find out how wrong.",
+      "text": "Every pair of waders is the wrong size. Let whoever looks first find out how wrong. <trig id=\"drains-waders\"/> <trig id=\"drains-wearing\"/>",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [],
+      "triggers": [
+        {
+          "id": "drains-waders",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "waders",
+          "label": "Drains: waders drawn"
+        },
+        {
+          "id": "drains-wearing",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "wear-them",
+          "label": "Drains: wearing them"
+        }
+      ]
     },
     {
       "id": "takas-send-off",
@@ -111,7 +129,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "At Dock C, Vetch <trig id=\"vetch-at-dock-c\"/> gives them the job and puts them on the duty launch.",
+      "text": "At Dock C, Vetch <trig id=\"vetch-at-dock-c\"/> gives them the job <trig id=\"drains-at-dock-c\"/> <trig id=\"drains-job-power\"/> <trig id=\"drains-job-feed\"/> <trig id=\"drains-job-report\"/> and puts them on the duty launch.",
       "readAloud": "\"Power to the drainage line. Clear the compactor feed. Report to me when it runs.\" He ticks something on his clipboard. \"The launch will take you over. I'll be at the top.\"",
       "triggers": [
         {
@@ -119,6 +137,38 @@
           "kind": "npc-enter",
           "npcRef": "section-officer",
           "label": "Vetch at Dock C"
+        },
+        {
+          "id": "drains-at-dock-c",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "dock-c",
+          "label": "Drains: at Dock C"
+        },
+        {
+          "id": "drains-job-power",
+          "kind": "objective",
+          "act": "reveal",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "power",
+          "label": "Drains: power to the line"
+        },
+        {
+          "id": "drains-job-feed",
+          "kind": "objective",
+          "act": "reveal",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "feed",
+          "label": "Drains: clear the feed"
+        },
+        {
+          "id": "drains-job-report",
+          "kind": "objective",
+          "act": "reveal",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "report",
+          "label": "Drains: report when it runs"
         }
       ],
       "facts": [

@@ -59,3 +59,8 @@ of the two choices, so a table that skips it just hears no grins at supper.
 **R24.** The island platforms, then the stores.
 
 **R25.** D043's reason for Rand (it signs the night the requisition is filed) is kept.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

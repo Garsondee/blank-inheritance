@@ -24,6 +24,9 @@ The campaign's trusted material, rebuilt one scene at a time from Ingram's decis
 - `scenes/` and `challenges/`: scenes that have been through the re-read, in the same JSON shape Foundry reads.
   `node tools/story/story.mjs build` copies them into `data/`. **Edit the canon copy, never the `data/` one**: the check
   fails if they differ.
+- `objectives/`: what someone in the world asks of the party (design/objectives.md, D057): the giver, their words, every
+  part required or optional. `story build` copies them to `data/objectives/`; the scenes carry the chips that give, tick,
+  reveal, strike and close them, and `story check` holds them to the rule.
 - `scenes/<id>.reread.md`: the record of each scene's re-read: every question, the answer, and what changed.
 - `reread.md`: the questions every scene is re-read against. It grows whenever Ingram's reading finds something it
   should have caught.

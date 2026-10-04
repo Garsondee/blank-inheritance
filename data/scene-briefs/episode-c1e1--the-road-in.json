@@ -32,7 +32,7 @@
       "kind": "reveal",
       "mandatory": true,
       "delivery": "table",
-      "text": "Read the letter aloud, then press Show the table. Each player gets a private copy with their own character's name typed in.",
+      "text": "Read the letter aloud, then press Show the table. <trig id=\"give-enrolment\"/> Each player gets a private copy with their own character's name typed in.",
       "readAloud": "Dear Candidate,\n\nYour application to Tokubetsu Taisaku Honbu has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n\nPlease bring nothing you cannot carry, and nothing you cannot leave.\n\nWe look forward to your service.",
       "note": "Plant: The stamp, the typed name and the return slip are for whoever reads closely. Say nothing about them.\nIf asked what \"nothing you cannot leave\" means: Pack light. This is enlistment, and the Directorate provides what is needed.",
       "handoutRef": "acceptance-letter",
@@ -42,6 +42,15 @@
       ],
       "gmFacts": [
         "directorate.why-brought-forward"
+      ],
+      "triggers": [
+        {
+          "id": "give-enrolment",
+          "kind": "objective",
+          "act": "give",
+          "objectiveRef": "c1e1-report-for-enrolment",
+          "label": "Give: Report for enrolment"
+        }
       ]
     },
     {

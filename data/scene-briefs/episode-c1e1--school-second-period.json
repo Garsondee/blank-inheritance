@@ -101,7 +101,7 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "each",
-      "text": "Each player picks: the natural history lesson, or the range.",
+      "text": "Each player picks: the natural history lesson, or the range. <trig id=\"docket-second-period\"/>",
       "choicePoint": {
         "label": "Second period. A lesson, or the range?",
         "options": [
@@ -124,7 +124,17 @@
       "facts": [
         "directorate.free-time"
       ],
-      "gmFacts": []
+      "gmFacts": [],
+      "triggers": [
+        {
+          "id": "docket-second-period",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-the-docket",
+          "partRef": "second-period",
+          "label": "Docket: second period done"
+        }
+      ]
     },
     {
       "id": "natural-history",

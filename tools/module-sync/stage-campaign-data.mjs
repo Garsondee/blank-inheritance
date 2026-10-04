@@ -34,6 +34,7 @@ export const SYNCED_CAMPAIGN_DIRS = [
   "hangar",
   "locations",
   "npcs",
+  "objectives",
   "scene-briefs",
   "subsystems"
 ];

@@ -135,7 +135,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "storekeeper",
-      "text": "The instrument maker reads the docket twice and laughs. On any result, she sends them on to Manako.",
+      "text": "The instrument maker reads the docket twice and laughs. <trig id=\"docket-no-such-part\"/> On any result, she sends them on to Manako.",
       "readAloud": "\"Love, we make the vials. There's nothing in the bubble. That's the whole point of the bubble. It's the bit that isn't there.\"",
       "note": "If anyone tries to talk her round: Offer the check: it decides how warmly she sends them on.",
       "challengeRef": "c1e1-the-errand",
@@ -143,6 +143,16 @@
       "facts": [],
       "gmFacts": [
         "section-officer.hazing"
+      ],
+      "triggers": [
+        {
+          "id": "docket-no-such-part",
+          "kind": "objective",
+          "act": "strike",
+          "objectiveRef": "c1e1-the-docket",
+          "partRef": "collect",
+          "label": "Docket: no such part"
+        }
       ]
     },
     {
@@ -223,14 +233,24 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "manako",
-      "text": "Manako tells them how he came back empty-handed once, then gives them his plan.",
+      "text": "Manako tells them how he came back empty-handed once, then gives them his plan. <trig id=\"docket-manakos-way\"/>",
       "readAloud": "\"They did this to me, you know. Forty-odd years ago. I came back with nothing, and they laughed, and I've had a long time to think about what I should have done.\"\n\n\"So. He's written BUBBLE, ONE. Don't argue with him. Take him at his word. The bubble lives in a sealed vial, and the vial is a real part, with a real number, and it isn't cheap. Requisition a new vial against this docket, exactly as he wrote it. It needs a signature from a desk above his, and it makes a form that says who asked for it, and why.\"\n\n\"You'll have done exactly what you were told. Somebody upstairs will spend four minutes of their afternoon working out why.\"",
       "note": "Do: He writes the part number on the back of a bill for them, in a careful, old-fashioned hand. Grant it.",
       "facts": [
         "manako.came-back-empty-handed",
         "manako.the-vial-plan"
       ],
-      "gmFacts": []
+      "gmFacts": [],
+      "triggers": [
+        {
+          "id": "docket-manakos-way",
+          "kind": "objective",
+          "act": "reveal",
+          "objectiveRef": "c1e1-the-docket",
+          "partRef": "requisition",
+          "label": "Docket: Manako's way"
+        }
+      ]
     },
     {
       "id": "how-to-file-it",
@@ -278,11 +298,21 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "manako",
-      "text": "He asks them to come back and say how it went. If one was especially kind, he writes them his number on a napkin.",
+      "text": "He asks them to come back and say how it went. <trig id=\"docket-tell-manako\"/> If one was especially kind, he writes them his number on a napkin.",
       "note": "Do: Your call who, if anyone. No roll. Hand that player a note with the number.\nSecret: Trainee messages are read: by the Directorate, as routine, and by the Watcher.",
       "facts": [],
       "gmFacts": [
         "manako.messages-read"
+      ],
+      "triggers": [
+        {
+          "id": "docket-tell-manako",
+          "kind": "objective",
+          "act": "reveal",
+          "objectiveRef": "c1e1-the-docket",
+          "partRef": "tell-manako",
+          "label": "Docket: tell Manako how it went"
+        }
       ]
     }
   ],

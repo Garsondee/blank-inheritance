@@ -168,7 +168,8 @@ test("the Director's doors fit their shoulder with room to spare (regression: th
   // fifth pill at the base 44px cap left the caps overlapping by a pixel, so
   // its row is the tight one too, under the same arithmetic.
   const playerPills = (identTemplate.match(/class="bi-deck-pill__cap"/g) ?? []).length;
-  assert.equal(playerPills, 5, "Sheet, Spells, Gear, Notes, Comms");
+  // and six since the Journal joined (2026-10-04, design/objectives.md): 231 of 252 px, still inside the row.
+  assert.equal(playerPills, 6, "Sheet, Spells, Gear, Notes, Journal, Comms");
   assert.match(identTemplate, /class="bi-deck__pills bi-deck__pills--tight"/, "five pills must use the tight row");
   assert.ok(playerPills * cap + (playerPills - 1) * gap <= room, `${playerPills} pills need ${playerPills * cap + (playerPills - 1) * gap}px; the shoulder has ${room}px`);
 });

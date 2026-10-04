@@ -122,7 +122,10 @@ export const RESET_DEFAULTS = Object.freeze({
   // On by default, like the chat log: the notebook's pages are about the run
   // being thrown away (a test NPC's page would otherwise sit in front of real
   // players), and the snapshot keeps every page so undo can put them back.
-  clearNotebook: true
+  clearNotebook: true,
+  // On by default too: the start of Episode One has no objectives (design/objectives.md), and the snapshot keeps
+  // every page whole, given or written by a player, so undo puts them back.
+  clearObjectives: true
 });
 
 export function normalizeResetOptions(raw = {}) {
@@ -151,6 +154,7 @@ export function resetPlan(rawOptions = {}) {
     { id: "travel", undoable: true }
   ];
   if (options.clearNotebook) steps.push({ id: "notebook", undoable: true });
+  if (options.clearObjectives) steps.push({ id: "objectives", undoable: true });
   if (options.clearChat) steps.push({ id: "chat", undoable: true });
   if (options.endCombats) steps.push({ id: "combats", undoable: false });
   if (options.deleteInductionCharacters) steps.push({ id: "induction", undoable: true });
@@ -186,7 +190,7 @@ export function snapshotProblems(snapshot) {
   for (const key of Object.keys(snapshot.settings ?? {})) {
     if (!RESET_SETTINGS.includes(key)) problems.push(`setting ${key} is not one a reset touches`);
   }
-  for (const list of ["chat", "actors", "pawns", "notebook"]) {
+  for (const list of ["chat", "actors", "pawns", "notebook", "objectives"]) {
     if (snapshot[list] !== undefined && !Array.isArray(snapshot[list])) problems.push(`${list} is not a list`);
   }
   return problems;

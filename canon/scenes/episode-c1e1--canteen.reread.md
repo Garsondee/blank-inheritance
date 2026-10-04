@@ -66,3 +66,8 @@ success points at it, and the table works out the rest).
 **R24.** The Long Hall.
 
 **R25.** D044's plant and wording are used.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

@@ -39,7 +39,8 @@ export const BUDGET = Object.freeze({
   scene: 900,
 });
 
-const words = (s) => (s ? String(s).trim().split(/\s+/).filter(Boolean).length : 0);
+// A <trig id="..."/> token renders as a button in the Runner, not as words the GM reads, so it is not counted.
+const words = (s) => (s ? String(s).replace(/<trig\s+id=["'][a-z0-9-]+["']\s*\/>/gi, " ").trim().split(/\s+/).filter(Boolean).length : 0);
 
 const scenes = readdirSync(sceneDir)
   .filter((f) => /^episode-c1e1--.+\.json$/.test(f))

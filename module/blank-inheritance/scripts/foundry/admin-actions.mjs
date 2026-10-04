@@ -36,6 +36,7 @@ import { ensureDowntimeVault, setMoment } from "./campaign-state.mjs";
 import { cancelCityDeparture, openCityDeparture, sceneForBrief } from "./city-state.mjs";
 import { ensureStageVault } from "./stage.mjs";
 import { notebookEntry } from "./notebook-store.mjs";
+import { clearObjectives, restoreObjectives, snapshotObjectives } from "./objectives-store.mjs";
 import { stopAllAudio } from "./audio-director.mjs";
 import { landingSceneId } from "./landing-scene.mjs";
 import { recordLogEntry } from "./session-log.mjs";
@@ -118,6 +119,8 @@ async function takeSnapshot(options) {
     pawns: pawnTokens().map(({ scene, token }) => ({ sceneId: scene.id, data: token.toObject() })),
     // Every page, whole, so undo can put back exactly what was cleared.
     notebook: options.clearNotebook ? (notebookEntry()?.pages.contents ?? []).map((page) => page.toObject()) : [],
+    // Every objective page, whole (design/objectives.md), so undo puts them back with their own ids.
+    objectives: options.clearObjectives ? snapshotObjectives() : [],
     chat: options.clearChat ? game.messages.contents.map((m) => m.toObject()) : [],
     actors: options.deleteInductionCharacters
       ? inductionActors().map((a) => ({ data: a.toObject(), userIds: game.users.filter((u) => u.character?.id === a.id).map((u) => u.id) }))
@@ -223,6 +226,11 @@ const STEPS = {
     const entry = notebookEntry();
     const ids = entry?.pages.map((page) => page.id) ?? [];
     if (ids.length) await entry.deleteEmbeddedDocuments("JournalEntryPage", ids);
+  },
+
+  /** Clear every objective. The entry stays; the start of Episode One has none given. */
+  async objectives() {
+    await clearObjectives();
   },
 
   async chat() {
@@ -362,6 +370,9 @@ export async function undoLastReset() {
     const entry = notebookEntry();
     const missing = (snapshot.notebook ?? []).filter((data) => !entry?.pages.has(data._id));
     if (entry && missing.length) await entry.createEmbeddedDocuments("JournalEntryPage", missing, { keepId: true });
+  });
+  await attempt("objectives", async () => {
+    await restoreObjectives(snapshot.objectives ?? []);
   });
   await attempt("chat", async () => {
     const missing = (snapshot.chat ?? []).filter((m) => !game.messages.get(m._id));

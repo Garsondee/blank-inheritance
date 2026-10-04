@@ -42,7 +42,29 @@ function deckOnScreen() {
   if (plate?.width > 0 && plate?.height > 0) shapes.push({ rect: [plate.left, plate.top, plate.right, plate.bottom] });
   const orb = document.querySelector("#bi-command-bar .bi-orb")?.getBoundingClientRect();
   if (orb?.width > 0 && orb?.height > 0) shapes.push({ circle: [orb.left + orb.width / 2, orb.top + orb.height / 2, orb.width / 2] });
+  // the objectives tracker, top right (design/objectives.md): no face stands behind it, whatever size it is folded to
+  for (const el of document.querySelectorAll("#bi-objectives .bi-obj > *")) {
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) shapes.push({ rect: [r.left, r.top, r.right, r.bottom] });
+  }
   return shapes;
+}
+
+/**
+ * The stage's own controls along the top of the screen (the GM strip, the blocking strip, the health pill, their toggle),
+ * as they are on this screen now. The objectives tracker drops below any of them it would otherwise cover (found
+ * 2026-10-04: its header sat over the GM strip's Hide wall at 1920 wide). The stage element itself, for whoever
+ * needs to watch it change.
+ */
+export function stageTopControls() {
+  const stage = document.getElementById("stagecraft-stage");
+  const rects = [];
+  for (const el of stage?.querySelectorAll(".stagecraft-bar, .stagecraft-health, .stagecraft-gm-toggle") ?? []) {
+    if (el.hidden) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0 && r.top < window.innerHeight / 3) rects.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+  }
+  return { stage, rects };
 }
 
 const LOG = "Blank Inheritance | Stagecraft bridge";

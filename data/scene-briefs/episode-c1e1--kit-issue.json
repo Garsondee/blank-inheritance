@@ -112,13 +112,28 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "nobu",
-      "text": "Nobu <trig id=\"nobu-appears\"/> issues the uniforms: slate teal-grey tunics with an orange tab on the collar.",
+      "text": "Nobu <trig id=\"nobu-appears\"/> issues the uniforms <trig id=\"enrolment-kit\"/> <trig id=\"close-enrolment\"/>: slate teal-grey tunics with an orange tab on the collar.",
       "triggers": [
         {
           "id": "nobu-appears",
           "kind": "npc-enter",
           "npcRef": "nobu",
           "label": "Nobu appears"
+        },
+        {
+          "id": "enrolment-kit",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-report-for-enrolment",
+          "partRef": "kit",
+          "label": "Enrolment: kit drawn"
+        },
+        {
+          "id": "close-enrolment",
+          "kind": "objective",
+          "act": "close",
+          "objectiveRef": "c1e1-report-for-enrolment",
+          "label": "Close: Report for enrolment"
         }
       ],
       "facts": [
@@ -177,7 +192,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "Vetch <trig id=\"vetch-inspects\"/> walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table.",
+      "text": "Vetch <trig id=\"vetch-inspects\"/> walks the line, finds fault with each of them, and hands Section Nine a docket. <trig id=\"give-docket\"/> Show the table.",
       "readAloud": "He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.\n\n\"Second period first. Then the city. Back to me by nineteen hundred.\"",
       "note": "Plant: It's a direct order, and refusing one is the serious thing the Deputy Director warned them about.\nSecret: There's no such part. Vetch sends every new section for the bubble in a spirit level. It was done to him once.",
       "handoutRef": "the-docket",
@@ -187,6 +202,13 @@
           "kind": "npc-enter",
           "npcRef": "section-officer",
           "label": "Vetch inspects"
+        },
+        {
+          "id": "give-docket",
+          "kind": "objective",
+          "act": "give",
+          "objectiveRef": "c1e1-the-docket",
+          "label": "Give: Collect the levelling bubble"
         }
       ],
       "facts": [

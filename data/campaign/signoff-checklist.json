@@ -2,10 +2,10 @@
   "$schema": "../schema/signoff-checklist.schema.json",
   "id": "signoff-checklist",
   "type": "signoff-checklist",
-  "version": 6,
-  "versionDate": "2026-09-24",
+  "version": 7,
+  "versionDate": "2026-10-04",
   "description": "The checklist the Sign-Off runs a scene against, as data rather than prose, so that adding a check is a recorded act with a version bump behind it. A scene's seal records the version it cleared; when this file's version rises, every scene sealed under an older one becomes STALE against the specific checks it never faced, and re-clearing it is a targeted look at those checks alone rather than a fresh review. design/scene-signoff.md is the procedure; this is its content.",
-  "notes": "Written 2026-09-22 from Ingram's brief. Every check is phrased as a question with one right answer, because a check phrased as a topic ('consider pacing') cannot be cleared and so never is. `auto` names the evaluator in tools/scene-signoff/checklist.mjs for the mechanically decidable subset -- roughly a third; the rest are read by hand and answered in the pass output. A check with auto:null is not softer, it is only unmechanisable. v2, same day, from the first dry run (The Road In): P4 was asking two questions and verifying one, M5 passed vacuously on an empty cast, recommended checks ignored an exemption the author had already written into the scene's own notes, and nothing asked whether the beat structure describes what will actually happen. Plus the consequence radar (M23/M24/Q17), Ingram's own addition. Applicability added the same day, after the second dry run found that 7 of 63 checks cannot be answered for a six-spotlight montage with no NPCs -- and that a manual check had no way to say so, leaving a reviewer to invent an answer or silently skip it, the latter being indistinguishable from forgetting. `appliesWhenAuto` decides the structural cases; a per-scene `notApplicable` entry on the review record handles the rest. No version bump: narrowing when a check applies cannot make an already-sealed scene wrong. v3, same day, from Ingram's answers to the first report's three questions: long-horizon payoffs are suspect until reviewed against their source (M27), the Place pass writes back into the location file rather than only reading it (P11/P12), and any location a scene touches owes real depth (P6, raised to required). v4, same day: the Seam pass. Ingram noticed that nothing in the process compared a scene to the one it leads into -- specifically whether both ends have valid positions for the whole party, who travels together, and who splits up. Four passes became five, and it is the first pass whose subject is a JOIN rather than a scene. v5, same day: the Seam pass reworked from togetherness to COORDINATES after Ingram corrected a miscommunication -- every scene edge owes a real locationRef, because that is what the runner's automatic cut to the world map fires on. S11 added to check the cut actually happens. v6, 2026-09-24: Q18, contamination. Ingram, settling N20 (LEDGER #34): \"We can store files where ever we like, but we must make sure our scenes never contaminate with information which the players shouldn't know yet.\" Q7 asks whether a deliberate disclosure is right; Q18 asks whether anything reached the table that nobody meant to disclose.",
+  "notes": "Written 2026-09-22 from Ingram's brief. Every check is phrased as a question with one right answer, because a check phrased as a topic ('consider pacing') cannot be cleared and so never is. `auto` names the evaluator in tools/scene-signoff/checklist.mjs for the mechanically decidable subset -- roughly a third; the rest are read by hand and answered in the pass output. A check with auto:null is not softer, it is only unmechanisable. v2, same day, from the first dry run (The Road In): P4 was asking two questions and verifying one, M5 passed vacuously on an empty cast, recommended checks ignored an exemption the author had already written into the scene's own notes, and nothing asked whether the beat structure describes what will actually happen. Plus the consequence radar (M23/M24/Q17), Ingram's own addition. Applicability added the same day, after the second dry run found that 7 of 63 checks cannot be answered for a six-spotlight montage with no NPCs -- and that a manual check had no way to say so, leaving a reviewer to invent an answer or silently skip it, the latter being indistinguishable from forgetting. `appliesWhenAuto` decides the structural cases; a per-scene `notApplicable` entry on the review record handles the rest. No version bump: narrowing when a check applies cannot make an already-sealed scene wrong. v3, same day, from Ingram's answers to the first report's three questions: long-horizon payoffs are suspect until reviewed against their source (M27), the Place pass writes back into the location file rather than only reading it (P11/P12), and any location a scene touches owes real depth (P6, raised to required). v4, same day: the Seam pass. Ingram noticed that nothing in the process compared a scene to the one it leads into -- specifically whether both ends have valid positions for the whole party, who travels together, and who splits up. Four passes became five, and it is the first pass whose subject is a JOIN rather than a scene. v5, same day: the Seam pass reworked from togetherness to COORDINATES after Ingram corrected a miscommunication -- every scene edge owes a real locationRef, because that is what the runner's automatic cut to the world map fires on. S11 added to check the cut actually happens. v6, 2026-09-24: Q18, contamination. Ingram, settling N20 (LEDGER #34): \"We can store files where ever we like, but we must make sure our scenes never contaminate with information which the players shouldn't know yet.\" Q7 asks whether a deliberate disclosure is right; Q18 asks whether anything reached the table that nobody meant to disclose. v7, 2026-10-04: M28 and M29, objectives (design/objectives.md, D057). Every objective is given by someone in the world, in their own words; a scene that gives one is where that rule is kept or broken at the table.",
   "passes": [
     {
       "id": "comprehension",
@@ -424,6 +424,26 @@
       "source": "Ingram, 2026-09-22",
       "addedIn": 3,
       "addedBecause": "The Road In's a-frame-at-a-distance seeded Mystery Ledger #11 (\"A Frame moves more gently than ordered\") off a Gen 1 utility mech. Both halves were wrong: Gen 1 machines are clanky rust buckets, and the grace in #11 is the Gen 2 tell -- hyper-advanced Mitflit biotechnology, DNA-gated, which almost nobody has ever seen operated. The plant had been carried forward through three drafts and two audits, and every one of them treated the reference number as proof the thought had been had."
+    },
+    {
+      "id": "M28",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": null,
+      "question": "If this scene gives an objective, is the giver on stage (or their paper handed over) at the beat that gives it, and does the chip sit where they say the words the tracker quotes?",
+      "why": "Ingram, D057: objectives must be given by someone, with an objective which makes sense from that person's perspective. story check proves the words are somewhere in the scene; only reading proves they are said at the moment the chip is pressed.",
+      "source": "Ingram, 2026-10-04, D057",
+      "addedIn": 7
+    },
+    {
+      "id": "M29",
+      "pass": "completeness",
+      "severity": "required",
+      "auto": null,
+      "question": "Does every objective chip this scene carries (give, tick, reveal, strike, close) sit in the beat where that thing actually happens, and does nothing it reveals give away a choice the players have not made yet?",
+      "why": "A tick pressed early tells the table something is done before it is; a part revealed early can spoil the twist the objective exists to carry (the docket's \"there is no such part\").",
+      "source": "Ingram, 2026-10-04, D057",
+      "addedIn": 7
     },
     {
       "id": "P1",

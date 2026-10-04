@@ -1,0 +1,74 @@
+{
+  "$schema": "../schema/objective.schema.json",
+  "id": "c1e1-the-docket",
+  "type": "objective",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "kind": "order",
+  "direct": true,
+  "scope": "group",
+  "giver": {
+    "npcRef": "section-officer",
+    "name": "Section Officer Vetch",
+    "via": "in person, with the stores docket",
+    "faction": "directorate"
+  },
+  "given": {
+    "sceneRef": "episode-c1e1--kit-issue",
+    "handoutRef": "the-docket"
+  },
+  "said": "Collect from the instrument makers. Sign here, here, and on the reverse. … Second period first. Then the city. Back to me by nineteen hundred.",
+  "title": "Collect the levelling bubble",
+  "brief": "One compound levelling bubble from the instrument makers in the city, signed for, back to Vetch by nineteen hundred.",
+  "want": {
+    "motivation": "reputation",
+    "stated": "An instrument part, for an instrument.",
+    "gm": "To find something wrong with Section Nine before they've done anything. There is no such part: he hazes every new section."
+  },
+  "deadline": {
+    "label": "19:00",
+    "day": 1,
+    "quarter": "evening",
+    "cost": "A direct order. Refusing one is \"the most serious thing you can do here\"."
+  },
+  "parts": [
+    {
+      "id": "second-period",
+      "need": "required",
+      "text": "Second period first",
+      "detail": "A lesson or the range: your own choice."
+    },
+    {
+      "id": "collect",
+      "need": "required",
+      "text": "Collect one from the instrument makers",
+      "detail": "In the city. Sign the docket here, here, and on the reverse.",
+      "strikeNote": "\"There's nothing in the bubble. That's the whole point of the bubble.\""
+    },
+    {
+      "id": "requisition",
+      "need": "required",
+      "text": "Requisition a new vial against the docket, exactly as he wrote it",
+      "detail": "\"It needs a signature from a desk above his.\"",
+      "by": "Manako's idea",
+      "hidden": true
+    },
+    {
+      "id": "back-by-1900",
+      "need": "required",
+      "text": "In by nineteen hundred",
+      "detail": "Vetch said nineteen hundred."
+    },
+    {
+      "id": "tell-manako",
+      "need": "optional",
+      "text": "Go back and tell Manako how it went",
+      "detail": "He asked. The tea house, his table.",
+      "by": "Manako asked",
+      "hidden": true
+    }
+  ],
+  "closes": "The requisition is in at the stores hatch before nineteen hundred.",
+  "suggestedRecord": "Day 1, afternoon. Section Officer Vetch handed Section Nine a docket for one compound levelling bubble, to be back by nineteen hundred. The instrument makers laughed: there is nothing in a bubble. In a tea house in the old town, a man called Manako told them to take Vetch at his word and requisition a new vial against the docket, exactly as written. It went in at the stores hatch before nineteen hundred.",
+  "facts": ["directorate.orders-serious"],
+  "notes": "Says what was asked, never how: whether they file it quietly or loudly is theirs (The Errand's choice). Manako's request stays open when this closes and becomes a loose end in the Record, by Ingram's choice (D057), so the tracker never pulls them back to the tea house."
+}

@@ -140,23 +140,43 @@
       "kind": "check",
       "mandatory": true,
       "delivery": "table",
-      "text": "The job, part one: get power back to the drainage line from the panels. Runs alongside clearing the jam.",
+      "text": "The job, part one: get power back to the drainage line from the panels. Runs alongside clearing the jam. <trig id=\"drains-powered\"/>",
       "challengeRef": "c1e1-flood-tunnel",
       "checkRef": "power-the-line",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [],
+      "triggers": [
+        {
+          "id": "drains-powered",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "power",
+          "label": "Drains: line powered"
+        }
+      ]
     },
     {
       "id": "clear-the-jam",
       "kind": "check",
       "mandatory": true,
       "delivery": "table",
-      "text": "The job, part two: clear the jam in the compactor feed, down on the floor. Runs alongside powering the line.",
+      "text": "The job, part two: clear the jam in the compactor feed, down on the floor. Runs alongside powering the line. <trig id=\"drains-cleared\"/>",
       "readAloud": "The feed is packed solid with whatever the old town has been putting down its drains, pressed into something with a grain to it. It comes apart if you work it in the right place.",
       "challengeRef": "c1e1-flood-tunnel",
       "checkRef": "clear-the-jam",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [],
+      "triggers": [
+        {
+          "id": "drains-cleared",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "feed",
+          "label": "Drains: feed cleared"
+        }
+      ]
     },
     {
       "id": "the-fight",
@@ -222,7 +242,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "section-officer",
-      "text": "They climb out. Vetch <trig id=\"vetch-at-the-top\"/> is waiting with their requisition, countersigned. Read it, then let him ask.",
+      "text": "They climb out. Vetch <trig id=\"vetch-at-the-top\"/> is waiting with their requisition, countersigned. Read it, then let him ask. <trig id=\"drains-reported\"/> <trig id=\"close-drains\"/>",
       "readAloud": "Vetch is waiting at the top of the ladder with a lamp and a sheet of paper. It's your requisition for the vial, countersigned in green ink over Medical's stamp: Rand, Medical.\n\n\"Which one of you is Rand?\"",
       "note": "If they don't know: \"Nobody called Rand works in Medical. I've asked.\" He folds it away and dismisses them.\nSecret: Rand is Shucks's own right hand, loose in the city. It signed tonight, from Shucks's desk. Nobody knows, Shucks included.",
       "triggers": [
@@ -231,6 +251,21 @@
           "kind": "npc-enter",
           "npcRef": "section-officer",
           "label": "Vetch at the top"
+        },
+        {
+          "id": "drains-reported",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-storm-drains",
+          "partRef": "report",
+          "label": "Drains: reported to Vetch"
+        },
+        {
+          "id": "close-drains",
+          "kind": "objective",
+          "act": "close",
+          "objectiveRef": "c1e1-storm-drains",
+          "label": "Close: Clear the storm drain"
         }
       ],
       "facts": [

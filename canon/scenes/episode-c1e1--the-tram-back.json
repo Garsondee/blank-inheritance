@@ -75,7 +75,7 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "nobu",
-      "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes the requisition without reading it. File it the way they chose.",
+      "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes the requisition without reading it. <trig id=\"docket-requisition-in\"/> <trig id=\"docket-in-time\"/> <trig id=\"close-docket\"/> File it the way they chose.",
       "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nSecret: It goes up tonight and comes back signed by Rand, of Medical: Shucks's own right hand.",
       "triggers": [
         {
@@ -83,6 +83,29 @@
           "kind": "npc-enter",
           "npcRef": "nobu",
           "label": "Nobu at the hatch"
+        },
+        {
+          "id": "docket-requisition-in",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-the-docket",
+          "partRef": "requisition",
+          "label": "Docket: requisition in"
+        },
+        {
+          "id": "docket-in-time",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-the-docket",
+          "partRef": "back-by-1900",
+          "label": "Docket: in by 19:00"
+        },
+        {
+          "id": "close-docket",
+          "kind": "objective",
+          "act": "close",
+          "objectiveRef": "c1e1-the-docket",
+          "label": "Close: Collect the levelling bubble"
         }
       ],
       "facts": [],

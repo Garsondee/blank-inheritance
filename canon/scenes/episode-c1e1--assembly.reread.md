@@ -78,3 +78,8 @@ walk-ons don't speak.
 - **The Deputy Director's name, Seiichi Takamine,** is a proposal. Change one word in the address if you'd rather
   something else.
 - **"The alarm has never once been real"** is mine, kept from the old draft: provisional.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

@@ -1,0 +1,61 @@
+{
+  "$schema": "../schema/objective.schema.json",
+  "id": "c1e1-report-for-enrolment",
+  "type": "objective",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "kind": "order",
+  "direct": false,
+  "scope": "group",
+  "giver": {
+    "npcRef": "deputy-director",
+    "name": "The Deputy Director",
+    "via": "by letter, Form 1-A",
+    "faction": "directorate"
+  },
+  "given": {
+    "sceneRef": "episode-c1e1--the-road-in",
+    "handoutRef": "acceptance-letter"
+  },
+  "said": "You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.",
+  "title": "Report for enrolment",
+  "brief": "The Directorate wants this year's intake at the Candidate Gate by Monday: examined, instructed, kitted and enrolled.",
+  "want": {
+    "motivation": "protection",
+    "stated": "A new intake, enrolled and ready.",
+    "gm": "The intake was brought forward two weeks because Nozomi refused the draft. The letter's BROUGHT FORWARD stamp is the only sign of it."
+  },
+  "deadline": {
+    "label": "MON",
+    "day": 1,
+    "quarter": "morning"
+  },
+  "parts": [
+    {
+      "id": "report",
+      "need": "required",
+      "text": "Report to the Candidate Gate and show this letter",
+      "detail": "Hand in the return slip, completed in block capitals."
+    },
+    {
+      "id": "medical",
+      "need": "required",
+      "text": "Pass the medical examination",
+      "detail": "\"A medical examination forms part of enrolment.\""
+    },
+    {
+      "id": "instructions",
+      "need": "required",
+      "text": "Be issued instructions",
+      "detail": "The letter says they are given on arrival."
+    },
+    {
+      "id": "kit",
+      "need": "required",
+      "text": "Draw uniform, bedding and personal equipment",
+      "detail": "\"Uniform, bedding and personal equipment are issued on enrolment.\""
+    }
+  ],
+  "closes": "At Kit Issue, when Nobu issues the uniforms. The same scene gives Vetch's docket.",
+  "suggestedRecord": "Day 1, morning. Section Nine reported at the Candidate Gate with their letters, queued for Form 12-B, and saw the doctor called Mordant one at a time. In the Drill Hall the Deputy Director gave the intake two rules: curfew is a small thing, and a refused order is not. By the afternoon they had uniforms and a hundred and fifty credits of kit each from the quartermaster.",
+  "notes": "Given as each player's own letter is shown in The Road In; it is one objective for the section, so pressing Give again changes nothing. Shucks's 30 XP for noticing, unprompted, that all six were flagged must never become an objective: it is for working it out."
+}

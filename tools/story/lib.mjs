@@ -9,6 +9,8 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { QUARTER_IDS } from "../../module/blank-inheritance/scripts/core/day-ring.mjs";
 
+import { checkObjectives } from "./objectives.mjs";
+
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 export const STATUSES = ["decided", "accepted", "proposal", "open", "provisional", "cut"];
@@ -139,7 +141,7 @@ const listFiles = (dir, ext) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter
 
 export function loadModel(root = ROOT) {
   const c = (p) => path.join(root, "canon", p);
-  const model = { root, decisions: [], sources: [], world: [], plan: [], scenes: [], challenges: [], built: {}, problems: [] };
+  const model = { root, decisions: [], sources: [], world: [], plan: [], scenes: [], challenges: [], objectives: [], built: {}, problems: [] };
   // Source records: material Ingram gave as a whole document (S001...), kept beside the decisions.
   for (const f of listFiles(c("sources"), ".md")) {
     const head = lf(fs.readFileSync(c("sources/" + f), "utf8")).split("\n")[0].match(/^# (S\d{3}) · ([^·]+?) · (.+)$/);
@@ -159,7 +161,7 @@ export function loadModel(root = ROOT) {
     model.plan.push(...parsePlan(raw, f));
     (model.planRaw ||= {})[f] = lf(raw);
   }
-  for (const [kind, dir, dataDir] of [["scenes", "scenes", "data/scene-briefs"], ["challenges", "challenges", "data/challenges"]]) {
+  for (const [kind, dir, dataDir] of [["scenes", "scenes", "data/scene-briefs"], ["challenges", "challenges", "data/challenges"], ["objectives", "objectives", "data/objectives"]]) {
     for (const f of listFiles(c(dir), ".json")) {
       const raw = fs.readFileSync(c(dir + "/" + f), "utf8");
       let json = null;
@@ -302,6 +304,8 @@ export function checkModel(model) {
     if (s.json.intro?.position?.locationRef) warn(`scenes/${s.file}`, `locationRef ${s.json.intro.position.locationRef} is not in canon yet`);
   }
 
+  problems.push(...checkObjectives(model, { scenes, facts, order }));
+
   // A fact scheduled for a scene that's in canon should actually be told there.
   for (const f of facts.values()) {
     const m = (f.told || "").match(/^in:(.+)$/);
@@ -317,6 +321,7 @@ export function checkModel(model) {
   for (const [f, raw] of Object.entries(model.planRaw || {})) scanOld(`plan/${f}`, raw);
   for (const s of model.scenes) scanOld(`scenes/${s.file}`, s.raw);
   for (const c of model.challenges) scanOld(`challenges/${c.file}`, c.raw);
+  for (const o of model.objectives || []) scanOld(`objectives/${o.file}`, o.raw);
 
   // Cut wording never comes back
   const retired = [];
@@ -421,6 +426,7 @@ export function build(model, root = ROOT) {
   const changed = [];
   for (const [where, { source, copy }] of Object.entries(model.built)) {
     if (copy !== null && lf(copy) === lf(source)) continue;
+    fs.mkdirSync(path.dirname(path.join(root, where)), { recursive: true });
     fs.writeFileSync(path.join(root, where), source);
     changed.push(where);
   }

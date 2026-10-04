@@ -1,0 +1,79 @@
+{
+  "$schema": "../schema/objective.schema.json",
+  "id": "c1e1-storm-drains",
+  "type": "objective",
+  "episodeRef": "episode-c1e1-mothers-maiden-name",
+  "kind": "order",
+  "direct": true,
+  "scope": "group",
+  "giver": {
+    "npcRef": "section-officer",
+    "name": "Section Officer Vetch",
+    "via": "in person, in front of the whole hall",
+    "faction": "directorate"
+  },
+  "given": {
+    "sceneRef": "episode-c1e1--canteen"
+  },
+  "said": "Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.",
+  "title": "Clear the storm drain",
+  "brief": "Section Nine has the storm drains under the old town tonight.",
+  "want": {
+    "motivation": "conquest",
+    "stated": "Storm drain clearance under the old town.",
+    "gm": "To watch Section Nine get the worst job on the list, from him, in front of everyone. He gave them the drains for the vial, and will never say so."
+  },
+  "deadline": {
+    "label": "21:00",
+    "day": 1,
+    "quarter": "night",
+    "cost": "A direct order. Refusing one is \"the most serious thing you can do here\"."
+  },
+  "parts": [
+    {
+      "id": "waders",
+      "need": "required",
+      "text": "Waders from the night lockup"
+    },
+    {
+      "id": "dock-c",
+      "need": "required",
+      "text": "Dock C by twenty-one hundred"
+    },
+    {
+      "id": "wear-them",
+      "need": "optional",
+      "text": "Wear the waders",
+      "detail": "\"Trust me.\"",
+      "by": "Taka",
+      "hidden": true
+    },
+    {
+      "id": "power",
+      "need": "required",
+      "text": "Power to the drainage line",
+      "by": "Vetch, at Dock C",
+      "hidden": true
+    },
+    {
+      "id": "feed",
+      "need": "required",
+      "text": "Clear the compactor feed",
+      "by": "Vetch, at Dock C",
+      "hidden": true
+    },
+    {
+      "id": "report",
+      "need": "required",
+      "text": "Report to Vetch when it runs",
+      "detail": "\"I'll be at the top.\"",
+      "by": "Vetch, at Dock C",
+      "hidden": true
+    }
+  ],
+  "moreHint": true,
+  "closes": "The line runs and they report to Vetch at the top of the ladder. He asks which of them is Rand, dismisses them, and the night's rests follow.",
+  "suggestedRecord": "Day 1, night. In front of the whole hall, Vetch gave Section Nine the storm drains under the old town. They drew waders from the night lockup, met him at Dock C, and took the launch over. The line runs. At the top of the ladder, Vetch asked which one of them is Rand.",
+  "facts": ["directorate.orders-serious"],
+  "notes": "Leaves the nest alone: it is a discovery, and how the fight ends is theirs."
+}

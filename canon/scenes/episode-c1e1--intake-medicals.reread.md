@@ -85,3 +85,8 @@ asks twice) and D034 (the hand) are all used.
 
 - **Why the forms ask for mothers' maiden names** is mine, provisional: Shucks traces the marker through families.
 - **Streaming carriers into one section** follows the induction design; six at once is Shucks's surprise (D020).
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

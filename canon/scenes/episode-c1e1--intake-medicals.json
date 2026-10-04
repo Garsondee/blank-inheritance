@@ -18,7 +18,7 @@
   "intro": {
     "where": "The Candidate Gate, then the infirmary waiting room on the island. Monday, first thing.",
     "firstThing": "The queue, and how long it has not moved.",
-    "readAloud": "At the land end of the causeway, the guard in the booth finds your name in his ledger, takes your return slip, and waves you on to the island and the infirmary.\n\nThe waiting room smells of disinfectant, floor polish and somebody's wet coat. A hand-lettered sign says FORMS FIRST, NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.\n\nSomewhere ahead a man keeps saying \"other arm\" in exactly the same tone. When the queue shuffles forward you see him <trig id=\"shucks-glimpsed\"/>: a doctor built entirely of bone, in a white coat, with a badge on the pocket that says MORDANT. Nobody else in the queue looks up.",
+    "readAloud": "At the land end of the causeway, the guard in the booth finds your name in his ledger, takes your return slip, <trig id=\"enrolment-gate\"/> and waves you on to the island and the infirmary.\n\nThe waiting room smells of disinfectant, floor polish and somebody's wet coat. A hand-lettered sign says FORMS FIRST, NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.\n\nSomewhere ahead a man keeps saying \"other arm\" in exactly the same tone. When the queue shuffles forward you see him <trig id=\"shucks-glimpsed\"/>: a doctor built entirely of bone, in a white coat, with a badge on the pocket that says MORDANT. Nobody else in the queue looks up.",
     "landmark": "The two signs above the clerk's hatch.",
     "carriesIn": [
       {
@@ -33,6 +33,14 @@
         "npcRef": "shucks-mordant",
         "arrival": "quiet",
         "label": "Shucks glimpsed in the queue"
+      },
+      {
+        "id": "enrolment-gate",
+        "kind": "objective",
+        "act": "tick",
+        "objectiveRef": "c1e1-report-for-enrolment",
+        "partRef": "report",
+        "label": "Enrolment: at the Gate"
       }
     ],
     "position": {
@@ -283,13 +291,23 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE. Let them compare.",
+      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE. <trig id=\"enrolment-medical\"/> Let them compare.",
       "note": "Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.\nIf nobody compares: A candidate from another queue asks loudly whether anyone else got irregular.\nSecret: Candidates with the marker are streamed together as routine. Six in one intake has never happened; Shucks is quietly astonished.",
       "facts": [
         "directorate.section-nine"
       ],
       "gmFacts": [
         "directorate.carriers-streamed"
+      ],
+      "triggers": [
+        {
+          "id": "enrolment-medical",
+          "kind": "objective",
+          "act": "tick",
+          "objectiveRef": "c1e1-report-for-enrolment",
+          "partRef": "medical",
+          "label": "Enrolment: medical done"
+        }
       ]
     }
   ],

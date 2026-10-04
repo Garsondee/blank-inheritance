@@ -93,3 +93,8 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R16, R17.** One direction, none negative.
 - **R27.** The ladder rule appears once. The panels and the jam are still described by their own beats.
 - **R12.** The players' lines (`blurb`) name no check, no DC and no consequence; the GM's line stays GM-only.
+
+## Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.

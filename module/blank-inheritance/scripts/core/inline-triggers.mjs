@@ -56,7 +56,21 @@ export const TRIGGER_KIND_META = Object.freeze({
   "reveal-handout": { key: "info", glyph: "▤" },
   "post-check": { key: "info", glyph: "⟳" },
   "gm-tool": { key: "warn", glyph: "⚙" },
-  note: { key: "neutral", glyph: "•" }
+  note: { key: "neutral", glyph: "•" },
+  objective: { key: "warn", glyph: "◆" }
+});
+
+/**
+ * An `objective` chip (design/objectives.md) does one of five things to an objective, and the shape says which:
+ * give it (◆, warn: the table will see it), tick a part (✓, good), reveal one (+, info), strike one out (✕, warn),
+ * or close it (■, neutral). Still only the Runner's own tokens.
+ */
+export const OBJECTIVE_ACT_META = Object.freeze({
+  give: { key: "warn", glyph: "◆" },
+  tick: { key: "good", glyph: "✓" },
+  reveal: { key: "info", glyph: "+" },
+  strike: { key: "warn", glyph: "✕" },
+  close: { key: "neutral", glyph: "■" }
 });
 
 export function escapeHtml(value) {
@@ -76,7 +90,8 @@ function escapeAttr(value) {
  * the same scoping `checkRef` already uses inside a `challengeRef`.
  */
 function renderTriggerChip(trigger, beatId) {
-  const meta = TRIGGER_KIND_META[trigger.kind] ?? TRIGGER_KIND_META.note;
+  const meta =
+    (trigger.kind === "objective" ? OBJECTIVE_ACT_META[trigger.act] : null) ?? TRIGGER_KIND_META[trigger.kind] ?? TRIGGER_KIND_META.note;
   const label = trigger.label ?? trigger.id;
   return (
     `<button type="button" class="bi-trig bi-trig--${meta.key}" data-action="fireTrigger" ` +

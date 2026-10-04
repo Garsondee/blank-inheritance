@@ -246,7 +246,9 @@
       "ModeScene": "Scene",
       "ModeFight": "Fight",
       "Demo": "Demo",
-      "DemoSub": "The scripted walkthrough runner"
+      "DemoSub": "The scripted walkthrough runner",
+      "Journal": "Journal",
+      "JournalSub": "Objectives, papers, people and the story so far"
     },
     "Equipment": {
       "Title": "Equipment Locker",
@@ -1337,7 +1339,8 @@
         "endCombats": "End any combat",
         "cutToStart": "Cut to the first scene",
         "deleteInductionCharacters": "Delete characters made at the induction terminal",
-        "clearNotebook": "Clear the party notebook (every page the players wrote, kept in the snapshot)"
+        "clearNotebook": "Clear the party notebook (every page the players wrote, kept in the snapshot)",
+        "clearObjectives": "Clear the objectives (every one given or written, kept in the snapshot)"
       },
       "Step": {
         "snapshot": "Save a snapshot of everything below, for undo.",
@@ -1353,7 +1356,8 @@
         "combats": "End every combat.",
         "induction": "Delete the characters made at the induction terminal.",
         "scene": "Cut to the first scene of Episode One.",
-        "log": "Write the reset into the session log."
+        "log": "Write the reset into the session log.",
+        "objectives": "Clear every objective, given or written by a player."
       },
       "Party": {
         "Heading": "The players",
@@ -1561,6 +1565,139 @@
       "Saved": "Saved.",
       "Deleting": "Deleting",
       "Refreshing": "Refreshing"
+    },
+    "Objectives": {
+      "Title": "Objectives",
+      "Unfold": "Unfold the objectives (O)",
+      "CycleHint": "Fold or unfold (O)",
+      "SizeLabel": "Size",
+      "Size": {
+        "folded": "Folded",
+        "lines": "One line each",
+        "explained": "Explained"
+      },
+      "OpenJournal": "Open the Journal (J)",
+      "NothingOpen": "Nothing open.",
+      "TrackHint": "Track this one",
+      "New": "New",
+      "Updated": "Updated",
+      "Optional": "Optional",
+      "Earned": "Earned",
+      "Kind": {
+        "order": "Order",
+        "request": "Request",
+        "own": "Own",
+        "direct": "Direct order"
+      },
+      "WrittenByPlayer": "Written by a player",
+      "More": "There may be more to this.",
+      "Ribbon": {
+        "new": "New",
+        "updated": "Updated",
+        "done": "Done"
+      },
+      "From": "from",
+      "KeySize": "Fold or unfold the objectives tracker",
+      "Group": {
+        "section": "Section Nine",
+        "mine": "Yours",
+        "others": "The others'"
+      },
+      "Runner": {
+        "NoPlayers": "No players are connected.",
+        "PickPlayer": "Give it to whom?",
+        "PickPlayerHint": "This objective is for one character.",
+        "Missing": "There is no objective called {id} in the deployed data.",
+        "AlreadyGiven": "\"{title}\" has already been given.",
+        "GiveTitle": "Give an objective",
+        "GiveConfirm": "Give {title} to the table, from {giver}? Every player's tracker will show it.",
+        "CloseTitle": "Close: {title}",
+        "CloseHint": "The paragraph the Record keeps. Write what happened; the suggestion is only a start.",
+        "CloseOk": "Close it",
+        "NotGiven": "That objective has not been given yet.",
+        "NoChange": "Nothing to change: that is already done."
+      }
+    },
+    "Journal": {
+      "WindowTitle": "Journal",
+      "Keybinding": "Open or close the Journal",
+      "Tab": {
+        "objectives": "Objectives",
+        "papers": "Papers",
+        "people": "People",
+        "record": "Record"
+      },
+      "Day": "Day {day}",
+      "Section": "Section Nine",
+      "ForSection": "For Section Nine",
+      "NothingOpen": "Nothing open",
+      "EmptyHint": "Nothing has been given yet, and nothing written. When someone asks something of you, it appears here.",
+      "Tracked": "Tracked",
+      "Tick": "Done",
+      "Untick": "Undo",
+      "WriteYourOwn": "Write your own",
+      "EndOfBrief": "End of brief",
+      "Form": {
+        "Head": "New objective",
+        "Giver": "Who wants this?",
+        "GiverPlaceholder": "Someone you've met, or one of you",
+        "WasOrder": "It was an order",
+        "Said": "What did they say?",
+        "IfAnything": "(if anything)",
+        "Why": "Why do they want it, in their eyes?",
+        "Must": "It must be done",
+        "Could": "It would be good",
+        "By": "By when?",
+        "IfItMatters": "(in the world's time, if it matters)",
+        "Whose": "Whose is it?",
+        "Mine": "Mine",
+        "Section": "Section Nine's",
+        "Who": "Who sees it?",
+        "Everyone": "Everyone",
+        "OnlyMe": "Only me",
+        "Honest": "\"Only me\" keeps it off the other players' screens. Foundry still sends it to their browsers, so don't write anything secret here.",
+        "File": "File it",
+        "Cancel": "Never mind",
+        "Error": {
+          "giver": "Who wants this? Every objective comes from someone, even if it's you.",
+          "why": "Say why they want it, in their eyes.",
+          "required": "Give it at least one thing that must be done."
+        }
+      },
+      "Direct": "Direct",
+      "Filed": "Filed",
+      "InTheirWords": "In their own words",
+      "AsGiven": "As given",
+      "Why": "Why:",
+      "Needed": "What's needed",
+      "Done": "Done.",
+      "Required": "Required.",
+      "Learned": "What we've learned",
+      "LearnedNone": "Nothing yet. An entry is added when the party learns something.",
+      "TrackThis": "Track this",
+      "Notebook": "Notebook",
+      "OurPlan": "Our plan for it",
+      "CloseIt": "Close it",
+      "Delete": "Delete",
+      "CloseTitle": "Close this objective",
+      "CloseHint": "One line on how it ended. It goes in the Record.",
+      "CloseOk": "Close it",
+      "DeleteTitle": "Delete objective",
+      "DeleteConfirm": "Delete \"{title}\" for everyone? This cannot be undone.",
+      "StorySoFar": "The story so far",
+      "RecordEmpty": "Nothing closed yet. When an objective closes, one paragraph about it goes here, and together they tell the adventure.",
+      "Failed": "Failed",
+      "Withdrawn": "Withdrawn",
+      "Closed": "Closed",
+      "Reopen": "Reopen",
+      "NoParagraph": "No paragraph written.",
+      "LooseEnds": "Loose ends",
+      "PapersEmpty": "No papers yet. Every handout you are given is kept here.",
+      "PeopleEmpty": "Nobody met yet.",
+      "Gave": "Gave",
+      "NotebookPage": "Notebook page",
+      "Track": "Track",
+      "Close": "Close"
     }
   }
 }
