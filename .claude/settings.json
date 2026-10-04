@@ -32,6 +32,12 @@
             "command": "node tools/haunts/pull.mjs --line",
             "timeout": 30,
             "statusMessage": "Bringing the haunts' regulars home from the server…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/objectives/pull.mjs --line",
+            "timeout": 30,
+            "statusMessage": "Bringing the objectives home from the server…"
           }
         ]
       }

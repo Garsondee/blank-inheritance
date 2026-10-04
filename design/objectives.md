@@ -69,7 +69,7 @@ tracker shows all of them. **One tracked**, amber, first: the player's choice (c
 the section's soonest deadline. **New things glow, nothing pops up**: the lamp lights and up to two ribbons say what
 happened (new, updated, done), for twelve seconds, then the player has seen it (doctrine Law 14). **A fight folds it to
 the tab** and the chosen size comes back after (Laws 6, 13). **Deadlines run on the world's clock** (the orb's Day N ·
-quarter): the chip turns solid when that quarter arrives (Law 19). Hidden until the first objective exists. Each
+quarter): the chip turns solid when that quarter arrives (Law 19). **Movable** (2026-10-04): a six-dot grip on the tab and in the header drags it anywhere (real pointer events, captured so a fast drag is not lost); arrow keys nudge it (Shift for more); a double-click or Home puts it back to the automatic place. The spot is each player's own client setting (`objectivesPlace`), is clamped so the whole tracker stays on screen however the window changes, and beats every automatic rule (the sidebar, the rail, the stage's controls). Hidden until the first objective exists. Each
 player's size, tracked objective and last look are client settings, so they are their own and a reset never touches
 them. Stagecraft keeps cards clear of it (the bridge's cover list).
 
@@ -130,7 +130,7 @@ creation), read-only for players like a given one.
   is written onto the page only when revealed (`fromAuthored`, `applyAct`).
 - **Admin panel**: "Reset to the start of Episode One" clears every objective (on by default), snapshot first; Undo puts
   them back with their own ids.
-- **Harvest**: the GM's client files `storage/objectives.json` 20 seconds after a change. The closing paragraphs and what
+- **Harvest**: the GM's client files `storage/objectives.json` 20 seconds after a change. `npm run objectives` (`tools/objectives/pull.mjs`, also a SessionStart hook) brings it home to `harvest/objectives/` and prints one line: what is open (giver, progress, deadline), the players' own (who wrote them, "only me" said out loud), loose ends, and what closed last. The closing paragraphs and what
   players wrote come home for writing the next episode. Like the notebook, that puts them in the Watcher's reach (D031,
   D037); nothing on screen says so.
 - **Deploy**: `data/objectives/` is in `SYNCED_CAMPAIGN_DIRS`.
@@ -181,10 +181,11 @@ Manako's way, a requisition against the docket, is revealed in its place. Person
 - `test/tier2-objectives-canon.test.mjs`: every canon rule fires on a broken copy of the real model.
 - `test/tier4-objectives.test.mjs`: the store and the Runner's acts against the mock journal, including the ownership
   regression found live.
+- `test/tier1-objectives-pull.test.mjs`: the session-start line, built from the real export.
 - `test/tier1-objectives-board.test.mjs`: the GM's board against Episode One's real briefs.
 - `test/tier3-objectives-contract.test.mjs`: the wiring (handlers, mounting, keys, dispatcher, deploy, Stagecraft).
 - **Live**: `node tools/objectives/live-check.mjs` drives the local Foundry with a GM and a real player in two browsers:
-  23 checks (the GM's board included), screenshots in `design/ui/shots/objectives/`. First run, 2026-10-04, found two real bugs (the Journal's
+  28 checks (the GM's board and a real mouse drag of the grip included), screenshots in `design/ui/shots/objectives/`. First run, 2026-10-04, found two real bugs (the Journal's
   tab action collided with ApplicationV2's own `tab`; the ownership repair locked a writer out of their own Section Nine
   objective), both fixed and covered.
 
@@ -192,7 +193,6 @@ Manako's way, a requisition against the docket, is revealed in its place. Person
 
 ## 10. Not built yet
 
-- A session-start line on what's open (the board covers it in play).
 - A GM form field for giving a live objective to one character (the GM's form makes Section Nine's).
 - Adding a learned line to the log from the Runner (the log is in the state and the Journal shows it; no chip writes it
   yet).
