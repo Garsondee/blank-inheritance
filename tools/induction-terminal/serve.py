@@ -26,6 +26,12 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
             super().log_message(fmt, *args)
 
 
+class Server(http.server.ThreadingHTTPServer):
+    # A page that imports sixty modules opens a burst of connections at once; the default backlog of five makes Windows
+    # refuse one of them now and then (about one page in ten, seen 2026-10-04), and a module that fails to load kills the page.
+    request_queue_size = 128
+
+
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 4190
-    http.server.ThreadingHTTPServer(("127.0.0.1", port), NoCacheHandler).serve_forever()
+    Server(("127.0.0.1", port), NoCacheHandler).serve_forever()

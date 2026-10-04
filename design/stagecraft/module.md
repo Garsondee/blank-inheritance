@@ -696,6 +696,7 @@ chalk zones, blurs the glow at a quarter of the size, makes the tips and the gra
 and encodes tiles in a worker (`encodeTile(canvas, sure)`); `foundry/chalk.mjs` keeps strokes in order (`#keepStroke`)
 from pictures taken the moment a stroke ends; the kit's ring is a few small elements; the 3D picture keeps its raycaster
 and builds the chalk tiles' program at load. The bench has `chalk-perf.mjs` (no pass or fail: a table to compare against).
+
 ## 25. The table measures itself (2026-10-04)
 
 From her goal that evening ("Proceed through as much as possible"), the second item of the priority list in `README.md`.
@@ -706,7 +707,24 @@ card), `foundry/speed.mjs` (the test the host runs on the first stage of a sessi
 every screen, `HealthBoard` on the GM's), `finish()` on the three.js backend (one pixel read back, so the whole cost
 of drawing can be timed), and the stored limit in `chosenTier()`. The module's channel now carries three kinds of message (cards in
 hand, strokes of chalk, health), told apart by their `type`. Tests: `speed.test.mjs` (8), `health.test.mjs` (8) and
-`tools/stagecraft/bench/health-check.mjs` (23 checks: the board as a GM and a player in two pages, the test finding a fast
-machine fine and leaving it alone, a "slow" machine moved down after two verdicts, a crawl sent to the plain stage, the
-finding remembered by the next page, a player who chose a tier never tested). The limits can be laid over in the bench
-(`globalThis.__stagecraftSpeed`), so a fast machine can be "slow" on demand; nothing sets it at a table.
+`tools/stagecraft/bench/health-check.mjs` (23 checks about the board and the test: the board as a GM and a player in two
+pages, the test finding a fast machine fine and leaving it alone, a "slow" machine moved down after two verdicts, a crawl
+sent to the plain stage, the finding remembered by the next page, a player who chose a tier never tested). The limits can be
+laid over in the bench (`globalThis.__stagecraftSpeed`), so a fast machine can be "slow" on demand; nothing sets it at a table.
+
+## 26. Drawing only as often as it is needed, and nothing built at the first touch (2026-10-04)
+
+From the same goal, the third item of the priority list in `README.md`. `renderer.md` §9.2 has the design, the measurements and
+the finding about a card's creep on its spring. In the module: `core/pace.mjs` (pure: Foundry's cap, the wake time, what counts
+as moving, and the frame rate read against the pace), `foundry/host.mjs` (lets a picture the browser offers go before one is
+due, and wakes the pace on every real movement: `#notice` for the cards, and the pointer, the scene changing and strokes of
+chalk), `foundry/settings.mjs` (the player's `power` setting, *Ease off when still*, on by default; `foundryCap()` reads
+Foundry's own `core.maxFPS` and performance mode), `foundry/health.mjs` (the health meter reads its frame rate through the
+pace), and `#compileFor` in the three.js backend (every shader built at load for the target it will be drawn into, and again
+for each card as it arrives; the wait is bounded at four seconds). Tests: `pace.test.mjs` (11, including a replay of the
+spring's tail) and the seven pace checks in `health-check.mjs` (30 in all: easing to about 30 a second, the first grab not
+stalling, the full rate when a pointer is pressed, easy again once a card has landed, the player's cap obeyed with easing off
+turned off). The pace checks compare pictures drawn with pictures offered rather than counting against a fixed number, so a
+machine busy with something else cannot fail them; the one that finds a fast machine fine is given generous limits for the
+same reason. The bench's web server (`tools/induction-terminal/serve.py`) now listens with a backlog of 128: with Python's
+default of five, Windows refused one connection in about ten pages, and a module that fails to load kills the page.

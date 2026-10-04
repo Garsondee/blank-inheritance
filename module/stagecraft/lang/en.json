@@ -28,6 +28,10 @@
         "Off": "Hidden until a card comes near",
         "Full": "Always clear"
       },
+      "Power": {
+        "Name": "Save power when nothing moves",
+        "Hint": "Draws the stage 30 times a second while nothing on it is moving, and at full speed the moment anything does. It spares your computer's fan and battery over a long evening. Foundry's own Maximum Framerate setting is always obeyed."
+      },
       "Calm": {
         "Name": "Calm mode",
         "Hint": "No flashes, sparks or film grain. Cards still move as you move them. Also on when Foundry's Photosensitive Mode or your system's reduced motion setting is."

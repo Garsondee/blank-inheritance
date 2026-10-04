@@ -247,3 +247,13 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | # | Idea | Where | Plates |
 |---|---|---|---|
 | O1 | Chalk paints without lag: no pause when a stroke ends, and painting as smooth as only moving the pointer | chalk.md §11.1 | bench |
+
+## P. Her twelfth message: what else, in priority order (2026-10-04)
+
+*"What other improvements could and should be made to Stagecraft? With a priority order."* Answered with the list in `README.md`; her goal that evening was to work down it ("Proceed through as much as possible. Make the rest your priority list of work to be done. Let's continue to improve this system."). Built so far:
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| P1 | Chalk light in the world: a byte budget and an age for history, lighter tile pictures, a tidy at the GM's login | chalk.md §11.3 | bench |
+| P2 | The table measures itself: a start-up speed test picks the tier, and the GM sees how each screen is coping | renderer.md §9.1, module.md §25 | bench |
+| P3 | Ease off when nothing moves, obey Foundry's own cap on drawing speed, and nothing built at the first touch (no stall when a card is first picked up) | renderer.md §9.2, module.md §26 | bench |

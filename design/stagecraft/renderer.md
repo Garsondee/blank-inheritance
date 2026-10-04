@@ -598,6 +598,44 @@ Stage key ("Table 5/6") whose dot is green when everyone is fine, blue when some
 is slow and red when someone is struggling; opened, it lists every player, trouble first, and asks everyone to report. So
 call 6 below ("what do the six of you play on?") is answered at the table, in the first minutes, by the table.
 
+### 9.2 How often it draws, and nothing built at the first touch (2026-10-04)
+
+**Draw only as often as it is needed.** Left alone the stage drew at the display's refresh rate (144 a second on a fast
+monitor) and just as hard when nothing on it moved; a table's evening is long, and a laptop's fan and battery are felt
+(`core/pace.mjs`, `foundry/host.mjs`). Two rules, both the player's to turn off (the module's *Ease off when still* setting):
+
+- **Foundry's own cap.** Foundry's *Maximum Framerate* (10 to 60, and none in its Maximum performance mode) is obeyed, and the
+  stage never goes past 60 unless Foundry has been told to be uncapped. A picture the browser offers before one is due is
+  let go and the next takes a longer step: a schedule, not a stopwatch, so a 144 Hz display holds 60 on average and a stall
+  does not make the stage race to catch up.
+- **Easing off when still.** While nothing moves the stage draws at half the cap, 30 a second (the lamps' flicker and the
+  drifting dust need no more); the moment anything moves it is back at full rate, and stays there for a second and a half.
+  *Moving* is a card walking, a stick in a hand (here or on another screen), a card going down, someone arriving or
+  leaving, a bang, anyone painting (here, or seen live from another screen), a pointer pressed on the stage, a formation
+  waiting for its place, the speed test. It is not the cards' ambient life (breathing, a bob, a lean, a hop now and then):
+  that changes by up to a pixel a picture and looks the same at 30.
+
+The frame rate the health board reports is read against the rate that was asked for (`scale()`), so an easy stage is not
+mistaken for a slow computer: it reads 58, not 30. Measured on the bench: a stage nobody touches draws 30 pictures a second;
+a pointer pressed on it draws nearly every picture the browser offers; a few seconds after the pointer is let go (3 to 6 on
+the bench, the card's own landing included) it is easy again.
+
+**A finding worth keeping.** The first version counted a card moving by a hundredth of a unit as moving, and a stage nobody
+touched stayed at full rate for about ten seconds after a card had begun to walk, long after anyone could see it move: a
+card arrives on a critically damped spring that never quite stops, and its last creep is 0.02 to 0.06 of a unit a picture, a
+few hundredths of a pixel. Under half a unit a picture (under a pixel) is stillness now; the grip of a stick and a fall
+(both 0 to 1) keep a finer threshold of their own. A unit test replays the spring.
+
+**Nothing is built at the first touch.** Profiling the first card a player ever picked up showed the stage stopping for
+0.6 of a second (a processor profile: 582 ms inside `getProgramInfoLog`). three.js builds a shader at the first draw that
+needs it, and the stick that grows out of a card is made hidden, so its lacquer (a clearcoat material under shadowing lamps)
+was first built at that moment: 0.6 s on a fast card, seconds on a slow one. The stage now builds every shader at load,
+over the whole room and again over each card as it arrives (`backend.mjs#compileFor`, `compileAsync`), and the wait is
+bounded at four seconds, so a driver that never says it is done cannot keep a stage from starting. The shaders are built *for
+where they will be drawn*: with post-processing the stage is drawn into the composer's half-float target, not the screen,
+and those are different programs. Compiling with the screen bound did not remove the stall (528 ms); compiling with the
+target bound did. The longest draw of the first grab went from 592 ms to 9 ms, and the bench holds it under 120.
+
 ---
 
 ## 10. The plan

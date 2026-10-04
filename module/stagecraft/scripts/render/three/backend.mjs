@@ -19,6 +19,8 @@ import { ChalkTiles, ChalkBox } from "./chalk.mjs";
 import { DEFAULT_BOX } from "../../core/chalk.mjs";
 import { samplePainting } from "../paint/wall.mjs";
 
+const COMPILE_WAIT = 4000;           // ms a stage waits for its shaders to be built before it shows itself anyway
+
 export class ThreeBackend {
   constructor({ images = new ImageCache(), onContextLost = null } = {}) {
     this.images = images;
@@ -127,8 +129,40 @@ export class ThreeBackend {
       this.post = new Post(this.renderer, this.scene, this.camera, { width: Math.round(this.width * this.ratio), height: Math.round(this.height * this.ratio), samples: this.settings.msaa });
       this.post.setCalm(this.calm);
     }
+    await this.#compileFor(this.scene);                   // the room, the box of chalk, the marks, the bang: every shader, now
     this.world.setFootlights(description.footlights);
     this.ready = true;
+  }
+
+  /**
+   * Build the shaders of an object before the first frame that shows it (three.js builds them lazily, at the first draw, and
+   * a shader takes as long as the graphics card and its driver make it). Found 2026-10-04 by profiling the first card a
+   * player ever picked up: the stick that grows out of a card is made hidden, so its lacquer (a clearcoat material under
+   * shadowing lamps) was first compiled at that moment: a stall of 0.6 s on a fast card and seconds on a slow one. `compile`
+   * takes the materials of hidden objects too; it is told which scene the object is going to (its lamps change the shader);
+   * and where the browser can compile in parallel, the main thread is not held at all. A shader is built for where it will
+   * be drawn: with post-processing the stage is drawn into the composer's target, not the screen, and the two are different
+   * programs (the colour space the output is written in), so the target is bound while the compile is begun. The wait is
+   * bounded: a driver that never says it is done must not keep a stage from starting; the shaders finish on their own.
+   */
+  async #compileFor(object) {
+    let timer = 0;
+    try {
+      const previous = this.renderer.getRenderTarget();
+      this.renderer.setRenderTarget(this.post?.target ?? null);
+      let ready = null;
+      try {
+        if (this.renderer.compileAsync) ready = this.renderer.compileAsync(object, this.camera, this.scene);   // begins at once, finishes on its own
+        else this.renderer.compile(object, this.camera, this.scene);
+      } finally {
+        this.renderer.setRenderTarget(previous);
+      }
+      await Promise.race([ready, new Promise((resolve) => { timer = setTimeout(resolve, COMPILE_WAIT); })]);
+    } catch (err) {
+      console.warn("stagecraft | a shader could not be built ahead; it will be at the first draw", err);
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   /** The room's own colour, as what the brass and the glass reflect: the painting, blurred into an environment map. */
@@ -153,6 +187,8 @@ export class ThreeBackend {
       const ctx = { tracker: this.tracker, images: this.images, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id) };
       const view = new CardView(person, this.skin, ctx, this.description.cardScale * (person.size ?? 1));
       await view.build();
+      if (this.disposed) { view.dispose(); return; }
+      if (this.ready) await this.#compileFor(view.root);          // someone arriving later: their stick and face, built ahead too
       if (this.disposed) { view.dispose(); return; }
       this.views.set(person.id, view);               // only now can the frame loop pose it
       this.scene.add(view.root, view.blob);

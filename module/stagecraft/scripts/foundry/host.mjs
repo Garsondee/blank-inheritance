@@ -13,11 +13,12 @@ import { ImageCache } from "../render/images.mjs";
 import { chooseBackend, hasWebGL, hasSoftwareWebGL } from "../render/choose.mjs";
 import { NS, readStage, readCast, canHold, handsOff, actingGM } from "./scene-data.mjs";
 import { openChannel } from "./socket.mjs";
-import { chosenTier, tierSetting, isCalm, zoneSetting } from "./settings.mjs";
+import { chosenTier, tierSetting, isCalm, zoneSetting, powerSave, foundryCap } from "./settings.mjs";
 import { ChalkController } from "./chalk.mjs";
 import { ChalkKit } from "./chalk-kit.mjs";
 import { HealthMeter, HealthBoard } from "./health.mjs";
 import { SpeedTest } from "./speed.mjs";
+import { Pace, poseOf, moved } from "../core/pace.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
@@ -47,6 +48,8 @@ export class StageHost {
     this.speed = null;                     // the start-up speed test (speed.mjs)
     this.health = null;                    // how this screen is coping, and tells the GM (health.mjs)
     this.healthBoard = null;               // the GM's board of everyone's
+    this.pace = new Pace({ cap: foundryCap(), easing: powerSave() });   // how often to draw (core/pace.mjs)
+    this.pose = null;                      // every card's pose at the last frame drawn, to see whether anything moved
     this.listeners = [];
     this.hooks = [];
   }
@@ -114,6 +117,7 @@ export class StageHost {
     this.#watchScene();
     this.running = true;
     this.last = performance.now();
+    this.pace.poke(this.last);              // a stage is at full rate for its first moments: it is new
     this.raf = requestAnimationFrame(this.#frame);
     this.speed.start();
     // whatever the scene was given while the picture was being built is taken up now; it would otherwise wait for the
@@ -215,17 +219,21 @@ export class StageHost {
    */
   #frame = (now) => {
     if (!this.running) return;
+    // the pace (core/pace.mjs): Foundry's own frame-rate cap, and half that while nothing moves; a frame the browser offers
+    // before one is due is let go, and the engine simply takes a longer step at the next
+    if (!this.pace.due(now)) { this.raf = requestAnimationFrame(this.#frame); return; }
     const alive = this.guard.run(() => {
       const dt = (now - this.last) / 1000;
       this.last = now;
       this.sync.tick();
       this.stage.advance(dt);
       const snap = this.stage.snapshot({ viewer: this.userId, selected: this.selected });
+      this.#notice(snap, now);
       // chalk in hand in a "zones only" scene: the zones it may go on are lit and named, the one under the stick brightest
       if (this.chalk?.inHand) for (const z of this.chalk.chalkZones()) snap.zones[z.id] = this.chalk.cursorZone === z.id ? "target" : "near";
       // paint made since the last frame is laid together once, now, so it is on the screen in this frame
       this.chalk?.wall?.flush?.();
-      this.health?.frame(now);
+      this.health?.frame(now, this.pace.scale(now));
       if (this.speed?.probe) {
         // the start-up speed test: this frame's whole cost, the draw and the wait for the graphics card to have finished it
         const t0 = performance.now();
@@ -243,8 +251,20 @@ export class StageHost {
         Hooks.callAll(`stagecraft.${e.type}`, e, this);
       }
     });
+    this.pace.drew(now);
     if (alive) this.raf = requestAnimationFrame(this.#frame);
   };
+
+  /**
+   * Is anything moving or being touched? Then the stage is at full rate for a moment (core/pace.mjs): a card walking, held,
+   * leaning or arriving, a bang, someone painting (here or seen live), a formation waiting for its place, the speed test.
+   */
+  #notice(snap, now) {
+    const pose = poseOf(snap.cards);
+    if (moved(this.pose, pose)) this.pace.poke(now);
+    this.pose = pose;
+    if (snap.bonks?.length || this.dragging || this.chalk?.drawing || this.chalk?.wall?.strokes?.size || this.speed?.probe || this.blocking?.armed) this.pace.poke(now);
+  }
 
   /**
    * A card put down at a door or at something to look at: for a few seconds a line over the place says who went where
@@ -296,6 +316,7 @@ export class StageHost {
   #watchPointer() {
     const canvas = this.backend.canvas;
     this.#on(canvas, "pointerdown", (e) => {
+      this.pace.poke(performance.now());
       if (e.button === 2 && this.chalk?.inHand) { this.chalk.putAway(); return; }
       if (e.button === 2 && this.blocking?.disarm()) return;
       // a pen's eraser end (button 5) rubs out while chalk is in hand
@@ -359,6 +380,7 @@ export class StageHost {
     });
     this.#on(canvas, "pointermove", (e) => {
       const p = this.#local(e);
+      if (this.dragging || this.chalk?.inHand || e.buttons) this.pace.poke(performance.now());        // hovering alone needs no more than the easy rate
       if (this.chalk?.drawing) {
         // every sample the browser gathered since the last event, for the smoothest line a hand can make
         const r = this.root.getBoundingClientRect();
@@ -371,6 +393,7 @@ export class StageHost {
       if (at) this.sync.move(this.dragging.id, at.x - this.dragging.offX, at.z - this.dragging.offZ);
     });
     const release = (e) => {
+      this.pace.poke(performance.now());
       if (this.chalk?.drawing) {
         if (e.type === "pointercancel") this.chalk.cancel();
         else this.chalk.end().catch((err) => console.warn(`${NS} | chalk stroke failed`, err));
@@ -411,6 +434,7 @@ export class StageHost {
 
   /** A hop, a bow and so on, for the card in this hand. Called from Foundry's keybindings. */
   perform(verb) {
+    this.pace.poke(performance.now());
     if (this.dragging) this.sync.verb(this.dragging.id, verb);
   }
 
@@ -589,6 +613,7 @@ export class StageHost {
   #watchSettings() {
     this.hooks.push(["stagecraft.settingsChanged", Hooks.on("stagecraft.settingsChanged", (which) => {
       if (which === "calm") this.backend?.setCalm(isCalm());
+      if (which === "power") this.pace.easing = powerSave();
       if (which === "zones") this.backend?.setZoneSetting(zoneSetting());
       if (which === "tier") ui.notifications?.info(game.i18n.localize("STAGECRAFT.Notify.TierNextScene"));
     })]);
@@ -606,6 +631,7 @@ export class StageHost {
   /** The scene as it is now: its description, its cast, its live switches. */
   #sceneChanged() {
     if (!this.running && !this.root) return;
+    this.pace.poke(performance.now());                // the scene changed under the stage: something is about to move
     // the scene's description itself changed (a deploy: bigger cards, a new zone): the stage is drawn again from it
     const described = JSON.stringify(this.scene.flags?.[NS]?.stage ?? null);
     if (described !== this.described) {
@@ -649,6 +675,7 @@ export class StageHost {
     this.boxAt = null;                      // the new picture's box stands where the scene put it until it is placed again
     this.#placeBox();
     this.#watchPointer();
+    this.pace.poke(performance.now());
     this.health?.changed();                 // the new picture (a lighter one, a recovered one) is news for the GM's board
     this.speed?.start();                    // and, if this computer is still to be tested, the test begins again
   }

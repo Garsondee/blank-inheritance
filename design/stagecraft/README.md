@@ -186,7 +186,7 @@ with six players; then whether it saves the GM time; then whether it is only del
 |---|---|---|---|
 | 1 | **Chalk light in the world**: a byte budget and an age for history, lighter tile pictures, a tidy at the GM's login | The whole journal goes to every client that joins; fifteen strokes were 2.2 MB | **Done 2026-10-04** (`chalk.md` §11.3) |
 | 2 | **How each screen is coping**: a per-player health report to the GM, and a start-up speed test that picks the tier | Settles "what do the six players play on?" at the table instead of by guessing | **Done 2026-10-04** (`renderer.md` §9.1, `module.md` §25) |
-| 3 | **Ease off when nothing moves**: respect Foundry's own limit on drawing speed, and draw slower when the stage is still | Fans and battery on players' laptops over a long session | Next |
+| 3 | **Ease off when nothing moves**: respect Foundry's own limit on drawing speed, and draw slower when the stage is still | Fans and battery on players' laptops over a long session | **Done 2026-10-04** (`renderer.md` §9.2, `module.md` §26); it also found and fixed a 0.6 s stall when a card is first picked up |
 | 4 | **The stage at player sizes**: the kit, the box and the zones at 1366 by 768 and the like | Everything was verified on the GM's 2560 by 1271 screen | Next |
 | 5 | **A real Foundry for automated checks** (a test world, or a licence for the local one) | The live check has 53 checks and nowhere to run | Needs Ingram |
 | 6 | **A staging editor inside Foundry**: drag marks, homes, zones and the chalk box's spot; changes come home like her Scene Runner edits | The biggest time saver: scenes are staged by hand in `stages.json` today | Planned, large |

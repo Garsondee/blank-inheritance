@@ -5,6 +5,7 @@
 
 import { NS } from "./scene-data.mjs";
 import { lowestOf } from "../core/speed.mjs";
+import { capFrom } from "../core/pace.mjs";
 import { speedLimit, forgetSpeed } from "./speed-store.mjs";
 
 export function registerSettings() {
@@ -28,6 +29,14 @@ export function registerSettings() {
     // nothing of what it was for; near a card in hand it lights up with its name and what it is for)
     type: new F.StringField({ required: true, blank: false, initial: "off", choices: { off: "STAGECRAFT.Settings.Zones.Off", faint: "STAGECRAFT.Settings.Zones.Faint", full: "STAGECRAFT.Settings.Zones.Full" } }),
     onChange: () => Hooks.callAll("stagecraft.settingsChanged", "zones")
+  });
+  game.settings.register(NS, "power", {
+    name: "STAGECRAFT.Settings.Power.Name",
+    hint: "STAGECRAFT.Settings.Power.Hint",
+    scope: "client",
+    config: true,
+    type: new F.BooleanField({ initial: true }),
+    onChange: () => Hooks.callAll("stagecraft.settingsChanged", "power")
   });
   game.settings.register(NS, "calm", {
     name: "STAGECRAFT.Settings.Calm.Name",
@@ -62,3 +71,13 @@ export function isCalm() {
 }
 
 export const zoneSetting = () => game.settings.get(NS, "zones");
+
+/** Does this player let the stage ease off while nothing moves (core/pace.mjs)? On unless they turned it off. */
+export const powerSave = () => game.settings.get(NS, "power") !== false;
+
+/** The frame-rate cap Foundry's own settings ask for (its Maximum Framerate and performance mode), for core/pace.mjs. */
+export const foundryCap = () => capFrom({
+  fps: game.settings.get("core", "maxFPS"),
+  mode: game.settings.get("core", "performanceMode") ?? null,
+  max: globalThis.CONST?.CANVAS_PERFORMANCE_MODES?.MAX ?? null
+});

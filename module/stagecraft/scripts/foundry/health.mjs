@@ -29,10 +29,14 @@ export class HealthMeter {
     clearTimeout(this.later);
   }
 
-  /** One frame was drawn at `now` (the page's clock, ms). */
-  frame(now) {
+  /**
+   * One frame was drawn at `now` (the page's clock, ms). `scale` is what the pace says to multiply the time since the last
+   * by to read it against full rate (core/pace.mjs): a stage easing off draws every 33 ms by choice, which is not a slow
+   * computer.
+   */
+  frame(now, scale = 1) {
     if (this.lastAt !== null) {
-      this.intervals.push(now - this.lastAt);
+      this.intervals.push((now - this.lastAt) * scale);
       if (this.intervals.length > HEALTH.window) this.intervals.shift();
     }
     this.lastAt = now;

@@ -46,7 +46,7 @@ globalThis.game = {
   users: Object.assign([...users], { get: (id) => users.find((u) => u.id === id), activeGM: users[0] }),
   i18n: { localize: lookup, format: (key, data) => String(lookup(key)).replace(/\{(\w+)\}/g, (_, k) => data?.[k] ?? "") },
   time: { get serverTime() { return Date.now(); } },
-  settings: { get: (ns, key) => ({ tier: params.get("tier") ?? "high", zones: "faint", calm: false, performanceMode: null, photosensitiveMode: false })[key] ?? null },
+  settings: { get: (ns, key) => ({ tier: params.get("tier") ?? "high", zones: "faint", calm: false, power: params.get("power") !== "off", maxFPS: params.get("fps") ? Number(params.get("fps")) : null, performanceMode: null, photosensitiveMode: false })[key] ?? null },
   socket: {
     on: (channel, fn) => socketListeners.set(fn, channel),
     off: (channel, fn) => socketListeners.delete(fn),

@@ -98,7 +98,9 @@ try {
   /* ------------------------------------------------ the start-up speed test */
   const quick = { settle: 300, again: 1200 };
 
-  const fine = await open({ tier: "auto", fresh: true, speed: quick });
+  // the limits themselves are unit-tested (test/speed.test.mjs); here a machine that is momentarily busy with something else
+  // must not fail the path "a measured median under the limit is found fine", so that page is given generous ones
+  const fine = await open({ tier: "auto", fresh: true, speed: { ...quick, slowMs: 500, veryMs: 2000 } });
   await fine.bringToFront();
   await fine.waitForFunction(() => window.bench.host.speed?.last, { timeout: 15000 }).catch(() => {});
   const found = await fine.evaluate(() => window.bench.host.speed.last);
@@ -149,6 +151,75 @@ try {
   const forgotten = await open({ tier: "auto", fresh: true, speed: quick });
   check("a browser that is made to forget is tested afresh, and draws the lit stage again until it knows", await forgotten.evaluate(() => window.bench.host.backend.name === "three" && window.bench.host.backend.tier === "high" && window.bench.host.speed.wanted === true));
   await forgotten.close();
+
+  /* ------------------------------------------------ how often the stage draws (core/pace.mjs) */
+  const drawnIn = (page, ms) => page.evaluate(async (wait) => { const h = window.bench.host; const before = h.frames; await new Promise((r) => setTimeout(r, wait)); return Math.round(((h.frames - before) * 1000) / wait); }, ms);
+  // what the browser offered against what the stage drew: an awake stage draws nearly every frame it is offered, whatever
+  // the machine can manage; an easy one every other (so a machine busy with something else cannot fail the first reading)
+  const offeredAndDrawn = (page, ms) => page.evaluate((wait) => new Promise((resolve) => {
+    const h = window.bench.host;
+    const before = h.frames;
+    const t0 = performance.now();
+    let offered = 0;
+    const f = () => { offered++; if (performance.now() - t0 < wait) requestAnimationFrame(f); else resolve({ offered: Math.round((offered * 1000) / wait), drawn: Math.round(((h.frames - before) * 1000) / wait) }); };
+    requestAnimationFrame(f);
+  }), ms);
+
+  const paced = await open({ tier: "high" });
+  await paced.bringToFront();
+  await paced.evaluate(() => window.bench.host.stage.setLife(false));              // no regular wandering about: nothing moves on its own
+  await sleep(4500);                                                                // its first moments, and the wake time, are over
+  const idle = await drawnIn(paced, 2500);
+  check("while nothing moves the stage eases off to about 30 a second", idle >= 24 && idle <= 38, `${idle} a second`);
+  const quietFps = await paced.evaluate(() => window.bench.host.health.report().fps);
+  check("and an easy stage is not mistaken for a slow computer: its reported frame rate is read against what it was asked for", quietFps >= 40, `reported ${quietFps} fps`);
+  // pressing and dragging the pointer over the stage is movement
+  const middle = { x: 960, y: 540 };
+  await paced.mouse.move(middle.x, middle.y);
+  await paced.evaluate(() => {                                                      // the longest single draw from here on
+    const h = window.bench.host;
+    const draw = h.backend.draw.bind(h.backend);
+    window.__longest = 0;
+    h.backend.draw = (...a) => { const t0 = performance.now(); const r = draw(...a); window.__longest = Math.max(window.__longest, performance.now() - t0); return r; };
+  });
+  await paced.mouse.down();
+  const busy = offeredAndDrawn(paced, 1500);
+  for (let i = 0; i < 40; i++) { await paced.mouse.move(middle.x + (i % 2 ? 40 : -40), middle.y + i); await sleep(30); }
+  const busyRate = await busy;
+  await paced.mouse.up();
+  const released = Date.now();
+  const longest = await paced.evaluate(() => Math.round(window.__longest));
+  check("the first card a player ever picks up does not stall the stage (its stick's shaders were built before it was shown)", longest <= 120, `the longest draw took ${longest} ms`);
+  // an easy stage draws every other frame it is offered (0.5), an awake one nearly all (the harness's own mouse traffic and the
+  // browser's uneven frames take some); three quarters is between them
+  check("the moment the pointer is pressed on the stage it is back to the full rate: nearly every frame offered is drawn", busyRate.drawn >= 0.75 * Math.min(busyRate.offered, 60), `${busyRate.drawn} a second drawn of ${busyRate.offered} offered`);
+  // a card let go lands and creeps the last of its way on a spring, and cards left on top of each other drift apart: movement
+  // that is the stage's own, so the check is that within seconds there is a stretch of a second and a half at the easy rate
+  let calmAgain = null;
+  for (let i = 0; i < 8 && calmAgain === null; i++) {
+    const a = await drawnIn(paced, 750);
+    const b = await drawnIn(paced, 750);
+    if (a >= 22 && a <= 38 && b >= 22 && b <= 38) calmAgain = Math.round((a + b) / 2);
+  }
+  const calmAfter = Date.now() - released;
+  check("and eases off again once nothing has moved for a moment", calmAgain !== null && calmAfter < 12000, `${calmAgain} a second, easy within ${(calmAfter / 1000).toFixed(1)} s of the pointer being let go`);
+  await paced.evaluate(() => { window.bench.host.pace.easing = false; });
+  await sleep(300);
+  const off = await offeredAndDrawn(paced, 2000);
+  check("a player who turns easing off gets the full rate always", off.drawn >= 0.75 * Math.min(off.offered, 60), `${off.drawn} a second drawn of ${off.offered} offered`);
+  await paced.close();
+
+  const capped = await open({ tier: "high" , seat: "gm" });
+  await capped.close();
+  const slowCap = await browser.newPage();
+  slowCap.on("pageerror", (e) => errors.push(`cap: ${e}`));
+  await slowCap.goto(`http://127.0.0.1:${PORT}/tools/stagecraft/bench/host.html?stage=haunt-the-paper-lantern&seat=gm&tier=high&fps=30&power=off`);
+  await slowCap.waitForFunction(() => window.bench?.ready === true, { timeout: 30000 });
+  await slowCap.bringToFront();
+  await sleep(2500);
+  const capRate = await drawnIn(slowCap, 2500);
+  check("Foundry's own Maximum Framerate is obeyed, even with easing off turned off", capRate >= 26 && capRate <= 34, `${capRate} a second at a cap of 30`);
+  await slowCap.close();
 
   check("none of it threw", errors.length === 0, errors.slice(0, 3).join(" | "));
 } finally {
