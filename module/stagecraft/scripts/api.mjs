@@ -9,10 +9,10 @@ import { isStageScene, readStage } from "./foundry/scene-data.mjs";
 import { FORMATIONS } from "./core/formations.mjs";
 import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
-import { publishMoves, arrange, backToPlaces, keepPlaces, setChalkBox, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
+import { publishMoves, arrange, backToPlaces, keepPlaces, setChalkBox, editStage, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
 
-export const API_VERSION = "0.9.0";
+export const API_VERSION = "0.10.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -51,6 +51,8 @@ export function createApi({ skins, current }) {
       keepPlaces: (scene, ids = null) => keepPlaces(scene, current.host, ids),
       /** Put the box of chalk at a point of the painting [fx, fy] (where the scene's author would have put it). Resolves to whether it was written. */
       setChalkBox: (scene, at) => setChalkBox(scene, at),
+      /** Stage by hand: { mark: { id, at } }, { vertex: { id, index, at } }, { zone: { id, dx, dy } }, { addVertex: { id, after } } or { removeVertex: { id, index } }, written into the scene's description. Resolves to whether anything was written. */
+      editStage: (scene, edit) => editStage(scene, edit),
       /** Every loose card walks to its nearest free mark. */
       tidy: (scene) => tidyUp(scene, current.host),
       setLife: (scene, on) => setLife(scene, on),

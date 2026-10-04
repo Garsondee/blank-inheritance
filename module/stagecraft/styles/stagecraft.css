@@ -738,3 +738,64 @@
 @media (prefers-reduced-motion: reduce) {
   #stagecraft-stage .stagecraft-tip { transition: none; transform: none; }
 }
+
+/* ---------------------------------------------------------------- Edit stage: handles over the painting (stage-editor.mjs) */
+
+#stagecraft-stage .stagecraft-editor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+#stagecraft-stage .stagecraft-editor .outlines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+#stagecraft-stage .stagecraft-editor .outline {
+  fill: rgba(255, 214, 120, 0.1);
+  stroke: rgba(255, 214, 120, 0.95);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+#stagecraft-stage .stagecraft-editor .outline.chalk { stroke: rgba(150, 230, 255, 0.95); fill: rgba(150, 230, 255, 0.1); }
+#stagecraft-stage .stagecraft-editor .handles { position: absolute; inset: 0; }
+#stagecraft-stage .stagecraft-editor .handle {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  box-sizing: border-box;
+}
+#stagecraft-stage .stagecraft-editor .handle.held { cursor: grabbing; }
+#stagecraft-stage .stagecraft-editor .handle.mark {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 3px solid #ffd678; background: rgba(20, 14, 6, 0.55);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55);
+}
+#stagecraft-stage .stagecraft-editor .handle.vertex {
+  width: 16px; height: 16px;
+  border: 2px solid #fff; background: #e0902a;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55);
+}
+#stagecraft-stage .stagecraft-editor .handle.zone {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid #fff; background: rgba(224, 144, 42, 0.9);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55);
+}
+#stagecraft-stage .stagecraft-editor .handle.edge {
+  width: 11px; height: 11px; transform: translate(-50%, -50%) rotate(45deg);
+  border: 2px solid rgba(255, 255, 255, 0.85); background: rgba(40, 28, 10, 0.7); cursor: copy;
+}
+#stagecraft-stage .stagecraft-editor .handle:hover,
+#stagecraft-stage .stagecraft-editor .handle:focus-visible { filter: brightness(1.3); }
+#stagecraft-stage .stagecraft-editor .note {
+  position: absolute;
+  left: 50%; top: 8px; transform: translateX(-50%);
+  padding: 5px 12px; border-radius: 14px;
+  background: rgba(24, 16, 8, 0.85); color: #fff4d6; font-size: 13px;
+  pointer-events: none;
+}

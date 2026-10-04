@@ -837,7 +837,7 @@ Checks: `module/stagecraft/test/badges.test.mjs` (6), a bridge test in `test/sta
 
 Scenes are staged by hand in `stages.json`; the editor is how that moves into Foundry, in slices. The first is the cheapest useful one: **stage the cards by hand (drag them, a formation, anything), then press Keep places.** Where the cards stand (the selected ones, or everyone, after a confirmation) becomes their `home` and `homeYaw` in the published cast, so "Places" now goes back to there. `core/sync.mjs#commitHomes` is the pure part (nothing changes, and nothing is written, for a card already home); `foundry/blocking.mjs#keepPlaces` writes it; `api.blocking.keepPlaces(scene, ids?)` is the public face (interface 0.8.0). Checks: a unit test of `commitHomes`, the interface test, and `bench/sizes-check.mjs` (the wider strip still fits at every size).
 
-**Not yet:** dragging marks and zones. (Bringing kept homes home is §32; the chalk box's spot is §33.)
+(Bringing kept homes home is §32; the chalk box's spot is §33; dragging marks and zones is §35.)
 
 ## 32. Kept places come home (2026-10-04)
 
@@ -863,3 +863,13 @@ A lighting pass over every scene (shot with `tools/stagecraft/bench/shoot.mjs --
 - A scene may say `grade` in its description: 0 turns it off, 1 is the default, up to 1.5.
 
 Before and after pictures are in `lab/shots/light-before` and `light-after` (gitignored: they show Ingram's art). Checks: `grade.test.mjs` (7), and the existing real-browser checks still pass. **A judgement call for her:** how dark the dark scenes' cards go is one number (`GRADE.floor`, 0.4) and one power (`GAMMA`, 1.5); the pictures are in the folder.
+
+## 35. Dragging marks and zones: Edit stage (2026-10-04)
+
+The last of the hand-staging pieces. **Edit stage** on the GM strip shows every mark as a ring, every corner of every zone as a square, each zone's middle as a dot and each edge's middle as a diamond, drawn over the painting (`foundry/stage-editor.mjs`; plain elements, so the 3D picture and the plain one are the same, and only a GM has them). Drag a ring to move a mark; a square to reshape a zone, with its outline following the pointer and one write on letting go; a dot to move the whole zone (it is cut short at the painting's edge rather than leaving it); double-click a diamond to add a corner there, a square to take one away (a zone keeps three).
+
+- **Pure part:** `core/staging.mjs` (`moveMark`, `moveVertex`, `moveZone`, `addVertex`, `removeVertex`, `handlesOf`): each takes the scene's raw `marks` or `zones` and returns a new array, or the very same one when nothing changed, so nothing is written for a drag that went nowhere. Points are kept inside the painting and to three places.
+- **Written** by `api.blocking.editStage(scene, edit)` into the scene's description (interface 0.10.0), where an author would have put it; `stagecraft.keepStage` says what every mark and zone is now. The stage is drawn afresh by a changed description, so the editor remembers it is on (`editorMemory`) and the GM is not thrown out of editing by their own drop; the handles read the scene itself, not the host''s copy, so they are right in the moment between.
+- **Comes home** with the kept places (§32): the bridge files only the marks and zones that differ from the stages file as it was written (`stageRecord`: put a mark back where its author had it and it leaves the file); `npm run stages` folds them into `kept-places.json` (replacing what was kept: a mark put back is gone), and `applyKept` lays them over the entry''s description by id (an unnamed one is numbered by its place, as `scene.mjs` does).
+
+Checks: `staging.test.mjs` (7), the bridge test, the interface test, and `bench/editor-check.mjs` (16, real mouse events: a player has none, the handles appear, a ring is dragged and ends where the pointer let go, a corner reshapes live and writes once, a zone is dragged to the corner of the painting and stays in, corners added and removed, never below three, editing survives the redraw). **Found on the way:** a handle redrawn when a click went nowhere never received the second click of a double-click.

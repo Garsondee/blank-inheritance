@@ -387,6 +387,27 @@ export function placesRecord(homes, keyOf, pcIds = new Set()) {
   return { places, yaws };
 }
 
+/**
+ * The marks and zones a GM moved, as the kept-places file holds them: by id, `{ at }` and `{ shape, floor? }`. With the stage
+ * entry as it was authored, only what differs from it: putting a mark back where its author had it takes it out of the file.
+ */
+export function stageRecord(marks, zones, authored = null) {
+  const out = { marks: {}, zones: {} };
+  const was = (list, prefix) => new Map((list ?? []).map((item, i) => [typeof item?.id === "string" && item.id ? item.id : `${prefix}-${i + 1}`, item]));
+  const wasMarks = was(authored?.marks, "mark");
+  const wasZones = was(authored?.zones, "zone");
+  for (const m of marks ?? []) {
+    if (!m?.id || !Array.isArray(m.at)) continue;
+    if (JSON.stringify(wasMarks.get(m.id)?.at) !== JSON.stringify(m.at)) out.marks[m.id] = { at: m.at };
+  }
+  for (const z of zones ?? []) {
+    if (!z?.id || !Array.isArray(z.shape)) continue;
+    const old = wasZones.get(z.id);
+    if (JSON.stringify(old?.shape) !== JSON.stringify(z.shape) || JSON.stringify(old?.floor ?? null) !== JSON.stringify(z.floor ?? null)) out.zones[z.id] = { shape: z.shape, ...(Array.isArray(z.floor) ? { floor: z.floor } : {}) };
+  }
+  return out;
+}
+
 /** The file of kept places in storage/, with one scene's record put in (a later keep of the same scene replaces it). */
 export function withKept(file, sourceId, record, now) {
   const scenes = { ...(file?.scenes ?? {}) };
@@ -405,6 +426,11 @@ export function applyKept(stages, kept) {
     const entry = out.stages[id];
     if (!entry) continue;
     const next = { ...entry, places: { ...(entry.places ?? {}), ...(k.places ?? {}) }, yaws: { ...(entry.yaws ?? {}), ...(k.yaws ?? {}) } };
+    if (entry.description && (k.marks || k.zones)) {
+      const d = next.description ?? entry.description;
+      const kept = (list, byId, prefix, field) => (Array.isArray(list) ? list.map((item, i) => { const id = typeof item?.id === "string" && item.id ? item.id : `${prefix}-${i + 1}`; return byId?.[id] ? { ...item, ...byId[id] } : item; }) : list);
+      next.description = { ...d, marks: kept(d.marks, k.marks, "mark"), zones: kept(d.zones, k.zones, "zone") };
+    }
     if (Array.isArray(k.box) && entry.description) next.description = { ...entry.description, chalk: { ...(entry.description.chalk ?? {}), box: [k.box[0], k.box[1]] } };
     out.stages[id] = next;
   }
@@ -431,6 +457,14 @@ export function foldKept(existing, filed) {
       next.places[key] = at;
     }
     for (const [key, yaw] of Object.entries(rec.yaws ?? {})) next.yaws[key] = yaw;
+    // marks and zones the GM moved: by id, as { at } and { shape, floor? }
+    // (what the server filed is every one that differs from the stages file, so it replaces what was kept: one put back is gone)
+    for (const field of ["marks", "zones"]) {
+      if (!rec[field]) { if (before[field]) next[field] = before[field]; continue; }
+      next[field] = { ...rec[field] };
+      for (const [mid, value] of Object.entries(rec[field])) if (JSON.stringify(before[field]?.[mid]) !== JSON.stringify(value)) lines.push(`${id}: ${field === "marks" ? "mark" : "zone"} ${mid} moved`);
+      for (const mid of Object.keys(before[field] ?? {})) if (!(mid in rec[field])) lines.push(`${id}: ${field === "marks" ? "mark" : "zone"} ${mid} put back`);
+    }
     scenes[id] = next;
   }
   return { kept: { kind: "bi-kept-places", version: 1, scenes }, lines };

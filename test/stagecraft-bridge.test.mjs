@@ -482,6 +482,35 @@ test("the chalk box's spot is filed with the kept places, laid over the entry's 
   assert.deepEqual(foldKept(kept, both).lines, []);
   assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("stagecraft\.keepBox"/);
 });
+test("marks and zones the GM moved: filed as what differs from the stages file, laid over it, and folded home", async () => {
+  const { stageRecord, withKept, applyKept, foldKept } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  const authored = { marks: [{ id: "a", at: [0.5, 0.9] }, { at: [0.2, 0.2] }], zones: [{ id: "wall", shape: [[0, 0], [1, 0], [1, 1]] }, { id: "door", shape: [[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]] }] };
+  const rec = stageRecord(
+    [{ id: "a", at: [0.55, 0.9] }, { id: "mark-2", at: [0.2, 0.2] }],
+    [{ id: "wall", shape: [[0, 0], [1, 0], [1, 1]] }, { id: "door", shape: [[0.1, 0.1], [0.3, 0.1], [0.2, 0.2]] }],
+    authored
+  );
+  assert.deepEqual(rec, { marks: { a: { at: [0.55, 0.9] } }, zones: { door: { shape: [[0.1, 0.1], [0.3, 0.1], [0.2, 0.2]] } } }, "only what differs from the stages file; an unnamed mark is mark-2");
+  const filed = withKept(null, "e1-x", rec, "T1");
+  const stages = { stages: { "e1-x": { description: authored, places: {} } } };
+  const laid = applyKept(stages, filed).stages["e1-x"].description;
+  assert.deepEqual(laid.marks[0].at, [0.55, 0.9]);
+  assert.deepEqual(laid.marks[1], authored.marks[1], "an unmoved mark is as authored");
+  assert.deepEqual(laid.zones[1].shape, [[0.1, 0.1], [0.3, 0.1], [0.2, 0.2]]);
+  assert.deepEqual(authored.marks[0].at, [0.5, 0.9], "the stages file's own is not touched");
+  const first = foldKept(null, filed);
+  assert.ok(first.lines.some((l) => /mark a moved/.test(l)) && first.lines.some((l) => /zone door moved/.test(l)));
+  assert.deepEqual(foldKept(first.kept, filed).lines, [], "folding the same edit again changes nothing");
+  // putting a mark back where its author had it takes it out of the kept file
+  const back = withKept(filed, "e1-x", stageRecord([{ id: "a", at: [0.5, 0.9] }], [{ id: "door", shape: [[0.1, 0.1], [0.3, 0.1], [0.2, 0.2]] }], authored), "T2");
+  const next = foldKept(first.kept, back);
+  assert.deepEqual(next.kept.scenes["e1-x"].marks, {});
+  assert.ok(next.lines.some((l) => /mark a put back/.test(l)));
+  // and it leaves the places and the box alone
+  assert.deepEqual(withKept(withKept(null, "e1-x", { places: { n: [1, 1] }, yaws: {} }, "T0"), "e1-x", rec, "T1").scenes["e1-x"].places, { n: [1, 1] });
+  assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("stagecraft\.keepStage"/);
+});
+
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {
   const { momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
   const cards = [{ id: "c1", home: [0.2, 0.9] }, { id: "c2", home: [0.5, 0.9] }, { id: "pc", pc: true, at: [0.5, 0.95] }];

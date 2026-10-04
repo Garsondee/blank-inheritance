@@ -21,6 +21,7 @@ import { SpeedTest } from "./speed.mjs";
 import { Pace, poseOf, moved } from "../core/pace.mjs";
 import { titleKey } from "../core/titleblock.mjs";
 import { HoverTip } from "./hover-tip.mjs";
+import { StageEditor, editorMemory } from "./stage-editor.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
 import { sharedNow, serially, lifeOn, boardOn, speakerOf, setSpeaker, turnOf, setDown, coverShapes, coverOnPage } from "./blocking.mjs";
@@ -112,7 +113,7 @@ export class StageHost {
       this.chalk.refresh();
       this.#placeBox();
     }
-    if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.healthBoard = new HealthBoard(this); this.#gmToggle(); }
+    if (game.user.isGM) { this.bar = new StageBar(this); this.blocking = new BlockingBar(this); this.healthBoard = new HealthBoard(this); this.editor = new StageEditor(this); if (editorMemory.on) this.editor.toggle(true); this.#gmToggle(); }
     this.#boardKey();
     this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
     this.tip = new HoverTip(this);              // a card's full words, when the pointer rests on one that has more than its plate shows
@@ -209,12 +210,13 @@ export class StageHost {
     this.speed?.stop();
     this.health?.stop();
     this.healthBoard?.dispose();
+    this.editor?.dispose();
     this.tip?.dispose();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
     this.root?.remove();
-    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.bar = this.blocking = this.backend = this.root = null;
+    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.bar = this.blocking = this.editor = this.backend = this.root = null;
   }
 
   /* ---------------------------------------------------------------- the loop */
@@ -654,6 +656,7 @@ export class StageHost {
     this.chalk?.refresh();
     this.bar?.refresh();
     this.blocking?.refresh();
+    this.editor?.refresh();
     this.#syncCast();
     // hands off: a player who is carrying a card puts it down now
     if (handsOff(this.scene) && !game.user.isGM && this.dragging) {

@@ -120,6 +120,10 @@
         "Label": "Places",
         "Tip": "Everyone you have moved walks back to where the scene put them, and back to what they were doing."
       },
+      "Edit": {
+        "Label": "Edit stage",
+        "Tip": "Show the marks and the corners of the zones as handles you can drag. Drag a ring to move a mark, a square to reshape a zone, a dot to move the whole zone; double-click a square to take a corner away, a diamond to add one."
+      },
       "Box": {
         "Label": "Box here",
         "Tip": "Press, then click the floor where the box of chalk should stand in this scene.",
@@ -133,6 +137,13 @@
         "AskSome": "Make where the {n} selected cards stand now the places the scene puts them?",
         "Done": "{n} places kept."
       }
+    },
+    "Editor": {
+      "Note": "Editing the stage: drag the handles. Nothing here is seen by the players until you let go.",
+      "Mark": "Mark",
+      "Corner": "Corner",
+      "Zone": "Zone",
+      "EdgeTip": "Double-click to add a corner here"
     },
     "Gm": {
       "Show": "Stage ▾",

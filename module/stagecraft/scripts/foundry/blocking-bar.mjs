@@ -10,6 +10,7 @@
  *   Tidy       every loose card walks to its nearest free mark
  *   Places     everyone moved goes back to where the scene put them, and back to their routines
  *   Box here   then click the floor: the box of chalk goes there (a scene's authored spot for it)
+ *   Edit stage show the marks and the corners of the zones as handles to drag (stage-editor.mjs)
  *   Keep       where they stand now (the selected, or everyone) is where the scene puts them from now on
  *   moments    the scene's authored blocking, if the adventure gave any (api.blocking.registerMoments)
  *
@@ -43,6 +44,7 @@ export class BlockingBar {
         <button type="button" data-act="places"></button>
         <button type="button" data-act="keep"></button>
         <button type="button" data-act="boxhere"></button>
+        <button type="button" data-act="edit"></button>
       </div>
       <div class="row moments" hidden></div>
       <div class="hint" hidden></div>`;
@@ -81,6 +83,7 @@ export class BlockingBar {
     set(this.el.querySelector('[data-act="places"]'), t("Places.Label"), { tip: t("Places.Tip") });
     set(this.el.querySelector('[data-act="keep"]'), t("Keep.Label"), { tip: t("Keep.Tip") });
     set(this.el.querySelector('[data-act="boxhere"]'), t("Box.Label"), { on: this.armed === "box", tip: t("Box.Tip") });
+    set(this.el.querySelector('[data-act="edit"]'), t("Edit.Label"), { on: !!this.host.editor?.on, tip: t("Edit.Tip") });
     const moments = momentsFor(scene);
     const row = this.el.querySelector(".moments");
     row.hidden = !moments.length;
@@ -161,6 +164,7 @@ export class BlockingBar {
     else if (act === "form") { this.armed = this.armed === button.dataset.kind ? null : button.dataset.kind; }
     else if (act === "tidy") await tidyUp(scene, this.host);
     else if (act === "places") await backToPlaces(scene);
+    else if (act === "edit") { this.host.editor?.toggle(); }
     else if (act === "boxhere") { this.armed = this.armed === "box" ? null : "box"; }
     else if (act === "keep") {
       // the selected cards, or everyone: where they stand now is where the scene puts them from now on

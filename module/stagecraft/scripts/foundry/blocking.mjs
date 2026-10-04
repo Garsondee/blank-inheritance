@@ -17,6 +17,7 @@ import { Stage } from "../core/stage.mjs";
 import { commitMoves, homeMoves, commitHomes } from "../core/sync.mjs";
 import { tidy } from "../core/marks.mjs";
 import { cleanBadges, sameBadges } from "../core/badges.mjs";
+import { moveMark, moveVertex, moveZone, addVertex, removeVertex, idOf } from "../core/staging.mjs";
 
 /** How far ahead a move is stamped to start, in seconds: long enough for every screen to hear of it first. */
 export const LEAD = 0.45;
@@ -109,6 +110,41 @@ export async function setChalkBox(scene, at) {
   await scene.update({ [`flags.${NS}.stage.chalk.box`]: box });
   Hooks.callAll("stagecraft.keepBox", { scene: scene.id, at: box });
   return true;
+}
+
+/**
+ * Stage by hand: move a mark, a corner of a zone, a whole zone, or add or take away a corner. `edit` is one of
+ * `{ mark: { id, at } }`, `{ vertex: { id, index, at } }`, `{ zone: { id, dx, dy } }`, `{ addVertex: { id, after, at? } }`,
+ * `{ removeVertex: { id, index } }` (points are fractions of the painting). It is written into the scene's description, where
+ * the scene's author would have put it, the stage is drawn again from it, and `stagecraft.keepStage` says what the marks and
+ * zones are now. Returns whether anything was written. (GM only.)
+ */
+export function editStage(scene, edit) {
+  if (!game.user?.isGM || !edit) return Promise.resolve(false);
+  return serially(async () => {
+    const raw = scene?.flags?.[NS]?.stage;
+    if (!raw) return false;
+    const marks = Array.isArray(raw.marks) ? raw.marks : [];
+    const zones = Array.isArray(raw.zones) ? raw.zones : [];
+    let nextMarks = marks;
+    let nextZones = zones;
+    if (edit.mark) nextMarks = moveMark(marks, edit.mark.id, edit.mark.at);
+    else if (edit.vertex) nextZones = moveVertex(zones, edit.vertex.id, edit.vertex.index, edit.vertex.at);
+    else if (edit.zone) nextZones = moveZone(zones, edit.zone.id, edit.zone.dx, edit.zone.dy);
+    else if (edit.addVertex) nextZones = addVertex(zones, edit.addVertex.id, edit.addVertex.after, edit.addVertex.at ?? null);
+    else if (edit.removeVertex) nextZones = removeVertex(zones, edit.removeVertex.id, edit.removeVertex.index);
+    const changes = {};
+    if (nextMarks !== marks) changes[`flags.${NS}.stage.marks`] = nextMarks;
+    if (nextZones !== zones) changes[`flags.${NS}.stage.zones`] = nextZones;
+    if (!Object.keys(changes).length) return false;
+    await scene.update(changes);
+    Hooks.callAll("stagecraft.keepStage", {
+      scene: scene.id,
+      marks: nextMarks.map((m, i) => ({ id: idOf(m, i, "mark"), at: m.at })),
+      zones: nextZones.map((z, i) => ({ id: idOf(z, i, "zone"), shape: z.shape, ...(Array.isArray(z.floor) ? { floor: z.floor } : {}) }))
+    });
+    return true;
+  });
 }
 
 /** Every loose card to its nearest free mark (stage.md §8.10), walking. */

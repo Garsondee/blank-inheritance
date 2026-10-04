@@ -22,7 +22,7 @@ import { fetchModuleJson, writeStorageJson } from "./io.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, KEPT_PATH, applyKept, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, placesRecord, withKept, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
+import { STAGECRAFT_ID as NS, STAGES_PATH, KEPT_PATH, applyKept, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, placesRecord, withKept, stageRecord, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -48,12 +48,13 @@ function deckOnScreen() {
 const LOG = "Blank Inheritance | Stagecraft bridge";
 let stagesPromise = null;
 let stagesLoaded = null;
+let stagesAuthored = null;                      // the stages file as written, before the GM's kept places are laid over it
 
 /** The file that says which scenes are stages and how. Read once per page; null if it cannot be. */
 export function loadStages() {
   const read = (path) => fetch(foundry.utils.getRoute(path)).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   // the places the GM kept at the table are laid over the file's own (brought home by `npm run stages`, deployed with it)
-  stagesPromise ??= Promise.all([read(STAGES_PATH), read(KEPT_PATH)]).then(([stages, kept]) => (stagesLoaded = applyKept(stages, kept)));
+  stagesPromise ??= Promise.all([read(STAGES_PATH), read(KEPT_PATH)]).then(([stages, kept]) => { stagesAuthored = stages; return (stagesLoaded = applyKept(stages, kept)); });
   return stagesPromise;
 }
 
@@ -249,6 +250,19 @@ async function fileBox({ scene: sceneId, at }) {
   await writeStorageJson("", KEPT_FILE, withKept(file, sourceId, { box: at }, new Date().toISOString()));
 }
 
+/** The GM moved a mark or a zone: where they are now is filed with the kept places, to be laid over the entry's own. */
+async function fileStage({ scene: sceneId, marks, zones }) {
+  const scene = game.scenes.get(sceneId);
+  const sourceId = scene?.getFlag?.(MODULE_ID, "sourceId");
+  if (!sourceId || !actingGM()) return;
+  const file = await fetchModuleJson(`storage/${KEPT_FILE}`, { fresh: true }).catch(() => null);
+  // only what differs from the stages file as written: a mark left where its author put it stays the author's to change
+  await loadStages();
+  const authored = entryFor(stagesAuthored, sourceId)?.description;
+  const record = stageRecord(marks, zones, authored);
+  await writeStorageJson("", KEPT_FILE, withKept(file, sourceId, record, new Date().toISOString()));
+}
+
 /** A party member's conditions changed: their card wears them as badges ("Frightened 2", "Prone"). */
 async function badgeByConditions(actor) {
   const scene = canvas?.scene;
@@ -308,6 +322,7 @@ export async function startStagecraftBridge() {
   for (const hook of ["createItem", "updateItem", "deleteItem"]) Hooks.on(hook, conditionChanged);
   Hooks.on("stagecraft.keep", (event) => { fileKept(event).catch((err) => console.warn(`${LOG} | could not file the kept places`, err)); });
   Hooks.on("stagecraft.keepBox", (event) => { fileBox(event).catch((err) => console.warn(`${LOG} | could not file the chalk box`, err)); });
+  Hooks.on("stagecraft.keepStage", (event) => { fileStage(event).catch((err) => console.warn(`${LOG} | could not file the stage edit`, err)); });
   Hooks.on("updateCombat", (combat, changes) => {
     if (changes?.turn === undefined && changes?.round === undefined && changes?.started === undefined) return;
     lightTurn(combat).catch((err) => console.warn(`${LOG} | could not light the turn`, err));

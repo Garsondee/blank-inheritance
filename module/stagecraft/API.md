@@ -3,11 +3,11 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.9.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.10.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
 published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
 0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
-`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them; the `stagecraft.keep` hook says so); 0.9.0 added `api.blocking.setChalkBox` (the box of chalk somewhere else).
+`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them; the `stagecraft.keep` hook says so); 0.9.0 added `api.blocking.setChalkBox` (the box of chalk somewhere else); 0.10.0 added `api.blocking.editStage` (move marks and the corners of zones) and the strip's "Edit stage".
 
 ## api
 
@@ -28,6 +28,7 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.blocking.backToPlaces(scene)` | GM only. Everyone moved walks back to their `home` and takes up their routine again |
 | `api.blocking.keepPlaces(scene, ids?)` | GM only. Where the cards stand now (or just `ids`) becomes where the scene puts them: their `home`, which `backToPlaces` returns them to. Resolves to how many cards' homes changed |
 | `api.blocking.setChalkBox(scene, [fx, fy])` | GM only. Put the box of chalk at a point of the painting: written into the scene's description (`chalk.box`) and the stage drawn again. The `stagecraft.keepBox` hook says so. Resolves to whether it was written |
+| `api.blocking.editStage(scene, edit)` | GM only. Stage by hand: `{ mark: { id, at } }`, `{ vertex: { id, index, at } }` (a corner of a zone), `{ zone: { id, dx, dy } }` (the whole zone, kept inside the painting), `{ addVertex: { id, after, at? } }` or `{ removeVertex: { id, index } }` (a zone keeps three). Points are fractions of the painting. Written into the scene's description and the stage drawn again; the `stagecraft.keepStage` hook says what the marks and zones are now. Resolves to whether anything was written. The GM's strip has the hands for it: **Edit stage** |
 | `api.blocking.tidy(scene)` | GM only. Every loose card walks to its nearest free mark |
 | `api.blocking.setLife(scene, on)` | GM only. Routines run (on, the default) or everyone stands where they are |
 | `api.blocking.setBoard(scene, on)` | GM only. The fight board: positions (zones of kind `area`) drawn plainly, with who is in each and the range bands. While it is up, a card put down inside a position docks in a free place in it |
@@ -62,6 +63,7 @@ Raised with `Hooks.callAll`. The first argument is the event; the second is the 
 | `stagecraft.fall` | A card was knocked down or stood back up: `{ card, down, t }` |
 | `stagecraft.keep` | The GM kept the cards' places (`api.blocking.keepPlaces`) and some changed: `{ scene, changed, homes: [{ id, home, homeYaw }] }`, every card that now has a home. Raised once, on the GM's screen |
 | `stagecraft.keepBox` | The GM moved the box of chalk (`api.blocking.setChalkBox`): `{ scene, at }`, `at` in fractions of the painting. Raised once, on the GM's screen |
+| `stagecraft.keepStage` | The GM moved a mark or a zone (`api.blocking.editStage`): `{ scene, marks: [{ id, at }], zones: [{ id, shape, floor? }] }`, all of them as they are now. Raised once, on the GM's screen |
 | `stagecraft.chalk` | Someone on this screen painted on the wall, and it is kept: `{ type: "chalk", scene, by, tool, colour, bounds }`. `tool` is one of `api.chalkTools`, `colour` is `"#rrggbb"`, and `bounds` is where the stroke lay, `{ x0, y0, x1, y1 }` in fractions of the painting. Raised once per stroke, on the painter's own screen |
 | `stagecraft.settingsChanged` | A player changed one of their Stagecraft settings; the argument is its name |
 
