@@ -1198,6 +1198,7 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R16.** The shopping direction now says the Locker is self-serve: players shop while Nobu talks.
+- **R1, R11.** An optional round, if there is time: Nobu logs personal effects ("Anything you brought that you couldn't leave? It goes in the book."). It answers the letter's "bring nothing you cannot leave", and gives each player a line about who their character is before the day takes over.
 
 #### The scene, as the GM runs it
 
@@ -1219,7 +1220,13 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 *GM:* Do: Nobu pushes a handlamp at everyone: "One credit. Take one. You'll thank me."
 If someone came in last: The handlamps have sold out by their turn. Tell them; the Locker won't. Asking Nobu properly can still find one.
 
-**3. If a player asks Nobu properly for something specific, offer the check.** *(optional)*
+**3. If there's time, Nobu logs personal effects: "Anything you brought that you couldn't leave? It goes in the book." Go round once.** *(optional)*
+
+*There's time.*
+
+*GM:* Do: He writes down exactly what they say, and hands it straight back. Nothing is kept.
+
+**4. If a player asks Nobu properly for something specific, offer the check.** *(optional)*
 
 *Someone asks Nobu for something extra.*
 
@@ -1234,7 +1241,7 @@ Secret: Some of it isn't Directorate stock. He buys it, cash, from the ships' ch
 
 *Facts:* tells the table none; GM only `nobu.off-book`.
 
-**4. If a player wants a moment with their new gear, offer the check.** *(optional)*
+**5. If a player wants a moment with their new gear, offer the check.** *(optional)*
 
 *Someone tries their kit on.*
 
@@ -1244,7 +1251,7 @@ Secret: Some of it isn't Directorate stock. He buys it, cash, from the ships' ch
 - Failure: A strap on backwards. Somebody helps.
 - Critical failure: Comically tangled, and everyone politely ignores it.
 
-**5. Vetch walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table. <trig id="vetch-inspects"/> <trig id="give-docket"/>**
+**6. Vetch walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table. <trig id="vetch-inspects"/> <trig id="give-docket"/>**
 
 > He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.
 > 
@@ -1264,7 +1271,7 @@ Secret: There's no such part. Vetch sends every new section for the bubble in a 
 - What each player bought, and any extra Nobu gave.
 - Who holds the docket.
 
-*Scene hash 5275ab2fdbf9b9df.*
+*Scene hash 9059e5faf337e3b6.*
 
 ### Scene 6: School: Second Period *(Written in detail · waiting for your read)*
 

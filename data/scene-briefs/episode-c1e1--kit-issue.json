@@ -163,6 +163,20 @@
       "gmFacts": []
     },
     {
+      "id": "personal-effects",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "each",
+      "npcRef": "nobu",
+      "text": "If there's time, Nobu logs personal effects: \"Anything you brought that you couldn't leave? It goes in the book.\" Go round once.",
+      "when": {
+        "condition": "there's time"
+      },
+      "note": "Do: He writes down exactly what they say, and hands it straight back. Nothing is kept.",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
       "id": "the-extra-thing",
       "kind": "check",
       "mandatory": false,

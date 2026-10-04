@@ -105,3 +105,4 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R16.** The shopping direction now says the Locker is self-serve: players shop while Nobu talks.
+- **R1, R11.** An optional round, if there is time: Nobu logs personal effects ("Anything you brought that you couldn't leave? It goes in the book."). It answers the letter's "bring nothing you cannot leave", and gives each player a line about who their character is before the day takes over.
