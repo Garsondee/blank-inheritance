@@ -42,8 +42,9 @@
         "adjustment": "none"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
-        "criticalSuccess": "The shape of the place: machines, radio, medical, stores. And one officer at the far end whom nobody on the platform has looked at once.",
+        "criticalSuccess": "The shape of the place: machines, radio, medical, stores. And at the far end, an elf in a plain administration uniform, whom nobody on the platform has looked at once.",
         "success": "About a dozen departments: who runs the machines, the radio and medical. The doctor from this morning is up there.",
         "failure": "Too many uniforms to keep straight.",
         "criticalFailure": "They're sure the woman with horns runs the whole base."
@@ -63,6 +64,7 @@
         "adjustment": "none"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "As success, and they would know the doctor's scrawl again anywhere.",
         "success": "Four signatures: a flowing hand; a quick doctor's scrawl; HYUCK in capitals, pressed so hard the nib tore the paper; and small careful characters in a script nobody here reads.",

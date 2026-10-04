@@ -113,3 +113,23 @@ players. The GM's `consequence` is unchanged and never shown to a player. No oth
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **"You make the vials? Sell us one."** The instrument maker will, and it isn't cheap: "You'd be paying for his
+    joke, love. Ask Manako first."
+  - **Manako says who sent him for the bubble:** "My section officer, long retired now. They hand it down like a
+    watch." It ties his hazing to Vetch's.
+  - **The hearing, for a refused docket** (D053, D058): the Deputy Director hears them in his office while the others
+    are in the city. It's one shared check (`c1e1-the-hearing`), with his opener read aloud and the case made before
+    anyone rolls. Every result puts them on report.
+  - **The mark, his name and reading him roll blind.**
+- **R10.** Buying a vial and refusing the docket both have answers. Not filing anything is answered in The Train Back.
+- **R12.** Manako's new line says only what the canon already holds: the errand is an old tradition.
+- **R13.** `deputy-director.hears-refusals` and `directorate.on-report` (provisional, told here).
+- **For Ingram, while reading:** what a hearing costs is my proposal, answering D053's open question: on report;
+  extra duty at five the next morning on a failure (they start the day Fatigued); and on a critical failure their next
+  refusal goes over his head. A character later proven right has it written off, in his hand.

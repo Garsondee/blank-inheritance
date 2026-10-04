@@ -14,7 +14,12 @@
     "where": "The night lockup and Dock C on the island, then the launch across the harbour.",
     "readAloud": "The night lockup is a counter, a single bulb and a clerk who has already issued everything worth having. Six pairs of waders and one chit to sign.",
     "landmark": "Dock C's gate, lit, at the bottom of the hill.",
-    "carriesIn": [],
+    "carriesIn": [
+      {
+        "when": "If anyone arrived by ferry",
+        "then": "The launch puts in at the Old Landing, where they came off the ferry. It looks different at night."
+      }
+    ],
     "position": {
       "locationRef": null,
       "state": "together",
@@ -108,9 +113,9 @@
       "mandatory": false,
       "delivery": "table",
       "npcRef": "taka",
-      "text": "If it fits, Taka <trig id=\"taka-sees-them-off\"/> catches them at the door: \"Told you. Waders.\" Nothing else.",
+      "text": "If there's room for it, Taka <trig id=\"taka-sees-them-off\"/> catches them at the door: \"Told you. Waders.\" Nothing else.",
       "when": {
-        "condition": "it fits"
+        "condition": "there's room for it"
       },
       "triggers": [
         {
@@ -131,6 +136,7 @@
       "npcRef": "section-officer",
       "text": "At Dock C, Vetch <trig id=\"vetch-at-dock-c\"/> gives them the job <trig id=\"drains-at-dock-c\"/> <trig id=\"drains-job-power\"/> <trig id=\"drains-job-feed\"/> <trig id=\"drains-job-report\"/> and puts them on the duty launch.",
       "readAloud": "\"Power to the drainage line. Clear the compactor feed. Report to me when it runs.\" He ticks something on his clipboard. \"The launch will take you over. I'll be at the top.\"",
+      "note": "If someone refuses to go: \"Noted.\" He writes it down, slowly. \"Report to the Deputy Director's office. Now. The rest of you, the launch.\"",
       "triggers": [
         {
           "id": "vetch-at-dock-c",
@@ -182,7 +188,7 @@
       "mandatory": true,
       "delivery": "each",
       "text": "Read the crossing, then ask each player what their character does with the ten minutes.",
-      "readAloud": "The launch is cold and loud and smells of oil. Behind you, the island's lights. Ahead, the old town, dark down at the waterline. The crew don't talk. It's ten minutes across black water.",
+      "readAloud": "The launch is cold and loud and smells of oil. Behind you are the island's lights, and Hangar Two's doors standing open under floodlights, with a Frame inside on its gantry. Ahead, the old town is dark down at the waterline. The crew don't talk. It's ten minutes across black water.",
       "facts": [],
       "gmFacts": []
     }

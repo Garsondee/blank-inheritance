@@ -21,6 +21,7 @@
         "adjustment": "hard"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "Two staff, low: \"...the pilot, Nozomi, still hasn't turned up...\" Then they see the candidates and stop.",
         "success": "\"...still hasn't turned up.\" \"...keep looking.\" Somebody is missing, and it matters.",
@@ -41,6 +42,7 @@
         "adjustment": "none"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "Shucks Mordant: one of the four founders. Half the city is named after them, and this one is the real thing, taking blood.",
         "success": "Mordant: one of the four founders' names. Half the city is named after them.",
@@ -62,6 +64,7 @@
         "adjustment": "hard"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "A half-beat of lag in his right hand, as if something else is deciding. He notices them noticing, and flexes the fingers once.",
         "success": "His right hand isn't bone. The give at the knuckle is wrong: it's a prosthetic.",
@@ -102,6 +105,7 @@
         "adjustment": "hard"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "No standard screen has a result called irregular. This is a custom test for something inherited, which is what a maiden-name box on a medical form is for.",
         "success": "It's a custom test, not a standard screen.",
@@ -119,5 +123,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--intake-medicals"
   ],
-  "notes": "No check gates the scene. The flag, the cards and the all-six moment happen whatever anyone rolls."
+  "notes": "No check gates the scene. The flag, the cards and the all-six moment happen whatever anyone rolls. The four knowledge and perception checks are rolled blind: a critical failure is a belief, and the player mustn't see that it's wrong."
 }

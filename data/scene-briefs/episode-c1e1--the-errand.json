@@ -47,6 +47,10 @@
           {
             "topic": "Who could help",
             "note": "\"Ask Manako. Tea house, a few streets on, corner table. He'll enjoy beating it.\""
+          },
+          {
+            "topic": "Selling them a vial",
+            "note": "She will, and it isn't cheap: \"You'd be paying for his joke, love. Ask Manako first.\""
           }
         ],
         "willNotDiscuss": [
@@ -90,6 +94,10 @@
           {
             "topic": "The plan",
             "note": "The vial: see the plan beat."
+          },
+          {
+            "topic": "Who sent him for the bubble",
+            "note": "\"My section officer, long retired now. They hand it down like a watch.\""
           }
         ],
         "willNotDiscuss": [
@@ -314,6 +322,25 @@
           "label": "Docket: tell Manako how it went"
         }
       ]
+    },
+    {
+      "id": "the-hearing",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If someone refused the docket, the Deputy Director hears them in his office while the others are in the city. Cut between the two.",
+      "when": {
+        "condition": "someone refused the docket"
+      },
+      "readAloud": "\"Sit down. Section Officer Vetch says you refused a direct order. Tell me why.\"",
+      "note": "Do: Let them make their case in their own words, then offer the check. He answers the argument they actually make.\nIf they ask what happens now: \"It goes on your file. If you prove right, that goes on it too, in my hand.\"\nIf the order was badly given: He takes it up with Vetch himself, never in front of a candidate.",
+      "challengeRef": "c1e1-the-hearing",
+      "checkRef": "make-your-case",
+      "facts": [
+        "deputy-director.hears-refusals",
+        "directorate.on-report"
+      ],
+      "gmFacts": []
     }
   ],
   "artefacts": [
@@ -344,7 +371,7 @@
       "line": "The train back to the island, and the stores' requisitions hatch before nineteen hundred.",
       "scatterRisk": false
     },
-    "onwards": "The Tram Back, to the island.",
+    "onwards": "The Train Back, to the island.",
     "writeDown": [
       "Who holds Manako's number, if anyone.",
       "How they're filing the requisition.",

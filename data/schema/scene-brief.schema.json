@@ -231,7 +231,7 @@
         "object",
         "null"
       ],
-      "description": "Accomplishment XP, if this scene has an award attached. GM Core's own values: minor 10, moderate 30, major 80.",
+      "description": "Accomplishment XP, if this scene has an award attached. GM Core's own values: minor 10, moderate 30, major 80. Not used while the campaign levels by milestone (D058): a deed's reward goes in the beat where it happens, such as a Hero Point, and this field stays unset.",
       "properties": {
         "award": {
           "enum": [

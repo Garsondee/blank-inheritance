@@ -163,3 +163,28 @@ test("the roll-modifiers dialog is still an un-owned popOut Application, not som
   assert.match(block, /popOut:\s*!0/, "the dialog is no longer a popOut window");
   assert.match(block, /height:\s*`auto`/, "the dialog no longer auto-sizes its height, which is what makes its landing spot unpredictable");
 });
+
+// D058, 2026-10-04: a Scene Runner check marked `secret` is posted with sf2e's own `traits:secret`
+// (core/roll-intent.mjs#enricherFor), so a player who clicks it rolls blind. That rests on two things
+// inside the bundle: the inline check reading `traits:` into the roll's options, and Check.roll turning a
+// player's roll with the `secret` option into a blind message. If either moves, a critical failure written
+// as "they're sure it's X" would show the player their 1, and this fails before a session does.
+test("an inline check's traits:secret still makes a player's roll blind", (t) => {
+  const bundle = readBundle(t);
+  if (!bundle) return;
+
+  assert.match(
+    bundle,
+    /traits:\s*d,[\s\S]{0,200}extraRollOptions/,
+    "the inline check no longer carries its parsed traits into the roll it builds"
+  );
+  assert.match(
+    bundle,
+    /\w\.has\(`secret`\)\s*&&\s*!\w\s*&&\s*\(\w\.messageMode\s*=\s*game\.user\.isGM\s*\?\s*`gm`\s*:\s*`blind`\)/,
+    "Check.roll no longer turns a roll with the secret option into a blind message"
+  );
+  assert.ok(
+    bundle.includes("@Check[flat|dc:11|name:Undetected|traits:secret|showDC:all]"),
+    "sf2e's own compendium no longer uses traits:secret on an inline check -- re-check the parameter's name"
+  );
+});

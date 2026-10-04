@@ -1,0 +1,38 @@
+{
+  "$schema": "../schema/encounter.schema.json",
+  "id": "c1e1-flood-tunnel",
+  "type": "encounter",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Flood Tunnel Clearance",
+  "description": "Episode One's only fight, and the campaign's first: six giant centipedes nesting under the grate of a flooded drainage chamber, woken when Section Nine gets the line running. Routine, sanctioned work. The compactor cycle (c1e1-compactor-cycle) can run alongside it.",
+  "partyLevel": 1,
+  "partySize": 6,
+  "intendedThreatLevel": "moderate",
+  "creatures": [
+    {
+      "creatureRef": null,
+      "name": "Giant Centipede",
+      "level": -1,
+      "count": 6,
+      "build": "Ships with the system, in the Tales from the Vast bestiary (numbers read from the shipped pack): AC 15, HP 8, Fort +7, Ref +6, Will +2 (a Demoralize is against Will DC 12), Perception +6 with darkvision, Speed 30 and climb 30. Mandibles +6 (finesse), 1d4-1 piercing, plus Giant Centipede Venom: Fortitude DC 14, maximum 6 rounds; stage 1, 1d4 poison; stage 2, 1d4 poison and off-guard; stage 3, 1d4 poison, clumsy 1 and fatigued (each 1 round).\n\nThey see in the dark and climb as fast as they walk, so the walkways are dry high ground, not a refuge. Speed 30 across a flooded floor of difficult terrain is the room's whole shape: they cross the water faster than anyone in waders. No reskin: they are exactly what they look like."
+    }
+  ],
+  "environment": "One room, on Cze & Peku's 'Trash Compactor' map. A raised control platform to the north holds the panels. A step down leads to a large sunken floor round a glowing circular grate: flooded, murky, poor light and difficult terrain, with the nest under the grate. Conveyor walkways run along both long walls, raised and dry. With the compactor cycle running, the sunken floor also becomes dangerous ground, which the walkways and the platform never are.",
+  "specialRules": [
+    "The fight starts when the line is powered and the feed is clear, or at once on a failed power check. The centipedes aren't surprised: roll initiative for both sides as normal.",
+    "A party that read the water, or that Taka warned, comes in braced rather than blindsided. On a critical success reading the water, they get into position before the machinery starts.",
+    "Morale: these are animals, not fanatics. Once half are down, or the party is plainly driving them off, the rest break for the grate and the side pipes. If nobody pursues them, they're gone.",
+    "The compactor cycle is optional and additive: the fight works without it. Its grinding doesn't care whose side anyone is on, so the party can leave it running and use it on the nest from the walkways."
+  ],
+  "roundLimit": null,
+  "rewards": "Milestone levelling: nobody is awarded XP. Every way of ending it (killing the nest, driving it off, or using the room) counts as the job done.",
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--flood-tunnel",
+    "c1e1-flood-tunnel",
+    "c1e1-compactor-cycle"
+  ],
+  "notes": "Threat. Six level -1 creatures against six level-1 characters is a 120 XP budget: Moderate once the party's size is counted (80, plus 20 for each character beyond four), not the Severe a four-character table would read it as. With the compactor cycle running (a level -1 complex hazard, 20 XP) it is 140, still under six-character Severe (180): a weighty first fight that should stay survivable. The XP only measures how dangerous the fight is; nobody is awarded it.\n\nMorale and fleeing follow Alien Core's guidance that a creature's nature informs whether it surrenders or flees (reference/srd/alien-core/1266-roleplaying-creatures.json) and GM Core's Fleeing Enemies (reference/srd/gm-core/610-running-encounters.json). A party that ends it by driving the nest off, or by turning the room on it, has done the job as fully as one that killed every centipede."
+}

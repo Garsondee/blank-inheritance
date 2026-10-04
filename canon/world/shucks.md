@@ -28,3 +28,15 @@ status: decided · source: D034, D043, D046 · known: nobody · told: later
 ## shucks.rand-signature
 When Section Nine climb out of the drains, Vetch is holding their vial requisition, countersigned in green ink over Medical's stamp: Rand, Medical. Nobody called Rand works in Medical; he has asked.
 status: provisional · source: episode-c1e1--flood-tunnel · known: few · told: in:episode-c1e1--flood-tunnel
+
+## shucks.rand-reads-the-desk
+Rand reads everything on Shucks's desk. The night after Intake Medicals it read his notes and found six carriers of the marker in one intake, which it had never seen.
+status: accepted · source: D043, D046 · known: nobody · told: later
+
+## shucks.rand-signs-whatever
+If Section Nine files no requisition, Rand countersigns whatever paper of theirs goes in that night instead: the docket handed back, or the receipt for a vial they bought. On the back of a docket it writes "Received, one (1)."
+status: provisional · source: episode-c1e1--the-tram-back · known: nobody · told: later
+
+## shucks.hand-wandered
+Asked about his right hand, Shucks says it wandered off. He means it, and it sounds like a joke.
+status: provisional · source: episode-c1e1--intake-medicals · known: some · told: in:episode-c1e1--intake-medicals

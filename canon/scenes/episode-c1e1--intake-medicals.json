@@ -10,11 +10,6 @@
   "howToPlay": "A school medical crossed with a passport office: slow queue, then one kind conversation each, played in front of the whole table. **Nobody explains what the screen is for.**",
   "runsAbout": "30-45 minutes",
   "mode": "social",
-  "accomplishment": {
-    "award": "moderate",
-    "xp": 30,
-    "forWhat": "Working out, without being told, that all six of them were flagged."
-  },
   "intro": {
     "where": "The Candidate Gate, then the infirmary waiting room on the island. Monday, first thing.",
     "firstThing": "The queue, and how long it has not moved.",
@@ -85,6 +80,10 @@
           {
             "topic": "The other founders",
             "why": "He won't gossip about old friends: \"Ask your history teacher. He'll get it wrong, but he'll enjoy it.\""
+          },
+          {
+            "topic": "The missing pilot",
+            "why": "\"Somebody didn't turn up. Somebody always doesn't. Arm.\""
           }
         ],
         "coercible": [],
@@ -120,12 +119,20 @@
           {
             "topic": "Section cards",
             "note": "\"Section Nine. Corridor on your left. Next.\""
+          },
+          {
+            "topic": "Why their names are already typed",
+            "note": "\"Admissions sends the roster over the night before. If you're on it, you're typed.\""
           }
         ],
         "willNotDiscuss": [
           {
             "topic": "What a result means",
             "why": "She doesn't know: \"Not won't. Can't. It's not on my screen.\""
+          },
+          {
+            "topic": "Why their track is blank",
+            "why": "She doesn't know either: \"It's blank on my list too. Next.\""
           }
         ],
         "coercible": [],
@@ -234,8 +241,10 @@
       },
       "challengeRef": "c1e1-the-medical",
       "checkRef": "the-hand",
-      "note": "Secret: His real right hand is Rand, a familiar loose in the city. He doesn't know where it is today.",
-      "facts": [],
+      "note": "If anyone asks him about it: \"It wandered off. Other arm.\" He means it.\nSecret: His real right hand is Rand, a familiar loose in the city. He doesn't know where it is today.",
+      "facts": [
+        "shucks.hand-wandered"
+      ],
       "gmFacts": [
         "shucks.rand"
       ]
@@ -291,10 +300,11 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE. <trig id=\"enrolment-medical\"/> Let them compare.",
-      "note": "Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.\nIf nobody compares: A candidate from another queue asks loudly whether anyone else got irregular.\nSecret: Candidates with the marker are streamed together as routine. Six in one intake has never happened; Shucks is quietly astonished.",
+      "text": "Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. <trig id=\"enrolment-medical\"/> Let them compare.",
+      "note": "Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.\nDo: Whoever first says out loud that it was all six of them gets a Hero Point.\nIf nobody compares: A candidate from another queue asks loudly whether anyone else got irregular.\nSecret: Candidates with the marker are streamed together as routine. Six in one intake has never happened; Shucks is quietly astonished.",
       "facts": [
-        "directorate.section-nine"
+        "directorate.section-nine",
+        "directorate.no-track"
       ],
       "gmFacts": [
         "directorate.carriers-streamed"

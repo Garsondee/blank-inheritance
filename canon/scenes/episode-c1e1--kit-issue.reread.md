@@ -72,3 +72,21 @@ only stops that player asking again today.
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **The handlamp is plain.** It's on the catalogue at one credit, and Nobu pushes one at everyone ("One credit. Take
+    one. You'll thank me."). Whoever comes in last finds them sold out; the Equipment Locker won't stop them taking
+    one, so the line says to tell them. The way forward is asking Nobu properly: his extra can be a handlamp.
+  - **Nobu's off-book stock has an answer:** he buys it, cash, from the ships' chandlers on the old town's waterfront,
+    because issue never arrives on time. Asked where an extra came from: "Fell off a ship. Sign here."
+  - **A refused docket** (D058): Vetch writes their name down, slowly: "The Deputy Director will see you at seventeen
+    hundred." The hearing runs in The Errand while the others are in the city.
+- **R6.** A failure in local studies costs a lamp; asking Nobu can still find one.
+- **R10.** Refusing the order is now a real path, with a cost and a hearing.
+- **R12.** The chandlers are a secret, not told.
+- **For Ingram, while reading:** the chandlers are mine. Equipment stays live at this counter, as decided on
+  2026-09-09; the Locker is self-serve, so players shop while Nobu talks.

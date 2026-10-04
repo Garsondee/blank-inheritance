@@ -5,7 +5,7 @@
 //   node tools/story/story.mjs where <fact>      every line that relies on one fact
 //   node tools/story/story.mjs check             every rule; exits 1 on an error
 //   node tools/story/story.mjs apply <Dnnn>      a decision's changes, checked, with every line they touch
-//   node tools/story/story.mjs build             copy canon scenes and challenges to data/, where Foundry reads them
+//   node tools/story/story.mjs build             copy canon scenes, challenges, objectives, encounters and subsystems to data/
 //   node tools/story/story.mjs time              relative time words per scene, beside the plan's day and time
 //   node tools/story/story.mjs quarters          write the plan's day/quarter onto every episode's own scene list
 //   node tools/story/story.mjs digest <scene>    what a scene says and relies on, compactly

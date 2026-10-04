@@ -31,7 +31,7 @@ status: decided · source: D027, D043 · known: few · told: later
 
 ## founders.not-waved-about
 The city doesn't make a fuss of its founders being long-lived. It's faintly embarrassing, so nobody waves it in anyone's face.
-status: decided · source: D028 · known: everyone · told: later
+status: decided · source: D028, D058 · known: everyone · told: in:episode-c1e1--school-first-period
 
 ## founders.alive
 All four are alive. Three work on the base; Anabala is a free agent.

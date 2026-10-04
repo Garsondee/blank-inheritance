@@ -11,8 +11,8 @@
   "runsAbout": "20-25 minutes",
   "mode": "social",
   "intro": {
-    "where": "The drill hall, the only room on the island big enough for the whole intake.",
-    "readAloud": "The drill hall smells of floor polish and four hundred people. Somebody has put out more chairs than there are of you, and along the platform a dozen staff in a dozen different uniforms stand in a line. Above them, in a heavy frame, hangs the founding charter, and somebody has polished the glass.",
+    "where": "The drill hall, where the whole base turns out for a new intake.",
+    "readAloud": "The drill hall smells of floor polish and four hundred people: the whole base has turned out, and the forty of you in the new intake have the front rows. Along the platform, a dozen staff in a dozen different uniforms stand in a line. Above them, in a heavy frame, hangs the founding charter, and somebody has polished the glass.",
     "landmark": "The charter, framed over the platform.",
     "carriesIn": [
       {
@@ -47,12 +47,24 @@
           {
             "topic": "The rules",
             "note": "\"Curfew is a small thing. An order is not.\""
+          },
+          {
+            "topic": "What a hearing is",
+            "note": "\"You'd sit in my office, I'd ask you why, and I'd listen.\""
           }
         ],
         "willNotDiscuss": [
           {
             "topic": "Why the Directorate came to Kurose",
             "why": "He means it kindly: \"The founders' reasons are the founders' to give.\""
+          },
+          {
+            "topic": "Why the intake was brought forward",
+            "why": "\"The date moved. Dates do, here. I'm sorry it cost some of you a fortnight at home.\""
+          },
+          {
+            "topic": "The screen",
+            "why": "\"Medical's business. Ask Doctor Mordant, and good luck to you.\""
           },
           {
             "topic": "The Frames",
@@ -152,7 +164,9 @@
       "note": "If a player says what their character does: Offer the check to get through a song they don't know.",
       "challengeRef": "c1e1-assembly",
       "checkRef": "the-anthem",
-      "facts": [],
+      "facts": [
+        "directorate.intake-size"
+      ],
       "gmFacts": []
     },
     {
@@ -202,8 +216,13 @@
       },
       "challengeRef": "c1e1-assembly",
       "checkRef": "read-the-room",
+      "note": "If anyone asks who that is: Vetch, without looking round: \"Administration. Eyes front.\"\nSecret: It's Rupiah, a founder, high in the administration, here to watch and not be involved. Nobody stares at a founder; it's manners.",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [
+        "rupiah.at-assembly",
+        "rupiah.role",
+        "founders.not-waved-about"
+      ]
     },
     {
       "id": "the-charter",
@@ -292,5 +311,5 @@
       "text": "Section Nine's first impression of Vetch."
     }
   ],
-  "notes": "Everyone on the platform is someone the party meets: Shucks, Hulda Brack, the Comms Officer and Vetch. The address carries D053: a school and a service at once, afternoons theirs to choose (the second school period is where they first choose), and the two rules. It names no founder and gives no reason for Kurose."
+  "notes": "Everyone on the platform is someone they'll deal with: Shucks, Hulda Brack, Vetch and the Comms Officer, and at the far end Rupiah, whom nobody looks at. The address makes the Directorate a school and a service at once, gives the candidates their afternoons, and states the two rules. It names no founder and gives no reason for Kurose."
 }

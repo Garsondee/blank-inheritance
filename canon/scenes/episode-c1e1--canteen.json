@@ -16,12 +16,16 @@
     "landmark": "The serving line, with the radio on a shelf behind it.",
     "carriesIn": [
       {
-        "when": "If they filed the requisition loudly",
+        "when": "If they filed loudly",
         "then": "Half the hall has heard. People grin at Section Nine on the way past, and Taka already knows."
       },
       {
-        "when": "If they filed it quietly",
+        "when": "If they filed quietly",
         "then": "Nobody knows yet, except Vetch."
+      },
+      {
+        "when": "If they came back empty-handed",
+        "then": "The hall has heard about the bubble. Somebody asks how it's going."
       }
     ],
     "position": {
@@ -51,6 +55,10 @@
           {
             "topic": "Vetch",
             "note": "\"Did he send you for the bubble? He sends everyone for the bubble.\""
+          },
+          {
+            "topic": "The radio",
+            "note": "\"They play that every night. Somebody's always angry about something. Pickles?\""
           }
         ],
         "willNotDiscuss": [
@@ -173,7 +181,7 @@
       "text": "Vetch <trig id=\"section-officer-arrives\"/> reads the evening's orders to the hall. Section Nine's is last. <trig id=\"give-drains\"/>",
       "readAloud": "\"Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two.\" He looks up for the first time. \"Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup.\"",
       "direction": "No choice and no appeal: he answers any argument by reading the order again, once, and goes.",
-      "note": "Secret: He gave them the drains for the vial. He'll never say so.",
+      "note": "If someone refuses outright: \"Noted.\" He writes it down, slowly. \"The Deputy Director's office, twenty-one hundred, instead of Dock C.\"\nSecret: He gave them the drains for the vial, or, if they came back empty-handed, for the laugh. He'll never say so.",
       "triggers": [
         {
           "id": "section-officer-arrives",
@@ -218,6 +226,7 @@
       "npcRef": "taka",
       "text": "The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word. <trig id=\"drains-wear-them\"/>",
       "readAloud": "\"Storm drains.\" Taka is quiet for a moment, which is new. \"Wear the waders. Trust me.\"",
+      "note": "If anyone answers the next table's \"Which track are you on?\": \"No track? Huh. Never seen that.\" He means nothing by it.",
       "facts": [],
       "gmFacts": [],
       "triggers": [

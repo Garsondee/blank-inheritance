@@ -21,7 +21,11 @@
       },
       {
         "when": "If one critically succeeded there",
-        "then": "They also know a show of force sends one running."
+        "then": "A show of force works for them: Demoralize by sight alone (no language penalty, Will DC 12), and a hurt, frightened centipede breaks for the grate."
+      },
+      {
+        "when": "If Taka warned anyone",
+        "then": "They know something lives under the water before anyone touches a panel."
       },
       {
         "when": "If anyone passed the workshop induction",
@@ -136,6 +140,25 @@
       "gmFacts": []
     },
     {
+      "id": "the-hearing",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If someone refused the drains, the Deputy Director hears them in his office while the others are down here. Cut between the two.",
+      "when": {
+        "condition": "someone refused the drains"
+      },
+      "readAloud": "\"Sit down. Section Officer Vetch says you refused a direct order. Tell me why.\"",
+      "note": "Do: Cut to his office between the panels and the fight. Hear their case out before anyone rolls.\nIf their reason was the danger down here, and someone comes back hurt: He reopens it, and their file says they were right.\nIf they ask what happens now: \"It goes on your file. If you prove right, that goes on it too.\"",
+      "challengeRef": "c1e1-the-hearing",
+      "checkRef": "make-your-case",
+      "facts": [
+        "deputy-director.hears-refusals",
+        "directorate.on-report"
+      ],
+      "gmFacts": []
+    },
+    {
       "id": "power-the-line",
       "kind": "check",
       "mandatory": true,
@@ -185,7 +208,7 @@
       "delivery": "table",
       "text": "The machinery wakes the nest <trig id=\"nest-wakes\"/>. Six giant centipedes come up out of the water around the grate.",
       "direction": "Fast and physical. The flooded floor is difficult terrain in dim light; the walkways are dry high ground.",
-      "note": "Do: Ask how they want it to end, and back their answer. Each ending earns full XP.\nIf someone won't fight: Holding a walkway or working the panels is real work.\nIf it goes badly: Once half are down, the rest break for the grate.",
+      "note": "Do: Ask how they want it to end, and back their answer. Every ending counts as the job done.\nIf someone won't fight: Holding a walkway or working the panels is real work.\nIf it goes badly: Once half are down, the rest break for the grate.\nIf they abandon the job: At the top, Vetch sends them back down. Refusing is a refused order.",
       "encounterRef": "c1e1-flood-tunnel",
       "subsystemRef": "c1e1-compactor-cycle",
       "choicePoint": {
@@ -244,7 +267,7 @@
       "npcRef": "section-officer",
       "text": "They climb out. Vetch <trig id=\"vetch-at-the-top\"/> is waiting with their requisition, countersigned. Read it, then let him ask. <trig id=\"drains-reported\"/> <trig id=\"close-drains\"/>",
       "readAloud": "Vetch is waiting at the top of the ladder with a lamp and a sheet of paper. It's your requisition for the vial, countersigned in green ink over Medical's stamp: Rand, Medical.\n\n\"Which one of you is Rand?\"",
-      "note": "If they don't know: \"Nobody called Rand works in Medical. I've asked.\" He folds it away and dismisses them.\nSecret: Rand is Shucks's own right hand, loose in the city. It signed tonight, from Shucks's desk. Nobody knows, Shucks included.",
+      "note": "If they don't know: \"Nobody called Rand works in Medical. I've asked.\" He dismisses them.\nIf someone claims to be Rand: \"Sign it, then.\" It doesn't match.\nIf they ask if they're in trouble: \"You did exactly what you were told.\" He isn't pleased.\nIf they handed in something else: The same ink on its back: \"Received, one (1).\"\nSecret: Rand is Shucks's own right hand, loose in the city. It signed tonight, at Shucks's desk. Nobody knows, Shucks included.",
       "triggers": [
         {
           "id": "vetch-at-the-top",
@@ -273,7 +296,8 @@
       ],
       "gmFacts": [
         "shucks.rand",
-        "shucks.rand-signs"
+        "shucks.rand-signs",
+        "shucks.rand-signs-whatever"
       ]
     }
   ],

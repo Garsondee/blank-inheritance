@@ -79,3 +79,20 @@ players. The GM's `consequence` is unchanged and never shown to a player. No oth
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** **Three rooms:** natural history, Hulda Brack's workshop induction (moved from first period) and the
+  range, with the gymnasium or library for anyone who invents them. All three pay off in the drains: the Recall
+  Knowledge, +2 on the panels, +1 on a first ranged Strike.
+  - **Natural history's critical success is in real rules now.** A show of force sends a centipede running; in the
+    drains that's a Demoralize by sight alone (SF2E's own rule: no language penalty), against Will DC 12 from the
+    centipede's own Will +2, and a hurt, frightened centipede breaks for the grate.
+  - **One unlabelled jar, not three:** the teacher's own story is about taking the label off one.
+  - Stagecraft: Hulda's card moved to this stage, at the left end of the bench, where every placement rule passes.
+- **R1, R2.** One choice, three rooms, three payoffs in one fight.
+- **R27.** Each payoff is said once, in its check result; the drain chamber's carry-ins say what they do there.
+- **R15, R21.** The intro reads aloud as three sentences.
+- **R23.** 15 to 20 minutes.

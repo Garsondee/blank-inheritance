@@ -98,3 +98,29 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **The fight is in canon:** `canon/encounters/c1e1-flood-tunnel.json` and
+    `canon/subsystems/c1e1-compactor-cycle.json`, rebuilt from the old files. The centipedes' numbers are read from the
+    shipped bestiary: they have darkvision and climb 30, so the walkways are dry high ground, not a refuge. The old
+    foreknowledge rule pointed at a cut supper check, and the reward line spoke of XP; both are gone.
+  - **Milestone levelling:** every ending "counts as the job done", not "earns full XP".
+  - **Two carry-ins added:** Taka's warning (they know something lives under the water), and natural history's
+    critical success in real rules (Demoralize by sight alone, Will DC 12; a hurt, frightened centipede breaks for the
+    grate).
+  - **At the top:** someone will claim to be Rand ("Sign it, then." It doesn't match); "Are we in trouble?" ("You did
+    exactly what you were told." He isn't pleased); and if they handed in something other than a requisition, the same
+    green ink on its back: "Received, one (1)."
+  - **The hearing, for refused drains:** cut to the Deputy Director's office between the panels and the fight. If
+    their reason was the danger down here and someone comes back hurt, he reopens it and their file says they were
+    right: the promise that disobeying for the right reason pays, kept on the first night.
+  - **Abandoning the job:** at the top, Vetch sends them back down; refusing is a refused order.
+  - **Reading the water rolls blind.**
+- **R6, R10.** Every way out of the room has an answer.
+- **R27.** The hearing's check is shared with The Errand; each scene's note says only what is true in that scene.
+- **R13.** `shucks.rand-signs-whatever` (provisional) as a secret.
+- **For Ingram, while reading:** the hearing being reopened when someone comes back hurt is mine.

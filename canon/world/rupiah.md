@@ -16,3 +16,7 @@ status: decided · source: D027, D028, D056 · known: everyone · told: in:episo
 ## rupiah.role
 Rupiah works in the Directorate's administration.
 status: decided · source: D028 · known: some · told: later
+
+## rupiah.at-assembly
+Rupiah sits at the far end of the platform at the intake's assembly: high in the administration, there to watch the intake and not to be involved.
+status: decided · source: D058 · known: few · told: later

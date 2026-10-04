@@ -2331,7 +2331,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           hiddenAdjustment(brief.gmModifiers ?? [], { challengeRef: beat?.challengeRef, locationKey: brief.sceneRef })
         );
         try {
-          await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, options: rollTagFor(brief.id, beatId) }) });
+          await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, secret: check.secret === true, options: rollTagFor(brief.id, beatId) }) });
           await logFired();
         } catch (err) {
           console.error("Blank Inheritance | Could not post that check:", err);
@@ -2729,7 +2729,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       // Tagged with this brief and beat, so the result a player rolls from it
       // records itself here (the createChatMessage hook below).
-      await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, options: rollTagFor(brief.id, beat.id) }) });
+      await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, secret: check.secret === true, options: rollTagFor(brief.id, beat.id) }) });
       this.render({});
     } catch (err) {
       console.error("Blank Inheritance | Could not post that check:", err);
@@ -2757,7 +2757,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const topicKey = `${target.dataset.castId}:coercible:${Number(target.dataset.topicIndex)}`;
 
     try {
-      await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, options: rollTagFor(brief.id, topicKey) }) });
+      await ChatMessage.create({ content: enrichersFor({ skillOptions: checkSkills(check), dc, secret: check.secret === true, options: rollTagFor(brief.id, topicKey) }) });
     } catch (err) {
       console.error("Blank Inheritance | Could not post that check:", err);
       ui.notifications.warn(String(err?.message ?? err));

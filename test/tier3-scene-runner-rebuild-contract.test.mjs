@@ -191,7 +191,9 @@ test("how to play it and how it ends reach the GM with their bold rendered, not 
 /* ---------------------------------------------------------------- */
 
 test("every check the runner posts is tagged with its brief and beat (or topic)", () => {
-  assert.match(fnBody("onPostCheck"), /enrichersFor\(\{ skillOptions: checkSkills\(check\), dc, options: rollTagFor\(brief\.id, beat\.id\) \}\)/);
+  // 2026-10-04 (D058): the call also carries the check's own `secret` flag, so a check whose critical failure is a
+  // belief rolls blind (core/roll-intent.mjs#enricherFor).
+  assert.match(fnBody("onPostCheck"), /enrichersFor\(\{ skillOptions: checkSkills\(check\), dc, secret: check\.secret === true, options: rollTagFor\(brief\.id, beat\.id\) \}\)/);
   assert.match(fnBody("onFireTrigger"), /options: rollTagFor\(brief\.id, beatId\)/);
   assert.match(fnBody("onPostTopicCheck"), /options: rollTagFor\(brief\.id, topicKey\)/);
   const tagFor = src.match(/function rollTagFor\(briefId, key\) \{[\s\S]*?\n\}/)?.[0];

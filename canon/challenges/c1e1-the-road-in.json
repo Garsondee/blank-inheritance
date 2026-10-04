@@ -41,6 +41,7 @@
         "adjustment": "hard"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "It isn't the first one they've seen: always this deep violet, always at head height, always where a crowd stops and waits. This one is fresh.",
         "success": "Now they think about it, it isn't the first one today. The same deep violet, at the same height.",

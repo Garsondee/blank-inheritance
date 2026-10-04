@@ -71,7 +71,7 @@ test("the not-a-choice list does not rot", () => {
 
 test("the detector still finds the beats it was written for", () => {
   const found = beats().filter(({ beat }) => beat.choicePoint && ASKS_EACH_TO_PICK.test([beat.text, beat.direction, beat.note].filter(Boolean).join(" "))).map((b) => b.key);
-  for (const key of ["episode-c1e1--school-first-period/which-room", "episode-c1e1--flood-tunnel/split-the-job", "rest--night-shift/your-hands"]) {
+  for (const key of ["episode-c1e1--school-second-period/which-room-again", "episode-c1e1--flood-tunnel/split-the-job", "rest--night-shift/your-hands"]) {
     assert.ok(found.includes(key), `the detector no longer recognises ${key}`);
   }
 });

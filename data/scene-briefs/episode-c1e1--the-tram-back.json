@@ -4,10 +4,10 @@
   "type": "scene-brief",
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "the-tram-back",
-  "title": "The Tram Back",
-  "summary": "Scene 8. The island train home across the causeway at dusk, with nobody needing anything from them, then the requisition handed in at the stores before nineteen hundred.",
-  "goal": "They've had a quiet ride together and handed in the requisition before nineteen hundred.",
-  "howToPlay": "Quiet and short. Two lines, then let them talk. **Then the requisition goes in, the way they chose.**",
+  "title": "The Train Back",
+  "summary": "Scene 8. The island train home across the causeway at dusk, with nobody needing anything from them, then their paper handed in at the stores before nineteen hundred.",
+  "goal": "They've had a quiet ride together and handed in their paper before nineteen hundred.",
+  "howToPlay": "Quiet and short. Two lines, then let them talk. **Then their paper goes in, the way they chose.**",
   "runsAbout": "10 minutes",
   "mode": "social",
   "intro": {
@@ -38,7 +38,7 @@
         "voice": {
           "register": "Fast, as ever, and not reading what he's handed.",
           "samples": [
-            "\"Needs a countersignature from above your officer. It'll go up tonight. Next.\""
+            "\"Signed, stamped, gone. Next.\""
           ]
         }
       }
@@ -75,8 +75,9 @@
       "mandatory": true,
       "delivery": "table",
       "npcRef": "nobu",
-      "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes the requisition without reading it. <trig id=\"docket-requisition-in\"/> <trig id=\"docket-in-time\"/> <trig id=\"close-docket\"/> File it the way they chose.",
-      "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nSecret: It goes up tonight and comes back signed by Rand, of Medical: Shucks's own right hand.",
+      "text": "At the stores hatch, Nobu <trig id=\"nobu-at-the-hatch\"/> takes their paper without reading it. <trig id=\"docket-requisition-in\"/> <trig id=\"docket-in-time\"/> <trig id=\"close-docket\"/> File it the way they chose.",
+      "readAloud": "\"A vial? Medical countersigns those. It'll go up tonight. Next.\"",
+      "note": "If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.\nIf they chose loudly: It's read out in the queue and pinned to the section board.\nIf they came back empty-handed, or bought a vial: They hand in the docket, or the receipt, the same way.\nSecret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns it.",
       "triggers": [
         {
           "id": "nobu-at-the-hatch",
@@ -108,10 +109,14 @@
           "label": "Close: Collect the levelling bubble"
         }
       ],
-      "facts": [],
+      "facts": [
+        "directorate.vials-to-medical"
+      ],
       "gmFacts": [
         "shucks.rand",
-        "shucks.rand-signs"
+        "shucks.rand-signs",
+        "shucks.rand-reads-the-desk",
+        "shucks.rand-signs-whatever"
       ]
     }
   ],
@@ -120,7 +125,7 @@
   "gmModifiers": [],
   "offers": [],
   "outro": {
-    "endsWhen": "The requisition is in.",
+    "endsWhen": "Their paper is in.",
     "artefactRefs": [],
     "tracks": [],
     "transition": {
@@ -131,7 +136,7 @@
     "onwards": "Canteen, in the Long Hall.",
     "writeDown": [
       "Anything said on the ride worth calling back.",
-      "How the requisition went in."
+      "What they handed in, and how."
     ],
     "position": {
       "locationRef": "island-platforms",
@@ -152,5 +157,5 @@
       "text": "The six talking among themselves on the ride."
     }
   ],
-  "notes": "The episode's breather after the city. Its one job is the deadline: the requisition goes in before nineteen hundred."
+  "notes": "The episode's breather after the city. Its one job is the deadline: their paper goes in before nineteen hundred. Vials are Medical's, so a vial requisition goes up to Shucks's desk, where Rand reads everything at night."
 }

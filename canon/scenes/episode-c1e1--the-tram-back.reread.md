@@ -1,4 +1,4 @@
-# Re-read: The Tram Back
+# Re-read: The Train Back
 
 version 1 · re-read against `canon/reread.md` version 3 · 2026-10-01 · by Claude · state: awaiting Ingram's read
 
@@ -64,3 +64,21 @@ of the two choices, so a table that skips it just hears no grins at supper.
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **Renamed The Train Back**, because it's the island train (the causeway has a railway beside it). The id is
+    unchanged.
+  - **The ending can't break.** If they came back empty-handed, or bought a vial, they hand in the docket or the
+    receipt the same way, and whatever paper of theirs goes in tonight, Rand finds and countersigns.
+  - **Why it reaches Medical:** Nobu, read aloud: "A vial? Medical countersigns those. It'll go up tonight. Next."
+    Vials are Medical's, so a vial requisition goes up to Shucks's desk, where Rand reads everything (D043, accepted
+    in D046).
+- **R10.** Every way of handling the errand now leads to the same ending.
+- **R13.** `directorate.vials-to-medical` (told here); `shucks.rand-reads-the-desk` (accepted, D043 and D046) and
+  `shucks.rand-signs-whatever` (provisional) as secrets.
+- **For Ingram, while reading:** "whatever paper goes in" and the routing to Medical are mine. Not renamed: the
+  soundscape's title and some older design notes, which still say Tram.

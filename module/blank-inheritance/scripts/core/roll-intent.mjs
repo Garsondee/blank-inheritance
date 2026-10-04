@@ -115,14 +115,24 @@ const SAFE_ROLL_OPTION = /^[a-z0-9][a-z0-9:_-]*$/;
  * player-created Items, and this string is handed to an enricher that parses
  * `|` and `]` as syntax. An unvalidated lore called `x|dc:1]@UUID[...]` would
  * be an injection into that parser.
+ *
+ * `secret` posts the check with sf2e's own `traits:secret`, the same parameter
+ * its compendium uses for checks "rolled in secret by the GM". A player who
+ * clicks it rolls blind: the trait becomes a roll option, and `Check.roll`
+ * turns a player's roll with the `secret` option into a blind message
+ * (`gamesystems/sf2e/sf2e.mjs`, read 2026-10-04). The GM still sees the
+ * result, so the Scene Runner still records it against its beat. A check
+ * whose critical failure is a confident wrong belief needs this (D058): the
+ * belief only works if the player can't see that the roll was a 1.
  */
-export function enricherFor({ slug, dc = null, options = [] } = {}) {
+export function enricherFor({ slug, dc = null, options = [], secret = false } = {}) {
   if (!isSafeSlug(slug)) throw new Error(`Refusing to build an enricher for unsafe slug ${JSON.stringify(slug)}.`);
   const params = [slug];
   if (dc !== null && dc !== undefined) {
     if (!Number.isInteger(dc)) throw new Error(`A check DC must be a whole number, got ${JSON.stringify(dc)}.`);
     params.push(`dc:${dc}`);
   }
+  if (secret === true) params.push("traits:secret");
   // Extra roll options ride along into the roll's own chat message
   // (sf2e's inline check turns `options:` into extraRollOptions), which is how
   // the Scene Runner recognises the result of a check it posted
@@ -153,8 +163,8 @@ export function enricherFor({ slug, dc = null, options = [] } = {}) {
  * plain "or" — the player then clicks whichever one applies to their own
  * character, at zero extra cost to the GM.
  */
-export function enrichersFor({ skillOptions = [], dc = null, options = [] } = {}) {
-  return skillOptions.map((slug) => enricherFor({ slug, dc, options })).join(" or ");
+export function enrichersFor({ skillOptions = [], dc = null, options = [], secret = false } = {}) {
+  return skillOptions.map((slug) => enricherFor({ slug, dc, options, secret })).join(" or ");
 }
 
 /**

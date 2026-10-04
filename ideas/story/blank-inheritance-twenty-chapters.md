@@ -29,7 +29,7 @@ Scenes rebuilt one at a time in the new canon tree (`canon/`), in play order. Ea
 | 5 | Kit Issue | 1 | afternoon | Written in detail · waiting for your read |
 | 6 | School: Second Period | 1 | afternoon | Written in detail · waiting for your read |
 | 7 | The Errand | 1 | afternoon | Written in detail · waiting for your read |
-| 8 | The Tram Back | 1 | evening | Written in detail · waiting for your read |
+| 8 | The Train Back | 1 | evening | Written in detail · waiting for your read |
 | 9 | Canteen | 1 | evening | Written in detail · waiting for your read |
 | 10 | The Walk Down | 1 | night | Written in detail · waiting for your read |
 | 11 | Flood Tunnel Clearance | 1 | night | Written in detail · waiting for your read |
@@ -359,6 +359,20 @@ typewriter, Form 1-A.
   a crowd something one day.
 - **`minkai.government`** is still open; the letter now avoids it.
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** Only the violet mark's check: it is now rolled blind (`secret`), because its critical failure is a
+  confident wrong belief ("a condemned-building notice"), which only works if the player can't see the roll. The Scene
+  Runner posts it with sf2e's own `traits:secret`. No words changed.
+- **R6.** The critical failure still escalates into a wrong belief, and now the player can't tell it is one.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has said how their character looks and how we first see them, then rolled for and told one small problem on the way into Kurose.
@@ -368,7 +382,7 @@ typewriter, Form 1-A.
 **Where.** Six separate mornings, in six separate places, all in the same week.  
 **First thing.** undefined  
 
-**1. Read the letter aloud, then press Show the table. Each player gets a private copy with their own character's name typed in.**
+**1. Read the letter aloud, then press Show the table. <trig id="give-enrolment"/> Each player gets a private copy with their own character's name typed in.**
 
 > Dear Candidate,
 > 
@@ -427,7 +441,7 @@ Secret: The marks are Cicada's, laid on walls where crowds wait, as places to sh
 - For each player: look, first shot, problem, skill, result, and one line of how it went.
 - How often the violet mark came up, and who rolled well on it.
 
-*Scene hash fbc2c7837a875a3a.*
+*Scene hash c1af92bf1fda2337.*
 
 ### Scene 2: Intake Medicals *(Written in detail · waiting for your read)*
 
@@ -517,6 +531,34 @@ asks twice) and D034 (the hand) are all used.
 - **Why the forms ask for mothers' maiden names** is mine, provisional: Shucks traces the marker through families.
 - **Streaming carriers into one section** follows the induction design; six at once is Shucks's surprise (D020).
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **No XP.** Levelling is by milestone (D058), so the 30 XP accomplishment is gone. Whoever first says out loud that
+    it was all six of them gets a **Hero Point** instead: SF2E's own reward, and it pays off that same night, in the
+    fight. The line sits on the beat where it happens.
+  - **The cards leave the track blank.** Every other candidate's card names a track; Section Nine's six don't, and the
+    clerk's list is blank too. It lands at supper, when the next table asks "Which track are you on?"
+  - **Three answers the table will ask for.** Shucks, about his right hand: "It wandered off. Other arm." (true, and it
+    sounds like a joke). Shucks, about the overheard missing pilot: "Somebody didn't turn up. Somebody always doesn't.
+    Arm." The clerk, about their names already typed on the form: "Admissions sends the roster over the night before."
+  - **The four knowledge and perception checks roll blind**, so their wrong-belief critical failures work.
+- **R8.** The likeliest questions (the hand, the missing pilot, the typed names, the blank track) now have answers in
+  the speaker's own voice.
+- **R12, R19.** "It wandered off" is a clue, not an answer: with the prosthetic and the name Rand it is one of the
+  routes to Rand that D034 lists. The blank track is a question, never explained here.
+- **R6.** Working out the all-six moment now earns a Hero Point, not a number nobody feels.
+- **R27.** The Hero Point is said once, on the all-six beat.
+- **For Ingram, while reading:** the Hero Point (in place of XP), the blank track and Shucks's "It wandered off" are
+  mine.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has had a private moment with Shucks and been told their screen came back irregular, and the six could find out it was all of them.
@@ -578,7 +620,8 @@ Watch for: Craig played Shucks in the old campaign. Give his character's turn wi
 
 *Someone watches his hands.*
 
-*GM:* Secret: His real right hand is Rand, a familiar loose in the city. He doesn't know where it is today.
+*GM:* If anyone asks him about it: "It wandered off. Other arm." He means it.
+Secret: His real right hand is Rand, a familiar loose in the city. He doesn't know where it is today.
 
 *Roll:* Watch the hand: Perception or Medicine, DC 17. Costs nothing on any result.
 - Critical success: A half-beat of lag in his right hand, as if something else is deciding. He notices them noticing, and flexes the fingers once.
@@ -586,7 +629,7 @@ Watch for: Craig played Shucks in the old campaign. Give his character's turn wi
 - Failure: Nothing they can put a finger on.
 - Critical failure: They decide it's just what being a skeleton looks like.
 
-*Facts:* tells the table none; GM only `shucks.rand`.
+*Facts:* tells the table `shucks.hand-wandered`; GM only `shucks.rand`.
 
 **7. Shucks tells each of them, alone: "Your screen came back irregular. It does that. Nothing to worry about."**
 
@@ -618,13 +661,14 @@ Watch for: Craig played Shucks in the old campaign. Give his character's turn wi
 
 *Facts:* tells the table none; GM only `directorate.the-marker`, `shucks.maiden-names`.
 
-**10. Out in the corridor, the clerk hands each of them a card: SECTION NINE. Let them compare.**
+**10. Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. <trig id="enrolment-medical"/> Let them compare.**
 
 *GM:* Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.
+Do: Whoever first says out loud that it was all six of them gets a Hero Point.
 If nobody compares: A candidate from another queue asks loudly whether anyone else got irregular.
 Secret: Candidates with the marker are streamed together as routine. Six in one intake has never happened; Shucks is quietly astonished.
 
-*Facts:* tells the table `directorate.section-nine`; GM only `directorate.carriers-streamed`.
+*Facts:* tells the table `directorate.section-nine`, `directorate.no-track`; GM only `directorate.carriers-streamed`.
 
 **Ends when.** All six hold a Section Nine card.
 **Into the next scene.** A bell, and a staff officer marches the whole intake to the drill hall for Assembly. Assembly, in the drill hall.
@@ -635,7 +679,7 @@ Secret: Candidates with the marker are streamed together as routine. Six in one 
 - What each told him, and who he took to.
 - Who noticed the hand, the search or the name.
 
-*Scene hash b486344cebc1683a.*
+*Scene hash 9c9d53f36798fe9e.*
 
 ### Scene 3: Assembly *(Written in detail · waiting for your read)*
 
@@ -718,13 +762,43 @@ walk-ons don't speak.
   something else.
 - **"The alarm has never once been real"** is mine, kept from the old draft: provisional.
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **Rupiah is the officer nobody looks at** (D058). The platform check's critical success now shows "an elf in a
+    plain administration uniform, whom nobody on the platform has looked at once". The beat's Secret says who, and why
+    nobody stares (a founder; manners). If anyone asks, Vetch: "Administration. Eyes front."
+  - **The hall's numbers agree with the rest of the day.** The whole base turns out (four hundred people), and the new
+    intake is about forty, in the front rows: forty is what Shucks screens and Nobu kits.
+  - **Three more answers for the questions afterwards.** Why the intake was brought forward ("The date moved. Dates
+    do, here. I'm sorry it cost some of you a fortnight at home."), the screen ("Medical's business. Ask Doctor
+    Mordant, and good luck to you."), and what a hearing is ("You'd sit in my office, I'd ask you why, and I'd
+    listen.").
+  - **The platform and the charter checks roll blind.**
+  - The prep notes no longer cite a decision number, and name everyone on the platform.
+- **R12, R19.** Rupiah is shown, never named: a new player gets a question (who is that elf?), and the four who played
+  the founders get to recognise one of their own.
+- **R7, R8.** The Deputy Director's likely questions after the address are covered, each refusal in his own voice. The
+  brought-forward answer is honest and warm, and points at nothing.
+- **R13.** `rupiah.at-assembly` (decided, D058), `rupiah.role` and `founders.not-waved-about` as gmFacts;
+  `directorate.intake-size` (provisional, told here).
+- **R15, R21.** The intro's first two sentences are joined, so it reads aloud as three.
+- **For Ingram, while reading:** the intake of about forty, and the Deputy Director's three new lines, are mine.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.
 
 **How to play it.** Ceremonial and sincere: nobody in this room is lying. Read the address as a real speech. **Make sure the two rules land: curfew is small, a refused order is not.** *Runs about 20-25 minutes.*
 
-**Where.** The drill hall, the only room on the island big enough for the whole intake.  
+**Where.** The drill hall, where the whole base turns out for a new intake.  
 **First thing.** undefined  
 
 **1. Everyone stands for the anthem. Read it, then wait to hear what each character does.**
@@ -739,7 +813,9 @@ walk-ons don't speak.
 - Failure: A neighbour notices they don't know the words and asks, kindly, where they're from.
 - Critical failure: They're loudly wrong exactly where the piano stops. Somebody on the platform makes a note.
 
-**2. The Deputy Director <trig id="deputy-director-steps-up"/> gives the address. Read it as a speech; drop any part but the last two.**
+*Facts:* tells the table `directorate.intake-size`; GM only none.
+
+**2. The Deputy Director <trig id="deputy-director-steps-up"/> gives the address. Read it as a speech; drop any part but the last two. <trig id="enrolment-instructions"/>**
 
 > My name is Seiichi Takamine. It will be on a great many documents you sign this year, so you may as well hear it said once, by me.
 > 
@@ -759,11 +835,16 @@ walk-ons don't speak.
 
 *Someone watches the platform.*
 
+*GM:* If anyone asks who that is: Vetch, without looking round: "Administration. Eyes front."
+Secret: It's Rupiah, a founder, high in the administration, here to watch and not be involved. Nobody stares at a founder; it's manners.
+
 *Roll:* Read the platform: Perception or Society, DC 15. Costs nothing on any result.
-- Critical success: The shape of the place: machines, radio, medical, stores. And one officer at the far end whom nobody on the platform has looked at once.
+- Critical success: The shape of the place: machines, radio, medical, stores. And at the far end, an elf in a plain administration uniform, whom nobody on the platform has looked at once.
 - Success: About a dozen departments: who runs the machines, the radio and medical. The doctor from this morning is up there.
 - Failure: Too many uniforms to keep straight.
 - Critical failure: They're sure the woman with horns runs the whole base.
+
+*Facts:* tells the table none; GM only `rupiah.at-assembly`, `rupiah.role`, `founders.not-waved-about`.
 
 **4. If anyone looks closely at the charter, offer the check to read its four signatures.** *(optional)*
 
@@ -793,7 +874,7 @@ walk-ons don't speak.
 - Who caught the Deputy Director's name.
 - Who read the charter, and who watched the platform.
 
-*Scene hash d40c487b17fa6c64.*
+*Scene hash d71fdc46f08387d5.*
 
 ### Scene 4: School: First Period *(Written in detail · waiting for your read)*
 
@@ -876,22 +957,50 @@ D056), `shucks.revealed-early`,
 - **The names are told in Episode One now.** `founders.names` and `founders.pictures` moved from "later" to this
   lesson, as D048 suggested; D056 records the change.
 
+#### Revision 2026-10-04: a line for the players' screen
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
+players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** **First period is now one lesson the whole section sits: local studies with Ota.** The workshop
+  induction moved to second period, which is now the one free choice of room. Two reasons: the two periods had the
+  same shape back to back (pick a room, one roll, a critical failure costs Fatigued, it pays off tonight), and the
+  Deputy Director says, minutes earlier, "In the mornings you will be taught. In the afternoons... the time is yours."
+  - The founders' names now reach the whole table in the room, and the noticeboard fallback is gone.
+  - **Two new lines for Ota.** Whether the founders are still alive: "Some of them. We don't make a fuss of it here;
+    it's thought rude. Right, trams." And a Watch-for: Liam, Pippa, Craig and Steve played the four (D058), so if one
+    of them says what the pictures get wrong, Ota answers with his own line: "Good. Wrong, but good."
+  - Anyone may work at the map, so learning the city can be rolled by each player; failing it still makes them last
+    into the stores.
+  - Stagecraft: Hulda's card left this stage, with her "safety induction" moment.
+- **R8.** "Are they still alive?" is the obvious question after meeting Shucks; Ota answers it with the city's own
+  embarrassment, which tells the table a little and leaves the rest a question.
+- **R13.** `founders.not-waved-about` (D028) is now told here; D058 records the change.
+- **R1, R2.** One room, three beats: the names, the map, the corridor.
+- **R23.** 15 minutes.
+- **For Ingram, while reading:** merging the choice into second period is my call; it changes which period is the
+  first free choice.
+
 #### The scene, as the GM runs it
 
-**What it's for.** Each player has sat a lesson of their choice, and the table has heard the four founders' names.
+**What it's for.** The table has heard the four founders' names, and each of them has learned the city as well as they could.
 
-**How to play it.** Short and light. Each player picks a room; cut between the two. Not rolling is always fine. **The founders' names come out here, however the rolls go.** *Runs about 15-20 minutes.*
+**How to play it.** Short and light: one room, one teacher who loves his subject. Not rolling is always fine. **The founders' names come out here, however the rolls go.** *Runs about 15 minutes.*
 
-**Where.** The school block, first floor: two rooms at opposite ends of one corridor.  
+**Where.** The school block, first floor: Section Nine's classroom.  
 **First thing.** undefined  
 
-**1. Each player picks a room: local studies or the workshop. Splitting up is fine.**
-
-**2. In local studies, the teacher asks the room to name the four founders. Offer the check; on any result the table hears them.**
+**1. Ota asks the room to name the four founders. Offer the check; on any result the table hears them.**
 
 *GM:* Do: The four are Hyuck, Rupiah, Anabala and Shucks Mordant: "who you'll have met this morning. Don't stare, he hates it."
-If nobody chose local studies: The four names are on the corridor noticeboard: "Learn these for Friday."
-Watch for: Four of your players played these four. Let them enjoy hearing the names.
+If anyone asks whether they're still alive: "Some of them. We don't make a fuss of it here; it's thought rude. Right, trams."
+Watch for: Liam, Pippa, Craig and Steve played these four. If one says what the pictures get wrong, Ota: "Good. Wrong, but good."
 
 *Roll:* Name the four founders: Society or Academia Lore, DC 15. Costs nothing on any result.
 - Critical success: They name all four, and add that Rupiah still cuts the ribbon on Founding Day. The teacher is delighted.
@@ -899,11 +1008,11 @@ Watch for: Four of your players played these four. Let them enjoy hearing the na
 - Failure: They get two. The teacher fills in the rest, kindly.
 - Critical failure: They name a famous general instead. The teacher corrects them, and the room laughs, not unkindly.
 
-*Facts:* tells the table `school-history-teacher.name`, `founders.names`, `founders.pictures`, `rupiah.cuts-the-ribbon`, `shucks.revealed-early`; GM only `founders.what-they-were`.
+*Facts:* tells the table `school-history-teacher.name`, `founders.names`, `founders.pictures`, `rupiah.cuts-the-ribbon`, `shucks.revealed-early`, `founders.not-waved-about`; GM only `founders.what-they-were`.
 
-**3. The teacher takes them round the city on the wall map. If anyone works at it, offer the check.** *(optional)*
+**2. Ota takes them round the city on the wall map. Anyone who works at it rolls the check.** *(optional)*
 
-*Someone chose local studies.*
+*Someone works at the map.*
 
 *GM:* Plant: The harbour statue: a weathered gnoll with HYUCK on the plaque. He's sure it's a mascot.
 Secret: The statue is Hyuck as he was. He's alive, and test-pilots the Directorate's worst Frames.
@@ -912,34 +1021,22 @@ Watch for: Steve played Hyuck. Let the mascot joke land on him.
 *Roll:* Learn the city: Society or Survival or Perception, DC 13. Costs nothing on any result.
 - Critical success: The teacher hands over his own tram map, twenty years of pencil notes on which services actually run. Grant it.
 - Success: They can find their way across the city this afternoon, and they know which tram to take.
-- Failure: Kept back to copy the map: they're last into the stores, and the handlamps have run out.
+- Failure: Kept back to copy the map: they're last into the stores, and the handlamps have sold out.
 - Critical failure: Kept back through the break and late for everything after: Fatigued tonight.
 
 *Facts:* tells the table `hyuck.statue`; GM only `hyuck.statue-truth`, `hyuck.test-pilot`.
 
-**4. Hulda Brack runs the safety induction. If anyone joins in, offer the check.** *(optional)*
-
-*Someone chose the workshop.*
-
-*GM:* Plant: Four metres of Frame forearm on trestles at the back, opened along one side, fingers curled. She won't let them near it.
-
-*Roll:* Pass the safety induction: Crafting or Athletics or Medicine or Intimidation, DC 15.
-- Critical success: As success, and she says their name out loud in front of everyone, and means it well.
-- Success: They can work safely on her floor, and she shows them how a control panel thinks: +2 circumstance on panel work tonight.
-- Failure: She stops them with one hand and a word. They sweep while the others work.
-- Critical failure: Something that would have cost a finger. She stops the floor and keeps them past the bell: Fatigued tonight.
-
-**5. The bell. Give them about thirty seconds in the corridor to compare notes, then send them to the stores.**
+**3. The bell. Give them about thirty seconds in the corridor to compare notes, then send them to the stores.**
 
 **Ends when.** The bell, and the corridor empties toward the stores.
 **Into the next scene.** The timetable says the stores next, and the queue starts before the bell. Kit Issue, at the quartermaster's stores.
 
 **Write down:**
 
-- Who sat which room, and what they rolled.
-- Anyone kept back, and anyone Fatigued tonight.
+- Who learned the city, and who was kept back.
+- Anyone Fatigued tonight.
 
-*Scene hash 84f5139bb87039a6.*
+*Scene hash b39f57261da1b27a.*
 
 ### Scene 5: Kit Issue *(Written in detail · waiting for your read)*
 
@@ -1011,6 +1108,29 @@ only stops that player asking again today.
 
 - **The docket handout** is new: a stores docket on the Directorate's letterhead, typed.
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **The handlamp is plain.** It's on the catalogue at one credit, and Nobu pushes one at everyone ("One credit. Take
+    one. You'll thank me."). Whoever comes in last finds them sold out; the Equipment Locker won't stop them taking
+    one, so the line says to tell them. The way forward is asking Nobu properly: his extra can be a handlamp.
+  - **Nobu's off-book stock has an answer:** he buys it, cash, from the ships' chandlers on the old town's waterfront,
+    because issue never arrives on time. Asked where an extra came from: "Fell off a ship. Sign here."
+  - **A refused docket** (D058): Vetch writes their name down, slowly: "The Deputy Director will see you at seventeen
+    hundred." The hearing runs in The Errand while the others are in the city.
+- **R6.** A failure in local studies costs a lamp; asking Nobu can still find one.
+- **R10.** Refusing the order is now a real path, with a cost and a hearing.
+- **R12.** The chandlers are a secret, not told.
+- **For Ingram, while reading:** the chandlers are mine. Equipment stays live at this counter, as decided on
+  2026-09-09; the Locker is self-serve, so players shop while Nobu talks.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has their uniform and kit, and Vetch has handed Section Nine the docket in person.
@@ -1020,7 +1140,7 @@ only stops that player asking again today.
 **Where.** The quartermaster's stores, after first period.  
 **First thing.** undefined  
 
-**1. Nobu <trig id="nobu-appears"/> issues the uniforms: slate teal-grey tunics with an orange tab on the collar.**
+**1. Nobu <trig id="nobu-appears"/> issues the uniforms <trig id="enrolment-kit"/> <trig id="close-enrolment"/>: slate teal-grey tunics with an orange tab on the collar.**
 
 *Facts:* tells the table `visual-language.candidate-tunic`; GM only none.
 
@@ -1028,20 +1148,23 @@ only stops that player asking again today.
 
 *Direction:* Seconds a player, not minutes. Anyone still deciding can finish their sheet after the session.
 
-*GM:* If someone came in last: The handlamps have run out by their turn.
+*GM:* Do: Nobu pushes a handlamp at everyone: "One credit. Take one. You'll thank me."
+If someone came in last: The handlamps have sold out by their turn. Tell them; the Locker won't. Asking Nobu properly can still find one.
 
 **3. If a player asks Nobu properly for something specific, offer the check.** *(optional)*
 
 *Someone asks Nobu for something extra.*
 
 *GM:* Do: Fit the extra to the player: a climbing kit, a comm unit, a coil of line or a handlamp. Never a second weapon.
-Secret: Some of what Nobu hands out isn't Directorate stock. Write down who got what.
+Secret: Some of it isn't Directorate stock. He buys it, cash, from the ships' chandlers on the old town's waterfront. Write down who got what.
 
 *Roll:* Talk Nobu out of something extra: Diplomacy or Deception or Crafting, DC 15.
 - Critical success: He stops writing, looks at them properly for the first time, and goes into the back. Everyone in Section Nine gets something extra.
 - Success: "...Fine. Quickly." That player gets something extra.
 - Failure: "You've had your allowance."
 - Critical failure: He loudly assumes they're after a second weapon, and won't be worked again today.
+
+*Facts:* tells the table none; GM only `nobu.off-book`.
 
 **4. If a player wants a moment with their new gear, offer the check.** *(optional)*
 
@@ -1053,13 +1176,14 @@ Secret: Some of what Nobu hands out isn't Directorate stock. Write down who got 
 - Failure: A strap on backwards. Somebody helps.
 - Critical failure: Comically tangled, and everyone politely ignores it.
 
-**5. Vetch <trig id="vetch-inspects"/> walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table.**
+**5. Vetch <trig id="vetch-inspects"/> walks the line, finds fault with each of them, and hands Section Nine a docket. <trig id="give-docket"/> Show the table.**
 
 > He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.
 > 
 > "Second period first. Then the city. Back to me by nineteen hundred."
 
 *GM:* Plant: It's a direct order, and refusing one is the serious thing the Deputy Director warned them about.
+If someone refuses it: Vetch writes their name down, slowly: "The Deputy Director will see you at seventeen hundred." The rest go.
 Secret: There's no such part. Vetch sends every new section for the bubble in a spirit level. It was done to him once.
 
 *Facts:* tells the table `section-officer.the-docket`; GM only `section-officer.hazing`.
@@ -1072,7 +1196,7 @@ Secret: There's no such part. Vetch sends every new section for the bubble in a 
 - What each player bought, and any extra Nobu gave.
 - Who holds the docket.
 
-*Scene hash 14c91e0b299a398d.*
+*Scene hash 401eeb3dad0b5f71.*
 
 ### Scene 6: School: Second Period *(Written in detail · waiting for your read)*
 
@@ -1144,16 +1268,45 @@ tonight; critical success, a little more (the centipedes' weak nerve; the range 
 
 - **The range officer** is the base's existing Range Safety Officer, here running the small-arms line.
 
+#### Revision 2026-10-04: a line for the players' screen
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
+players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.
+
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** **Three rooms:** natural history, Hulda Brack's workshop induction (moved from first period) and the
+  range, with the gymnasium or library for anyone who invents them. All three pay off in the drains: the Recall
+  Knowledge, +2 on the panels, +1 on a first ranged Strike.
+  - **Natural history's critical success is in real rules now.** A show of force sends a centipede running; in the
+    drains that's a Demoralize by sight alone (SF2E's own rule: no language penalty), against Will DC 12 from the
+    centipede's own Will +2, and a hurt, frightened centipede breaks for the grate.
+  - **One unlabelled jar, not three:** the teacher's own story is about taking the label off one.
+  - Stagecraft: Hulda's card moved to this stage, at the left end of the bench, where every placement rule passes.
+- **R1, R2.** One choice, three rooms, three payoffs in one fight.
+- **R27.** Each payoff is said once, in its check result; the drain chamber's carry-ins say what they do there.
+- **R15, R21.** The intro reads aloud as three sentences.
+- **R23.** 15 to 20 minutes.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has spent the period where they chose, and Section Nine leaves for the city with the docket.
 
-**How to play it.** Warm and quick: the first adults who are glad to see them. Each player picks; cut between the two. Not rolling is always fine. *Runs about 15 minutes.*
+**How to play it.** Warm and quick: the first adults who are glad to see them. Each player picks a room; cut between them. Not rolling is always fine. *Runs about 15-20 minutes.*
 
 **Where.** The school block and the Butts, the period after the stores.  
 **First thing.** undefined  
 
-**1. Each player picks: the natural history lesson, or the range.**
+**1. Each player picks: the natural history lesson, the workshop, or the range. <trig id="docket-second-period"/>**
 
 *GM:* If someone picks the gymnasium or the library: A line or two of scene, and a roll on whatever skill fits.
 
@@ -1163,16 +1316,28 @@ tonight; critical success, a little more (the centipedes' weak nerve; the range 
 
 *Someone chose natural history.*
 
-*GM:* Plant: Three jars on the top shelf have no labels.
-Secret: Undecided, even to the GM. Nothing in this episode explains them.
+*GM:* Plant: One jar on the top shelf has no label.
+Secret: Undecided, even to the GM. Nothing in this episode explains it.
 
 *Roll:* Learn what lives in the drains: Nature or Medicine or Survival, DC 13. Costs nothing on any result.
-- Critical success: As success, and they know a centipede's weak spot: its nerve. A show of force sends one running (Will +2).
+- Critical success: As success, and they know a centipede's nerve is its weak spot: a show of force sends one running.
 - Success: Giant centipedes: they climb, they nest, the bite is venomous. Tonight, they've already made the Recall Knowledge check.
 - Failure: They knock a jar over, and tidying up takes the rest of the period.
 - Critical failure: They break a jar and stay late to help clean up: Fatigued tonight.
 
-**3. At the Butts, the range officer runs them through their weapons. If anyone fires, offer the check.** *(optional)*
+**3. Hulda Brack runs the safety induction. If anyone joins in, offer the check.** *(optional)*
+
+*Someone chose the workshop.*
+
+*GM:* Plant: Four metres of Frame forearm on trestles at the back, opened along one side, fingers curled. She won't let them near it.
+
+*Roll:* Pass the safety induction: Crafting or Athletics or Medicine or Intimidation, DC 15.
+- Critical success: As success, and she says their name out loud in front of everyone, and means it well.
+- Success: They can work safely on her floor, and she shows them how a control panel thinks: +2 circumstance on panel work tonight.
+- Failure: She stops them with one hand and a word. They sweep while the others work.
+- Critical failure: Something that would have cost a finger. She stops the floor and keeps them past the bell: Fatigued tonight.
+
+**4. At the Butts, the range officer runs them through their weapons. If anyone fires, offer the check.** *(optional)*
 
 *Someone chose the range.*
 
@@ -1182,7 +1347,7 @@ Secret: Undecided, even to the GM. Nothing in this episode explains them.
 - Failure: Not today. Nothing lost; they can come back.
 - Critical failure: A breach of range drill. They stay to strip and clean every rifle on the rack: Fatigued tonight.
 
-**4. The bell. Thirty seconds to compare, then a pass at the gate and the train into the city.**
+**5. The bell. Thirty seconds to compare, then a pass at the gate and the train into the city.**
 
 **Ends when.** The bell; they leave with the docket and a pass.
 **Into the next scene.** The docket says the instrument makers, in the city, back by nineteen hundred. The Errand, in the city.
@@ -1192,7 +1357,7 @@ Secret: Undecided, even to the GM. Nothing in this episode explains them.
 - Who went where, and what they rolled.
 - Anyone Fatigued tonight.
 
-*Scene hash 566be4e5cb8933bd.*
+*Scene hash 9bffeb1359fc3d45.*
 
 ### Scene 7: The Errand *(Written in detail · waiting for your read)*
 
@@ -1298,6 +1463,38 @@ are there. A table that tries it gets a closed door and a cold district, and he 
 - **Siting:** the tea house's district and the workshop a few streets from it are still yours to place.
 - **The part number on a bill** is an artefact the players keep: Manako's handwriting.
 
+#### Revision 2026-10-04: a line for the players' screen
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
+players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.
+
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **"You make the vials? Sell us one."** The instrument maker will, and it isn't cheap: "You'd be paying for his
+    joke, love. Ask Manako first."
+  - **Manako says who sent him for the bubble:** "My section officer, long retired now. They hand it down like a
+    watch." It ties his hazing to Vetch's.
+  - **The hearing, for a refused docket** (D053, D058): the Deputy Director hears them in his office while the others
+    are in the city. It's one shared check (`c1e1-the-hearing`), with his opener read aloud and the case made before
+    anyone rolls. Every result puts them on report.
+  - **The mark, his name and reading him roll blind.**
+- **R10.** Buying a vial and refusing the docket both have answers. Not filing anything is answered in The Train Back.
+- **R12.** Manako's new line says only what the canon already holds: the errand is an old tradition.
+- **R13.** `deputy-director.hears-refusals` and `directorate.on-report` (provisional, told here).
+- **For Ingram, while reading:** what a hearing costs is my proposal, answering D053's open question: on report;
+  extra duty at five the next morning on a failure (they start the day Fatigued); and on a critical failure their next
+  refusal goes over his head. A character later proven right has it written off, in his hand.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have been laughed at, met Manako, heard his plan for the vial, and chosen how to file it.
@@ -1315,7 +1512,7 @@ Secret: Animals hear the Watcher's swarm as a high buzzing, and it's thick on th
 
 *Facts:* tells the table `hyuck.statue`; GM only `watcher.animals`.
 
-**2. The instrument maker reads the docket twice and laughs. On any result, she sends them on to Manako.**
+**2. The instrument maker reads the docket twice and laughs. <trig id="docket-no-such-part"/> On any result, she sends them on to Manako.**
 
 > "Love, we make the vials. There's nothing in the bubble. That's the whole point of the bubble. It's the bit that isn't there."
 
@@ -1375,7 +1572,7 @@ Secret: He founded Cicada. Nothing shows it here, because here he is only kind.
 - Failure: A kind old man with a good coat.
 - Critical failure: A faint conviction that he is nobody much. Let it stand.
 
-**7. Manako tells them how he came back empty-handed once, then gives them his plan.**
+**7. Manako tells them how he came back empty-handed once, then gives them his plan. <trig id="docket-manakos-way"/>**
 
 > "They did this to me, you know. Forty-odd years ago. I came back with nothing, and they laughed, and I've had a long time to think about what I should have done."
 > 
@@ -1395,15 +1592,33 @@ Secret: He founded Cicada. Nothing shows it here, because here he is only kind.
 
 *Facts:* tells the table `directorate.digs`; GM only none.
 
-**10. He asks them to come back and say how it went. If one was especially kind, he writes them his number on a napkin.**
+**10. He asks them to come back and say how it went. <trig id="docket-tell-manako"/> If one was especially kind, he writes them his number on a napkin.**
 
 *GM:* Do: Your call who, if anyone. No roll. Hand that player a note with the number.
 Secret: Trainee messages are read: by the Directorate, as routine, and by the Watcher.
 
 *Facts:* tells the table none; GM only `manako.messages-read`.
 
+**11. If someone refused the docket, the Deputy Director hears them in his office while the others are in the city. Cut between the two.** *(optional)*
+
+*Someone refused the docket.*
+
+> "Sit down. Section Officer Vetch says you refused a direct order. Tell me why."
+
+*GM:* Do: Let them make their case in their own words, then offer the check. He answers the argument they actually make.
+If they ask what happens now: "It goes on your file. If you prove right, that goes on it too, in my hand."
+If the order was badly given: He takes it up with Vetch himself, never in front of a candidate.
+
+*Roll:* Make your case: Diplomacy or Society or Deception, DC 15.
+- Critical success: On report, with his note beside it: "Heard. A fair objection." Anyone who reads their file reads that too, and he remembers their name.
+- Success: On report. He thanks them for an honest answer, and tells them plainly that the order stood.
+- Failure: On report, and extra duty at five tomorrow morning, scrubbing the drill hall floor. They start the day Fatigued.
+- Critical failure: As failure, and he says he's disappointed. Their next refused order goes over his head.
+
+*Facts:* tells the table `deputy-director.hears-refusals`, `directorate.on-report`; GM only none.
+
 **Ends when.** They leave the tea house with a plan, a part number and the time.
-**Into the next scene.** The train back to the island, and the stores' requisitions hatch before nineteen hundred. The Tram Back, to the island.
+**Into the next scene.** The train back to the island, and the stores' requisitions hatch before nineteen hundred. The Train Back, to the island.
 
 **Write down:**
 
@@ -1411,9 +1626,9 @@ Secret: Trainee messages are read: by the Directorate, as routine, and by the Wa
 - How they're filing the requisition.
 - Who heard what he said about the Directorate.
 
-*Scene hash 92a733a20784f440.*
+*Scene hash 085f856a33f4f1e7.*
 
-### Scene 8: The Tram Back *(Written in detail · waiting for your read)*
+### Scene 8: The Train Back *(Written in detail · waiting for your read)*
 
 version 1 · re-read against `canon/reread.md` version 3 · 2026-10-01 · by Claude · state: awaiting Ingram's read
 
@@ -1475,11 +1690,34 @@ of the two choices, so a table that skips it just hears no grins at supper.
 
 **R25.** D043's reason for Rand (it signs the night the requisition is filed) is kept.
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **Renamed The Train Back**, because it's the island train (the causeway has a railway beside it). The id is
+    unchanged.
+  - **The ending can't break.** If they came back empty-handed, or bought a vial, they hand in the docket or the
+    receipt the same way, and whatever paper of theirs goes in tonight, Rand finds and countersigns.
+  - **Why it reaches Medical:** Nobu, read aloud: "A vial? Medical countersigns those. It'll go up tonight. Next."
+    Vials are Medical's, so a vial requisition goes up to Shucks's desk, where Rand reads everything (D043, accepted
+    in D046).
+- **R10.** Every way of handling the errand now leads to the same ending.
+- **R13.** `directorate.vials-to-medical` (told here); `shucks.rand-reads-the-desk` (accepted, D043 and D046) and
+  `shucks.rand-signs-whatever` (provisional) as secrets.
+- **For Ingram, while reading:** "whatever paper goes in" and the routing to Medical are mine. Not renamed: the
+  soundscape's title and some older design notes, which still say Tram.
+
 #### The scene, as the GM runs it
 
-**What it's for.** They've had a quiet ride together and handed in the requisition before nineteen hundred.
+**What it's for.** They've had a quiet ride together and handed in their paper before nineteen hundred.
 
-**How to play it.** Quiet and short. Two lines, then let them talk. **Then the requisition goes in, the way they chose.** *Runs about 10 minutes.*
+**How to play it.** Quiet and short. Two lines, then let them talk. **Then their paper goes in, the way they chose.** *Runs about 10 minutes.*
 
 **Where.** The island train across the causeway at dusk, then the stores hatch.  
 **First thing.** undefined  
@@ -1498,23 +1736,26 @@ of the two choices, so a table that skips it just hears no grins at supper.
 - Failure: It doesn't quite land. The player tells us how.
 - Critical failure: The kind of thing that's funnier in a week. The player tells us how.
 
-**3. At the stores hatch, Nobu <trig id="nobu-at-the-hatch"/> takes the requisition without reading it. File it the way they chose.**
+**3. At the stores hatch, Nobu <trig id="nobu-at-the-hatch"/> takes their paper without reading it. <trig id="docket-requisition-in"/> <trig id="docket-in-time"/> <trig id="close-docket"/> File it the way they chose.**
+
+> "A vial? Medical countersigns those. It'll go up tonight. Next."
 
 *GM:* If they chose quietly: The receipt goes in Vetch's pigeonhole, and nobody else knows.
 If they chose loudly: It's read out in the queue and pinned to the section board.
-Secret: It goes up tonight and comes back signed by Rand, of Medical: Shucks's own right hand.
+If they came back empty-handed, or bought a vial: They hand in the docket, or the receipt, the same way.
+Secret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns it.
 
-*Facts:* tells the table none; GM only `shucks.rand`, `shucks.rand-signs`.
+*Facts:* tells the table `directorate.vials-to-medical`; GM only `shucks.rand`, `shucks.rand-signs`, `shucks.rand-reads-the-desk`, `shucks.rand-signs-whatever`.
 
-**Ends when.** The requisition is in.
+**Ends when.** Their paper is in.
 **Into the next scene.** The supper bell, and the Long Hall. Canteen, in the Long Hall.
 
 **Write down:**
 
 - Anything said on the ride worth calling back.
-- How the requisition went in.
+- What they handed in, and how.
 
-*Scene hash f2a2645b642f385b.*
+*Scene hash d1a01b734c0f5085.*
 
 ### Scene 9: Canteen *(Written in detail · waiting for your read)*
 
@@ -1585,6 +1826,28 @@ success points at it, and the table works out the rest).
 
 **R25.** D044's plant and wording are used.
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **If they came back empty-handed:** the hall has heard about the bubble, and somebody asks how it's going. Vetch's
+    secret covers it too: the drains for the vial, or, if they came back empty-handed, for the laugh.
+  - **Reading Vetch** shows the paper they handed in clipped to his board, whatever it was.
+  - **A refused order:** "Noted." He writes it down, slowly. "The Deputy Director's office, twenty-one hundred, instead of Dock C." The
+    hearing runs in Flood Tunnel Clearance while the others are down the drains.
+  - **"Which track are you on?"** now lands: if anyone answers, the next table says "No track? Huh. Never seen that."
+  - **Taka on the radio:** "They play that every night. Somebody's always angry about something. Pickles?" It keeps the
+    plant unremarkable.
+  - **Both checks roll blind.**
+- **R8, R10.** The radio, the track and refusing are covered.
+- **R12.** Taka's radio line is ordinary, and performs no avoidance.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.
@@ -1607,13 +1870,14 @@ Secret: She is Shinobu Kudo, and he is her father. She comes back into the story
 
 *Direction:* Full warmth: he asks about each of them and listens. Warm by including them, never by labelling them.
 
-**3. Vetch <trig id="section-officer-arrives"/> reads the evening's orders to the hall. Section Nine's is last.**
+**3. Vetch <trig id="section-officer-arrives"/> reads the evening's orders to the hall. Section Nine's is last. <trig id="give-drains"/>**
 
 > "Section Four: harbour patrol, east gate. Section Six: survey with Structural, Hangar Two." He looks up for the first time. "Section Nine: storm drain clearance under the old town. Dock C at twenty-one hundred. Waders from the night lockup."
 
 *Direction:* No choice and no appeal: he answers any argument by reading the order again, once, and goes.
 
-*GM:* Secret: He gave them the drains for the vial. He'll never say so.
+*GM:* If someone refuses outright: "Noted." He writes it down, slowly. "The Deputy Director's office, twenty-one hundred, instead of Dock C."
+Secret: He gave them the drains for the vial, or, if they came back empty-handed, for the laugh. He'll never say so.
 
 *Facts:* tells the table `section-officer.the-drains`; GM only `section-officer.drains-for-the-vial`.
 
@@ -1622,14 +1886,16 @@ Secret: She is Shinobu Kudo, and he is her father. She comes back into the story
 *Someone watches Vetch.*
 
 *Roll:* Read Vetch, not the order: Perception or Deception, DC 15. Costs nothing on any result.
-- Critical success: As success, and the stores receipt for their requisition is clipped to his board. This is about the vial.
+- Critical success: As success, and the paper they handed in at the stores is clipped to his board. He's taking this one personally.
 - Success: He reads every other section without lifting his head, and looks up for theirs. He came to watch this one land.
 - Failure: It sounds like a duty list.
 - Critical failure: They decide it's the easiest job on the list, he read it so evenly.
 
-**5. The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word.**
+**5. The hall goes back to its supper. The next table gloats about harbour patrol, and Taka gets the last word. <trig id="drains-wear-them"/>**
 
 > "Storm drains." Taka is quiet for a moment, which is new. "Wear the waders. Trust me."
+
+*GM:* If anyone answers the next table's "Which track are you on?": "No track? Huh. Never seen that." He means nothing by it.
 
 **6. If anyone asks Taka properly what's down there, offer the check.** *(optional)*
 
@@ -1649,7 +1915,7 @@ Secret: She is Shinobu Kudo, and he is her father. She comes back into the story
 - Who took to Taka, and who he took to.
 - Anything Taka told them about the drains.
 
-*Scene hash fc48a3a226592954.*
+*Scene hash 21ffd96f4dc45741.*
 
 ### Scene 10: The Walk Down *(Written in detail · waiting for your read)*
 
@@ -1717,6 +1983,27 @@ character does with the ten minutes).
 
 - **Siting:** Dock C and the night lockup need a place on the island.
 
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **One Frame, at night:** on the crossing, Hangar Two's doors stand open under floodlights with a Frame on its
+    gantry, the hangar Section Six is surveying tonight. It keeps the promise of the machines warm without spending it.
+  - **The ferry callback:** whoever arrived by ferry lands at the Old Landing again, where they came off it.
+  - **A refusal at Dock C:** "Noted." He writes it down, slowly. "Report to the Deputy Director's office. Now. The
+    rest of you, the launch." The earlier answer to R10 (nobody can opt out) is replaced: refusing is possible, and
+    serious.
+  - Taka's beat reads "If there's room for it", not "If it fits", in a scene about waders that don't.
+- **R10.** Refusing is real, with its hearing.
+- **R15, R21.** The crossing's read-aloud is full sentences throughout.
+- **For Ingram, while reading:** the Frame on the gantry is mine.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've kitted up, heard the job from Vetch, and crossed to the hatch on the old town's quay.
@@ -1726,21 +2013,23 @@ character does with the ten minutes).
 **Where.** The night lockup and Dock C on the island, then the launch across the harbour.  
 **First thing.** undefined  
 
-**1. Every pair of waders is the wrong size. Let whoever looks first find out how wrong.**
+**1. Every pair of waders is the wrong size. Let whoever looks first find out how wrong. <trig id="drains-waders"/> <trig id="drains-wearing"/>**
 
-**2. If it fits, Taka <trig id="taka-sees-them-off"/> catches them at the door: "Told you. Waders." Nothing else.** *(optional)*
+**2. If there's room for it, Taka <trig id="taka-sees-them-off"/> catches them at the door: "Told you. Waders." Nothing else.** *(optional)*
 
-*It fits.*
+*There's room for it.*
 
-**3. At Dock C, Vetch <trig id="vetch-at-dock-c"/> gives them the job and puts them on the duty launch.**
+**3. At Dock C, Vetch <trig id="vetch-at-dock-c"/> gives them the job <trig id="drains-at-dock-c"/> <trig id="drains-job-power"/> <trig id="drains-job-feed"/> <trig id="drains-job-report"/> and puts them on the duty launch.**
 
 > "Power to the drainage line. Clear the compactor feed. Report to me when it runs." He ticks something on his clipboard. "The launch will take you over. I'll be at the top."
+
+*GM:* If someone refuses to go: "Noted." He writes it down, slowly. "Report to the Deputy Director's office. Now. The rest of you, the launch."
 
 *Facts:* tells the table `section-officer.the-job`; GM only none.
 
 **4. Read the crossing, then ask each player what their character does with the ten minutes.**
 
-> The launch is cold and loud and smells of oil. Behind you, the island's lights. Ahead, the old town, dark down at the waterline. The crew don't talk. It's ten minutes across black water.
+> The launch is cold and loud and smells of oil. Behind you are the island's lights, and Hangar Two's doors standing open under floodlights, with a Frame inside on its gantry. Ahead, the old town is dark down at the waterline. The crew don't talk. It's ten minutes across black water.
 
 **Ends when.** The launch bumps against the old town's quay.
 **Into the next scene.** A hatch in the quay, already open, with a ladder going down. Flood Tunnel Clearance, down the hatch.
@@ -1749,7 +2038,7 @@ character does with the ten minutes).
 
 - Anything said on the crossing worth calling back.
 
-*Scene hash 559fa5175256261b.*
+*Scene hash ff61fd54683d7de3.*
 
 ### Scene 11: Flood Tunnel Clearance *(Written in detail · waiting for your read)*
 
@@ -1831,6 +2120,53 @@ D043, D046) as secrets.
 - **"Somewhere new" stands at the covered market** on The City, blurred, because a marker needs a place. Players see
   where it is, not what.
 
+#### Revision 2026-10-04: the group splits, and the Runner now asks
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** The job was in two places (the panels on the platform, the jam on the flooded floor) with the
+  ladder as a third, and it was only prose. It is now one beat, `split-the-job`, with a choice: the GM presses Ask the
+  players, each player picks, and the party comes back together when the nest wakes. "Something else" is added to every
+  choice automatically. The ladder line moved from `the-room`'s note into the ladder option, so it is said once. The
+  fight's three endings gained a short line each for the players' screen.
+- **R1, R2.** The beat earns its place: it decides who is at the panels (where the workshop's +2 applies) and who is
+  on the floor when the nest wakes, which the fight then uses.
+- **R10.** A player who won't go down is the ladder option, no longer a note.
+- **R16, R17.** One direction, none negative.
+- **R27.** The ladder rule appears once. The panels and the jam are still described by their own beats.
+- **R12.** The players' lines (`blurb`) name no check, no DC and no consequence; the GM's line stays GM-only.
+
+#### Objectives (2026-10-04, D057)
+
+Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
+Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+#### Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **The fight is in canon:** `canon/encounters/c1e1-flood-tunnel.json` and
+    `canon/subsystems/c1e1-compactor-cycle.json`, rebuilt from the old files. The centipedes' numbers are read from the
+    shipped bestiary: they have darkvision and climb 30, so the walkways are dry high ground, not a refuge. The old
+    foreknowledge rule pointed at a cut supper check, and the reward line spoke of XP; both are gone.
+  - **Milestone levelling:** every ending "counts as the job done", not "earns full XP".
+  - **Two carry-ins added:** Taka's warning (they know something lives under the water), and natural history's
+    critical success in real rules (Demoralize by sight alone, Will DC 12; a hurt, frightened centipede breaks for the
+    grate).
+  - **At the top:** someone will claim to be Rand ("Sign it, then." It doesn't match); "Are we in trouble?" ("You did
+    exactly what you were told." He isn't pleased); and if they handed in something other than a requisition, the same
+    green ink on its back: "Received, one (1)."
+  - **The hearing, for refused drains:** cut to the Deputy Director's office between the panels and the fight. If
+    their reason was the danger down here and someone comes back hurt, he reopens it and their file says they were
+    right: the promise that disobeying for the right reason pays, kept on the first night.
+  - **Abandoning the job:** at the top, Vetch sends them back down; refusing is a refused order.
+  - **Reading the water rolls blind.**
+- **R6, R10.** Every way out of the room has an answer.
+- **R27.** The hearing's check is shared with The Errand; each scene's note says only what is true in that scene.
+- **R13.** `shucks.rand-signs-whatever` (provisional) as a secret.
+- **For Ingram, while reading:** the hearing being reopened when someone comes back hurt is mine.
+
 #### The scene, as the GM runs it
 
 **What it's for.** The line runs, the nest is dealt with their way, Vetch has asked about Rand, and each player has picked a rest.
@@ -1842,8 +2178,6 @@ D043, D046) as secrets.
 
 **1. Let them look round before anyone touches the panels.**
 
-*GM:* If someone won't go down: They wait at the ladder and can come down any time. The job doesn't wait for them.
-
 **2. If anyone studies the water before touching anything, offer the check.** *(optional)*
 
 *Someone studies the water first.*
@@ -1854,7 +2188,27 @@ D043, D046) as secrets.
 - Failure: Black water. Nothing they can read.
 - Critical failure: They're sure the water's empty.
 
-**3. The job, part one: get power back to the drainage line from the panels. Runs alongside clearing the jam.**
+**3. The job is in two places. Each player says where they work: the panels, the jam, or waiting at the ladder.**
+
+**4. If someone refused the drains, the Deputy Director hears them in his office while the others are down here. Cut between the two.** *(optional)*
+
+*Someone refused the drains.*
+
+> "Sit down. Section Officer Vetch says you refused a direct order. Tell me why."
+
+*GM:* Do: Cut to his office between the panels and the fight. Hear their case out before anyone rolls.
+If their reason was the danger down here, and someone comes back hurt: He reopens it, and their file says they were right.
+If they ask what happens now: "It goes on your file. If you prove right, that goes on it too."
+
+*Roll:* Make your case: Diplomacy or Society or Deception, DC 15.
+- Critical success: On report, with his note beside it: "Heard. A fair objection." Anyone who reads their file reads that too, and he remembers their name.
+- Success: On report. He thanks them for an honest answer, and tells them plainly that the order stood.
+- Failure: On report, and extra duty at five tomorrow morning, scrubbing the drill hall floor. They start the day Fatigued.
+- Critical failure: As failure, and he says he's disappointed. Their next refused order goes over his head.
+
+*Facts:* tells the table `deputy-director.hears-refusals`, `directorate.on-report`; GM only none.
+
+**5. The job, part one: get power back to the drainage line from the panels. Runs alongside clearing the jam. <trig id="drains-powered"/>**
 
 *Roll:* Get power back to the drainage line: Crafting or Computers, DC 15.
 - Critical success: Clean, first try. The others notice.
@@ -1862,7 +2216,7 @@ D043, D046) as secrets.
 - Failure: It comes up with a bang that carries through the drains. The nest wakes now, before anyone's in position.
 - Critical failure: As failure, with a shower of sparks: whoever was working it is off-guard in the first round.
 
-**4. The job, part two: clear the jam in the compactor feed, down on the floor. Runs alongside powering the line.**
+**6. The job, part two: clear the jam in the compactor feed, down on the floor. Runs alongside powering the line. <trig id="drains-cleared"/>**
 
 > The feed is packed solid with whatever the old town has been putting down its drains, pressed into something with a grain to it. It comes apart if you work it in the right place.
 
@@ -1872,30 +2226,34 @@ D043, D046) as secrets.
 - Failure: It clears with a shove, and the compactor lurches into motion: if it's running, start it at 1.
 - Critical failure: As failure, and a face full of standing water. Nobody's hurt.
 
-**5. The machinery wakes the nest <trig id="nest-wakes"/>. Six giant centipedes come up out of the water around the grate.**
+**7. The machinery wakes the nest <trig id="nest-wakes"/>. Six giant centipedes come up out of the water around the grate.**
 
 *Direction:* Fast and physical. The flooded floor is difficult terrain in dim light; the walkways are dry high ground.
 
-*GM:* Do: Ask how they want it to end, and back their answer. Each ending earns full XP.
+*GM:* Do: Ask how they want it to end, and back their answer. Every ending counts as the job done.
 If someone won't fight: Holding a walkway or working the panels is real work.
 If it goes badly: Once half are down, the rest break for the grate.
+If they abandon the job: At the top, Vetch sends them back down. Refusing is a refused order.
 
-**6. If the compactor is closing in, anyone at the north panels can spend their turn overriding it.** *(optional)*
+**8. If the compactor is closing in, anyone at the north panels can spend their turn overriding it.** *(optional)*
 
 *The compactor is running.*
 
 *GM:* Do: Say plainly that it's as useful as an attack: it buys everyone on the floor their ground back.
 
-**7. They climb out. Vetch <trig id="vetch-at-the-top"/> is waiting with their requisition, countersigned. Read it, then let him ask.**
+**9. They climb out. Vetch <trig id="vetch-at-the-top"/> is waiting with their requisition, countersigned. Read it, then let him ask. <trig id="drains-reported"/> <trig id="close-drains"/>**
 
 > Vetch is waiting at the top of the ladder with a lamp and a sheet of paper. It's your requisition for the vial, countersigned in green ink over Medical's stamp: Rand, Medical.
 > 
 > "Which one of you is Rand?"
 
-*GM:* If they don't know: "Nobody called Rand works in Medical. I've asked." He folds it away and dismisses them.
-Secret: Rand is Shucks's own right hand, loose in the city. It signed tonight, from Shucks's desk. Nobody knows, Shucks included.
+*GM:* If they don't know: "Nobody called Rand works in Medical. I've asked." He dismisses them.
+If someone claims to be Rand: "Sign it, then." It doesn't match.
+If they ask if they're in trouble: "You did exactly what you were told." He isn't pleased.
+If they handed in something else: The same ink on its back: "Received, one (1)."
+Secret: Rand is Shucks's own right hand, loose in the city. It signed tonight, at Shucks's desk. Nobody knows, Shucks included.
 
-*Facts:* tells the table `shucks.rand-signature`; GM only `shucks.rand`, `shucks.rand-signs`.
+*Facts:* tells the table `shucks.rand-signature`; GM only `shucks.rand`, `shucks.rand-signs`, `shucks.rand-signs-whatever`.
 
 **Ends when.** Vetch has dismissed them, and each player has picked a rest.
 **Into the next scene.** Dismissed. Each of them picks where to spend the night. The night's rests, each player their own. Episode One ends there.
@@ -1906,7 +2264,7 @@ Secret: Rand is Shucks's own right hand, loose in the city. It signed tonight, f
 - Injuries carried into the night.
 - Who has a theory about Rand.
 
-*Scene hash c548f8666af7c75a.*
+*Scene hash 89e4783e4c593404.*
 
 ### Scene 1: The General Hospital *(Written in detail · waiting for your read)*
 
@@ -3237,6 +3595,18 @@ live, and the night's deck beat always runs (it is the menu). Wording only other
 
 **Added after the re-read (2026-09-29, attitude as a promise, upgrades and setbacks):** All three regulars join repair-crews. Kaede sets the Earn Income task level by attitude (level 1 at friendly, level 0 with no pay on a failure at unfriendly, no income at hostile); Joji closes the pit at hostile. Upgrades: A bench of their own and The shortcut written down. Setbacks: Short on the sheet (temporary, from the sheet on the door) and No night shift (permanent). No danger event. Nothing already in the scene was changed. Waiting for Ingram's read with the rest.
 
+#### Revision 2026-10-04: the three jobs are a choice
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** `your-hands` already asked each player to take the bench, the pit or the crane, which splits the
+  group for the night and brings it back together at the two o'clock break. It is now a choice with three options, so
+  the GM presses one button and every player picks. Each option's GM line names its check as the events already do
+  (the bearing, the knee on the chain, Nkiru's song); the players' line names nothing.
+- **R1, R2.** The pick tells the GM which station each player is at, so the events can be drawn for the right person.
+- **R10.** "They split up" in the notes is now the beat itself.
+- **R27.** The notes keep the "draw for each in turn" instruction; the options hold only what each job is.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player who came here has worked a night beside the machine-shop crew, in character, and leaves at dawn with a quarter of their HP back, a night's pay (or a Fatigued morning), and a standing with the night crew that the next visit will remember.
@@ -3249,7 +3619,7 @@ live, and the night's deck beat always runs (it is the menu). Wording only other
 
 **1. Read the shop, then let Kaede hand out overalls and Nkiru shout down from the crane.**
 
-**2. Ask each player, one at a time: "Kaede has three jobs: the bench, the pit and the crane. Which one does your character take, and how do they go about it?" Give them a moment to picture it before they answer.**
+**2. Each player takes one of Kaede's three jobs: the bench, the pit or the crane. Then ask how their character goes about it, and give them a moment to picture it.**
 
 **3. Draw from the deck: one or two events for each player, or as many as the table is enjoying. Played events never come back; put back any the table never saw.**
 
@@ -3265,7 +3635,7 @@ live, and the night's deck beat always runs (it is the menu). Wording only other
 - Whether anyone took Nkiru's shortcut, and whether anyone changed the sheet on the door.
 - Who was given the tool, and what they scratched into it.
 
-*Scene hash b01de7f47764a5d6.*
+*Scene hash 0d91bf14da18137c.*
 
 ### Scene 11: The Paper Lantern *(Written in detail · waiting for your read)*
 
@@ -3401,6 +3771,18 @@ knock at the side door and "it isn't secret, it's private" all come from that.
   invitation is something the players physically keep. Not added: it needs the handout pipeline's own checks.
 - **The glamour dilemma's man** has grey-green scales and gold eyes, and no ancestry is named.
 
+#### Revision 2026-10-04: the finale is a choice
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** The finale's split (a hand up, stay seated, or slip out before it) is now a choice the GM puts to
+  the table with one button, so the GM sees who put a hand up and Tamsin's pick is made from real hands. The same
+  sentence in the notes ("They leave before the finale...") was removed, because the option now says it.
+- **Not changed, on purpose.** Where each player sits is open narration with no fixed menu (only two seats are written),
+  so it stays a question. The glamour-song dilemma is an event card, which cannot carry a choice yet.
+- **R1, R2.** The pick decides the volunteer, the Perception bonus and the quarter-HP-only leaver.
+- **R27.** The leave-early rule is said once, in the option.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player who chose somewhere new has watched the show in character, taken part in at least one moment of it, and leaves with a quarter of their HP back, the show's bonus or the volunteer's result, and half a ticket with their name in the performer's book.
@@ -3421,7 +3803,7 @@ knock at the side door and "it isn't secret, it's private" all come from that.
 
 *Facts:* tells the table `glamour.debate`, `kurose.fishing-village`; GM only `era.engines`.
 
-**4. Take the raised hands, and let Tamsin pick one volunteer, or two if the table is enjoying it; her doors say whom she favours. Ask the volunteer, word for word: "Where would you go tonight, if you could go anywhere at all?" Describe the hall becoming that place around them, then roll the volunteer's check (the rest).**
+**4. Ask who puts a hand up, then let Tamsin pick one volunteer, or two if the table is enjoying it; her doors say whom she favours. Ask the volunteer, word for word: "Where would you go tonight, if you could go anywhere at all?" Describe the hall becoming that place around them, then roll the volunteer's check (the rest).**
 
 > The lights go down to a single beam. The tall woman made of light who has been on stage all night lets herself go out like a candle, and the one left standing there is a gnome in a patched coat, a little over three feet tall, with copper hair and ink on her fingers. "I need," says Tamsin Oddwater, "one volunteer."
 
@@ -3438,7 +3820,7 @@ knock at the side door and "it isn't secret, it's private" all come from that.
 - Whose names went into Tamsin's book, with where to send word, and who kept half a ticket.
 - What the group said, if anything, about the man without his glamour.
 
-*Scene hash 09878539cc98b0cc.*
+*Scene hash 7461460149e178dc.*
 
 
 ## §1 What's really going on *(GM-only)*

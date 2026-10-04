@@ -6,7 +6,7 @@
     "status": "drafted"
   },
   "name": "School: Second Period",
-  "description": "One roll in each room. Not rolling is free.",
+  "description": "One roll in each room: natural history, the workshop or the range. Not rolling is free.",
   "levelContext": 1,
   "checks": [
     {
@@ -24,10 +24,32 @@
       },
       "insight": true,
       "outcomes": {
-        "criticalSuccess": "As success, and they know a centipede's weak spot: its nerve. A show of force sends one running (Will +2).",
+        "criticalSuccess": "As success, and they know a centipede's nerve is its weak spot: a show of force sends one running.",
         "success": "Giant centipedes: they climb, they nest, the bite is venomous. Tonight, they've already made the Recall Knowledge check.",
         "failure": "They knock a jar over, and tidying up takes the rest of the period.",
         "criticalFailure": "They break a jar and stay late to help clean up: Fatigued tonight."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "workshop-induction",
+      "name": "Pass the safety induction",
+      "skillOptions": [
+        "crafting",
+        "athletics",
+        "medicine",
+        "intimidation"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "As success, and she says their name out loud in front of everyone, and means it well.",
+        "success": "They can work safely on her floor, and she shows them how a control panel thinks: +2 circumstance on panel work tonight.",
+        "failure": "She stops them with one hand and a word. They sweep while the others work.",
+        "criticalFailure": "Something that would have cost a finger. She stops the floor and keeps them past the bell: Fatigued tonight."
       },
       "repeatable": false
     },
@@ -61,5 +83,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--school-second-period"
   ],
-  "notes": "Both pay off in Flood Tunnel Clearance."
+  "notes": "All three pay off in Flood Tunnel Clearance."
 }

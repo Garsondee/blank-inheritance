@@ -35,7 +35,7 @@
       "id": "second-period",
       "need": "required",
       "text": "Second period first",
-      "detail": "A lesson or the range: your own choice."
+      "detail": "A lesson, the workshop or the range: your own choice."
     },
     {
       "id": "collect",
@@ -67,8 +67,8 @@
       "hidden": true
     }
   ],
-  "closes": "The requisition is in at the stores hatch before nineteen hundred.",
-  "suggestedRecord": "Day 1, afternoon. Section Officer Vetch handed Section Nine a docket for one compound levelling bubble, to be back by nineteen hundred. The instrument makers laughed: there is nothing in a bubble. In a tea house in the old town, a man called Manako told them to take Vetch at his word and requisition a new vial against the docket, exactly as written. It went in at the stores hatch before nineteen hundred.",
+  "closes": "Their paper is in at the stores hatch before nineteen hundred.",
+  "suggestedRecord": "Day 1, afternoon. Section Officer Vetch handed Section Nine a docket for one compound levelling bubble, to be back by nineteen hundred. The instrument makers laughed: there is nothing in a bubble. In a tea house a few streets on, a man called Manako told them to take Vetch at his word and requisition a new vial against the docket, exactly as written. It went in at the stores hatch before nineteen hundred.",
   "facts": ["directorate.orders-serious"],
   "notes": "Says what was asked, never how: whether they file it quietly or loudly is theirs (The Errand's choice). Manako's request stays open when this closes and becomes a loose end in the Record, by Ingram's choice (D057), so the tracker never pulls them back to the tea house."
 }

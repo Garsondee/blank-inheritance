@@ -232,6 +232,33 @@ test("enricherFor refuses a roll option that could break out of the enricher", (
   }
 });
 
+/* ---------------------------------------------------------------- */
+/*  secret -- checks whose critical failure is a belief roll blind   */
+/*  (D058, 2026-10-04)                                               */
+/* ---------------------------------------------------------------- */
+
+test("a secret check carries sf2e's own traits:secret, before the roll tag", () => {
+  assert.equal(enricherFor({ slug: "perception", dc: 17, secret: true }), "@Check[perception|dc:17|traits:secret]");
+  assert.equal(
+    enricherFor({ slug: "society", dc: 15, secret: true, options: ["bi-runner:b:k"] }),
+    "@Check[society|dc:15|traits:secret|options:bi-runner:b:k]"
+  );
+});
+
+test("a check that isn't secret is the exact enricher it always was", () => {
+  assert.equal(enricherFor({ slug: "computers", dc: 18, secret: false }), "@Check[computers|dc:18]");
+  assert.equal(enricherFor({ slug: "computers", dc: 18 }), "@Check[computers|dc:18]");
+  // Only a real true counts: a stray string or 1 from hand-edited data never makes a roll blind by accident.
+  assert.equal(enricherFor({ slug: "computers", dc: 18, secret: "yes" }), "@Check[computers|dc:18]");
+});
+
+test("enrichersFor marks every posted skill secret", () => {
+  assert.equal(
+    enrichersFor({ skillOptions: ["perception", "medicine"], dc: 17, secret: true }),
+    "@Check[perception|dc:17|traits:secret] or @Check[medicine|dc:17|traits:secret]"
+  );
+});
+
 test("enrichersFor tags every posted skill the same way", () => {
   assert.equal(
     enrichersFor({ skillOptions: ["perception", "society"], dc: 17, options: ["bi-runner:b:k"] }),

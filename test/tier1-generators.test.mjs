@@ -314,12 +314,12 @@ test("episodeToJournalSource: a real episode with authored scenes (Episode One) 
   assert.equal(source.name, "Mother's Maiden Name (Again)");
   assert.equal(source.pages.length, 1 + episode.scenes.length, "one overview page plus one per authored scene");
   assert.equal(source.pages[0].id, "overview");
-  assert.match(source.pages[0].content, /Six volunteers/, "overview page must include the episode summary");
-  // Phrase updated 2026-09-20: the casting note used to read "Make the table love Taka tonight",
-  // which asserts what the table will feel. That's now a standing violation — a scene states what it
-  // puts on the table, never what the players do with it. The assertion still proves the same thing
-  // (castingNote reaches the overview page), just against wording that follows the rule.
-  assert.match(source.pages[0].content, /Taka is built to be immediately likeable/, "overview page must include the casting note");
+  // Checked against the episode's own words rather than a pinned phrase (2026-10-04): the prose is rewritten as
+  // Ingram reads it (D056, D058), and pinned phrases ("Six volunteers", "immediately likeable") went stale with
+  // every rewrite. What this proves is unchanged: the summary and the casting note reach the overview page.
+  const plain = (s) => String(s ?? "").replace(/<[^>]+>/g, " ").replace(/&#?\w+;/g, " ").replace(/[^A-Za-z0-9]+/g, " ").trim();
+  assert.ok(episode.summary && plain(source.pages[0].content).includes(plain(episode.summary)), "overview page must include the episode summary");
+  assert.ok(episode.castingNote && plain(source.pages[0].content).includes(plain(episode.castingNote)), "overview page must include the casting note");
 
   // Episode One's scenes carry their own `id`, so the page is keyed on that
   // rather than falling back to `scene-${order}`. The old fixture had no scene
@@ -332,7 +332,8 @@ test("episodeToJournalSource: a real episode with authored scenes (Episode One) 
   // position isn't what this test is checking -- the scene's own id-keyed
   // page and its content are. Assert the title text, not its numeric prefix.
   assert.match(fightPage.name, /\. Flood Tunnel Clearance$/);
-  assert.match(fightPage.content, /Giant Centipedes/, "scene page must include the scene's own description");
+  const fightScene = episode.scenes.find((s) => s.id === "flood-tunnel");
+  assert.ok(fightScene?.description && plain(fightPage.content).includes(plain(fightScene.description)), "scene page must include the scene's own description");
   assert.match(fightPage.content, /c1e1-flood-tunnel/, "scene page must surface its encounterRef");
   assert.match(fightPage.content, /c1e1-compactor-cycle/, "scene page must surface its subsystemRef");
 

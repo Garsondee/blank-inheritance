@@ -18,7 +18,7 @@ At supper on the first day, Vetch reads Section Nine the night's worst job in fr
 status: provisional · source: episode-c1e1--canteen · known: some · told: in:episode-c1e1--canteen
 
 ## section-officer.drains-for-the-vial
-Vetch gives Section Nine the drains because of the vial requisition. He never says so.
+Vetch gives Section Nine the drains because of the vial requisition, or, if they came back empty-handed, for the laugh. He never says so.
 status: provisional · source: episode-c1e1--canteen · known: few · told: later
 
 ## section-officer.the-job

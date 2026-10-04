@@ -182,12 +182,13 @@ test("the recorded line names every option the table took, with head-counts only
   assert.equal(recordedChoiceLabel(options, null), null);
 });
 
-test("REAL DATA: the school scene's room split opens as Local studies, Workshop induction and Something else", () => {
-  const brief = JSON.parse(readFileSync(path.join(repoRoot, "data", "scene-briefs", "episode-c1e1--school-first-period.json"), "utf8"));
-  const beat = brief.beats.find((b) => b.id === "which-room");
+// The free choice of room is second period since 2026-10-04 (D058): first period is a lesson the whole section sits.
+test("REAL DATA: the school scene's room split opens as Natural history, Workshop induction, The range and Something else", () => {
+  const brief = JSON.parse(readFileSync(path.join(repoRoot, "data", "scene-briefs", "episode-c1e1--school-second-period.json"), "utf8"));
+  const beat = brief.beats.find((b) => b.id === "which-room-again");
   assert.ok(beat?.choicePoint, "the room split is no longer a choicePoint");
   const prompt = openPrompt({ id: "p", briefId: brief.id, beatId: beat.id, choicePoint: beat.choicePoint });
-  assert.deepEqual(prompt.options.map((o) => o.id), ["local-studies", "workshop", ELSE_ID]);
+  assert.deepEqual(prompt.options.map((o) => o.id), ["natural-history", "workshop", "the-range", ELSE_ID]);
 });
 
 test("REAL DATA: no authored choicePoint anywhere uses the reserved 'something-else' id (it would be silently dropped)", () => {

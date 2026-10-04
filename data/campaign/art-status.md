@@ -22,7 +22,7 @@ handful of rooms and the same room hosts different lessons.
 | Kit Issue | `episode-c1e1--kit-issue` |
 | School: Second Period | `location--school-specimen-room` |
 | The Errand | `episode-c1e1--the-errand` (+ tea house, alley) |
-| The Tram Back | `episode-c1e1--the-tram-back` |
+| The Train Back | `episode-c1e1--the-tram-back` |
 | Canteen | `episode-c1e1--canteen` (+ alt) |
 | The Walk Down | `episode-c1e1--the-walk-down` |
 | Flood Tunnel Clearance | `episode-c1e1--flood-tunnel` (+ generator, machine room) |

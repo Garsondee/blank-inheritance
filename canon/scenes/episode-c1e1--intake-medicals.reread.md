@@ -90,3 +90,26 @@ asks twice) and D034 (the hand) are all used.
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **No XP.** Levelling is by milestone (D058), so the 30 XP accomplishment is gone. Whoever first says out loud that
+    it was all six of them gets a **Hero Point** instead: SF2E's own reward, and it pays off that same night, in the
+    fight. The line sits on the beat where it happens.
+  - **The cards leave the track blank.** Every other candidate's card names a track; Section Nine's six don't, and the
+    clerk's list is blank too. It lands at supper, when the next table asks "Which track are you on?"
+  - **Three answers the table will ask for.** Shucks, about his right hand: "It wandered off. Other arm." (true, and it
+    sounds like a joke). Shucks, about the overheard missing pilot: "Somebody didn't turn up. Somebody always doesn't.
+    Arm." The clerk, about their names already typed on the form: "Admissions sends the roster over the night before."
+  - **The four knowledge and perception checks roll blind**, so their wrong-belief critical failures work.
+- **R8.** The likeliest questions (the hand, the missing pilot, the typed names, the blank track) now have answers in
+  the speaker's own voice.
+- **R12, R19.** "It wandered off" is a clue, not an answer: with the prosthetic and the name Rand it is one of the
+  routes to Rand that D034 lists. The blank track is a question, never explained here.
+- **R6.** Working out the all-six moment now earns a Hero Point, not a number nobody feels.
+- **R27.** The Hero Point is said once, on the all-six beat.
+- **For Ingram, while reading:** the Hero Point (in place of XP), the blank track and Shucks's "It wandered off" are
+  mine.

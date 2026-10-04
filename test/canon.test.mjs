@@ -6,6 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { loadModel, checkModel, parseMeta, parseWorld, parseDecision, parsePlan, sceneHash, citations, TIMES, quarterForTime, syncQuarters, ROOT } from "../tools/story/lib.mjs";
 
 test("the real canon tree passes every rule", () => {
@@ -58,6 +59,15 @@ test("REAL DATA: From Up Here (Scene 0) has no day or quarter -- nothing ever cl
   assert.ok(scene0);
   assert.equal("day" in scene0, false);
   assert.equal("quarter" in scene0, false);
+});
+
+test("REAL DATA: Flood Tunnel Clearance's fight and its compactor are rebuilt in canon (D058)", () => {
+  const m = loadModel();
+  assert.ok(m.encounters.some((e) => e.id === "c1e1-flood-tunnel"), "canon/encounters/c1e1-flood-tunnel.json");
+  assert.ok(m.subsystems.some((s) => s.id === "c1e1-compactor-cycle"), "canon/subsystems/c1e1-compactor-cycle.json");
+  // The built copies are exact: "the real canon tree passes every rule" fails on any difference.
+  assert.ok("data/encounters/c1e1-flood-tunnel.json" in m.built);
+  assert.ok("data/subsystems/c1e1-compactor-cycle.json" in m.built);
 });
 
 test("REAL DATA: every other Episode One scene has a real day and quarter the ring understands", () => {
@@ -181,6 +191,38 @@ test("cut wording that comes back anywhere in live play data fails", () => {
 test("canon may not point at old material", () => {
   const m = model({ sceneRaw: JSON.stringify({ note: "see ideas/story/dossier-cicada.md" }) });
   assert.ok(errors(m).some((e) => /points at old material/.test(e)));
+});
+
+test("a beat's fight and hazard count as canon once rebuilt there; until then they are only a note", () => {
+  const beats = [{ id: "b", encounterRef: "e1-fight", subsystemRef: "e1-clock" }];
+  const notes = (m) => checkModel(m).filter((p) => p.level === "warn").map((p) => p.message);
+  const outside = model({ beats });
+  assert.ok(notes(outside).some((n) => /encounterRef e1-fight is not in canon yet/.test(n)));
+  assert.ok(notes(outside).some((n) => /subsystemRef e1-clock is not in canon yet/.test(n)));
+  const inside = {
+    ...model({ beats }),
+    encounters: [{ file: "e1-fight.json", id: "e1-fight", json: {}, raw: "{}" }],
+    subsystems: [{ file: "e1-clock.json", id: "e1-clock", json: {}, raw: "{}" }],
+  };
+  assert.deepEqual(notes(inside).filter((n) => /e1-fight|e1-clock/.test(n)), []);
+  assert.deepEqual(errors(inside), []);
+});
+
+test("a canon encounter or subsystem may not point at old material either", () => {
+  const raw = JSON.stringify({ notes: "see ideas/story/bible/species/mitflits.md" });
+  assert.ok(errors({ ...model(), encounters: [{ file: "e.json", id: "e", json: {}, raw }] }).some((e) => /points at old material/.test(e)));
+  assert.ok(errors({ ...model(), subsystems: [{ file: "s.json", id: "s", json: {}, raw }] }).some((e) => /points at old material/.test(e)));
+});
+
+test("a scene's approval covers the fight it runs, not only its checks", () => {
+  const beats = [{ id: "b", encounterRef: "e1-fight" }];
+  const withFight = (raw) => ({ ...model({ beats }), encounters: [{ file: "e1-fight.json", id: "e1-fight", json: {}, raw }] });
+  assert.notEqual(sceneHash(withFight('{"count":6}'), "s0"), sceneHash(withFight('{"count":8}'), "s0"));
+  // A scene with no fight and no checks hashes exactly as it always has (its own text alone), so no older approval
+  // goes stale because fights started being covered.
+  const plain = model({ beats: [{ id: "b" }] });
+  const before = crypto.createHash("sha256").update(plain.scenes[0].raw).digest("hex").slice(0, 16);
+  assert.equal(sceneHash(plain, "s0"), before);
 });
 
 test("a fact's status must match its source", () => {

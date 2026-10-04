@@ -68,3 +68,19 @@ character does with the ten minutes).
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **One Frame, at night:** on the crossing, Hangar Two's doors stand open under floodlights with a Frame on its
+    gantry, the hangar Section Six is surveying tonight. It keeps the promise of the machines warm without spending it.
+  - **The ferry callback:** whoever arrived by ferry lands at the Old Landing again, where they came off it.
+  - **A refusal at Dock C:** "Noted." He writes it down, slowly. "Report to the Deputy Director's office. Now. The
+    rest of you, the launch." The earlier answer to R10 (nobody can opt out) is replaced: refusing is possible, and
+    serious.
+  - Taka's beat reads "If there's room for it", not "If it fits", in a scene about waders that don't.
+- **R10.** Refusing is real, with its hearing.
+- **R15, R21.** The crossing's read-aloud is full sentences throughout.
+- **For Ingram, while reading:** the Frame on the gantry is mine.

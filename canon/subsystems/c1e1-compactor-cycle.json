@@ -1,0 +1,102 @@
+{
+  "$schema": "../schema/subsystem.schema.json",
+  "id": "c1e1-compactor-cycle",
+  "type": "subsystem",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Compactor Cycle",
+  "subsystemType": "custom",
+  "description": "Starting the drainage line also wakes the trash compactor it shares power with. It closes in from the centre outward, on its own schedule, whether or not anyone is fighting inside it. Nobody dies to it: it is pressure on where people stand, not a kill clock. It steadily eats the floor the party fights on, and the only way to stop it for good is to reach the north panels and override it.",
+  "scale": "quick-encounter",
+  "pools": [
+    {
+      "id": "encroachment",
+      "name": "Encroachment",
+      "mode": "accumulating",
+      "start": 0,
+      "current": 0,
+      "floor": 0,
+      "ceiling": 5,
+      "owner": "shared",
+      "startModifiers": [
+        {
+          "poolRef": "encroachment",
+          "beatRef": "clear-the-jam",
+          "failure": 1,
+          "criticalFailure": 1
+        }
+      ],
+      "thresholds": [
+        {
+          "atValue": 1,
+          "effect": "The very centre of the sunken floor, the glowing grate and the ground right round it, starts grinding. Anyone standing there at the end of a round takes 1d6 bludgeoning and must succeed at a DC 15 Reflex save (or an Acrobatics check against the same DC) or be Grabbed by the mechanism until they escape."
+        },
+        {
+          "atValue": 2,
+          "effect": "The danger ring grows to about a third of the sunken floor: most of the open ground round the grate is live."
+        },
+        {
+          "atValue": 3,
+          "effect": "Half the sunken floor is live, and the safe ground is the fringes near the walkways. Say so out loud: this is when to move."
+        },
+        {
+          "atValue": 4,
+          "effect": "Only a narrow strip along the walkways and the step up to the control platform is still safe. Damage from the grab and crush rises to 2d6."
+        },
+        {
+          "atValue": 5,
+          "effect": "Full compaction: the whole sunken floor is live. A party that has been watching its footing should already be clear of it. Anyone still down there takes 2d6 bludgeoning and must succeed at a DC 17 Reflex save or be Grabbed, or Restrained on a critical failure."
+        }
+      ]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "override-the-cycle",
+      "name": "Override it from the north panels",
+      "skillOptions": [
+        "crafting",
+        "computers"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1 standard DC: the same panels that started it can stop it",
+        "adjustment": "none"
+      },
+      "repeatable": true,
+      "poolEffects": [
+        {
+          "poolRef": "encroachment",
+          "criticalSuccess": -3,
+          "success": -1,
+          "criticalFailure": 1
+        }
+      ],
+      "outcomes": {
+        "criticalSuccess": "It shudders to a full stop. The grinding cuts out, and the panel lights go from red to amber.",
+        "success": "It stutters and slows, which buys real time.",
+        "failure": "No change: wrong sequence. Try again.",
+        "criticalFailure": "Wrong input entirely. Something grinds harder for a second before settling back to its normal pace."
+      },
+      "notes": "+2 circumstance for anyone who passed the workshop induction in the second school period: Hulda Brack showed them how a control panel thinks. Apply it without comment."
+    }
+  ],
+  "spends": [],
+  "participants": {
+    "eligibility": "Anyone who can reach the north panels can try the override: it isn't kept for whoever's build looks most technical. Working the panel is real work, as useful as an attack.",
+    "actionsPerRound": "one action toward the subsystem per PC per round"
+  },
+  "bounding": {
+    "boundType": "narrative-endstate",
+    "description": "Ends when Encroachment is pushed back to 0 (overridden for good) or the fight ends, whichever comes first. Reaching the ceiling doesn't end the encounter: the whole sunken floor is simply dangerous ground for as long as the fight goes on.",
+    "dynamicAdjustment": "Overriding means leaving the fight for a turn to reach the panels. That trade is the point."
+  },
+  "winCondition": "Encroachment reaches 0 after having risen above it: the party actually shut it down, not just stayed out of its way.",
+  "loseCondition": null,
+  "relatedRefs": [
+    "episode-c1e1--flood-tunnel",
+    "c1e1-flood-tunnel"
+  ],
+  "notes": "Encroachment rises by 1 at the end of every round by itself: the GM advances it, with no roll for the compactor. Only the override pushes it back down. A failed jam check starts it at 1: the Scene Runner reads that result off the beat and applies it (startModifiers), so nobody has to remember. Difficult terrain and poor light already cover the sunken floor; this is active danger on top.\n\nThe grind doesn't care whose side anyone is on. Anyone standing in a live zone takes it, centipedes included, so a party can leave it running, climb to the walkways and let it work on the nest. Say so if a player tries it.\n\nThe number rises (Encroachment) rather than falling (Safety) on purpose: danger climbing is what a GM wants to read at a glance. Map: Cze & Peku's 'Trash Compactor'. If the table wants the simpler fight, don't run this at all."
+}

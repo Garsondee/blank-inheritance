@@ -85,3 +85,12 @@ typewriter, Form 1-A.
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** Only the violet mark's check: it is now rolled blind (`secret`), because its critical failure is a
+  confident wrong belief ("a condemned-building notice"), which only works if the player can't see the roll. The Scene
+  Runner posts it with sf2e's own `traits:secret`. No words changed.
+- **R6.** The critical failure still escalates into a wrong belief, and now the player can't tell it is one.

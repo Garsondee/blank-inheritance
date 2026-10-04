@@ -23,6 +23,7 @@
         "adjustment": "none"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "A nest under the grate, several of them, still asleep. Starting the machinery will wake them, so they can get into position first.",
         "success": "Something large lives under that water, more than one of it, and it's asleep.",

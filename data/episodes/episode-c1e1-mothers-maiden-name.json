@@ -10,8 +10,8 @@
     "start": 1,
     "end": 1
   },
-  "summary": "Chapter 1, Episode One. Six newcomers arrive separately, then spend their first day as candidates together: a medical that flags all six as irregular, an assembly, two school periods round kit issue, a fool's errand that an old man in a tea house turns into a win, supper, and a night clearing a nest out of the storm drains under the old town. It ends on a signature nobody can explain, and each player choosing where to spend the night.",
-  "structure": "A school day with a mecha campaign happening round it. Morning: arrival, the medical, the assembly. Midday and afternoon: two lessons round kit issue, then the city, the episode's one outing and its most important stranger. Evening: the train back, the requisition, supper with Taka. Night: the drains, the first fight, Vetch at the top, and the night's rests.",
+  "summary": "Chapter 1, Episode One. Six newcomers arrive separately, then spend their first day as candidates together: a medical that flags all six as irregular, an assembly, a lesson and a free period round kit issue, a fool's errand that an old man in a tea house turns into a win, supper, and a night clearing a nest out of the storm drains under the old town. It ends on a signature nobody can explain, and each player choosing where to spend the night.",
+  "structure": "A school day with a mecha campaign happening round it. Morning: arrival, the medical, the assembly. Midday and afternoon: a lesson, kit issue and a free period, then the city, the episode's one outing and its most important stranger. Evening: the train back, the requisition, supper with Taka. Night: the drains, the first fight, Vetch at the top, and the night's rests.",
   "designRequirement": "Give six strangers reasons to act as one before anything is at stake. Plant the blood-screen flag. Put the antagonist in front of them, kind and useful, and let the table draw its own conclusions. Never explain the Watcher, Cicada, the mitflits or the marker.",
   "castingNote": "Taka is built to be liked at once, and he matters later. Play him at full warmth. Vetch is the day's engine: every job comes from him, in person.",
   "downtime": "None. One continuous day. The night's rests at the end are each player's own choice.",
@@ -80,7 +80,7 @@
         "status": "drafted"
       },
       "title": "School: First Period",
-      "description": "Scene 4. Each player picks a room: local studies, where the four founders are named, or Hulda Brack's workshop induction. What they win or lose shows tonight.",
+      "description": "Scene 4. Their first lesson, local studies with Ota, for the whole section: the city on a wall map, and the four founders named. What they win or lose shows tonight.",
       "briefRef": "episode-c1e1--school-first-period",
       "challengeRefs": [
         "c1e1-school-first-period"
@@ -110,7 +110,7 @@
         "status": "drafted"
       },
       "title": "School: Second Period",
-      "description": "Scene 6. A free period: natural history, where they learn what lives in the drains, or the small-arms range. Both pay off tonight.",
+      "description": "Scene 6. A free period: natural history, where they learn what lives in the drains, Hulda Brack's workshop induction, or the small-arms range. All three pay off tonight.",
       "briefRef": "episode-c1e1--school-second-period",
       "challengeRefs": [
         "c1e1-school-second-period"
@@ -139,8 +139,8 @@
       "authoring": {
         "status": "drafted"
       },
-      "title": "The Tram Back",
-      "description": "Scene 8. The island train home at dusk, nothing asked of anyone for twenty minutes, then the requisition handed in at the stores before nineteen hundred.",
+      "title": "The Train Back",
+      "description": "Scene 8. The island train home at dusk, nothing asked of anyone for twenty minutes, then their paper handed in at the stores before nineteen hundred.",
       "briefRef": "episode-c1e1--the-tram-back",
       "challengeRefs": [
         "c1e1-the-tram-back"
@@ -201,7 +201,7 @@
     "Vetch is met in person: at the assembly, with the docket, with the night's order, at Dock C, and at the top of the drains.",
     "The Deputy Director tells the intake what the Directorate says it is for, and its two rules: disobeying an order is serious, breaking curfew is not.",
     "An old man in a tea house turns the fool's errand into a win and says one true thing about the Directorate. Nothing in the scene suggests he is anything but kind.",
-    "Each school period is a free choice of room, and what they win or lose pays off tonight.",
+    "The first school period is a lesson the whole section sits; the second is a free choice of room. What they win or lose in each pays off tonight.",
     "The episode ends with each player choosing their own night's rest."
   ],
   "endOfEpisodeEffects": [],
@@ -212,7 +212,8 @@
     "Who Rand is: a countersignature in green ink, and nobody of that name in Medical.",
     "Who the old man in the tea house really is.",
     "Violet marks at head height, seen twice in one day.",
+    "Why the six Section Nine cards leave the track blank.",
     "A father on the radio, and his daughter held without charge."
   ],
-  "notes": "Every scene is in canon/scenes, in the house style, waiting for Ingram's read.\n\nSTANDING RULES FROM THIS EPISODE\n1. Vetch is a real, present character, never a voice over a tannoy: every job comes from him in person.\n2. Never predict the table's response. State what the scene does.\n3. Session length is not a constraint.\n\nTHE SCHOOL PERIODS. Not rolling is free; nothing is announced; failure costs something real. Every payoff lands tonight:\n- Local studies: the founders' names on any result; a failure makes them last into the stores, where the handlamps have run out.\n- Workshop: +2 circumstance on panel work in the drains.\n- Natural history: the centipedes already known (a free Recall Knowledge); on a critical success, a show of force sends one running.\n- The range: +1 circumstance on a first ranged Strike tonight.\n- Any critical failure: Fatigued tonight.\n\nTHE VIAL. Vetch's docket (Kit Issue) is the hazing. Manako's plan (The Errand) turns it: requisition the real part. It goes in at the hatch (The Tram Back), earns them the drains (Canteen), and comes back countersigned by Rand (Flood Tunnel Clearance). Rand is Shucks's detached right hand; nobody knows."
+  "notes": "Every scene is in canon/scenes, in the house style, waiting for Ingram's read.\n\nSTANDING RULES FROM THIS EPISODE\n1. Vetch is a real, present character, never a voice over a tannoy: every job comes from him in person.\n2. Never predict the table's response. State what the scene does.\n3. Session length is not a constraint.\n\nTHE SCHOOL PERIODS. The first is a lesson the whole section sits (local studies); the second is their own choice of room. Not rolling is free; nothing is announced; failure costs something real. Every payoff lands tonight:\n- Local studies: the founders' names on any result; a failure makes them last into the stores, where the handlamps have sold out.\n- Workshop: +2 circumstance on panel work in the drains.\n- Natural history: the centipedes already known (a free Recall Knowledge); on a critical success, a show of force sends one running.\n- The range: +1 circumstance on a first ranged Strike tonight.\n- Any critical failure: Fatigued tonight.\n\nTHE VIAL. Vetch's docket (Kit Issue) is the hazing. Manako's plan (The Errand) turns it: requisition the real part. It goes in at the hatch (The Train Back), where vials go up to Medical, earns them the drains (Canteen), and comes back countersigned by Rand (Flood Tunnel Clearance). Rand is Shucks's detached right hand; nobody knows. If they file no requisition, Rand countersigns whatever paper of theirs goes in instead, so the ending always lands.\n\nREFUSING AN ORDER. Every order in the episode says what Vetch does if someone refuses. A refusal goes to the Deputy Director the same day, as a beat in The Errand (the docket) or Flood Tunnel Clearance (the drains), on one shared check.\n\nLEVELLING is by milestone, so no scene awards XP. Working out that all six were flagged earns a Hero Point, the same night.\n\nIF IT RUNS TO TWO EVENINGS, the natural break is Vetch's order at supper: end on \"Section Nine: storm drain clearance\", and start the next evening with the waders."
 }

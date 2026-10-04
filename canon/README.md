@@ -27,6 +27,9 @@ The campaign's trusted material, rebuilt one scene at a time from Ingram's decis
 - `objectives/`: what someone in the world asks of the party (design/objectives.md, D057): the giver, their words, every
   part required or optional. `story build` copies them to `data/objectives/`; the scenes carry the chips that give, tick,
   reveal, strike and close them, and `story check` holds them to the rule.
+- `encounters/` and `subsystems/`: a scene's fight and its running hazard or clock, rebuilt like its checks (D058), so
+  the numbers a scene runs on go through the same read as its words. `story build` copies them to `data/encounters/` and
+  `data/subsystems/`; a scene's approval covers them too. One still outside canon is only a note.
 - `scenes/<id>.reread.md`: the record of each scene's re-read: every question, the answer, and what changed.
 - `reread.md`: the questions every scene is re-read against. It grows whenever Ingram's reading finds something it
   should have caught.
@@ -80,7 +83,7 @@ node tools/story/story.mjs show <entity>     every fact about it, and where each
 node tools/story/story.mjs where <fact>      every line that relies on one fact
 node tools/story/story.mjs check             every rule (also run by test/canon.test.mjs)
 node tools/story/story.mjs apply <Dnnn>      a decision's changes, checked, with every line they touch
-node tools/story/story.mjs build             copy canon scenes and challenges into data/
+node tools/story/story.mjs build             copy canon scenes, challenges, objectives, encounters and subsystems into data/
 node tools/story/story.mjs time              "yesterday", "this morning" etc. per scene, beside the plan's day and time
 node tools/story/story.mjs digest <scene>    what a scene tells the table and relies on, with its hash
 ```

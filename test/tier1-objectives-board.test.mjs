@@ -42,7 +42,7 @@ test("up next names the scene whose chip ticks each open part, and shows the GM 
   const where = Object.fromEntries(row.parts.map((p) => [p.id, p.scene]));
   assert.equal(where["second-period"], "School: Second Period");
   assert.equal(where.collect, "The Errand", "struck there");
-  assert.equal(where["back-by-1900"], "The Tram Back");
+  assert.equal(where["back-by-1900"], "The Train Back");
   const hidden = row.parts.filter((p) => p.hidden).map((p) => p.id);
   assert.deepEqual(hidden, ["requisition", "tell-manako"], "the GM sees what is still hidden, and where it will be revealed");
   assert.equal(b.toGive.map((t) => t.objectiveId).join(), "c1e1-storm-drains", "enrolment was given before Kit Issue's chips, so only the drains are left");

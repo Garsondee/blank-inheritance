@@ -49,6 +49,7 @@
         "adjustment": "hard"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "Like every one they've seen, it's where a crowd stands and waits. Somebody is choosing these walls.",
         "success": "Somebody has been doing this for a while.",
@@ -75,6 +76,7 @@
         "adjustment": "very-hard"
       },
       "insight": true,
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "The Directorate scientist who had a breakdown at a science conference, caused a huge fuss, and was expelled. Nothing about why.",
         "success": "A chemist, disgraced, a long time ago.",
@@ -95,6 +97,7 @@
         "basis": "level 1, one step hard",
         "adjustment": "hard"
       },
+      "secret": true,
       "outcomes": {
         "criticalSuccess": "As success, and he notices being looked at, and isn't used to it. He has decided he likes this one.",
         "success": "A man who has been very good at something and stopped, and minds.",
@@ -116,5 +119,5 @@
     "episode-c1e1-mothers-maiden-name",
     "episode-c1e1--the-errand"
   ],
-  "notes": "No roll decides whether they reach Manako or get his help. His number goes to a player who was kind, at the GM's call, never on a roll."
+  "notes": "No roll decides whether they reach Manako or get his help. His number goes to a player who was kind, at the GM's call, never on a roll. The mark, his name and reading him are rolled blind: their critical failures are beliefs."
 }

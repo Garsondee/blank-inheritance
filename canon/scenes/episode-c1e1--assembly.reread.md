@@ -83,3 +83,28 @@ walk-ons don't speak.
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **Rupiah is the officer nobody looks at** (D058). The platform check's critical success now shows "an elf in a
+    plain administration uniform, whom nobody on the platform has looked at once". The beat's Secret says who, and why
+    nobody stares (a founder; manners). If anyone asks, Vetch: "Administration. Eyes front."
+  - **The hall's numbers agree with the rest of the day.** The whole base turns out (four hundred people), and the new
+    intake is about forty, in the front rows: forty is what Shucks screens and Nobu kits.
+  - **Three more answers for the questions afterwards.** Why the intake was brought forward ("The date moved. Dates
+    do, here. I'm sorry it cost some of you a fortnight at home."), the screen ("Medical's business. Ask Doctor
+    Mordant, and good luck to you."), and what a hearing is ("You'd sit in my office, I'd ask you why, and I'd
+    listen.").
+  - **The platform and the charter checks roll blind.**
+  - The prep notes no longer cite a decision number, and name everyone on the platform.
+- **R12, R19.** Rupiah is shown, never named: a new player gets a question (who is that elf?), and the four who played
+  the founders get to recognise one of their own.
+- **R7, R8.** The Deputy Director's likely questions after the address are covered, each refusal in his own voice. The
+  brought-forward answer is honest and warm, and points at nothing.
+- **R13.** `rupiah.at-assembly` (decided, D058), `rupiah.role` and `founders.not-waved-about` as gmFacts;
+  `directorate.intake-size` (provisional, told here).
+- **R15, R21.** The intro's first two sentences are joined, so it reads aloud as three.
+- **For Ingram, while reading:** the intake of about forty, and the Deputy Director's three new lines, are mine.

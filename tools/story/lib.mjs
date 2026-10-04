@@ -141,7 +141,7 @@ const listFiles = (dir, ext) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter
 
 export function loadModel(root = ROOT) {
   const c = (p) => path.join(root, "canon", p);
-  const model = { root, decisions: [], sources: [], world: [], plan: [], scenes: [], challenges: [], objectives: [], built: {}, problems: [] };
+  const model = { root, decisions: [], sources: [], world: [], plan: [], scenes: [], challenges: [], objectives: [], encounters: [], subsystems: [], built: {}, problems: [] };
   // Source records: material Ingram gave as a whole document (S001...), kept beside the decisions.
   for (const f of listFiles(c("sources"), ".md")) {
     const head = lf(fs.readFileSync(c("sources/" + f), "utf8")).split("\n")[0].match(/^# (S\d{3}) · ([^·]+?) · (.+)$/);
@@ -161,7 +161,15 @@ export function loadModel(root = ROOT) {
     model.plan.push(...parsePlan(raw, f));
     (model.planRaw ||= {})[f] = lf(raw);
   }
-  for (const [kind, dir, dataDir] of [["scenes", "scenes", "data/scene-briefs"], ["challenges", "challenges", "data/challenges"], ["objectives", "objectives", "data/objectives"]]) {
+  // A scene's fight (encounters) and its running hazard or clock (subsystems) are rebuilt in canon like its checks,
+  // so the numbers a scene runs on go through the same read as its words.
+  for (const [kind, dir, dataDir] of [
+    ["scenes", "scenes", "data/scene-briefs"],
+    ["challenges", "challenges", "data/challenges"],
+    ["objectives", "objectives", "data/objectives"],
+    ["encounters", "encounters", "data/encounters"],
+    ["subsystems", "subsystems", "data/subsystems"],
+  ]) {
     for (const f of listFiles(c(dir), ".json")) {
       const raw = fs.readFileSync(c(dir + "/" + f), "utf8");
       let json = null;
@@ -180,13 +188,15 @@ export function loadModel(root = ROOT) {
   return model;
 }
 
-// A scene's approval covers the scene and every canon challenge its beats use.
+// A scene's approval covers the scene and every canon challenge, encounter and subsystem its beats use.
 export function sceneHash(model, sceneId) {
   const scene = model.scenes.find((s) => s.id === sceneId);
   if (!scene) return null;
-  const refs = [...new Set((scene.json.beats || []).map((b) => b.challengeRef).filter(Boolean))].sort();
   const h = crypto.createHash("sha256").update(lf(scene.raw));
-  for (const r of refs) { const ch = model.challenges.find((c) => c.id === r); if (ch) h.update("\n--" + r + "--\n" + lf(ch.raw)); }
+  for (const [key, kind] of [["challengeRef", "challenges"], ["encounterRef", "encounters"], ["subsystemRef", "subsystems"]]) {
+    const refs = [...new Set((scene.json.beats || []).map((b) => b[key]).filter(Boolean))].sort();
+    for (const r of refs) { const doc = (model[kind] || []).find((c) => c.id === r); if (doc) h.update("\n--" + r + "--\n" + lf(doc.raw)); }
+  }
   return h.digest("hex").slice(0, 16);
 }
 
@@ -297,6 +307,9 @@ export function checkModel(model) {
           const ch = model.challenges.find((c) => c.id === v);
           if (!ch) warn(at, `${k} ${v} is not in canon yet`);
           else if (b.checkRef && !(ch.json.checks || []).some((x) => x.id === b.checkRef)) err(at, `checkRef ${b.checkRef} is not a check in ${v}`);
+        } else if (k === "encounterRef" || k === "subsystemRef") {
+          const kind = k === "encounterRef" ? "encounters" : "subsystems";
+          if (!(model[kind] || []).some((d) => d.id === v)) warn(at, `${k} ${v} is not in canon yet`);
         } else warn(at, `${k} ${v} is not in canon yet`);
       }
     }
@@ -322,6 +335,8 @@ export function checkModel(model) {
   for (const s of model.scenes) scanOld(`scenes/${s.file}`, s.raw);
   for (const c of model.challenges) scanOld(`challenges/${c.file}`, c.raw);
   for (const o of model.objectives || []) scanOld(`objectives/${o.file}`, o.raw);
+  for (const e of model.encounters || []) scanOld(`encounters/${e.file}`, e.raw);
+  for (const s of model.subsystems || []) scanOld(`subsystems/${s.file}`, s.raw);
 
   // Cut wording never comes back
   const retired = [];

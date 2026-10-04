@@ -85,3 +85,26 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 
 Each option on this scene's choice gained a one-line `blurb`, the only text the players see when the GM presses Ask the
 players. The GM's `consequence` is unchanged and never shown to a player. No other words changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** **First period is now one lesson the whole section sits: local studies with Ota.** The workshop
+  induction moved to second period, which is now the one free choice of room. Two reasons: the two periods had the
+  same shape back to back (pick a room, one roll, a critical failure costs Fatigued, it pays off tonight), and the
+  Deputy Director says, minutes earlier, "In the mornings you will be taught. In the afternoons... the time is yours."
+  - The founders' names now reach the whole table in the room, and the noticeboard fallback is gone.
+  - **Two new lines for Ota.** Whether the founders are still alive: "Some of them. We don't make a fuss of it here;
+    it's thought rude. Right, trams." And a Watch-for: Liam, Pippa, Craig and Steve played the four (D058), so if one
+    of them says what the pictures get wrong, Ota answers with his own line: "Good. Wrong, but good."
+  - Anyone may work at the map, so learning the city can be rolled by each player; failing it still makes them last
+    into the stores.
+  - Stagecraft: Hulda's card left this stage, with her "safety induction" moment.
+- **R8.** "Are they still alive?" is the obvious question after meeting Shucks; Ota answers it with the city's own
+  embarrassment, which tells the table a little and leaves the rest a question.
+- **R13.** `founders.not-waved-about` (D028) is now told here; D058 records the change.
+- **R1, R2.** One room, three beats: the names, the map, the corridor.
+- **R23.** 15 minutes.
+- **For Ingram, while reading:** merging the choice into second period is my call; it changes which period is the
+  first free choice.

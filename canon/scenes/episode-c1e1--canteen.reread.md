@@ -71,3 +71,20 @@ success points at it, and the table works out the rest).
 
 Objective chips added to this scene's beats for the Scene Runner (give, tick, reveal, strike or close one of
 Episode One's three objectives, `canon/objectives/`). Only chips were added: no words were changed.
+
+## Revision 2026-10-04: fixes from Claude's review, and Ingram's four answers (D058)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.**
+  - **If they came back empty-handed:** the hall has heard about the bubble, and somebody asks how it's going. Vetch's
+    secret covers it too: the drains for the vial, or, if they came back empty-handed, for the laugh.
+  - **Reading Vetch** shows the paper they handed in clipped to his board, whatever it was.
+  - **A refused order:** "Noted." He writes it down, slowly. "The Deputy Director's office, twenty-one hundred, instead of Dock C." The
+    hearing runs in Flood Tunnel Clearance while the others are down the drains.
+  - **"Which track are you on?"** now lands: if anyone answers, the next table says "No track? Huh. Never seen that."
+  - **Taka on the radio:** "They play that every night. Somebody's always angry about something. Pickles?" It keeps the
+    plant unremarkable.
+  - **Both checks roll blind.**
+- **R8, R10.** The radio, the track and refusing are covered.
+- **R12.** Taka's radio line is ordinary, and performs no avoidance.

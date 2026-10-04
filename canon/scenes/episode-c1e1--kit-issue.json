@@ -17,7 +17,7 @@
     "carriesIn": [
       {
         "when": "If anyone failed local studies",
-        "then": "They're last in, and the handlamps have run out."
+        "then": "They're last in at the counter."
       }
     ],
     "position": {
@@ -53,6 +53,10 @@
           {
             "topic": "Himself",
             "why": "Whether he's eaten, slept or has a life: \"Life? I've got a clipboard.\""
+          },
+          {
+            "topic": "Where an extra came from",
+            "why": "\"Fell off a ship. Sign here.\""
           }
         ],
         "coercible": [
@@ -152,7 +156,7 @@
         "id": "equipment-locker",
         "label": "Open Equipment Locker"
       },
-      "note": "If someone came in last: The handlamps have run out by their turn.",
+      "note": "Do: Nobu pushes a handlamp at everyone: \"One credit. Take one. You'll thank me.\"\nIf someone came in last: The handlamps have sold out by their turn. Tell them; the Locker won't. Asking Nobu properly can still find one.",
       "facts": [],
       "gmFacts": []
     },
@@ -166,11 +170,13 @@
       "when": {
         "condition": "someone asks Nobu for something extra"
       },
-      "note": "Do: Fit the extra to the player: a climbing kit, a comm unit, a coil of line or a handlamp. Never a second weapon.\nSecret: Some of what Nobu hands out isn't Directorate stock. Write down who got what.",
+      "note": "Do: Fit the extra to the player: a climbing kit, a comm unit, a coil of line or a handlamp. Never a second weapon.\nSecret: Some of it isn't Directorate stock. He buys it, cash, from the ships' chandlers on the old town's waterfront. Write down who got what.",
       "challengeRef": "c1e1-kit-issue",
       "checkRef": "work-nobu",
       "facts": [],
-      "gmFacts": []
+      "gmFacts": [
+        "nobu.off-book"
+      ]
     },
     {
       "id": "test-the-fit",
@@ -194,7 +200,7 @@
       "npcRef": "section-officer",
       "text": "Vetch <trig id=\"vetch-inspects\"/> walks the line, finds fault with each of them, and hands Section Nine a docket. <trig id=\"give-docket\"/> Show the table.",
       "readAloud": "He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.\n\n\"Second period first. Then the city. Back to me by nineteen hundred.\"",
-      "note": "Plant: It's a direct order, and refusing one is the serious thing the Deputy Director warned them about.\nSecret: There's no such part. Vetch sends every new section for the bubble in a spirit level. It was done to him once.",
+      "note": "Plant: It's a direct order, and refusing one is the serious thing the Deputy Director warned them about.\nIf someone refuses it: Vetch writes their name down, slowly: \"The Deputy Director will see you at seventeen hundred.\" The rest go.\nSecret: There's no such part. Vetch sends every new section for the bubble in a spirit level. It was done to him once.",
       "handoutRef": "the-docket",
       "triggers": [
         {

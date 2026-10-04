@@ -116,3 +116,19 @@ status: decided · source: D053 · known: everyone · told: in:episode-c1e1--ass
 ## directorate.alarm-never-real
 In a hundred and fifty years, the Directorate's alarm has never once been real.
 status: provisional · source: episode-c1e1--assembly · known: everyone · told: in:episode-c1e1--assembly
+
+## directorate.intake-size
+This year's intake is about forty candidates. The whole base turns out in the drill hall to welcome it.
+status: provisional · source: episode-c1e1--assembly · known: everyone · told: in:episode-c1e1--assembly
+
+## directorate.no-track
+Every candidate's section card names a track as well as a section. The six Section Nine cards leave the track blank, and so does the clerk's list.
+status: provisional · source: episode-c1e1--intake-medicals · known: some · told: in:episode-c1e1--intake-medicals
+
+## directorate.on-report
+A refused order goes on the candidate's file, and they are on report. If they are later proven right, that goes on the file too, in the Deputy Director's hand.
+status: provisional · source: episode-c1e1--the-errand · known: some · told: in:episode-c1e1--the-errand
+
+## directorate.vials-to-medical
+A requisition for a vial goes up to Medical for its countersignature: vials are Medical's.
+status: provisional · source: episode-c1e1--the-tram-back · known: some · told: in:episode-c1e1--the-tram-back

@@ -5,14 +5,14 @@
   "episodeRef": "episode-c1e1-mothers-maiden-name",
   "sceneRef": "school-second-period",
   "title": "School: Second Period",
-  "summary": "Scene 6. Their first free period, as the Deputy Director promised: a natural history lesson, or the small-arms range. Each one pays off tonight.",
+  "summary": "Scene 6. Their first free period, as the Deputy Director promised: natural history, Hulda Brack's workshop induction, or the small-arms range. Each one pays off tonight.",
   "goal": "Each player has spent the period where they chose, and Section Nine leaves for the city with the docket.",
-  "howToPlay": "Warm and quick: the first adults who are glad to see them. Each player picks; cut between the two. Not rolling is always fine.",
-  "runsAbout": "15 minutes",
+  "howToPlay": "Warm and quick: the first adults who are glad to see them. Each player picks a room; cut between them. Not rolling is always fine.",
+  "runsAbout": "15-20 minutes",
   "mode": "social",
   "intro": {
     "where": "The school block and the Butts, the period after the stores.",
-    "readAloud": "The timetable has nothing against second period but two words: own choice. Down the corridor, a door is propped open on a room that smells of seawater and preserving jars. Across the yard, a long roofed range is popping with small-arms fire.",
+    "readAloud": "The timetable has nothing against second period but two words: own choice. Down the corridor, a door is propped open on a room that smells of seawater and preserving jars, and from the far end somebody is already shouting about fingers. Across the yard, a long roofed range is popping with small-arms fire.",
     "landmark": "The yard between the school block and the range.",
     "carriesIn": [
       {
@@ -41,8 +41,8 @@
             "note": "\"Centipedes as long as your arm, this time of year. They climb, they nest, and they bite.\""
           },
           {
-            "topic": "Her unlabelled jars",
-            "note": "She took the label off one eleven years ago, because the label was a guess."
+            "topic": "Her unlabelled jar",
+            "note": "She took the label off it eleven years ago, because the label was a guess."
           }
         ],
         "willNotDiscuss": [
@@ -61,6 +61,45 @@
           ]
         },
         "statblock": "Proposed: level 1, a teacher, non-combat."
+      }
+    },
+    {
+      "id": "hulda-brack",
+      "npcRef": "shop-boss",
+      "role": "Head of the machine shop, taking the safety induction herself.",
+      "arrival": "announced",
+      "brief": {
+        "wants": "Everyone leaving her workshop with the same number of fingers they came in with.",
+        "opensWith": "\"In. Sit. Hands where I can see them, all of you.\"",
+        "willDiscuss": [
+          {
+            "topic": "Every machine in the room",
+            "note": "Exactly how each one would hurt them, at length, with relish."
+          },
+          {
+            "topic": "Herself",
+            "note": "A nuar, and proud of it. She won't wear a glamour for anyone."
+          },
+          {
+            "topic": "The forearm on the trestles",
+            "note": "\"Off a Frame. It'll be back on by Thursday. Not cleared. Not today.\""
+          }
+        ],
+        "willNotDiscuss": [
+          {
+            "topic": "Letting them near the forearm",
+            "why": "They're not cleared for her floor yet: \"Earn it. Then ask me again.\""
+          }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Enormous and warm. Calls people by the machine they're standing next to. Ends a point by hitting metal.",
+          "samples": [
+            "\"You, by the lathe. What does that do? Wrong, and thank you for being wrong out loud.\"",
+            "\"No, you're useless. Good. Useless I can work with. It's the handy ones that end up in hospital.\""
+          ]
+        },
+        "statblock": "Proposed: level 4, a machine-shop chief, can fight if she has to."
       }
     },
     {
@@ -101,15 +140,21 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "each",
-      "text": "Each player picks: the natural history lesson, or the range. <trig id=\"docket-second-period\"/>",
+      "text": "Each player picks: the natural history lesson, the workshop, or the range. <trig id=\"docket-second-period\"/>",
       "choicePoint": {
-        "label": "Second period. A lesson, or the range?",
+        "label": "Second period is yours. Where do you go?",
         "options": [
           {
             "id": "natural-history",
             "label": "Natural history: a room full of jars.",
             "blurb": "A lesson on the creatures of the region.",
             "consequence": "A teacher very glad to see them, and what lives in the drains."
+          },
+          {
+            "id": "workshop",
+            "label": "Workshop induction: the machine shop.",
+            "blurb": "Tools, machines and hands-on work.",
+            "consequence": "Tools, hands, and a very loud woman with horns."
           },
           {
             "id": "the-range",
@@ -146,9 +191,25 @@
       "when": {
         "condition": "someone chose natural history"
       },
-      "note": "Plant: Three jars on the top shelf have no labels.\nSecret: Undecided, even to the GM. Nothing in this episode explains them.",
+      "note": "Plant: One jar on the top shelf has no label.\nSecret: Undecided, even to the GM. Nothing in this episode explains it.",
       "challengeRef": "c1e1-school-second-period",
       "checkRef": "what-lives-down-there",
+      "facts": [],
+      "gmFacts": []
+    },
+    {
+      "id": "workshop",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "hulda-brack",
+      "text": "Hulda Brack runs the safety induction. If anyone joins in, offer the check.",
+      "when": {
+        "condition": "someone chose the workshop"
+      },
+      "note": "Plant: Four metres of Frame forearm on trestles at the back, opened along one side, fingers curled. She won't let them near it.",
+      "challengeRef": "c1e1-school-second-period",
+      "checkRef": "workshop-induction",
       "facts": [],
       "gmFacts": []
     },
@@ -206,6 +267,10 @@
     {
       "id": "the-jar",
       "text": "One jar on the top shelf has no label, and the teacher is watching to see who notices."
+    },
+    {
+      "id": "the-forearm",
+      "text": "There's a four-metre hand on the trestles at the back of the workshop, and she's just told them not to go near it."
     }
   ],
   "reactionPrompts": [
@@ -215,8 +280,8 @@
     },
     {
       "id": "warmth",
-      "text": "The two teachers landing as people glad to see them."
+      "text": "The three adults landing as people glad to see them."
     }
   ],
-  "notes": "D053 promised the afternoons are theirs to choose; this is the first. What each pays tonight: natural history makes the Recall Knowledge on the centipedes in advance; the range gives +1 on a first ranged Strike. A critical failure in either sends a character into tonight's job Fatigued. The telephone exchange and civil defence are still on the timetable for another day."
+  "notes": "The first of the afternoons the Deputy Director promised are theirs. What each room pays tonight: natural history makes the Recall Knowledge on the centipedes in advance; the workshop gives +2 on the drain chamber's panels, applied without comment; the range gives +1 on a first ranged Strike. A critical failure in any room sends a character into tonight's job Fatigued. The telephone exchange and civil defence are still on the timetable for another day."
 }

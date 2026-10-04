@@ -621,19 +621,16 @@
       "partyRow": { "y": 0.975, "wings": [0.102,0.898], "step": 0.075, "back": 0.012, "of": 6 },
       "npcSlots": [[0.37,0.745],[0.56,0.765]],
       "places": {
-        "school-history-teacher": [0.56,0.765],
-        "shop-boss": [0.37,0.745]
+        "school-history-teacher": [0.56,0.765]
       },
-      "yaws": { "shop-boss": 18, "school-history-teacher": -6 },
-      "sizes": { "school-history-teacher": 1.6, "shop-boss": 1.3 },
-      "demeanours": { "school-history-teacher": "bouncy", "shop-boss": "proud" },
+      "yaws": { "school-history-teacher": -6 },
+      "sizes": { "school-history-teacher": 1.6 },
+      "demeanours": { "school-history-teacher": "bouncy" },
       "life": {
-        "school-history-teacher": { "kind": "patrol", "path": [[0.48,0.762],[0.64,0.768]], "every": 7, "gait": "stroll", "gestures": ["nod", "hop"], "gestureChance": 0.3 },
-        "shop-boss": { "kind": "wander", "radius": 0.008, "every": 10, "restless": 0.4, "faces": "school-history-teacher" }
+        "school-history-teacher": { "kind": "patrol", "path": [[0.48,0.762],[0.64,0.768]], "every": 7, "gait": "stroll", "gestures": ["nod", "hop"], "gestureChance": 0.3 }
       },
       "moments": {
         "calls-on-someone": { "label": "The teacher calls on someone", "tip": "He comes down off the front to the desks.", "places": { "school-history-teacher": { "at": [0.52,0.88], "yaw": 0, "gait": "walk" } }},
-        "safety-induction": { "label": "The safety induction", "tip": "The head of the machine shop takes the front; the teacher steps aside.", "places": { "shop-boss": { "at": [0.56,0.775], "yaw": 0, "gait": "march" }, "school-history-teacher": { "at": [0.37,0.75], "yaw": 18, "gait": "stroll" } }},
         "everyone-back": { "label": "As they were", "tip": "Everyone the scene placed goes back where they were.", "home": true }
       }
     },
@@ -666,13 +663,15 @@
       "npcSlots": [[0.6,0.86],[0.4,0.86]],
       "places": {
         "school-natural-history-teacher": [0.52,0.78],
-        "range-safety-officer": [0.6,0.86]
+        "range-safety-officer": [0.6,0.86],
+        "shop-boss": [0.32,0.78]
       },
-      "yaws": { "range-safety-officer": -18 },
-      "sizes": { "range-safety-officer": 1 },
-      "demeanours": { "school-natural-history-teacher": "calm", "range-safety-officer": "proud" },
+      "yaws": { "range-safety-officer": -18, "shop-boss": 18 },
+      "sizes": { "range-safety-officer": 1, "shop-boss": 1.3 },
+      "demeanours": { "school-natural-history-teacher": "calm", "range-safety-officer": "proud", "shop-boss": "proud" },
       "life": {
-        "school-natural-history-teacher": { "kind": "visit", "spots": [[0.43,0.78],[0.57,0.78]], "every": 9, "restless": 0.7, "gait": "walk", "faces": [0.52,0.9] }
+        "school-natural-history-teacher": { "kind": "visit", "spots": [[0.43,0.78],[0.57,0.78]], "every": 9, "restless": 0.7, "gait": "walk", "faces": [0.52,0.9] },
+        "shop-boss": { "kind": "wander", "radius": 0.008, "every": 10, "restless": 0.4, "faces": "school-natural-history-teacher" }
       },
       "moments": {
         "a-specimen": { "label": "A specimen from the drains", "tip": "The teacher brings one round to the front for a closer look.", "places": { "school-natural-history-teacher": { "at": [0.5,0.85], "yaw": 0, "gait": "walk" } }},

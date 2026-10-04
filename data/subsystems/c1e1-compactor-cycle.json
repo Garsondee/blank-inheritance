@@ -7,7 +7,7 @@
   },
   "name": "The Compactor Cycle",
   "subsystemType": "custom",
-  "description": "Starting the drainage system also wakes the trash compactor it shares power with. It closes in from the centre outward, on its own schedule, whether or not anyone is fighting inside it. Nobody dies to this -- it's real pressure on positioning, not a kill clock -- but it steadily eats the room the party has to fight in, and the only way to stop it for good is to reach the north control panels and actually override it.",
+  "description": "Starting the drainage line also wakes the trash compactor it shares power with. It closes in from the centre outward, on its own schedule, whether or not anyone is fighting inside it. Nobody dies to it: it is pressure on where people stand, not a kill clock. It steadily eats the floor the party fights on, and the only way to stop it for good is to reach the north panels and override it.",
   "scale": "quick-encounter",
   "pools": [
     {
@@ -30,23 +30,23 @@
       "thresholds": [
         {
           "atValue": 1,
-          "effect": "The very centre of the sunken floor -- the glowing grate itself and the ground immediately around it -- starts grinding. Anyone standing there at the end of a round takes 1d6 bludgeoning and must succeed at a DC 15 Reflex save (or an Acrobatics check against the same DC) or be Grabbed by the mechanism until they escape."
+          "effect": "The very centre of the sunken floor, the glowing grate and the ground right round it, starts grinding. Anyone standing there at the end of a round takes 1d6 bludgeoning and must succeed at a DC 15 Reflex save (or an Acrobatics check against the same DC) or be Grabbed by the mechanism until they escape."
         },
         {
           "atValue": 2,
-          "effect": "The danger ring expands to roughly a third of the sunken floor -- most of the open ground around the grate is now live."
+          "effect": "The danger ring grows to about a third of the sunken floor: most of the open ground round the grate is live."
         },
         {
           "atValue": 3,
-          "effect": "Half the sunken floor is live. The safe ground is now mostly the fringes, close to the conveyor walkways. Say so out loud -- this is the point players should be actively repositioning, not just noticing."
+          "effect": "Half the sunken floor is live, and the safe ground is the fringes near the walkways. Say so out loud: this is when to move."
         },
         {
           "atValue": 4,
-          "effect": "Only a narrow strip along the walkways and the step up to the control platform is still safe. Damage from the grab/crush rises to 2d6."
+          "effect": "Only a narrow strip along the walkways and the step up to the control platform is still safe. Damage from the grab and crush rises to 2d6."
         },
         {
           "atValue": 5,
-          "effect": "Full compaction. The entire sunken floor is live. This is the outer bound, not a guaranteed catastrophe -- a party that's been managing its positioning should already be clear of the floor by now. Anyone still down there is in real trouble: 2d6 bludgeoning, DC 17 Reflex or Grabbed, and Restrained instead of Grabbed on a critical failure."
+          "effect": "Full compaction: the whole sunken floor is live. A party that has been watching its footing should already be clear of it. Anyone still down there takes 2d6 bludgeoning and must succeed at a DC 17 Reflex save or be Grabbed, or Restrained on a critical failure."
         }
       ]
     }
@@ -61,7 +61,7 @@
       ],
       "dc": {
         "value": 15,
-        "basis": "level 1 standard DC — the same panels that started it can stop it",
+        "basis": "level 1 standard DC: the same panels that started it can stop it",
         "adjustment": "none"
       },
       "repeatable": true,
@@ -74,29 +74,29 @@
         }
       ],
       "outcomes": {
-        "criticalSuccess": "It shudders to a full stop. The grinding cuts out, the lights on the panel go from red to amber.",
-        "success": "It stutters, slows, buys real time.",
-        "failure": "No change -- wrong sequence, try again.",
+        "criticalSuccess": "It shudders to a full stop. The grinding cuts out, and the panel lights go from red to amber.",
+        "success": "It stutters and slows, which buys real time.",
+        "failure": "No change: wrong sequence. Try again.",
         "criticalFailure": "Wrong input entirely. Something grinds harder for a second before settling back to its normal pace."
       },
-      "notes": "+2 CIRCUMSTANCE BONUS for any player who passed `workshop-induction` in School: First Period (`data/challenges/c1e1-school-first-period.json`). They spent that morning with Hulda Brack being shown this exact class of control panel. Apply it without comment -- the reward for engaging with a lesson is that a later check is quietly easier, and saying so out loud spends it."
+      "notes": "+2 circumstance for anyone who passed the workshop induction in the second school period: Hulda Brack showed them how a control panel thinks. Apply it without comment."
     }
   ],
   "spends": [],
   "participants": {
-    "eligibility": "Any PC who can reach the north control platform may attempt override-the-cycle -- it isn't reserved for whoever's build looks the most technical. See episode-c1e1--flood-tunnel.json's working-the-panel beat for the table-facing framing: this is a real, spotlighted job, not a consolation prize for sitting out the fight.",
+    "eligibility": "Anyone who can reach the north panels can try the override: it isn't kept for whoever's build looks most technical. Working the panel is real work, as useful as an attack.",
     "actionsPerRound": "one action toward the subsystem per PC per round"
   },
   "bounding": {
     "boundType": "narrative-endstate",
-    "description": "Ends when Encroachment is pushed to 0 (overridden for good) or the fight itself ends -- whichever comes first. Reaching the ceiling doesn't end the encounter by itself; it just means the whole sunken floor is now dangerous ground for as long as the fight continues.",
-    "dynamicAdjustment": "A player can attempt override-the-cycle from anywhere within reach of the north panels -- which means leaving the fight for a turn to do it. That trade is the whole point."
+    "description": "Ends when Encroachment is pushed back to 0 (overridden for good) or the fight ends, whichever comes first. Reaching the ceiling doesn't end the encounter: the whole sunken floor is simply dangerous ground for as long as the fight goes on.",
+    "dynamicAdjustment": "Overriding means leaving the fight for a turn to reach the panels. That trade is the point."
   },
-  "winCondition": "Encroachment reaches 0 after having risen above it -- the party actually shut it down, not just avoided it.",
+  "winCondition": "Encroachment reaches 0 after having risen above it: the party actually shut it down, not just stayed out of its way.",
   "loseCondition": null,
   "relatedRefs": [
     "episode-c1e1--flood-tunnel",
     "c1e1-flood-tunnel"
   ],
-  "notes": "Automatic tick, not a check: Encroachment rises by 1 at the end of every round on its own, whether or not anyone engages with it -- there's no roll for the compactor's own turn, the GM just advances the pool. override-the-cycle is the only thing that pushes it back down. Difficult terrain and poor light (ch1-v2.md's own Build line) already apply across the sunken floor regardless of Encroachment -- this pool is about active danger, not just movement cost. Map: Cze & Peku 'Trash Compactor' -- north control platform (elevated, safe, panels here), sunken central floor around a glowing circular grate (the danger zone), conveyor walkways flanking both long sides (elevated, safe, real alternate routes). This is the optional 'fun version' Ingram asked for, 2026-09-09 -- the encounter and scene work fine without it; if a table wants the simpler fight, just don't run this file.\n\nSTART MODIFIER (2026-09-10): c1e1-flood-tunnel.json's clear-the-jam check already had the consequence written in its outcome prose ('Encroachment starts at 1 instead of 0' on failure) but nothing actually read it -- a GM had to remember to apply it by hand. pools[0].startModifiers now wires this for real: core/scene-brief.mjs's clockState reads runState.ticked['clear-the-jam'].degree (the SAME beat-tick data the scene runner already records when the GM marks that check's outcome) and shifts Encroachment's effective start accordingly, no separate bookkeeping. Only failure/criticalFailure carry a modifier, matching the challenge file's own outcome text exactly.\n\nMODE NOTE (2026-09-09, adversarial pass): subsystem.schema.json only has two pool modes -- accumulating (race UP to a win target) and diminishing (protect a floor from a loss). This pool doesn't cleanly fit either: it rises automatically like an accumulating pool, but the real win is pushing it back DOWN to 0, which reads like a diminishing pool's shape inverted. Kept as \"accumulating\" and a rising number on purpose -- confirmed with Ingram: a rising \"Encroachment\" is what a GM actually wants to read live at the table (danger climbing is intuitive), over a technically-cleaner falling \"Safety\" countdown that would fit the schema's stated semantics more exactly. No gameplay difference either way, same thresholds and math -- this is a deliberate readability choice, not an oversight.\n\nCLARIFIED 2026-09-19, additive only -- no pool, threshold, or DC touched: the thresholds' 'anyone standing there' already meant any creature, PCs and centipedes alike, but it was never made explicit, and this file is now a live tactical option rather than just a hazard to survive -- episode-c1e1--flood-tunnel.json's find-another-way beat lets the party use the danger zone against the nest deliberately, by leaving the cycle running (or pushing it harder) and retreating to the walkways instead of overriding it. Worth saying out loud at the table if a player tries this: the grind doesn't check whose side you're on."
+  "notes": "Encroachment rises by 1 at the end of every round by itself: the GM advances it, with no roll for the compactor. Only the override pushes it back down. A failed jam check starts it at 1: the Scene Runner reads that result off the beat and applies it (startModifiers), so nobody has to remember. Difficult terrain and poor light already cover the sunken floor; this is active danger on top.\n\nThe grind doesn't care whose side anyone is on. Anyone standing in a live zone takes it, centipedes included, so a party can leave it running, climb to the walkways and let it work on the nest. Say so if a player tries it.\n\nThe number rises (Encroachment) rather than falling (Safety) on purpose: danger climbing is what a GM wants to read at a glance. Map: Cze & Peku's 'Trash Compactor'. If the table wants the simpler fight, don't run this at all."
 }

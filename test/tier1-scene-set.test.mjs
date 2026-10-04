@@ -317,7 +317,7 @@ test("sceneSetPlan: the real Episode One scenes carry the exact ordering prefix 
   assert.equal(byId["e1-the-errand"].data.name, "07. The Errand");
   assert.equal(byId["e1-the-errand-tea-house"].data.name, "07a. The Errand — The Tea House");
   assert.equal(byId["e1-the-errand-alley"].data.name, "07b. The Errand — The Alley");
-  assert.equal(byId["e1-the-tram-back"].data.name, "08. The Tram Back");
+  assert.equal(byId["e1-the-tram-back"].data.name, "08. The Train Back");
   assert.equal(byId["e1-canteen"].data.name, "09. Canteen");
   assert.equal(byId["e1-canteen-tables"].data.name, "09a. Canteen — The Long Tables");
   assert.equal(byId["e1-the-walk-down"].data.name, "10. The Walk Down");

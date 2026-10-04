@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1e1-the-hearing",
+  "type": "challenge",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "The Hearing",
+  "description": "A candidate who refused a direct order makes their case to the Deputy Director, the same day. Every result puts them on report.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "make-your-case",
+      "name": "Make your case",
+      "skillOptions": [
+        "diplomacy",
+        "society",
+        "deception"
+      ],
+      "dc": {
+        "value": 15,
+        "basis": "level 1, no adjustment. One step easier (13) if the order was absurd or wrong; one step harder (17) if they had no real reason.",
+        "adjustment": "none"
+      },
+      "outcomes": {
+        "criticalSuccess": "On report, with his note beside it: \"Heard. A fair objection.\" Anyone who reads their file reads that too, and he remembers their name.",
+        "success": "On report. He thanks them for an honest answer, and tells them plainly that the order stood.",
+        "failure": "On report, and extra duty at five tomorrow morning, scrubbing the drill hall floor. They start the day Fatigued.",
+        "criticalFailure": "As failure, and he says he's disappointed. Their next refused order goes over his head."
+      },
+      "bySkill": {
+        "diplomacy": "He hears a person, not an excuse.",
+        "society": "They argue it regulation by regulation, and he enjoys being argued with properly.",
+        "deception": "He knows. On a failure, the file says they lied as well."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": [
+    "Whoever refused"
+  ],
+  "relatedRefs": [
+    "episode-c1e1-mothers-maiden-name",
+    "episode-c1e1--the-errand",
+    "episode-c1e1--flood-tunnel"
+  ],
+  "notes": "Use it for any refused direct order. A character later proven right has the mark written off, in the Deputy Director's hand, with an apology."
+}
