@@ -24,6 +24,7 @@
     "stagecraft.walk",
     "stagecraft.arrive",
     "stagecraft.fall",
+    "stagecraft.keep",
     "stagecraft.chalk",
     "stagecraft.settingsChanged"
   ]

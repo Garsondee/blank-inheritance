@@ -87,7 +87,10 @@ export function keepPlaces(scene, current = null, ids = null) {
     const cards = publishedCards(scene);
     const next = commitHomes(cards, places, ids);
     const changed = next.filter((c, i) => c !== cards[i]).length;
-    if (changed) await scene.update({ [`flags.${NS}.published.cards`]: next });
+    if (changed) {
+      await scene.update({ [`flags.${NS}.published.cards`]: next });
+      Hooks.callAll("stagecraft.keep", { scene: scene.id, changed, homes: next.filter((c) => Array.isArray(c.home)).map((c) => ({ id: c.id, home: c.home, homeYaw: c.homeYaw ?? 0 })) });
+    }
     return changed;
   });
 }

@@ -18,10 +18,11 @@
  */
 
 import { MODULE_ID } from "./stage-store.mjs";
+import { fetchModuleJson, writeStorageJson } from "./io.mjs";
 import { readAuthoredCast, summonToStage } from "./stage.mjs";
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
+import { STAGECRAFT_ID as NS, STAGES_PATH, KEPT_PATH, applyKept, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, placesRecord, withKept, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -50,7 +51,9 @@ let stagesLoaded = null;
 
 /** The file that says which scenes are stages and how. Read once per page; null if it cannot be. */
 export function loadStages() {
-  stagesPromise ??= fetch(foundry.utils.getRoute(STAGES_PATH)).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((s) => (stagesLoaded = s));
+  const read = (path) => fetch(foundry.utils.getRoute(path)).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  // the places the GM kept at the table are laid over the file's own (brought home by `npm run stages`, deployed with it)
+  stagesPromise ??= Promise.all([read(STAGES_PATH), read(KEPT_PATH)]).then(([stages, kept]) => (stagesLoaded = applyKept(stages, kept)));
   return stagesPromise;
 }
 
@@ -218,6 +221,25 @@ async function fallByHp(actor) {
   await game.modules.get(NS)?.api?.blocking?.setDown?.(scene, card.id, down);
 }
 
+/** The file the kept places are filed in, in the module's storage/, for `npm run stages` to bring home into the stages file. */
+export const KEPT_FILE = "stage-places.json";
+
+/** The GM pressed Keep places: where the scene's own people stand is filed, so it can become the stages file's own places. */
+async function fileKept({ scene: sceneId, homes }) {
+  const scene = game.scenes.get(sceneId);
+  const sourceId = scene?.getFlag?.(MODULE_ID, "sourceId");
+  if (!sourceId || !actingGM()) return;
+  const authored = await readAuthoredCast(scene.id);
+  const real = new Map(authored.map((m) => [m.portraitId, m]));
+  const published = new Map((scene.getFlag(MODULE_ID, "stage")?.cast ?? []).map((m) => [m.portraitId, m]));
+  const keyOf = (id) => { const member = published.get(id); return member ? rawKeyOf(member, real.get(id)) : null; };
+  const pcs = new Set((scene.flags?.[NS]?.published?.cards ?? []).filter((c) => c.pc).map((c) => c.id));
+  const record = placesRecord(homes, keyOf, pcs);
+  if (!Object.keys(record.places).length) return;
+  const file = await fetchModuleJson(`storage/${KEPT_FILE}`, { fresh: true }).catch(() => null);
+  await writeStorageJson("", KEPT_FILE, withKept(file, sourceId, record, new Date().toISOString()));
+}
+
 /** A party member's conditions changed: their card wears them as badges ("Frightened 2", "Prone"). */
 async function badgeByConditions(actor) {
   const scene = canvas?.scene;
@@ -275,6 +297,7 @@ export async function startStagecraftBridge() {
   // conditions on a character are badges on their card; the fight's turn lights a card
   const conditionChanged = (item) => { if (item?.type === "condition" && item.parent?.documentName === "Actor") badgeByConditions(item.parent).catch((err) => console.warn(`${LOG} | could not badge ${item.parent?.name}`, err)); };
   for (const hook of ["createItem", "updateItem", "deleteItem"]) Hooks.on(hook, conditionChanged);
+  Hooks.on("stagecraft.keep", (event) => { fileKept(event).catch((err) => console.warn(`${LOG} | could not file the kept places`, err)); });
   Hooks.on("updateCombat", (combat, changes) => {
     if (changes?.turn === undefined && changes?.round === undefined && changes?.started === undefined) return;
     lightTurn(combat).catch((err) => console.warn(`${LOG} | could not light the turn`, err));

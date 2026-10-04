@@ -31,6 +31,7 @@
     "edits": "node tools/scene-edits/edits.mjs",
     "test:scene-edits": "node --test test/tier1-scene-edits.test.mjs test/tier1-scene-edit-sheet.test.mjs test/tier1-foundry-edits.test.mjs test/tier2-scene-edits-corpus.test.mjs test/tier3-scene-edit-sheet-contract.test.mjs test/tier4-scene-edits-adapter.test.mjs test/tier4-kept-journal.test.mjs test/tier4-handouts.test.mjs test/scene-edits/",
     "haunts": "node tools/haunts/pull.mjs",
+    "stages": "node tools/stage-places/pull.mjs",
     "locations": "node tools/location-sync/sync.mjs",
     "test:location-sync": "node --test test/tier1-location-editor.test.mjs test/location-sync/"
   },

@@ -443,6 +443,28 @@ test("a character's conditions are badges on their card, and the fight's turn fi
   assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("updateCombat"/, "the bridge listens for the turn");
   assert.match(read("foundry/stagecraft-bridge.mjs"), /"createItem", "updateItem", "deleteItem"/, "and for conditions coming and going");
 });
+test("places the GM kept become a stage entry's places, are filed, laid over the stages file, and folded home", async () => {
+  const { placesRecord, withKept, applyKept, foldKept } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
+  const keys = { "summon-nobu": "nobu", "summon-pc-a": "pc-a", "summon-ghost": null };
+  const homes = [{ id: "summon-nobu", home: [0.61234, 0.6449], homeYaw: -15.04 }, { id: "summon-pc-a", home: [0.2, 0.9], homeYaw: 0 }, { id: "summon-ghost", home: [0.1, 0.1], homeYaw: 3 }, { id: "x", homeYaw: 1 }];
+  const rec = placesRecord(homes, (id) => keys[id] ?? null, new Set(["summon-pc-a"]));
+  assert.deepEqual(rec, { places: { nobu: [0.612, 0.645] }, yaws: { nobu: -15 } }, "the party's row and unknown cards are not places; a facing of 0 is not written");
+  const filed = withKept(null, "e1-kit-issue", rec, "T1");
+  assert.equal(filed.scenes["e1-kit-issue"].keptAt, "T1");
+  assert.deepEqual(withKept(filed, "e1-canteen", rec, "T2").scenes["e1-kit-issue"].keptAt, "T1", "another scene's record is kept");
+  const stages = { stages: { "e1-kit-issue": { places: { nobu: [0.6, 0.64], "section-officer": [0.64, 0.895] }, yaws: { "section-officer": -18 } } } };
+  const laid = applyKept(stages, filed);
+  assert.deepEqual(laid.stages["e1-kit-issue"].places, { nobu: [0.612, 0.645], "section-officer": [0.64, 0.895] }, "hers wins, the rest stays");
+  assert.deepEqual(laid.stages["e1-kit-issue"].yaws, { "section-officer": -18, nobu: -15 });
+  assert.deepEqual(stages.stages["e1-kit-issue"].places.nobu, [0.6, 0.64], "the file's own is not touched");
+  assert.equal(applyKept(stages, { scenes: { nowhere: { places: { a: [0, 0] } } } }).stages.nowhere, undefined, "a scene the file does not know is ignored");
+  assert.equal(applyKept(stages, null), stages);
+  const { kept, lines } = foldKept({ scenes: { "e1-kit-issue": { places: { nobu: [0.5, 0.5] }, yaws: {} } } }, filed);
+  assert.deepEqual(kept.scenes["e1-kit-issue"].places.nobu, [0.612, 0.645]);
+  assert.match(lines[0], /nobu stands at \[0\.612,0\.645\] \(was \[0\.5,0\.5\]\)/);
+  assert.deepEqual(foldKept(kept, filed).lines, [], "folding the same keep again changes nothing");
+  assert.match(read("foundry/stagecraft-bridge.mjs"), /Hooks\.on\("stagecraft\.keep"/);
+});
 test("an authored moment moves the people it names (by their real id), and may send everyone else home", async () => {
   const { momentsOf } = await import("../module/blank-inheritance/scripts/core/stagecraft-bridge.mjs");
   const cards = [{ id: "c1", home: [0.2, 0.9] }, { id: "c2", home: [0.5, 0.9] }, { id: "pc", pc: true, at: [0.5, 0.95] }];

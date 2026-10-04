@@ -16,6 +16,8 @@ import { deckFit } from "./deck-layout.mjs";
 
 export const STAGECRAFT_ID = "stagecraft";
 export const STAGES_PATH = "modules/blank-inheritance/stagecraft/stages.json";
+/** The places the GM kept on the live server, brought home by `npm run stages`: they win over the stages file's own. */
+export const KEPT_PATH = "modules/blank-inheritance/stagecraft/kept-places.json";
 
 /** The page a stage is authored on and covers the window with (Stagecraft's rigspace.mjs `REF`). */
 const STAGE_PAGE = Object.freeze({ W: 2560, H: 1440 });
@@ -365,4 +367,64 @@ export function descriptionFor(stages, entry) {
   const description = { ...entry.description };
   if (!description.skin && stages.skin) description.skin = stages.skin;
   return description;
+}
+
+/**
+ * The places a GM kept, as a stage entry names them: `places` (where a card stands, by its raw key) and `yaws` (how it faces),
+ * for the scene's own people (the party's row is the entry's `partyRow`, not a place per person). `homes` are the cards'
+ * `{ id, home, homeYaw }`; `keyOf(cardId)` gives a card's raw key, or null for one that is not the entry's to place.
+ */
+export function placesRecord(homes, keyOf, pcIds = new Set()) {
+  const places = {};
+  const yaws = {};
+  for (const h of homes ?? []) {
+    if (!Array.isArray(h?.home) || pcIds.has(h.id)) continue;
+    const key = keyOf(h.id);
+    if (!key) continue;
+    places[key] = [Math.round(h.home[0] * 1000) / 1000, Math.round(h.home[1] * 1000) / 1000];
+    if (Number.isFinite(h.homeYaw) && h.homeYaw !== 0) yaws[key] = Math.round(h.homeYaw * 10) / 10;
+  }
+  return { places, yaws };
+}
+
+/** The file of kept places in storage/, with one scene's record put in (a later keep of the same scene replaces it). */
+export function withKept(file, sourceId, record, now) {
+  const scenes = { ...(file?.scenes ?? {}) };
+  scenes[sourceId] = { ...record, keptAt: now };
+  return { kind: "bi-stage-places", version: 1, scenes };
+}
+/**
+ * The stages file with the GM's kept places laid over it: for each scene in `kept.scenes`, its `places` and `yaws` replace the
+ * entry's for the same keys (other keys stay). Returns a new object; `stages` is not changed. A scene the file does not know
+ * is ignored.
+ */
+export function applyKept(stages, kept) {
+  if (!stages?.stages || !kept?.scenes) return stages;
+  const out = { ...stages, stages: { ...stages.stages } };
+  for (const [id, k] of Object.entries(kept.scenes)) {
+    const entry = out.stages[id];
+    if (!entry) continue;
+    out.stages[id] = { ...entry, places: { ...(entry.places ?? {}), ...(k.places ?? {}) }, yaws: { ...(entry.yaws ?? {}), ...(k.yaws ?? {}) } };
+  }
+  return out;
+}
+
+/**
+ * Fold what the server filed (`withKept`'s file) into the repo's kept-places file: per scene, per key, the newer keep wins.
+ * Returns { kept, lines } where `lines` say what moved, one per scene and key that differs from before.
+ */
+export function foldKept(existing, filed) {
+  const scenes = { ...(existing?.scenes ?? {}) };
+  const lines = [];
+  for (const [id, rec] of Object.entries(filed?.scenes ?? {})) {
+    const before = scenes[id] ?? { places: {}, yaws: {} };
+    const next = { places: { ...(before.places ?? {}) }, yaws: { ...(before.yaws ?? {}) } };
+    for (const [key, at] of Object.entries(rec.places ?? {})) {
+      if (JSON.stringify(next.places[key]) !== JSON.stringify(at)) lines.push(`${id}: ${key} stands at ${JSON.stringify(at)}${before.places?.[key] ? ` (was ${JSON.stringify(before.places[key])})` : ""}`);
+      next.places[key] = at;
+    }
+    for (const [key, yaw] of Object.entries(rec.yaws ?? {})) next.yaws[key] = yaw;
+    scenes[id] = next;
+  }
+  return { kept: { kind: "bi-kept-places", version: 1, scenes }, lines };
 }

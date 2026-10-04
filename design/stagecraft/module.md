@@ -837,4 +837,15 @@ Checks: `module/stagecraft/test/badges.test.mjs` (6), a bridge test in `test/sta
 
 Scenes are staged by hand in `stages.json`; the editor is how that moves into Foundry, in slices. The first is the cheapest useful one: **stage the cards by hand (drag them, a formation, anything), then press Keep places.** Where the cards stand (the selected ones, or everyone, after a confirmation) becomes their `home` and `homeYaw` in the published cast, so "Places" now goes back to there. `core/sync.mjs#commitHomes` is the pure part (nothing changes, and nothing is written, for a card already home); `foundry/blocking.mjs#keepPlaces` writes it; `api.blocking.keepPlaces(scene, ids?)` is the public face (interface 0.8.0). Checks: a unit test of `commitHomes`, the interface test, and `bench/sizes-check.mjs` (the wider strip still fits at every size).
 
-**Not yet:** a kept home lives in the scene's published cast on the server, so a redeploy that lays the scene out afresh (`relayout`) overwrites it. Bringing it home, like the Scene Runner edits (a record in the module's `storage/`, pulled into the repo and merged into `stages.json` by a tool, with clash reporting), is the next piece, and then dragging marks and zones and the chalk box's spot.
+**Not yet:** dragging marks and zones and the chalk box's spot. (Bringing kept homes home is §32.)
+
+## 32. Kept places come home (2026-10-04)
+
+A kept home lives in the scene's published cast on the server, so on its own a redeploy that lays the scene out afresh would have overwritten it. So Keep places is filed, and brought home, the way her Scene Runner edits are:
+
+1. Stagecraft raises `stagecraft.keep` (`{ scene, changed, homes }`; interface 0.8.0).
+2. The adventure's bridge (`fileKept`) turns the scene's own people's homes into a stage entry's `places` and `yaws` by their raw keys (`placesRecord`; the party's row is the entry's `partyRow`, so the party is not filed) and files them in the module's `storage/stage-places.json` (`withKept`), which no deploy touches.
+3. `npm run stages` (`tools/stage-places/pull.mjs`) reads it (read-only), keeps the record in `harvest/stage-places/`, and folds it into `module/blank-inheritance/stagecraft/kept-places.json` (`foldKept`: per scene and key, the newer keep wins; it prints what moved).
+4. The bridge lays that file over `stages.json` when it reads it (`applyKept`: hers win key by key, the rest stays), so the next deploy lays the scene out by her places. `stages.json` itself is not rewritten (it is hand-formatted, and the overlay keeps what she did apart from what was authored).
+
+Checks: `test/stagecraft-bridge.test.mjs` (the record, the filing, the overlay, the fold), `test/stage-places.test.mjs` (the tool). Not yet run against a real server: the write to `storage/` uses the same `writeStorageJson` the haunts use, and the pull the same inbox the haunts and scene edits use.
