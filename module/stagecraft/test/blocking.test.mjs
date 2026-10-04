@@ -511,3 +511,22 @@ test("a zone near one that is not there is a problem the author is told about", 
   raw.zones.push({ id: "x", kind: "area", shape: [[0.1, 0.8], [0.2, 0.8], [0.2, 0.9]], near: ["nowhere"] });
   assert.ok(describeScene(raw).problems.some((p) => p.includes("nowhere")));
 });
+
+
+test("commitHomes: where cards stand now becomes their home, for everyone or only the chosen, and nothing changes when nothing moved", async () => {
+  const { commitHomes } = await import("../scripts/core/sync.mjs");
+  const cards = [{ id: "a", home: [0.2, 0.9], homeYaw: 0 }, { id: "b", home: [0.5, 0.9] }, { id: "c" }];
+  const places = [{ id: "a", at: [0.3, 0.8], yaw: 12 }, { id: "b", at: [0.5, 0.9], yaw: 0 }, { id: "c", at: [0.7, 0.7], yaw: -5 }, { id: "ghost", at: [0.1, 0.1], yaw: 0 }, null];
+  const all = commitHomes(cards, places);
+  assert.deepEqual(all[0], { id: "a", home: [0.3, 0.8], homeYaw: 12 });
+  assert.equal(all[1], cards[1], "already home: the very same card, so nothing is written");
+  assert.deepEqual(all[2], { id: "c", home: [0.7, 0.7], homeYaw: -5 }, "a card with no home gets one");
+  assert.equal(all.length, 3, "a place with no card is ignored");
+  const some = commitHomes(cards, places, ["c"]);
+  assert.equal(some[0], cards[0], "not chosen: left alone");
+  assert.deepEqual(some[2].home, [0.7, 0.7]);
+  assert.equal(commitHomes(cards, [{ id: "a", at: null }])[0], cards[0], "a place that is not a position is not kept");
+  // and Places then has nothing to do for a card that is home
+  const kept = commitHomes([{ id: "a", home: [0.2, 0.9], at: [0.3, 0.8] }], [{ id: "a", at: [0.3, 0.8], yaw: 0 }]);
+  assert.deepEqual(homeMoves(kept), [], "it is home already");
+});

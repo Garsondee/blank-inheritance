@@ -278,3 +278,19 @@ export function commitPlace(cards, place) {
     return next;
   });
 }
+
+/**
+ * "Keep places": where cards stand now becomes where the scene puts them (`home`, `homeYaw`), so "Places" goes back to here
+ * from now on. `places` are `Stage#placeOf` results; `ids` limits it to those cards (null: everyone with a place). Returns
+ * the new cards, the same array contents when nothing changed.
+ */
+export function commitHomes(cards, places, ids = null) {
+  const byId = new Map(places.filter(Boolean).map((p) => [p.id, p]));
+  return cards.map((card) => {
+    const place = byId.get(card.id);
+    if (!place || (ids && !ids.includes(card.id)) || !Array.isArray(place.at)) return card;
+    const homeYaw = Number.isFinite(place.yaw) ? place.yaw : 0;
+    const same = Array.isArray(card.home) && Math.abs(card.home[0] - place.at[0]) < 1e-4 && Math.abs(card.home[1] - place.at[1]) < 1e-4 && (card.homeYaw ?? 0) === homeYaw;
+    return same ? card : { ...card, home: [place.at[0], place.at[1]], homeYaw };
+  });
+}

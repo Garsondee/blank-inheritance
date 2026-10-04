@@ -9,10 +9,10 @@ import { isStageScene, readStage } from "./foundry/scene-data.mjs";
 import { FORMATIONS } from "./core/formations.mjs";
 import { GAIT_NAMES } from "./core/walks.mjs";
 import { ROUTINES } from "./core/life.mjs";
-import { publishMoves, arrange, backToPlaces, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
+import { publishMoves, arrange, backToPlaces, keepPlaces, tidyUp, setLife, setBoard, setSpeaker, setTurn, setBadges, setDown, registerMoments, registerCover } from "./foundry/blocking.mjs";
 import { TOOL_NAMES } from "./core/brush.mjs";
 
-export const API_VERSION = "0.7.0";
+export const API_VERSION = "0.8.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -47,6 +47,8 @@ export function createApi({ skins, current }) {
       arrange: (scene, kind, opts = {}) => arrange(scene, kind, opts, current.host),
       /** Everyone moved goes back to where the scene put them (`home`), and back to their routines. */
       backToPlaces: (scene) => backToPlaces(scene),
+      /** Where the cards stand now becomes where the scene puts them (what ackToPlaces returns them to); ids limits it. Resolves to how many changed. */
+      keepPlaces: (scene, ids = null) => keepPlaces(scene, current.host, ids),
       /** Every loose card walks to its nearest free mark. */
       tidy: (scene) => tidyUp(scene, current.host),
       setLife: (scene, on) => setLife(scene, on),

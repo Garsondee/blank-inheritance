@@ -3,11 +3,11 @@
 Everything here is reached through `game.modules.get("stagecraft").api`, or is a hook. Anything else may change
 without notice. `api.schema.json` lists exactly this, and a test fails if the code and that file disagree.
 
-**Version 0.7.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
+**Version 0.8.0.** Early: the interface will grow, and while the major version is 0 it may also change. 0.2.0 added
 `api.blocking` and the `stagecraft.walk` and `stagecraft.arrive` hooks; 0.3.0 added the `stagecraft.visit` hook, and a
 published card whose `home` changes now goes about its routine round the new one; 0.4.0 added `api.blocking.setCover`;
 0.5.0 paints chalk instead of drawing lines: the `stagecraft.chalk` hook now says which tool and colour and where, and
-`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns).
+`api.chalkTools` lists the tools; 0.6.0 gave a card a line of text under its name (`title`, and a line break in a name does the same), and a skin a `helpers.titleBlock` to lay it out with; 0.7.0 added `api.blocking.setBadges` (short labels on a card's face, such as conditions) and `api.blocking.setTurn` (whose turn it is: lit, nobody turns); 0.8.0 added `api.blocking.keepPlaces` (where the cards stand becomes where the scene puts them).
 
 ## api
 
@@ -26,6 +26,7 @@ published card whose `home` changes now goes about its routine round the new one
 | `api.blocking.move(scene, moves)` | GM only. Send cards somewhere: `[{ id, at: [fx, fy] \| mark, yaw?, lean?, pitch?, gait?, still?, packed? }]`. Every screen walks them there together |
 | `api.blocking.arrange(scene, kind, opts)` | GM only. A formation: `{ ids?, focus?: [fx, fy] \| cardId, target?, speakers?, party?, gait?, dir?, away?, size? }` (`dir`: which way a queue runs, `back`, `left`, `right` or `front`; `away`: everyone turns their back to the table to look where the formation looks; `size`: how wide the thing they gather round is, as a share of the painting's width there). Without `ids` it moves every card that is not one of the party's |
 | `api.blocking.backToPlaces(scene)` | GM only. Everyone moved walks back to their `home` and takes up their routine again |
+| `api.blocking.keepPlaces(scene, ids?)` | GM only. Where the cards stand now (or just `ids`) becomes where the scene puts them: their `home`, which `backToPlaces` returns them to. Resolves to how many cards' homes changed |
 | `api.blocking.tidy(scene)` | GM only. Every loose card walks to its nearest free mark |
 | `api.blocking.setLife(scene, on)` | GM only. Routines run (on, the default) or everyone stands where they are |
 | `api.blocking.setBoard(scene, on)` | GM only. The fight board: positions (zones of kind `area`) drawn plainly, with who is in each and the range bands. While it is up, a card put down inside a position docks in a free place in it |

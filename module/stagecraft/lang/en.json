@@ -119,6 +119,14 @@
       "Places": {
         "Label": "Places",
         "Tip": "Everyone you have moved walks back to where the scene put them, and back to what they were doing."
+      },
+      "Keep": {
+        "Label": "Keep places",
+        "Tip": "Where they stand now (the selected cards, or everyone) is where the scene puts them from now on, and where Places sends them back to.",
+        "Title": "Keep these places",
+        "AskAll": "Make where everyone stands now the places the scene puts them?",
+        "AskSome": "Make where the {n} selected cards stand now the places the scene puts them?",
+        "Done": "{n} places kept."
       }
     },
     "Gm": {

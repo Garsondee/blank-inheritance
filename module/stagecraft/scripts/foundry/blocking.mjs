@@ -14,7 +14,7 @@
 
 import { NS, publishedCards, readStage, readCast } from "./scene-data.mjs";
 import { Stage } from "../core/stage.mjs";
-import { commitMoves, homeMoves } from "../core/sync.mjs";
+import { commitMoves, homeMoves, commitHomes } from "../core/sync.mjs";
 import { tidy } from "../core/marks.mjs";
 import { cleanBadges, sameBadges } from "../core/badges.mjs";
 
@@ -72,6 +72,24 @@ export async function backToPlaces(scene, { gait = "walk" } = {}) {
   const moves = homeMoves(publishedCards(scene), { gait });
   await publishMoves(scene, moves);
   return moves;
+}
+
+/**
+ * Keep places: where the cards stand now becomes where the scene puts them, and where "Places" sends them back to. `ids`
+ * limits it to those cards. Returns how many cards' homes changed. (GM only.)
+ */
+export function keepPlaces(scene, current = null, ids = null) {
+  if (!game.user?.isGM) return Promise.resolve(0);
+  const stage = stageFor(scene, current);
+  if (!stage) return Promise.resolve(0);
+  const places = stage.exportPlaces();
+  return serially(async () => {
+    const cards = publishedCards(scene);
+    const next = commitHomes(cards, places, ids);
+    const changed = next.filter((c, i) => c !== cards[i]).length;
+    if (changed) await scene.update({ [`flags.${NS}.published.cards`]: next });
+    return changed;
+  });
 }
 
 /** Every loose card to its nearest free mark (stage.md §8.10), walking. */

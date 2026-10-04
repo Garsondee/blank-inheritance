@@ -9,6 +9,7 @@
  *              selected (shift-click), or else everyone of the scene's own people
  *   Tidy       every loose card walks to its nearest free mark
  *   Places     everyone moved goes back to where the scene put them, and back to their routines
+ *   Keep       where they stand now (the selected, or everyone) is where the scene puts them from now on
  *   moments    the scene's authored blocking, if the adventure gave any (api.blocking.registerMoments)
  *
  * Under it, a line says what a press is waiting for ("Huddle: click the floor where they gather") and how many are
@@ -17,7 +18,7 @@
 
 import { NS } from "./scene-data.mjs";
 import { FORMATIONS } from "../core/formations.mjs";
-import { arrange, backToPlaces, tidyUp, lifeOn, boardOn, setLife, setBoard, momentsFor } from "./blocking.mjs";
+import { arrange, backToPlaces, keepPlaces, tidyUp, lifeOn, boardOn, setLife, setBoard, momentsFor } from "./blocking.mjs";
 
 const t = (key, data) => (data ? game.i18n.format(`STAGECRAFT.Blocking.${key}`, data) : game.i18n.localize(`STAGECRAFT.Blocking.${key}`));
 const KEY = { line: "Line", huddle: "Huddle", talk: "Talk", gangup: "Gangup", panel: "Panel", standoff: "Standoff", circle: "Circle", queue: "Queue", scatter: "Scatter", audience: "Audience", position: "Position" };
@@ -39,6 +40,7 @@ export class BlockingBar {
         <span class="sep"></span>
         <button type="button" data-act="tidy"></button>
         <button type="button" data-act="places"></button>
+        <button type="button" data-act="keep"></button>
       </div>
       <div class="row moments" hidden></div>
       <div class="hint" hidden></div>`;
@@ -75,6 +77,7 @@ export class BlockingBar {
     }
     set(this.el.querySelector('[data-act="tidy"]'), t("Tidy.Label"), { tip: t("Tidy.Tip") });
     set(this.el.querySelector('[data-act="places"]'), t("Places.Label"), { tip: t("Places.Tip") });
+    set(this.el.querySelector('[data-act="keep"]'), t("Keep.Label"), { tip: t("Keep.Tip") });
     const moments = momentsFor(scene);
     const row = this.el.querySelector(".moments");
     row.hidden = !moments.length;
@@ -150,6 +153,19 @@ export class BlockingBar {
     else if (act === "form") { this.armed = this.armed === button.dataset.kind ? null : button.dataset.kind; }
     else if (act === "tidy") await tidyUp(scene, this.host);
     else if (act === "places") await backToPlaces(scene);
+    else if (act === "keep") {
+      // the selected cards, or everyone: where they stand now is where the scene puts them from now on
+      const ids = this.host.selected?.size ? [...this.host.selected] : null;
+      const yes = await foundry.applications.api.DialogV2.confirm({
+        window: { title: t("Keep.Title") },
+        content: `<p>${t(ids ? "Keep.AskSome" : "Keep.AskAll", { n: ids?.length ?? 0 })}</p>`,
+        yes: { default: false }
+      });
+      if (yes) {
+        const n = await keepPlaces(scene, this.host, ids);
+        ui.notifications?.info(t("Keep.Done", { n }));
+      }
+    }
     else if (act === "moment") await this.moments?.[Number(button.dataset.i)]?.run?.(scene);
     this.refresh();
   }
