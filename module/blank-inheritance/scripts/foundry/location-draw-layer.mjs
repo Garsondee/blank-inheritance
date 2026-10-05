@@ -693,6 +693,11 @@ export class LocationDrawLayer extends InteractionLayer {
     return true;
   }
 
+  /** Every deployed location as a map shape (map-image px in `rings`/`point`, scene px in `ringsScene`): what the hand-off to Claude names a shape's district and neighbours from. */
+  get publishedShapes() {
+    return this.#published;
+  }
+
   /** What the panel shows about the existing-locations layer: counts per tier, anything that failed to load, and whether it is drawable on this scene. */
   get publishedSummary() {
     const counts = { region: 0, site: 0, point: 0 };

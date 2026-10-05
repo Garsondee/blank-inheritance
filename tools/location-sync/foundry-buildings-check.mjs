@@ -83,7 +83,7 @@ try {
     const candidates = field.all.filter((b) => b.name && b.area > 400);
     const free = candidates.find((b) => !placeAt((b.bounds.x0 + b.bounds.x1) / 2, (b.bounds.y0 + b.bounds.y1) / 2));
     const b = free ?? candidates[0] ?? field.all[0];
-    return { id: b.id, name: b.name, kind: b.kind, centre: { x: (b.bounds.x0 + b.bounds.x1) / 2, y: (b.bounds.y0 + b.bounds.y1) / 2 }, ring: b.ringScene.map((p) => [p.x, p.y]), areaM2: b.areaM2 };
+    return { id: b.id, name: b.name, kind: b.kind, centre: { x: (b.bounds.x0 + b.bounds.x1) / 2, y: (b.bounds.y0 + b.bounds.y1) / 2 }, ring: b.ringScene.map((p) => [p.x, p.y]), imageRing: decoded.buildings.find((x) => x.id === b.id).ring, areaM2: b.areaM2 };
   });
   check("a real building to try was found", !!target?.id, `${target.name ?? "(unnamed)"} ${target.kind} ${target.areaM2} m2`);
 
@@ -140,6 +140,23 @@ try {
   check("named from the map and noted, ready to save", (afterPick.items[0]?.name ?? "") === (target.name ?? "") && /real .*building .*store id/.test(afterPick.items[0]?.note ?? ""), afterPick.items[0]?.note);
   check("it is selected, and the panel is on the map tab drawing it for the scene", afterPick.selected === 1 && /Drawing a place for/.test(afterPick.banner ?? ""), afterPick.banner);
   await shot("buildings-4-adopted");
+
+  // "Copy for Claude" (section 14): the picked shape as one JSON document on the clipboard. The clipboard itself is not what is tested (a headless
+  // page may refuse it): Foundry's own copy call is taken over to catch the text, and the real button is pressed.
+  const handed = await page.evaluate(async () => {
+    window.__copied = null;
+    game.clipboard.copyPlainText = async (text) => { window.__copied = text; };
+    document.querySelector('#bi-location-editor [data-action="copyForClaude"]')?.click();
+    for (let i = 0; i < 40 && !window.__copied; i++) await new Promise((r) => setTimeout(r, 100));
+    return window.__copied;
+  });
+  let doc = null;
+  try { doc = JSON.parse(handed); } catch { /* reported below */ }
+  const first = doc?.items?.[0];
+  check("Copy for Claude puts a location hand-off on the clipboard", doc?.kind === "location-handoff" && doc?.items?.length === 1, (handed ?? "nothing copied").slice(0, 120));
+  check("it names the REAL building adopted, with its exact outline in the map image's pixels", first?.adoptedFrom?.buildingId === target.id && first?.geometry?.rings?.[0]?.length === target.ring.length && first?.tier === "site" && first?.saved === false, JSON.stringify(first?.adoptedFrom));
+  check("the outline is the map's own pixels (the building's, not the scene's)", !!first && first.geometry.rings[0].every(([x, y], i) => Math.abs(x - target.imageRing[i][0]) < 1.5 && Math.abs(y - target.imageRing[i][1]) < 1.5), JSON.stringify(first?.geometry?.rings?.[0]?.slice(0, 2)));
+  check("it carries the form, the district and the neighbours", !!first?.fields && Array.isArray(first.containedIn) && Array.isArray(first.nearest) && first.nearest.length > 0 && doc.map.sceneName?.length > 0, `${first?.containedIn?.length} containing, ${first?.nearest?.length} near`);
 
   // Save: the same road a drawn building takes, then back on the story tab to confirm the placement
   const saved = await page.evaluate(async () => {

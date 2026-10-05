@@ -38,6 +38,7 @@
     "objectives": "node tools/objectives/pull.mjs",
     "stages": "node tools/stage-places/pull.mjs",
     "locations": "node tools/location-sync/sync.mjs",
+    "locations:handoff": "node tools/location-sync/from-handoff.mjs",
     "test:location-sync": "node --test test/tier1-location-editor.test.mjs \"test/location-sync/**/*.test.mjs\""
   },
   "devDependencies": {

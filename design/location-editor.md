@@ -666,3 +666,29 @@ index was needed; it had not been built.
 - **Found while doing it, not fixed:** the editor's `layer.activate()` makes Foundry's own `SceneControls#activate` throw ("reading
   'querySelector'") in this adventure's world, where the left-hand scene controls are not on screen. It predates this work and the editor
   works regardless.
+
+## 14. Copy for Claude: handing a picked shape to the chat (2026-10-05)
+
+Ingram: *"I found a perfect building outline, selected it, I press an 'Invoke Claude' button or something and it copies the JSON to my copy
+buffer, I paste it here and you take care of the rest of making this building outline into the Paper Lantern."* There is no transport between a
+Foundry page and a Claude session, so the hand-off is the clipboard (the retired gazetteer's `core/handoff.py` did the same in Markdown): select,
+one button, paste, with the brief in her own words beside it.
+
+- **The key.** **Copy for Claude** on the panel, beside Save for one picked shape and beside Delete for several (`copyForClaude`,
+  `foundry/location-editor.mjs#onCopyForClaude`). It writes nothing to the world: the live shapes and the form as it is now, the map calibration
+  and the deployed locations go through `core/location-handoff.mjs#buildHandoff` and are copied with Foundry's own `game.clipboard`
+  (the console gets the text if the browser refuses the clipboard).
+- **The document** (`kind: "location-handoff"`, version 1): the map scene; for each picked shape its `tier`, `saved`/`locationId`, `name`, the panel
+  `fields`, **`geometry` in the map image's own pixels** (`{ rings, point }`, the form a location-edit record's geometry has), the centre, box and
+  area in metres, **`adoptedFrom`** (the real building's store id, kind and area, when it was adopted from the buildings index), the places it
+  lies **inside** (smallest first) and the six places **nearest** it with distances, what scene it is being drawn for, and a short `howToUse`
+  for Claude. `parseHandoff` reads it back bare or inside a Markdown fence.
+- **Claude's half**: `npm run locations:handoff -- <file|-> --item N --id <new-id> [--name --kind --tags --summary --player-facing --gm-only --note
+  --scene <scene-set id> | --destination <brief>:<id> | --position <brief>:<which>] [--dry-run]` (`tools/location-sync/from-handoff.mjs`). It builds
+  `data/locations/<id>.json` through the same `apply_geometry.py` bridge a saved drawing goes through (exact outline, **drafted**, never above) and,
+  when she has said which scene it is for, puts that slot at it (`siting.mjs#placeAt`: the same rewrite as a pulled placement, canon copy first). It
+  refuses a shape that is already a saved location, a taken or malformed id, and a missing name; a canon scene it changes needs her read again.
+- **Checks.** `test/tier1-location-handoff.test.mjs` (the document), `test/tier3-location-handoff-contract.test.mjs` (the key and its wiring),
+  `test/location-sync/from-handoff.test.mjs` (a real building through the bridge into a scratch data root, with and without a scene), and four
+  checks added to `tools/location-sync/foundry-buildings-check.mjs`: a real click on Copy for Claude, in a real Foundry, yields the adopted building's
+  exact outline in the map's pixels.

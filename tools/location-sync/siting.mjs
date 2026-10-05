@@ -106,3 +106,29 @@ export function applySiteRecord(record, { dataRoot, existingIds, ledger = { entr
     canonChanged: files.filter((f) => f.role === "canon").map((f) => path.basename(f.path, ".json"))
   };
 }
+
+/**
+ * Put one slot at a location NOW, from this side, without a pulled record (the hand-off to Claude, tools/location-sync/from-handoff.mjs:
+ * the GM said in the chat which scene a place is for). The same documents and the same rewrite as applySiteRecord, minus the clash check
+ * -- there is no editor view to disagree with. `dryRun` reads and plans but writes nothing.
+ * Returns `{ state: "merged", locationId, before, files, canonChanged } | { state: "error", error }`.
+ */
+export function placeAt(target, locationId, { dataRoot, note = null, date = null, dryRun = false } = {}) {
+  const loaded = loadFor(target, dataRoot);
+  if (loaded.error) return { state: "error", error: loaded.error };
+  const { docs, files } = loaded;
+  const current = readSlot(docs, target);
+  if (!current.exists) return { state: "error", error: `no such slot ${targetKey(target)}` };
+  const found = locationId ? readJsonFile(locationFilePath(dataRoot, locationId)) : null;
+  const done = applySiting(docs, target, locationId, { note, date, locationName: found?.doc.name ?? null });
+  if (!done.ok) return { state: "error", error: done.error };
+  const doc = target.kind === "scene" ? docs.sceneSet : docs.briefs[target.briefRef];
+  if (!dryRun) for (const file of files) writeJsonFile(file.path, doc, file.eol);
+  return {
+    state: "merged",
+    locationId,
+    before: done.before,
+    files: files.map((f) => path.relative(repoRootOf(dataRoot), f.path).split(path.sep).join("/")),
+    canonChanged: files.filter((f) => f.role === "canon").map((f) => path.basename(f.path, ".json"))
+  };
+}

@@ -104,6 +104,9 @@
         <button type="button" class="bi-location-editor__button bi-location-editor__button--danger" data-action="deleteSelected" {{#if busy}}disabled{{/if}}>
             <i class="fa-solid fa-trash"></i> {{localize "BLANKINHERITANCE.LocationEditor.DeleteSelected"}}
         </button>
+        <button type="button" class="bi-location-editor__button" data-action="copyForClaude" data-tooltip="{{localize 'BLANKINHERITANCE.LocationEditor.Handoff.Hint'}}">
+            <i class="fa-solid fa-copy"></i> {{localize "BLANKINHERITANCE.LocationEditor.Handoff.Button"}}
+        </button>
     </section>
     {{/if}}
 
@@ -196,6 +199,9 @@
         <div class="bi-location-editor__row">
             <button type="button" class="bi-location-editor__button bi-location-editor__button--primary" data-action="save" {{#if busy}}disabled{{/if}}>
                 <i class="fa-solid fa-floppy-disk"></i> {{localize "BLANKINHERITANCE.LocationEditor.Save"}}
+            </button>
+            <button type="button" class="bi-location-editor__button" data-action="copyForClaude" data-tooltip="{{localize 'BLANKINHERITANCE.LocationEditor.Handoff.Hint'}}">
+                <i class="fa-solid fa-copy"></i> {{localize "BLANKINHERITANCE.LocationEditor.Handoff.Button"}}
             </button>
             {{#if pendingCount}}<span class="bi-location-editor__note">{{localize "BLANKINHERITANCE.LocationEditor.PendingCount" pendingCount}}</span>{{/if}}
         </div>

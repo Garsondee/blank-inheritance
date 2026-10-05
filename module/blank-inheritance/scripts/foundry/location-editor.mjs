@@ -29,6 +29,7 @@ import { TOOL_DEFS, toolsForMode, toolSurvivesModeChange } from "../core/locatio
 import { chipOf, groupSummary, slotIndex, storyLines } from "../core/story-lines.mjs";
 import { linkedSlots, OFF_MAP_REASONS, offMapLabel, searchPlaces } from "../core/siting.mjs";
 import { itemGeometryChanged } from "../core/location-published.mjs";
+import { buildHandoff, serialiseHandoff } from "../core/location-handoff.mjs";
 import { check as checkDepth } from "../core/depth.mjs";
 import { check as checkShape, metrics as shapeMetrics } from "../core/shape.mjs";
 import { toImagePoint, toScenePoint } from "../core/travel-animation.mjs";
@@ -161,6 +162,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       selectItem: LocationEditorApplication.#onSelectItem,
       deleteItem: LocationEditorApplication.#onDeleteItem,
       deleteSelected: LocationEditorApplication.#onDeleteSelected,
+      copyForClaude: LocationEditorApplication.#onCopyForClaude,
       loadBisectTarget: LocationEditorApplication.#onLoadBisectTarget,
       clearBisectTarget: LocationEditorApplication.#onClearBisectTarget,
       save: LocationEditorApplication.#onSave,
@@ -994,6 +996,49 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       this.#staged = null;
       this.#editing = null;
     });
+  }
+
+  /**
+   * "Copy for Claude": the picked shape(s) as one JSON document on the clipboard (core/location-handoff.mjs) -- exact outline in map-image
+   * pixels, the real building it was adopted from, the panel's fields, its district and neighbours. Pasted into the chat with a brief, it is
+   * enough for Claude to make the place (tools/location-sync/from-handoff.mjs). Nothing is written to the world.
+   */
+  static async #onCopyForClaude() {
+    const picked = this.#selectedItems.map((snapshot) => canvas.locationDraw?.getSession?.().items?.[snapshot.localId] ?? snapshot);
+    if (!picked.length) {
+      ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.Handoff.NothingSelected"));
+      return;
+    }
+    const calibration = await this.#currentCalibration();
+    if (!calibration) {
+      ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.NotOnHub"));
+      return;
+    }
+    const only = picked.length === 1 ? picked[0] : null;
+    const handoff = buildHandoff({
+      at: new Date().toISOString(),
+      scene: canvas.scene ? { id: canvas.scene.id, name: canvas.scene.name } : null,
+      items: picked.map((item) => ({ item, fields: only ? this.#fields : (item.fields ?? emptyFields()) })),
+      toImage: (p) => toImagePoint(p, calibration),
+      published: canvas.locationDraw?.publishedShapes ?? [],
+      metresPerPixel: await campaignMapMetresPerPixel(),
+      drawFor: this.#drawFor
+    });
+    if (!handoff.items.length) {
+      ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.Handoff.NothingDrawn"));
+      return;
+    }
+    const text = serialiseHandoff(handoff);
+    try {
+      if (game.clipboard?.copyPlainText) await game.clipboard.copyPlainText(text);
+      else await navigator.clipboard.writeText(text);
+      ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Handoff.Copied", { count: handoff.items.length }));
+    } catch (err) {
+      console.warn("Blank Inheritance | Location Editor could not reach the clipboard; the hand-off is in the console:", err);
+      console.log(text);
+      ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.Handoff.NoClipboard"));
+    }
+    return text;
   }
 
   static async #onSave() {

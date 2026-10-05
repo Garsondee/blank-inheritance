@@ -21,7 +21,7 @@ function pythonExe() {
   return process.env.BI_PYTHON || (process.platform === "win32" ? "python" : "python3");
 }
 
-function runApplyGeometry(payload) {
+export function runApplyGeometry(payload) {
   const input = JSON.stringify(payload);
   const out = execFileSync(pythonExe(), [APPLY_GEOMETRY_SCRIPT], { input, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
   return JSON.parse(out);

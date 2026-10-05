@@ -1537,6 +1537,15 @@
       "NothingChanged": "Nothing has changed on that location, so there is nothing to save.",
       "NotYetSaved": "not yet saved to the repo",
       "BatchSelected": "selected",
+      "Handoff": {
+        "Button": "Copy for Claude",
+        "Hint": "Copy this shape as JSON -- its exact outline, the real building it came from, what is filled in, its district and neighbours -- then paste it in the chat with what you want done with it.",
+        "Copied": "Copied {count} shape(s) for Claude. Paste it in the chat with your brief.",
+        "NothingSelected": "Pick a shape first (click it on the map), then copy it for Claude.",
+        "NothingDrawn": "Nothing drawn to copy: the picked item has no outline yet.",
+        "NoClipboard": "The browser would not let me reach the clipboard. The JSON is in the browser console."
+      },
+      "NoHubScene": "There is no Campaign Map scene in this world yet: run \"Update the World\" first.",
       "DeleteSelected": "Delete selected",
       "SelectExactlyOne": "Select exactly one item to edit its details -- several are selected right now.",
       "Keybinding": {
