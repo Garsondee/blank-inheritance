@@ -8,6 +8,8 @@
  * apply_geometry.py bridge a saved drawing goes through: exact outline, `drafted`, with the name, kind, tags, lore and note the brief asks for.
  * With --scene / --destination / --position it also puts that slot of the story at the new place (the GM's call: only when she said which).
  *
+ *   --fields <file>   a JSON file of form fields (the same shape the editor's form has: lore, scene { hooks, activities }, tags, npcRefs ...), laid over the
+ *                     editor's, then the flags below laid over that. For long text, which a shell makes clumsy.
  *   --item N          which item of the hand-off (default 0)
  *   --id <id>         the new location's id (lowercase-kebab); required, and must be free
  *   --name --name-ja --kind --tier --rank --depth --classification --note --tags a,b --summary --player-facing --gm-only
@@ -42,6 +44,11 @@ export function fieldsFor(item, overrides = {}) {
     scene: { ...base.scene, ...(had.scene ?? {}) }
   };
   const set = (key, value) => { if (value !== undefined) fields[key] = value; };
+  const file = overrides.fields ?? {};
+  for (const [key, value] of Object.entries(file)) {
+    if (key === "lore" || key === "scene") fields[key] = { ...fields[key], ...value };
+    else fields[key] = value;
+  }
   set("name", overrides.name);
   set("nameJa", overrides.nameJa);
   set("kind", overrides.kind);
@@ -119,6 +126,7 @@ async function main() {
       tier: { type: "string" }, rank: { type: "string" }, depth: { type: "string" }, classification: { type: "string" }, note: { type: "string" },
       tags: { type: "string" }, summary: { type: "string" }, "player-facing": { type: "string" }, "gm-only": { type: "string" },
       scene: { type: "string" }, destination: { type: "string" }, position: { type: "string" }, "scene-note": { type: "string" },
+      fields: { type: "string" },
       "dry-run": { type: "boolean" }
     }
   });
@@ -130,7 +138,8 @@ async function main() {
   const overrides = {
     name: values.name, nameJa: values["name-ja"], kind: values.kind, tier: values.tier, rank: values.rank, depth: values.depth,
     classification: values.classification, note: values.note, tags: values.tags !== undefined ? splitList(values.tags) : undefined,
-    summary: values.summary, playerFacing: values["player-facing"], gmOnly: values["gm-only"]
+    summary: values.summary, playerFacing: values["player-facing"], gmOnly: values["gm-only"],
+    fields: values.fields ? JSON.parse(readFileSync(values.fields, "utf8")) : undefined
   };
   const result = fromHandoff({
     text: await readInput(positionals[0]),

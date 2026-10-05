@@ -86,6 +86,32 @@ test("a real building becomes a drafted site with its exact footprint, and a dry
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+test("a fields file (--fields) fills the whole form, and the cross-references the editor has no form for reach the document", { skip: skipBuild }, () => {
+  const root = scratch();
+  try {
+    const { text } = realHandoff();
+    const fields = {
+      name: "The Paper Lantern", kind: "commercial", tags: ["amenity", "civilian"], rank: 3, depth: "scene",
+      lore: { summary: "A civilian izakaya.", playerFacing: "A noren curtain.", gmOnly: "Run it as a haunt." },
+      scene: { hooks: ["A hook."], activities: ["One.", "Two."] },
+      npcRefs: ["kiku", "sanzo"], episodeRefs: ["episode-c1e1-mothers-maiden-name"], assetRefs: ["rest--the-paper-lantern"], playlistRefs: [], factionRefs: []
+    };
+    const done = fromHandoff({ text, id: "the-paper-lantern", overrides: { fields }, dataRoot: root, date: "2026-10-05" });
+    assert.equal(done.ok, true, done.error);
+    const doc = JSON.parse(readFileSync(path.join(root, "locations", "the-paper-lantern.json"), "utf8"));
+    assert.deepEqual([doc.kind, doc.rank, doc.depth, doc.tags], ["commercial", 3, "scene", ["amenity", "civilian"]]);
+    assert.deepEqual(doc.scene.hooks, ["A hook."]);
+    assert.deepEqual(doc.scene.activities, ["One.", "Two."]);
+    assert.deepEqual(doc.lore, { summary: "A civilian izakaya.", playerFacing: "A noren curtain.", gmOnly: "Run it as a haunt." });
+    assert.deepEqual(doc.npcRefs, ["kiku", "sanzo"]);
+    assert.deepEqual(doc.episodeRefs, ["episode-c1e1-mothers-maiden-name"]);
+    assert.deepEqual(doc.assetRefs, ["rest--the-paper-lantern"]);
+    // the flags still win over the file
+    const flagged = fromHandoff({ text, id: "another-place", overrides: { fields, name: "Flag Wins" }, dataRoot: root });
+    assert.equal(flagged.doc.name, "Flag Wins");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test("with --scene it also puts that scene at the new place, and says nothing changed when the slot is unknown", { skip: skipBuild }, () => {
   const root = scratch();
   try {

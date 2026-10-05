@@ -1,0 +1,182 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-paper-lantern",
+  "type": "location",
+  "tier": "site",
+  "name": "The Paper Lantern",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "commercial",
+  "tags": [
+    "amenity",
+    "civilian"
+  ],
+  "classification": null,
+  "rank": 3,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.18732771266951,
+          34.69484028937372
+        ],
+        [
+          135.18706686790216,
+          34.69470572736479
+        ],
+        [
+          135.1870210824029,
+          34.69480129967429
+        ],
+        [
+          135.1870471194891,
+          34.69482001211843
+        ],
+        [
+          135.18703771901076,
+          34.69482459240741
+        ],
+        [
+          135.18709919369672,
+          34.694857436990304
+        ],
+        [
+          135.1871085941755,
+          34.69485285669662
+        ],
+        [
+          135.18722045257348,
+          34.694903017290194
+        ],
+        [
+          135.18720334225293,
+          34.6949322866686
+        ],
+        [
+          135.1872537259508,
+          34.6949496027011
+        ],
+        [
+          135.1872575808658,
+          34.69493725816147
+        ],
+        [
+          135.1872780724795,
+          34.69494820632278
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          3856,
+          5414
+        ],
+        [
+          3843,
+          5439
+        ],
+        [
+          3834,
+          5432
+        ],
+        [
+          3835,
+          5429
+        ],
+        [
+          3834,
+          5429
+        ],
+        [
+          3837,
+          5423
+        ],
+        [
+          3838,
+          5423
+        ],
+        [
+          3844,
+          5413
+        ],
+        [
+          3841,
+          5411
+        ],
+        [
+          3844,
+          5407
+        ],
+        [
+          3845,
+          5408
+        ],
+        [
+          3846,
+          5406
+        ]
+      ]
+    ],
+    "centroidPx": [
+      3844.66,
+      5422.36
+    ],
+    "cells": [
+      "B3·86"
+    ],
+    "ref": "B3·86",
+    "areaM2": 348,
+    "withinRegionRef": "slope",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": null,
+    "sourceLocalId": "draft-4",
+    "promotedDate": "2026-10-05"
+  },
+  "authoring": {
+    "note": "Made from the real building 4651ec18a5be92a5 (about 350 m2), adopted as it stands from the map's buildings index and picked by Ingram in the Location Editor on 2026-10-05 for the Paper Lantern haunt. The words are drawn from canon/scenes/rest--the-paper-lantern.json and add nothing to it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A civilian izakaya down a side street, off Directorate ground: a low room under a noren curtain, paper lanterns strung the length of it, a long wooden counter down one side and crowded benches down the other, and a charcoal brazier at the back sending up steam and the smell of grilled skewers. Kiku Enomoto keeps it, on one rule: rank doesn't matter past the curtain. Dockworkers, clerks and off-duty fishermen drink here, and candidates who slip out after hours find their way to it. It is where the group goes for a night off base.",
+    "playerFacing": "A noren curtain hangs over a low doorway, and paper lanterns are strung the length of the room inside, throwing everything into warm orange light. A long wooden counter runs down one side; benches crowded with dockworkers, clerks and off-duty fishermen line the other. At the back a charcoal brazier sends up steam and the smell of grilled skewers, and somewhere in the crowd a shamisen is being played, not quite in time with anything. Behind the counter a stout, sharp-eyed woman pours for three people at once without spilling a drop.",
+    "gmOnly": "Run it as a haunt (design/haunts.md): a menu, not a script. The scene is canon/scenes/rest--the-paper-lantern.json; a night here restores a quarter of maximum HP, with a Fortitude save for the hangover in the morning.\n\nKiku keeps a spare stool behind the counter for whoever she decides needs a quiet corner rather than the room, and nobody is told why some people get it.\n\nHow standing here can move (the scene's own upgrades and setbacks): Kiku keeps the corner booth by the brazier for a group she likes, and Sanzo drops the performance and tells one true thing he saw on the road. Against that, a patrol sweep can close the quarter's bars for a week after candidates are found here after hours, and Kiku can decide the risk isn't worth it and stop serving Directorate candidates for good. As the base grows and curfew is enforced harder, more candidates find their way here and the walk back is watched more closely.\n\nSITING, for Ingram: this is the real building 4651ec18a5be92a5 of the map, in the district The Slope, picked by her on 2026-10-05. The scene text calls the area Kurose's entertainment quarter; no district of that name is on the map (the nearest are The Old Landing and The Sawtooth Quays), so that wording and the Slope are not yet reconciled. Her call whether the Slope is the entertainment quarter or the scene's wording changes. The footprint is far larger than 'a low room' needs; it carries the room and the back room the scene mentions."
+  },
+  "scene": {
+    "hooks": [
+      "A character comes here after a hard duty that night: Kiku sees it before she serves them anything, and the first cup is on the house, with no comment made.",
+      "Kiku keeps a spare stool behind the counter itself, for whoever she decides needs a quiet corner rather than the room. Nobody is told why some people get it.",
+      "As the base grows and curfew is enforced harder, more candidates find their way here after hours, and the walk back to the checkpoint is watched more closely. Some nights the room is half Directorate kit and half dock overalls, and Kiku minds that more than she lets on."
+    ],
+    "activities": [
+      "Spend an evening in the room: say what your character orders and where in the room they end up sitting, then draw from the deck (stand a round, a song everyone knows, a loose tongue at the counter, an argument between two regulars).",
+      "Stand a round with Kiku, and earn a place at her counter by how you treat the room.",
+      "Listen to Sanzo's stories and songs, or answer Tama's questions about anywhere that isn't this island.",
+      "Make the walk back to the checkpoint before curfew, or after it if it comes to that."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "kiku",
+    "sanzo",
+    "tama"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "rest--the-paper-lantern"
+  ],
+  "playlistRefs": []
+}

@@ -554,7 +554,9 @@
       "order": 11,
       "navigation": false,
       "briefRef": "rest--the-paper-lantern",
-      "blurb": "A civilian izakaya down a side street in the entertainment quarter, well away from Directorate ground."
+      "blurb": "A civilian izakaya down a side street in the entertainment quarter, well away from Directorate ground.",
+      "locationRef": "the-paper-lantern",
+      "locationNote": "Placed at The Paper Lantern (the-paper-lantern): the building Ingram picked in the Location Editor on 2026-10-05."
     },
     {
       "id": "haunt-the-magic-show",

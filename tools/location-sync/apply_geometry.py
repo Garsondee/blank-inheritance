@@ -119,6 +119,15 @@ def _apply_create(payload, georef):
         tags=fields.get("tags"),
         classification=fields.get("classification"),
         rank=fields.get("rank"),
+        nameJa=fields.get("nameJa"),
+        # The cross-references the panel has no form for, supplied by a caller that has them
+        # (tools/location-sync/from-handoff.mjs --fields): the editor's own records never carry these.
+        npc_refs=fields.get("npcRefs"),
+        faction_refs=fields.get("factionRefs"),
+        episode_refs=fields.get("episodeRefs"),
+        open_question_refs=fields.get("openQuestionRefs"),
+        asset_refs=fields.get("assetRefs"),
+        playlist_refs=fields.get("playlistRefs"),
         existing_regions=_existing_regions(),
     )
 

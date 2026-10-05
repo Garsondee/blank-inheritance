@@ -683,7 +683,7 @@ one button, paste, with the brief in her own words beside it.
   area in metres, **`adoptedFrom`** (the real building's store id, kind and area, when it was adopted from the buildings index), the places it
   lies **inside** (smallest first) and the six places **nearest** it with distances, what scene it is being drawn for, and a short `howToUse`
   for Claude. `parseHandoff` reads it back bare or inside a Markdown fence.
-- **Claude's half**: `npm run locations:handoff -- <file|-> --item N --id <new-id> [--name --kind --tags --summary --player-facing --gm-only --note
+- **Claude's half**: `npm run locations:handoff -- <file|-> --item N --id <new-id> [--fields <json file: the whole form, lists and cross-references included> --name --kind --tags --summary --player-facing --gm-only --note
   --scene <scene-set id> | --destination <brief>:<id> | --position <brief>:<which>] [--dry-run]` (`tools/location-sync/from-handoff.mjs`). It builds
   `data/locations/<id>.json` through the same `apply_geometry.py` bridge a saved drawing goes through (exact outline, **drafted**, never above) and,
   when she has said which scene it is for, puts that slot at it (`siting.mjs#placeAt`: the same rewrite as a pulled placement, canon copy first). It
