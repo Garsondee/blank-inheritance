@@ -99,10 +99,9 @@ These are mine, not yet yours, and none is in `canon/world/` yet:
 
 ## Still missing
 
-- Stat blocks for everyone, as above.
+- Stat blocks for everyone, as above: drafted by the NPC generator from `data/campaign/npc-roster.json` (2026-10-05), for Ingram to correct.
 - A place record in `canon/` for the shrine.
 - The fortune slips as a printable handout, if Ingram wants one to hand over.
-- `node tools/story/story.mjs build` has not been run, so the scene is not yet copied into `data/`.
 
 **Edited after the re-read (2026-09-29, the prose tests):** the read-aloud is split into three units a GM can cut
 live, and the night's deck beat always runs (it is the menu). Wording only otherwise: no meaning changed.

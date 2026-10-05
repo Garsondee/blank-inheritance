@@ -140,7 +140,7 @@ test("the six demo candidates get the same Dynamic Token Ring every real Actor t
   assert.match(demoRunner, /import\s*\{\s*resolveTokenRing\s*\}\s*from\s*"\.\.\/core\/generators\/token-ring\.mjs"/, "demo-runner.mjs no longer imports resolveTokenRing");
   const fn = demoRunner.match(/async function scatterDemoParty\(\)[\s\S]*?\n\}/);
   assert.ok(fn, "scatterDemoParty is missing");
-  assert.match(fn[0], /prototypeToken:\s*\{\s*ring:\s*resolveTokenRing\("character",\s*\{\}\)\s*\}/, "a freshly-created candidate Actor no longer gets a ring on its prototype token");
+  assert.match(fn[0], /prototypeToken:\s*\{\s*ring:\s*resolveTokenRing\("character",\s*\{\}\)(?:,\s*actorLink:\s*true)?\s*\}/, "a freshly-created candidate Actor no longer gets a ring on its prototype token");
   assert.match(fn[0], /ring:\s*resolveTokenRing\("character",\s*\{\}\)[\s\S]{0,20}\}\);/, "the create-embedded-Token path no longer stamps a ring directly onto the scene token");
   assert.match(fn[0], /"texture\.src":\s*p\.portrait,\s*ring:\s*resolveTokenRing\("character",\s*\{\}\)/, "an already-existing candidate token is no longer healed onto a ring on re-run");
 });

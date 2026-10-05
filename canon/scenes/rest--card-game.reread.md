@@ -88,9 +88,8 @@ These are mine, not yet yours:
 
 ## Still missing
 
-- Stat blocks for all five people, from the NPC generator.
+- Stat blocks for all five people: drafted by the NPC generator from `data/campaign/npc-roster.json` (2026-10-05), for Ingram to correct.
 - The credits figure for Lucan's debt ("about a month of a candidate's pay"), because candidate pay isn't set.
-- `node tools/story/story.mjs build` has not been run, so the `data/` copy doesn't exist yet.
 
 **Edited after the re-read (2026-09-29, the prose tests):** the read-aloud is split into three units a GM can cut
 live, and the night's deck beat always runs (it is the menu). Wording only otherwise: no meaning changed.

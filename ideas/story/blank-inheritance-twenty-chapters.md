@@ -588,6 +588,18 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The first-thing fragment repeated the read-aloud's opening, and the always-true carry-in repeated the queue beat; both gone. The read-aloud's two chips moved to the end of their paragraphs, so it reads aloud cleanly.
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R4, R19.** A new optional check, Study the form (Perception, DC 15, blind): their name was typed before they arrived, on the same machine as their acceptance letter, with the same low, faint e. On a critical success, every form in the clerk's stack already has a name on it. It tells the table `directorate.forms-typed-ahead` (new, D059). The plant on Form 12-B stays: the GM says nothing unless someone looks.
+
+#### Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1, R15.** The clerk is `present`: she is handing out Form 12-B when the queue arrives. Shucks Mordant still waits for his glimpse in the opening read-aloud.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has had a private moment with Shucks and been told their screen came back irregular, and the six could find out it was all of them.
@@ -609,7 +621,19 @@ Secret: Shucks uses mothers' maiden names to trace the marker through families. 
 
 *Facts:* tells the table `directorate.form-12b`; GM only `shucks.maiden-names`.
 
-**3. If anyone listens to the staff instead of the queue, offer the check.** *(optional)*
+**3. If anyone studies the typed name on their form, offer the check.** *(optional)*
+
+*Someone studies their form.*
+
+*Roll:* Study the form: Perception, DC 15. Costs nothing on any result.
+- Critical success: As success, and every form in the clerk's stack already has a name typed on it. The whole intake was ready before anyone reached the gate.
+- Success: Their name was typed before they arrived, on the same machine as their acceptance letter: the same lower-case e, striking low and faint.
+- Failure: A form with their name on it. Somebody is efficient.
+- Critical failure: They decide the clerk typed it while they queued, and admire her speed.
+
+*Facts:* tells the table `directorate.forms-typed-ahead`; GM only none.
+
+**4. If anyone listens to the staff instead of the queue, offer the check.** *(optional)*
 
 *Someone listens to the staff.*
 
@@ -623,7 +647,7 @@ Secret: Shucks uses mothers' maiden names to trace the marker through families. 
 
 *Facts:* tells the table `directorate.missing-pilot-search`; GM only `directorate.why-brought-forward`.
 
-**4. Shucks sees each of them alone: blood sample, then two or three questions about them. Play each in front of the table.**
+**5. Shucks sees each of them alone: blood sample, then two or three questions about them. Play each in front of the table.**
 
 *Direction:* Give each player different questions. Save this one for last: "If you come in here unconscious, what do I need to know that I wouldn't be able to see?"
 
@@ -633,7 +657,7 @@ Watch for: Craig played Shucks in the old campaign. Give his character's turn wi
 
 *Facts:* tells the table `shucks.head-of-medical`, `shucks.revealed-early`; GM only none.
 
-**5. If anyone asks about the name on his badge, offer the check. If they ask him, he says "Shucks. Yes, that one. Arm." <trig id="shucks-named"/>** *(optional)*
+**6. If anyone asks about the name on his badge, offer the check. If they ask him, he says "Shucks. Yes, that one. Arm." <trig id="shucks-named"/>** *(optional)*
 
 *Someone asks about his badge.*
 
@@ -645,7 +669,7 @@ Watch for: Craig played Shucks in the old campaign. Give his character's turn wi
 
 *Facts:* tells the table `shucks.revealed-early`; GM only none.
 
-**6. If anyone watches the hand that holds the needle, offer the check.** *(optional)*
+**7. If anyone watches the hand that holds the needle, offer the check.** *(optional)*
 
 *Someone watches his hands.*
 
@@ -660,13 +684,13 @@ Secret: His real right hand is Rand, a familiar loose in the city. He doesn't kn
 
 *Facts:* tells the table `shucks.hand-wandered`; GM only `shucks.rand`.
 
-**7. Shucks tells each of them, alone: "Your screen came back irregular. It does that. Nothing to worry about."**
+**8. Shucks tells each of them, alone: "Your screen came back irregular. It does that. Nothing to worry about."**
 
 *Direction:* The same words, the same way, six times.
 
 *Facts:* tells the table none; GM only `directorate.the-marker`.
 
-**8. If anyone asks Shucks what irregular means, he deflects kindly. Offer the check to ask him straight.** *(optional)*
+**9. If anyone asks Shucks what irregular means, he deflects kindly. Offer the check to ask him straight.** *(optional)*
 
 *Someone asks about the screen.*
 
@@ -678,7 +702,7 @@ Secret: His real right hand is Rand, a familiar loose in the city. He doesn't kn
 
 *Facts:* tells the table none; GM only `directorate.the-marker`.
 
-**9. If anyone tries to work out what the screen tests for, offer the knowledge check.** *(optional)*
+**10. If anyone tries to work out what the screen tests for, offer the knowledge check.** *(optional)*
 
 *Someone tries to work it out.*
 
@@ -690,7 +714,7 @@ Secret: His real right hand is Rand, a familiar loose in the city. He doesn't kn
 
 *Facts:* tells the table none; GM only `directorate.the-marker`, `shucks.maiden-names`.
 
-**10. Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. Let them compare. <trig id="enrolment-medical"/>**
+**11. Out in the corridor, the clerk hands each of them a card: SECTION NINE, with the track left blank. Let them compare. <trig id="enrolment-medical"/>**
 
 *GM:* Plant: Give the facts and stop: all six were told irregular, and all six cards say Section Nine.
 Do: Whoever first says out loud that it was all six of them gets a Hero Point.
@@ -708,7 +732,7 @@ Secret: Candidates with the marker are streamed together as routine. Six in one 
 - What each told him, and who he took to.
 - Who noticed the hand, the search or the name.
 
-*Scene hash 5e165cc2df83702e.*
+*Scene hash 42e33fa555338c52.*
 
 ### Scene 3: Assembly *(Written in detail · waiting for your read)*
 
@@ -836,6 +860,12 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The where line repeated the read-aloud; it now carries the one staging fact (Section Nine sits together at the front), and the carry-in that said it is gone. "Drop any part but the last two" now says paragraphs. Shucks keeps his protected name here too: the table sees Doctor Mordant until the Name key is pressed.
 
+#### Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1, R15.** The read-aloud puts a line of staff on the platform as the intake files in, so the three of them with no entrance of their own (Shucks Mordant, Hulda Brack, the comms officer) are `present`: standing on the stage when the scene first opens. The Deputy Director still steps up at the address, and Vetch still collects Section Nine at the door.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have heard the Deputy Director's address, seen the staff on the platform, and met their section officer, Vetch.
@@ -918,7 +948,7 @@ Secret: It's Rupiah, a founder, high in the administration, here to watch and no
 - Who caught the Deputy Director's name.
 - Who read the charter, and who watched the platform.
 
-*Scene hash eb3cced6678e5cbb.*
+*Scene hash fcdae0bc57542a11.*
 
 ### Scene 4: School: First Period *(Written in detail · waiting for your read)*
 
@@ -1040,6 +1070,12 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The always-true carry-in is gone.
 
+#### Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1, R15.** Ota is `present`: the read-aloud has him already pulling the map down when they come in.
+
 #### The scene, as the GM runs it
 
 **What it's for.** The table has heard the four founders' names, and each of them has learned the city as well as they could.
@@ -1089,7 +1125,7 @@ Watch for: Steve played Hyuck. Let the mascot joke land on him.
 - Who learned the city, and who was kept back.
 - Anyone Fatigued tonight.
 
-*Scene hash ba9e0a5f3db43bc4.*
+*Scene hash 25c4dce714cc2468.*
 
 ### Scene 5: Kit Issue *(Written in detail · waiting for your read)*
 
@@ -1200,6 +1236,14 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R16.** The shopping direction now says the Locker is self-serve: players shop while Nobu talks.
 - **R1, R11.** An optional round, if there is time: Nobu logs personal effects ("Anything you brought that you couldn't leave? It goes in the book."). It answers the letter's "bring nothing you cannot leave", and gives each player a line about who their character is before the day takes over.
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R4, R19.** A new optional check, The stamp (Crafting or Perception, DC 15, blind): a player who looks closely at an extra from Nobu finds a ships' chandler's stamp under the fresh Directorate paint. On a critical success the stamp names a waterfront chandler, with a price pencilled beside it in Nobu's hand. It tells the table `nobu.off-book`, accepted in D059 and now told here.
+- **R8.** If they ask him about it: "Issue never arrives on time." He doesn't deny it.
+- **Carry-in.** "If anyone failed local studies" now names who (their own result on Learn the city), and shows Last at the counter beside them in the Runner's party strip.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has their uniform and kit, and Vetch has handed Section Nine the docket in person.
@@ -1241,7 +1285,21 @@ Secret: Some of it isn't Directorate stock. He buys it, cash, from the ships' ch
 
 *Facts:* tells the table none; GM only `nobu.off-book`.
 
-**5. If a player wants a moment with their new gear, offer the check.** *(optional)*
+**5. If anyone looks closely at an extra Nobu gave them, offer the check.** *(optional)*
+
+*Someone looks closely at an extra.*
+
+*GM:* If anyone asks Nobu about it: "Issue never arrives on time." He doesn't deny it.
+
+*Roll:* Look closely at the extra: Crafting or Perception, DC 15. Costs nothing on any result.
+- Critical success: As success, and the stamp names a chandler on the old town's waterfront, with a price pencilled beside it in Nobu's own hand.
+- Success: Under the fresh Directorate paint is a ships' chandler's stamp. This didn't come out of Directorate stores.
+- Failure: Issue kit, freshly painted.
+- Critical failure: They decide it's old navy surplus, repainted, and tell anyone who asks.
+
+*Facts:* tells the table `nobu.off-book`; GM only none.
+
+**6. If a player wants a moment with their new gear, offer the check.** *(optional)*
 
 *Someone tries their kit on.*
 
@@ -1251,7 +1309,7 @@ Secret: Some of it isn't Directorate stock. He buys it, cash, from the ships' ch
 - Failure: A strap on backwards. Somebody helps.
 - Critical failure: Comically tangled, and everyone politely ignores it.
 
-**6. Vetch walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table. <trig id="vetch-inspects"/> <trig id="give-docket"/>**
+**7. Vetch walks the line, finds fault with each of them, and hands Section Nine a docket. Show the table. <trig id="vetch-inspects"/> <trig id="give-docket"/>**
 
 > He hands the docket to whoever is nearest. It reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from the instrument makers. Sign here, here, and on the reverse.
 > 
@@ -1271,7 +1329,7 @@ Secret: There's no such part. Vetch sends every new section for the bubble in a 
 - What each player bought, and any extra Nobu gave.
 - Who holds the docket.
 
-*Scene hash 9059e5faf337e3b6.*
+*Scene hash f3837bd9fe21dc47.*
 
 ### Scene 6: School: Second Period *(Written in detail · waiting for your read)*
 
@@ -1381,6 +1439,12 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The always-true carry-in (the docket in a pocket) is gone: the transition says it.
 
+#### Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1.** The natural history teacher is `present`: the stage shows his specimen room. Hulda Brack and the range officer wait in the wings, for whoever goes to the workshop or the range.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Each player has spent the period where they chose, and Section Nine leaves for the city with the docket.
@@ -1441,7 +1505,7 @@ Secret: Undecided, even to the GM. Nothing in this episode explains it.
 - Who went where, and what they rolled.
 - Anyone Fatigued tonight.
 
-*Scene hash 40424dc14f167348.*
+*Scene hash 822bd13563d4eaa7.*
 
 ### Scene 7: The Errand *(Written in detail · waiting for your read)*
 
@@ -1595,6 +1659,18 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R4, R19.** A missed roll is added: reading the regulars rather than Manako (Society or Perception, DC 15, blind). It tells the table, on a success, that he matters in this district (`manako.district`, decided in D046), which the read-aloud only hints at. Nothing about who he is.
 - **R27.** How to play no longer repeats the beat's own "kind and useful" direction.
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Carry-ins.** "If anyone has the tram map" names whoever critically succeeded at Learn the city or carries the map; "If anyone saw a violet mark on the road in" names whoever passed Recognise the mark.
+
+#### Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1.** The instrument maker is `present`, outside her shop, which is what the stage shows. Manako still waits for his chip at the tea house.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They have been laughed at, met Manako, heard his plan for the vial, and chosen how to file it.
@@ -1739,7 +1815,7 @@ If the order was badly given: He takes it up with Vetch himself, never in front 
 - How they're filing the requisition.
 - Who heard what he said about the Directorate.
 
-*Scene hash 92c788e6dd0234d1.*
+*Scene hash 0b446580387ef2e6.*
 
 ### Scene 8: The Train Back *(Written in detail · waiting for your read)*
 
@@ -1841,6 +1917,12 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R27.** The always-true carry-in is gone; the small moment's results no longer each end "the player tells us how".
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Objective chips.** At the hatch, the requisition and being in by nineteen hundred never tick themselves when the beat is marked done (`auto: false`): either can go the other way. Closing the docket does, and asks for the Record's paragraph.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've had a quiet ride together and handed in their paper before nineteen hundred.
@@ -1884,7 +1966,7 @@ Secret: Whatever paper of theirs goes in tonight, Rand finds it and countersigns
 - Anything said on the ride worth calling back.
 - What they handed in, and how.
 
-*Scene hash ac0debb8fa610e78.*
+*Scene hash 0e7f410a20dc51d1.*
 
 ### Scene 9: Canteen *(Written in detail · waiting for your read)*
 
@@ -1992,6 +2074,18 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Carry-ins.** "If they filed loudly" and "If they filed quietly" now read the Errand's choice, so the Runner says which one applies. "If they came back empty-handed" is left to the GM: nothing recorded answers it.
+
+#### Revision 2026-10-04: who is already there when the table walks in (D060)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R1.** The pilot-track candidate at the next table is `present`: the table is there when the party sits down. Taka and Vetch keep their entrances.
+
 #### The scene, as the GM runs it
 
 **What it's for.** Taka has claimed the six as his table, and Vetch has given Section Nine tonight's job in front of the hall.
@@ -2060,7 +2154,7 @@ Secret: He gave them the drains for the vial, or, if they came back empty-handed
 - Who took to Taka, and who he took to.
 - Anything Taka told them about the drains.
 
-*Scene hash b5645e9067d3f119.*
+*Scene hash 85207468e3e73682.*
 
 ### Scene 10: The Walk Down *(Written in detail · waiting for your read)*
 
@@ -2164,6 +2258,15 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 - **R7.** Taka's role said "if it fits" in a scene about waders that don't; now plain.
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R19.** The crossing's read-aloud ends with the old town's dogs, all barking at one dark street near the waterline, then stopping at once. The plant is the side street the dogs wouldn't walk down in The Errand; the secret is the Watcher's swarm, thick there tonight (`watcher.animals`, relied on, never told). No roll: this scene stays the episode's relax beat.
+- **R15, R21.** Both added sentences are full sentences, read aloud at the end of the crossing.
+- **Objective chips.** Wearing the waders never ticks itself when the beat is marked done (`auto: false`): some won't wear them. Drawing them, reaching Dock C and the three jobs do.
+- **Carry-in.** "If anyone arrived by ferry" now names who, from The Road In's arrivals.
+
 #### The scene, as the GM runs it
 
 **What it's for.** They've kitted up, heard the job from Vetch, and crossed to the hatch on the old town's quay.
@@ -2190,6 +2293,13 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 **4. Read the crossing, then ask each player what their character does with the ten minutes.**
 
 > The launch is cold and loud and smells of oil. Behind you are the island's lights, and Hangar Two's doors standing open under floodlights, with a Frame inside on its gantry. Ahead, the old town is dark down at the waterline. The crew don't talk. It's ten minutes across black water.
+> 
+> Across the water, every dog in the old town is barking, all of them at one dark street near the waterline. Then they stop, all at once.
+
+*GM:* Plant: It's the side street the dogs wouldn't walk down this afternoon. Say nothing about it.
+Secret: The Watcher's swarm is thick on that street tonight.
+
+*Facts:* tells the table none; GM only `watcher.animals`.
 
 **Ends when.** The launch bumps against the old town's quay.
 **Into the next scene.** A hatch in the quay, already open, with a ladder going down. Flood Tunnel Clearance, down the hatch.
@@ -2198,7 +2308,7 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 
 - Anything said on the crossing worth calling back.
 
-*Scene hash b429331613fe8010.*
+*Scene hash 0616c53e65b6eb6c.*
 
 ### Scene 11: Flood Tunnel Clearance *(Written in detail · waiting for your read)*
 
@@ -2341,6 +2451,13 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R7.** Every cast card now has a name (`label`): the Runner had titled each card with its role sentence, and the stage captioned the person with it too.
 
+#### Revision 2026-10-04: Ingram's go-ahead on the Runner report (D059)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **Carry-ins.** All seven now name the characters they apply to, from what is already recorded (each player's own result in natural history, the workshop and the range; Taka's check, by the beat or on his card; who carries a lamp; who is Fatigued, on the sheet or from a critical failure today). Each has a short tag for the Runner's party strip.
+- **The fight.** The encounter names its creature's shipped compendium entry and carries a one-line stat block, so Set up the fight brings in six centipedes, puts them and the party in the combat tracker and rolls their initiative where only the GM sees it. The compactor's Encroachment rises by itself at the end of each round, as the subsystem's own rule says, unless the GM switches it off on the fight card.
+
 #### The scene, as the GM runs it
 
 **What it's for.** The line runs, the nest is dealt with their way, Vetch has asked about Rand, and each player has picked a rest.
@@ -2438,7 +2555,7 @@ Secret: Rand is Shucks's own right hand, loose in the city. It signed tonight, a
 - Injuries carried into the night.
 - Who has a theory about Rand.
 
-*Scene hash 4494a9189c2ffacf.*
+*Scene hash a6492169e047cbac.*
 
 ### Scene 1: The General Hospital *(Written in detail · waiting for your read)*
 
@@ -3000,10 +3117,9 @@ These are mine, not yet yours, and none is in `canon/world/` yet:
 
 #### Still missing
 
-- Stat blocks for everyone, as above.
+- Stat blocks for everyone, as above: drafted by the NPC generator from `data/campaign/npc-roster.json` (2026-10-05), for Ingram to correct.
 - A place record in `canon/` for the shrine.
 - The fortune slips as a printable handout, if Ingram wants one to hand over.
-- `node tools/story/story.mjs build` has not been run, so the scene is not yet copied into `data/`.
 
 **Edited after the re-read (2026-09-29, the prose tests):** the read-aloud is split into three units a GM can cut
 live, and the night's deck beat always runs (it is the menu). Wording only otherwise: no meaning changed.
@@ -3226,9 +3342,8 @@ These are mine, not yet yours:
 
 #### Still missing
 
-- Stat blocks for all five people, from the NPC generator.
+- Stat blocks for all five people: drafted by the NPC generator from `data/campaign/npc-roster.json` (2026-10-05), for Ingram to correct.
 - The credits figure for Lucan's debt ("about a month of a candidate's pay"), because candidate pay isn't set.
-- `node tools/story/story.mjs build` has not been run, so the `data/` copy doesn't exist yet.
 
 **Edited after the re-read (2026-09-29, the prose tests):** the read-aloud is split into three units a GM can cut
 live, and the night's deck beat always runs (it is the menu). Wording only otherwise: no meaning changed.
