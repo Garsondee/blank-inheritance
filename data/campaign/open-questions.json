@@ -1047,6 +1047,21 @@
         "design/ux-doctrine.md"
       ],
       "resolution": null
+    },
+    {
+      "id": "seaward-platform-name",
+      "question": "What is the long train platform on the seaward flank of the Transfer Hall actually called, and which trains stop at it?",
+      "status": "open",
+      "label": "Seaward Platform",
+      "notes": "Raised 2026-10-05 (canon/decisions/D064.md). Ingram said the building the map called Baggage Inspection is really a train platform; she gave no name. 'Seaward Platform' is Claude's, from where the strip lies (about 334 m by 4 m, along the Transfer Hall's seaward side and on past its end). Not decided: whether it is the 'up-line platforms' the Transfer Hall's text says mainland passengers come down from (the Mainland Platforms location is also described as where ordinary trains terminate), a third platform of its own, or something else; which trains stop there. data/locations/seaward-platform.json carries only 'a train platform' until she says.",
+      "relatedRefs": [
+        "data/locations/seaward-platform.json",
+        "data/locations/transfer-hall.json",
+        "data/locations/mainland-platforms.json",
+        "data/locations/island-platforms.json",
+        "canon/decisions/D064.md"
+      ],
+      "resolution": null
     }
   ]
 }

@@ -1,0 +1,104 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "seaward-platform",
+  "type": "location",
+  "tier": "site",
+  "name": "Seaward Platform",
+  "nameJa": null,
+  "namingPlaceholderRef": "seaward-platform-name",
+  "kind": "transport",
+  "tags": [
+    "platform",
+    "rail"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20148960187058,
+          34.68197229722086
+        ],
+        [
+          135.2015438330285,
+          34.68197726226096
+        ],
+        [
+          135.2024379668217,
+          34.67906064266779
+        ],
+        [
+          135.20238373750058,
+          34.679055678048584
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5699,
+          5984
+        ],
+        [
+          5703,
+          5981
+        ],
+        [
+          5938,
+          6218
+        ],
+        [
+          5934,
+          6221
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5818.5,
+      6101
+    ],
+    "cells": [
+      "C3·78",
+      "C3·79",
+      "C3·89",
+      "C4·80"
+    ],
+    "ref": "C3·78",
+    "areaM2": 1653,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": null,
+    "sourceLocalId": "draft-5",
+    "promotedDate": "2026-10-05"
+  },
+  "authoring": {
+    "note": "Made from the real building 1f8286ae91b380dd (a strip about 334 m by 4 m), picked by Ingram in the Location Editor on 2026-10-05, who said it is a train platform and not Baggage Inspection (canon/decisions/D064.md). The name is Claude's, from where it lies, and is open (open-questions.json#seaward-platform-name). It replaces the location baggage-inspection, whose text is kept here in case any of it is wanted again: 'A long shed beside the barrier where bags are opened on trestle tables. Two inspectors on a normal day and six when something has happened. Anything that cannot be explained in one sentence goes into a numbered tray and comes back at the end of the working week, or does not. Regulars pack accordingly: one bag, nothing wrapped, nothing sealed.'",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A train platform: a long, narrow strip about 330 metres by 4, running along the seaward flank of the Transfer Hall and on past its end. It is a platform of its own, apart from the Mainland Platforms and the Island Platforms.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -118,7 +118,7 @@ Points, status and circumstance bonuses, and conditions such as Sickened and Fat
 Added 2026-09-29, outside D051's original ten, at Ingram's direct request for a proper civilian "good time" haunt
 off base to sit alongside the on-base Crew Mess.
 
-11. **The Paper Lantern** (`the-paper-lantern`, not yet sited on the real gazetteer map). A civilian izakaya in
+11. **The Paper Lantern** (`the-paper-lantern`, sited 2026-10-05 on a real building of The Slope, picked by Ingram in the Location Editor). A civilian izakaya in
     Kurose's entertainment quarter, where rank doesn't matter past the noren curtain. A quarter HP. Make an
     Impression to stand the counter a round, same shape as the Crew Mess; in the morning, a Fortitude save or
     Sickened 1 until breakfast. Its own thread, not the Crew Mess's: the walk back after curfew (a very minor

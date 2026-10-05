@@ -692,3 +692,11 @@ one button, paste, with the brief in her own words beside it.
   `test/location-sync/from-handoff.test.mjs` (a real building through the bridge into a scratch data root, with and without a scene), and four
   checks added to `tools/location-sync/foundry-buildings-check.mjs`: a real click on Copy for Claude, in a real Foundry, yields the adopted building's
   exact outline in the map's pixels.
+- **Registering is one command (2026-10-05, after the Paper Lantern and the platform).** Beyond the file and the scene placement, `from-handoff` now
+  lists the new place in its region's `derived.containsRefs` (a text edit of that one array, so nothing else in the region's file changes), warns
+  when the outline's centre lies in no region (`--within <region>` names one: a thin strip on a region's edge), and with `--retire <old-id>` replaces a
+  mislabelled place: refused while any file under `data/` or `canon/` still names it (decision records excepted), otherwise its file is deleted and
+  every region's list drops it. Cross-references the panel has no form for (`npcRefs`, `episodeRefs`, `assetRefs`, `playlistRefs`, `factionRefs`,
+  `namingPlaceholderRef`) travel in the `--fields` file. **`/register-location`** (`.claude/commands/register-location.md`) is the whole routine for
+  whoever receives a paste: understand the brief, write the form, run the tool, record a stated decision, fix what named the old state, test, commit,
+  deploy.

@@ -16,10 +16,18 @@
  *                     the form's fields; anything not given is what the editor had
  *   --scene <scene-set id> | --destination <brief>:<destination> | --position <brief>:<which>
  *   --scene-note <text>   the note written beside the placement
+ *   --within <region> the region it lies in, when the outline's centre is not inside any (a thin strip on a region's edge): otherwise the
+ *                     result says "lies in no region"
+ *   --retire <id>     the location this REPLACES (a place that was mislabelled): refused while anything else still names it, unless --force;
+ *                     otherwise its file is deleted and every region's contents list drops it
  *   --dry-run         build everything, write nothing
+ *
+ * Registering a new location is one command: the file, the contents list of the region it lies in, the scene placed at it, and (with --retire) the old
+ * place taken away. What is left is the work only a person can do: the words (--fields) and, if a decision was stated, writing it down in canon/decisions/.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import path from "node:path";
 import { parseArgs } from "node:util";
 import { pathToFileURL } from "node:url";
 import { emptyFields } from "../../module/blank-inheritance/scripts/core/location-editor.mjs";
@@ -27,7 +35,7 @@ import { parseHandoff } from "../../module/blank-inheritance/scripts/core/locati
 import { destinationTarget, positionTarget, sceneTarget } from "../../module/blank-inheritance/scripts/core/siting.mjs";
 import { existingLocationIds, runApplyGeometry } from "./merge.mjs";
 import { placeAt } from "./siting.mjs";
-import { DEFAULT_PATHS, locationFilePath, writeJsonFile } from "./store.mjs";
+import { DEFAULT_PATHS, locationFilePath, readJsonFile, writeFileAtomic, writeJsonFile } from "./store.mjs";
 
 const LOCATION_ID = /^[a-z0-9][a-z0-9-]*$/;
 
@@ -64,11 +72,86 @@ export function fieldsFor(item, overrides = {}) {
   return fields;
 }
 
+
+/* ---------------------------------------------------------------- keeping the rest of the map in step */
+
+const FOLDERS_NOT_SCANNED = new Set(["generated", "gazetteer-drafts", "editor-submissions", "intray", "schema", "decisions"]);   // a decision record names an id as history, not as a live reference
+
+function* walkFiles(dir) {
+  if (!existsSync(dir)) return;
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name);
+    if (statSync(full).isDirectory()) {
+      if (!FOLDERS_NOT_SCANNED.has(name)) yield* walkFiles(full);
+    } else if (/[.](json|md)$/.test(name)) yield full;
+  }
+}
+
+/** Every file under data/ and canon/ that names a location id (other than its own file), as repo-relative paths. */
+export function referencesTo(id, { dataRoot = DEFAULT_PATHS.dataRoot } = {}) {
+  const repo = path.resolve(dataRoot, "..");
+  const own = path.join(dataRoot, "locations", `${id}.json`);
+  const named = new RegExp(`(^|[^a-z0-9-])${id.replace(/-/g, "[-]")}([^a-z0-9-]|$)`);
+  const found = [];
+  for (const root of [dataRoot, path.join(repo, "canon")]) {
+    for (const file of walkFiles(root)) {
+      if (file === own) continue;
+      // a region's own contents list is kept in step by unlinkFromRegions, so it is not a reason to keep a place
+      const text = readFileSync(file, "utf8").replace(/"containsRefs": \[[^\]]*\]/g, '"containsRefs": []');
+      if (named.test(text)) found.push(path.relative(repo, file).split(path.sep).join("/"));
+    }
+  }
+  return found.sort();
+}
+
+function locationFiles(dataRoot) {
+  const dir = path.join(dataRoot, "locations");
+  return readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => path.join(dir, f));
+}
+
+/**
+ * Change one region's `derived.containsRefs` and nothing else: the array is rewritten in place in the file's own text, so the rest of the document
+ * (whose numbers the Python bridge wrote as 5665.0, not 5665) is byte for byte what it was and a diff shows only the list.
+ */
+function editContainsRefs(file, change, { dryRun = false } = {}) {
+  const raw = readFileSync(file, "utf8");
+  const eol = raw.includes("\r\n") ? "\r\n" : "\n";
+  const found = /^([ \t]*)"containsRefs": \[([^\]]*)\]/m.exec(raw);
+  if (!found) return false;
+  const indent = found[1];
+  const before = JSON.parse(`[${found[2]}]`);
+  const after = change([...before]);
+  if (!after || JSON.stringify(after) === JSON.stringify(before)) return false;
+  const body = after.length ? `${eol}${after.map((id) => `${indent}  ${JSON.stringify(id)}`).join(`,${eol}`)}${eol}${indent}` : "";
+  const text = raw.slice(0, found.index) + `${indent}"containsRefs": [${body}]` + raw.slice(found.index + found[0].length);
+  if (!dryRun) writeFileAtomic(file, text);
+  return true;
+}
+
+/** Add a new site or point to the contents list of the region it lies in (`derived.withinRegionRef`). Returns the region id, or null. */
+export function linkIntoRegion(doc, { dataRoot = DEFAULT_PATHS.dataRoot, dryRun = false } = {}) {
+  const regionId = doc.tier === "region" ? null : doc.derived?.withinRegionRef ?? null;
+  if (!regionId) return null;
+  const file = locationFilePath(dataRoot, regionId);
+  if (!existsSync(file)) return null;
+  editContainsRefs(file, (list) => (list.includes(doc.id) ? null : [...list, doc.id].sort()), { dryRun });
+  return regionId;
+}
+
+/** Take a retired location out of every region's contents list. Returns the ids of the regions that held it. */
+export function unlinkFromRegions(id, { dataRoot = DEFAULT_PATHS.dataRoot, dryRun = false } = {}) {
+  const changed = [];
+  for (const file of locationFiles(dataRoot)) {
+    if (editContainsRefs(file, (list) => (list.includes(id) ? list.filter((x) => x !== id) : null), { dryRun })) changed.push(path.basename(file, ".json"));
+  }
+  return changed;
+}
+
 /**
  * The whole job, as a function (the CLI below is a thin shell over it, and the tests call it with a scratch data root).
  * Returns `{ ok: true, locationId, doc, written, placed }` or `{ ok: false, error }`.
  */
-export function fromHandoff({ text, itemIndex = 0, id, overrides = {}, target = null, sceneNote = null, dryRun = false, dataRoot = DEFAULT_PATHS.dataRoot, date = null } = {}) {
+export function fromHandoff({ text, itemIndex = 0, id, overrides = {}, target = null, sceneNote = null, retire = null, force = false, within = null, dryRun = false, dataRoot = DEFAULT_PATHS.dataRoot, date = null } = {}) {
   const parsed = parseHandoff(text);
   if (!parsed.ok) return { ok: false, error: parsed.error };
   const item = parsed.handoff.items.find((i) => i.index === itemIndex) ?? parsed.handoff.items[itemIndex];
@@ -76,6 +159,12 @@ export function fromHandoff({ text, itemIndex = 0, id, overrides = {}, target = 
   if (item.saved) return { ok: false, error: `item ${itemIndex} is the existing location "${item.locationId}": edit data/locations/${item.locationId}.json instead` };
   if (!LOCATION_ID.test(id ?? "")) return { ok: false, error: `--id must be lowercase-kebab (a-z, 0-9, dashes); got ${JSON.stringify(id)}` };
   if (existingLocationIds(dataRoot).has(id)) return { ok: false, error: `a location "${id}" already exists` };
+
+  if (retire) {
+    if (!existingLocationIds(dataRoot).has(retire)) return { ok: false, error: `--retire ${retire}: there is no such location` };
+    const refs = referencesTo(retire, { dataRoot });
+    if (refs.length && !force) return { ok: false, error: `--retire ${retire}: still named by ${refs.join(", ")} (change those first, or --force)` };
+  }
 
   const tier = overrides.tier ?? item.tier;
   const fields = fieldsFor(item, overrides);
@@ -89,14 +178,29 @@ export function fromHandoff({ text, itemIndex = 0, id, overrides = {}, target = 
     : item.geometry;
 
   const doc = runApplyGeometry({ op: "create", locationId: id, tier, draftId: item.localId ?? null, geometry, fields });
+  if (within) {
+    const region = readJsonFile(locationFilePath(dataRoot, within));
+    if (!region || region.doc.tier !== "region") return { ok: false, error: `--within ${within}: there is no such region` };
+    doc.derived.withinRegionRef = within;
+  }
+  const warnings = [];
+  if (tier !== "region" && !doc.derived.withinRegionRef) warnings.push("its centre lies in no region (pass --within <region> if it belongs to one)");
   if (!dryRun) writeJsonFile(locationFilePath(dataRoot, id), doc);
+  const region = linkIntoRegion(doc, { dataRoot, dryRun });
+
+  let retired = null;
+  if (retire) {
+    const regions = unlinkFromRegions(retire, { dataRoot, dryRun });
+    if (!dryRun) rmSync(locationFilePath(dataRoot, retire));
+    retired = { id: retire, regions };
+  }
 
   let placed = null;
   if (target) {
     placed = placeAt(target, id, { dataRoot, note: sceneNote, date, dryRun });
     if (placed.state === "error") return { ok: false, error: `the location was ${dryRun ? "built" : "written"} but the placement failed: ${placed.error}`, locationId: id, doc };
   }
-  return { ok: true, locationId: id, doc, written: !dryRun, placed, tier };
+  return { ok: true, locationId: id, doc, written: !dryRun, placed, tier, region, retired, warnings };
 }
 
 function targetFromArgs(values) {
@@ -126,7 +230,7 @@ async function main() {
       tier: { type: "string" }, rank: { type: "string" }, depth: { type: "string" }, classification: { type: "string" }, note: { type: "string" },
       tags: { type: "string" }, summary: { type: "string" }, "player-facing": { type: "string" }, "gm-only": { type: "string" },
       scene: { type: "string" }, destination: { type: "string" }, position: { type: "string" }, "scene-note": { type: "string" },
-      fields: { type: "string" },
+      fields: { type: "string" }, retire: { type: "string" }, force: { type: "boolean" }, within: { type: "string" },
       "dry-run": { type: "boolean" }
     }
   });
@@ -148,6 +252,9 @@ async function main() {
     overrides,
     target: targetFromArgs(values),
     sceneNote: values["scene-note"] ?? null,
+    retire: values.retire ?? null,
+    within: values.within ?? null,
+    force: values.force === true,
     dryRun: values["dry-run"] === true,
     date: new Date().toISOString().slice(0, 10)
   });
@@ -158,6 +265,9 @@ async function main() {
   }
   const { doc } = result;
   console.log(`${result.written ? "Wrote" : "Would write"} data/locations/${result.locationId}.json -- ${doc.tier} "${doc.name}", status ${doc.authoring?.status ?? "?"}.`);
+  for (const w of result.warnings ?? []) console.log(`  ! ${w}`);
+  if (result.region) console.log(`${result.written ? "Listed" : "Would list"} it among the contents of the region ${result.region}.`);
+  if (result.retired) console.log(`${result.written ? "Retired" : "Would retire"} ${result.retired.id}${result.retired.regions.length ? ` (also dropped from ${result.retired.regions.join(", ")})` : ""}.`);
   if (result.placed) {
     console.log(`${result.written ? "Placed" : "Would place"} ${result.placed.files.join(", ")} at ${result.locationId} (was ${result.placed.before ?? "unplaced"}).`);
     if (result.placed.canonChanged.length) console.log(`  ! changed canon scene(s) ${result.placed.canonChanged.join(", ")}: their approval hash changes, so Ingram needs to read them again.`);

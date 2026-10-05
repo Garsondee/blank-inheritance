@@ -131,6 +131,9 @@ def _apply_create(payload, georef):
         existing_regions=_existing_regions(),
     )
 
+    if fields.get("namingPlaceholderRef"):
+        doc["namingPlaceholderRef"] = fields["namingPlaceholderRef"]
+
     if tier == "region":
         # A freshly-drawn region may already have sites/points sitting inside
         # it (drawn before the district that contains them, the ordinary

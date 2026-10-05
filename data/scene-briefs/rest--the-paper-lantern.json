@@ -478,7 +478,7 @@
         "failure": "Caught, and it's written up as the minor thing it is -- a note in the file and a dry word from whoever's on duty in the morning. Nothing more.",
         "criticalFailure": "Caught loudly enough that a section officer hears about it by breakfast. Still a minor mark, still nothing that closes a door -- just a conversation nobody enjoys having twice."
       },
-      "note": "Curfew is a genuinely minor infraction, D053 -- even a critical failure costs an awkward morning, never a real consequence. Nobody loses anything permanent for being seen walking home late."
+      "note": "Curfew is a minor offence: even a critical failure costs an awkward morning, never a real consequence. Nobody loses anything permanent for being seen walking home late."
     },
     {
       "id": "the-argument",

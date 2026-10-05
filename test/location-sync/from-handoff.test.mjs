@@ -13,7 +13,7 @@ import { buildHandoff, serialiseHandoff } from "../../module/blank-inheritance/s
 import { decodeIndex } from "../../module/blank-inheritance/scripts/core/buildings-index.mjs";
 import { emptyFields } from "../../module/blank-inheritance/scripts/core/location-editor.mjs";
 import { sceneTarget } from "../../module/blank-inheritance/scripts/core/siting.mjs";
-import { fieldsFor, fromHandoff } from "../../tools/location-sync/from-handoff.mjs";
+import { fieldsFor, fromHandoff, linkIntoRegion, referencesTo, unlinkFromRegions } from "../../tools/location-sync/from-handoff.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const python = process.env.BI_PYTHON || (process.platform === "win32" ? "python" : "python3");
@@ -31,7 +31,8 @@ function realHandoff(fields = null) {
 }
 
 function scratch() {
-  const root = mkdtempSync(path.join(os.tmpdir(), "bi-handoff-"));
+  // <scratch>/data is the data root, so <scratch> stands in for the repo (canon/ beside data/) and nothing outside it is ever touched
+  const root = path.join(mkdtempSync(path.join(os.tmpdir(), "bi-handoff-")), "data");
   mkdirSync(path.join(root, "locations"), { recursive: true });
   mkdirSync(path.join(root, "campaign"), { recursive: true });
   writeFileSync(path.join(root, "campaign", "scene-set.json"), JSON.stringify({ scenes: [{ id: "haunt-the-paper-lantern", name: "The Paper Lantern", kind: "place" }] }, null, 2) + "\n");
@@ -61,7 +62,7 @@ test("bad input is refused before anything is written: not a hand-off, a saved i
     assert.match(fromHandoff({ text: saved, id: "x-y", dataRoot: root, overrides: { name: "X" } }).error, /existing location "old-place"/);
     writeFileSync(path.join(root, "locations", "taken.json"), "{}");
     assert.match(fromHandoff({ text, id: "taken", dataRoot: root, overrides: { name: "X" } }).error, /already exists/);
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(path.resolve(root, ".."), { recursive: true, force: true }); }
 });
 
 test("a real building becomes a drafted site with its exact footprint, and a dry run writes nothing", { skip: skipBuild }, () => {
@@ -83,7 +84,7 @@ test("a real building becomes a drafted site with its exact footprint, and a dry
     assert.ok(doc.derived.imagePx[0].length >= 4, "the outline is carried into derived.imagePx");
     assert.match(doc.authoring.note ?? "", /real building/, "the note says where it came from");
     assert.equal(fromHandoff({ text, id: "the-paper-lantern", overrides: { name: "Again" }, dataRoot: root }).ok, false, "a second run does not overwrite it");
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(path.resolve(root, ".."), { recursive: true, force: true }); }
 });
 
 test("a fields file (--fields) fills the whole form, and the cross-references the editor has no form for reach the document", { skip: skipBuild }, () => {
@@ -109,7 +110,7 @@ test("a fields file (--fields) fills the whole form, and the cross-references th
     // the flags still win over the file
     const flagged = fromHandoff({ text, id: "another-place", overrides: { fields, name: "Flag Wins" }, dataRoot: root });
     assert.equal(flagged.doc.name, "Flag Wins");
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(path.resolve(root, ".."), { recursive: true, force: true }); }
 });
 
 test("with --scene it also puts that scene at the new place, and says nothing changed when the slot is unknown", { skip: skipBuild }, () => {
@@ -125,5 +126,96 @@ test("with --scene it also puts that scene at the new place, and says nothing ch
     const bad = fromHandoff({ text, id: "second-place", overrides: { name: "Second" }, target: sceneTarget("no-such-scene"), dataRoot: root });
     assert.equal(bad.ok, false);
     assert.match(bad.error, /placement failed/);
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(path.resolve(root, ".."), { recursive: true, force: true }); }
+});
+
+/* ---------------------------------------------------------------- keeping the rest of the map in step */
+
+/** A region file as the Python bridge writes it: floats like 5665.0 that JSON.stringify would silently turn into 5665. */
+const regionText = (id, contains) => `{
+  "id": "${id}",
+  "tier": "region",
+  "derived": {
+    "imagePx": [
+      [
+        [5665.0, 6472.0],
+        [5700.0, 6500.0]
+      ]
+    ],
+    "containsRefs": [${contains.map((c) => `\n      ${JSON.stringify(c)}`).join(",")}${contains.length ? "\n    " : ""}]
+  }
+}
+`;
+
+test("a new place is added to its region's contents list, and ONLY that list changes: the rest of the file is byte for byte what it was", () => {
+  const root = scratch();
+  try {
+    const file = path.join(root, "locations", "slope.json");
+    writeFileSync(file, regionText("slope", ["home-the-slope-terrace"]));
+    assert.equal(linkIntoRegion({ id: "the-paper-lantern", tier: "site", derived: { withinRegionRef: "slope" } }, { dataRoot: root }), "slope");
+    const after = readFileSync(file, "utf8");
+    assert.equal(after, regionText("slope", ["home-the-slope-terrace", "the-paper-lantern"]), "the list grew, sorted, in the file's own layout; 5665.0 is still 5665.0");
+    assert.equal(linkIntoRegion({ id: "the-paper-lantern", tier: "site", derived: { withinRegionRef: "slope" } }, { dataRoot: root }), "slope");
+    assert.equal(readFileSync(file, "utf8"), after, "listing it twice changes nothing");
+    assert.equal(linkIntoRegion({ id: "x", tier: "site", derived: { withinRegionRef: null } }, { dataRoot: root }), null, "no region: nothing to list it in");
+    assert.equal(linkIntoRegion({ id: "x", tier: "region", derived: { withinRegionRef: "slope" } }, { dataRoot: root }), null, "a region is not listed in a region");
+  } finally { rmSync(path.resolve(root, ".."), { recursive: true, force: true }); }
+});
+
+test("a retired place leaves every region's contents list, and an empty list stays a valid empty list", () => {
+  const root = scratch();
+  try {
+    writeFileSync(path.join(root, "locations", "a.json"), regionText("a", ["old", "keep"]));
+    writeFileSync(path.join(root, "locations", "b.json"), regionText("b", ["old"]));
+    writeFileSync(path.join(root, "locations", "c.json"), regionText("c", ["keep"]));
+    assert.deepEqual(unlinkFromRegions("old", { dataRoot: root }).sort(), ["a", "b"]);
+    assert.equal(readFileSync(path.join(root, "locations", "a.json"), "utf8"), regionText("a", ["keep"]));
+    assert.equal(readFileSync(path.join(root, "locations", "b.json"), "utf8"), regionText("b", []));
+    assert.equal(readFileSync(path.join(root, "locations", "c.json"), "utf8"), regionText("c", ["keep"]), "a region that never held it is untouched");
+    assert.deepEqual(unlinkFromRegions("old", { dataRoot: root, dryRun: true }), [], "a dry run on what is already done finds nothing");
+  } finally { rmSync(path.resolve(root, ".."), { recursive: true, force: true }); }
+});
+
+test("what still names a place is found in data/ and canon/, not in a decision record or the retired drafts", () => {
+  const root = scratch();
+  const repo = path.resolve(root, "..");
+  try {
+    mkdirSync(path.join(repo, "canon", "scenes"), { recursive: true });
+    mkdirSync(path.join(repo, "canon", "decisions"), { recursive: true });
+    mkdirSync(path.join(root, "map", "gazetteer-drafts"), { recursive: true });
+    writeFileSync(path.join(root, "locations", "old-shed.json"), "{}");
+    writeFileSync(path.join(repo, "canon", "scenes", "s.json"), '{"locationRef": "old-shed"}');
+    writeFileSync(path.join(repo, "canon", "decisions", "D1.md"), "old-shed was a shed");
+    writeFileSync(path.join(root, "map", "gazetteer-drafts", "d.json"), '{"id": "old-shed"}');
+    writeFileSync(path.join(root, "campaign", "near.json"), '{"locationRef": "old-shed-2"}');
+    assert.deepEqual(referencesTo("old-shed", { dataRoot: root }), [path.relative(repo, path.join(repo, "canon", "scenes", "s.json")).split(path.sep).join("/")], "the longer id old-shed-2 is a different place");
+  } finally { rmSync(repo, { recursive: true, force: true }); }
+});
+
+test("--retire refuses while anything names the old place, replaces it when nothing does, and --within fixes a centre that lies in no region", { skip: skipBuild }, () => {
+  const root = scratch();
+  const repo = path.resolve(root, "..");
+  try {
+    const { text } = realHandoff();
+    writeFileSync(path.join(root, "locations", "old-shed.json"), "{}");
+    writeFileSync(path.join(root, "locations", "edge.json"), regionText("edge", ["old-shed"]));
+    writeFileSync(path.join(root, "campaign", "uses.json"), '{"locationRef": "old-shed"}');
+    const fields = { name: "Seaward Platform" };
+    const refused = fromHandoff({ text, id: "seaward-platform", overrides: { fields }, retire: "old-shed", dataRoot: root });
+    assert.equal(refused.ok, false);
+    assert.match(refused.error, /still named by .*uses\.json/);
+    assert.equal(existsSync(path.join(root, "locations", "seaward-platform.json")), false, "nothing was written");
+    assert.match(fromHandoff({ text, id: "seaward-platform", overrides: { fields }, retire: "no-such", dataRoot: root }).error, /no such location/);
+    rmSync(path.join(root, "campaign", "uses.json"));
+    const dry = fromHandoff({ text, id: "seaward-platform", overrides: { fields }, retire: "old-shed", within: "edge", dryRun: true, dataRoot: root });
+    assert.equal(dry.ok, true, dry.error);
+    assert.equal(existsSync(path.join(root, "locations", "old-shed.json")), true, "a dry run retires nothing");
+    const done = fromHandoff({ text, id: "seaward-platform", overrides: { fields }, retire: "old-shed", within: "edge", dataRoot: root });
+    assert.equal(done.ok, true, done.error);
+    assert.equal(existsSync(path.join(root, "locations", "old-shed.json")), false, "the old place is gone");
+    assert.equal(JSON.parse(readFileSync(path.join(root, "locations", "seaward-platform.json"), "utf8")).derived.withinRegionRef, "edge");
+    assert.equal(readFileSync(path.join(root, "locations", "edge.json"), "utf8"), regionText("edge", ["seaward-platform"]), "the region lists the new place and not the old");
+    assert.deepEqual(done.warnings, []);
+    assert.match(fromHandoff({ text, id: "other", overrides: { fields }, within: "no-region", dataRoot: root }).error, /no such region/);
+  } finally { rmSync(repo, { recursive: true, force: true }); }
 });
