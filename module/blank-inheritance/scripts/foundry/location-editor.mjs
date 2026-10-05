@@ -199,8 +199,9 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   _onClose(options) {
     super._onClose?.(options);
     this.#claimed = false;
-    canvas.locationDraw?.disarmAssign?.();
-    canvas.locationDraw?.clearFocus?.();
+    // Leaving the editor means leaving ALL of it: the selection and its handles, a waiting pick, the highlight, the tool and the drawing on the canvas
+    // (location-draw-layer.mjs#quit), then the canvas back to Tokens.
+    canvas.locationDraw?.quit?.();
     if (canvas.locationDraw?.active) canvas.tokens?.activate();
   }
 

@@ -356,6 +356,7 @@ export class LocationDrawLayer extends InteractionLayer {
   async _activate() {
     this.#applyCursor();
     canvas.app?.view?.addEventListener?.("pointerleave", this.#leaveHandler);
+    this.#showDrawings();
     if (this.#publishedContainer) this.#publishedContainer.visible = true;
     if (!this.#sessionLoaded) await this.#loadSession();
     this.#renderAll();
@@ -405,6 +406,47 @@ export class LocationDrawLayer extends InteractionLayer {
    */
   hasEscapableState() {
     return this.active && Boolean(this.#assign || this.#drafting || this.#drag || this.#selectedIds.size);
+  }
+
+  /** Every container the editor draws its own work in (not what already exists: published and buildings have their own switches). */
+  #drawingContainers() {
+    return [this.#shapesContainer, this.#referenceContainer, this.#draftContainer, this.#handlesContainer, this.#overlayContainer, this.#focusContainer]
+      .filter((c) => c && !c.destroyed);
+  }
+
+  #showDrawings() {
+    for (const c of this.#drawingContainers()) c.visible = true;
+  }
+
+  /**
+   * The editor is left for good -- its panel was closed: let go of everything it was holding and take its drawing off the canvas, so nothing of it
+   * is left behind on a scene that is back to Tokens. The selection (and the handles that go with it), a gesture in flight, a waiting pick, the hover,
+   * the Story list's highlight, the bisect reference, the tool and the callbacks into the panel (which is closing and must hear nothing more: a late
+   * callback would render a closed window again). The drawings in this session are KEPT, saved, and come back when the editor is next opened
+   * (`_activate` shows them); only the picture of them goes.
+   */
+  quit() {
+    this.disarmAssign({ cancelled: true });
+    this.configure({});
+    clearTimeout(this.#statusTimer);
+    this.#statusTimer = null;
+    this.#disarmPick();
+    this.#endDrag();
+    this.#cancelDraft({ quiet: true });
+    this.#setHover(null);
+    this.#tool = "pick";
+    this.#selectedIds = new Set();
+    this.#focus = null;
+    this.#referenceRegion = null;
+    this.#render();
+    this.#renderPublished();
+    this.#renderHandles();
+    this.#renderFocus();
+    this.#renderReference();
+    for (const c of this.#drawingContainers()) c.visible = false;
+    if (this.#publishedContainer && !this.#publishedContainer.destroyed) this.#publishedContainer.visible = false;
+    if (this.#buildingsContainer && !this.#buildingsContainer.destroyed) this.#buildingsContainer.visible = false;
+    this.#applyCursor();
   }
 
   /** Abandon whatever gesture is in flight (a draft or a drag). Selections are let go by _onDismissKey, one Escape later. */

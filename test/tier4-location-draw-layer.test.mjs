@@ -664,6 +664,35 @@ describe("what already exists on the map", () => {
     assert.equal(layer.children[1].visible, true);
   });
 
+  test("quitting the editor (its panel closed) lets go of EVERYTHING: selection and handles, hover, tool, callbacks and every drawing; reopening brings the saved drawings back", async () => {
+    layer.activate();
+    await layer.activation;
+    for (let i = 0; i < 50 && layer.publishedSummary.state !== "ok"; i++) await new Promise((r) => setImmediate(r));
+    let heard = 0;
+    layer.configure({ onSelectionChange: () => heard++, onSessionChange: () => heard++, onStatus: () => heard++ });
+    layer.setPendingTier("site");
+    layer.setTool("rect");
+    layer.setTool("pick");
+    clickPick(layer, point(900, 900)); // opens the hall: selected, with handles
+    assert.equal(layer.selectedIds.length, 1);
+    const [buildings, published, shapes, reference, draft, handles, overlay, focus] = layer.children;
+    heard = 0;
+    layer.quit();
+    assert.deepEqual(layer.selectedIds, [], "nothing is selected");
+    assert.equal(handles.children.length, 0, "and no handles are left drawn");
+    for (const container of [buildings, published, shapes, reference, draft, handles, overlay, focus]) assert.equal(container.visible, false, "every container of the editor is hidden");
+    assert.equal(layer.tool, "pick");
+    assert.equal(layer.hasEscapableState(), false);
+    layer.setTool("pick");
+    layer.clearSelection();
+    assert.equal(heard, 0, "the closed panel hears nothing more: a late callback would render a closed window again");
+    layer.deactivate();
+    layer.activate();
+    await layer.activation;
+    for (const container of [shapes, reference, draft, handles, overlay, focus]) assert.equal(container.visible, true, "reopened: shown again");
+    assert.equal(published.visible, true);
+  });
+
   test("a scene change that is not the hub draws nothing and offers nothing to click", () => {
     layer.setPendingTier("site");
     layer.setTool("pick");

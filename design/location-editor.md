@@ -700,3 +700,11 @@ one button, paste, with the brief in her own words beside it.
   `namingPlaceholderRef`) travel in the `--fields` file. **`/register-location`** (`.claude/commands/register-location.md`) is the whole routine for
   whoever receives a paste: understand the brief, write the form, run the tool, record a stated decision, fix what named the old state, test, commit,
   deploy.
+
+## 15. Leaving the editor (2026-10-05)
+
+Ingram: closing the editor's window did not quit the modes, the interface or the building selection. Now closing the panel calls
+`location-draw-layer.mjs#quit`, which lets go of **all** of it: the selection and its handles, a gesture in flight, a waiting pick, the hover, the Story
+list's highlight, the bisect reference, the tool (back to pick) and the callbacks into the panel (a late one would render a closed window again); it takes
+the editor's drawing off the canvas (the saved drafts are kept and come back when the editor is next opened) and the canvas goes back to Tokens. Held by
+`test/tier4-location-draw-layer.test.mjs` and a real click on the window's X in `tools/location-sync/foundry-locations-key-check.mjs`.

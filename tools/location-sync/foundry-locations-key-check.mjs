@@ -27,6 +27,20 @@ await gm.evaluateOnNewDocument(() => { globalThis.__stagecraftSpeed = { settle: 
 const logs = [];
 gm.on("console", (m) => { if (m.type() === "error") logs.push(m.text().slice(0, 300)); });
 gm.on("pageerror", (e) => logs.push(`pageerror ${e.message}`));
+/** Adopt a real building (the first named one big enough) into the open editor, close to it, so it is picked and selected. */
+const page_evaluate_adopt = () => gm.evaluate(async () => {
+  const core = await import("/modules/blank-inheritance/scripts/core/buildings-index.mjs");
+  const pub = await import("/modules/blank-inheritance/scripts/foundry/location-published.mjs");
+  const tr = await import("/modules/blank-inheritance/scripts/core/travel-animation.mjs");
+  const doc = await (await fetch("/modules/blank-inheritance/data/campaign/map/buildings-index.json")).json();
+  const cal = await pub.hubCalibration();
+  const field = core.layOutBuildings(core.decodeIndex(doc), (p) => tr.toScenePoint(p, cal.calibration), { cell: 400 });
+  const b = field.all.find((x) => x.name && x.area > 400);
+  await canvas.animatePan({ x: (b.bounds.x0 + b.bounds.x1) / 2, y: (b.bounds.y0 + b.bounds.y1) / 2, scale: 0.9, duration: 0 });
+  await new Promise((r) => setTimeout(r, 800));
+  canvas.locationDraw.adoptBuildingPick(core.buildingPick(b).building);
+  await new Promise((r) => setTimeout(r, 800));
+});
 const idle = () => gm.evaluate(async () => { while (canvas.loading) await new Promise((r) => setTimeout(r, 100)); });
 let viewedBefore = null;
 try {
@@ -83,6 +97,24 @@ try {
   await sleep(1500);
   const again = await gm.evaluate(() => ({ scene: canvas.scene?.name, layerActive: canvas.locationDraw?.active === true }));
   check("pressed again on the map: still the map, and the canvas is back in the editor", again.scene === world.hub.name && again.layerActive);
+
+  // quitting: pick a real building (selected), then close the window with a real click on its X -- nothing of the editor may be left on the canvas
+  await page_evaluate_adopt();
+  const open = await gm.evaluate(() => ({ selected: canvas.locationDraw.selectedIds.length, active: canvas.locationDraw.active, editor: !!document.querySelector("#bi-location-editor") }));
+  check("a building is picked and selected in the open editor", open.selected === 1 && open.active && open.editor, JSON.stringify(open));
+  await gm.click('#bi-location-editor [data-action="close"]');
+  await sleep(1500);
+  const quit = await gm.evaluate(() => {
+    const L = canvas.locationDraw;
+    return { editor: !!document.querySelector("#bi-location-editor"), active: L.active, tokensActive: canvas.tokens.active, selected: L.selectedIds, tool: L.tool, control: ui.controls?.control?.name, visible: L.children.map((c) => c.visible), handles: L.children[5].children.length };
+  });
+  check("closing the window closes the editor: the canvas is back on Tokens and the window is gone", !quit.editor && !quit.active && quit.tokensActive && quit.control === "tokens", JSON.stringify(quit));
+  check("and lets go of the selection, the tool and every drawing: nothing of the editor is left on the canvas", quit.selected.length === 0 && quit.tool === "pick" && quit.visible.every((v) => v === false) && quit.handles === 0, JSON.stringify(quit));
+  await gm.evaluate(async () => { const m = await import("/modules/blank-inheritance/scripts/foundry/location-editor.mjs"); await m.openLocationEditorOnMap(); });
+  await sleep(2000);
+  const back = await gm.evaluate(() => ({ active: canvas.locationDraw.active, selected: canvas.locationDraw.selectedIds.length, shapes: canvas.locationDraw.children[2].visible, items: Object.keys(canvas.locationDraw.getSession().items) }));
+  check("reopened: the editor works again, with nothing selected and the saved drawing back", back.active && back.selected === 0 && back.shapes && back.items.length === 1, JSON.stringify(back));
+  await gm.evaluate(async (ids) => { for (const id of ids) await canvas.locationDraw.deleteItem(id); }, back.items);   // the draft this check made: gone, so it leaves nothing behind
 
   const errors = logs.filter((l) => !/favicon|404|Failed to load resource|Failed to load audio|WebGL|querySelector|addChild|addHighlightLayer/.test(l));
   check("no errors in the console", errors.length === 0, errors.slice(0, 3).join(" | "));
