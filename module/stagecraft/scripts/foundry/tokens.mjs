@@ -32,8 +32,19 @@ const providers = new Set();
 export function registerTokenActors(provider) {
   if (typeof provider !== "function") throw new TypeError("a token actors provider must be a function of the scene and the card");
   providers.add(provider);
+  // a stage drawn before this (Foundry draws the first scene before the adventure is ready) made its tokens with nobody to ask: they are asked again now
+  globalThis.Hooks?.callAll?.(PROVIDER_HOOK);
   return () => providers.delete(provider);
 }
+
+/** Said when a provider is registered, so a stage already drawn asks it about the cards it has already made tokens for. */
+export const PROVIDER_HOOK = "stagecraft.tokenActorsChanged";
+
+/**
+ * How long, after a stage is drawn, a first look that finds NO cards (and tokens of ours already on the scene) waits before it takes those tokens
+ * away: a scene read while it is still being brought up must never be taken for a scene with nobody on it. Tests make it short.
+ */
+export const LOAD_GRACE_MS = { value: 4000 };
 
 const log = (message, err) => console.warn(`${NS} | ${message}`, err);
 
@@ -45,6 +56,7 @@ export class CardTokens {
     this.map = null;                       // cardId -> TokenDocument, rebuilt when the scene's tokens change
     this.actors = new Map();               // cardId -> { name, id }: what the provider last answered for a card
     this.signature = null;                 // the cards the tokens were last made to match
+    this.settled = false;                  // has one look at the cards been trusted yet (see LOAD_GRACE_MS)
     this.work = Promise.resolve();
     this.hooks = [];
     const mine = (doc) => doc?.parent?.id === this.host.scene.id;
@@ -61,9 +73,12 @@ export class CardTokens {
     })]);
     // what is controlled has a hook; what is targeted has none in Foundry 14, so it is read at every frame (and pokes the pace when this user changes it)
     this.hooks.push(["controlToken", Hooks.on("controlToken", poke)]);
+    // an adventure's provider arrived after this stage was drawn: nobody was asked who a card's token stands for, so ask now
+    this.hooks.push([PROVIDER_HOOK, Hooks.on(PROVIDER_HOOK, () => { this.actors.clear(); this.signature = null; this.ensure(); })]);
   }
 
   dispose() {
+    clearTimeout(this.graceTimer);
     for (const [name, id] of this.hooks) Hooks.off(name, id);
     this.hooks = [];
     this.localControl.clear();
@@ -206,6 +221,7 @@ export class CardTokens {
   /** Who a card's token stands for: its own actor, else a provider's answer: an actor id, or { id, link } (see core/tokens.mjs). */
   async #actorOf(card) {
     if (card.actor && game.actors?.get?.(card.actor)) return card.actor;
+    if (!providers.size) return null;                      // nobody to ask yet (see PROVIDER_HOOK): not remembered as "no one"
     const known = this.actors.get(card.id);
     const name = card.name ?? "";
     if (known && known.name === name) return known.answer;
@@ -239,7 +255,20 @@ export class CardTokens {
       .filter((doc) => typeof doc.flags?.[NS]?.[TOKEN_FLAG] === "string")
       .map((doc) => ({ id: doc.id, card: doc.flags[NS][TOKEN_FLAG], name: doc.name, img: doc.texture?.src, actorId: doc.actorId ?? null }));
     const plan = planTokens({ cards, tokens, actors, rect, size });
-    if (plan.remove.length) await scene.deleteEmbeddedDocuments("Token", plan.remove);
+    if (!this.settled && !force) {
+      if (!cards.length && tokens.length) {
+        // tokens of ours and no cards at all, on the first look after the stage was drawn: more likely a scene still being read than
+        // an empty stage. Nothing is taken away yet; one more look is taken once things have settled.
+        console.warn(`${NS} | ${tokens.length} token(s) of the stage's cards and no cards yet: looking again before taking any away`);
+        this.graceTimer = setTimeout(() => { this.settled = true; this.signature = null; this.ensure(); }, LOAD_GRACE_MS.value);
+        return;
+      }
+      this.settled = true;
+    }
+    if (plan.remove.length) {
+      console.warn(`${NS} | taking away ${plan.remove.length} token(s) whose cards are gone (${tokens.filter((t) => plan.remove.includes(t.id)).map((t) => t.card).join(", ")})`);
+      await scene.deleteEmbeddedDocuments("Token", plan.remove);
+    }
     if (plan.update.length) await scene.updateEmbeddedDocuments("Token", plan.update);
     if (plan.create.length) await scene.createEmbeddedDocuments("Token", plan.create);
     this.map = null;

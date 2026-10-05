@@ -1085,6 +1085,30 @@ export function openLocationEditor() {
   return open;
 }
 
+/**
+ * The Scene Runner header's Location Editor key: cut this GM's own screen to the Campaign Map (the hub, "01. The City"), then open the
+ * editor on it with the canvas put into the editor -- whatever scene was showing, and whether or not the panel was already open (a
+ * scene change takes the canvas out of the editor, so an open panel has to be told to claim it again). Only this GM's screen moves:
+ * `view`, never `activate`, so the players stay where they are.
+ */
+export async function openLocationEditorOnMap() {
+  if (!game.user?.isGM) return null;
+  const hub = await hubScene();
+  if (!hub) {
+    ui.notifications.warn(L("BLANKINHERITANCE.LocationEditor.NoHubScene"));
+    return null;
+  }
+  if (canvas?.scene?.id !== hub.id) {
+    while (canvas?.loading) await new Promise((resolve) => setTimeout(resolve, 100));       // Scene#view is refused while a canvas is loading
+    await hub.view();
+    while (canvas?.loading || canvas?.scene?.id !== hub.id) await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const app = openLocationEditor();
+  const layer = canvas.locationDraw;
+  if (layer && !layer.active) layer.activate({ tool: layer.tool });
+  return app;
+}
+
 export function refreshLocationEditor() {
   if (open?.rendered) open.render();
 }

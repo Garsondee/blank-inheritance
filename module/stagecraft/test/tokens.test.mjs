@@ -7,7 +7,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TOKEN_FLAG, planTokens, retarget, tKey, tokenName, tokenPlace, userColour } from "../scripts/core/tokens.mjs";
-import { CardTokens, registerTokenActors } from "../scripts/foundry/tokens.mjs";
+import { CardTokens, LOAD_GRACE_MS, registerTokenActors } from "../scripts/foundry/tokens.mjs";
 import { installFoundry } from "./fake-foundry.mjs";
 
 const rect = { x: 100, y: 200, width: 4000, height: 3000 };
@@ -360,4 +360,49 @@ test("the bridge lets go of its hooks when it goes", async () => {
   assert.equal(count(), 4);
   tokens.dispose();
   assert.equal(count(), 0);
+});
+
+test("a stage drawn before the adventure's provider is registered asks it as soon as it arrives, and does not remember having had no answer", async () => {
+  const { scene, tokens } = stand();
+  await tokens.ensure();                                                       // Foundry draws the first scene before the adventure is ready: nobody to ask
+  assert.equal(scene.tokens.find((t) => t.flags.stagecraft.card === "nobu").actorId, undefined);
+  const off = registerTokenActors(async (s, card) => (card.id === "nobu" ? { id: "actorBasic" } : null));
+  try {
+    await tokens.work;
+    assert.equal(scene.tokens.find((t) => t.flags.stagecraft.card === "nobu").actorId, "actorBasic", "the token already made now stands for its actor");
+    assert.equal(scene.tokens.length, 2, "no second token was made for it");
+  } finally { off(); }
+});
+
+test("a first look at a scene that shows tokens of ours and no cards takes nothing away at once; it looks again after a short wait", async () => {
+  const before = LOAD_GRACE_MS.value;
+  LOAD_GRACE_MS.value = 25;
+  try {
+    const first = stand();
+    await first.tokens.ensure();
+    assert.deepEqual(flagged(first.scene), ["ana", "nobu"]);
+    // a new page: a stage whose scene still lists nobody (read too early) beside the tokens that are really there
+    const { scene, tokens, writes } = stand();
+    scene.tokens.push(...first.scene.tokens.map((t) => ({ ...t, parent: scene })));
+    scene.flags.stagecraft.published.cards = [];
+    await tokens.ensure();
+    assert.deepEqual(flagged(scene), ["ana", "nobu"], "nothing taken away on the first look");
+    assert.equal(writes.delete, 0);
+    // the cards arrive before the second look: the tokens stay
+    scene.flags.stagecraft.published.cards = structuredClone(cards);
+    await new Promise((r) => setTimeout(r, 80));
+    await tokens.work;
+    assert.deepEqual(flagged(scene), ["ana", "nobu"]);
+    assert.equal(writes.delete, 0);
+    // and a stage that really has nobody on it loses them once the wait is over
+    const empty = stand();
+    empty.scene.tokens.push(...first.scene.tokens.map((t) => ({ ...t, parent: empty.scene })));
+    empty.scene.flags.stagecraft.published.cards = [];
+    await empty.tokens.ensure();
+    await new Promise((r) => setTimeout(r, 80));
+    await empty.tokens.work;
+    assert.deepEqual(flagged(empty.scene), [], "an empty stage is emptied, after the wait");
+    tokens.dispose();
+    empty.tokens.dispose();
+  } finally { LOAD_GRACE_MS.value = before; }
 });
