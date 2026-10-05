@@ -62,9 +62,17 @@ export class ChalkStore {
     this.listeners.clear();
   }
 
-  /** The entry, if a GM has made it yet. */
+  /**
+   * The entry, if a GM has made it yet. Found once and remembered by its id: this is asked for at every journal page that
+   * changes anywhere in the world (a note typed in the notebook, say) and at every page of chalk read, and finding it means
+   * looking at every journal there is. Looked for afresh if the one remembered has gone or is no longer the chalk's.
+   */
   get entry() {
-    return game.journal?.find((e) => e.getFlag(NS, "chalk") === true) ?? null;
+    const kept = this.entryId ? game.journal?.get?.(this.entryId) : null;
+    if (kept && kept.getFlag(NS, "chalk") === true) return kept;
+    const found = game.journal?.find((e) => e.getFlag(NS, "chalk") === true) ?? null;
+    this.entryId = found?.id ?? null;
+    return found;
   }
 
   get ready() { return !!this.entry; }

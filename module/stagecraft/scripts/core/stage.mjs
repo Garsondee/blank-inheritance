@@ -516,7 +516,10 @@ export class Stage {
     this.steps++;
     const o = this.opts;
     const now = this.clock();
-    const held = [...this.cards.values()].filter((c) => c.holder !== null);
+    // the cards in a hand, in an array kept from step to step (a step runs 120 times a second: nothing is made new in it)
+    const held = (this.heldNow ??= []);
+    held.length = 0;
+    for (const c of this.cards.values()) if (c.holder !== null) held.push(c);
     for (const c of this.cards.values()) {
       const p = c.puppet;
       const inHand = c.holder !== null;
@@ -672,7 +675,7 @@ export class Stage {
 
   #bumps(dt) {
     const o = this.opts;
-    const done = new Set();
+    let done = null;                  // pairs met this step: made only when somebody is in a hand
     for (const h of this.cards.values()) {
       if (h.holder === null) { h.zOff += (0 - h.zOff) * Math.min(1, dt * 11); continue; }
       let over = false;
@@ -682,8 +685,8 @@ export class Stage {
         const A = box(h.puppet);
         const B = box(other.puppet);
         if (Math.min(A.right, B.right) - Math.max(A.left, B.left) > 0) over = true;
-        if (done.has(key)) continue;
-        done.add(key);
+        if (done?.has(key)) continue;
+        (done ??= new Set()).add(key);
         let memory = this.touching.get(key);
         if (!memory) this.touching.set(key, (memory = new Set()));
         const pair = h.id < other.id ? [h, other] : [other, h];
@@ -701,8 +704,8 @@ export class Stage {
       h.zOff += ((over ? o.passInFront : 0) - h.zOff) * Math.min(1, dt * 11);
     }
     // a pair that has parted is forgotten, so the next meeting is a new bonk
-    for (const [key, memory] of this.touching) if (memory.size === 0) this.touching.delete(key);
-    this.recentBonks = this.recentBonks.filter((b) => this.time - b.t < 0.9);
+    if (this.touching.size) for (const [key, memory] of this.touching) if (memory.size === 0) this.touching.delete(key);
+    if (this.recentBonks.length) this.recentBonks = this.recentBonks.filter((b) => this.time - b.t < 0.9);
   }
 
   #zones() {

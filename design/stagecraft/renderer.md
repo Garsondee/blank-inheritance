@@ -649,6 +649,44 @@ where they will be drawn*: with post-processing the stage is drawn into the comp
 and those are different programs. Compiling with the screen bound did not remove the stall (528 ms); compiling with the
 target bound did. The longest draw of the first grab went from 592 ms to 9 ms, and the bench holds it under 120.
 
+### 9.3 A round of cheaper, same-looking (2026-10-05)
+
+> Work through and make as many improvements to performance as makes sense. No need to measure; I want to give you a long
+> round of making performance improvements whilst trying to do minimal damage to the visuals quality.
+
+From an audit by reading the code (nothing was timed; the changes are ones that cannot make a draw dearer). All of it is
+proved by `module/stagecraft/test/three-resources.test.mjs` and, on a real graphics card, `tools/stagecraft/bench/perf-check.mjs`.
+
+- **Shadow maps are drawn when something that casts a shadow has moved** (`render/three/shadows.mjs`), not at every frame.
+  A `ShadowWatch` keeps each card's pose in coarse steps (a pixel for where it stands, a degree for how it leans, a hundredth
+  of its height for breathing: under the shadow's own softness) and the backend asks for the maps again only when a step
+  changes, a card comes or goes, the box of chalk moves or the footlights change. A card in a hand, on a walk or hopping is a
+  new shadow at every frame, as before; a still stage draws its maps in about one draw in ten (live check: 8 of 75, 6 of 60).
+- **A card that leaves frees what it made.** `CardView` makes its things through a scope of the backend's tracker
+  (`support.mjs` `Tracker#scoped`), and `dispose` frees the scope: its face and back pictures, blob, enamel, hand ring and any
+  emote sprite. Before, they stayed in video memory until the scene changed, so a long scene with people coming and going
+  (the wings, reveals) grew without end. What every card has the same of (the brass, the lacquer, the collar metal, the shape
+  of the body, the face plane, the stick) is made once and shared (`backend.mjs#shared`). The fight board's and the marks'
+  labels free the picture they replace. Live check: eight cards that came and went leave the geometry, texture and tracked counts as they were.
+- **Pictures are sent to the graphics card at load**, beside the shaders (`backend.mjs#upload`, `initTexture`): the painting,
+  the cut-outs' fades and every card's face and back, not at the first draw that shows them; and for a card that arrives later, before it is added.
+- **A pixel budget** (`contract.mjs` `pixelRatioFor`, `tierSettings().maxPixels`): the picture is drawn at the display's own
+  scale up to the cap of 2 and no more than 8.5 million pixels (a 4K screen at its own scale; a 1440p window on a display
+  scaled to 2 was 14.7 million, with a multisampled half-float target to match), never under one picture pixel to a page
+  pixel. A window of 2560 by 1271 at 1.5 (7.3 million) is untouched.
+- **Less made at every step.** The 120 Hz physics step no longer makes an array of the held cards or a set of the pairs it
+  met, and does not filter the list of recent bonks when it is empty; picking reuses its list of what can be hit; the wings'
+  faded cards are looked up from a map and placed only when the view, the cast or the providers' answer has changed (they
+  were found by a selector and projected at every frame); the chalk journal's entry is found once and remembered by its id (it
+  was a scan of every journal in the world at every journal page that changed anywhere, a note typed in the notebook included).
+
+**Looked at and left alone, on purpose.** Mipmaps on the zone outlines and chalk tiles (zoomed out to the limit they are seen
+at under half size, where fine chalk and hairlines would shimmer without them; the saving was small). The multisampling and
+the bloom (the look is Ingram's; the pixel budget is the lever that does not change it at ordinary sizes). The idle rate of 30 a second.
+A debounce on resizing (the picture's size and the pointer's maths must agree at every instant). Not yet checked: the
+second composer target is cloned multisampled but, with these passes, probably never bound, so never allocated; read it off
+a graphics-memory counter before counting on it.
+
 ---
 
 ## 10. The plan

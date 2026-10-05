@@ -12,16 +12,41 @@ export const DEG = Math.PI / 180;
 
 /** Everything the backend creates goes through here, so `disposeAll` frees it all and `size` can prove it did. */
 export class Tracker {
-  constructor() { this.items = new Set(); }
-  add(x) { if (x) this.items.add(x); return x; }
-  /** A mesh, its geometry and its materials. */
+  constructor(parent = null) { this.items = new Set(); this.parent = parent; }
+  add(x) {
+    if (!x) return x;
+    this.items.add(x);
+    this.parent?.add(x);
+    return x;
+  }
+  /**
+   * A mesh, its geometry and its materials. In a scope (`scoped`), what the parent already holds (a geometry, material or
+   * texture shared by every card) is left to the parent: a scope frees only what it made.
+   */
   mesh(m) {
-    this.add(m.geometry);
+    const own = (x) => { if (x && !(this.parent && this.parent.items.has(x) && !this.items.has(x))) this.add(x); };
+    own(m.geometry);
     for (const mat of [].concat(m.material)) {
-      this.add(mat);
-      for (const v of Object.values(mat)) if (v?.isTexture) this.add(v);
+      own(mat);
+      for (const v of Object.values(mat)) if (v?.isTexture) own(v);
     }
     return m;
+  }
+  /** A tracker for one thing that can go before the scene does (a card): everything it makes is also the parent's until `disposeScope`. */
+  scoped() { return new Tracker(this); }
+  /** Free one thing now, and forget it. */
+  release(x) {
+    if (!x) return;
+    x.dispose?.();
+    this.#forget(x);
+  }
+  #forget(x) {
+    this.items.delete(x);
+    this.parent?.#forget(x);
+  }
+  /** Free everything a scope made (a card that has left), and take it out of the parent's list. */
+  disposeScope() {
+    for (const x of [...this.items]) this.release(x);
   }
   disposeAll() {
     for (const x of this.items) x.dispose?.();

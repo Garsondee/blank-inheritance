@@ -48,6 +48,19 @@ export function assertBackend(b, name = "backend") {
 
 /** What a tier switches off. `flat` is a different backend; this is about the three.js one. */
 export function tierSettings(tier) {
-  if (tier === "low") return { post: false, shadows: false, msaa: 0, pixelRatioCap: 1, dust: 120, sparks: 24, footlights: false };
-  return { post: true, shadows: true, msaa: 4, pixelRatioCap: 2, dust: 420, sparks: 48, footlights: true };
+  if (tier === "low") return { post: false, shadows: false, msaa: 0, pixelRatioCap: 1, maxPixels: 4_000_000, dust: 120, sparks: 24, footlights: false };
+  return { post: true, shadows: true, msaa: 4, pixelRatioCap: 2, maxPixels: 8_500_000, dust: 420, sparks: 48, footlights: true };
+}
+
+/**
+ * The pixel ratio a picture of w x h window pixels is drawn at: the display's own, up to the tier's cap, and no more than
+ * keeps the picture within the tier's pixel budget (8.5 million: a 4K screen at its own scale, which nobody sees beyond;
+ * a 1440p window on a display scaled to 2 would be 14.7 million). The fill cost of the lit stage, and the video memory of its
+ * multisampled targets, grow with the pixels. Never below 1 (or below what the display asks, if that is less): a window is
+ * never drawn at less than one picture pixel to a page pixel for the sake of the budget.
+ */
+export function pixelRatioFor(width, height, dpr, { pixelRatioCap = 2, maxPixels = Infinity } = {}) {
+  const want = Math.min(Number(dpr) > 0 ? Number(dpr) : 1, pixelRatioCap);
+  const fit = Math.sqrt(maxPixels / Math.max(1, width * height));
+  return Math.max(Math.min(1, want), Math.min(want, fit));
 }

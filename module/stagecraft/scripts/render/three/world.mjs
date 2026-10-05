@@ -43,7 +43,6 @@ export class World {
     back.scale.set((w * (rig.cam.f + BACKDROP_DEPTH)) / rig.cam.f, (h * (rig.cam.f + BACKDROP_DEPTH)) / rig.cam.f, 1);
     this.group.add(back);
     this.backdrop = back;
-    this.#apron(paintTex, w, h);
 
     // Cut-outs: the painting's own pixels, stood at the depth where they meet the floor, so cards can stand behind them.
     // Each fades in from its top edge (core/visibility.mjs `cutoutFade`), so a card behind it melts into the counter
@@ -122,27 +121,6 @@ export class World {
     tex.channel = 1;
     tex.needsUpdate = true;
     return tex;
-  }
-
-  /**
-   * The apron (diorama.md §2.4): a painting that is lifted to clear the deck leaves a strip below it, which is filled
-   * with the painting's own floor, mirrored and dimmed, so the room seems to run on under whatever covers the bottom.
-   */
-  #apron(tex, w, h) {
-    const { rig, T } = this;
-    const bottom = rig.map.oy + h;
-    const need = rig.ref.H - bottom + 600;           // down past the bottom of the page, and a little more
-    if (need <= 0) return;
-    const depth = Math.min(need, h * 0.6);           // a mirror can only reach as far as the painting is tall
-    const v = rig.cam.f + BACKDROP_DEPTH;
-    const geo = new THREE.PlaneGeometry(1, 1);
-    const uv = geo.attributes.uv;
-    // the top edge is the painting's bottom edge (v = 0); going down it samples upwards into the painting
-    for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) === 1 ? 0 : depth / h);
-    const apron = T.mesh(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, color: 0x8a8a8a })));
-    apron.position.copy(atDepth(rig, rig.map.ox + w / 2, bottom + depth / 2, -BACKDROP_DEPTH));
-    apron.scale.set((w * v) / rig.cam.f, (depth * v) / rig.cam.f, 1);
-    this.group.add(apron);
   }
 
   #lantern(L, i) {

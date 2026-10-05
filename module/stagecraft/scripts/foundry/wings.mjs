@@ -111,7 +111,7 @@ export class Wings {
       this.showGhosts = !this.showGhosts;
       try { globalThis.localStorage?.setItem(GHOSTS_KEY, this.showGhosts ? "1" : "0"); } catch { /* not kept: fine */ }
       this.#paintEye();
-      this.frame();
+      this.frame(true);
     });
     const find = tray.querySelector(".wings-find");
     find.placeholder = t("Find");
@@ -197,7 +197,7 @@ export class Wings {
     for (const id of [...this.coming.keys()]) if (!named.has(id) || Date.now() - this.coming.get(id) > 6000) this.coming.delete(id);
     this.#paintTray();
     this.place();
-    this.frame();
+    this.frame(true);
   }
 
   /** Everyone named who has no card on the stage now. */
@@ -272,31 +272,39 @@ export class Wings {
    * Each frame the stage draws: stand every faded card where its person would stand, as the picture projects it now (the
    * view may have moved). Only a box that changed is written to the page.
    */
-  frame() {
+  frame(force = false) {
     const layer = this.layer;
     const host = this.host;
     if (!layer || !host.stage || !host.backend?.project) return;
     const hidden = !this.showGhosts || !!host.chalk?.inHand || !!host.blocking?.armed || !!host.editor?.on;
-    layer.hidden = hidden;
+    if (layer.hidden !== hidden) layer.hidden = hidden;
     if (hidden) return;
+    // where a faded card stands changes only when the view moves, the cast changes or the providers say something new: the
+    // picture hands a new view object over at every pan, zoom and resize, so an unchanged one means nothing to work out
     const stage = host.stage;
+    const view = host.backend.view ?? null;
+    const done = this.framed;
+    if (!force && done && done.view === view && done.people === this.people && done.cast === stage.cards.size) return;
+    this.framed = { view, people: this.people, cast: stage.cards.size };
+    this.ghostEls ??= new Map();
     const seen = new Set();
     for (const p of this.waiting()) {
       if (!p.at) continue;
       const box = this.#boxOf(stage, p);
       if (!box) continue;
       seen.add(p.id);
-      let el = layer.querySelector(`.stagecraft-ghost[data-id="${CSS.escape(p.id)}"]`);
-      if (!el) { el = this.#ghost(p); layer.append(el); }
+      let el = this.ghostEls.get(p.id);
+      if (!el) { el = this.#ghost(p); layer.append(el); this.ghostEls.set(p.id, el); }
       el.classList.toggle("coming", this.coming.has(p.id));
       const k = `${box.x},${box.y},${box.w},${box.h}`;
       if (this.boxes.get(p.id) === k) continue;
       this.boxes.set(p.id, k);
       Object.assign(el.style, { left: `${box.x}px`, top: `${box.y}px`, width: `${box.w}px`, height: `${box.h}px` });
     }
-    for (const el of [...layer.children]) {
-      if (seen.has(el.dataset.id)) continue;
-      this.boxes.delete(el.dataset.id);
+    for (const [id, el] of this.ghostEls) {
+      if (seen.has(id)) continue;
+      this.boxes.delete(id);
+      this.ghostEls.delete(id);
       el.remove();
     }
   }
@@ -414,7 +422,7 @@ export class Wings {
     else this.#clearFind();
     this.trayKey = null;
     this.#paintTray();
-    this.frame();
+    this.frame(true);
     Hooks.callAll("stagecraft.bring", bringEvent({ scene: this.host.scene, id, way, at, found }), this.host);
     // a provider that never answers leaves nobody dimmed for long
     setTimeout(() => { if (this.coming.has(id)) this.refresh(); }, 6500);

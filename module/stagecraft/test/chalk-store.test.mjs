@@ -343,3 +343,26 @@ test("a deleted scene takes its chalk with it, and only a GM's client does the c
   assert.equal(store.layers("kept").length, 1, "another scene's wall is untouched");
   store.dispose();
 });
+
+test("the chalk's journal entry is looked for among the world's journals once, not at every journal page that changes anywhere", async () => {
+  // found 2026-10-05 in a performance audit: `entry` was a scan of every journal, asked at every page changed in the world
+  // (a note typed in the notebook) and at every page of chalk read
+  const entry = await withEntry();
+  const store = new ChalkStore();
+  let scans = 0;
+  const find = world.entries.find.bind(world.entries);
+  world.entries.find = (fn) => { scans++; return find(fn); };
+  for (let i = 0; i < 20; i++) assert.equal(store.entry.id, entry.id);
+  assert.equal(scans, 1, "found once, then remembered by its id");
+  // the world's journals change: another entry arrives, and a page of another journal is touched
+  world.entries.push({ id: "notebook", flags: {}, getFlag: () => undefined, pages: [] });
+  assert.equal(store.entry.id, entry.id);
+  assert.equal(scans, 1, "nothing else being added makes it look again");
+  // the entry itself goes, then a new one is made: it is looked for again, and found
+  world.entries.splice(world.entries.indexOf(entry), 1);
+  assert.equal(store.entry, null);
+  assert.ok(scans >= 2, "a remembered entry that is gone is looked for afresh");
+  const again = await withEntry();
+  assert.equal(store.entry.id, again.id);
+  store.dispose();
+});

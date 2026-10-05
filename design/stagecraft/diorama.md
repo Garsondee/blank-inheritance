@@ -116,8 +116,8 @@ job, not the author's:
 
 - **The floor ends at the deck's top edge**, the way a stage ends at its lip, crown and all (`deckLip`).
 - **The painting lifts clear** of the deck by a few dozen pixels (one more number on the rig, "clear deck"). The strip
-  this leaves along the very bottom is filled by the **apron**: the painting's own floor, mirrored and dimmed. Only its
-  ends show, either side of the deck.
+  this leaves along the very bottom shows the stage's plain background. There is no mirrored copy of the painting
+  (the "apron" was removed 2026-10-05 at Ingram's instruction: it helped nothing).
 - **A card asked to stand behind the deck is walked back** along the floor until its foot shows (`clearDeck`), and the
   rig says so out loud, because it means the scene asked for a place the screen can't give.
 

@@ -118,6 +118,7 @@ export function installFoundry({ user = { id: "me", name: "Me", isGM: false }, d
     canWrite(page) { return page.ownedBy ? page.ownedBy.includes(this.user.id) || this.user.isGM : true; },
     others: {}                                           // the other users of the world, by id: { id, isGM }
   };
+  world.entries.get = (id) => Array.prototype.find.call(world.entries, (e) => e.id === id);          // a Foundry collection can be asked by id
   globalThis.Hooks = world.hooks;
   globalThis.CONST = { DOCUMENT_OWNERSHIP_LEVELS: { NONE: 0, LIMITED: 1, OBSERVER: 2, OWNER: OWNER } };
   globalThis.game = {

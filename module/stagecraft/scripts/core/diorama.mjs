@@ -84,7 +84,7 @@ export function coverMap(imgW, imgH, screenW, screenH, posY = 0.5, lift = 0, pos
   const s = Math.max(screenW / imgW, screenH / imgH);
   const ox = (screenW - imgW * s) * posX;
   // `lift` raises the painting so its floor clears the deck; the strip it
-  // leaves at the bottom is filled by the apron (see the renderer).
+  // leaves at the bottom shows the plain stage background.
   const oy = (screenH - imgH * s) * posY - lift;
   return { s, ox, oy, lift, x: (fx) => ox + fx * imgW * s, y: (fy) => oy + fy * imgH * s };
 }

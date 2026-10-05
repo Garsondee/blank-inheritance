@@ -77,7 +77,7 @@ export class BoardLabels {
       label = { sprite, at: this.rig.standing(boardLabelPoint(z)) };
       this.labels.set(z.id, label);
     } else {
-      label.sprite.material.map?.dispose();
+      this.T.release(label.sprite.material.map);          // the old picture goes from video memory and from the tracker's list
       label.sprite.material.map = tex;
       label.sprite.material.needsUpdate = true;
     }
@@ -154,7 +154,11 @@ export class MarkDecals {
 
   #setLabel(text, x, y, z) {
     if (!this.label || this.labelText !== text) {
-      this.label?.parent?.remove(this.label);
+      if (this.label) {
+        this.label.parent?.remove(this.label);
+        this.T.release(this.label.material.map);
+        this.T.release(this.label.material);
+      }
       const mat = this.T.add(new THREE.SpriteMaterial({ map: this.T.add(canvasTexture(labelCanvas(text))), depthTest: false, transparent: true }));
       this.label = new THREE.Sprite(mat);
       this.label.renderOrder = 55;

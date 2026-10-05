@@ -38,13 +38,24 @@ export class CardView {
     this.root.userData.cardId = person.id;
     this.emote = null;
     this.ghostTexture = null;
+    // what this card makes on the graphics card is its own, and goes with it (a card that leaves must not stay in video memory
+    // until the scene changes); what every card has the same of (the brass, the lacquer, the shape of the body) is shared
+    this.scope = ctx.tracker.scoped?.() ?? null;
+  }
+
+  /** The tracker this card's own things are made through. */
+  get T() { return this.scope ?? this.ctx.tracker; }
+
+  /** One of the things every card has the same of: made once by the picture and shared (so a crowd is not a crowd of copies). */
+  #shared(key, make) {
+    return this.ctx.shared ? this.ctx.shared(key, make) : this.T.add(make());
   }
 
   async build() {
     const { skin, ctx, person } = this;
-    const T = ctx.tracker;
+    const T = this.T;
     const m = skin.materials ?? {};
-    const brass = T.add(new THREE.MeshStandardMaterial({ color: m.body?.color ?? 0xe7dfcd, metalness: m.body?.metalness ?? 0, roughness: m.body?.roughness ?? 0.9 }));
+    const brass = this.#shared(`brass:${m.body?.color}:${m.body?.metalness}:${m.body?.roughness}`, () => new THREE.MeshStandardMaterial({ color: m.body?.color ?? 0xe7dfcd, metalness: m.body?.metalness ?? 0, roughness: m.body?.roughness ?? 0.9 }));
     const helpers = this.#helpers();
     const [faceCanvas, backCanvas] = await Promise.all([faceOf(skin, person, helpers), skin.back(person, helpers)]);
 
@@ -58,15 +69,16 @@ export class CardView {
 
     const W = this.w;
     const H = this.h;
-    const body = T.mesh(new THREE.Mesh(new RoundedBoxGeometry(W - 3, H - 3, skin.thickness, 3, 6), brass));
+    const body = T.mesh(new THREE.Mesh(this.#shared(`body:${W}:${H}:${skin.thickness}`, () => new RoundedBoxGeometry(W - 3, H - 3, skin.thickness, 3, 6)), brass));
     body.position.y = H / 2;
     body.castShadow = true;
 
     const faceTex = T.add(canvasTexture(faceCanvas));
     this.faceTex = faceTex;
     this.ghostTexture = faceTex;
+    const plane = () => this.#shared(`plane:${W}:${H}`, () => new THREE.PlaneGeometry(W, H));
     const face = T.mesh(new THREE.Mesh(
-      new THREE.PlaneGeometry(W, H),
+      plane(),
       new THREE.MeshPhysicalMaterial({ map: faceTex, roughness: m.face?.roughness ?? 0.5, metalness: m.face?.metalness ?? 0.1, clearcoat: m.face?.clearcoat ?? 0.6, clearcoatRoughness: 0.22, transparent: true, alphaTest: 0.5, envMapIntensity: 0.7 })
     ));
     face.position.set(0, H / 2, skin.thickness / 2 + 0.2);
@@ -75,13 +87,13 @@ export class CardView {
 
     this.backTex = T.add(canvasTexture(backCanvas));
     const back = T.mesh(new THREE.Mesh(
-      new THREE.PlaneGeometry(W, H),
+      plane(),
       new THREE.MeshStandardMaterial({ map: this.backTex, roughness: m.back?.roughness ?? 0.62, metalness: m.back?.metalness ?? 0.35, transparent: true, alphaTest: 0.5 })
     ));
     back.position.set(0, H / 2, -(skin.thickness / 2 + 0.2));
     back.rotation.y = Math.PI;
 
-    const foot = T.mesh(new THREE.Mesh(new THREE.BoxGeometry(W * 0.5, 12, 54), brass));
+    const foot = T.mesh(new THREE.Mesh(this.#shared(`foot:${W}`, () => new THREE.BoxGeometry(W * 0.5, 12, 54)), brass));
     foot.position.set(0, -6, 0);
     foot.castShadow = true;
 
@@ -98,7 +110,7 @@ export class CardView {
     this.#buildStick(brass);
 
     // a soft blob on the floor that stays put while the card is lifted
-    this.blob = T.mesh(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: ctx.softDot, color: 0x000000, transparent: true, opacity: 0.55, depthWrite: false })));
+    this.blob = T.mesh(new THREE.Mesh(this.#shared("plane:1:1", () => new THREE.PlaneGeometry(1, 1)), new THREE.MeshBasicMaterial({ map: ctx.softDot, color: 0x000000, transparent: true, opacity: 0.55, depthWrite: false })));
     this.blob.rotation.x = -Math.PI / 2;
     this.blob.renderOrder = 2;
 
@@ -128,25 +140,27 @@ export class CardView {
   }
 
   #buildStick(brass) {
-    const { skin, ctx } = this;
-    const T = ctx.tracker;
+    const { skin } = this;
+    const T = this.T;
     const s = this.s;
     const len = this.stickLen;
     const collarH = 18 * s;
     const colour = new THREE.Color(this.person.colour ?? "#e8e0c8");
     const wood = skin.stick?.wood ?? 0x80512d;
-    const lacquer = T.add(new THREE.MeshPhysicalMaterial({ color: wood, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12, emissive: new THREE.Color(wood).multiplyScalar(0.45), emissiveIntensity: 0.9 }));
-    const metal = T.add(new THREE.MeshStandardMaterial({ color: skin.stick?.collar ?? 0xb8924f, metalness: 1, roughness: 0.34 }));
+    // the same for every card of a skin (and for every card of a size): made once, shared
+    const lacquer = this.#shared(`lacquer:${wood}`, () => new THREE.MeshPhysicalMaterial({ color: wood, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12, emissive: new THREE.Color(wood).multiplyScalar(0.45), emissiveIntensity: 0.9 }));
+    const metal = this.#shared(`metal:${skin.stick?.collar}`, () => new THREE.MeshStandardMaterial({ color: skin.stick?.collar ?? 0xb8924f, metalness: 1, roughness: 0.34 }));
+    const size = `${s.toFixed(4)}:${len.toFixed(2)}`;
     this.rod = new THREE.Group();
-    const grip = T.mesh(new THREE.Mesh(new THREE.CylinderGeometry(8.5 * s, 6.4 * s, len - collarH, 24), lacquer));
+    const grip = T.mesh(new THREE.Mesh(this.#shared(`grip:${size}`, () => new THREE.CylinderGeometry(8.5 * s, 6.4 * s, len - collarH, 24)), lacquer));
     grip.position.y = (len - collarH) / 2;
-    const end = T.mesh(new THREE.Mesh(new THREE.SphereGeometry(6.4 * s, 18, 12), lacquer));
-    const collar = T.mesh(new THREE.Mesh(new THREE.CylinderGeometry(12.5 * s, 10 * s, collarH, 28), metal));
+    const end = T.mesh(new THREE.Mesh(this.#shared(`end:${size}`, () => new THREE.SphereGeometry(6.4 * s, 18, 12)), lacquer));
+    const collar = T.mesh(new THREE.Mesh(this.#shared(`collar:${size}`, () => new THREE.CylinderGeometry(12.5 * s, 10 * s, collarH, 28)), metal));
     collar.position.y = len - collarH / 2;
-    const lip = T.mesh(new THREE.Mesh(new THREE.TorusGeometry(12 * s, 2.2 * s, 8, 28), metal));
+    const lip = T.mesh(new THREE.Mesh(this.#shared(`lip:${size}`, () => new THREE.TorusGeometry(12 * s, 2.2 * s, 8, 28)), metal));
     lip.rotation.x = Math.PI / 2;
     lip.position.y = len - collarH;
-    const hand = T.mesh(new THREE.Mesh(new THREE.TorusGeometry(21, 3.6, 10, 36), new THREE.MeshStandardMaterial({ color: colour, emissive: colour, emissiveIntensity: 1.6, roughness: 0.4 })));
+    const hand = T.mesh(new THREE.Mesh(this.#shared("hand", () => new THREE.TorusGeometry(21, 3.6, 10, 36)), new THREE.MeshStandardMaterial({ color: colour, emissive: colour, emissiveIntensity: 1.6, roughness: 0.4 })));
     hand.rotation.x = Math.PI / 2;
     hand.position.y = 8;
     for (const mesh of [grip, end, collar, lip]) mesh.castShadow = true;
@@ -205,12 +219,12 @@ export class CardView {
   }
 
   async setEmote(id) {
-    if (this.emote) { this.emote.sprite.parent?.remove(this.emote.sprite); this.emote = null; }
+    if (this.emote) { this.#dropEmote(); }
     this.wanted = id ?? null;
     if (!id) return;
     const tex = await this.ctx.emoteTexture(id);
     if (!tex || this.wanted !== id || this.emote || this.gone) return;     // another was asked for while this one loaded, or the card went
-    const sprite = new THREE.Sprite(this.ctx.tracker.add(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })));
+    const sprite = new THREE.Sprite(this.T.add(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })));
     sprite.renderOrder = 50;
     sprite.center.set(0.5, 1 - EMOTE_PIVOT);   // it turns about a point low down, near where it meets its card
     this.emote = { id, sprite };
@@ -240,10 +254,21 @@ export class CardView {
     sprite.material.rotation = -(e.r ?? 0) * DEG;
   }
 
+  /** Take the emote's sprite off the stage and free its material (the picture itself is the backend's, shared by every card). */
+  #dropEmote() {
+    const { sprite } = this.emote;
+    sprite.parent?.remove(sprite);
+    this.T.release(sprite.material);
+    this.emote = null;
+  }
+
   dispose() {
     this.gone = true;
     this.root.parent?.remove(this.root);
-    this.blob.parent?.remove(this.blob);
-    if (this.emote) this.emote.sprite.parent?.remove(this.emote.sprite);
+    this.blob?.parent?.remove(this.blob);
+    if (this.emote) this.#dropEmote();
+    // gone from the stage: its pictures, shapes and materials go from video memory too, not at the scene's end
+    this.faceTex = this.backTex = null;
+    this.scope?.disposeScope();
   }
 }

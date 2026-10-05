@@ -8,13 +8,14 @@
 import * as THREE from "three";
 import { EMOTES } from "../../core/emotes.mjs";
 import { makeRig } from "../../core/rigspace.mjs";
-import { tierSettings } from "../contract.mjs";
+import { tierSettings, pixelRatioFor } from "../contract.mjs";
 import { Tracker, ImageCache, softDotTexture, canvasTexture, viewFor, aimCamera, BACKDROP_DEPTH } from "./support.mjs";
 import { World } from "./world.mjs";
 import { CardView } from "./cards.mjs";
 import { BangFx } from "./fx.mjs";
 import { ZoneOutlines, MarkDecals, BoardLabels } from "./overlay.mjs";
 import { Post } from "./post.mjs";
+import { ShadowWatch } from "./shadows.mjs";
 import { ChalkTiles, ChalkBox } from "./chalk.mjs";
 import { DEFAULT_BOX } from "../../core/chalk.mjs";
 import { samplePainting } from "../paint/wall.mjs";
@@ -39,6 +40,16 @@ export class ThreeBackend {
     this.calm = false;
     this.disposed = false;
     this.ready = false;              // true once load() has built the whole room: nothing is drawn or picked before that
+    this.sharedPool = new Map();     // what every card has the same of (materials, shapes), made once: key -> object
+    this.shadowWatch = new ShadowWatch();   // every card's pose as the shadows last saw it, in coarse steps (shadows.mjs)
+    this.shadowDirty = true;         // something that casts a shadow came or went: the shadow maps are drawn again at the next frame
+  }
+
+  /** One of the things every card has the same of, made the first time it is asked for and shared by all (tracked once, freed with the picture). */
+  #shared(key, make) {
+    let v = this.sharedPool.get(key);
+    if (!v) { v = this.tracker.add(make()); this.sharedPool.set(key, v); }
+    return v;
   }
 
   /* ---------------------------------------------------------------- lifecycle */
@@ -54,6 +65,10 @@ export class ThreeBackend {
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: !this.settings.post, powerPreference: "high-performance" });
     this.renderer.info.autoReset = false;
     this.renderer.shadowMap.enabled = this.settings.shadows;
+    // the shadow maps are drawn again only when something that casts a shadow has moved (`draw`), not at every frame: a still
+    // stage (the lamps only flicker) has nothing new to say to them
+    this.renderer.shadowMap.autoUpdate = false;
+    this.renderer.shadowMap.needsUpdate = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.NoToneMapping;
@@ -72,7 +87,7 @@ export class ThreeBackend {
   #size(w, h, ratio) {
     this.width = w;
     this.height = h;
-    this.ratio = Math.min(ratio || 1, this.settings.pixelRatioCap);
+    this.ratio = pixelRatioFor(w, h, ratio, this.settings);
     this.view = viewFor(w, h);
     this.renderer.setPixelRatio(this.ratio);
     this.renderer.setSize(w, h, false);
@@ -106,7 +121,7 @@ export class ThreeBackend {
 
   setZoneSetting(setting) { this.zoneSetting = setting; }
 
-  setFootlights(on) { this.world?.setFootlights(on); }
+  setFootlights(on) { this.world?.setFootlights(on); this.shadowDirty = true; }
 
   /**
    * Build the room. `description` is a normalised scene (core/scene.mjs); `skin` draws the cards; `people` are the
@@ -141,6 +156,7 @@ export class ThreeBackend {
       this.post = new Post(this.renderer, this.scene, this.camera, { width: Math.round(this.width * this.ratio), height: Math.round(this.height * this.ratio), samples: this.settings.msaa });
       this.post.setCalm(this.calm);
     }
+    this.#upload(this.tracker);                           // and every picture, now, not at the first frame that shows it
     await this.#compileFor(this.scene);                   // the room, the box of chalk, the marks, the bang: every shader, now
     this.world.setFootlights(description.footlights);
     this.ready = true;
@@ -177,6 +193,20 @@ export class ThreeBackend {
     }
   }
 
+  /**
+   * Send the pictures a tracker holds to the graphics card now. three.js sends a texture at the first frame that draws it, and
+   * the painting, the cut-outs' fades and every card's face and back are a few megabytes each (with their mipmaps made on the
+   * way): at the first frame that was a stall of its own, beside the shaders `#compileFor` already builds ahead.
+   */
+  #upload(tracker) {
+    const r = this.renderer;
+    if (typeof r?.initTexture !== "function") return;
+    for (const x of tracker.items) {
+      if (!x.isTexture || !x.image) continue;
+      try { r.initTexture(x); } catch { /* it is sent at the first draw instead */ }
+    }
+  }
+
   /** The room's own colour, as what the brass and the glass reflect: the painting, blurred into an environment map. */
   #environment(painting) {
     const pmrem = new THREE.PMREMGenerator(this.renderer);
@@ -197,14 +227,18 @@ export class ThreeBackend {
     this.adding.add(person.id);
     try {
       this.titleBlock ??= makeTitleBlock();
-      const ctx = { tracker: this.tracker, images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id), lightAt: (x, z) => this.#lightAt(x, z) };
+      const ctx = { tracker: this.tracker, shared: (key, make) => this.#shared(key, make), images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id), lightAt: (x, z) => this.#lightAt(x, z) };
       const view = new CardView(person, this.skin, ctx, this.description.cardScale * (person.size ?? 1));
       await view.build();
       if (this.disposed) { view.dispose(); return; }
-      if (this.ready) await this.#compileFor(view.root);          // someone arriving later: their stick and face, built ahead too
+      if (this.ready) {                                           // someone arriving later: their stick and face, built ahead too
+        if (view.scope) this.#upload(view.scope);
+        await this.#compileFor(view.root);
+      }
       if (this.disposed) { view.dispose(); return; }
       this.views.set(person.id, view);               // only now can the frame loop pose it
       this.scene.add(view.root, view.blob);
+      this.shadowDirty = true;
       if (person.emote?.id) await view.setEmote(person.emote.id);
     } finally {
       this.adding.delete(person.id);
@@ -216,6 +250,7 @@ export class ThreeBackend {
     if (!v) return;
     v.dispose();
     this.views.delete(id);
+    this.shadowDirty = true;
   }
 
   /** A card's words changed (a name learned, a line of text edited): its face is drawn again from the skin. */
@@ -256,6 +291,10 @@ export class ThreeBackend {
     this.boardLabels.update(snapshot.board ?? null);
     this.marks.update(snapshot.marks, this.views, t);
     this.fx.update(snapshot.bonks, t);
+    if (this.settings.shadows) {
+      const moved = this.shadowWatch.update(snapshot.cards);
+      if (moved || this.shadowDirty) { this.renderer.shadowMap.needsUpdate = true; this.shadowDirty = false; }
+    }
     this.renderer.info.reset();
     if (this.post) this.post.render(t);
     else this.renderer.render(this.scene, this.camera);
@@ -278,9 +317,10 @@ export class ThreeBackend {
    */
   pick(x, y) {
     if (!this.ready) return null;
-    const meshes = [];
-    for (const v of this.views.values()) meshes.push(...v.pickables);
-    if (this.chalkBox?.group.visible) meshes.push(...this.chalkBox.pickables);
+    const meshes = (this.pickList ??= []);              // kept from one pointer move to the next: this runs at every one
+    meshes.length = 0;
+    for (const v of this.views.values()) for (const m of v.pickables) meshes.push(m);
+    if (this.chalkBox?.group.visible) for (const m of this.chalkBox.pickables) meshes.push(m);
     if (!meshes.length) return null;
     const hit = this.#ray(x, y).intersectObjects(meshes, false)[0];
     if (!hit) return null;
@@ -324,9 +364,9 @@ export class ThreeBackend {
   /** The chalk wall's tiles that changed (render/paint/wall.mjs), or (`full`) all of them. */
   setChalkTiles(wall, keys, full = false) { this.chalkTiles?.update(wall, keys, full); }
   setChalkHidden(hidden) { this.chalkTiles?.setHidden(hidden); }
-  setChalkBox(visible) { this.chalkBox?.setVisible(visible); }
+  setChalkBox(visible) { this.chalkBox?.setVisible(visible); this.shadowDirty = true; }
   /** Stand the box of chalk at another point of the floor (fractions of the painting). */
-  setChalkBoxAt(at) { if (this.rig) this.chalkBox?.moveTo(this.rig, at); }
+  setChalkBoxAt(at) { if (this.rig) this.chalkBox?.moveTo(this.rig, at); this.shadowDirty = true; }
 
   /** The map from wall pixels to window pixels now, for the wet ink laid over the stage while a stroke is painted (core/wet.mjs). */
   wetMap(grid) { return this.rig && this.view ? wallToWindow({ size: this.rig.size, map: this.rig.map, view: this.view }, grid) : null; }
@@ -361,6 +401,7 @@ export class ThreeBackend {
     this.disposed = true;
     for (const v of this.views.values()) v.dispose();
     this.views.clear();
+    this.sharedPool.clear();
     this.chalkTiles?.dispose();
     this.post?.dispose();
     this.tracker?.disposeAll();
