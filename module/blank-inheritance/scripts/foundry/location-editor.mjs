@@ -92,6 +92,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   #scrollToEditor = false; // bring the change-this-place card into view on the next render: the list is long and the card opens under its row
   #staged = null; // a place chosen for a slot, waiting for the GM to confirm
   #drawFor = null; // { slotKey, label, kind }: drawing a new building or pin for a slot
+  #pickTarget = "places"; // what "Pick on the map" takes: "places" (a building or pin, a real building adopted) or "areas" (a district)
   #focusKey = null;
   #mode = "areas";
   #placesShapeKind = "site";
@@ -140,6 +141,8 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       focusSlot: LocationEditorApplication.#onFocusSlot,
       editSlot: LocationEditorApplication.#onEditSlot,
       pickOnMap: LocationEditorApplication.#onPickOnMap,
+      setPickTarget: LocationEditorApplication.#onSetPickTarget,
+      toggleBuildings: LocationEditorApplication.#onToggleBuildings,
       cancelArm: LocationEditorApplication.#onCancelArm,
       drawFor: LocationEditorApplication.#onDrawFor,
       cancelDraw: LocationEditorApplication.#onCancelDraw,
@@ -278,7 +281,16 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
         counts: published.counts,
         total: published.total,
         failed: published.failed,
-        visibility: published.visibility
+        visibility: published.visibility,
+        buildings: published.buildings && {
+          loading: published.buildings.state === "loading",
+          missing: published.buildings.state === "missing",
+          failed: published.buildings.state === "error",
+          ready: published.buildings.state === "ok",
+          count: published.buildings.count,
+          shown: published.buildings.shown,
+          truncated: published.buildings.truncated
+        }
       },
       items: this.#items.map((i) => ({
         localId: i.localId,
@@ -710,6 +722,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       editor: entry
         ? {
           slotKey: entry.slot.key, label: `${entry.row.title} · ${entry.slot.label}`, search: this.#search, suggestions, staged: this.#stagedView(), armed: Boolean(armed),
+          pickTarget: this.#pickTarget, pickPlaces: this.#pickTarget === "places", pickAreas: this.#pickTarget === "areas",
           canClear: entry.slot.state !== "gap" && entry.slot.state !== "offmap",
           canOffMap: entry.slot.target.kind === "scene",
           offMapOpen: this.#offMapOpen,
@@ -840,6 +853,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   static #onEditSlot(event, target) {
     const key = target.dataset.slotKey;
     this.#editing = this.#editing === key ? null : key;
+    this.#pickTarget = "places";
     this.#scrollToEditor = Boolean(this.#editing);
     this.#search = "";
     this.#staged = null;
@@ -847,7 +861,11 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     this.render();
   }
 
-  /** "Pick on the map": the next click on an existing building, pin or (with Shift) area is the place. */
+  /**
+   * "Pick on the map": the next click on a building, a pin or a real building of the map is the place (a district when the switch beside it
+   * says Areas, or with Shift). A real building that is not a place yet is ADOPTED: it becomes a new draft place with its exact footprint,
+   * and the map tab opens on it to be named and saved, after which the placement is confirmed here (the same road a drawn building takes).
+   */
   static async #onPickOnMap() {
     const entry = this.#editEntry();
     if (!entry) return;
@@ -855,14 +873,42 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     if (!layer) return;
     layer.armAssign({
       label: `${entry.row.title} · ${entry.slot.label}`,
+      target: this.#pickTarget,
       onPick: (pick) => {
-        this.#stagePlace(entry, { locationId: pick.locationId, name: pick.name, tier: pick.tier });
-        layer.focusLocation(pick.locationId, { label: entry.row.title, pan: false });
+        if (pick.building) this.#adoptFromStory(entry, pick.building);
+        else {
+          this.#stagePlace(entry, { locationId: pick.locationId, name: pick.name, tier: pick.tier });
+          layer.focusLocation(pick.locationId, { label: entry.row.title, pan: false });
+        }
         this.render();
       },
       onCancel: () => this.render()
     });
     this.render();
+  }
+
+  /** What the pick takes: "places" (buildings and pins) or "areas" (districts). Applies at once to a pick already waiting. */
+  static #onSetPickTarget(event, target) {
+    this.#pickTarget = target.dataset.target === "areas" ? "areas" : "places";
+    canvas.locationDraw?.setAssignTarget?.(this.#pickTarget);
+    this.render();
+  }
+
+  /** The switch for the real-building outlines on the map. */
+  static #onToggleBuildings(event, target) {
+    canvas.locationDraw?.setBuildingsVisible?.(target.checked);
+  }
+
+  /** A real building was picked for a slot: adopt it as a draft place, and take the GM to the map tab to name and save it. */
+  #adoptFromStory(entry, building) {
+    const layer = canvas.locationDraw;
+    if (!layer) return;
+    layer.adoptBuildingPick(building);
+    this.#drawFor = { slotKey: entry.slot.key, label: `${entry.row.title} · ${entry.slot.label}`, kind: "site" };
+    this.#tab = "map";
+    this.#mode = "places";
+    this.#placesShapeKind = "site";
+    layer.setPendingTier("site");
   }
 
   static #onCancelArm() {

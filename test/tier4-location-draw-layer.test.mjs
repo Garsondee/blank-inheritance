@@ -33,6 +33,16 @@ const hubDocs = {
   drain: { id: "drain", name: "The Drain", tier: "point", kind: "", rank: 1, depth: "named", authoring: { status: "drafted" }, derived: { imagePx: null, centroidPx: [2000, 2000] } }
 };
 
+// the real buildings of the map (data/campaign/map/buildings-index.json, tools/location-sync/export_buildings.py): image px, rings delta-coded.
+// On the 5000px master image / 10000px hub (scale 2): "house" is scene 400..520 x 400..500 (inside the district, not a place), "shed" is 2000..2120 x 2000..2080.
+const buildingsDoc = {
+  kind: "buildings-index", version: 1, image: [5000, 5000], units: "image px", kinds: ["house", "yes"],
+  buildings: [
+    ["aaaa000000000001", 0, "Kiku's Corner", 3000, [200, 200, 60, 0, 0, 50, -60, 0]],
+    ["aaaa000000000002", 1, null, 2400, [1000, 1000, 60, 0, 0, 40, -60, 0]]
+  ]
+};
+
 /* ------------------------------------------------------------------ */
 /*  Fake timers (node:test's mock.timers needs Node 20; this repo is on 18) */
 /* ------------------------------------------------------------------ */
@@ -157,7 +167,7 @@ class InteractionLayer extends Container {
   _deactivate() {}
 }
 
-function installFoundry({ scale = 0.1 } = {}) {
+function installFoundry({ scale = 0.1, buildings = true } = {}) {
   for (const key of ["foundry", "game", "canvas", "ui", "Hooks", "PIXI", "CONFIG", "requestAnimationFrame", "fetch", "File"]) saved[key] = globalThis[key];
   panCalls = [];
   animated = [];
@@ -202,6 +212,7 @@ function installFoundry({ scale = 0.1 } = {}) {
     const u = String(url);
     const json = (body) => ({ ok: true, status: 200, json: async () => body });
     if (u.includes("campaign-map.json")) return json({ image: { width: 5000 }, metresPerPixel: 1 });
+    if (u.includes("buildings-index.json")) return buildings ? json(buildingsDoc) : { ok: false, status: 404, json: async () => ({}) };
     const hit = u.match(/locations\/([^/]+)\.json/);
     if (hit && hubDocs[hit[1]]) return json(hubDocs[hit[1]]);
     return { ok: false, status: 404, json: async () => ({}) };
@@ -303,7 +314,7 @@ describe("the draw layer under Foundry's real drag sequence", () => {
   test("the sequence that wedged the canvas -- drag, drop, then the cancel that always follows -- no longer throws, for every drag tool", async () => {
     layer.activate();
     await layer.activation;
-    const draftContainer = layer.children[3]; // published, shapes, reference, DRAFT, handles, overlay
+    const draftContainer = layer.children[4]; // buildings, published, shapes, reference, DRAFT, handles, overlay
     for (const tool of ["pick", "rect", "circle"]) {
       layer.setTool(tool);
       const result = await runDrag(layer, { from: point(1000, 1000), to: point(1400, 1300), shift: tool === "pick" });
@@ -491,8 +502,8 @@ describe("the draw layer's dock, tools and escape behaviour", () => {
   test("every drawing container is invisible to PIXI hit-testing; only the handles container takes events", () => {
     // PIXI 7 hit-tests "auto" children of an interactive parent, and one hit stops the search beneath it: the
     // hover highlight above the handles swallowed every press on a handle inside the hovered building.
-    const [published, shapes, reference, draft, handles, overlay] = layer.children;
-    for (const container of [published, shapes, reference, draft, overlay]) {
+    const [buildings, published, shapes, reference, draft, handles, overlay] = layer.children;
+    for (const container of [buildings, published, shapes, reference, draft, overlay]) {
       assert.equal(container.eventMode, "none");
       assert.equal(container.interactiveChildren, false);
     }
@@ -549,26 +560,26 @@ describe("what already exists on the map", () => {
     assert.equal(summary.state, "ok");
     assert.equal(summary.onHub, true);
     assert.deepEqual(summary.counts, { region: 1, site: 1, point: 1 });
-    const container = layer.children[0];
+    const container = layer.children[1];
     assert.equal(container.visible, true);
     assert.ok(container.children.length >= 2, "a Graphics per polygon tier and one for pins -- not one per location");
   });
 
   test("the outlines are drawn in SCREEN pixels: a 2.5px line at zoom 0.1 is 25 scene px", () => {
-    const [regionGraphics] = layer.children[0].children;
+    const [regionGraphics] = layer.children[1].children;
     assert.equal(regionGraphics.lines.at(-1).width, 2.5 / 0.1);
   });
 
   test("zooming redraws them at the new size (debounced), and panning alone does not", () => {
-    const before = layer.children[0].children[0];
+    const before = layer.children[1].children[0];
     layer.onViewChange(0.1); // pan: same scale
     fakeTimers.tick(500);
-    assert.equal(layer.children[0].children[0], before, "a pan does not rebuild anything");
+    assert.equal(layer.children[1].children[0], before, "a pan does not rebuild anything");
     globalThis.canvas.stage.scale.x = 1;
     globalThis.canvas.stage.scale.y = 1;
     layer.onViewChange(1);
     fakeTimers.tick(500);
-    const after = layer.children[0].children[0];
+    const after = layer.children[1].children[0];
     assert.notEqual(after, before);
     assert.equal(after.lines.at(-1).width, 2.5);
   });
@@ -639,7 +650,7 @@ describe("what already exists on the map", () => {
     layer.setTool("pick");
     layer.setPendingTier("site");
     hover.call(layer, point(900, 900));
-    const overlay = layer.children[5];
+    const overlay = layer.children[6];
     assert.equal(overlay.children.length, 2, "an outline and a label");
     assert.match(overlay.children[1].text, /Town Hall/);
     hover.call(layer, point(8000, 8000));
@@ -648,9 +659,9 @@ describe("what already exists on the map", () => {
 
   test("deactivating hides the existing-locations layer; reactivating shows it again", () => {
     layer.deactivate();
-    assert.equal(layer.children[0].visible, false);
+    assert.equal(layer.children[1].visible, false);
     layer.activate();
-    assert.equal(layer.children[0].visible, true);
+    assert.equal(layer.children[1].visible, true);
   });
 
   test("a scene change that is not the hub draws nothing and offers nothing to click", () => {
@@ -797,5 +808,187 @@ describe("what already exists on the map", () => {
     layer.onViewChange(1);
     fakeTimers.tick(500);
     assert.notEqual(layer.children.at(-1).children[0], before);
+  });
+});
+
+describe("the real buildings of the map: seen, picked for a scene, adopted", () => {
+  const house = point(450, 450);   // the house: inside the district, not a place yet
+  const hall = point(900, 900);    // the hall: already a place
+  const districtOnly = point(1500, 1500);
+
+  async function ready(options) {
+    fakeTimers.enable();
+    await makeLayer(options);
+    layer.activate();
+    await layer.activation;
+    for (let i = 0; i < 30 && (layer.publishedSummary.state !== "ok" || layer.buildingsSummary.state === "loading"); i++) await new Promise((r) => setImmediate(r));
+  }
+  afterEach(async () => {
+    await drain();
+    fakeTimers.reset();
+    uninstallFoundry();
+  });
+
+  test("activating the layer loads the real buildings and draws them under everything else", async () => {
+    await ready();
+    assert.deepEqual({ ...layer.buildingsSummary }, { state: "ok", onHub: true, count: 2, shown: true, truncated: false });
+    const container = layer.children[0];
+    assert.equal(container.visible, true);
+    assert.equal(container.children.length, 1, "one Graphics for all of them");
+    assert.equal(container.children[0].polygons.length, 2, "an outline for each building in view");
+    assert.deepEqual(layer.publishedSummary.buildings, layer.buildingsSummary, "the panel reads it from the published summary");
+  });
+
+  test("a missing buildings file is a state the panel can say, not an error; the existing places still work", async () => {
+    await ready({ buildings: false });
+    await layer.loadBuildings({ refresh: true });          // (the file is cached by the loader across tests: ask again, as the panel's refresh does)
+    assert.equal(layer.buildingsSummary.state, "missing");
+    assert.equal(layer.buildingsSummary.count, 0);
+    assert.equal(layer.children[0].children.length, 0);
+    assert.equal(layer.publishedSummary.state, "ok");
+  });
+
+  test("the panel's switch hides and shows the outlines", async () => {
+    await ready();
+    layer.setBuildingsVisible(false);
+    assert.equal(layer.children[0].children.length, 0);
+    assert.equal(layer.buildingsSummary.shown, false);
+    layer.setBuildingsVisible(true);
+    assert.equal(layer.children[0].children[0].polygons.length, 2);
+  });
+
+  test("Places mode: a click on a real building that is not a place yet adopts it, instead of opening the district round it", async () => {
+    await ready();
+    layer.setPendingTier("site");
+    layer.setTool("pick");
+    clickPick(layer, house);
+    const items = Object.values(layer.getSession().items);
+    assert.equal(items.length, 1, "one draft, not the district");
+    const [item] = items;
+    assert.equal(item.tier, "site");
+    assert.equal(item.locationId, null, "a new place, to be named and saved");
+    assert.equal(item.name, "Kiku's Corner");
+    assert.equal(item.fields.name, "Kiku's Corner");
+    assert.match(item.fields.note, /real house building .*3000 m2.*aaaa000000000001/, "the note says where it came from, so the form is not blank and Save is not refused");
+    assert.deepEqual(item.geometry.ringPx, [[400, 400], [520, 400], [520, 500], [400, 500]], "its exact footprint, in scene px");
+    assert.equal(item.source.buildingId, "aaaa000000000001");
+    assert.deepEqual(layer.selectedIds, [item.localId]);
+    clickPick(layer, house);
+    assert.equal(Object.keys(layer.getSession().items).length, 1, "the same building is not adopted twice: the click finds the draft");
+    assert.equal(layer.children[0].children[0].polygons.length, 1, "and its loose outline is not drawn over the draft");
+  });
+
+  test("Places mode still opens a place that exists (the hall), and Areas mode still opens the district", async () => {
+    await ready();
+    layer.setPendingTier("site");
+    layer.setTool("pick");
+    clickPick(layer, hall);
+    assert.equal(Object.values(layer.getSession().items)[0].locationId, "hall");
+    layer.setPendingTier("region");
+    clickPick(layer, house);
+    assert.ok(Object.values(layer.getSession().items).some((i) => i.locationId === "district"), "in Areas mode the area is what a click means");
+    assert.equal(Object.values(layer.getSession().items).some((i) => i.source), false, "no building was adopted");
+  });
+
+  test("a pick for a scene takes a building by default: a place that exists as it is, a real building as a building pick", async () => {
+    await ready();
+    const picks = [];
+    layer.setTool("pick");
+    layer.armAssign({ label: "Kit Issue", onPick: (p) => picks.push(p) });
+    clickPick(layer, hall);
+    assert.deepEqual(picks[0], { locationId: "hall", name: "Town Hall", tier: "site" });
+    layer.armAssign({ label: "Kit Issue", onPick: (p) => picks.push(p) });
+    clickPick(layer, house);
+    assert.equal(picks[1].tier, "site");
+    assert.equal(picks[1].name, "Kiku's Corner");
+    assert.equal(picks[1].building.id, "aaaa000000000001");
+    assert.equal(picks[1].building.areaM2, 3000);
+    assert.deepEqual(picks[1].building.ringScene, [[400, 400], [520, 400], [520, 500], [400, 500]]);
+    assert.equal(picks[1].locationId, undefined, "it is not a place yet: the caller adopts it");
+    assert.equal(Object.keys(layer.getSession().items).length, 0, "picking only hands it back; nothing is adopted until the caller does");
+  });
+
+  test("a pick for a scene never takes a district by accident: ground with only a district under it keeps waiting and says so", async () => {
+    await ready();
+    const picks = [];
+    layer.setTool("pick");
+    layer.armAssign({ label: "x", onPick: (p) => picks.push(p) });
+    clickPick(layer, districtOnly);
+    assert.equal(layer.assignArmed, true);
+    assert.equal(picks.length, 0);
+    clickPick(layer, districtOnly, { shift: true });
+    assert.equal(picks[0].locationId, "district", "Shift takes the area, as the hint says");
+    assert.equal(layer.assignArmed, false);
+  });
+
+  test("the Areas target takes districts only, with Shift for a building; switching it while waiting takes effect at once", async () => {
+    await ready();
+    const picks = [];
+    layer.setTool("pick");
+    layer.armAssign({ label: "x", target: "areas", onPick: (p) => picks.push(p) });
+    assert.equal(layer.assignTarget, "areas");
+    clickPick(layer, hall);
+    assert.equal(picks[0].locationId, "district", "the hall is inside the district: an area pick takes the area");
+    layer.armAssign({ label: "x", target: "areas", onPick: (p) => picks.push(p) });
+    clickPick(layer, house, { shift: true });
+    assert.equal(picks[1].building.id, "aaaa000000000001", "Shift takes the other target");
+    layer.armAssign({ label: "x", onPick: (p) => picks.push(p) });
+    layer.setAssignTarget("areas");
+    clickPick(layer, house);
+    assert.equal(picks[2].locationId, "district");
+    layer.armAssign({ label: "x", onPick: (p) => picks.push(p) });
+    assert.equal(layer.assignTarget, "places", "a new wait starts on buildings and pins unless told otherwise");
+  });
+
+  test("while a pick waits, hovering a real building outlines and names it; an unnamed one is called so", async () => {
+    await ready();
+    layer.setTool("pick");
+    layer.armAssign({ label: "x", onPick() {} });
+    moveHandlers.at(-1)(point(450, 450));
+    const overlay = layer.children[6];
+    assert.match(overlay.children[1].text, /Kiku's Corner\nbuilding · house/);
+    moveHandlers.at(-1)(point(2060, 2040));
+    assert.match(overlay.children[1].text, /Unnamed building/);
+    moveHandlers.at(-1)(point(9000, 9000));
+    assert.equal(overlay.children.length, 0);
+  });
+
+  test("a thin building clicked a hair off still counts; a click well off does not", async () => {
+    await ready();
+    layer.setPendingTier("site");
+    layer.setTool("pick");
+    clickPick(layer, point(2060, 2085));   // 5 scene px below the shed's lower edge; at this zoom 6 screen px is 60 scene px of slop
+    assert.equal(Object.values(layer.getSession().items).length, 1);
+    layer.selectItem(null);
+    clickPick(layer, point(2060, 2500));
+    assert.equal(Object.values(layer.getSession().items).filter((i) => i.source).length, 1, "nothing more was adopted");
+  });
+
+  test("panning redraws the outlines only once the view leaves the box they were drawn for; zooming redraws them at the new size", async () => {
+    await ready();
+    const before = layer.children[0].children[0];
+    layer.onViewChange(0.1);
+    fakeTimers.tick(500);
+    assert.equal(layer.children[0].children[0], before, "the same view: nothing rebuilt");
+    globalThis.canvas.stage.pivot.x = 5000 + 20000;     // slid several screens to the right
+    layer.onViewChange(0.1);
+    fakeTimers.tick(500);
+    assert.notEqual(layer.children[0].children[0], before, "left the drawn box: redrawn for the new view");
+    assert.equal(layer.children[0].children[0].polygons.length, 0, "and no building is there");
+    globalThis.canvas.stage.pivot.x = 450;
+    globalThis.canvas.stage.pivot.y = 450;
+    globalThis.canvas.stage.scale.x = 1;
+    layer.onViewChange(1);
+    fakeTimers.tick(500);
+    assert.equal(layer.children[0].children[0].polygons.length, 1, "zoomed in on the house: only it is in view");
+  });
+
+  test("leaving the editor hides the outlines; returning shows them", async () => {
+    await ready();
+    layer.deactivate();
+    assert.equal(layer.children[0].visible, false);
+    layer.activate();
+    await layer.activation;
+    assert.equal(layer.children[0].visible, true);
   });
 });

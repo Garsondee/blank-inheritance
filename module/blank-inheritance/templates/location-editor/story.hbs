@@ -94,6 +94,10 @@
                 <p class="bi-story__editor-title">{{label}}</p>
                 <div class="bi-location-editor__row">
                     <button type="button" class="bi-location-editor__button{{#if armed}} is-active{{/if}}" data-action="pickOnMap"><i class="fa-solid fa-hand-pointer"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickOnMap"}}</button>
+                    <span class="bi-story__targets" role="group" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.PickTargetHint'}}">
+                        <button type="button" class="bi-location-editor__button{{#if pickPlaces}} is-active{{/if}}" data-action="setPickTarget" data-target="places"><i class="fa-solid fa-building"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickBuildings"}}</button>
+                        <button type="button" class="bi-location-editor__button{{#if pickAreas}} is-active{{/if}}" data-action="setPickTarget" data-target="areas"><i class="fa-solid fa-map"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickAreas"}}</button>
+                    </span>
                     <button type="button" class="bi-location-editor__button" data-action="drawFor" data-kind="site"><i class="fa-solid fa-draw-polygon"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.DrawBuilding"}}</button>
                     <button type="button" class="bi-location-editor__button" data-action="drawFor" data-kind="point"><i class="fa-solid fa-location-dot"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.DropPin"}}</button>
                     {{#if canOffMap}}<button type="button" class="bi-location-editor__button{{#if offMapOpen}} is-active{{/if}}" data-action="offMapMenu"><i class="fa-solid fa-map-pin"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.OffMap"}}</button>{{/if}}

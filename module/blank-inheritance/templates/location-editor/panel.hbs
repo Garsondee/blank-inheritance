@@ -46,10 +46,15 @@
             <label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleTier" data-tier="region" {{#if published.visibility.region}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.Regions"}} ({{published.counts.region}})</label>
             <label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleTier" data-tier="site" {{#if published.visibility.site}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.Sites"}} ({{published.counts.site}})</label>
             <label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleTier" data-tier="point" {{#if published.visibility.point}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.Points"}} ({{published.counts.point}})</label>
+            {{#if published.buildings.ready}}<label class="bi-location-editor__radio"><input type="checkbox" data-action="toggleBuildings" {{#if published.buildings.shown}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Published.RealBuildings"}} ({{published.buildings.count}})</label>{{/if}}
         </div>
         <div class="bi-location-editor__row">
             <button type="button" class="bi-location-editor__button" data-action="fitMap" {{#unless published.onHub}}disabled{{/unless}}><i class="fa-solid fa-expand"></i> {{localize "BLANKINHERITANCE.LocationEditor.Published.Fit"}}</button>
         </div>
+        {{#if published.buildings.loading}}<p class="bi-location-editor__note"><i class="fa-solid fa-spinner fa-spin"></i> {{localize "BLANKINHERITANCE.LocationEditor.Published.BuildingsLoading"}}</p>{{/if}}
+        {{#if published.buildings.missing}}<p class="bi-location-editor__warn">{{localize "BLANKINHERITANCE.LocationEditor.Published.BuildingsMissing"}}</p>{{/if}}
+        {{#if published.buildings.failed}}<p class="bi-location-editor__warn">{{localize "BLANKINHERITANCE.LocationEditor.Published.BuildingsFailed"}}</p>{{/if}}
+        {{#if published.buildings.truncated}}<p class="bi-location-editor__note">{{localize "BLANKINHERITANCE.LocationEditor.Published.BuildingsZoom"}}</p>{{/if}}
         {{#if published.failed}}<p class="bi-location-editor__note">{{localize "BLANKINHERITANCE.LocationEditor.Published.SomeFailed" count=published.failed}}</p>{{/if}}
         {{/if}}
     </div>

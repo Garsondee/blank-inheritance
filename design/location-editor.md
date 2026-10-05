@@ -94,7 +94,7 @@ codebase, and there's no reason to fork it now.
 | `tier` | `region` | `site`, `point` |
 | What it's for | Districts, biomes — the tessellating layer that should eventually cover the whole map | Buildings, complexes, blocks, and pinned points with no footprint |
 | Shape | A real polygon (holes allowed), neighbour-snap and weld active | `site`: a real polygon (a building's footprint), snap/weld inactive — a building traced inside a district has no reason to weld to the district's own border, same rule `draw.js` already enforces (snap targets are regions only, and only while drawing a region). `point`: a single dropped pin, no ring at all — draw.js's own `tool === "point"` path already places a bare point, so a point-tier location needs no circle-standing-in-for-a-pin workaround the way the (rejected) Region design needed one. |
-| Canvas state while this mode is active | Only region-tier session items are interactive/visible at full strength; site/point items dim (district-focus-style, reusing `draw.js`'s existing `setFocus`/`DIMMED` mechanism, which already does exactly this kind of "everything else fades, nothing disappears" filtering) | Only site/point session items shown at full strength; regions dim. Once §7 ships, a reference layer of real building footprints is also shown, for tracing or one-click adopting. |
+| Canvas state while this mode is active | Only region-tier session items are interactive/visible at full strength; site/point items dim (district-focus-style, reusing `draw.js`'s existing `setFocus`/`DIMMED` mechanism, which already does exactly this kind of "everything else fades, nothing disappears" filtering) | Only site/point session items shown at full strength; regions dim. The real building footprints (§7, §13) are drawn as a reference layer, for tracing or one-click adopting. |
 | Distinctive tool | Snap-to-neighbour is live by default | "Adopt Building" (§7) |
 
 The mode toggle lives in the Location Editor panel (§3) and drives which tier `draw.js`'s own `tool`
@@ -237,15 +237,13 @@ Unchanged from the first revision: `geometry`/`derived`/`pinAnchor` are `OWNER: 
 write them, clash-detected). Cross-refs, `realWorld`, `scene.history`/`consequences` stay Claude's own,
 untouched by this panel. `authoring.status` is unchanged, still the Approvals Desk's field.
 
-## 7. Adopting a real building (Phase 2, not blocking)
+## 7. Adopting a real building (BUILT 2026-10-05, section 13)
 
-Unaffected in concept by the architecture change — the gesture is still "click a real footprint, get its
-exact polygon" (`_api_hit_test`/`_api_adopt`, ported as a small pure `core/building-hit-test.mjs`,
-same exact-inside/nearest-edge rule) — now a tool on **our own** draw layer instead of a proposal to
-programmatically create a Foundry Region. Needs a static, grid-bucketed export of building footprints
-(`tools/location-sync/export-buildings.py`, from the same GeoPackage query `/api/features` already makes)
-since Foundry's client can't query the 120MB GeoPackage live. Not blocking Phase 1 — the painted map
-already renders real building shapes clearly enough to hand-trace as a fallback.
+The gesture is "click a real footprint, get its exact polygon", on **our own** draw layer. It needed a static export of the building
+footprints, because Foundry's client cannot query the 123 MB GeoPackage: `tools/location-sync/export_buildings.py` writes
+`data/map/buildings-index.json`, which ships with the campaign data to `data/campaign/map/`. Built, with the pure half
+(`core/buildings-index.mjs`: the exact-inside / smallest-footprint / nearest-edge hit rule, the grid, adopting a footprint into a draft)
+and the Foundry half (`foundry/buildings-index.mjs`, and the draw layer). See section 13 for what it does and how it was found missing.
 
 ## 8. What ports, what's dropped, what's deferred — the full accounting (revised)
 
@@ -628,3 +626,43 @@ unknown, everyone knows it as, within a parent place, out of character, abstract
 one `"site"` record with `offMap: "<reason id>"` and `locationId: null`. Only scene places can be off-map, not destinations or
 travel points. Apply writes `offMap: {reason}` on the `scene-set.json` entry (and clears `approximate`); setting a real place
 removes it. The sign-off Place pass and board accept an `offMap.reason` as sited. Verified live 2026-10-01 on "From Up Here".
+
+## 13. Real buildings: seen, picked for a scene, adopted (2026-10-05)
+
+Ingram, using the Story tab: *"It isn't showing me the GIS outlines of real buildings, I cannot adopt a real building by selecting it in this
+way. I try and use 'Change where this happens' and it makes me select an area or district, not a building and the GIS outlines of real
+buildings aren't even visible when selecting. Sometimes I might WANT to select an area but when choosing a scene thing it's going to be a
+building or map pin."* Three faults, one cause: the editor drew only the 237 locations that already exist, so a real building was
+invisible, and a click on one found the district round it (the pick fell back to "anything visible"). §7 had always said the buildings
+index was needed; it had not been built.
+
+- **The data.** `python tools/location-sync/export_buildings.py` (`--check`, `--stats`): every building of the store (`kurose.gpkg`)
+  whose middle is on the content of the map image and on **land by the painted map** (`landmask.py`: the coastline is authored, not OSM's, so a
+  building OSM puts on the airport that is under the sea here is not offered), as its outer ring in the map image's own pixels, integer and
+  delta-coded, with its kind, name (if the map names it), area and the store's stable id. 55,509 buildings (36,062 non-buildings, 50,475
+  off the map, 2,803 at sea, 420 sheds dropped), 3.6 MB; a deterministic file. `SYNCED_MAP_FILES` ships it. It needs `shapely`, `pyproj`
+  and `numpy` (`python -m pip install shapely pyproj numpy`).
+- **Seen.** On activation the layer loads it (`loadBuildings`, a state if the file is missing, never a throw) and draws the footprints in view as
+  faint blue outlines under everything else: for a box a quarter-screen wider than the view, else for the view, else the largest 6,000
+  (the panel says "zoom in"); redrawn when the view leaves the drawn box or the zoom changes. A panel switch, **Real buildings of the map**,
+  hides them (a waiting pick shows them regardless).
+- **Picked for a scene.** "Change where this happens" > "Pick on the map" now has two targets, shown beside it: **Buildings and pins**
+  (the default) and **Areas**. Buildings and pins takes a place that already exists (a site or pin), else a **real building**; it never takes a
+  district. Areas takes a district only. Shift takes the other for one click, so an area is one gesture away when wanted, and a click on ground
+  with nothing of the target says what to do. The outlines re-dim so what can be picked is what is bright; hovering a real building names it
+  ("click to adopt as a new place").
+- **Adopted.** A real building picked for a scene (or clicked in **Places mode** with the pick tool, where it used to open the district) becomes
+  a new draft **site** whose outline is the footprint exactly, named from the map if the map names it, noted ("A real building of the map
+  (footprint N m2, store id ...), adopted as it stands"), selected, with the usual depth and shape advice. From the Story tab the panel moves
+  to the map tab with the banner "Drawing a place for ...": Save writes the same `create` record a drawn building does, and the Story tab then asks
+  to confirm putting the scene there (a `viaRecord` placement), so nothing about applying it changed. Adopting the same footprint twice finds the
+  first; its loose outline is not drawn over the draft.
+- **Checks.** `test/tier1-buildings-index.test.mjs` (the file's format, the grid, the smallest-footprint and slop rules, adopting),
+  `test/tier2-buildings-index-corpus.test.mjs` (the real file), the new cases in `test/tier4-location-draw-layer.test.mjs` (the layer against its
+  PIXI stand-in: drawn, switched, picked by either target, adopted, hover, pan and zoom), `test/location-sync/test_export_buildings.py`
+  (a tiny GeoPackage with the real georeference), and **`tools/location-sync/foundry-buildings-check.mjs`**, in the real Foundry with real mouse
+  events: the buildings are on the hub, Pick on the map takes a real building (exact footprint, named, noted), Save and confirm work, and Areas can
+  be chosen on purpose (16/16 on 2026-10-05).
+- **Found while doing it, not fixed:** the editor's `layer.activate()` makes Foundry's own `SceneControls#activate` throw ("reading
+  'querySelector'") in this adventure's world, where the left-hand scene controls are not on screen. It predates this work and the editor
+  works regardless.

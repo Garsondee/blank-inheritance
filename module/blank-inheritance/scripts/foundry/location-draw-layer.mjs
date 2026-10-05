@@ -50,7 +50,9 @@ import { addDraftItem, emptySession, isValidSession, itemsInPolygon, itemsInRect
 import { buildDockControl, DEFAULT_TOOL, DRAG_TOOLS, normaliseTool, TOOL_DEFS } from "../core/location-draw-tools.mjs";
 import { adoptPublished, boxesOverlap, fitView, hitTestPublished, publishedBounds, publishedVisible, releasePeeked } from "../core/location-published.mjs";
 import { fetchModuleJson, writeStorageJson } from "./io.mjs";
+import { adoptBuilding, adoptedBuildingIds, buildingAsShape, buildingPick } from "../core/buildings-index.mjs";
 import { loadPublishedInScene } from "./location-published.mjs";
+import { loadBuildingsInScene } from "./buildings-index.mjs";
 
 // InteractionLayer is Foundry's own base class for a canvas layer with real
 // user interaction -- the same one Regions/Drawings/Walls extend, exposed to
@@ -95,6 +97,9 @@ const ANGLE_SNAP_STEP = Math.PI / 8;
 const CIRCLE_DRAFT_POINTS = 32;
 const CLICK_VS_DRAG_SCREEN_PX = 4;
 const HIT_PIN_RADIUS_SCREEN_PX = 15;
+const HIT_BUILDING_SLOP_SCREEN_PX = 6; // a thin building clicked a hair off still counts (core/buildings-index.mjs hit)
+const MAX_BUILDINGS_DRAWN = 6000; // zoomed out, only the largest footprints are drawn: a screen of 50,000 outlines is noise and a slow frame
+const BUILDING_STYLE = { color: 0x7fb2ff, line: 0xb9d7ff, fillAlpha: 0.12, lineAlpha: 0.8 };
 // draw.js's own tuned constants (design doc §3.2) -- unchanged. Weld
 // tolerance is compared directly against scene-px deltas with no zoom
 // adjustment on purpose: whether two vertices were meant to be the same
@@ -191,6 +196,13 @@ export class LocationDrawLayer extends InteractionLayer {
   #publishedSceneId = null;
   #publishedFailed = [];
   #publishedState = "idle"; // idle | loading | ok | no-hub | error
+  #buildings = null; // { sceneId, index } -- every real building of the map laid on the hub scene (core/buildings-index.mjs), or null
+  #buildingsState = "idle"; // idle | loading | ok | no-hub | missing | error
+  #buildingsTruncated = false; // the last draw left out the smaller footprints (too many on screen)
+  #buildingsDrawn = null; // the scene box the buildings were last drawn for: panning inside it needs no redraw
+  #showBuildings = true; // the panel's switch for the real-building outlines
+  #buildingsContainer;
+  #assignTarget = "places"; // what a pick for a scene may take: "places" (a building, a pin) or "areas" (a district); Shift takes the other
   #visibility = { region: true, site: true, point: true };
   #fitted = false; // has the camera been framed on the existing locations since this layer was last drawn on a scene?
   #hover = null; // the published shape under the cursor, or null
@@ -238,6 +250,7 @@ export class LocationDrawLayer extends InteractionLayer {
     await super._draw(options);
     // Bottom to top: what exists, this session's drawings, the bisect
     // reference, the in-flight draft, the handles, then the hover overlay.
+    this.#buildingsContainer = this.addChild(this.#passive(new PIXI.Container()));
     this.#publishedContainer = this.addChild(this.#passive(new PIXI.Container()));
     this.#shapesContainer = this.addChild(this.#passive(new PIXI.Container()));
     this.#referenceContainer = this.addChild(this.#passive(new PIXI.Container()));
@@ -247,6 +260,7 @@ export class LocationDrawLayer extends InteractionLayer {
     // Last, so the Story list's highlight and its label sit above everything else.
     this.#focusContainer = this.addChild(this.#passive(new PIXI.Container()));
     this.#publishedContainer.visible = this.active;
+    this.#buildingsContainer.visible = this.active;
     LocationDrawLayer.#registerCanvasHooks();
     canvas.registerMouseMoveHandler?.(this.#mouseMoveHandler, 0, this, true);
     if (this.#sessionLoaded) this.#renderAll();
@@ -276,7 +290,7 @@ export class LocationDrawLayer extends InteractionLayer {
     this.#hover = null;
     this.#hoverLabel = null;
     await super._tearDown(options);
-    this.#publishedContainer = this.#shapesContainer = this.#referenceContainer = null;
+    this.#publishedContainer = this.#shapesContainer = this.#referenceContainer = this.#buildingsContainer = null;
     this.#draftContainer = this.#handlesContainer = this.#overlayContainer = this.#focusContainer = null;
   }
 
@@ -346,6 +360,7 @@ export class LocationDrawLayer extends InteractionLayer {
     if (!this.#sessionLoaded) await this.#loadSession();
     this.#renderAll();
     this.#report(this.#hintFor(this.#tool));
+    if (this.#buildingsState === "idle") this.loadBuildings();
     if (this.#publishedState === "idle") this.loadPublished();
     else this.#fitOnEntry();
   }
@@ -361,6 +376,7 @@ export class LocationDrawLayer extends InteractionLayer {
     // What already exists is only drawn while the editor is in use; the GM's
     // own session drawings stay visible (they are work in progress).
     if (this.#publishedContainer && !this.#publishedContainer.destroyed) this.#publishedContainer.visible = false;
+    if (this.#buildingsContainer && !this.#buildingsContainer.destroyed) this.#buildingsContainer.visible = false;
     this.#applyCursor();
   }
 
@@ -523,6 +539,124 @@ export class LocationDrawLayer extends InteractionLayer {
   }
 
   /**
+   * (Re)load the real buildings of the map (data/campaign/map/buildings-index.json) and draw them. Called by the layer itself the first time
+   * it is activated. A missing file is a state, not an error to throw at the GM: the editor works without it, the panel says so.
+   */
+  async loadBuildings({ refresh = false } = {}) {
+    this.#buildingsState = "loading";
+    this.#onPublishedChange?.(this.publishedSummary);
+    try {
+      const result = await loadBuildingsInScene({ refresh });
+      if (!result) {
+        this.#buildings = null;
+        this.#buildingsState = "no-hub";
+      } else {
+        this.#buildings = result;
+        this.#buildingsState = "ok";
+      }
+    } catch (err) {
+      this.#buildings = null;
+      const missing = /HTTP 404|Could not fetch/.test(String(err?.message));
+      this.#buildingsState = missing ? "missing" : "error";
+      if (!missing) console.error("Blank Inheritance | Location Editor could not load the real buildings:", err);
+    }
+    this.#renderBuildings();
+    this.#onPublishedChange?.(this.publishedSummary);
+    return this.buildingsSummary;
+  }
+
+  /** What the panel shows about the real-building outlines. */
+  get buildingsSummary() {
+    return {
+      state: this.#buildingsState,
+      onHub: this.#buildingsUsable(),
+      count: this.#buildings?.index?.count ?? 0,
+      shown: this.#showBuildings,
+      truncated: this.#buildingsTruncated
+    };
+  }
+
+  setBuildingsVisible(visible) {
+    this.#showBuildings = Boolean(visible);
+    this.#setHover(null);
+    this.#renderBuildings();
+    this.#onPublishedChange?.(this.publishedSummary);
+  }
+
+  #buildingsUsable() {
+    return Boolean(this.#buildings) && canvas.scene?.id === this.#buildings.sceneId;
+  }
+
+  /** The scene box on screen now ({x0, y0, x1, y1}), or null when there is no screen to ask. */
+  #viewBox() {
+    const screen = canvas.app?.screen;
+    if (!screen || !canvas.canvasCoordinatesFromClient) return null;
+    const a = canvas.canvasCoordinatesFromClient({ x: 0, y: 0 });
+    const b = canvas.canvasCoordinatesFromClient({ x: screen.width, y: screen.height });
+    return { x0: Math.min(a.x, b.x), y0: Math.min(a.y, b.y), x1: Math.max(a.x, b.x), y1: Math.max(a.y, b.y) };
+  }
+
+  /**
+   * The real buildings in and around view: a faint outline and tint each, under everything else, so what can be picked or adopted is
+   * visible. Zoomed out they are capped to the largest MAX_BUILDINGS_DRAWN; drawn for a box half a screen wider than the view, so a small
+   * pan needs no redraw (onViewChange redraws when the view leaves the box). Dimmed while a pick is for an area.
+   */
+  #renderBuildings() {
+    const container = this.#buildingsContainer;
+    if (!container || container.destroyed) return;
+    emptyContainer(container);
+    container.visible = this.active;
+    this.#buildingsDrawn = null;
+    this.#buildingsTruncated = false;
+    if (!this.active || !this.#buildingsUsable() || !(this.#showBuildings || this.#assign)) return;
+    const view = this.#viewBox();
+    if (!view) return;
+    // drawn for a box a quarter of a screen wider than the view, so a small pan needs no redraw; if that is more than can be drawn, for the
+    // view itself (every building on screen, redrawn as it pans); if even that is too many, the largest of them (the map says "zoom in")
+    const w = view.x1 - view.x0, h = view.y1 - view.y0;
+    let box = { x0: view.x0 - w / 4, y0: view.y0 - h / 4, x1: view.x1 + w / 4, y1: view.y1 + h / 4 };
+    let list = this.#buildings.index.inBox(box);
+    if (list.length > MAX_BUILDINGS_DRAWN) {
+      box = view;
+      list = this.#buildings.index.inBox(box);
+    }
+    if (list.length > MAX_BUILDINGS_DRAWN) {
+      list = list.sort((a, b) => b.area - a.area).slice(0, MAX_BUILDINGS_DRAWN);
+      this.#buildingsTruncated = true;
+    }
+    const adopted = adoptedBuildingIds(this.#session);
+    const g = new PIXI.Graphics();
+    g.alpha = this.#assign && this.#assignTarget === "areas" ? 0.3 : 1;
+    g.lineStyle(this.#px(1.2), BUILDING_STYLE.line, BUILDING_STYLE.lineAlpha);
+    g.beginFill(BUILDING_STYLE.color, BUILDING_STYLE.fillAlpha);
+    for (const b of list) if (!adopted.has(b.id)) g.drawPolygon(flat(b.ringScene));
+    g.endFill();
+    container.addChild(g);
+    this.#buildingsDrawn = this.#buildingsTruncated ? null : box;
+  }
+
+  /** The real building under (x, y), or null. */
+  #buildingAt(x, y) {
+    if (!this.#buildingsUsable()) return null;
+    return this.#buildings.index.hit(x, y, { slop: this.#px(HIT_BUILDING_SLOP_SCREEN_PX) });
+  }
+
+  /**
+   * Make a real building a draft place: its footprint becomes a new SITE in the session, named and noted from the map, selected so the
+   * panel's form opens on it (the Save a drawn building goes through then writes it). `pick` is core/buildings-index.mjs#buildingPick's
+   * `building`. Returns the session item.
+   */
+  adoptBuildingPick(pick) {
+    const { session, item, adopted } = adoptBuilding(this.#session, pick);
+    this.#session = session;
+    this.#setSelection([item.localId]);
+    this.#saveSession().catch(() => {});
+    this.#renderBuildings();
+    this.#report(`${item.name ?? "A real building"} -- ${adopted ? "adopted as a new place; name it and save" : "already adopted"}`, { now: true });
+    return item;
+  }
+
+  /**
    * Opening the editor with the camera parked on empty ground (the usual case
    * on a map this size) looks exactly like "there is nothing here", so on
    * entering the editor the camera is brought to the locations -- but only
@@ -569,7 +703,8 @@ export class LocationDrawLayer extends InteractionLayer {
       counts,
       total: this.#published.length,
       failed: this.#publishedFailed.length,
-      visibility: { ...this.#visibility }
+      visibility: { ...this.#visibility },
+      buildings: this.buildingsSummary
     };
   }
 
@@ -611,12 +746,20 @@ export class LocationDrawLayer extends InteractionLayer {
    */
   #topHitAt(x, y) {
     const mode = modeForTier(this.#pendingTier) ?? "places";
+    let first = true;
     for (const pass of [(tier) => MODE_TIERS[mode].includes(tier), () => true]) {
       const mine = this.#hitTestAt(x, y, pass);
       const theirs = this.#publishedAt(x, y, pass);
       const theirsHit = theirs ? { shape: theirs, area: theirs.pointScene ? 0 : theirs.area, dist: theirs.pointScene ? Math.hypot(theirs.pointScene.x - x, theirs.pointScene.y - y) : 0 } : null;
       const best = !mine ? theirsHit : !theirsHit ? mine : (mine.area < theirsHit.area || (mine.area === theirsHit.area && mine.dist <= theirsHit.dist)) ? mine : theirsHit;
       if (best) return best.id ? { id: best.id } : { shape: best.shape };
+      // Places mode: no place of ours or the map's is here, but a real building may be: that is what a click adopts, and it comes before
+      // falling back to the district around it (which is how a click on a building used to open the district instead)
+      if (first && mode === "places") {
+        const building = this.#buildingAt(x, y);
+        if (building) return { building };
+      }
+      first = false;
     }
     return null;
   }
@@ -1219,6 +1362,10 @@ export class LocationDrawLayer extends InteractionLayer {
       else this.selectItem(hit.id);
       return;
     }
+    if (hit?.building) {
+      this.adoptBuildingPick(buildingPick(hit.building).building);
+      return;
+    }
     const shape = hit?.shape;
     if (shape) {
       const { session, item } = adoptPublished(this.#session, shape);
@@ -1448,30 +1595,59 @@ export class LocationDrawLayer extends InteractionLayer {
   /*  an existing location is handed back instead of opening it.          */
   /* ------------------------------------------------------------------ */
 
-  /** The existing location (any, whether or not open in the session) under (x, y). Buildings and pins first; with `preferRegion`, areas first. Anything visible is the fallback. */
-  #locationAt(x, y, preferRegion) {
-    if (!this.#publishedUsable()) return null;
+  /**
+   * What a pick for a scene's place may take at (x, y): `{ shape }` (an existing location) or `{ building }` (a real footprint that is not a
+   * place yet), or null. Two targets, so a district is never taken by accident and a building is never out of reach (the first version
+   * fell back to the district whenever no listed place was under the click, and real buildings were not on the map at all):
+   *   "places"  a building or pin that already is a place, else a real building (adopted when chosen). Never a district.
+   *   "areas"   a district. Nothing else.
+   * `preferArea` (Shift) takes the other target for this one click.
+   */
+  #locationAt(x, y, preferArea) {
+    const target = (this.#assignTarget === "areas") !== Boolean(preferArea) ? "areas" : "places";
     const pinRadius = this.#px(HIT_PIN_RADIUS_SCREEN_PX);
     const shown = (shape) => publishedVisible(shape, this.#visibility);
-    const first = preferRegion ? (tier) => tier === "region" : (tier) => tier !== "region";
-    return hitTestPublished(this.#published, x, y, { pinRadius, include: (shape) => shown(shape) && first(shape.tier) })
-      ?? hitTestPublished(this.#published, x, y, { pinRadius, include: shown });
+    if (target === "areas") {
+      if (!this.#publishedUsable()) return null;
+      const shape = hitTestPublished(this.#published, x, y, { pinRadius, include: (s) => shown(s) && s.tier === "region" });
+      return shape ? { shape } : null;
+    }
+    if (this.#publishedUsable()) {
+      const shape = hitTestPublished(this.#published, x, y, { pinRadius, include: (s) => shown(s) && s.tier !== "region" });
+      if (shape) return { shape };
+    }
+    const building = this.#buildingAt(x, y);
+    return building ? { building } : null;
   }
 
   /**
-   * Wait for the GM to click the place something should happen at. The click
-   * is handed to `onPick({ locationId, name, tier })` and the wait ends;
-   * Escape (or any other tool) ends it with `onCancel()`. Shift-click picks
-   * the AREA under the pointer rather than the building.
+   * Wait for the GM to click the place something should happen at. The click is handed to `onPick(...)` and the wait ends: for a place that
+   * exists, `{ locationId, name, tier }`; for a real building that is not one yet, `{ building, tier: "site", name }` (the caller adopts it).
+   * Escape (or any other tool) ends it with `onCancel()`. `target` is "places" (a building or a pin; the default) or "areas"; Shift takes the
+   * other for one click.
    */
-  armAssign({ label = "", onPick, onCancel = null } = {}) {
+  armAssign({ label = "", onPick, onCancel = null, target = "places" } = {}) {
     this.disarmAssign({ cancelled: true });
     if (!this.active) this.activate({ tool: "pick" });
     if (this.#tool !== "pick") this.setTool("pick");
     this.#assign = { label, onPick, onCancel };
+    this.#assignTarget = target === "areas" ? "areas" : "places";
     this.clearSelection();
     this.#applyCursor();
+    this.#renderAll();
     this.#report(game.i18n?.format?.("BLANKINHERITANCE.LocationEditor.Story.Armed", { label }) ?? "", { now: true });
+  }
+
+  /** Switch what the wait takes ("places" | "areas"): the outlines re-dim so what can be picked is what is bright. */
+  setAssignTarget(target) {
+    this.#assignTarget = target === "areas" ? "areas" : "places";
+    this.#setHover(null);
+    if (this.#assign) this.#renderAll();
+    this.#onPublishedChange?.(this.publishedSummary);
+  }
+
+  get assignTarget() {
+    return this.#assignTarget;
   }
 
   /** End the wait (the click was taken, or it was abandoned). `cancelled` also tells whoever asked. */
@@ -1481,6 +1657,7 @@ export class LocationDrawLayer extends InteractionLayer {
     this.#assign = null;
     this.#setHover(null);
     this.#applyCursor();
+    this.#renderAll();
     this.#report(this.#hintFor(this.#tool), { now: true });
     if (cancelled) arm.onCancel?.();
   }
@@ -1489,15 +1666,18 @@ export class LocationDrawLayer extends InteractionLayer {
     return Boolean(this.#assign);
   }
 
-  #assignAt(p, preferRegion) {
-    const shape = this.#locationAt(p.x, p.y, preferRegion);
-    if (!shape) {
-      this.#report(game.i18n?.localize?.("BLANKINHERITANCE.LocationEditor.Story.NothingThere") ?? "", { now: true });
+  #assignAt(p, preferArea) {
+    const hit = this.#locationAt(p.x, p.y, preferArea);
+    if (!hit) {
+      const areas = (this.#assignTarget === "areas") !== Boolean(preferArea);
+      this.#report(game.i18n?.localize?.(areas ? "BLANKINHERITANCE.LocationEditor.Story.NoAreaThere" : "BLANKINHERITANCE.LocationEditor.Story.NothingThere") ?? "", { now: true });
       return;
     }
     const arm = this.#assign;
     this.disarmAssign();
-    this.#guard("place", () => arm.onPick({ locationId: shape.id, name: shape.name ?? shape.id, tier: shape.tier }));
+    this.#guard("place", () => arm.onPick(hit.building
+      ? buildingPick(hit.building)
+      : { locationId: hit.shape.id, name: hit.shape.name ?? hit.shape.id, tier: hit.shape.tier }));
   }
 
   /**
@@ -1584,11 +1764,12 @@ export class LocationDrawLayer extends InteractionLayer {
     }
     this.#guard("hover", () => {
       if (this.#assign) {
-        this.#setHover(this.#locationAt(position.x, position.y, false), position);
+        const found = this.#locationAt(position.x, position.y, false);
+        this.#setHover(found?.building ? buildingAsShape(found.building) : found?.shape ?? null, position);
         return;
       }
       const hit = this.#topHitAt(position.x, position.y);
-      this.#setHover(hit?.shape ?? null, position);
+      this.#setHover(hit?.building ? buildingAsShape(hit.building) : hit?.shape ?? null, position);
     });
   }
 
@@ -1628,7 +1809,8 @@ export class LocationDrawLayer extends InteractionLayer {
       g.endFill();
     }
     this.#overlayContainer.addChild(g);
-    const detail = [shape.tier, shape.kind].filter(Boolean).join(" · ");
+    // a real building that is not a place yet: say what a click on it does
+    const detail = [shape.tier, shape.kind, shape.tier === "building" ? (game.i18n?.localize?.("BLANKINHERITANCE.LocationEditor.Published.AdoptHint") ?? "") : ""].filter(Boolean).join(" · ");
     const label = new PIXI.Text(`${shape.name ?? shape.id}\n${detail}`, {
       fontFamily: "Signika, sans-serif",
       fontSize: 14,
@@ -1652,6 +1834,18 @@ export class LocationDrawLayer extends InteractionLayer {
 
   /** The zoom changed: redraw at the new scene-px size for each screen-px weight (debounced; panning alone never gets here). */
   onViewChange(scale) {
+    // panning alone redraws only the real buildings, and only once the view leaves the box they were drawn for
+    if (this.active && scale && scale === this.#renderedScale && this.#buildingsUsable() && !this.#rerenderTimer) {
+      const view = this.#viewBox();
+      const d = this.#buildingsDrawn;
+      if (view && d && (view.x0 < d.x0 || view.y0 < d.y0 || view.x1 > d.x1 || view.y1 > d.y1)) {
+        this.#rerenderTimer = setTimeout(() => {
+          this.#rerenderTimer = null;
+          this.#guard("redraw buildings after a pan", () => this.#renderBuildings());
+        }, RERENDER_DEBOUNCE_MS);
+      }
+      return;
+    }
     if (!this.active || !scale || scale === this.#renderedScale) return;
     clearTimeout(this.#rerenderTimer);
     this.#rerenderTimer = setTimeout(() => {
@@ -1662,6 +1856,7 @@ export class LocationDrawLayer extends InteractionLayer {
 
   #renderAll() {
     this.#renderedScale = this.#scale();
+    this.#renderBuildings();
     this.#render();
     this.#renderPublished();
     this.#renderHandles();
@@ -1724,7 +1919,7 @@ export class LocationDrawLayer extends InteractionLayer {
     container.visible = this.active;
     if (!this.#publishedUsable()) return;
     const open = this.#openLocationIds();
-    const mode = modeForTier(this.#pendingTier) ?? "places";
+    const mode = this.#assign ? (this.#assignTarget === "areas" ? "areas" : "places") : (modeForTier(this.#pendingTier) ?? "places");
     const shown = this.#published.filter((s) => publishedVisible(s, this.#visibility) && !open.has(s.id));
     for (const tier of ["region", "site"]) {
       const shapes = shown.filter((s) => s.tier === tier && !s.pointScene);

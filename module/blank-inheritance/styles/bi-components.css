@@ -13218,6 +13218,8 @@
 /* The drawing tools show a crosshair over the whole map, and a pan a closed hand. Foundry's canvas
    sets the cursor inline on every pointer move, so only !important can win (foundry/location-draw-layer.mjs#applyCursor). */
 #board.bi-loc-crosshair { cursor: crosshair !important; }
+.bi-story__targets { display: inline-flex; gap: 0.25em; margin-left: 0.4em; }
+.bi-story__targets .bi-location-editor__button { padding-inline: 0.55em; }
 #board.bi-loc-grabbing { cursor: grabbing !important; }
 
 /* The Story tab (design/location-editor.md §12): the episodes and haunts as an accordion, scene by scene. */
