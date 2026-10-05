@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/npc-archetypes.schema.json",
+  "id": "npc-archetypes",
+  "type": "npc-archetypes",
+  "authoring": { "status": "drafted" },
+  "description": "The recipes the NPC Generator (module/blank-inheritance/scripts/core/npc-generator/statblock.mjs) builds a stat block from. An archetype names a BAND (extreme, high, moderate, low, terrible) for each statistic; the generator reads the number for that band at the NPC's level from tools/reference-extract/output/creature-building-math.json (GM Core, Building Creatures), so none of these recipes holds a number of its own. Pure SF2E: no campaign overlay. Non-combat archetypes have no strike and no abilities (D047 item 5); the people who might fight carry one plain strike. Skills are not in the archetype: they are chosen per person in data/campaign/npc-roster.json, where a role is told (a nurse's Medicine, a crane driver's Crafting). Drafted: Ingram corrects these, and the numbers follow.",
+  "source": "GM Core, Building Creatures (pp. 118-124): attribute modifiers (996), Perception (997), skills (1000), Armor Class (1004), saving throws (1005), Hit Points (1006), strike attack bonus (1011), strike damage (1012); Building NPCs (1034).",
+  "archetypes": {
+    "noncombat-adult": {
+      "label": "An ordinary adult",
+      "description": "Someone who is no threat in a fight however important or skilled they are: low armour and hit points, weak saves, a level that says so. Skills are chosen per person.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "low",
+      "hp": "low",
+      "saves": { "fortitude": "low", "reflex": "low", "will": "moderate" },
+      "perception": "moderate",
+      "attributes": { "str": "low", "dex": "low", "con": "low", "int": "low", "wis": "moderate", "cha": "low" },
+      "strike": null
+    },
+    "skilled-professional": {
+      "label": "A skilled professional",
+      "description": "A clerk, a quartermaster, a keeper, a nurse: sharp where their work is, no threat in a fight. Mind and manner are the good attributes.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "low",
+      "hp": "low",
+      "saves": { "fortitude": "low", "reflex": "low", "will": "moderate" },
+      "perception": "moderate",
+      "attributes": { "str": "low", "dex": "low", "con": "low", "int": "moderate", "wis": "moderate", "cha": "moderate" },
+      "strike": null
+    },
+    "scholar-teacher": {
+      "label": "A teacher or scholar",
+      "description": "Someone whose strength is knowing things: the best attribute is Intelligence, Will is the good save, nothing is built for a fight.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "low",
+      "hp": "low",
+      "saves": { "fortitude": "low", "reflex": "low", "will": "high" },
+      "perception": "moderate",
+      "attributes": { "str": "low", "dex": "low", "con": "low", "int": "high", "wis": "moderate", "cha": "moderate" },
+      "strike": null
+    },
+    "tough-worker": {
+      "label": "A strong working adult",
+      "description": "A welder, a crane driver, a foreman: used to heavy work, moderate armour and hit points, and able to hold their own in a scuffle with a plain unarmed strike. Not built to fight on purpose.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "moderate",
+      "hp": "moderate",
+      "saves": { "fortitude": "moderate", "reflex": "low", "will": "low" },
+      "perception": "moderate",
+      "attributes": { "str": "moderate", "dex": "low", "con": "moderate", "int": "low", "wis": "low", "cha": "low" },
+      "strike": { "name": "Fist", "strikeType": "melee", "attack": "low", "damage": "low", "damageType": "bludgeoning", "traits": ["agile", "nonlethal"] }
+    },
+    "trainee": {
+      "label": "A candidate in training",
+      "description": "A young person on the Directorate's pilot or ground track: moderate everything, no particular edge, a training baton rather than a weapon.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "moderate",
+      "hp": "moderate",
+      "saves": { "fortitude": "moderate", "reflex": "moderate", "will": "low" },
+      "perception": "moderate",
+      "attributes": { "str": "moderate", "dex": "moderate", "con": "low", "int": "low", "wis": "low", "cha": "low" },
+      "strike": { "name": "Training baton", "strikeType": "melee", "attack": "low", "damage": "low", "damageType": "bludgeoning", "traits": ["nonlethal"] }
+    },
+    "veteran-officer": {
+      "label": "A veteran officer",
+      "description": "Someone who has run things for a long time: moderate armour and hit points, a high Will, sharp eyes. Not a combatant; striking one ends in a hearing, not a fight.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "moderate",
+      "hp": "moderate",
+      "saves": { "fortitude": "moderate", "reflex": "low", "will": "high" },
+      "perception": "moderate",
+      "attributes": { "str": "low", "dex": "low", "con": "moderate", "int": "moderate", "wis": "moderate", "cha": "moderate" },
+      "strike": null
+    },
+    "brawler": {
+      "label": "A brawler",
+      "description": "A thug, a soldier, a tug-hand: built to fight in melee. Moderate armour, high hit points and Fortitude, a high attack bonus and moderate damage (a club, not a blade).",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "moderate",
+      "hp": "high",
+      "saves": { "fortitude": "high", "reflex": "moderate", "will": "low" },
+      "perception": "moderate",
+      "attributes": { "str": "high", "dex": "moderate", "con": "moderate", "int": "low", "wis": "low", "cha": "low" },
+      "strike": { "name": "Club", "strikeType": "melee", "attack": "high", "damage": "moderate", "damageType": "bludgeoning", "traits": [] }
+    },
+    "performer": {
+      "label": "A performer",
+      "description": "A stage magician, a musician: quick and charming, frail, with a good Will. Illusions and patter, not a fight (no spellcasting is carried: a non-combat NPC has no features).",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "low",
+      "hp": "low",
+      "saves": { "fortitude": "low", "reflex": "moderate", "will": "high" },
+      "perception": "moderate",
+      "attributes": { "str": "low", "dex": "moderate", "con": "low", "int": "moderate", "wis": "moderate", "cha": "high" },
+      "strike": null
+    },
+    "elder-power": {
+      "label": "A founder-grade power",
+      "description": "Someone vastly above a first-level party and still not beyond them (D047 item 5): high armour, hit points and every save, a high Perception, one extreme attribute is left to the roster to choose. Carries a plain strike for the day it matters.",
+      "traits": ["humanoid"],
+      "size": "medium",
+      "ac": "high",
+      "hp": "high",
+      "saves": { "fortitude": "high", "reflex": "high", "will": "high" },
+      "perception": "high",
+      "attributes": { "str": "moderate", "dex": "moderate", "con": "high", "int": "high", "wis": "high", "cha": "high" },
+      "strike": { "name": "Strike", "strikeType": "melee", "attack": "high", "damage": "high", "damageType": "bludgeoning", "traits": [] }
+    }
+  }
+}

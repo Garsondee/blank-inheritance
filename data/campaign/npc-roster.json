@@ -1,0 +1,1153 @@
+{
+  "$schema": "../schema/npc-roster.schema.json",
+  "id": "npc-roster",
+  "type": "npc-roster",
+  "authoring": {
+    "status": "drafted"
+  },
+  "description": "Who gets a generated stat block, and as what. THIS IS THE FILE TO READ AND CORRECT: each row is an archetype (data/campaign/npc-archetypes.json), a level and the skills their role implies; tools/npc-generator/apply.mjs (npm run npcs) turns it into the `statblock` in each data/npcs file and nothing else writes one. Levels are the ones the scenes already proposed (\"Proposed: level N ... Made with Ingram once the NPC generator exists\"); where a scene gave none the note says GUESS. Skills are role-implied drafts, not decisions. Everything is drafted until Ingram says otherwise. `existing` lists creatures that already have a finished statblock and so are not generated.",
+  "people": [
+    {
+      "npcId": "shucks-mordant",
+      "archetype": "elder-power",
+      "level": 15,
+      "skills": [
+        {
+          "skill": "medicine",
+          "band": "high"
+        },
+        {
+          "skill": "deception",
+          "band": "moderate"
+        },
+        {
+          "skill": "society",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "will": "moderate"
+      },
+      "appearsIn": [
+        "episode-c1e1--intake-medicals",
+        "episode-c1e1--assembly"
+      ],
+      "note": "A founder, level 15 (D047 item 5). Will, Perception and Deception match the DCs the scene brief already tells the GM (Perception 39, Will 36, Deception 37). The other founders (Rupiah, Anabala, Hyuck) get stat blocks when the flashbacks need them."
+    },
+    {
+      "npcId": "intake-medicals-clerk",
+      "archetype": "skilled-professional",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--intake-medicals"
+      ],
+      "note": "Level 0 civilian clerk, non-combat (the scene brief's own proposal)."
+    },
+    {
+      "npcId": "deputy-director",
+      "archetype": "veteran-officer",
+      "level": 8,
+      "skills": [
+        {
+          "skill": "deception",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "high"
+        },
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--assembly"
+      ],
+      "note": "Level 8, non-combat (the scene brief's own proposal). Perception 26, Will 29, Deception 26 match the DCs the brief already tells the GM."
+    },
+    {
+      "npcId": "section-officer",
+      "archetype": "veteran-officer",
+      "level": 3,
+      "skills": [
+        {
+          "skill": "deception",
+          "band": "moderate"
+        },
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "will": "moderate"
+      },
+      "appearsIn": [
+        "episode-c1e1--assembly",
+        "episode-c1e1--canteen",
+        "episode-c1e1--flood-tunnel",
+        "episode-c1e1--kit-issue",
+        "episode-c1e1--the-walk-down"
+      ],
+      "note": "Vetch. Level 3, non-combat; striking him ends in a hearing, not a fight. Perception 19, Will 19, Deception 19 match the DCs the briefs already tell the GM."
+    },
+    {
+      "npcId": "shop-boss",
+      "archetype": "tough-worker",
+      "level": 4,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "high"
+        },
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        },
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--assembly",
+        "episode-c1e1--school-second-period"
+      ],
+      "note": "Hulda Brack. Level 4 machine-shop chief who can fight if she has to (the scene brief's proposal)."
+    },
+    {
+      "npcId": "comms-officer",
+      "archetype": "skilled-professional",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "computers",
+          "band": "moderate"
+        },
+        {
+          "skill": "society",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--assembly"
+      ],
+      "note": "GUESS: no level was ever proposed (a walk-on voice off the plot room). Level 1."
+    },
+    {
+      "npcId": "school-history-teacher",
+      "archetype": "scholar-teacher",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "high"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--school-first-period"
+      ],
+      "note": "Level 1 teacher, non-combat (the scene brief's proposal). Skills are role-implied."
+    },
+    {
+      "npcId": "nobu",
+      "archetype": "skilled-professional",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "moderate"
+        },
+        {
+          "skill": "deception",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--kit-issue",
+        "episode-c1e1--the-tram-back"
+      ],
+      "note": "Level 2 quartermaster, non-combat. Perception 18, Will 18, Deception 17 match the DCs the brief already tells the GM."
+    },
+    {
+      "npcId": "school-natural-history-teacher",
+      "archetype": "scholar-teacher",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "nature",
+          "band": "high"
+        },
+        {
+          "skill": "survival",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--school-second-period"
+      ],
+      "note": "Level 1 teacher, non-combat (the scene brief's proposal). Skills are role-implied."
+    },
+    {
+      "npcId": "range-safety-officer",
+      "archetype": "veteran-officer",
+      "level": 3,
+      "skills": [
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        },
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "will": "moderate"
+      },
+      "strike": {
+        "name": "Sidearm",
+        "strikeType": "ranged",
+        "attack": "moderate",
+        "damage": "moderate",
+        "damageType": "piercing",
+        "traits": []
+      },
+      "appearsIn": [
+        "episode-c1e1--school-second-period"
+      ],
+      "note": "Level 3 range officer who can fight (the scene brief's proposal), so she carries a sidearm."
+    },
+    {
+      "npcId": "the-storekeeper",
+      "archetype": "skilled-professional",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "high"
+        },
+        {
+          "skill": "society",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--the-errand"
+      ],
+      "note": "Level 1 instrument maker, non-combat (the scene brief's proposal)."
+    },
+    {
+      "npcId": "manako",
+      "archetype": "skilled-professional",
+      "level": 5,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "high"
+        },
+        {
+          "skill": "medicine",
+          "band": "moderate"
+        },
+        {
+          "skill": "deception",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "will": "high"
+      },
+      "appearsIn": [
+        "episode-c1e1--the-errand"
+      ],
+      "note": "GUESS, TO SETTLE WITH INGRAM: the brief says only \"not built\". A retired chemist who is the campaign's human antagonist; level 5 and a high Will are placeholders."
+    },
+    {
+      "npcId": "taka",
+      "archetype": "trainee",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "deception",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "will": "moderate"
+      },
+      "appearsIn": [
+        "episode-c1e1--canteen",
+        "episode-c1e1--the-walk-down"
+      ],
+      "note": "Level 2 candidate who can fight (the scene brief's proposal), so he carries the trainee's baton. Perception 18, Will 18, Deception 17 match the DCs the brief already tells the GM."
+    },
+    {
+      "npcId": "the-young-one",
+      "archetype": "trainee",
+      "level": 3,
+      "skills": [
+        {
+          "skill": "piloting",
+          "band": "high"
+        }
+      ],
+      "appearsIn": [
+        "episode-c1e1--canteen"
+      ],
+      "note": "GUESS, TO SETTLE WITH INGRAM: a walk-on, no level was ever proposed. A pilot-track candidate who is secretly a Cadre member; level 3 is a placeholder."
+    },
+    {
+      "npcId": "tomoe",
+      "archetype": "skilled-professional",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "high"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "moderate"
+        },
+        {
+          "skill": "society",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--crew-mess"
+      ],
+      "note": "Level 2 working adult, non-combat (the scene's proposal). Skills are role-implied."
+    },
+    {
+      "npcId": "petr",
+      "archetype": "tough-worker",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "moderate"
+        },
+        {
+          "skill": "performance",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--crew-mess"
+      ],
+      "note": "Level 1, strong, non-combat but able to brawl (the scene's proposal)."
+    },
+    {
+      "npcId": "ren",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--crew-mess"
+      ],
+      "note": "Level 0 young working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "kazue",
+      "archetype": "skilled-professional",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        },
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        },
+        {
+          "skill": "society",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--bathhouse"
+      ],
+      "note": "Level 2 former ship's boatswain, non-combat (the scene's proposal). Skills are role-implied."
+    },
+    {
+      "npcId": "hachi",
+      "archetype": "noncombat-adult",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "high"
+        }
+      ],
+      "appearsIn": [
+        "rest--bathhouse"
+      ],
+      "note": "Level 1 old working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "sigrun",
+      "archetype": "tough-worker",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        },
+        {
+          "skill": "crafting",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--bathhouse"
+      ],
+      "note": "Level 1, strong, non-combat but able to hold her own (the scene's proposal)."
+    },
+    {
+      "npcId": "michiru",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "deception",
+          "band": "moderate"
+        },
+        {
+          "skill": "society",
+          "band": "moderate"
+        }
+      ],
+      "strike": false,
+      "appearsIn": [
+        "rest--card-game"
+      ],
+      "note": "Level 1 candidate, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "lucan",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "deception",
+          "band": "high"
+        },
+        {
+          "skill": "thievery",
+          "band": "high"
+        }
+      ],
+      "strike": false,
+      "appearsIn": [
+        "rest--card-game"
+      ],
+      "note": "Level 1 candidate and cardsharp with strong Deception and Thievery, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "chiyo",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "survival",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "low"
+        }
+      ],
+      "bands": {
+        "perception": "high"
+      },
+      "strike": false,
+      "appearsIn": [
+        "rest--card-game"
+      ],
+      "note": "Level 1 candidate with a sharp Perception for reading people, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "morishita",
+      "archetype": "noncombat-adult",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "perception": "high"
+      },
+      "appearsIn": [
+        "rest--early-night"
+      ],
+      "note": "Level 1 older working adult, non-combat, with a sharp Perception (the scene's proposal)."
+    },
+    {
+      "npcId": "haru",
+      "archetype": "trainee",
+      "level": 1,
+      "strike": false,
+      "appearsIn": [
+        "rest--early-night"
+      ],
+      "note": "Level 1 young candidate, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "grenna",
+      "archetype": "tough-worker",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "high"
+        }
+      ],
+      "appearsIn": [
+        "rest--early-night"
+      ],
+      "note": "Level 1 sturdy young candidate, non-combat but strong (the scene's proposal)."
+    },
+    {
+      "npcId": "tsubaki",
+      "archetype": "skilled-professional",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "medicine",
+          "band": "high"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--general-hospital"
+      ],
+      "note": "Level 2 senior nurse, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "imai",
+      "archetype": "noncombat-adult",
+      "level": -1,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--general-hospital"
+      ],
+      "note": "Level -1 elderly civilian, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "aucourt",
+      "archetype": "noncombat-adult",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "piloting",
+          "band": "high"
+        },
+        {
+          "skill": "survival",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--general-hospital"
+      ],
+      "note": "Level 1 harbour pilot, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "gennai",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--general-hospital"
+      ],
+      "note": "GUESS: a walk-on night porter, no level was ever proposed. Level 0."
+    },
+    {
+      "npcId": "kuroki",
+      "archetype": "tough-worker",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--general-hospital"
+      ],
+      "note": "GUESS: a walk-on soldier recovering in bed eight, no level was ever proposed. Level 1, and a patient."
+    },
+    {
+      "npcId": "mori",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--general-hospital"
+      ],
+      "note": "GUESS: a walk-on cleaner, no level was ever proposed. Level 0."
+    },
+    {
+      "npcId": "genzo",
+      "archetype": "noncombat-adult",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "nature",
+          "band": "high"
+        },
+        {
+          "skill": "survival",
+          "band": "moderate"
+        }
+      ],
+      "bands": {
+        "perception": "high"
+      },
+      "appearsIn": [
+        "rest--met-office"
+      ],
+      "note": "Level 1 elderly working adult, non-combat (the scene's proposal). Skills are role-implied."
+    },
+    {
+      "npcId": "nadi",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "nature",
+          "band": "low"
+        },
+        {
+          "skill": "computers",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--met-office"
+      ],
+      "note": "Level 0 young working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "kaede",
+      "archetype": "skilled-professional",
+      "level": 3,
+      "skills": [
+        {
+          "skill": "crafting",
+          "band": "high"
+        },
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        },
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--night-shift"
+      ],
+      "note": "Level 3 skilled working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "joji",
+      "archetype": "tough-worker",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        },
+        {
+          "skill": "crafting",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--night-shift"
+      ],
+      "note": "Level 2 strong, experienced working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "nkiru",
+      "archetype": "noncombat-adult",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "piloting",
+          "band": "moderate"
+        },
+        {
+          "skill": "performance",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--night-shift"
+      ],
+      "note": "Level 1 working adult, non-combat (the scene's proposal). Skills are role-implied."
+    },
+    {
+      "npcId": "hana",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "moderate"
+        }
+      ],
+      "strike": false,
+      "appearsIn": [
+        "rest--rumour-mill"
+      ],
+      "note": "Level 1 candidate, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "obi",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        }
+      ],
+      "strike": false,
+      "appearsIn": [
+        "rest--rumour-mill"
+      ],
+      "note": "Level 1 candidate, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "mrs-ueda",
+      "archetype": "noncombat-adult",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "intimidation",
+          "band": "low"
+        }
+      ],
+      "bands": {
+        "perception": "high"
+      },
+      "appearsIn": [
+        "rest--rumour-mill"
+      ],
+      "note": "Level 2 older working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "tokuji",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "religion",
+          "band": "moderate"
+        },
+        {
+          "skill": "crafting",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--shrine-gate"
+      ],
+      "note": "Level 0 old working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "mira",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "computers",
+          "band": "moderate"
+        },
+        {
+          "skill": "diplomacy",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--shrine-gate"
+      ],
+      "note": "Level 0 working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "kiku",
+      "archetype": "skilled-professional",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "diplomacy",
+          "band": "high"
+        },
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "crafting",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--the-paper-lantern"
+      ],
+      "note": "Level 2 working adult, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "sanzo",
+      "archetype": "performer",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "performance",
+          "band": "high"
+        },
+        {
+          "skill": "society",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--the-paper-lantern"
+      ],
+      "note": "Level 1 elderly civilian, non-combat (the scene's proposal); the musician."
+    },
+    {
+      "npcId": "tama",
+      "archetype": "noncombat-adult",
+      "level": 0,
+      "skills": [
+        {
+          "skill": "diplomacy",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "rest--the-paper-lantern"
+      ],
+      "note": "Level 0 young civilian, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "sayo",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "nature",
+          "band": "low"
+        },
+        {
+          "skill": "crafting",
+          "band": "moderate"
+        }
+      ],
+      "strike": false,
+      "appearsIn": [
+        "rest--the-roof"
+      ],
+      "note": "Level 1 candidate, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "faruq",
+      "archetype": "trainee",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "performance",
+          "band": "moderate"
+        },
+        {
+          "skill": "society",
+          "band": "low"
+        }
+      ],
+      "strike": false,
+      "appearsIn": [
+        "rest--the-roof"
+      ],
+      "note": "Level 1 candidate, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "isamu",
+      "archetype": "noncombat-adult",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "piloting",
+          "band": "high"
+        },
+        {
+          "skill": "survival",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "rest--the-roof"
+      ],
+      "note": "Level 2 working adult, a retired tug skipper, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "tamsin",
+      "archetype": "performer",
+      "level": 3,
+      "skills": [
+        {
+          "skill": "performance",
+          "band": "high"
+        },
+        {
+          "skill": "deception",
+          "band": "high"
+        },
+        {
+          "skill": "occultism",
+          "band": "moderate"
+        }
+      ],
+      "appearsIn": [
+        "discovery--the-magic-show"
+      ],
+      "note": "Level 3 gnome illusionist, avoids a fight (the scene's proposal). Her illusions are not carried: a non-combat NPC has no features (D047 item 5)."
+    },
+    {
+      "npcId": "daisuke",
+      "archetype": "tough-worker",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        },
+        {
+          "skill": "crafting",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "discovery--the-magic-show"
+      ],
+      "note": "Level 1 strong stagehand, no fighter but will stand between trouble and the lantern (the scene's proposal)."
+    },
+    {
+      "npcId": "mrs-handa",
+      "archetype": "noncombat-adult",
+      "level": -1,
+      "skills": [
+        {
+          "skill": "society",
+          "band": "moderate"
+        },
+        {
+          "skill": "intimidation",
+          "band": "low"
+        }
+      ],
+      "appearsIn": [
+        "discovery--the-magic-show"
+      ],
+      "note": "Level -1 elderly civilian with a sharp tongue, non-combat (the scene's proposal)."
+    },
+    {
+      "npcId": "tug-hand",
+      "archetype": "brawler",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        }
+      ],
+      "stub": {
+        "name": null,
+        "role": "A tug-hand from the harbour",
+        "description": "One of four harbour tug-hands who come looking for trouble in the crew mess (rest--crew-mess, the two-crews event: \"Four tug-hands from the harbour, led by the big one who shoved Petr\")."
+      },
+      "appearsIn": [
+        "rest--crew-mess"
+      ],
+      "note": "Four tug-hands from the harbour (the two-crews event). Level 1 brawlers; the scene gave no level."
+    },
+    {
+      "npcId": "off-duty-soldier",
+      "archetype": "brawler",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        }
+      ],
+      "stub": {
+        "name": null,
+        "role": "An off-duty soldier",
+        "description": "One of three off-duty soldiers who make trouble at the Paper Lantern's door (rest--the-paper-lantern, the trouble-at-the-door event)."
+      },
+      "appearsIn": [
+        "rest--the-paper-lantern"
+      ],
+      "note": "Three off-duty soldiers (the trouble-at-the-door event). Level 1 brawlers; the scene gave no level."
+    },
+    {
+      "npcId": "kanda",
+      "archetype": "brawler",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "deception",
+          "band": "moderate"
+        },
+        {
+          "skill": "thievery",
+          "band": "moderate"
+        }
+      ],
+      "strike": false,
+      "stub": {
+        "name": "Kanda",
+        "role": "A sly criminal",
+        "description": "One of the two men the group may meet at the ninth pier (rest--card-game, the-ninth-pier event): level 1, a sly criminal."
+      },
+      "appearsIn": [
+        "rest--card-game"
+      ],
+      "note": "Level 1, \"a sly criminal\" (the-ninth-pier event). No strike: the scene gives him no weapon."
+    },
+    {
+      "npcId": "goro",
+      "archetype": "brawler",
+      "level": 2,
+      "skills": [
+        {
+          "skill": "athletics",
+          "band": "moderate"
+        },
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        }
+      ],
+      "stub": {
+        "name": "Goro",
+        "role": "A bruiser",
+        "description": "One of the two men the group may meet at the ninth pier (rest--card-game, the-ninth-pier event): level 2, a bruiser."
+      },
+      "appearsIn": [
+        "rest--card-game"
+      ],
+      "note": "Level 2, \"a bruiser\" (the-ninth-pier event)."
+    },
+    {
+      "npcId": "lenders-man",
+      "archetype": "brawler",
+      "level": 1,
+      "skills": [
+        {
+          "skill": "intimidation",
+          "band": "moderate"
+        }
+      ],
+      "stub": {
+        "name": null,
+        "role": "One of the lender's men",
+        "description": "One of the lender's two men (rest--shrine-gate, the-dark-road event): a level-1 thug with a club and nonlethal intent."
+      },
+      "appearsIn": [
+        "rest--shrine-gate"
+      ],
+      "note": "The lender's two men: level 1 thugs with clubs and nonlethal intent (the-dark-road event)."
+    },
+    {
+      "npcId": "kaito",
+      "archetype": "noncombat-adult",
+      "level": -1,
+      "stub": {
+        "name": "Kaito",
+        "role": "A frightened working adult",
+        "description": "The man the lender's men are leaning on (rest--shrine-gate, the-dark-road event): level -1, a frightened working adult who won't fight."
+      },
+      "appearsIn": [
+        "rest--shrine-gate"
+      ],
+      "note": "Level -1, a frightened working adult who will not fight (the-dark-road event)."
+    }
+  ],
+  "existing": [
+    {
+      "id": "giant-centipede",
+      "label": "Giant Centipede",
+      "cards": "^giant-centipede(-\\d+)?$",
+      "compendium": "Compendium.sf2e.tales-from-the-vast-bestiary.Actor.a1sE7bci1Tv2ef8h",
+      "link": false,
+      "appearsIn": [
+        "episode-c1e1--flood-tunnel"
+      ],
+      "note": "Ships with the sf2e system (Tales from the Vast bestiary), level -1: nothing to generate (data/encounters/c1e1-flood-tunnel.json already reads its numbers). Each of the six centipede cards gets its own copy, so each has its own hit points."
+    }
+  ]
+}

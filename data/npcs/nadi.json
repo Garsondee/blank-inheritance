@@ -15,6 +15,60 @@
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "statblock": {
+    "level": 0,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 2,
+      "cha": 0
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "trained",
+        "modifier": 6
+      }
+    },
+    "skills": {
+      "computers": {
+        "rank": "trained",
+        "modifier": 2
+      },
+      "nature": {
+        "rank": "trained",
+        "modifier": 2
+      }
+    },
+    "ac": 13,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "trained",
+        "modifier": 3
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 3
+      },
+      "will": {
+        "rank": "trained",
+        "modifier": 6
+      }
+    },
+    "hitPoints": {
+      "max": 12,
+      "current": 12
+    },
+    "speed": {
+      "land": 25
+    }
+  },
   "socialProfile": {
     "attitude": "indifferent",
     "facts": [

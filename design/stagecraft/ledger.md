@@ -306,3 +306,13 @@ chalk 'tools' too."* Built the same day (`chalk.md` §11, `module.md` §22).
 | U3 | A box on the tray finds anyone else to bring on | module.md §38 | bench |
 | U4 | The GM's card menu gains another module's own things: send someone off, tell the table their name | module.md §38 | bench |
 | U5 | Someone already there when a scene first opens stands on the stage from the start | module.md §38 | none |
+
+## V. Her eighteenth message: select and aim, with tokens (2026-10-05)
+
+*"In order to reproduce the Foundry VTT behaviour better we need two things. Left clicking on a card should 'select' the token of that NPC or PC. Pressing T whilst having your / a token card selected should allow me to target other things. Each scene will need NPC tokens for it to work, just create very basic ones for now."* Built the same day (`module.md` §39).
+
+| # | Idea | Where | Plates |
+|---|---|---|---|
+| V1 | A left click on a card selects its token, the NPC's or the PC's, as it does on Foundry's own canvas | module.md §39 | bench |
+| V2 | T, with a card selected, lets you aim at other things: aim at a card by pointing, or start aiming and click | module.md §39 | bench |
+| V3 | Every card of every stage has a real token, very basic ones for the NPCs | module.md §39 | bench |

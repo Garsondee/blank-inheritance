@@ -63,6 +63,10 @@ function crowd() {
     emoteTexture: async () => null, lightAt: () => null,
     shared: (key, make) => { let v = pool.get(key); if (!v) { v = root.add(make()); pool.set(key, v); } return v; }
   };
+  // the ring of a controlled card and the arrows of an aimed-at one are pictures every card shares
+  ctx.ringTexture = () => ctx.shared("ring", () => new THREE.Texture());
+  ctx.reticleTexture = (colours, aspect) => ctx.shared(`reticle:${colours.join("|")}:${aspect}`, () => new THREE.Texture());
+  ctx.haloTexture = (w, h) => ctx.shared(`halo:${w}:${h}`, () => new THREE.Texture());
   const make = async (id, colour = "#d44") => { const v = new CardView({ id, name: id, colour }, skin, ctx, 1); await v.build(); return v; };
   return { root, pool, softDot, make };
 }

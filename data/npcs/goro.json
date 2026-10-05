@@ -1,0 +1,85 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "goro",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": "Goro",
+  "role": "A bruiser",
+  "pole": null,
+  "affiliation": null,
+  "description": "One of the two men the group may meet at the ninth pier (rest--card-game, the-ninth-pier event): level 2, a bruiser.",
+  "designNotes": "Made by tools/npc-generator from data/campaign/npc-roster.json: a person a scene's events name in prose, so that there is a statblock for them and something to put on a token. Nothing about them is established beyond what the scene says; the statblock is derived and is changed in the roster, not here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "statblock": {
+    "level": 2,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 4,
+      "dex": 3,
+      "con": 3,
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 8
+      }
+    },
+    "skills": {
+      "athletics": {
+        "rank": "expert",
+        "modifier": 7
+      },
+      "intimidation": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "ac": 17,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "expert",
+        "modifier": 11
+      },
+      "reflex": {
+        "rank": "expert",
+        "modifier": 8
+      },
+      "will": {
+        "rank": "trained",
+        "modifier": 5
+      }
+    },
+    "hitPoints": {
+      "max": 38,
+      "current": 38
+    },
+    "speed": {
+      "land": 25
+    },
+    "strikes": [
+      {
+        "name": "Club",
+        "strikeType": "melee",
+        "attackBonus": 11,
+        "traits": [],
+        "damage": [
+          {
+            "dice": "1d8",
+            "bonus": 4,
+            "damageType": "bludgeoning"
+          }
+        ]
+      }
+    ]
+  }
+}

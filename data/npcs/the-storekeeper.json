@@ -13,6 +13,60 @@
   "designNotes": "Created 2026-09-21. She was cast inline in `episode-c1e1--the-errand` with no npcRef, marked walk-on, and is the target of a real DC 13 check with three skill routes -- a person the party rolls against is not a walk-on. The missing-stock plant is hers to deliver.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
+  "statblock": {
+    "level": 1,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 1,
+      "dex": 1,
+      "con": 1,
+      "int": 3,
+      "wis": 3,
+      "cha": 3
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "skills": {
+      "crafting": {
+        "rank": "expert",
+        "modifier": 7
+      },
+      "society": {
+        "rank": "trained",
+        "modifier": 3
+      }
+    },
+    "ac": 13,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "trained",
+        "modifier": 4
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 4
+      },
+      "will": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "hitPoints": {
+      "max": 15,
+      "current": 15
+    },
+    "speed": {
+      "land": 25
+    }
+  },
   "socialProfile": {
     "attitude": "indifferent",
     "facts": [

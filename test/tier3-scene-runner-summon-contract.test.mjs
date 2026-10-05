@@ -24,7 +24,7 @@ test("the bridge imports the shared diagnostic-name check rather than duplicatin
 test("the finder leaves out self-labelled test Actors and the Actors made for people a scene already names", () => {
   const fn = bridge.match(/async function findAnyone\(scene, query\) \{[\s\S]*?\n\}/)?.[0];
   assert.ok(fn, "findAnyone is missing from foundry/stagecraft-bridge.mjs");
-  assert.match(fn, /\.filter\(\(a\) => \(a\.type === "character" \|\| a\.type === "npc"\) && !isDiagnosticName\(a\.name\) && !castActors\.has\(a\.id\)\)/);
+  assert.match(fn, /\.filter\(\(a\) => \(a\.type === "character" \|\| a\.type === "npc"\) && !isDiagnosticName\(a\.name\) && !castActors\.has\(a\.id\) && !isBasicActor\(a\)\)/);
   assert.match(fn, /const castActors = await castActorIds\(briefs\);/);
   const ids = bridge.match(/function castActorIds\(briefs\) \{[\s\S]*?\n\}/)?.[0] ?? "";
   assert.match(ids, /deriveFoundryId\(k\)/, "the sync's Actor for a cast member is found by the same id it was made with");

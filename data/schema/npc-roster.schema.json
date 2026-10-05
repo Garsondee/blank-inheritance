@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "npc-roster.schema.json",
+  "title": "NPC roster",
+  "description": "data/campaign/npc-roster.json: who gets a generated stat block, at what level and as which archetype (`people`), and who does not need one because a finished statblock already exists (`existing`). This is the file the GM reads and corrects: the stat blocks in data/npcs/ are derived from it by tools/npc-generator/apply.mjs and never hand-edited. Everything is drafted until Ingram says otherwise.",
+  "type": "object",
+  "required": ["id", "type", "authoring", "description", "people", "existing"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "npc-roster" },
+    "type": { "const": "npc-roster" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
+    "description": { "type": "string" },
+    "people": { "type": "array", "items": { "$ref": "#/$defs/person" } },
+    "existing": { "type": "array", "items": { "$ref": "#/$defs/existing" } }
+  },
+  "$defs": {
+    "band": { "enum": ["extreme", "high", "moderate", "low", "terrible"] },
+    "skillBand": { "enum": ["extreme", "high", "moderate", "low"] },
+    "person": {
+      "type": "object",
+      "required": ["npcId", "archetype", "level", "appearsIn", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "npcId": { "type": "string", "description": "The id of the data/npcs file this statblock goes in." },
+        "archetype": { "type": "string", "description": "A key of data/campaign/npc-archetypes.json." },
+        "level": { "type": "integer", "minimum": -1, "maximum": 25, "description": "Combat level." },
+        "nonCombatLevel": { "type": "integer", "minimum": -1, "maximum": 25 },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["skill", "band"],
+            "additionalProperties": false,
+            "properties": {
+              "skill": { "enum": ["acrobatics", "arcana", "athletics", "computers", "crafting", "deception", "diplomacy", "intimidation", "medicine", "nature", "occultism", "performance", "piloting", "religion", "society", "stealth", "survival", "thievery"] },
+              "band": { "$ref": "#/$defs/skillBand" },
+              "at": { "enum": ["combat", "nonCombat"], "description": "Which level the skill is at: the combat level (default) or the non-combat level." }
+            }
+          }
+        },
+        "bands": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Overrides of the archetype's own bands.",
+          "properties": {
+            "ac": { "enum": ["extreme", "high", "moderate", "low"] },
+            "hp": { "enum": ["high", "moderate", "low"] },
+            "perception": { "$ref": "#/$defs/band" },
+            "fortitude": { "$ref": "#/$defs/band" },
+            "reflex": { "$ref": "#/$defs/band" },
+            "will": { "$ref": "#/$defs/band" },
+            "attributes": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "str": { "enum": ["extreme", "high", "moderate", "low"] },
+                "dex": { "enum": ["extreme", "high", "moderate", "low"] },
+                "con": { "enum": ["extreme", "high", "moderate", "low"] },
+                "int": { "enum": ["extreme", "high", "moderate", "low"] },
+                "wis": { "enum": ["extreme", "high", "moderate", "low"] },
+                "cha": { "enum": ["extreme", "high", "moderate", "low"] }
+              }
+            }
+          }
+        },
+        "strike": {
+          "description": "false removes the archetype's strike; an object replaces it.",
+          "anyOf": [
+            { "const": false },
+            {
+              "type": "object",
+              "required": ["name", "attack", "damage"],
+              "additionalProperties": false,
+              "properties": {
+                "name": { "type": "string" },
+                "strikeType": { "enum": ["melee", "ranged"] },
+                "attack": { "enum": ["extreme", "high", "moderate", "low"] },
+                "damage": { "enum": ["extreme", "high", "moderate", "low"] },
+                "damageType": { "type": "string" },
+                "traits": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          ]
+        },
+        "stub": {
+          "type": "object",
+          "description": "For someone with no data/npcs file yet (a foe in a scene's prose): what the tool writes into the new, unnamed-or-named, drafted file. Never invented: it restates what the scene already says.",
+          "required": ["name", "role", "description"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": ["string", "null"] },
+            "role": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        },
+        "appearsIn": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Scene ids (episode or haunt) the person is cast in, or where a foe is fought." },
+        "note": { "type": "string", "description": "Where the level and the choices came from, and what is a guess." }
+      }
+    },
+    "existing": {
+      "type": "object",
+      "description": "A creature that already has a finished statblock and therefore needs no generating: its token stands for a copy of that actor.",
+      "required": ["id", "label", "cards", "compendium", "link", "appearsIn", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "cards": { "type": "string", "description": "A regular expression for the stage card ids (without the summon- prefix) that stand for it." },
+        "compendium": { "type": "string", "description": "The sf2e compendium actor's UUID." },
+        "link": { "type": "boolean", "description": "Whether every token shares the one actor (true) or each is its own copy with its own hit points (false: a pack of the same creature)." },
+        "appearsIn": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,2414 @@
+{
+  "id": "creature-building-math",
+  "type": "reference-table",
+  "description": "GM Core's creature-building statistics by level and band (Building Creatures, GM Core pp. 118-124): attribute modifier scales, Perception, skills, Armor Class, saving throws, Hit Points, strike attack bonus, strike damage, spell DC and spell attack modifier. Extracted by tools/reference-extract/creature-building.mjs from reference/srd/gm-core (never edited by hand: rerun it). A cell is a number, or { min, max } where the book gives a range (hit points, a low skill), or null where the book gives none (an extreme attribute modifier at levels -1 and 0). Pure SF2E; the NPC generator reads it.",
+  "sourceArticles": [
+    {
+      "article": "996-attribute-modifiers",
+      "page": "Source GM Core pg. 118",
+      "url": "https://2e.aonsrd.com/rules/996-attribute-modifiers"
+    },
+    {
+      "article": "997-perception",
+      "page": "Source GM Core pg. 118",
+      "url": "https://2e.aonsrd.com/rules/997-perception"
+    },
+    {
+      "article": "1000-skills",
+      "page": "Source GM Core pg. 119",
+      "url": "https://2e.aonsrd.com/rules/1000-skills"
+    },
+    {
+      "article": "1004-armor-class",
+      "page": "Source GM Core pg. 121",
+      "url": "https://2e.aonsrd.com/rules/1004-armor-class"
+    },
+    {
+      "article": "1005-saving-throws",
+      "page": "Source GM Core pg. 122",
+      "url": "https://2e.aonsrd.com/rules/1005-saving-throws"
+    },
+    {
+      "article": "1006-hit-points",
+      "page": "Source GM Core pg. 122",
+      "url": "https://2e.aonsrd.com/rules/1006-hit-points"
+    },
+    {
+      "article": "1011-strike-attack-bonus",
+      "page": "Source GM Core pg. 124",
+      "url": "https://2e.aonsrd.com/rules/1011-strike-attack-bonus"
+    },
+    {
+      "article": "1012-strike-damage",
+      "page": "Source GM Core pg. 124",
+      "url": "https://2e.aonsrd.com/rules/1012-strike-damage"
+    },
+    {
+      "article": "1014-spell-dc-and-spell-attack-modifier",
+      "page": "Source GM Core pg. 126",
+      "url": "https://2e.aonsrd.com/rules/1014-spell-dc-and-spell-attack-modifier"
+    }
+  ],
+  "levels": {
+    "min": -1,
+    "max": 24
+  },
+  "attributeModifier": {
+    "source": "996-attribute-modifiers",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": null,
+        "high": 3,
+        "moderate": 2,
+        "low": 0
+      },
+      "1": {
+        "extreme": 5,
+        "high": 4,
+        "moderate": 3,
+        "low": 1
+      },
+      "2": {
+        "extreme": 5,
+        "high": 4,
+        "moderate": 3,
+        "low": 1
+      },
+      "3": {
+        "extreme": 5,
+        "high": 4,
+        "moderate": 3,
+        "low": 1
+      },
+      "4": {
+        "extreme": 6,
+        "high": 5,
+        "moderate": 3,
+        "low": 2
+      },
+      "5": {
+        "extreme": 6,
+        "high": 5,
+        "moderate": 4,
+        "low": 2
+      },
+      "6": {
+        "extreme": 7,
+        "high": 5,
+        "moderate": 4,
+        "low": 2
+      },
+      "7": {
+        "extreme": 7,
+        "high": 6,
+        "moderate": 4,
+        "low": 2
+      },
+      "8": {
+        "extreme": 7,
+        "high": 6,
+        "moderate": 4,
+        "low": 3
+      },
+      "9": {
+        "extreme": 7,
+        "high": 6,
+        "moderate": 4,
+        "low": 3
+      },
+      "10": {
+        "extreme": 8,
+        "high": 7,
+        "moderate": 5,
+        "low": 3
+      },
+      "11": {
+        "extreme": 8,
+        "high": 7,
+        "moderate": 5,
+        "low": 3
+      },
+      "12": {
+        "extreme": 8,
+        "high": 7,
+        "moderate": 5,
+        "low": 4
+      },
+      "13": {
+        "extreme": 9,
+        "high": 8,
+        "moderate": 5,
+        "low": 4
+      },
+      "14": {
+        "extreme": 9,
+        "high": 8,
+        "moderate": 5,
+        "low": 4
+      },
+      "15": {
+        "extreme": 9,
+        "high": 8,
+        "moderate": 6,
+        "low": 4
+      },
+      "16": {
+        "extreme": 10,
+        "high": 9,
+        "moderate": 6,
+        "low": 5
+      },
+      "17": {
+        "extreme": 10,
+        "high": 9,
+        "moderate": 6,
+        "low": 5
+      },
+      "18": {
+        "extreme": 10,
+        "high": 9,
+        "moderate": 6,
+        "low": 5
+      },
+      "19": {
+        "extreme": 11,
+        "high": 10,
+        "moderate": 6,
+        "low": 5
+      },
+      "20": {
+        "extreme": 11,
+        "high": 10,
+        "moderate": 7,
+        "low": 6
+      },
+      "21": {
+        "extreme": 11,
+        "high": 10,
+        "moderate": 7,
+        "low": 6
+      },
+      "22": {
+        "extreme": 12,
+        "high": 10,
+        "moderate": 8,
+        "low": 6
+      },
+      "23": {
+        "extreme": 12,
+        "high": 10,
+        "moderate": 8,
+        "low": 6
+      },
+      "24": {
+        "extreme": 13,
+        "high": 12,
+        "moderate": 9,
+        "low": 7
+      },
+      "-1": {
+        "extreme": null,
+        "high": 3,
+        "moderate": 2,
+        "low": 0
+      }
+    }
+  },
+  "perception": {
+    "source": "997-perception",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low",
+      "terrible"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": 10,
+        "high": 9,
+        "moderate": 6,
+        "low": 3,
+        "terrible": 1
+      },
+      "1": {
+        "extreme": 11,
+        "high": 10,
+        "moderate": 7,
+        "low": 4,
+        "terrible": 2
+      },
+      "2": {
+        "extreme": 12,
+        "high": 11,
+        "moderate": 8,
+        "low": 5,
+        "terrible": 3
+      },
+      "3": {
+        "extreme": 14,
+        "high": 12,
+        "moderate": 9,
+        "low": 6,
+        "terrible": 4
+      },
+      "4": {
+        "extreme": 15,
+        "high": 14,
+        "moderate": 11,
+        "low": 8,
+        "terrible": 6
+      },
+      "5": {
+        "extreme": 17,
+        "high": 15,
+        "moderate": 12,
+        "low": 9,
+        "terrible": 7
+      },
+      "6": {
+        "extreme": 18,
+        "high": 17,
+        "moderate": 14,
+        "low": 11,
+        "terrible": 8
+      },
+      "7": {
+        "extreme": 20,
+        "high": 18,
+        "moderate": 15,
+        "low": 12,
+        "terrible": 10
+      },
+      "8": {
+        "extreme": 21,
+        "high": 19,
+        "moderate": 16,
+        "low": 13,
+        "terrible": 11
+      },
+      "9": {
+        "extreme": 23,
+        "high": 21,
+        "moderate": 18,
+        "low": 15,
+        "terrible": 12
+      },
+      "10": {
+        "extreme": 24,
+        "high": 22,
+        "moderate": 19,
+        "low": 16,
+        "terrible": 14
+      },
+      "11": {
+        "extreme": 26,
+        "high": 24,
+        "moderate": 21,
+        "low": 18,
+        "terrible": 15
+      },
+      "12": {
+        "extreme": 27,
+        "high": 25,
+        "moderate": 22,
+        "low": 19,
+        "terrible": 16
+      },
+      "13": {
+        "extreme": 29,
+        "high": 26,
+        "moderate": 23,
+        "low": 20,
+        "terrible": 18
+      },
+      "14": {
+        "extreme": 30,
+        "high": 28,
+        "moderate": 25,
+        "low": 22,
+        "terrible": 19
+      },
+      "15": {
+        "extreme": 32,
+        "high": 29,
+        "moderate": 26,
+        "low": 23,
+        "terrible": 20
+      },
+      "16": {
+        "extreme": 33,
+        "high": 30,
+        "moderate": 28,
+        "low": 25,
+        "terrible": 22
+      },
+      "17": {
+        "extreme": 35,
+        "high": 32,
+        "moderate": 29,
+        "low": 26,
+        "terrible": 23
+      },
+      "18": {
+        "extreme": 36,
+        "high": 33,
+        "moderate": 30,
+        "low": 27,
+        "terrible": 24
+      },
+      "19": {
+        "extreme": 38,
+        "high": 35,
+        "moderate": 32,
+        "low": 29,
+        "terrible": 26
+      },
+      "20": {
+        "extreme": 39,
+        "high": 36,
+        "moderate": 33,
+        "low": 30,
+        "terrible": 27
+      },
+      "21": {
+        "extreme": 41,
+        "high": 38,
+        "moderate": 35,
+        "low": 32,
+        "terrible": 28
+      },
+      "22": {
+        "extreme": 43,
+        "high": 39,
+        "moderate": 36,
+        "low": 33,
+        "terrible": 30
+      },
+      "23": {
+        "extreme": 44,
+        "high": 40,
+        "moderate": 37,
+        "low": 34,
+        "terrible": 31
+      },
+      "24": {
+        "extreme": 46,
+        "high": 42,
+        "moderate": 38,
+        "low": 36,
+        "terrible": 32
+      },
+      "-1": {
+        "extreme": 9,
+        "high": 8,
+        "moderate": 5,
+        "low": 2,
+        "terrible": 0
+      }
+    }
+  },
+  "skills": {
+    "source": "1000-skills",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": 9,
+        "high": 6,
+        "moderate": 5,
+        "low": {
+          "min": 2,
+          "max": 3
+        }
+      },
+      "1": {
+        "extreme": 10,
+        "high": 7,
+        "moderate": 6,
+        "low": {
+          "min": 3,
+          "max": 4
+        }
+      },
+      "2": {
+        "extreme": 11,
+        "high": 8,
+        "moderate": 7,
+        "low": {
+          "min": 4,
+          "max": 5
+        }
+      },
+      "3": {
+        "extreme": 13,
+        "high": 10,
+        "moderate": 9,
+        "low": {
+          "min": 5,
+          "max": 7
+        }
+      },
+      "4": {
+        "extreme": 15,
+        "high": 12,
+        "moderate": 10,
+        "low": {
+          "min": 7,
+          "max": 8
+        }
+      },
+      "5": {
+        "extreme": 16,
+        "high": 13,
+        "moderate": 12,
+        "low": {
+          "min": 8,
+          "max": 10
+        }
+      },
+      "6": {
+        "extreme": 18,
+        "high": 15,
+        "moderate": 13,
+        "low": {
+          "min": 9,
+          "max": 11
+        }
+      },
+      "7": {
+        "extreme": 20,
+        "high": 17,
+        "moderate": 15,
+        "low": {
+          "min": 11,
+          "max": 13
+        }
+      },
+      "8": {
+        "extreme": 21,
+        "high": 18,
+        "moderate": 16,
+        "low": {
+          "min": 12,
+          "max": 14
+        }
+      },
+      "9": {
+        "extreme": 23,
+        "high": 20,
+        "moderate": 18,
+        "low": {
+          "min": 13,
+          "max": 16
+        }
+      },
+      "10": {
+        "extreme": 25,
+        "high": 22,
+        "moderate": 19,
+        "low": {
+          "min": 15,
+          "max": 17
+        }
+      },
+      "11": {
+        "extreme": 26,
+        "high": 23,
+        "moderate": 21,
+        "low": {
+          "min": 16,
+          "max": 19
+        }
+      },
+      "12": {
+        "extreme": 28,
+        "high": 25,
+        "moderate": 22,
+        "low": {
+          "min": 17,
+          "max": 20
+        }
+      },
+      "13": {
+        "extreme": 30,
+        "high": 27,
+        "moderate": 24,
+        "low": {
+          "min": 19,
+          "max": 22
+        }
+      },
+      "14": {
+        "extreme": 31,
+        "high": 28,
+        "moderate": 25,
+        "low": {
+          "min": 20,
+          "max": 23
+        }
+      },
+      "15": {
+        "extreme": 33,
+        "high": 30,
+        "moderate": 27,
+        "low": {
+          "min": 21,
+          "max": 25
+        }
+      },
+      "16": {
+        "extreme": 35,
+        "high": 32,
+        "moderate": 28,
+        "low": {
+          "min": 23,
+          "max": 26
+        }
+      },
+      "17": {
+        "extreme": 36,
+        "high": 33,
+        "moderate": 30,
+        "low": {
+          "min": 24,
+          "max": 28
+        }
+      },
+      "18": {
+        "extreme": 38,
+        "high": 35,
+        "moderate": 31,
+        "low": {
+          "min": 25,
+          "max": 29
+        }
+      },
+      "19": {
+        "extreme": 40,
+        "high": 37,
+        "moderate": 33,
+        "low": {
+          "min": 27,
+          "max": 31
+        }
+      },
+      "20": {
+        "extreme": 41,
+        "high": 38,
+        "moderate": 34,
+        "low": {
+          "min": 28,
+          "max": 32
+        }
+      },
+      "21": {
+        "extreme": 43,
+        "high": 40,
+        "moderate": 36,
+        "low": {
+          "min": 29,
+          "max": 34
+        }
+      },
+      "22": {
+        "extreme": 45,
+        "high": 42,
+        "moderate": 37,
+        "low": {
+          "min": 31,
+          "max": 35
+        }
+      },
+      "23": {
+        "extreme": 46,
+        "high": 43,
+        "moderate": 38,
+        "low": {
+          "min": 32,
+          "max": 36
+        }
+      },
+      "24": {
+        "extreme": 48,
+        "high": 45,
+        "moderate": 40,
+        "low": {
+          "min": 33,
+          "max": 38
+        }
+      },
+      "-1": {
+        "extreme": 8,
+        "high": 5,
+        "moderate": 4,
+        "low": {
+          "min": 1,
+          "max": 2
+        }
+      }
+    }
+  },
+  "armorClass": {
+    "source": "1004-armor-class",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": 19,
+        "high": 16,
+        "moderate": 15,
+        "low": 13
+      },
+      "1": {
+        "extreme": 19,
+        "high": 16,
+        "moderate": 15,
+        "low": 13
+      },
+      "2": {
+        "extreme": 21,
+        "high": 18,
+        "moderate": 17,
+        "low": 15
+      },
+      "3": {
+        "extreme": 22,
+        "high": 19,
+        "moderate": 18,
+        "low": 16
+      },
+      "4": {
+        "extreme": 24,
+        "high": 21,
+        "moderate": 20,
+        "low": 18
+      },
+      "5": {
+        "extreme": 25,
+        "high": 22,
+        "moderate": 21,
+        "low": 19
+      },
+      "6": {
+        "extreme": 27,
+        "high": 24,
+        "moderate": 23,
+        "low": 21
+      },
+      "7": {
+        "extreme": 28,
+        "high": 25,
+        "moderate": 24,
+        "low": 22
+      },
+      "8": {
+        "extreme": 30,
+        "high": 27,
+        "moderate": 26,
+        "low": 24
+      },
+      "9": {
+        "extreme": 31,
+        "high": 28,
+        "moderate": 27,
+        "low": 25
+      },
+      "10": {
+        "extreme": 33,
+        "high": 30,
+        "moderate": 29,
+        "low": 27
+      },
+      "11": {
+        "extreme": 34,
+        "high": 31,
+        "moderate": 30,
+        "low": 28
+      },
+      "12": {
+        "extreme": 36,
+        "high": 33,
+        "moderate": 32,
+        "low": 30
+      },
+      "13": {
+        "extreme": 37,
+        "high": 34,
+        "moderate": 33,
+        "low": 31
+      },
+      "14": {
+        "extreme": 39,
+        "high": 36,
+        "moderate": 35,
+        "low": 33
+      },
+      "15": {
+        "extreme": 40,
+        "high": 37,
+        "moderate": 36,
+        "low": 34
+      },
+      "16": {
+        "extreme": 42,
+        "high": 39,
+        "moderate": 38,
+        "low": 36
+      },
+      "17": {
+        "extreme": 43,
+        "high": 40,
+        "moderate": 39,
+        "low": 37
+      },
+      "18": {
+        "extreme": 45,
+        "high": 42,
+        "moderate": 41,
+        "low": 39
+      },
+      "19": {
+        "extreme": 46,
+        "high": 43,
+        "moderate": 42,
+        "low": 40
+      },
+      "20": {
+        "extreme": 48,
+        "high": 45,
+        "moderate": 44,
+        "low": 42
+      },
+      "21": {
+        "extreme": 49,
+        "high": 46,
+        "moderate": 45,
+        "low": 43
+      },
+      "22": {
+        "extreme": 51,
+        "high": 48,
+        "moderate": 47,
+        "low": 45
+      },
+      "23": {
+        "extreme": 52,
+        "high": 49,
+        "moderate": 48,
+        "low": 46
+      },
+      "24": {
+        "extreme": 54,
+        "high": 51,
+        "moderate": 50,
+        "low": 48
+      },
+      "-1": {
+        "extreme": 18,
+        "high": 15,
+        "moderate": 14,
+        "low": 12
+      }
+    }
+  },
+  "savingThrows": {
+    "source": "1005-saving-throws",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low",
+      "terrible"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": 10,
+        "high": 9,
+        "moderate": 6,
+        "low": 3,
+        "terrible": 1
+      },
+      "1": {
+        "extreme": 11,
+        "high": 10,
+        "moderate": 7,
+        "low": 4,
+        "terrible": 2
+      },
+      "2": {
+        "extreme": 12,
+        "high": 11,
+        "moderate": 8,
+        "low": 5,
+        "terrible": 3
+      },
+      "3": {
+        "extreme": 14,
+        "high": 12,
+        "moderate": 9,
+        "low": 6,
+        "terrible": 4
+      },
+      "4": {
+        "extreme": 15,
+        "high": 14,
+        "moderate": 11,
+        "low": 8,
+        "terrible": 6
+      },
+      "5": {
+        "extreme": 17,
+        "high": 15,
+        "moderate": 12,
+        "low": 9,
+        "terrible": 7
+      },
+      "6": {
+        "extreme": 18,
+        "high": 17,
+        "moderate": 14,
+        "low": 11,
+        "terrible": 8
+      },
+      "7": {
+        "extreme": 20,
+        "high": 18,
+        "moderate": 15,
+        "low": 12,
+        "terrible": 10
+      },
+      "8": {
+        "extreme": 21,
+        "high": 19,
+        "moderate": 16,
+        "low": 13,
+        "terrible": 11
+      },
+      "9": {
+        "extreme": 23,
+        "high": 21,
+        "moderate": 18,
+        "low": 15,
+        "terrible": 12
+      },
+      "10": {
+        "extreme": 24,
+        "high": 22,
+        "moderate": 19,
+        "low": 16,
+        "terrible": 14
+      },
+      "11": {
+        "extreme": 26,
+        "high": 24,
+        "moderate": 21,
+        "low": 18,
+        "terrible": 15
+      },
+      "12": {
+        "extreme": 27,
+        "high": 25,
+        "moderate": 22,
+        "low": 19,
+        "terrible": 16
+      },
+      "13": {
+        "extreme": 29,
+        "high": 26,
+        "moderate": 23,
+        "low": 20,
+        "terrible": 18
+      },
+      "14": {
+        "extreme": 30,
+        "high": 28,
+        "moderate": 25,
+        "low": 22,
+        "terrible": 19
+      },
+      "15": {
+        "extreme": 32,
+        "high": 29,
+        "moderate": 26,
+        "low": 23,
+        "terrible": 20
+      },
+      "16": {
+        "extreme": 33,
+        "high": 30,
+        "moderate": 28,
+        "low": 25,
+        "terrible": 22
+      },
+      "17": {
+        "extreme": 35,
+        "high": 32,
+        "moderate": 29,
+        "low": 26,
+        "terrible": 23
+      },
+      "18": {
+        "extreme": 36,
+        "high": 33,
+        "moderate": 30,
+        "low": 27,
+        "terrible": 24
+      },
+      "19": {
+        "extreme": 38,
+        "high": 35,
+        "moderate": 32,
+        "low": 29,
+        "terrible": 26
+      },
+      "20": {
+        "extreme": 39,
+        "high": 36,
+        "moderate": 33,
+        "low": 30,
+        "terrible": 27
+      },
+      "21": {
+        "extreme": 41,
+        "high": 38,
+        "moderate": 35,
+        "low": 32,
+        "terrible": 28
+      },
+      "22": {
+        "extreme": 43,
+        "high": 39,
+        "moderate": 36,
+        "low": 33,
+        "terrible": 30
+      },
+      "23": {
+        "extreme": 44,
+        "high": 40,
+        "moderate": 37,
+        "low": 34,
+        "terrible": 31
+      },
+      "24": {
+        "extreme": 46,
+        "high": 42,
+        "moderate": 38,
+        "low": 36,
+        "terrible": 32
+      },
+      "-1": {
+        "extreme": 9,
+        "high": 8,
+        "moderate": 5,
+        "low": 2,
+        "terrible": 0
+      }
+    }
+  },
+  "hitPoints": {
+    "source": "1006-hit-points",
+    "bands": [
+      "high",
+      "moderate",
+      "low"
+    ],
+    "byLevel": {
+      "0": {
+        "high": {
+          "min": 17,
+          "max": 20
+        },
+        "moderate": {
+          "min": 14,
+          "max": 16
+        },
+        "low": {
+          "min": 11,
+          "max": 13
+        }
+      },
+      "1": {
+        "high": {
+          "min": 24,
+          "max": 26
+        },
+        "moderate": {
+          "min": 19,
+          "max": 21
+        },
+        "low": {
+          "min": 14,
+          "max": 16
+        }
+      },
+      "2": {
+        "high": {
+          "min": 36,
+          "max": 40
+        },
+        "moderate": {
+          "min": 28,
+          "max": 32
+        },
+        "low": {
+          "min": 21,
+          "max": 25
+        }
+      },
+      "3": {
+        "high": {
+          "min": 53,
+          "max": 59
+        },
+        "moderate": {
+          "min": 42,
+          "max": 48
+        },
+        "low": {
+          "min": 31,
+          "max": 37
+        }
+      },
+      "4": {
+        "high": {
+          "min": 72,
+          "max": 78
+        },
+        "moderate": {
+          "min": 57,
+          "max": 63
+        },
+        "low": {
+          "min": 42,
+          "max": 48
+        }
+      },
+      "5": {
+        "high": {
+          "min": 91,
+          "max": 97
+        },
+        "moderate": {
+          "min": 72,
+          "max": 78
+        },
+        "low": {
+          "min": 53,
+          "max": 59
+        }
+      },
+      "6": {
+        "high": {
+          "min": 115,
+          "max": 123
+        },
+        "moderate": {
+          "min": 91,
+          "max": 99
+        },
+        "low": {
+          "min": 67,
+          "max": 75
+        }
+      },
+      "7": {
+        "high": {
+          "min": 140,
+          "max": 148
+        },
+        "moderate": {
+          "min": 111,
+          "max": 119
+        },
+        "low": {
+          "min": 82,
+          "max": 90
+        }
+      },
+      "8": {
+        "high": {
+          "min": 165,
+          "max": 173
+        },
+        "moderate": {
+          "min": 131,
+          "max": 139
+        },
+        "low": {
+          "min": 97,
+          "max": 105
+        }
+      },
+      "9": {
+        "high": {
+          "min": 190,
+          "max": 198
+        },
+        "moderate": {
+          "min": 151,
+          "max": 159
+        },
+        "low": {
+          "min": 112,
+          "max": 120
+        }
+      },
+      "10": {
+        "high": {
+          "min": 215,
+          "max": 223
+        },
+        "moderate": {
+          "min": 171,
+          "max": 179
+        },
+        "low": {
+          "min": 127,
+          "max": 135
+        }
+      },
+      "11": {
+        "high": {
+          "min": 240,
+          "max": 248
+        },
+        "moderate": {
+          "min": 191,
+          "max": 199
+        },
+        "low": {
+          "min": 142,
+          "max": 150
+        }
+      },
+      "12": {
+        "high": {
+          "min": 265,
+          "max": 273
+        },
+        "moderate": {
+          "min": 211,
+          "max": 219
+        },
+        "low": {
+          "min": 157,
+          "max": 165
+        }
+      },
+      "13": {
+        "high": {
+          "min": 290,
+          "max": 298
+        },
+        "moderate": {
+          "min": 231,
+          "max": 239
+        },
+        "low": {
+          "min": 172,
+          "max": 180
+        }
+      },
+      "14": {
+        "high": {
+          "min": 315,
+          "max": 323
+        },
+        "moderate": {
+          "min": 251,
+          "max": 259
+        },
+        "low": {
+          "min": 187,
+          "max": 195
+        }
+      },
+      "15": {
+        "high": {
+          "min": 340,
+          "max": 348
+        },
+        "moderate": {
+          "min": 271,
+          "max": 279
+        },
+        "low": {
+          "min": 202,
+          "max": 210
+        }
+      },
+      "16": {
+        "high": {
+          "min": 365,
+          "max": 373
+        },
+        "moderate": {
+          "min": 291,
+          "max": 299
+        },
+        "low": {
+          "min": 217,
+          "max": 225
+        }
+      },
+      "17": {
+        "high": {
+          "min": 390,
+          "max": 398
+        },
+        "moderate": {
+          "min": 311,
+          "max": 319
+        },
+        "low": {
+          "min": 232,
+          "max": 240
+        }
+      },
+      "18": {
+        "high": {
+          "min": 415,
+          "max": 423
+        },
+        "moderate": {
+          "min": 331,
+          "max": 339
+        },
+        "low": {
+          "min": 247,
+          "max": 255
+        }
+      },
+      "19": {
+        "high": {
+          "min": 440,
+          "max": 448
+        },
+        "moderate": {
+          "min": 351,
+          "max": 359
+        },
+        "low": {
+          "min": 262,
+          "max": 270
+        }
+      },
+      "20": {
+        "high": {
+          "min": 465,
+          "max": 473
+        },
+        "moderate": {
+          "min": 371,
+          "max": 379
+        },
+        "low": {
+          "min": 277,
+          "max": 285
+        }
+      },
+      "21": {
+        "high": {
+          "min": 495,
+          "max": 505
+        },
+        "moderate": {
+          "min": 395,
+          "max": 405
+        },
+        "low": {
+          "min": 295,
+          "max": 305
+        }
+      },
+      "22": {
+        "high": {
+          "min": 532,
+          "max": 544
+        },
+        "moderate": {
+          "min": 424,
+          "max": 436
+        },
+        "low": {
+          "min": 317,
+          "max": 329
+        }
+      },
+      "23": {
+        "high": {
+          "min": 569,
+          "max": 581
+        },
+        "moderate": {
+          "min": 454,
+          "max": 466
+        },
+        "low": {
+          "min": 339,
+          "max": 351
+        }
+      },
+      "24": {
+        "high": {
+          "min": 617,
+          "max": 633
+        },
+        "moderate": {
+          "min": 492,
+          "max": 508
+        },
+        "low": {
+          "min": 367,
+          "max": 383
+        }
+      },
+      "-1": {
+        "high": 9,
+        "moderate": {
+          "min": 7,
+          "max": 8
+        },
+        "low": {
+          "min": 5,
+          "max": 6
+        }
+      }
+    }
+  },
+  "strikeAttackBonus": {
+    "source": "1011-strike-attack-bonus",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": 10,
+        "high": 8,
+        "moderate": 6,
+        "low": 4
+      },
+      "1": {
+        "extreme": 11,
+        "high": 9,
+        "moderate": 7,
+        "low": 5
+      },
+      "2": {
+        "extreme": 13,
+        "high": 11,
+        "moderate": 9,
+        "low": 7
+      },
+      "3": {
+        "extreme": 14,
+        "high": 12,
+        "moderate": 10,
+        "low": 8
+      },
+      "4": {
+        "extreme": 16,
+        "high": 14,
+        "moderate": 12,
+        "low": 9
+      },
+      "5": {
+        "extreme": 17,
+        "high": 15,
+        "moderate": 13,
+        "low": 11
+      },
+      "6": {
+        "extreme": 19,
+        "high": 17,
+        "moderate": 15,
+        "low": 12
+      },
+      "7": {
+        "extreme": 20,
+        "high": 18,
+        "moderate": 16,
+        "low": 13
+      },
+      "8": {
+        "extreme": 22,
+        "high": 20,
+        "moderate": 18,
+        "low": 15
+      },
+      "9": {
+        "extreme": 23,
+        "high": 21,
+        "moderate": 19,
+        "low": 16
+      },
+      "10": {
+        "extreme": 25,
+        "high": 23,
+        "moderate": 21,
+        "low": 17
+      },
+      "11": {
+        "extreme": 27,
+        "high": 24,
+        "moderate": 22,
+        "low": 19
+      },
+      "12": {
+        "extreme": 28,
+        "high": 26,
+        "moderate": 24,
+        "low": 20
+      },
+      "13": {
+        "extreme": 29,
+        "high": 27,
+        "moderate": 25,
+        "low": 21
+      },
+      "14": {
+        "extreme": 31,
+        "high": 29,
+        "moderate": 27,
+        "low": 23
+      },
+      "15": {
+        "extreme": 32,
+        "high": 30,
+        "moderate": 28,
+        "low": 24
+      },
+      "16": {
+        "extreme": 34,
+        "high": 32,
+        "moderate": 30,
+        "low": 25
+      },
+      "17": {
+        "extreme": 35,
+        "high": 33,
+        "moderate": 31,
+        "low": 27
+      },
+      "18": {
+        "extreme": 37,
+        "high": 35,
+        "moderate": 33,
+        "low": 28
+      },
+      "19": {
+        "extreme": 38,
+        "high": 36,
+        "moderate": 34,
+        "low": 29
+      },
+      "20": {
+        "extreme": 40,
+        "high": 38,
+        "moderate": 36,
+        "low": 31
+      },
+      "21": {
+        "extreme": 41,
+        "high": 39,
+        "moderate": 37,
+        "low": 32
+      },
+      "22": {
+        "extreme": 43,
+        "high": 41,
+        "moderate": 39,
+        "low": 33
+      },
+      "23": {
+        "extreme": 44,
+        "high": 42,
+        "moderate": 40,
+        "low": 35
+      },
+      "24": {
+        "extreme": 46,
+        "high": 44,
+        "moderate": 42,
+        "low": 36
+      },
+      "-1": {
+        "extreme": 10,
+        "high": 8,
+        "moderate": 6,
+        "low": 4
+      }
+    }
+  },
+  "strikeDamage": {
+    "source": "1012-strike-damage",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate",
+      "low"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": {
+          "dice": "1d6+3",
+          "average": 6
+        },
+        "high": {
+          "dice": "1d6+2",
+          "average": 5
+        },
+        "moderate": {
+          "dice": "1d4+2",
+          "average": 4
+        },
+        "low": {
+          "dice": "1d4+1",
+          "average": 3
+        }
+      },
+      "1": {
+        "extreme": {
+          "dice": "1d8+4",
+          "average": 8
+        },
+        "high": {
+          "dice": "1d6+3",
+          "average": 6
+        },
+        "moderate": {
+          "dice": "1d6+2",
+          "average": 5
+        },
+        "low": {
+          "dice": "1d4+2",
+          "average": 4
+        }
+      },
+      "2": {
+        "extreme": {
+          "dice": "1d12+4",
+          "average": 11
+        },
+        "high": {
+          "dice": "1d10+4",
+          "average": 9
+        },
+        "moderate": {
+          "dice": "1d8+4",
+          "average": 8
+        },
+        "low": {
+          "dice": "1d6+3",
+          "average": 6
+        }
+      },
+      "3": {
+        "extreme": {
+          "dice": "1d12+8",
+          "average": 15
+        },
+        "high": {
+          "dice": "1d10+6",
+          "average": 12
+        },
+        "moderate": {
+          "dice": "1d8+6",
+          "average": 10
+        },
+        "low": {
+          "dice": "1d6+5",
+          "average": 8
+        }
+      },
+      "4": {
+        "extreme": {
+          "dice": "2d10+7",
+          "average": 18
+        },
+        "high": {
+          "dice": "2d8+5",
+          "average": 14
+        },
+        "moderate": {
+          "dice": "2d6+5",
+          "average": 12
+        },
+        "low": {
+          "dice": "2d4+4",
+          "average": 9
+        }
+      },
+      "5": {
+        "extreme": {
+          "dice": "2d12+7",
+          "average": 20
+        },
+        "high": {
+          "dice": "2d8+7",
+          "average": 16
+        },
+        "moderate": {
+          "dice": "2d6+6",
+          "average": 13
+        },
+        "low": {
+          "dice": "2d4+6",
+          "average": 11
+        }
+      },
+      "6": {
+        "extreme": {
+          "dice": "2d12+10",
+          "average": 23
+        },
+        "high": {
+          "dice": "2d8+9",
+          "average": 18
+        },
+        "moderate": {
+          "dice": "2d6+8",
+          "average": 15
+        },
+        "low": {
+          "dice": "2d4+7",
+          "average": 12
+        }
+      },
+      "7": {
+        "extreme": {
+          "dice": "2d12+12",
+          "average": 25
+        },
+        "high": {
+          "dice": "2d10+9",
+          "average": 20
+        },
+        "moderate": {
+          "dice": "2d8+8",
+          "average": 17
+        },
+        "low": {
+          "dice": "2d6+6",
+          "average": 13
+        }
+      },
+      "8": {
+        "extreme": {
+          "dice": "2d12+15",
+          "average": 28
+        },
+        "high": {
+          "dice": "2d10+11",
+          "average": 22
+        },
+        "moderate": {
+          "dice": "2d8+9",
+          "average": 18
+        },
+        "low": {
+          "dice": "2d6+8",
+          "average": 15
+        }
+      },
+      "9": {
+        "extreme": {
+          "dice": "2d12+17",
+          "average": 30
+        },
+        "high": {
+          "dice": "2d10+13",
+          "average": 24
+        },
+        "moderate": {
+          "dice": "2d8+11",
+          "average": 20
+        },
+        "low": {
+          "dice": "2d6+9",
+          "average": 16
+        }
+      },
+      "10": {
+        "extreme": {
+          "dice": "2d12+20",
+          "average": 33
+        },
+        "high": {
+          "dice": "2d12+13",
+          "average": 26
+        },
+        "moderate": {
+          "dice": "2d10+11",
+          "average": 22
+        },
+        "low": {
+          "dice": "2d6+10",
+          "average": 17
+        }
+      },
+      "11": {
+        "extreme": {
+          "dice": "2d12+22",
+          "average": 35
+        },
+        "high": {
+          "dice": "2d12+15",
+          "average": 28
+        },
+        "moderate": {
+          "dice": "2d10+12",
+          "average": 23
+        },
+        "low": {
+          "dice": "2d8+10",
+          "average": 19
+        }
+      },
+      "12": {
+        "extreme": {
+          "dice": "3d12+19",
+          "average": 38
+        },
+        "high": {
+          "dice": "3d10+14",
+          "average": 30
+        },
+        "moderate": {
+          "dice": "3d8+12",
+          "average": 25
+        },
+        "low": {
+          "dice": "3d6+10",
+          "average": 20
+        }
+      },
+      "13": {
+        "extreme": {
+          "dice": "3d12+21",
+          "average": 40
+        },
+        "high": {
+          "dice": "3d10+16",
+          "average": 32
+        },
+        "moderate": {
+          "dice": "3d8+14",
+          "average": 27
+        },
+        "low": {
+          "dice": "3d6+11",
+          "average": 21
+        }
+      },
+      "14": {
+        "extreme": {
+          "dice": "3d12+24",
+          "average": 43
+        },
+        "high": {
+          "dice": "3d10+18",
+          "average": 34
+        },
+        "moderate": {
+          "dice": "3d8+15",
+          "average": 28
+        },
+        "low": {
+          "dice": "3d6+13",
+          "average": 23
+        }
+      },
+      "15": {
+        "extreme": {
+          "dice": "3d12+26",
+          "average": 45
+        },
+        "high": {
+          "dice": "3d12+17",
+          "average": 36
+        },
+        "moderate": {
+          "dice": "3d10+14",
+          "average": 30
+        },
+        "low": {
+          "dice": "3d6+14",
+          "average": 24
+        }
+      },
+      "16": {
+        "extreme": {
+          "dice": "3d12+29",
+          "average": 48
+        },
+        "high": {
+          "dice": "3d12+18",
+          "average": 37
+        },
+        "moderate": {
+          "dice": "3d10+15",
+          "average": 31
+        },
+        "low": {
+          "dice": "3d6+15",
+          "average": 25
+        }
+      },
+      "17": {
+        "extreme": {
+          "dice": "3d12+31",
+          "average": 50
+        },
+        "high": {
+          "dice": "3d12+19",
+          "average": 38
+        },
+        "moderate": {
+          "dice": "3d10+16",
+          "average": 32
+        },
+        "low": {
+          "dice": "3d6+16",
+          "average": 26
+        }
+      },
+      "18": {
+        "extreme": {
+          "dice": "3d12+34",
+          "average": 53
+        },
+        "high": {
+          "dice": "3d12+20",
+          "average": 40
+        },
+        "moderate": {
+          "dice": "3d10+17",
+          "average": 33
+        },
+        "low": {
+          "dice": "3d6+17",
+          "average": 27
+        }
+      },
+      "19": {
+        "extreme": {
+          "dice": "4d12+29",
+          "average": 55
+        },
+        "high": {
+          "dice": "4d10+20",
+          "average": 42
+        },
+        "moderate": {
+          "dice": "4d8+17",
+          "average": 35
+        },
+        "low": {
+          "dice": "4d6+14",
+          "average": 28
+        }
+      },
+      "20": {
+        "extreme": {
+          "dice": "4d12+32",
+          "average": 58
+        },
+        "high": {
+          "dice": "4d10+22",
+          "average": 44
+        },
+        "moderate": {
+          "dice": "4d8+19",
+          "average": 37
+        },
+        "low": {
+          "dice": "4d6+15",
+          "average": 29
+        }
+      },
+      "21": {
+        "extreme": {
+          "dice": "4d12+34",
+          "average": 60
+        },
+        "high": {
+          "dice": "4d10+24",
+          "average": 46
+        },
+        "moderate": {
+          "dice": "4d8+20",
+          "average": 38
+        },
+        "low": {
+          "dice": "4d6+17",
+          "average": 31
+        }
+      },
+      "22": {
+        "extreme": {
+          "dice": "4d12+37",
+          "average": 63
+        },
+        "high": {
+          "dice": "4d10+26",
+          "average": 48
+        },
+        "moderate": {
+          "dice": "4d8+22",
+          "average": 40
+        },
+        "low": {
+          "dice": "4d6+18",
+          "average": 32
+        }
+      },
+      "23": {
+        "extreme": {
+          "dice": "4d12+39",
+          "average": 65
+        },
+        "high": {
+          "dice": "4d12+24",
+          "average": 50
+        },
+        "moderate": {
+          "dice": "4d10+20",
+          "average": 42
+        },
+        "low": {
+          "dice": "4d6+19",
+          "average": 33
+        }
+      },
+      "24": {
+        "extreme": {
+          "dice": "4d12+42",
+          "average": 68
+        },
+        "high": {
+          "dice": "4d12+26",
+          "average": 52
+        },
+        "moderate": {
+          "dice": "4d10+22",
+          "average": 44
+        },
+        "low": {
+          "dice": "4d6+21",
+          "average": 35
+        }
+      },
+      "-1": {
+        "extreme": {
+          "dice": "1d6+1",
+          "average": 4
+        },
+        "high": {
+          "dice": "1d4+1",
+          "average": 3
+        },
+        "moderate": {
+          "dice": "1d4",
+          "average": 3
+        },
+        "low": {
+          "dice": "1d4",
+          "average": 2
+        }
+      }
+    }
+  },
+  "spellDcAndAttack": {
+    "source": "1014-spell-dc-and-spell-attack-modifier",
+    "bands": [
+      "extreme",
+      "high",
+      "moderate"
+    ],
+    "byLevel": {
+      "0": {
+        "extreme": {
+          "dc": 19,
+          "attack": 11
+        },
+        "high": {
+          "dc": 16,
+          "attack": 8
+        },
+        "moderate": {
+          "dc": 13,
+          "attack": 5
+        }
+      },
+      "1": {
+        "extreme": {
+          "dc": 20,
+          "attack": 12
+        },
+        "high": {
+          "dc": 17,
+          "attack": 9
+        },
+        "moderate": {
+          "dc": 14,
+          "attack": 6
+        }
+      },
+      "2": {
+        "extreme": {
+          "dc": 22,
+          "attack": 14
+        },
+        "high": {
+          "dc": 18,
+          "attack": 10
+        },
+        "moderate": {
+          "dc": 15,
+          "attack": 7
+        }
+      },
+      "3": {
+        "extreme": {
+          "dc": 23,
+          "attack": 15
+        },
+        "high": {
+          "dc": 20,
+          "attack": 12
+        },
+        "moderate": {
+          "dc": 17,
+          "attack": 9
+        }
+      },
+      "4": {
+        "extreme": {
+          "dc": 25,
+          "attack": 17
+        },
+        "high": {
+          "dc": 21,
+          "attack": 13
+        },
+        "moderate": {
+          "dc": 18,
+          "attack": 10
+        }
+      },
+      "5": {
+        "extreme": {
+          "dc": 26,
+          "attack": 18
+        },
+        "high": {
+          "dc": 22,
+          "attack": 14
+        },
+        "moderate": {
+          "dc": 19,
+          "attack": 11
+        }
+      },
+      "6": {
+        "extreme": {
+          "dc": 27,
+          "attack": 19
+        },
+        "high": {
+          "dc": 24,
+          "attack": 16
+        },
+        "moderate": {
+          "dc": 21,
+          "attack": 13
+        }
+      },
+      "7": {
+        "extreme": {
+          "dc": 29,
+          "attack": 21
+        },
+        "high": {
+          "dc": 25,
+          "attack": 17
+        },
+        "moderate": {
+          "dc": 22,
+          "attack": 14
+        }
+      },
+      "8": {
+        "extreme": {
+          "dc": 30,
+          "attack": 22
+        },
+        "high": {
+          "dc": 26,
+          "attack": 18
+        },
+        "moderate": {
+          "dc": 23,
+          "attack": 15
+        }
+      },
+      "9": {
+        "extreme": {
+          "dc": 32,
+          "attack": 24
+        },
+        "high": {
+          "dc": 28,
+          "attack": 20
+        },
+        "moderate": {
+          "dc": 25,
+          "attack": 17
+        }
+      },
+      "10": {
+        "extreme": {
+          "dc": 33,
+          "attack": 25
+        },
+        "high": {
+          "dc": 29,
+          "attack": 21
+        },
+        "moderate": {
+          "dc": 26,
+          "attack": 18
+        }
+      },
+      "11": {
+        "extreme": {
+          "dc": 34,
+          "attack": 26
+        },
+        "high": {
+          "dc": 30,
+          "attack": 22
+        },
+        "moderate": {
+          "dc": 27,
+          "attack": 19
+        }
+      },
+      "12": {
+        "extreme": {
+          "dc": 36,
+          "attack": 28
+        },
+        "high": {
+          "dc": 32,
+          "attack": 24
+        },
+        "moderate": {
+          "dc": 29,
+          "attack": 21
+        }
+      },
+      "13": {
+        "extreme": {
+          "dc": 37,
+          "attack": 29
+        },
+        "high": {
+          "dc": 33,
+          "attack": 25
+        },
+        "moderate": {
+          "dc": 30,
+          "attack": 22
+        }
+      },
+      "14": {
+        "extreme": {
+          "dc": 39,
+          "attack": 31
+        },
+        "high": {
+          "dc": 34,
+          "attack": 26
+        },
+        "moderate": {
+          "dc": 31,
+          "attack": 23
+        }
+      },
+      "15": {
+        "extreme": {
+          "dc": 40,
+          "attack": 32
+        },
+        "high": {
+          "dc": 36,
+          "attack": 28
+        },
+        "moderate": {
+          "dc": 33,
+          "attack": 25
+        }
+      },
+      "16": {
+        "extreme": {
+          "dc": 41,
+          "attack": 33
+        },
+        "high": {
+          "dc": 37,
+          "attack": 29
+        },
+        "moderate": {
+          "dc": 34,
+          "attack": 26
+        }
+      },
+      "17": {
+        "extreme": {
+          "dc": 43,
+          "attack": 35
+        },
+        "high": {
+          "dc": 38,
+          "attack": 30
+        },
+        "moderate": {
+          "dc": 35,
+          "attack": 27
+        }
+      },
+      "18": {
+        "extreme": {
+          "dc": 44,
+          "attack": 36
+        },
+        "high": {
+          "dc": 40,
+          "attack": 32
+        },
+        "moderate": {
+          "dc": 37,
+          "attack": 29
+        }
+      },
+      "19": {
+        "extreme": {
+          "dc": 46,
+          "attack": 38
+        },
+        "high": {
+          "dc": 41,
+          "attack": 33
+        },
+        "moderate": {
+          "dc": 38,
+          "attack": 30
+        }
+      },
+      "20": {
+        "extreme": {
+          "dc": 47,
+          "attack": 39
+        },
+        "high": {
+          "dc": 42,
+          "attack": 34
+        },
+        "moderate": {
+          "dc": 39,
+          "attack": 31
+        }
+      },
+      "21": {
+        "extreme": {
+          "dc": 48,
+          "attack": 40
+        },
+        "high": {
+          "dc": 44,
+          "attack": 36
+        },
+        "moderate": {
+          "dc": 41,
+          "attack": 33
+        }
+      },
+      "22": {
+        "extreme": {
+          "dc": 50,
+          "attack": 42
+        },
+        "high": {
+          "dc": 45,
+          "attack": 37
+        },
+        "moderate": {
+          "dc": 42,
+          "attack": 34
+        }
+      },
+      "23": {
+        "extreme": {
+          "dc": 51,
+          "attack": 43
+        },
+        "high": {
+          "dc": 46,
+          "attack": 38
+        },
+        "moderate": {
+          "dc": 43,
+          "attack": 35
+        }
+      },
+      "24": {
+        "extreme": {
+          "dc": 52,
+          "attack": 44
+        },
+        "high": {
+          "dc": 48,
+          "attack": 40
+        },
+        "moderate": {
+          "dc": 45,
+          "attack": 37
+        }
+      },
+      "-1": {
+        "extreme": {
+          "dc": 19,
+          "attack": 11
+        },
+        "high": {
+          "dc": 16,
+          "attack": 8
+        },
+        "moderate": {
+          "dc": 13,
+          "attack": 5
+        }
+      }
+    }
+  }
+}

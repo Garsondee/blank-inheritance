@@ -72,13 +72,15 @@ test("a held card gets its keys before the game does, and with nothing held ever
   const { registerKeys } = await import("../scripts/foundry/keys.mjs");
   const registered = new Map();
   globalThis.game = { keybindings: { register: (ns, action, def) => registered.set(action, { ns, ...def }) } };
-  globalThis.CONST = { KEYBINDING_PRECEDENCE: { PRIORITY: 0, NORMAL: 1, DEFERRED: 2 } };
+  globalThis.CONST = { KEYBINDING_PRECEDENCE: { PRIORITY: 0, NORMAL: 1, DEFERRED: 2 }, KEYBOARD_MODIFIER_KEYS: { SHIFT: "Shift" } };
   const performed = [];
   let host = { dragging: null, perform: (verb) => performed.push(verb) };
   registerKeys(() => host);
-  assert.deepEqual([...registered.keys()], ["hop", "nod", "bow", "shake", "turn", "home"]);
+  assert.deepEqual([...registered.keys()], ["hop", "nod", "bow", "shake", "turn", "target", "home"]);
   const home = registered.get("home");
-  registered.delete("home");                 // the view's key, below; the rest are the held card's
+  registered.delete("home");                 // the view's key, below
+  const target = registered.get("target");
+  registered.delete("target");               // and the aiming key, below; the rest are the held card's
   for (const def of registered.values()) {
     assert.equal(def.ns, "stagecraft");
     assert.equal(def.precedence, 0, "asked before the game's own keys: N is the notes key, T is target, Space pauses");
@@ -90,7 +92,19 @@ test("a held card gets its keys before the game does, and with nothing held ever
   host = { dragging: { id: "ana" }, perform: (verb) => performed.push(verb) };
   for (const def of registered.values()) assert.equal(def.onDown(), true, "a card in the hand: the key is taken");
   assert.deepEqual(performed, ["hop", "nod", "bow", "shake", "turn"]);
+  // T aims (core/tokens.mjs): asked first, with Shift allowed (it adds to who is aimed at, as in Foundry), used only when a stage answers it
+  assert.deepEqual(target.editable, [{ key: "KeyT" }]);
+  assert.equal(target.precedence, 0, "asked before the game's own T");
+  assert.deepEqual(target.reservedModifiers, ["Shift"]);
+  const aimed = [];
+  host = { dragging: null, targetKey: (opts) => { aimed.push(opts); return true; } };
+  assert.equal(target.onDown({ isShift: false }), true, "a stage uses the key");
+  assert.equal(target.onDown({ isShift: true }), true);
+  assert.deepEqual(aimed, [{ shift: false }, { shift: true }]);
+  host = { dragging: null, targetKey: () => false };
+  assert.equal(target.onDown({ isShift: false }), false, "a stage that has no use for it (a card in the hand) leaves it to the game");
   host = null;
+  assert.equal(target.onDown({ isShift: false }), false, "no stage at all: the key is the game's");
   assert.equal(registered.get("hop").onDown(), false, "no stage at all: the key is the game's");
   // Home brings the view back to the whole stage; with no stage it is passed on
   assert.deepEqual(home.editable, [{ key: "Home" }]);

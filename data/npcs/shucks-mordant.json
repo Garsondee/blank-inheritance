@@ -14,6 +14,79 @@
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "status": "DRAFT -- expanded 2026-09-21 at Ingram's request into a full working brief.",
+  "statblock": {
+    "level": 15,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 6,
+      "dex": 6,
+      "con": 8,
+      "int": 8,
+      "wis": 8,
+      "cha": 8
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "master",
+        "modifier": 29
+      }
+    },
+    "skills": {
+      "deception": {
+        "rank": "expert",
+        "modifier": 27
+      },
+      "medicine": {
+        "rank": "master",
+        "modifier": 30
+      },
+      "society": {
+        "rank": "expert",
+        "modifier": 27
+      }
+    },
+    "ac": 37,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "master",
+        "modifier": 29
+      },
+      "reflex": {
+        "rank": "master",
+        "modifier": 29
+      },
+      "will": {
+        "rank": "expert",
+        "modifier": 26
+      }
+    },
+    "hitPoints": {
+      "max": 344,
+      "current": 344
+    },
+    "speed": {
+      "land": 25
+    },
+    "strikes": [
+      {
+        "name": "Strike",
+        "strikeType": "melee",
+        "attackBonus": 30,
+        "traits": [],
+        "damage": [
+          {
+            "dice": "3d12",
+            "bonus": 17,
+            "damageType": "bludgeoning"
+          }
+        ]
+      }
+    ]
+  },
   "socialProfile": {
     "attitude": "friendly",
     "facts": [

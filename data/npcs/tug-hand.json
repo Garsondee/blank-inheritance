@@ -1,0 +1,81 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "tug-hand",
+  "type": "npc",
+  "authoring": {
+    "status": "drafted"
+  },
+  "name": null,
+  "role": "A tug-hand from the harbour",
+  "pole": null,
+  "affiliation": null,
+  "description": "One of four harbour tug-hands who come looking for trouble in the crew mess (rest--crew-mess, the two-crews event: \"Four tug-hands from the harbour, led by the big one who shoved Petr\").",
+  "designNotes": "Made by tools/npc-generator from data/campaign/npc-roster.json: a person a scene's events name in prose, so that there is a statblock for them and something to put on a token. Nothing about them is established beyond what the scene says; the statblock is derived and is changed in the roster, not here.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "statblock": {
+    "level": 1,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 4,
+      "dex": 3,
+      "con": 3,
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "skills": {
+      "athletics": {
+        "rank": "expert",
+        "modifier": 6
+      }
+    },
+    "ac": 15,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "expert",
+        "modifier": 10
+      },
+      "reflex": {
+        "rank": "expert",
+        "modifier": 7
+      },
+      "will": {
+        "rank": "trained",
+        "modifier": 4
+      }
+    },
+    "hitPoints": {
+      "max": 25,
+      "current": 25
+    },
+    "speed": {
+      "land": 25
+    },
+    "strikes": [
+      {
+        "name": "Club",
+        "strikeType": "melee",
+        "attackBonus": 9,
+        "traits": [],
+        "damage": [
+          {
+            "dice": "1d6",
+            "bonus": 2,
+            "damageType": "bludgeoning"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -15,6 +15,60 @@
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "status": "established and voiced (the General Hospital haunt is built and playable) -- second haunt regular formalized into a real npc file",
+  "statblock": {
+    "level": -1,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 2,
+      "cha": 0
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "trained",
+        "modifier": 5
+      }
+    },
+    "skills": {
+      "diplomacy": {
+        "rank": "trained",
+        "modifier": 1
+      },
+      "society": {
+        "rank": "trained",
+        "modifier": 4
+      }
+    },
+    "ac": 12,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "trained",
+        "modifier": 2
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 2
+      },
+      "will": {
+        "rank": "trained",
+        "modifier": 5
+      }
+    },
+    "hitPoints": {
+      "max": 5,
+      "current": 5
+    },
+    "speed": {
+      "land": 25
+    }
+  },
   "socialProfile": {
     "attitude": "friendly"
   }

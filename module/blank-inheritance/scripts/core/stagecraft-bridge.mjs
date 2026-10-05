@@ -473,3 +473,38 @@ export function foldKept(existing, filed) {
   }
   return { kept: { kind: "bi-kept-places", version: 1, scenes }, lines };
 }
+/* ---------------------------------------------------------------- tokens: a basic actor for every card with none */
+
+/**
+ * Stagecraft gives every card a real token on its scene (design/stagecraft/module.md section 39) so that a click on a card controls
+ * its token and a T aims at one, as on Foundry's own canvas. A party member's card already names their character; everyone
+ * else the scene's brief names is only a person on a card, so each of them gets a BASIC actor, made only so their token has
+ * something to stand for: an sf2e "npc" with the generators' own sensible empty defaults (no stats were ever authored for
+ * them: inventing numbers is not this file's job), a ring round its token, and no one but the GM to see it. One per card id, so
+ * the same person is the same actor in every scene.
+ *
+ * Everything on it comes from the CARD, never from the person behind it: a protected person is called what the table calls them
+ * until the table learns their name (the card's name follows, and so does the actor's), and their picture is the one the card
+ * shows. A world's actors reach every player's browser whatever their ownership says, so nothing else may be put on one.
+ */
+export const BASIC_FLAG = "stagecraftBasic";
+/** The folder the basic actors are kept in, so the GM's actor list is not buried in them. */
+export const BASIC_FOLDER_FLAG = "stageFigures";
+export const basicSourceId = (cardId) => `stagecraft-basic-${cardId}`;
+
+/** The first line of a card's name: what its actor and token are called (a name may be broken over lines for the card's plate). */
+export function basicName(card) {
+  const first = String(card?.name ?? card?.id ?? "").split(/\n|<br\s*\/?>|\\n/i)[0].trim();
+  return first || String(card?.id ?? "");
+}
+
+/** Is this actor one of the basic ones (so the finder, the palette and the like do not offer it as a person)? Takes an Actor or its data. */
+export const isBasicActor = (actor) => (typeof actor?.getFlag === "function" ? actor.getFlag("blank-inheritance", BASIC_FLAG) : actor?.flags?.["blank-inheritance"]?.[BASIC_FLAG]) === true;
+
+/**
+ * What a basic actor should be called and show, from its card: { name, img }. Used to make it and to keep it in step when the
+ * card's name or picture changes (a name learned at the table).
+ */
+export function basicFace(card) {
+  return { name: basicName(card), img: typeof card?.portrait === "string" && card.portrait ? card.portrait : null };
+}

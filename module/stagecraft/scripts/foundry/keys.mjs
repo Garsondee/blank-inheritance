@@ -31,6 +31,17 @@ export function registerKeys(getHost) {
       precedence: CONST.KEYBINDING_PRECEDENCE.PRIORITY      // asked first, so a held card gets its key before the game does (N is the notes key, T is target)
     });
   }
+  // T, Foundry's own key for targeting, answered on a stage (core/tokens.mjs `tKey`): aim at the card under the pointer, or start
+  // and stop aiming, when a click on a card aims at it. Shift adds to who is aimed at, as in Foundry. With a card in the hand the key
+  // is "turn" above (registered first, so it answers first); anywhere but a stage the key is passed on to Foundry's own.
+  game.keybindings.register(NS, "target", {
+    name: "STAGECRAFT.Keys.target",
+    editable: [{ key: "KeyT" }],
+    onDown: (context) => getHost()?.targetKey({ shift: context?.isShift === true }) === true,
+    restricted: false,
+    reservedModifiers: [CONST.KEYBOARD_MODIFIER_KEYS?.SHIFT ?? "Shift"],
+    precedence: CONST.KEYBINDING_PRECEDENCE.PRIORITY
+  });
   // the view back home: the whole stage in sight (core/look.mjs). Only on a stage; anywhere else the key is passed on.
   game.keybindings.register(NS, "home", {
     name: "STAGECRAFT.Keys.home",

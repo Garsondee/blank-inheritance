@@ -12,7 +12,7 @@
 import { EMOTES, EMOTE_PIVOT } from "../../core/emotes.mjs";
 import { makeRig, viewFor } from "../../core/rigspace.mjs";
 import { DEFAULT_BOX, PALETTE, tileRect, tilesFor } from "../../core/chalk.mjs";
-import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas } from "../canvas-art.mjs";
+import { zoneKey, drawZoneOutlines, impactCanvas, markCanvas, labelCanvas, reticleCanvas } from "../canvas-art.mjs";
 import { samplePainting } from "../paint/wall.mjs";
 import { makeTitleBlock } from "../titleblock.mjs";
 import { faceOf } from "../badges.mjs";
@@ -380,13 +380,22 @@ export class FlatBackend {
         ctx.beginPath();
         ctx.ellipse(at.x, at.y, wide * 1.45, tall * 1.6, 0, 0, Math.PI * 2);
         ctx.fill();
-        continue;
+      } else {
+        ctx.globalAlpha = 0.62 - 0.26 * g;
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.ellipse(at.x, at.y, wide, tall, 0, 0, Math.PI * 2);
+        ctx.fill();
       }
-      ctx.globalAlpha = 0.62 - 0.26 * g;
-      ctx.fillStyle = "#000";
-      ctx.beginPath();
-      ctx.ellipse(at.x, at.y, wide, tall, 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (c.controlled) {
+        // the card's token is the one this user controls: a gold ring round its feet
+        ctx.globalAlpha = 0.95;
+        ctx.strokeStyle = "#ffd45a";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.ellipse(at.x, at.y, wide * 1.6, tall * 1.9, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
     ctx.globalAlpha = 1;
   }
@@ -511,6 +520,31 @@ export class FlatBackend {
     }
     if (!ghost) this.#grade(v, c, W, H);
     if (ghost) ctx.globalAlpha = 1;
+    if (!ghost && c.controlled) {
+      // the card's token is the one this user controls: a gold outline round the card, as Foundry draws round a controlled token
+      ctx.strokeStyle = "#ffd45a";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(-W / 2 - 4, -H - 4, W + 8, H + 8);
+    }
+    if (!ghost && Array.isArray(c.targeted) && c.targeted.length) this.#reticle(c.targeted, pl.m, W, H);
+  }
+
+  /** Someone is aiming at this card: Foundry's four arrows round it, in the aimer's colour, laid upright over the card's own place on screen. */
+  #reticle(colours, m, W, H) {
+    const { ctx } = this;
+    const aspect = (H * 1.22) / (W * 1.3);
+    const key = `${colours.join("|")}:${aspect.toFixed(3)}`;
+    this.reticles ??= new Map();
+    let image = this.reticles.get(key);
+    if (!image) { image = reticleCanvas(colours, aspect); this.reticles.set(key, image); }
+    const [a, b, cc, d, e, f] = m;
+    const cx = cc * (-H / 2) + e;
+    const cy = d * (-H / 2) + f;
+    const w = Math.hypot(a, b) * W * 1.3;
+    const h = Math.hypot(cc, d) * H * 1.22;
+    this.#set([1, 0, 0, 1, 0, 0]);                        // page pixels, not the card's own
+    ctx.drawImage(image, cx - w / 2, cy - h / 2, w, h);
+    this.#set(m);
   }
 
   /** The card takes the light of the painting under it (core/grade.mjs), as a multiply over its face: dim in the dark, warm under a lantern. */

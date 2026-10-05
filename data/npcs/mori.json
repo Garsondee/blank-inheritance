@@ -14,5 +14,55 @@
   "designNotes": "Created 2026-09-29, extracted from the 'the-cut-hand' dilemma event in canon/scenes/rest--general-hospital.json -- like gennai.json and kuroki.json, she had no formal cast entry before now, only event prose, so her cast entry (walkOn: true) is created from scratch rather than an npcRef added to an existing one.\n\nThe event itself was rewritten the same session at Ingram's direct instruction: the original version made the party choose between getting her proper care and her keeping her job, which is exactly the 'help them vs. hurt them a different way' dilemma shape this campaign doesn't want (see memory: dilemmas never pit help against safety). The rewrite turns it into a plain notice -> persuade -> treat sequence -- her situation with the city firm stays as motivation and worldbuilding texture, never as leverage on the players' choice in the moment. 'This comes back as the city keeps changing' remains a live thread for a later chapter.\n\nNo ancestry twist requested for this NPC. No socialProfile authored: the source gives her no attitude/doors/coercible structure, and (per the same rewrite) no secret-keeping mechanic to build one around -- she's a one-scene dilemma NPC, not a returning regular, at least for now.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
-  "status": "established and voiced, but thin by design (a stub, not a regular) -- sixth and final General Hospital haunt NPC formalized into a real npc file"
+  "status": "established and voiced, but thin by design (a stub, not a regular) -- sixth and final General Hospital haunt NPC formalized into a real npc file",
+  "statblock": {
+    "level": 0,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 2,
+      "cha": 0
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "trained",
+        "modifier": 6
+      }
+    },
+    "skills": {
+      "crafting": {
+        "rank": "trained",
+        "modifier": 2
+      }
+    },
+    "ac": 13,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "trained",
+        "modifier": 3
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 3
+      },
+      "will": {
+        "rank": "trained",
+        "modifier": 6
+      }
+    },
+    "hitPoints": {
+      "max": 12,
+      "current": 12
+    },
+    "speed": {
+      "land": 25
+    }
+  }
 }

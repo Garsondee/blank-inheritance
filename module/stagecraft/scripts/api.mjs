@@ -15,8 +15,9 @@ import { TOOL_NAMES } from "./core/brush.mjs";
 import { registerMargins } from "./foundry/margins.mjs";
 import { registerWings, registerFinder } from "./foundry/wings.mjs";
 import { registerCardActions } from "./foundry/card-menu.mjs";
+import { registerTokenActors } from "./foundry/tokens.mjs";
 
-export const API_VERSION = "0.13.0";
+export const API_VERSION = "0.15.0";
 
 export function createApi({ skins, current }) {
   return {
@@ -91,6 +92,18 @@ export function createApi({ skins, current }) {
       setFinder: (finder) => registerFinder(finder),
       /** Ask the providers again, now (your own story changed). Resolves when the tray has been drawn again. */
       refresh: () => current.host?.wings?.refresh() ?? Promise.resolve()
+    },
+
+    /**
+     * Cards and Foundry's tokens (core/tokens.mjs): every card on a stage has a real token on its scene, never drawn, so what a
+     * click controls (`canvas.tokens.controlled`) and what a T aims at (`game.user.targets`) are what Foundry's own canvas would
+     * give. The acting GM's screen makes and keeps them; a card's actor is its own `actor`, else the provider's answer.
+     */
+    tokens: {
+      /** provider(scene, card) -> an Actor, an actor id, { id, link: false } (each token its own copy of the actor) or null (or a promise of one): who a card's token stands for. Asked when a card needs a token and when its name changes. Returns a function that takes it away. */
+      setActorProvider: (provider) => registerTokenActors(provider),
+      /** Make the tokens of the stage on screen agree with its cards, now (your own actors changed). Resolves when done. */
+      refresh: () => current.host?.tokens?.ensure({ force: true }) ?? Promise.resolve()
     },
 
     /**

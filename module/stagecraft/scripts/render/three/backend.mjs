@@ -23,6 +23,7 @@ import { wallToWindow } from "../../core/wet.mjs";
 import { paintingGrid } from "../grade.mjs";
 import { lightAt } from "../../core/grade.mjs";
 import { makeTitleBlock } from "../titleblock.mjs";
+import { ringCanvas, reticleCanvas, haloCanvas } from "../canvas-art.mjs";
 
 const COMPILE_WAIT = 4000;           // ms a stage waits for its shaders to be built before it shows itself anyway
 
@@ -227,7 +228,7 @@ export class ThreeBackend {
     this.adding.add(person.id);
     try {
       this.titleBlock ??= makeTitleBlock();
-      const ctx = { tracker: this.tracker, shared: (key, make) => this.#shared(key, make), images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id), lightAt: (x, z) => this.#lightAt(x, z) };
+      const ctx = { tracker: this.tracker, shared: (key, make) => this.#shared(key, make), images: this.images, titleBlock: this.titleBlock, softDot: this.softDot, scene: this.scene, emoteTexture: (id) => this.#emoteTexture(id), lightAt: (x, z) => this.#lightAt(x, z), ringTexture: () => this.#shared("ring", () => canvasTexture(ringCanvas(), { anisotropy: 1 })), reticleTexture: (colours, aspect) => this.#shared(`reticle:${colours.join("|")}:${aspect.toFixed(3)}`, () => canvasTexture(reticleCanvas(colours, aspect), { anisotropy: 1 })), haloTexture: (w, h) => this.#shared(`halo:${w}:${h}`, () => canvasTexture(haloCanvas(w, h), { anisotropy: 1 })) };
       const view = new CardView(person, this.skin, ctx, this.description.cardScale * (person.size ?? 1));
       await view.build();
       if (this.disposed) { view.dispose(); return; }
@@ -237,7 +238,7 @@ export class ThreeBackend {
       }
       if (this.disposed) { view.dispose(); return; }
       this.views.set(person.id, view);               // only now can the frame loop pose it
-      this.scene.add(view.root, view.blob);
+      this.scene.add(view.root, view.blob, view.ring, view.reticle);
       this.shadowDirty = true;
       if (person.emote?.id) await view.setEmote(person.emote.id);
     } finally {

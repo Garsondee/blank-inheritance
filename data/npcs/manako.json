@@ -13,6 +13,64 @@
   "designNotes": "Created 2026-09-21, for the same reason taka.json was: he was cast inline in `episode-c1e1--the-errand` with `npcRef: null`, so there was nothing for the Scene Runner, the sync pipeline or the asset registry to attach to. Ingram commissioned three portraits of him on 2026-09-21 and they needed somewhere to point.\n\nEXPANDED at Ingram's request -- \"he's pivotal to the entire adventure. He is the 'Original Cultist', he has history, he has ambitions and a plan.\" This file now carries what a GM needs to run him at any point in the campaign: voice, the five movements, the mood-ring mechanism, the three standing rules, the history and the thing that must never leak.\n\nIt is a working brief, not a replacement for the sources. `ideas/story/dossier-cicada.md` remains the truth -- section 3 the fall, 4 the operator reveal, 5 the Pivot, 6 the revenge list, 7 the magic show, 8 the supply chain, 9 the personnel, 13 the arc. `ideas/story/bible/characters/manako.md` remains the at-the-table voice reference. Anything contested belongs there and is corrected there first.\n\nStill open and not to be settled in passing: `open-questions.json#the-original-cultist` -- \"The Original Cultist\" is a working label for the unidentified founder, not a final one, and it is worth noticing that any such label is one the party or the institution invented for a gap in a file.\n\nTHREE PORTRAITS, THREE MOMENTS, AND THE ORDER MATTERS. `manako` is the tea house -- the only one the party may see in Episodes One and Two. `manako--masked` and `manako--unmasked` are both later reveals and neither should be in front of a player before the dossier says so. Showing the masked portrait early does not spoil a name; it spoils the fact that the kind old man in the tea house is anybody at all.\n\nThe one thing that must never leak is in the bible file and is not repeated here.\n\nThe crime lord at the top of Manako's trade is deliberately not named in this file. Who he is, and when he is revealed, are a secret kept in the story bible.\n\n2026-09-27 (Ingram, LEDGER #44): every scene with Manako needs careful management for secret leaks and premature exposition. He is too important to put in front of the group carelessly, and his scenes are due a dedicated pass.\n\n2026-09-27 (Ingram, LEDGER #45): he gives his real name freely and talks freely about his past (a chemist; hazed by the Directorate the same way; came back empty-handed and was laughed at; has spent forty years thinking what he should have done), never the Watcher. He is openly bitter about the Directorate and fatherly to recruits, which is part of why he makes an effective cult leader, and he loves tweaking a horrible officer's nose in a way that hurts nobody. He ruminates on his failures often. The tea-house message book is gone: a player who impresses him, or is especially kind, gets his phone number (a Scene Runner button, not built yet). A very hard knowledge check can place his name: the scientist who had a breakdown at a conference and was expelled.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
+  "statblock": {
+    "level": 5,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 2,
+      "dex": 2,
+      "con": 2,
+      "int": 4,
+      "wis": 4,
+      "cha": 4
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 12
+      }
+    },
+    "skills": {
+      "crafting": {
+        "rank": "expert",
+        "modifier": 13
+      },
+      "deception": {
+        "rank": "expert",
+        "modifier": 12
+      },
+      "medicine": {
+        "rank": "expert",
+        "modifier": 12
+      }
+    },
+    "ac": 19,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "trained",
+        "modifier": 9
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 9
+      },
+      "will": {
+        "rank": "expert",
+        "modifier": 15
+      }
+    },
+    "hitPoints": {
+      "max": 56,
+      "current": 56
+    },
+    "speed": {
+      "land": 25
+    }
+  },
   "socialProfile": {
     "attitude": "friendly",
     "facts": [

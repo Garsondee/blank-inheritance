@@ -985,3 +985,65 @@ the tray and the faded card for the GM only and in their places, each hand raisi
 Escape raising nothing, the finder, the eye, someone whose card arrives leaving the wings, and another module's thing on a
 card's menu run for that card). The adventure's side: `tier1-stage-wings`, `tier2-present-corpus`,
 `tier3-stage-wings-contract`, and the bridge test.
+
+## 39. Click to select, T to aim: every card has a token (2026-10-05)
+
+Ingram: *"In order to reproduce the Foundry VTT behaviour better we need two things. Left clicking on a card should 'select' the
+token of that NPC or PC. Pressing T whilst having your / a token card selected should allow me to target other things. Each scene
+will need NPC tokens for it to work, just create very basic ones for now."* Foundry's own systems think in tokens: the one you
+control is the one your rolls and sheet speak for, and the ones you target are what an attack is aimed at. So every card on a
+stage now has a **real token** on its scene, never drawn (the stage is the picture), and a click and a T go through Foundry's own
+`Token#control` and `Token#setTarget`, so `canvas.tokens.controlled` and `game.user.targets` are exactly what Foundry's own canvas
+would give. Interface 0.14.0 (`api.tokens`); the files are `core/tokens.mjs` (pure) and `foundry/tokens.mjs`.
+
+- **Tokens, made by the acting GM's screen** (`CardTokens#ensure`, at a stage's start and at every change of its cast): one per card,
+  flagged `flags.stagecraft.card`, named and pictured as the card is (so only what the table may see: Law 11 holds by construction),
+  linked to their actor, never hidden (so a scene given back to Foundry's canvas shows its people), put where the card stands as
+  a fraction of the scene's rectangle. A card with a token whose card is gone loses it, a second token for one card goes, a changed
+  name or picture follows, and **a token taken away by hand is made again at once**. Tokens without our flag (the adventure's hidden
+  reference tokens, anything a GM placed) are never looked at. Nothing is written when nothing changed.
+- **Whose actor.** The party's cards already name their character (`actor`). For everyone else the adventure answers through
+  `api.tokens.setActorProvider`: a **basic NPC actor** per card id (`foundry/stage-figures.mjs` in the adventure): the generators' own empty
+  sf2e npc (nothing authored is invented), a ring round its token, in a folder called *Stage figures*, owned by no player, flagged
+  `stagecraftBasic` (and never carrying a `sourceId`, so the world sync's retirement of old documents can never mistake it for its own),
+  **named and pictured from the card alone** (a world's actors reach every player's browser whatever their ownership says), renamed when
+  the card is, one actor for a person in every scene. The finder and the Director palette leave them out. A card nobody answers for gets a
+  token with no actor.
+- **A click on a card controls its token** (a player only their own, as on Foundry's canvas; Shift adds for a player; a GM's Shift-click
+  still chooses for a formation, and Ctrl-click and Alt-click are still the knock-down and the floor), then takes hold of the card as it
+  always did. A click on the bare stage lets go (a drag that moves the view does not). Foundry only controls the active layer's tokens,
+  so the token layer is activated first. **What is drawn:** a gold outline round the card (Foundry's border round a controlled token) and
+  a ring on the floor; in the plain picture the same, as strokes.
+- **T** (registered under our own key, before the game's, with Shift let through as Foundry does; with a card in the hand the key is still
+  "turn its back"): on a card the pointer rests on that is not the one chosen, it **aims at that card** (Foundry's own T: the only target,
+  or one more with Shift, or let go if already aimed at); anywhere else (the bare stage, or the card just clicked, which is where the
+  pointer is) it **starts aiming**: a line at the top of the stage says so, a click on a card aims at it (Shift adds, a second click lets
+  it go) and takes hold of nothing, a click on the bare stage clears every aim, and **T or Escape stops** (a further Escape clears who is
+  aimed at). **What is drawn:** Foundry's four arrows round the card in the aimer's colour, with a pip for each aimer (so two players
+  aiming at one card show both), at the card's own proportions, in front of cards behind it.
+- **Read back at every frame.** Foundry 14 has no hook for a target changing (`targetToken` is gone), so what is controlled and who is
+  aimed at, by every user, is read from the tokens each frame; a choice made anywhere else (the sidebar, another module, a key) shows on
+  the stage, and the adventure's deck, which follows the controlled token, shows the card's HP and cast row the moment it is clicked
+  (seen live). With no token to reach (no GM has opened the scene, or its canvas is not the one on screen) the stage still answers on
+  that screen alone, with the same rule for who may choose which card.
+- **Not built, on purpose:** a double-click opening the actor's sheet (Foundry's own double-click on a token); a card's token following
+  the card as it is moved (the token is only where the card first stood: nothing reads it); unifying the GM's formation choice with the
+  controlled set (a GM's Shift-click is still the formation's); real stats for the basic actors (none were ever authored).
+
+**Who a token stands for, later the same day (the NPC Generator, `design/npc-generator.md`, interface 0.15.0).** The basic figure is now
+the last resort. A provider may answer `{ id, link: false }` (each token its own copy of the actor, so each of a pack has its own hit points),
+and the adventure's answer is, most real first: a creature that already has a finished statblock (the six giant centipedes are the sf2e
+compendium's own: imported once, unlinked, nothing generated), the person's **real synced actor** (which carries the stat block the
+generator wrote from the roster), else the basic figure. Seen live: six centipede tokens, one imported actor, hurting one leaves five whole;
+Nobu's token, clicked, stands for an actor with his generated hit points.
+
+Checks: `module/stagecraft/test/tokens.test.mjs` (22: the plan for which tokens a stage's cards need, what a click and a T do to the aim,
+what T means where the pointer is, and the bridge against a stand-in that follows Foundry 14's own rules for control and aim), the
+interface and key tests, `test/stagecraft-basic-actors.test.mjs` (the adventure's half: what a basic actor is made of and that it is made
+once), `tools/stagecraft/bench/target-check.mjs` (32, real mouse and key presses on the bench as a GM and a player, through a stand-in for
+Foundry's keybinding layer), and **`tools/stagecraft/foundry-token-check.mjs` (31, in the real Foundry with a real second player: the
+tokens and their actors, a real click controlling the token, a real T reaching ours and not Foundry's own, aiming through
+`game.user.targets` and seen on the other screen, a player controlling only their own, a deleted token made again, a renamed card
+renaming its token and actor, and what is really drawn on the card's 3D views).** Run it after `npm run build:stagecraft`: **a live
+check runs the built bundle, not the sources**, and a stale one passed everything it could and failed the rest in ways that looked
+like bugs in the new code.

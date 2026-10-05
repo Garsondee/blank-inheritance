@@ -336,7 +336,9 @@ const PIECES = ["Kiku", "Enomoto", "the", "quartermaster", "of", "Kobayashi-Taka
 test("whatever it is given: no line wider than the plate, no more lines than allowed, nothing invented, nothing out of order", () => {
   const rand = rng(20261004);
   const widths = [180, 320, 460, 560];
-  for (let n = 0; n < 400; n++) {
+  // a seeded sweep that takes a minute at full size: `npm test` runs its first 60 cases, `npm run test:all` (BI_SLOW=1) all 400
+  const cases = process.env.BI_SLOW === "1" ? 400 : 60;
+  for (let n = 0; n < cases; n++) {
     const parts = Array.from({ length: 1 + Math.floor(rand() * 14) }, () => PIECES[Math.floor(rand() * PIECES.length)]);
     const raw = parts.join(rand() < 0.2 ? "" : " ");
     const width = widths[n % widths.length];

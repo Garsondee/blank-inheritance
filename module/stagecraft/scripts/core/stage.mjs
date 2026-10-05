@@ -751,7 +751,7 @@ export class Stage {
    * Everything a renderer needs, as plain numbers: no physics knowledge required. `viewer` is the local user; only
    * the marks for cards that user holds are included (marks are a personal aid, not something to show everyone).
    */
-  snapshot({ viewer = null, selected = null } = {}) {
+  snapshot({ viewer = null, selected = null, controlled = null, targets = null } = {}) {
     const t = this.time;
     const now = this.clock();
     const cards = [];
@@ -776,6 +776,9 @@ export class Stage {
         held: c.holder !== null, holder: c.holder, mark: c.mark,
         walking: !!c.walk || (c.living && Math.abs(c.stepLift) > 0.2),
         selected: !!selected?.has?.(c.id),
+        // the card's token is the one this user controls (a click), and who is aiming at it, each as their colour (T): Foundry's own, read by the host
+        controlled: !!controlled?.has?.(c.id),
+        targeted: targets?.get?.(c.id) ?? null,
         speaking: this.speaker === c.id || this.turn === c.id,
         // on the time every screen shares, as a move is: an emote chosen at the table is stamped on it, so all show it together
         emote: this.#emote(c, now)

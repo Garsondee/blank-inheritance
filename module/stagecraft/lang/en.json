@@ -43,7 +43,8 @@
       "bow": "Bow (card in hand)",
       "shake": "Shake its head (card in hand)",
       "turn": "Turn its back (card in hand)",
-      "home": "Show the whole stage (after panning or zooming)"
+      "home": "Show the whole stage (after panning or zooming)",
+      "target": "Aim at a card (on a stage: the card under the pointer, or start and stop aiming)"
     },
     "Bar": {
       "Label": "Stage controls",
@@ -220,6 +221,9 @@
       "Engaged": "same position: engaged",
       "Near": "near: one Stride",
       "Far": "far: two Strides or more"
+    },
+    "Target": {
+      "Mode": "Aiming: click a card to aim at it, Shift for more. T or Esc to stop."
     },
     "Menu": {
       "Faces": "Faces",

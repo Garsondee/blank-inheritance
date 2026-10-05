@@ -14,6 +14,60 @@
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "status": "named (Vetch, 2026-09-21) — not yet cast",
+  "statblock": {
+    "level": 3,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 1,
+      "dex": 1,
+      "con": 3,
+      "int": 3,
+      "wis": 3,
+      "cha": 3
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 9
+      }
+    },
+    "skills": {
+      "deception": {
+        "rank": "expert",
+        "modifier": 9
+      },
+      "intimidation": {
+        "rank": "expert",
+        "modifier": 9
+      }
+    },
+    "ac": 18,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "expert",
+        "modifier": 9
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 6
+      },
+      "will": {
+        "rank": "expert",
+        "modifier": 9
+      }
+    },
+    "hitPoints": {
+      "max": 45,
+      "current": 45
+    },
+    "speed": {
+      "land": 25
+    }
+  },
   "socialProfile": {
     "attitude": "unfriendly",
     "facts": [

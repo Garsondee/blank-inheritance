@@ -453,7 +453,10 @@ test("runRealContentSync: Episode One and every real npc sync cleanly against ac
     const clerkId = await deriveFoundryId("intake-medicals-clerk");
     const clerk = world.actors.get(clerkId);
     assert.ok(clerk, "the Intake Medicals clerk's Actor must actually exist in the mock world");
-    assert.equal(clerk.system.attributes.hp.value, 1, "a statblock-less NPC gets the 1-HP non-combat default, not 0");
+    // the clerk used to be statblock-less (1 HP by default); the NPC Generator (data/campaign/npc-roster.json) gave her a level-0 civilian's numbers
+    const generated = JSON.parse(readFileSync(path.join(repoRoot, "data", "npcs", "intake-medicals-clerk.json"), "utf8")).statblock;
+    assert.equal(clerk.system.attributes.hp.value, generated.hitPoints.current, "an NPC with a generated statblock gets exactly its hit points, not the default and not 0");
+    assert.equal(clerk.system.details.level.value, 0);
 
     // The point of this change (Ingram, 2026-09-29): an npc that was never on
     // the old REAL_NPC_PATHS shortlist -- a still-"placeholder" Directorate

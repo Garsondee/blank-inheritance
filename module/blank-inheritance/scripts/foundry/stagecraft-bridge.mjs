@@ -36,7 +36,8 @@ import { WAY_IDS, cardActionIds, findInCasts, presentOnOpen, waitingInWings, way
 import { brass } from "./stagecraft-brass-skin.mjs";
 import { stagecraftActive, stagecraftDraws, stagecraftInstalled } from "./stagecraft-gate.mjs";
 import { drawerInset } from "./stage-camera.mjs";
-import { STAGECRAFT_ID as NS, STAGES_PATH, KEPT_PATH, applyKept, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, placesRecord, withKept, stageRecord, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
+import { actorForCard } from "./stage-figures.mjs";
+import { isBasicActor, STAGECRAFT_ID as NS, STAGES_PATH, KEPT_PATH, applyKept, descriptionFor, entryFor, mirrorCards, sameCards, summonsForTrigger, rawKeyOf, momentMoves, momentsOf, formationRequest, downByHp, cardOfActor, badgesByConditions, cardOfCombatant, placesRecord, withKept, stageRecord, layoutOf, ownsScene } from "../core/stagecraft-bridge.mjs";
 
 // Registered when this file loads, which is before Foundry's init, so Stagecraft finds the skin waiting.
 Hooks.once("stagecraft.init", ({ registerSkin }) => registerSkin(brass));
@@ -53,6 +54,8 @@ Hooks.once("stagecraft.ready", (api) => {
   api?.wings?.setProvider?.((scene) => wingsOf(scene));
   api?.wings?.setFinder?.((scene, query) => findAnyone(scene, query));
   api?.blocking?.setCardActions?.((scene, cardId, card) => cardActions(scene, cardId, card));
+  // every card has a token on its scene (Stagecraft 0.14.0): a click controls it and a T aims at one. Who it stands for: a creature that already has a statblock (the centipedes), else the person's real actor, else a basic figure (stage-figures.mjs).
+  api?.tokens?.setActorProvider?.((scene, card) => actorForCard(scene, card));
 });
 
 /**
@@ -145,7 +148,7 @@ async function findAnyone(scene, query) {
   // an actor the sync made for someone a scene names is that person: they are offered from the scene, never by their actor
   const castActors = await castActorIds(briefs);
   const actors = game.actors.contents
-    .filter((a) => (a.type === "character" || a.type === "npc") && !isDiagnosticName(a.name) && !castActors.has(a.id))
+    .filter((a) => (a.type === "character" || a.type === "npc") && !isDiagnosticName(a.name) && !castActors.has(a.id) && !isBasicActor(a))
     .map((a) => ({ id: a.id, name: a.name, img: a.img, isPc: a.hasPlayerOwner }));
   const hits = findInCasts({ query, briefs, actors, exclude, idOf: portraitIdFor, keyOf: rawStageId, nameOf: (m) => displayName(m) ?? rawStageId(m) });
   foundIds.clear();

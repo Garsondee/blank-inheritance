@@ -13,6 +13,73 @@
   "designNotes": "Created 2026-09-21. He appears in three scenes across two episodes (Canteen, The Walk Down, Zero Six Hundred) and until now was cast inline with `npcRef: null` in every one of them -- no record, no portrait hook, nothing the Scene Runner or the sync pipeline could attach to. Full voice, tone and history live in `ideas/story/bible/characters/taka.md`; this file exists so the pipeline has something to point at, and does not restate it.\n\nTHE STANDING INSTRUCTION FROM THE BIBLE, TWICE IN IDENTICAL WORDS: \"Make the table love Taka tonight. Everything he is for later depends on it.\"\n\nNO INVENTED NICKNAMES. He claims the party as a group; he does not rename them individually. That was the original design and Ingram cut it 2026-09-19 -- it presumes what six PCs who do not exist yet will be like. His warmth comes from inclusion, never from labelling.\n\nSTILL OPEN: his age, his rank or role, and how much real Frame experience he actually has. Do not settle any of them in passing.\n\nEXPANDED at Ingram's request. Voice, behaviour and what he knows now live here rather than only in the bible, because he appears in three scenes across two episodes and a GM should not have to open a second file to run him. The bible entry remains the source for his history and his open questions.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
+  "statblock": {
+    "level": 2,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 3,
+      "dex": 3,
+      "con": 1,
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 8
+      }
+    },
+    "skills": {
+      "deception": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "ac": 17,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "expert",
+        "modifier": 8
+      },
+      "reflex": {
+        "rank": "expert",
+        "modifier": 8
+      },
+      "will": {
+        "rank": "expert",
+        "modifier": 8
+      }
+    },
+    "hitPoints": {
+      "max": 30,
+      "current": 30
+    },
+    "speed": {
+      "land": 25
+    },
+    "strikes": [
+      {
+        "name": "Training baton",
+        "strikeType": "melee",
+        "attackBonus": 7,
+        "traits": [
+          "nonlethal"
+        ],
+        "damage": [
+          {
+            "dice": "1d6",
+            "bonus": 3,
+            "damageType": "bludgeoning"
+          }
+        ]
+      }
+    ]
+  },
   "socialProfile": {
     "attitude": "friendly",
     "facts": [

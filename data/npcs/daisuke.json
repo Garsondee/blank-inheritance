@@ -15,6 +15,78 @@
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "status": "drafted 2026-09-30 from the haunt's cast entry; portrait chosen the same day",
+  "statblock": {
+    "level": 1,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 3,
+      "dex": 1,
+      "con": 3,
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "skills": {
+      "athletics": {
+        "rank": "expert",
+        "modifier": 6
+      },
+      "crafting": {
+        "rank": "trained",
+        "modifier": 3
+      }
+    },
+    "ac": 15,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "expert",
+        "modifier": 7
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 4
+      },
+      "will": {
+        "rank": "trained",
+        "modifier": 4
+      }
+    },
+    "hitPoints": {
+      "max": 20,
+      "current": 20
+    },
+    "speed": {
+      "land": 25
+    },
+    "strikes": [
+      {
+        "name": "Fist",
+        "strikeType": "melee",
+        "attackBonus": 5,
+        "traits": [
+          "agile",
+          "nonlethal"
+        ],
+        "damage": [
+          {
+            "dice": "1d4",
+            "bonus": 2,
+            "damageType": "bludgeoning"
+          }
+        ]
+      }
+    ]
+  },
   "socialProfile": {
     "attitude": "indifferent",
     "facts": [

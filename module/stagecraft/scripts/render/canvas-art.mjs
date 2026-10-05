@@ -247,6 +247,94 @@ export function markCanvas() {
   return c;
 }
 
+/** The ring a controlled card stands in: a soft white ellipse outline, tinted by whoever draws it. */
+export function ringCanvas() {
+  const c = makeCanvas(512, 256);
+  const ctx = c.getContext("2d");
+  ctx.strokeStyle = "#fff";
+  ctx.shadowColor = "rgba(255,255,255,0.95)";
+  ctx.shadowBlur = 22;
+  ctx.lineWidth = 22;
+  ctx.beginPath();
+  ctx.ellipse(256, 128, 220, 90, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.ellipse(256, 128, 220, 90, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  return c;
+}
+
+/**
+ * What aiming at a card looks like, as Foundry's own targeting does: four small arrows pointing in at the middle of each side, in
+ * the colour of whoever aims (the first colour; this user's own comes first), and a pip in each aiming user's colour along the
+ * top right. Drawn at the proportions of the box it will be laid over (`aspect` is its height over its width), so the arrows are
+ * the same size whatever the card's shape and are not stretched.
+ */
+export function reticleCanvas(colours = ["#e8493c"], aspect = 1) {
+  const W = 256;
+  const H = Math.max(64, Math.round(W * aspect));
+  const c = makeCanvas(W, H);
+  const ctx = c.getContext("2d");
+  ctx.lineJoin = "round";
+  const arrow = (points) => {
+    ctx.beginPath();
+    points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    ctx.closePath();
+    ctx.lineWidth = 6; ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.stroke();
+    ctx.fillStyle = colours[0] ?? "#e8493c"; ctx.fill();
+  };
+  const half = 17;                  // half the base of an arrow
+  const len = 24;                   // from base to point
+  const gap = 4;                    // in from the edge
+  arrow([[W / 2 - half, gap], [W / 2 + half, gap], [W / 2, gap + len]]);
+  arrow([[W / 2 - half, H - gap], [W / 2 + half, H - gap], [W / 2, H - gap - len]]);
+  arrow([[gap, H / 2 - half], [gap, H / 2 + half], [gap + len, H / 2]]);
+  arrow([[W - gap, H / 2 - half], [W - gap, H / 2 + half], [W - gap - len, H / 2]]);
+  colours.slice(0, 6).forEach((colour, i) => {
+    ctx.beginPath();
+    ctx.arc(W - 14 - i * 22, 16, 8, 0, Math.PI * 2);
+    ctx.fillStyle = colour; ctx.fill();
+    ctx.lineWidth = 4; ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.stroke();
+  });
+  return c;
+}
+
+/**
+ * The outline of a chosen card: a soft gold border round a rounded rectangle, the size of the card plus `pad` on every side, as
+ * Foundry draws round a controlled token. Laid behind the card, so only the margin shows.
+ */
+export function haloCanvas(w, h, pad = 12) {
+  const c = makeCanvas(Math.round(w + pad * 2), Math.round(h + pad * 2));
+  const ctx = c.getContext("2d");
+  const r = 10;
+  const x = pad - 3;
+  const y = pad - 3;
+  const ww = w + 6;
+  const hh = h + 6;
+  const path = () => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + ww, y, x + ww, y + hh, r);
+    ctx.arcTo(x + ww, y + hh, x, y + hh, r);
+    ctx.arcTo(x, y + hh, x, y, r);
+    ctx.arcTo(x, y, x + ww, y, r);
+    ctx.closePath();
+  };
+  ctx.shadowColor = "rgba(255,255,255,0.95)";
+  ctx.shadowBlur = pad * 0.9;
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 5;
+  path();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 3;
+  path();
+  ctx.stroke();
+  return c;
+}
+
 /** The small caption shown beside a mark that is the one a card would take. */
 export function labelCanvas(text) {
   const c = makeCanvas(512, 96);

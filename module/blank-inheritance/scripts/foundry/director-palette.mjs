@@ -27,6 +27,7 @@ import {
   rememberCommand
 } from "../core/director-palette.mjs";
 import { FALLBACK_SKILL_SLUGS, PERCEPTION_SLUG, SAVE_SLUGS, labelForSlug } from "../core/skills.mjs";
+import { isBasicActor } from "../core/stagecraft-bridge.mjs";
 import { MARK_TEXT } from "../core/session-rail.mjs";
 
 import { cueScene, openDirectorPanel, pullEveryoneHere } from "./director-panel.mjs";
@@ -108,7 +109,7 @@ function sceneCommands() {
 function castCommands() {
   const onStage = new Set((canvas?.scene?.getFlag(MODULE_ID, "stage")?.cast ?? []).map((m) => m.portraitId));
   return game.actors.contents
-    .filter((a) => a.type === "character" || a.type === "npc")
+    .filter((a) => (a.type === "character" || a.type === "npc") && !isBasicActor(a))      // a stage figure is made for a card's token, not someone to summon
     .sort((a, b) => a.name.localeCompare(b.name))
     .flatMap((actor) => {
       const portraitId = `summon-${actor.id}`;

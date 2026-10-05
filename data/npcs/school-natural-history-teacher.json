@@ -13,5 +13,59 @@
   "designNotes": "Created 2026-09-21 for Episode One's second school period (data/scene-briefs/episode-c1e1--school-second-period.json), where her class is the one that pays off in the flood tunnel that night. Placeholder name, per the standing stub convention.\n\nHer one structural function beyond that: she keeps a specimen in the cabinet that she cannot classify and says so cheerfully, which is a plant and nothing more. It is never explained in Episode One or Two. Do not connect it to Frame technology, First Impact, or anything else at the table -- if a player does, that is theirs, and it goes on a Node before it becomes canon.\n\nHer register is the deliberate opposite of the history teacher's: he teaches an approved text straight and does not know it has been edited; she teaches what she has personally caught and is delighted by the gaps. A student who wants a true answer gets further with her, and the campaign should not make that a secret.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
-  "status": "placeholder — not yet named or cast"
+  "status": "placeholder — not yet named or cast",
+  "statblock": {
+    "level": 1,
+    "traits": [
+      "humanoid"
+    ],
+    "size": "medium",
+    "adjustment": "none",
+    "abilityModifiers": {
+      "str": 1,
+      "dex": 1,
+      "con": 1,
+      "int": 4,
+      "wis": 3,
+      "cha": 3
+    },
+    "perception": {
+      "proficiency": {
+        "rank": "expert",
+        "modifier": 7
+      }
+    },
+    "skills": {
+      "nature": {
+        "rank": "expert",
+        "modifier": 7
+      },
+      "survival": {
+        "rank": "expert",
+        "modifier": 6
+      }
+    },
+    "ac": 13,
+    "savingThrows": {
+      "fortitude": {
+        "rank": "trained",
+        "modifier": 4
+      },
+      "reflex": {
+        "rank": "trained",
+        "modifier": 4
+      },
+      "will": {
+        "rank": "expert",
+        "modifier": 10
+      }
+    },
+    "hitPoints": {
+      "max": 15,
+      "current": 15
+    },
+    "speed": {
+      "land": 25
+    }
+  }
 }

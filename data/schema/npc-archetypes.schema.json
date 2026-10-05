@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "npc-archetypes.schema.json",
+  "title": "NPC archetype catalogue",
+  "description": "data/campaign/npc-archetypes.json: the recipes the NPC Generator builds a stat block from. An archetype holds BANDS only (extreme, high, moderate, low, terrible); the number for a band at a level comes from tools/reference-extract/output/creature-building-math.json (GM Core, Building Creatures), so a recipe never holds a statistic of its own.",
+  "type": "object",
+  "required": ["id", "type", "authoring", "description", "archetypes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "npc-archetypes" },
+    "type": { "const": "npc-archetypes" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
+    "description": { "type": "string" },
+    "source": { "type": "string" },
+    "archetypes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/archetype" }
+    }
+  },
+  "$defs": {
+    "band": { "enum": ["extreme", "high", "moderate", "low", "terrible"] },
+    "attributeBand": { "enum": ["extreme", "high", "moderate", "low"] },
+    "archetype": {
+      "type": "object",
+      "required": ["label", "description", "ac", "hp", "saves", "perception", "attributes", "strike"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "size": { "enum": ["tiny", "small", "medium", "large", "huge", "gargantuan"] },
+        "speed": { "type": "integer", "minimum": 5 },
+        "ac": { "enum": ["extreme", "high", "moderate", "low"] },
+        "hp": { "enum": ["high", "moderate", "low"] },
+        "saves": {
+          "type": "object",
+          "required": ["fortitude", "reflex", "will"],
+          "additionalProperties": false,
+          "properties": {
+            "fortitude": { "$ref": "#/$defs/band" },
+            "reflex": { "$ref": "#/$defs/band" },
+            "will": { "$ref": "#/$defs/band" }
+          }
+        },
+        "perception": { "$ref": "#/$defs/band" },
+        "attributes": {
+          "type": "object",
+          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "additionalProperties": false,
+          "properties": {
+            "str": { "$ref": "#/$defs/attributeBand" },
+            "dex": { "$ref": "#/$defs/attributeBand" },
+            "con": { "$ref": "#/$defs/attributeBand" },
+            "int": { "$ref": "#/$defs/attributeBand" },
+            "wis": { "$ref": "#/$defs/attributeBand" },
+            "cha": { "$ref": "#/$defs/attributeBand" }
+          }
+        },
+        "strike": {
+          "description": "The one plain strike this archetype carries, or null for someone built to avoid a fight.",
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/strike" }]
+        }
+      }
+    },
+    "strike": {
+      "type": "object",
+      "required": ["name", "attack", "damage"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "strikeType": { "enum": ["melee", "ranged"] },
+        "attack": { "enum": ["extreme", "high", "moderate", "low"] },
+        "damage": { "enum": ["extreme", "high", "moderate", "low"] },
+        "damageType": { "type": "string" },
+        "traits": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -22,6 +22,8 @@ import { Pace, poseOf, moved } from "../core/pace.mjs";
 import { titleKey } from "../core/titleblock.mjs";
 import { HoverTip } from "./hover-tip.mjs";
 import { CardMenu } from "./card-menu.mjs";
+import { CardTokens } from "./tokens.mjs";
+import { tKey } from "../core/tokens.mjs";
 import { StageEditor, editorMemory } from "./stage-editor.mjs";
 import { StageBar } from "./bar.mjs";
 import { BlockingBar } from "./blocking-bar.mjs";
@@ -53,6 +55,9 @@ export class StageHost {
     this.tween = null;                     // a glide home under way: { from, to, t0, ms }
     this.panning = null;                   // a drag that moves the view: { id, x, y, look, moved }
     this.selected = new Set();             // the GM's selection (shift-click): what a formation moves
+    this.tokens = null;                    // the cards' tokens: what a click controls and a T aims at (tokens.mjs)
+    this.targeting = false;                // aiming: a click on a card aims at it instead of taking hold of it
+    this.hoverCard = null;                 // the card the pointer rests on, for T
     this.running = false;
     this.frames = 0;
     this.speed = null;                     // the start-up speed test (speed.mjs)
@@ -130,6 +135,8 @@ export class StageHost {
     this.health = new HealthMeter(this);        // how this screen is coping, told to the GM's board
     this.tip = new HoverTip(this);              // a card's full words, when the pointer rests on one that has more than its plate shows
     this.menu = new CardMenu(this);             // a right-click on a card: its emotes, and for the GM a few things to change about it
+    this.tokens = new CardTokens(this);         // every card has a token on the scene: a click controls it, a T aims at one (module.md section 39)
+    this.tokens.ensure();
 
     this.#watchSize();
     this.#watchPointer();
@@ -227,11 +234,15 @@ export class StageHost {
     this.wings?.dispose();
     this.tip?.dispose();
     this.menu?.dispose();
+    this.tokens?.dispose();
+    this.targetPill?.remove();
     this.bar?.dispose();
     this.blocking?.dispose();
     this.backend?.dispose();
     this.root?.remove();
-    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.bar = this.blocking = this.editor = this.wings = this.backend = this.root = null;
+    this.chalk = this.kit = this.speed = this.health = this.healthBoard = this.tip = this.tokens = this.targetPill = this.bar = this.blocking = this.editor = this.wings = this.backend = this.root = null;
+    this.targeting = false;
+    this.hoverCard = null;
   }
 
   /* ---------------------------------------------------------------- the loop */
@@ -252,7 +263,8 @@ export class StageHost {
       this.last = now;
       this.sync.tick();
       this.stage.advance(dt);
-      const snap = this.stage.snapshot({ viewer: this.userId, selected: this.selected });
+      const chosen = this.tokens?.state();          // whose token is controlled, and who is aimed at, read from Foundry at every frame
+      const snap = this.stage.snapshot({ viewer: this.userId, selected: this.selected, controlled: chosen?.controlled, targets: chosen?.targets });
       this.#notice(snap, now);
       // chalk in hand in a "zones only" scene: the zones it may go on are lit and named, the one under the stick brightest
       if (this.chalk?.inHand) for (const z of this.chalk.chalkZones()) snap.zones[z.id] = this.chalk.cursorZone === z.id ? "target" : "near";
@@ -283,7 +295,7 @@ export class StageHost {
     const pose = poseOf(snap.cards);
     if (moved(this.pose, pose)) this.pace.poke(now);
     this.pose = pose;
-    if (snap.bonks?.length || this.dragging || this.chalk?.drawing || this.chalk?.wall?.strokes?.size || this.speed?.probe || this.blocking?.armed) this.pace.poke(now);
+    if (snap.bonks?.length || this.dragging || this.targeting || this.chalk?.drawing || this.chalk?.wall?.strokes?.size || this.speed?.probe || this.blocking?.armed) this.pace.poke(now);
   }
 
   /**
@@ -363,6 +375,12 @@ export class StageHost {
       if (e.button !== 0 && !(e.button === 5 && e.pointerType === "pen" && this.chalk?.inHand)) return;
       const p = this.#local(e);
       const hit = this.backend.pick(p.x, p.y);
+      // aiming (T): a click on a card aims at it (Shift adds another), and takes hold of nothing
+      if (this.targeting && !this.chalk?.inHand && !this.blocking?.armed && hit?.kind === "card") {
+        this.tokens?.target(hit.id, { add: e.shiftKey });
+        e.preventDefault();
+        return;
+      }
       // the GM's blocking: a formation waiting for where to go, or shift-click to choose who it moves
       if (this.blocking && !this.chalk?.inHand) {
         if (this.blocking.armed) {
@@ -408,9 +426,11 @@ export class StageHost {
         if (this.chalk.begin(sample)) { canvas.setPointerCapture(e.pointerId); this.chalk.hover(p); }
         return;
       }
-      // a press on the bare stage takes hold of the view: drag to look somewhere else
-      if (!hit) { this.#startPan(e); return; }
+      // a press on the bare stage takes hold of the view: drag to look somewhere else (and a click that does not drag lets go of what was chosen)
+      if (!hit) { this.#startPan(e, { bare: e.button === 0 }); return; }
       if (hit?.kind !== "card") return;
+      // a click on a card controls its token, as on Foundry's own canvas (a Shift-click adds, for a player; a GM's Shift-click chooses for a formation, above)
+      this.tokens?.select(hit.id, { add: e.shiftKey });
       if (!this.sync.grab(hit.id)) return;          // not yours to hold, or someone has it already
       // The hand is wherever the pointer's ray meets the plane through the point that was grabbed, so the card does not jump.
       const at = this.backend.floorAt(p.x, p.y, hit.point.y);
@@ -434,7 +454,8 @@ export class StageHost {
       if (this.chalk?.inHand) { this.tip?.hide(); this.chalk.hover(p); canvas.style.cursor = "none"; return; }
       if (!this.dragging) {
         const h = this.backend.pick(p.x, p.y);
-        canvas.style.cursor = h ? "grab" : "default";
+        this.hoverCard = h?.kind === "card" ? h.id : null;
+        canvas.style.cursor = this.targeting && this.hoverCard ? "crosshair" : h ? "grab" : "default";
         if (h?.kind === "card" || !this.chalk) this.tip?.hover(h?.kind === "card" ? h.id : null, e.clientX, e.clientY);
         else this.tip?.hoverWall(p, e.clientX, e.clientY);          // the GM over chalk: who painted it
         return;
@@ -445,7 +466,14 @@ export class StageHost {
     });
     const release = (e) => {
       this.pace.poke(performance.now());
-      if (this.panning?.id === e.pointerId) { this.panning = null; canvas.style.cursor = "default"; return; }
+      if (this.panning?.id === e.pointerId) {
+        const click = this.panning.bare === true && !this.panning.moved && e.type === "pointerup";
+        this.panning = null;
+        canvas.style.cursor = "default";
+        // a click on the bare stage lets go of what was controlled (or, while aiming, of who was aimed at)
+        if (click) { if (this.targeting) this.tokens?.clearTargets(); else this.tokens?.release(); }
+        return;
+      }
       if (this.chalk?.drawing) {
         if (e.type === "pointercancel") this.chalk.cancel();
         else this.chalk.end().catch((err) => console.warn(`${NS} | chalk stroke failed`, err));
@@ -476,7 +504,7 @@ export class StageHost {
       this.home();
     });
     // the ring round the pointer goes when the pointer leaves the stage
-    this.#on(canvas, "pointerleave", () => { this.tip?.hide(); if (this.chalk?.inHand && !this.chalk.drawing) this.chalk.hover(null); });
+    this.#on(canvas, "pointerleave", () => { this.hoverCard = null; this.tip?.hide(); if (this.chalk?.inHand && !this.chalk.drawing) this.chalk.hover(null); });
     // Escape throws away a stroke being painted, or puts the chalk back in the box. It is taken before Foundry sees it
     // (capture phase), or the same press would also open Foundry's game menu over the stage.
     this.#on(window, "keydown", (e) => {
@@ -485,6 +513,8 @@ export class StageHost {
       else if (this.chalk?.inHand) this.chalk.putAway();
       else if (this.healthBoard?.close()) { /* the table's list is put away */ }
       else if (this.blocking?.disarm()) { /* the waiting formation is put away */ }
+      else if (this.targeting) this.#setTargeting(false);
+      else if (this.tokens?.hasTargets()) this.tokens.clearTargets();
       else if (this.selected.size) { this.selected.clear(); this.blocking?.selectionChanged(); }
       else return;
       e.preventDefault();
@@ -505,6 +535,35 @@ export class StageHost {
     if (!at) return null;
     const f = this.stage.rig.fractionOf(at.x, at.z);
     return Number.isFinite(f[0]) && Number.isFinite(f[1]) ? [Math.round(f[0] * 10000) / 10000, Math.round(f[1] * 10000) / 10000] : null;
+  }
+
+  /**
+   * T (Foundry's own key for it): on a card that is not the one controlled, aim at that card (Shift adds another); anywhere
+   * else, start or stop aiming, while which a click on a card aims at it (core/tokens.mjs `tKey`). Called from Foundry's
+   * keybindings; returns whether the key was used. A card in the hand has the key already (it turns away).
+   */
+  targetKey({ shift = false } = {}) {
+    if (!this.running || !this.tokens || this.dragging || this.chalk?.inHand) return false;
+    this.pace.poke(performance.now());
+    const act = tKey({ hover: this.hoverCard, controlled: this.tokens.state().controlled, targeting: this.targeting });
+    if (act.do === "target") this.tokens.target(act.id, { add: shift });
+    else this.#setTargeting(act.on);
+    return true;
+  }
+
+  /** Aiming on or off, with a small line at the top of the stage saying so (aiming is this screen's own mode, never shared). */
+  #setTargeting(on) {
+    if (this.targeting === on || !this.root) return;
+    this.targeting = on;
+    this.pace.poke(performance.now());
+    if (this.backend?.canvas) this.backend.canvas.style.cursor = on && this.hoverCard ? "crosshair" : "default";
+    if (!on) { this.targetPill?.remove(); this.targetPill = null; return; }
+    const pill = document.createElement("div");
+    pill.className = "stagecraft-targeting";
+    pill.setAttribute("role", "status");
+    pill.textContent = game.i18n.localize("STAGECRAFT.Target.Mode");
+    this.root.append(pill);
+    this.targetPill = pill;
   }
 
   /** A hop, a bow and so on, for the card in this hand. Called from Foundry's keybindings. */
@@ -552,9 +611,9 @@ export class StageHost {
     this.#applyLook();
   }
 
-  #startPan(e) {
+  #startPan(e, { bare = false } = {}) {
     this.tween = null;
-    this.panning = { id: e.pointerId, x: e.clientX, y: e.clientY, look: this.lookNow(), moved: false };
+    this.panning = { id: e.pointerId, x: e.clientX, y: e.clientY, look: this.lookNow(), moved: false, bare };
     this.backend.canvas.setPointerCapture?.(e.pointerId);
     e.preventDefault();
   }
@@ -655,6 +714,7 @@ export class StageHost {
     // after the cards: someone who has just arrived may be the one given the floor
     this.stage.setSpeaker(speakerOf(this.scene));
     this.stage.setTurn(turnOf(this.scene));
+    this.tokens?.ensure();                  // everyone on the stage has a token on the scene, and nobody else of ours does
   }
 
   /**

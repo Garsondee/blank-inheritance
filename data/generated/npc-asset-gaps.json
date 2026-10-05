@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-30T13:44:41.600Z",
+  "generatedAt": "2026-10-05T14:32:05.226Z",
   "generatedBy": "tools/npc-gaps/generate.mjs -- do not hand-edit this file, rerun the script instead",
   "counts": {
-    "total": 80,
-    "missingPortrait": 18,
-    "missingFacts": 48,
-    "placeholderName": 37
+    "total": 86,
+    "missingPortrait": 24,
+    "missingFacts": 54,
+    "placeholderName": 40
   },
   "missingPortraitIds": [
     "canteen-manager",
@@ -15,7 +15,12 @@
     "deep-storage-custodian",
     "generating-hall-engineer",
     "goods-inwards-officer",
+    "goro",
+    "kaito",
+    "kanda",
     "landing-end-duty-nco",
+    "lenders-man",
+    "off-duty-soldier",
     "plot-room-supervisor",
     "repair-chief-kimura",
     "repair-chief-nakamura",
@@ -24,6 +29,7 @@
     "school-registrar",
     "the-rock-research-director",
     "the-rock-warden",
+    "tug-hand",
     "vermilion-block-custodian",
     "vermilion-block-director"
   ],
@@ -38,19 +44,24 @@
     "generating-hall-engineer",
     "gennai",
     "goods-inwards-officer",
+    "goro",
     "grenna",
     "haru",
     "hospital-chief-of-staff",
     "imai",
     "intake-medicals-clerk",
     "joji",
+    "kaito",
+    "kanda",
     "kuroki",
     "landing-end-duty-nco",
+    "lenders-man",
     "mira",
     "mori",
     "mrs-ueda",
     "nkiru",
     "obi",
+    "off-duty-soldier",
     "petr",
     "plot-room-supervisor",
     "registry-clerk",
@@ -73,6 +84,7 @@
     "the-rock-warden",
     "the-young-one",
     "time-office-clerk",
+    "tug-hand",
     "vermilion-block-custodian",
     "vermilion-block-director",
     "works-manager"
@@ -90,7 +102,9 @@
     "hospital-chief-of-staff",
     "intake-medicals-clerk",
     "landing-end-duty-nco",
+    "lenders-man",
     "noodle-stand-owner",
+    "off-duty-soldier",
     "plot-room-supervisor",
     "range-safety-officer",
     "registry-clerk",
@@ -112,6 +126,7 @@
     "the-young-one",
     "time-office-clerk",
     "transparency-advocate",
+    "tug-hand",
     "vermilion-block-custodian",
     "vermilion-block-director",
     "works-manager"
@@ -268,6 +283,16 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "goro",
+      "name": "Goro",
+      "role": "A bruiser",
+      "hasPortrait": false,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "grenna",
       "name": "Grenna Hollowmark",
       "role": "Dwarf candidate in the next room, who snores",
@@ -368,6 +393,26 @@
       "namingPlaceholderRef": null
     },
     {
+      "id": "kaito",
+      "name": "Kaito",
+      "role": "A frightened working adult",
+      "hasPortrait": false,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "kanda",
+      "name": "Kanda",
+      "role": "A sly criminal",
+      "hasPortrait": false,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
       "id": "kazue",
       "name": "Kazue Tsurumi",
       "role": "Attendant, the Bathhouse",
@@ -401,6 +446,16 @@
       "id": "landing-end-duty-nco",
       "name": null,
       "role": "Duty NCO, The Landing End",
+      "hasPortrait": false,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": true,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "lenders-man",
+      "name": null,
+      "role": "One of the lender's men",
       "hasPortrait": false,
       "hasSocialProfile": false,
       "factCount": 0,
@@ -535,6 +590,16 @@
       "hasSocialProfile": true,
       "factCount": 0,
       "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "off-duty-soldier",
+      "name": null,
+      "role": "An off-duty soldier",
+      "hasPortrait": false,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": true,
       "namingPlaceholderRef": null
     },
     {
@@ -885,6 +950,16 @@
       "hasSocialProfile": true,
       "factCount": 2,
       "nameIsPlaceholder": false,
+      "namingPlaceholderRef": null
+    },
+    {
+      "id": "tug-hand",
+      "name": null,
+      "role": "A tug-hand from the harbour",
+      "hasPortrait": false,
+      "hasSocialProfile": false,
+      "factCount": 0,
+      "nameIsPlaceholder": true,
       "namingPlaceholderRef": null
     },
     {

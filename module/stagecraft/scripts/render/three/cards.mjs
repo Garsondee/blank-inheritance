@@ -114,6 +114,23 @@ export class CardView {
     this.blob.rotation.x = -Math.PI / 2;
     this.blob.renderOrder = 2;
 
+    // the card's token is the one this user controls: a gold ring round its feet, on the floor, that stays put as the card is lifted
+    this.ring = T.mesh(new THREE.Mesh(this.#shared("plane:1:1", () => new THREE.PlaneGeometry(1, 1)), new THREE.MeshBasicMaterial({ map: ctx.ringTexture(), color: 0xffd45a, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending })));
+    this.ring.rotation.x = -Math.PI / 2;
+    this.ring.renderOrder = 3;
+    this.ring.visible = false;
+    // and a gold outline round the card itself, behind it so only the margin shows (Foundry's border round a controlled token); it turns with the card
+    this.halo = T.mesh(new THREE.Mesh(this.#shared(`plane:${W + 24}:${H + 24}`, () => new THREE.PlaneGeometry(W + 24, H + 24)), new THREE.MeshBasicMaterial({ map: ctx.haloTexture(W, H), color: 0xffd45a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })));
+    this.halo.position.set(0, H / 2, -(skin.thickness / 2 + 1.5));
+    this.halo.visible = false;
+    this.card.add(this.halo);
+    // and someone is aiming at it: Foundry's four arrows round it, in the aimer's colour, with a pip for each aimer
+    this.reticleKey = "";
+    this.reticleAspect = (H * 1.22) / (W * 1.3);
+    this.reticle = new THREE.Sprite(T.add(new THREE.SpriteMaterial({ map: ctx.reticleTexture(["#e8493c"], this.reticleAspect), depthWrite: false, transparent: true })));
+    this.reticle.renderOrder = 48;
+    this.reticle.visible = false;
+
     this.root.traverse((o) => { o.userData.cardId = person.id; });
     this.pickables = [body, face, back, foot];
     return this;
@@ -215,7 +232,25 @@ export class CardView {
       this.blob.scale.set(this.w * s * (0.95 + 0.5 * g), (74 + 46 * g) * grow, 1);
       this.blob.material.opacity = 0.62 - 0.26 * g;
     }
+    this.#poseMarks(c, grow, s);
     this.#poseEmote(c);
+  }
+
+  /** The ring of a controlled card and the arrows of an aimed-at one (their token's state, read by the host). */
+  #poseMarks(c, grow, s) {
+    this.ring.visible = this.halo.visible = c.controlled === true;
+    if (this.ring.visible) {
+      this.ring.position.set(c.x, 0.9, c.z);
+      this.ring.scale.set(this.w * s * 1.75, 190 * grow, 1);
+    }
+    const colours = Array.isArray(c.targeted) && c.targeted.length ? c.targeted : null;
+    this.reticle.visible = !!colours;
+    if (!colours) return;
+    const key = colours.join("|");
+    if (key !== this.reticleKey) { this.reticle.material.map = this.ctx.reticleTexture(colours, this.reticleAspect); this.reticleKey = key; }
+    const pulse = 1 + 0.04 * Math.sin((c.breathe - 1) * 400);
+    this.reticle.position.set(c.x, c.lift + this.stickLen * c.grip + (this.h * s) / 2, c.z + 30);
+    this.reticle.scale.set(this.w * s * 1.3 * pulse, this.h * s * 1.22 * pulse, 1);
   }
 
   async setEmote(id) {
@@ -266,6 +301,8 @@ export class CardView {
     this.gone = true;
     this.root.parent?.remove(this.root);
     this.blob?.parent?.remove(this.blob);
+    this.ring?.parent?.remove(this.ring);
+    this.reticle?.parent?.remove(this.reticle);
     if (this.emote) this.#dropEmote();
     // gone from the stage: its pictures, shapes and materials go from video memory too, not at the scene's end
     this.faceTex = this.backTex = null;

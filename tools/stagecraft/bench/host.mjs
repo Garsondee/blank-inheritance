@@ -39,7 +39,7 @@ const wire = new BroadcastChannel("stagecraft-host-bench");
 const socketListeners = new Map();
 globalThis.Hooks = new FakeHooks();
 globalThis.ui = { notifications: { info: (m) => console.info(m), warn: (m) => console.warn(m), error: (m) => console.error(m) } };
-globalThis.CONST = { CANVAS_PERFORMANCE_MODES: { LOW: 1 } };
+globalThis.CONST = { CANVAS_PERFORMANCE_MODES: { LOW: 1 }, KEYBINDING_PRECEDENCE: { PRIORITY: 0, NORMAL: 1, DEFERRED: 2 }, KEYBOARD_MODIFIER_KEYS: { SHIFT: "Shift" } };
 globalThis.foundry = { utils: { getRoute: route }, applications: { api: { DialogV2: { confirm: async () => true } } } };
 globalThis.game = {
   ready: true,                          // the start-up speed test waits for Foundry to be up
@@ -53,8 +53,19 @@ globalThis.game = {
     off: (channel, fn) => socketListeners.delete(fn),
     emit: (channel, message) => wire.postMessage({ kind: "socket", channel, message, from: me.id })
   },
-  scenes: []
+  scenes: [],
+  // a small Foundry keybinding layer: a key press goes to the bindings for its key, by precedence and then in the order they were
+  // registered, until one says it used the key (client/helpers/interaction/keyboard-manager.mjs); a binding without
+  // reservedModifiers is not asked when Shift is held
+  keybindings: { bindings: [], register(ns, action, def) { this.bindings.push({ ns, action, ...def }); } }
 };
+addEventListener("keydown", (e) => {
+  if (e.target?.matches?.("input, textarea, select, [contenteditable]")) return;
+  const asked = game.keybindings.bindings
+    .filter((b) => (b.editable ?? []).some((k) => k.key === e.code) && (!e.shiftKey || (b.reservedModifiers ?? []).includes("Shift")))
+    .sort((a, b) => (a.precedence ?? 1) - (b.precedence ?? 1));
+  for (const b of asked) if (b.onDown?.({ isShift: e.shiftKey, event: e }) === true) { e.preventDefault(); return; }
+});
 
 const setByPath = (o, path, value) => { const keys = path.split("."); let at = o; for (const k of keys.slice(0, -1)) at = at[k] ??= {}; at[keys.at(-1)] = value; };
 class Scene {
@@ -151,6 +162,7 @@ window.benchChalkStore = chalkStore;
 /* ---------------------------------------------------------------- the stage */
 
 const { SkinRegistry } = await import("/module/stagecraft/scripts/skins/registry.mjs");
+const { registerKeys } = await import("/module/stagecraft/scripts/foundry/keys.mjs");
 const { StageHost } = await import("/module/stagecraft/scripts/foundry/host.mjs");
 const { registerMoments, publishMoves, arrange } = await import("/module/stagecraft/scripts/foundry/blocking.mjs");
 const { brass } = await import("/module/blank-inheritance/scripts/foundry/stagecraft-brass-skin.mjs");
@@ -200,6 +212,7 @@ const skins = new SkinRegistry();
 skins.register(brass);
 const host = new StageHost({ scene, skins, anchor: document.getElementById("board"), services: { chalkStore } });
 window.host = host;
+registerKeys(() => host);                  // the module's own keys, through the bench's keybinding layer above
 const starting = host.start();
 if (params.get("midbuild")) {
   // a change that lands while the stage is still being built, before it listens (host-check.mjs): someone is sent to the
