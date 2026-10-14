@@ -126,3 +126,10 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R1, R2.** Unchanged: every beat is spoken to the table; nothing was added or cut.
 - **For Ingram.** If any of these exceptions is wrong, delete its entry from `exceptions` and the Sign-Off asks the question again.
   The off-the-map mark is hers to undo in the Location Editor's Story tab.
+
+## Revision 2026-10-14: changes from the QC bot's review (qc-episode-c1e1--from-up-here-2026-10-14-1)
+
+Re-read against `canon/reread.md` version 4 · proposed by the QC bot, accepted by Ingram, merged by Claude · state: awaiting Ingram's read
+
+- **Founding Day: say whose supporters put up the painting.** Say "in the shop windows of some of the Directorate's supporters". Nothing else in the paragraph changes. Ingram: "Merged on Ingram's instruction (2026-10-14: 'if their improvements are sensible then merge them'): judged sensible by Claude, not yet read by her."
+- **The rift: it swallowed many of them, not all of them.** Say "It swallowed many of the most powerful clerics, wizards and sorcerers who went to stop it." Nothing else in the beat changes. Ingram: "Merged on Ingram's instruction (2026-10-14: 'if their improvements are sensible then merge them'): judged sensible by Claude, not yet read by her."

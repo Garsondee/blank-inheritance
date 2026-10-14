@@ -33,7 +33,8 @@
       "skillOptions": [
         "occultism",
         "crafting",
-        "society"
+        "society",
+        "survival"
       ],
       "dc": {
         "value": 17,
@@ -51,7 +52,8 @@
       "bySkill": {
         "occultism": "Not idle graffiti. It was drawn in one unbroken stroke, carefully, the way you draw something that has to be right.",
         "crafting": "Not house paint. It has the dull skin of marine primer, sold by the tin for ships' hulls, which is why the weather hasn't touched it.",
-        "society": "Always at head height, on walls a crowd faces, and never where the housing office would bother to paint over it. Whoever does this knows which walls nobody minds."
+        "society": "Always at head height, on walls a crowd faces, and never where the housing office would bother to paint over it. Whoever does this knows which walls nobody minds.",
+        "survival": "You read marks the way a tracker reads a trail. This one sits at eye height where people stop and stand, and you passed the same violet at the same height earlier today."
       },
       "repeatable": false
     }

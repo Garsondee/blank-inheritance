@@ -135,3 +135,9 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R24.** "By the coast road" used to end at the North Shore Town's own centre, which stands 16 m out in the water, so tokens set off from the sea. Its place is now a pin in grid square E1·40, on dry land, where Ingram said to put it. No words changed.
+
+## Revision 2026-10-14: changes from the QC bot's review (qc-episode-c1e1--the-road-in-2026-10-14-1)
+
+Re-read against `canon/reread.md` version 4 · proposed by the QC bot, accepted by Ingram, merged by Claude · state: awaiting Ingram's read
+
+- **Let someone who reads the land notice the violet mark.** Add Survival at the same DC 17, with a line of its own: they read marks the way a tracker reads a trail; this one sits at eye height where people stop and stand, and they passed the same violet at the same height earlier today. The four results stay exactly as they are. Ingram: "Merged on Ingram's instruction (2026-10-14: 'if their improvements are sensible then merge them'): judged sensible by Claude, not yet read by her."

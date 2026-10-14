@@ -1,0 +1,16 @@
+{
+  "kind": "qc-decision",
+  "version": 1,
+  "proposalId": "from-up-here-1014-2-many-swallowed",
+  "reportId": "qc-episode-c1e1--from-up-here-2026-10-14-1",
+  "scene": "episode-c1e1--from-up-here",
+  "fingerprint": "e9b715229ee4a3fa",
+  "decision": "accept",
+  "note": "Merged on Ingram's instruction (2026-10-14: 'if their improvements are sensible then merge them'): judged sensible by Claude, not yet read by her.",
+  "decidedAt": "2026-10-14T19:06:49.759Z",
+  "via": "chat",
+  "applied": {
+    "at": "2026-10-14T19:06:52.275Z",
+    "hashAfter": "9ef425a9fe623b07"
+  }
+}

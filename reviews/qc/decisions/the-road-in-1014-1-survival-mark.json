@@ -1,0 +1,16 @@
+{
+  "kind": "qc-decision",
+  "version": 1,
+  "proposalId": "the-road-in-1014-1-survival-mark",
+  "reportId": "qc-episode-c1e1--the-road-in-2026-10-14-1",
+  "scene": "episode-c1e1--the-road-in",
+  "fingerprint": "d7d376c7de020d92",
+  "decision": "accept",
+  "note": "Merged on Ingram's instruction (2026-10-14: 'if their improvements are sensible then merge them'): judged sensible by Claude, not yet read by her.",
+  "decidedAt": "2026-10-14T19:06:49.905Z",
+  "via": "chat",
+  "applied": {
+    "at": "2026-10-14T19:06:53.996Z",
+    "hashAfter": "3c3bb847574a1f15"
+  }
+}
