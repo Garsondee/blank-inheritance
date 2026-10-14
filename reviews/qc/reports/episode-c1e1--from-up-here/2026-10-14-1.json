@@ -1,0 +1,166 @@
+{
+  "kind": "qc-report",
+  "version": 1,
+  "id": "qc-episode-c1e1--from-up-here-2026-10-14-1",
+  "scene": "episode-c1e1--from-up-here",
+  "title": "From Up Here",
+  "generatedAt": "2026-10-14T18:48:54Z",
+  "model": "claude (QC bot, first live run)",
+  "planState": "awaiting-read",
+  "lane": "review",
+  "branch": "qc/2026-10-14-from-up-here",
+  "overview": {
+    "why": "This is the opening of the whole campaign. Nobody is anywhere yet: the GM shows one picture of the world from very high up and reads one long speech over it, so the six players start with what everyone in Kurose grew up knowing.",
+    "walkthrough": "About nine minutes of read-aloud in seven parts, travelling down from the sky: the age of engines two hundred years after the rift; the rift at Kortos and the four who stood in front of it; four of them founding the Directorate, which crossed the world to a fishing village and never said why; Kurose growing into a city, and the old families against the newcomers; what a Frame is, and the cabbage joke; the city now (fast change, Founding Day, Minkai's pride, unrest, gangs, glamour); and the island, the causeway and the gate. No rolls, no questions, no people.",
+    "leadsTo": "The last line, \"This year, it sent for you.\", hands straight to The Road In, which opens on six envelopes from the Directorate arriving at six homes in the same week. The seam is clean.",
+    "doesWell": "It does what you asked of it: the founders' names, where the rift stopped, the prophecy and Cicada are all held back, the Frame and glamour are both explained the first time they are heard, and your cabbage line is there word for word. The camera moving down through it gives the table a sense of place before anyone is anywhere.",
+    "burden": "Nine minutes is a long time to read aloud, but this is the one scene you asked to be long. The city-now part is the densest (four paragraphs, nineteen facts) and is the one to rehearse."
+  },
+  "proposals": [
+    {
+      "id": "from-up-here-1014-1-whose-supporters",
+      "kind": "prose",
+      "title": "Founding Day: say whose supporters put up the painting",
+      "rank": 1,
+      "confidence": "high",
+      "now": "The city-now part opens with a paragraph about Kurose (\"The city has changed faster than anyone could keep up with...\"), then says: \"On Founding Day there is a painting of the four founders in the shop windows of some of its supporters\". The only thing \"its\" can point back to is the city.",
+      "change": "Say \"in the shop windows of some of the Directorate's supporters\". Nothing else in the paragraph changes.",
+      "why": "Heard aloud, \"its supporters\" reads as \"the city's supporters\", which means nothing. Your own note had \"some supporters' shop windows\", and the point is that only some people back the Directorate, which the next sentence (\"Not everyone trusts the Directorate\") then builds on. Naming the Directorate makes that land the first time it is heard.",
+      "touches": "Nothing else. It is the same fact (founders.painting) said more clearly; what the table learns does not change.",
+      "risk": "Adds two words to a long speech, and \"the Directorate\" comes up again in the next sentence. I read it aloud both ways and the repeat sounds natural.",
+      "recommendation": "Accept.",
+      "decisionAsk": "Should the Founding Day line say the painting is in the Directorate's supporters' windows?",
+      "reopensApproval": false,
+      "touchesMeaning": false,
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/scenes/episode-c1e1--from-up-here.json",
+          "path": "beats[the-city-now].readAloud",
+          "before": "The city has changed faster than anyone could keep up with. Kurose has electric light in most of its streets, a radio in most of its kitchens, trams that run on time and factories that work through the night. It all came so quickly that it left people behind: for everyone who got rich, somebody else lost a trade, or a boat, or the street they grew up in.\n\nOn Founding Day there is a painting of the four founders in the shop windows of some of its supporters, and at least one of the founders might turn up to cut the ribbon at a major event. Not everyone trusts the Directorate, but few people can argue with the wealth and the technology it has brought to Kurose in so little time.\n\nMinkai has its own army and its own navy, and it feels it can more than defend itself. Every year its generals and admirals complain in the newspapers that a foreign institution keeps a private base in their harbour, answers to nobody in Minkai, and drills for a disaster that may never come. Some people call the Directorate intruders, or even warmongers, and others call it their protector. The country's pride is wounded, and there are groups in Kurose who see the Directorate as a foreign thorn in their country's side and want it gone. There is plenty of unrest in the city, and organised crime is a serious problem: the gangs do very well in a city that grows this fast.\n\nPeople in Kurose have also learned to be careful about how they look. Aliens are treated as outsiders here. Magic that makes someone look ordinary is cheap and everywhere, and you can buy glamoured clothes on the high street, so anyone who looks too unusual for the neighbours tends to wear a glamour in public. Some call that good manners. Some say it's a city asking people to hide. And some people, aliens especially, refuse to wear one at all, and put up with the stares.",
+          "after": "The city has changed faster than anyone could keep up with. Kurose has electric light in most of its streets, a radio in most of its kitchens, trams that run on time and factories that work through the night. It all came so quickly that it left people behind: for everyone who got rich, somebody else lost a trade, or a boat, or the street they grew up in.\n\nOn Founding Day there is a painting of the four founders in the shop windows of some of the Directorate's supporters, and at least one of the founders might turn up to cut the ribbon at a major event. Not everyone trusts the Directorate, but few people can argue with the wealth and the technology it has brought to Kurose in so little time.\n\nMinkai has its own army and its own navy, and it feels it can more than defend itself. Every year its generals and admirals complain in the newspapers that a foreign institution keeps a private base in their harbour, answers to nobody in Minkai, and drills for a disaster that may never come. Some people call the Directorate intruders, or even warmongers, and others call it their protector. The country's pride is wounded, and there are groups in Kurose who see the Directorate as a foreign thorn in their country's side and want it gone. There is plenty of unrest in the city, and organised crime is a serious problem: the gangs do very well in a city that grows this fast.\n\nPeople in Kurose have also learned to be careful about how they look. Aliens are treated as outsiders here. Magic that makes someone look ordinary is cheap and everywhere, and you can buy glamoured clothes on the high street, so anyone who looks too unusual for the neighbours tends to wear a glamour in public. Some call that good manners. Some say it's a city asking people to hide. And some people, aliens especially, refuse to wear one at all, and put up with the stares."
+        }
+      ],
+      "fingerprint": "5ce15a7daf2b2587",
+      "commit": "ee57a11a9b0b88a8b68ed4aa95fbc5a7e40dca17"
+    },
+    {
+      "id": "from-up-here-1014-2-many-swallowed",
+      "kind": "prose",
+      "title": "The rift: it swallowed many of them, not all of them",
+      "rank": 2,
+      "confidence": "medium",
+      "now": "The rift part says: \"It swallowed the clerics, wizards and sorcerers who went to stop it.\" The canon fact it cites says it absorbed \"many powerful priests, wizards and sorcerers who tried to stop it\".",
+      "change": "Say \"It swallowed many of the most powerful clerics, wizards and sorcerers who went to stop it.\" Nothing else in the beat changes.",
+      "why": "As written it sounds as if everyone who went was lost, and the very next paragraph has adventurers and magic-users still arriving and fighting it, with four left standing at the end. \"Many of the most powerful\" matches the fact, and makes the danger sharper: the best were the ones it took.",
+      "touches": "What the table hears changes slightly (some survived), so I have marked it as touching meaning, but it moves the speech towards canon, not away from it. Nothing held back is affected.",
+      "risk": "The line gets a little longer in a part that already has a lot in it. If you prefer the starker version as a piece of storytelling, decline it; the mismatch is small.",
+      "recommendation": "Accept.",
+      "decisionAsk": "Should the rift line say it swallowed many of the most powerful, rather than all of them?",
+      "reopensApproval": false,
+      "touchesMeaning": true,
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/scenes/episode-c1e1--from-up-here.json",
+          "path": "beats[the-rift].readAloud",
+          "before": "Two hundred years ago, on the far side of the world, on the island of Kortos near the great city of Absalom, something opened in the air and would not close. The people who saw it described a violet light with a black heart.\n\nAt first it grew slowly. Then it grew faster, and the speed of its growing kept on climbing, in fits and starts that made it deadly to study. It swallowed the clerics, wizards and sorcerers who went to stop it. It carved a jagged road across the island, changing direction without warning, and the road it carved led towards Absalom.\n\nAdventurers and magic-users came to fight it, first from all over the island and then from all over the region, and the finest from every neighbouring nation were among them. At the very end, four people were standing in front of it. It was forced back and crushed down into a small space, and then it was either destroyed or turned into something else. Nobody who was there has ever said for certain which.\n\nNobody agrees on what it was, either, or on why it happened. Every history of the world tells this story, and every one of them starts in the middle: first there is nothing, and then there is a catastrophe.",
+          "after": "Two hundred years ago, on the far side of the world, on the island of Kortos near the great city of Absalom, something opened in the air and would not close. The people who saw it described a violet light with a black heart.\n\nAt first it grew slowly. Then it grew faster, and the speed of its growing kept on climbing, in fits and starts that made it deadly to study. It swallowed many of the most powerful clerics, wizards and sorcerers who went to stop it. It carved a jagged road across the island, changing direction without warning, and the road it carved led towards Absalom.\n\nAdventurers and magic-users came to fight it, first from all over the island and then from all over the region, and the finest from every neighbouring nation were among them. At the very end, four people were standing in front of it. It was forced back and crushed down into a small space, and then it was either destroyed or turned into something else. Nobody who was there has ever said for certain which.\n\nNobody agrees on what it was, either, or on why it happened. Every history of the world tells this story, and every one of them starts in the middle: first there is nothing, and then there is a catastrophe."
+        }
+      ],
+      "fingerprint": "e9b715229ee4a3fa",
+      "commit": "a5e76985a96e5d5c3c767f056db8daa300c3a928"
+    },
+    {
+      "id": "from-up-here-1014-3-which-gate",
+      "kind": "question",
+      "title": "Is the gate in the speech the Candidate Gate?",
+      "rank": 3,
+      "confidence": "medium",
+      "now": "The speech ends on \"a gate: a red-and-white barrier across the road, a booth not much bigger than a telephone box, and a guard with a ledger\", at the land end of the causeway. The next scenes send the players to the Candidate Gate, which the pencil notes put at \"the housing rows' only road entrance\", with a proctor (Ito), a roster, a ledger, an awning and a notice board on the barrier post. The Candidate Gate scene is not written yet, and nothing says whether these are the same place.",
+      "change": "Nothing in this scene. This is a question for when The Candidate Gate is written.",
+      "why": "The players have just been shown a gate with a guard and a ledger, and then they are told to report to a gate. They will assume it is the same one. If it is not, the GM needs a sentence ready; if it is, the Candidate Gate scene should match the booth and barrier the table has already pictured.",
+      "touches": "The unwritten Candidate Gate scene, the Candidate Gate pencil notes, and the island and gate facts from this speech. None of them are things I can change.",
+      "risk": "Leaving it costs nothing today, but the Candidate Gate scene could be written to a different picture from the one the table was given in the first nine minutes.",
+      "recommendation": "Option A. It is the simplest reading of what the table hears, and the pencil notes do not contradict it (a barrier, a ledger, a staffed checkpoint on the only road in).",
+      "decisionAsk": "Is the gate at the land end of the causeway the Candidate Gate?",
+      "options": [
+        {
+          "label": "A. Same gate",
+          "what": "The Candidate Gate is the barrier, booth and guard at the land end of the causeway. The Candidate Gate scene describes it to match this speech, with Proctor Ito in or beside the booth."
+        },
+        {
+          "label": "B. Two gates",
+          "what": "The causeway gate and the Candidate Gate are different checkpoints. The Candidate Gate scene says plainly where it is and how it differs from the gate in the speech, so the table is not confused."
+        },
+        {
+          "label": "C. Decide later",
+          "what": "Leave it until the Candidate Gate scene is written, and settle it then."
+        }
+      ],
+      "fingerprint": "d736876c7f4f43d2"
+    }
+  ],
+  "npcCheck": {
+    "people": [],
+    "gaps": []
+  },
+  "chores": [
+    {
+      "title": "People checked",
+      "done": true,
+      "detail": "Nobody is in this scene, and nobody is named or quoted in the speech, so there is nobody to check or make. The four founders are mentioned but not named, as you asked."
+    },
+    {
+      "title": "Story check",
+      "done": true,
+      "detail": "Zero errors and 112 notes before, and the same after both changes."
+    }
+  ],
+  "leftAlone": [
+    {
+      "what": "More ways in, and rolls",
+      "why": "The scene has no rolls on purpose, by your decision. There are no checks to widen, and I did not look for places to add any."
+    },
+    {
+      "what": "The goal, the beats, their order and the ending",
+      "why": "These are the scene's direction, and they work. The goal (\"Everyone has heard what Kurose grew up knowing\") is a little loose, but it is a locked field and nothing at the table depends on it."
+    },
+    {
+      "what": "\"Minkai (Golarion's Japan)\" read aloud with its bracket",
+      "why": "You decided on the bracket, so I left it."
+    },
+    {
+      "what": "The repeated \"road\" in the rift paragraph, and \"country's\" twice in the pride sentence",
+      "why": "Both sound fine aloud, and \"a foreign thorn in their country's side\" is your own phrase. Not worth an evening."
+    },
+    {
+      "what": "The things said twice (the fishing village; winners and losers)",
+      "why": "Each repeat comes from a different direction (the Directorate's move, then the city's growth; the old families, then the city as a whole), and in a nine-minute speech a second mention helps listeners keep their place. Both are in your notes."
+    },
+    {
+      "what": "Twists, and what happens if the table interrupts",
+      "why": "A speech to the whole table has no twists by your decision, and nobody can be attacked, lied to or followed."
+    }
+  ],
+  "changelog": [
+    "The city now: the Founding Day painting is in the Directorate's supporters' windows.",
+    "The rift: it swallowed many of the most powerful clerics, wizards and sorcerers, not all of them.",
+    "No change to the beats, their order, the facts cited, the cast or the ending."
+  ],
+  "sceneHash": "6e19af8b2291c668",
+  "result": {
+    "appliedAt": "2026-10-14T18:49:01.434Z",
+    "hashAfter": "9ef425a9fe623b07",
+    "applied": [
+      "from-up-here-1014-1-whose-supporters",
+      "from-up-here-1014-2-many-swallowed"
+    ],
+    "failed": []
+  },
+  "checks": {
+    "before": 0,
+    "after": 0,
+    "anchorsOk": true
+  }
+}
