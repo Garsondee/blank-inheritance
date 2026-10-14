@@ -100,6 +100,23 @@ test("the command line takes in a folder of decisions, one file per proposal, as
   cleanup(root);
 });
 
+test("a question is answered by choosing one of its options, and a note needs no decision", () => {
+  const question = { id: "q-1", kind: "question", title: "Should it end here?", rank: 3, confidence: "medium", now: "a", change: "b", why: "c", touches: "d", risk: "e", recommendation: "f", decisionAsk: "g", options: [{ label: "A. Yes", what: "stops" }, { label: "B. No", what: "goes on" }] };
+  const note = { id: "n-1", kind: "note", title: "Noticed", rank: 4, confidence: "low", why: "w", recommendation: "r" };
+  const { root } = withReport({ proposals: [routeProposal(), proseProposal(), question, note] });
+  assert.throws(() => recordDecision(root, { proposalId: "q-1", decision: "accept" }), /is a question: answer it by choosing one of its options \(A\. Yes \| B\. No\)/);
+  assert.throws(() => recordDecision(root, { proposalId: "q-1", decision: "accept", choice: "C. Maybe" }), /is a question/);
+  const ok = recordDecision(root, { proposalId: "q-1", decision: "accept", choice: "B. No", note: "Goes on." });
+  assert.equal(ok.record.choice, "B. No");
+  assert.equal(recordDecision(root, { proposalId: "q-1", decision: "decline", note: "None of these." }).record.choice, undefined, "declining every option keeps no choice");
+  assert.equal(recordDecision(root, { proposalId: "q-1", decision: "discuss" }).record.decision, "discuss");
+  assert.equal(recordDecision(root, { proposalId: routeProposal().id, decision: "accept", choice: "ignored" }).record.choice, undefined, "only a question carries a choice");
+  assert.throws(() => recordDecision(root, { proposalId: "n-1", decision: "accept" }), /is a note: it needs no decision/);
+  const summary = importDecisions(root, { "q-1": { decision: "accept" }, "n-1": { decision: "accept" } });
+  assert.equal(summary.invalid.length, 2, "the page and the importer refuse what the command refuses");
+  cleanup(root);
+});
+
 test("pending: what nobody has decided, what is flagged to discuss, and what is accepted but not applied", () => {
   const { root, report } = withReport({ proposals: [routeProposal(), proseProposal(), { id: "n-1", kind: "note", title: "Noticed", rank: 3, confidence: "low", why: "x", recommendation: "y" }] });
   const [a, b] = [report.proposals[0].id, report.proposals[1].id];

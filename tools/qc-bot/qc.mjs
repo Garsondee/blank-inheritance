@@ -9,7 +9,7 @@
  *   node tools/qc-bot/qc.mjs apply <report.json> --all --commit-each   (the bot) apply every patch on its qc/ branch, one commit each
  *   node tools/qc-bot/qc.mjs apply <report.json> --accepted [--reread] (Claude, after Ingram decides) apply what she accepted
  *   node tools/qc-bot/qc.mjs guard [--base origin/master] [--head ref] did the branch change only what the bot may change? (name a remote branch to check it without checking it out)
- *   node tools/qc-bot/qc.mjs decide <proposal> accept|decline|discuss [--note "..."]
+ *   node tools/qc-bot/qc.mjs decide <proposal> accept|decline|discuss [--note "..."] [--choice "<option>"]   (a question is accepted by choosing an option)
  *   node tools/qc-bot/qc.mjs decisions import <file.json | folder>     take in what the review page collected (a folder of <proposal id>.json, as the store exports)
  *   node tools/qc-bot/qc.mjs status                                    what is waiting on Ingram, and what is waiting to be applied
  *   node tools/qc-bot/qc.mjs page [--out file]                         build the review page (Accept / Decline / Discuss)
@@ -33,7 +33,7 @@ const value = (name) => {
   const i = args.indexOf(name);
   return i >= 0 ? args[i + 1] : null;
 };
-const positional = () => args.filter((a, i) => !a.startsWith("--") && !(i > 0 && ["--limit", "--note", "--out", "--base", "--head", "--accept", "--episode", "--via"].includes(args[i - 1])));
+const positional = () => args.filter((a, i) => !a.startsWith("--") && !(i > 0 && ["--limit", "--note", "--out", "--base", "--head", "--accept", "--episode", "--via", "--choice"].includes(args[i - 1])));
 
 const die = (m) => {
   console.error(m);
@@ -126,8 +126,8 @@ switch (cmd) {
   case "decide": {
     const [id, decision] = positional();
     if (!id || !decision) die('Usage: qc decide <proposal> accept|decline|discuss [--note "..."]');
-    const { record, changed } = recordDecision(ROOT, { proposalId: id, decision, note: value("--note") ?? "", via: value("--via") ?? "chat" });
-    console.log(`${changed ? "Recorded" : "Already recorded"}: ${record.proposalId} → ${record.decision}${record.note ? ` ("${record.note}")` : ""}`);
+    const { record, changed } = recordDecision(ROOT, { proposalId: id, decision, note: value("--note") ?? "", choice: value("--choice"), via: value("--via") ?? "chat" });
+    console.log(`${changed ? "Recorded" : "Already recorded"}: ${record.proposalId} → ${record.decision}${record.choice ? ` (${record.choice})` : ""}${record.note ? ` ("${record.note}")` : ""}`);
     break;
   }
   case "decisions": {
@@ -141,7 +141,8 @@ switch (cmd) {
       ? Object.fromEntries(fs.readdirSync(target).filter((f) => f.endsWith(".json")).map((f) => [f.replace(/\.json$/, ""), JSON.parse(lf(fs.readFileSync(path.join(target, f), "utf8")))]))
       : JSON.parse(lf(fs.readFileSync(target, "utf8")));
     const summary = importDecisions(ROOT, input);
-    console.log(`Recorded ${summary.recorded.length}, unchanged ${summary.unchanged.length}, not in any report ${summary.unknown.length}, skipped ${summary.skipped.length}.`);
+    console.log(`Recorded ${summary.recorded.length}, unchanged ${summary.unchanged.length}, not in any report ${summary.unknown.length}, skipped ${summary.skipped.length}, refused ${summary.invalid.length}.`);
+    for (const m of summary.invalid) console.log(`Refused: ${m}`);
     if (summary.unknown.length) console.log(`Unknown: ${summary.unknown.join(", ")}`);
     break;
   }

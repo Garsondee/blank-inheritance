@@ -38,7 +38,7 @@ test("every report has its Markdown copy, and the copy is the report as it is no
   for (const { file, report } of reports) {
     const md = file.replace(/\.json$/, ".md");
     assert.ok(fs.existsSync(fullPath(ROOT, md)), `${md} is missing (run qc render)`);
-    assert.equal(fs.readFileSync(fullPath(ROOT, md), "utf8"), renderReport(report), `${md} is out of date (run qc render)`);
+    assert.equal(fs.readFileSync(fullPath(ROOT, md), "utf8").replace(/\r\n/g, "\n"), renderReport(report), `${md} is out of date (run qc render)`);
   }
 });
 

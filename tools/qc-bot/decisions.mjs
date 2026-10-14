@@ -83,6 +83,12 @@ export function recordDecision(root, { proposalId, decision, note = "", choice =
   if (!DECISIONS.includes(decision)) throw new Error(`A decision is one of ${DECISIONS.join(", ")} (got ${JSON.stringify(decision)})`);
   const found = findProposal(root, proposalId);
   if (!found) throw new Error(`No report holds a proposal called ${proposalId}`);
+  if (found.proposal.kind === "note") throw new Error(`${proposalId} is a note: it needs no decision`);
+  if (found.proposal.kind === "question" && decision === "accept") {
+    const labels = (found.proposal.options ?? []).map((o) => o.label);
+    if (!choice || !labels.includes(choice)) throw new Error(`${proposalId} is a question: answer it by choosing one of its options (${labels.join(" | ")})`);
+  }
+  if (found.proposal.kind !== "question") choice = null;
   const rel = `${DECISIONS_DIR}/${proposalId}.json`;
   const before = exists(root, rel) ? readJson(root, rel) : null;
   const at = decidedAt ?? new Date().toISOString();
@@ -122,7 +128,7 @@ export function markApplied(root, proposalId, { at = new Date().toISOString(), h
  */
 export function importDecisions(root, input, { via = "page" } = {}) {
   const raw = Array.isArray(input) ? input : Array.isArray(input?.docs) ? input.docs : Object.entries(input ?? {}).map(([id, v]) => ({ id, ...v }));
-  const summary = { recorded: [], unchanged: [], unknown: [], skipped: [] };
+  const summary = { recorded: [], unchanged: [], unknown: [], skipped: [], invalid: [] };
   for (const item of raw) {
     const data = item?.data && typeof item.data === "object" ? { ...item.data, id: item.id ?? item.data.id } : item;
     const proposalId = data?.proposalId ?? data?.id;
@@ -135,6 +141,7 @@ export function importDecisions(root, input, { via = "page" } = {}) {
       (changed ? summary.recorded : summary.unchanged).push(proposalId);
     } catch (e) {
       if (/No report holds/.test(e.message)) summary.unknown.push(proposalId);
+      else if (/is a question:|is a note:/.test(e.message)) summary.invalid.push(e.message);
       else throw e;
     }
   }

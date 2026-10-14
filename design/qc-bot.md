@@ -125,7 +125,7 @@ changes to what is played, and eight things in all, per scene.
 | `render <report>` | the bot | the Markdown copy |
 | `guard [--base] [--head]` | both | did the branch change only what the bot may change? |
 | `page [--out]` | Claude | builds the review page |
-| `decide <proposal> accept\|decline\|discuss [--note]` | Claude | records a decision given in chat |
+| `decide <proposal> accept\|decline\|discuss [--note] [--choice]` | Claude | records a decision given in chat; a question is accepted by choosing one of its options |
 | `decisions import <file>` | Claude | takes in what the review page collected |
 | `apply <report> --accepted [--reread]` | Claude | applies what she accepted, onto the current files, and adds a Revision to the re-read record |
 | `status` | Claude | what is waiting on her, to discuss, to apply, and ready for the bot |

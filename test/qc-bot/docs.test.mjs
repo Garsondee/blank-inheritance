@@ -7,7 +7,7 @@ import { ROOT, WRITE_RULES, fullPath } from "../../tools/qc-bot/lib.mjs";
 import { MAX_CAPPED, MAX_TOTAL, PROPOSAL_KINDS } from "../../tools/qc-bot/proposals.mjs";
 import { OP_KINDS } from "../../tools/qc-bot/patch.mjs";
 
-const read = (rel) => fs.readFileSync(fullPath(ROOT, rel), "utf8");
+const read = (rel) => fs.readFileSync(fullPath(ROOT, rel), "utf8").replace(/\r\n/g, "\n"); // a checkout may have converted line endings
 const protocol = read("tools/qc-bot/PROTOCOL.md");
 const creator = read("tools/qc-bot/CREATOR-PROMPT.md");
 const design = read("design/qc-bot.md");
