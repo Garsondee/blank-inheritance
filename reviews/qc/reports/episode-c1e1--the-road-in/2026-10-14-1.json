@@ -1,0 +1,192 @@
+{
+  "kind": "qc-report",
+  "version": 1,
+  "id": "qc-episode-c1e1--the-road-in-2026-10-14-1",
+  "scene": "episode-c1e1--the-road-in",
+  "title": "The Road In",
+  "generatedAt": "2026-10-14T18:54:16Z",
+  "model": "claude (QC bot)",
+  "planState": "awaiting-read",
+  "lane": "review",
+  "branch": "qc/2026-10-14-the-road-in",
+  "overview": {
+    "why": "The opening speech ends \"This year, it sent for you\", and this scene is that envelope arriving. Each of the six gets the same acceptance letter from the Directorate, on six mornings of the same week, telling them to report by Monday.",
+    "walkthrough": "The GM reads two sentences and the letter, then shows each player their own copy with their name typed in (a red BROUGHT FORWARD stamp, a typewriter fault, a return slip asking for their mother's maiden name). Then a montage, one player at a time: how they reach Kurose, how they look and how we first see them, and one small problem on the way, rolled with any skill they like at DC 15 and told by the player. At some point a waiting crowd faces a small deep-violet mark at head height, and everyone gets one blind roll (DC 17) to realise it isn't the first one they've seen. Nobody meets anybody.",
+    "leadsTo": "Skip to Monday morning, in the queue at the Candidate Gate: the barrier and booth at the land end of the causeway that the opening speech finished on. Intake Medicals opens there.",
+    "doesWell": "It picks up exactly where the speech stops: \"it sent for you\" becomes an envelope in your hands, and the gate the camera ended on is the place the letter tells you to go. Every roll is free on every result, so nobody's first roll can hurt them, and the players do the talking.",
+    "burden": "Six spotlights in a row is the risk: 25 to 35 minutes, and the GM has to keep each one short while also remembering to place the violet mark."
+  },
+  "proposals": [
+    {
+      "id": "the-road-in-1014-1-survival-mark",
+      "kind": "route",
+      "title": "Let someone who reads the land notice the violet mark",
+      "rank": 1,
+      "confidence": "medium",
+      "now": "The violet mark can be recognised with Occultism, Crafting or Society. All three are Intelligence skills, so a character built on Wisdom (a scout, a hunter, someone raised outdoors) has no way into the episode's first plant unless they happen to be trained in one of them.",
+      "change": "Add Survival at the same DC 17, with a line of its own: they read marks the way a tracker reads a trail; this one sits at eye height where people stop and stand, and they passed the same violet at the same height earlier today. The four results stay exactly as they are.",
+      "why": "Noticing that a sign repeats, and where it has been put, is what tracking is. It gives the mark a second ability, and the check stays blind, so a failure still looks like paint.",
+      "touches": "What the table learns is the same as the success result (it isn't the first one today; same violet, same height) and no more. Nothing about who makes the marks or why. The plan moves this check into Way In: By Tram when the montage is replaced; the new route would go with it.",
+      "risk": "Survival is a stretch for some tables in a city street. If you think tracking belongs in the countryside, decline it; the three existing routes are all good.",
+      "recommendation": "Add it.",
+      "decisionAsk": "Should Survival be a way to recognise the violet mark?",
+      "reopensApproval": false,
+      "touchesMeaning": false,
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-road-in.json",
+          "path": "checks[a-mark-at-head-height].skillOptions",
+          "before": [
+            "occultism",
+            "crafting",
+            "society"
+          ],
+          "after": [
+            "occultism",
+            "crafting",
+            "society",
+            "survival"
+          ]
+        },
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-road-in.json",
+          "path": "checks[a-mark-at-head-height].bySkill",
+          "before": {
+            "occultism": "Not idle graffiti. It was drawn in one unbroken stroke, carefully, the way you draw something that has to be right.",
+            "crafting": "Not house paint. It has the dull skin of marine primer, sold by the tin for ships' hulls, which is why the weather hasn't touched it.",
+            "society": "Always at head height, on walls a crowd faces, and never where the housing office would bother to paint over it. Whoever does this knows which walls nobody minds."
+          },
+          "after": {
+            "occultism": "Not idle graffiti. It was drawn in one unbroken stroke, carefully, the way you draw something that has to be right.",
+            "crafting": "Not house paint. It has the dull skin of marine primer, sold by the tin for ships' hulls, which is why the weather hasn't touched it.",
+            "society": "Always at head height, on walls a crowd faces, and never where the housing office would bother to paint over it. Whoever does this knows which walls nobody minds.",
+            "survival": "You read marks the way a tracker reads a trail. This one sits at eye height where people stop and stand, and you passed the same violet at the same height earlier today."
+          }
+        }
+      ],
+      "fingerprint": "d7d376c7de020d92",
+      "commit": "dab7e5f195d8aef200434a84724588055763f6bd"
+    },
+    {
+      "id": "the-road-in-1014-2-what-time-monday",
+      "kind": "question",
+      "title": "The letter says \"Monday\", the plan says \"07:30 on Monday\"",
+      "rank": 2,
+      "confidence": "medium",
+      "now": "The plan row for this scene says the letter orders every recruit to the Candidate Gate \"by 07:30 on Monday\", and the Candidate Gate row has all six arriving by 07:30. The letter itself says only \"no later than Monday next\" (pen over the printed date), and nothing in this scene gives a time.",
+      "change": "Nothing yet. The letter is your approved handout, so I won't touch its words.",
+      "why": "A player who wants to arrive early, or late, will ask what time. The Candidate Gate scene is built on everyone arriving by a set hour, so the time needs to be somewhere the table can see it.",
+      "touches": "The letter handout, this scene's plan row, and the unwritten Candidate Gate scene.",
+      "risk": "None today. If it is left, whoever writes the Candidate Gate scene inherits a time the table was never given.",
+      "recommendation": "Option A, when the montage is replaced by the six Ways In.",
+      "decisionAsk": "Should the letter give a time on Monday?",
+      "options": [
+        {
+          "label": "A. Add the time to the letter",
+          "what": "The pen note becomes \"Monday next, 07:30\" (or a printed reporting time). One small change to your handout; the plan and the letter then agree."
+        },
+        {
+          "label": "B. Drop the time from the plan",
+          "what": "The letter stays as it is and \"first thing Monday\" is enough. The Candidate Gate scene is written without a deadline hour."
+        },
+        {
+          "label": "C. The GM says it",
+          "what": "Leave the letter alone and add a line to the letter beat's note: \"If asked what time: 07:30 at the gate.\" Cheapest, but players who read the letter closely won't find it there."
+        }
+      ],
+      "fingerprint": "80cc5454041336db"
+    },
+    {
+      "id": "the-road-in-1014-3-one-gate",
+      "kind": "note",
+      "title": "One gate: what your answer settles, and what still says otherwise",
+      "rank": 3,
+      "confidence": "high",
+      "now": "You answered the question from the opening speech's report: there is one gate, a military barrier at the land end of the causeway controlling access to the island. This scene already agrees (the letter says \"the Candidate Gate on the landward side of the causeway\"), and so does Intake Medicals (\"At the land end of the causeway, the guard in the booth finds your name in his ledger\"). Two things still say otherwise. The Candidate Gate pencil note and the Candidate Gate plan row put it at \"the housing rows' only road entrance\". The plan row also has Proctor Ito, a woman, reading names off a roster, where Intake Medicals has a male guard with a ledger in the booth.",
+      "change": "Nothing in this scene. The pencil note and the plan row are outside what I may change. They need updating when the Candidate Gate scene is written, and the guard and Ito need reconciling then.",
+      "why": "So the scene that sits between this one and Intake Medicals is written to the gate the table has already been shown twice.",
+      "fingerprint": "8cd20f36e005d53e",
+      "recommendation": "Update the pencil note and plan row to the causeway gate, and settle the guard and Ito, when the Candidate Gate scene is written."
+    },
+    {
+      "id": "the-road-in-1014-4-still-the-montage",
+      "kind": "note",
+      "title": "This scene is still the montage the plan replaces",
+      "rank": 4,
+      "confidence": "high",
+      "now": "The plan row says the GM gives each seat an assumed way in from six written Ways In, and that \"the written scene still holds the old montage; the six Ways In replace it\". The scene is still the montage: players invent their own arrival and problem, and the violet mark lives here, not on the tram.",
+      "change": "Nothing. Replacing the montage changes the scene's shape, which is yours to do and not mine. I reviewed it as it stands, so it can be run as written until then.",
+      "why": "So you know the review above is of the current montage, and that the route in the first proposal moves with the mark check if the rebuild keeps it.",
+      "fingerprint": "3ac13066e7104f33",
+      "recommendation": "Nothing to do now. Run it as written until the Ways In replace it."
+    }
+  ],
+  "npcCheck": {
+    "people": [],
+    "gaps": []
+  },
+  "chores": [
+    {
+      "title": "People checked",
+      "done": true,
+      "detail": "Nobody is in this scene, and the beats name nobody. Nothing to check or make."
+    },
+    {
+      "title": "Story check",
+      "done": true,
+      "detail": "Zero errors and 112 notes before, and the same after."
+    },
+    {
+      "title": "Record the gate answer as a decision",
+      "done": false,
+      "detail": "You answered the opening speech's gate question in chat (one gate, option A). Your decision records are not mine to write, so it still needs filing against that question."
+    },
+    {
+      "title": "Update the Candidate Gate pencil note and plan row",
+      "done": false,
+      "detail": "\"The housing rows' only road entrance\" should become the land end of the causeway, per your answer. Both are outside what I may change."
+    }
+  ],
+  "leftAlone": [
+    {
+      "what": "The small problem",
+      "why": "Any skill already counts, and every result is free. Nothing to widen."
+    },
+    {
+      "what": "The letter",
+      "why": "It is your approved handout. The only seam in it (the time) is raised as a question, not patched."
+    },
+    {
+      "what": "The opening two sentences",
+      "why": "They follow straight on from \"This year, it sent for you.\" The \"it\" at the start reads as the envelope arriving, which is right."
+    },
+    {
+      "what": "\"Your application has been reviewed and accepted\" for characters who were pushed",
+      "why": "The opening speech says some are pushed. A form letter thanking them for applying is a nice irony, not a contradiction."
+    },
+    {
+      "what": "Perception as a route to the mark",
+      "why": "It is the obvious Wisdom route, but Perception already carries the most checks in the episode, so I proposed Survival instead."
+    }
+  ],
+  "changelog": [
+    "Recognise the mark: Survival added as a fourth way (DC 17).",
+    "No change to the letter, the beats, the results, any DC or the ending."
+  ],
+  "sceneHash": "3a95e0f583d31cac",
+  "result": {
+    "appliedAt": "2026-10-14T18:54:25.890Z",
+    "hashAfter": "3c3bb847574a1f15",
+    "applied": [
+      "the-road-in-1014-1-survival-mark"
+    ],
+    "failed": []
+  },
+  "checks": {
+    "before": 0,
+    "after": 0,
+    "anchorsOk": true
+  }
+}
