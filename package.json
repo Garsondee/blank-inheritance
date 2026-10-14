@@ -41,6 +41,8 @@
     "haunts": "node tools/haunts/pull.mjs",
     "npcs": "node tools/npc-generator/apply.mjs",
     "npcs:check": "node tools/npc-generator/apply.mjs --check",
+    "qc": "node tools/qc-bot/qc.mjs",
+    "test:qc": "node test/support/run-tests.mjs test/qc-bot",
     "objectives": "node tools/objectives/pull.mjs",
     "stages": "node tools/stage-places/pull.mjs",
     "locations": "node tools/location-sync/sync.mjs",

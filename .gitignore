@@ -185,6 +185,9 @@ data/intray/
 # tools/scene-signoff/report.mjs -- the JSON is the source, the page is the build.
 reviews/*.html
 
+# The QC bot's review page: built from reviews/qc/reports and decisions by `qc page` (tools/qc-bot/page.mjs).
+reviews/qc/inbox.html
+
 # The Casebook build output (tools/casebook/build.mjs); the source is tools/casebook/ and canon/
 tools/casebook/out/
 

@@ -1,0 +1,268 @@
+{
+  "kind": "qc-report",
+  "version": 1,
+  "id": "qc-episode-c1e1--intake-medicals-2026-10-14-1",
+  "scene": "episode-c1e1--intake-medicals",
+  "title": "Intake Medicals",
+  "generatedAt": "2026-10-14T16:40:05Z",
+  "model": "claude-sonnet-5-5 (a worked example written by hand in a Claude Code session, to show the format before the bot's first run)",
+  "planState": "awaiting-read",
+  "lane": "review",
+  "overview": {
+    "why": "The gate guard waves every new recruit on to the infirmary, so this is the first room all six players share. They come because there is nowhere else to go yet, and they leave with a Section Nine card each.",
+    "walkthrough": "A slow queue under two contradictory signs (FORMS FIRST taped over MEDICALS FIRST). The clerk hands out Form 12-B with every name already typed, and boxes 4 and 19 both ask for the mother's maiden name. Then Doctor Mordant, a skeleton in a white coat, sees each player alone: a blood sample, two or three questions about them, and the same sentence for all six: your screen came back irregular, it does that, nothing to worry about. Six optional looks sit around that (the form, the staff talking, his badge, his hand, asking him straight, working out the screen). In the corridor the clerk hands out six Section Nine cards with the track left blank, and the scene is really about whether the six notice they were all flagged.",
+    "leadsTo": "A bell, and a staff officer marches the whole intake to the drill hall for Assembly, where Section Nine sits together at the front because of those cards.",
+    "doesWell": "The read-aloud puts the room in front of the table in three short paragraphs, smell first. Every check is optional, costs nothing, and goes wrong harmlessly (a wrong belief, never a lost option). The all-six moment can't be missed: if nobody compares cards, a candidate from another queue asks out loud.",
+    "burden": "Six private conversations in front of the whole table is the heavy part. The GM gives each player different questions and says \"irregular\" the same way six times while five people watch. The optional checks give the five watchers something to do."
+  },
+  "proposals": [
+    {
+      "id": "intake-medicals-1014-1-crafting-form",
+      "kind": "route",
+      "title": "Let someone who knows machines read the typed form",
+      "rank": 1,
+      "confidence": "high",
+      "now": "Only Perception can spot that the typed name on the form was struck by a faulty typewriter. A character built around machines, repairs or making things has nothing to roll here, even though the clue is a worn typewriter.",
+      "change": "Add Crafting at the same DC 15, with a line of its own: the e is struck low and faint by a worn type bar, and the acceptance letter has the same fault, so one machine typed both. The four results stay exactly as they are.",
+      "why": "The clue is literally a typewriter fault, so a maker's eye is the most natural way to find it. It also gives builds without good Perception a way into the first clue of the episode, and stops Perception carrying three of the scene's six checks.",
+      "touches": "Nothing else in the scene. It tells the table the same fact the check already tells (the forms were typed ahead, on the acceptance-letter machine), so what is held back stays held back. The plan row doesn't mention this check.",
+      "risk": "Low. Crafting also appears on the hand check (proposal 3), so a mechanic gets two rolls in this scene. That seems right to me, because both are about made things, and they come at different points in the scene.",
+      "recommendation": "Add it.",
+      "decisionAsk": "Should a Crafting character be able to read the form?",
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[study-the-form].skillOptions",
+          "before": [
+            "perception"
+          ],
+          "after": [
+            "perception",
+            "crafting"
+          ]
+        },
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[study-the-form].bySkill",
+          "before": null,
+          "after": {
+            "crafting": "The e is struck low and faint by a worn type bar, and the acceptance letter has the same fault: one machine typed both."
+          }
+        }
+      ],
+      "fingerprint": "c3d26229f7a020a8"
+    },
+    {
+      "id": "intake-medicals-1014-2-society-screen",
+      "kind": "route",
+      "title": "Let a reader of paperwork work out the screen",
+      "rank": 2,
+      "confidence": "high",
+      "now": "Only Medicine or Nature can work out what the screen tests for, but the best clue in the room is on the form, not in a blood sample.",
+      "change": "Add Society at the same DC 17, with a line of its own: the form's result box offers four words, and \"irregular\" is not one any standard screen uses, so this is a custom test. The four results stay exactly as they are.",
+      "why": "The form is the scene's own evidence. Your note on the blank form says the IRREGULAR box is printed, not added by hand, and that somebody expected the result often enough to have it typeset. Reading that is a Society skill (how institutions run and what their paperwork is for), not a medical one. Without it, a player who studied the form closely has nothing to roll for the deduction the form was built to prompt.",
+      "touches": "No facts. The critical success already says the test is for something inherited; the Society line stops short of that on purpose, so the heritable marker stays held back until later. Nothing else in the scene changes.",
+      "risk": "Low. The check is still rolled blind and a critical failure still gives a harmless wrong belief.",
+      "recommendation": "Add it.",
+      "decisionAsk": "Should reading the form's printed result box count as working out the screen?",
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[what-a-screen-tests].skillOptions",
+          "before": [
+            "medicine",
+            "nature"
+          ],
+          "after": [
+            "medicine",
+            "nature",
+            "society"
+          ]
+        },
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[what-a-screen-tests].bySkill",
+          "before": null,
+          "after": {
+            "society": "The form's result box offers four words, and \"irregular\" is not one that any standard screen uses. This is a custom test."
+          }
+        }
+      ],
+      "fingerprint": "3bf6c70b7468f46e"
+    },
+    {
+      "id": "intake-medicals-1014-3-crafting-hand",
+      "kind": "route",
+      "title": "Let someone who knows how things are made see the hand",
+      "rank": 3,
+      "confidence": "medium",
+      "now": "Perception or Medicine notice that his right hand isn't bone. A maker, engineer or armourer would see it as fast as either, and has no way in.",
+      "change": "Add Crafting at the same DC 17, with a line of its own: the wrist turns like a hinge, not a joint, and the work is neat, so someone built this hand to match and built it well. The four results stay exactly as they are.",
+      "why": "The tell is workmanship, not anatomy or attention. It gives the same kind of character as proposal 1 a second moment in a scene that otherwise reads only people and paper.",
+      "touches": "Nothing else. The line stops at \"prosthetic\", so Rand (his real hand, loose in the city) stays held back, and the critical success keeps the half-beat of lag for the best rolls only.",
+      "risk": "Crafting appears twice in this scene (here and in proposal 1). If you'd rather it appeared once, decline this one and keep the form.",
+      "recommendation": "Add it, unless you want Crafting only once in the scene.",
+      "decisionAsk": "Should Crafting also be able to see the hand?",
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[the-hand].skillOptions",
+          "before": [
+            "perception",
+            "medicine"
+          ],
+          "after": [
+            "perception",
+            "medicine",
+            "crafting"
+          ]
+        },
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[the-hand].bySkill",
+          "before": null,
+          "after": {
+            "crafting": "The wrist turns like a hinge, not a joint, and the work is neat. Someone built this hand to match, and built it well."
+          }
+        }
+      ],
+      "fingerprint": "ec5e28cbff45dce2"
+    },
+    {
+      "id": "intake-medicals-1014-4-medicine-straight",
+      "kind": "route",
+      "title": "Let a medic ask Shucks in his own language",
+      "rank": 4,
+      "confidence": "medium",
+      "now": "Only Diplomacy gets Shucks's straight answer, so a player whose character is a medic or nurse has to ask like a diplomat.",
+      "change": "Add Medicine at the same DC 13, with a line of its own: asked the way a colleague would ask (\"what's the reference range?\"), he answers in kind, and it is the same answer. The four results stay exactly as they are.",
+      "why": "He is the head of medical and respects a professional question. This lets a medically trained player ask the way they actually would. Other scenes already let a non-social skill work on a person when the fiction supports it (in Kit Issue, Crafting is one of the ways to talk Nobu round).",
+      "touches": "The answer, and everything he won't discuss, is unchanged: he still says it is a screen, screens flag things, and they are fine.",
+      "risk": "Slight. Medicine as a way of talking someone round is a table call in the rules. The campaign already does this elsewhere, so I think it is in keeping, but it is your call.",
+      "recommendation": "Add it.",
+      "decisionAsk": "Should a medic's expertise count when asking him straight?",
+      "ops": [
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[ask-him-straight].skillOptions",
+          "before": [
+            "diplomacy"
+          ],
+          "after": [
+            "diplomacy",
+            "medicine"
+          ]
+        },
+        {
+          "op": "set",
+          "file": "canon/challenges/c1e1-the-medical.json",
+          "path": "checks[ask-him-straight].bySkill",
+          "before": null,
+          "after": {
+            "medicine": "Asked as a colleague would ask (\"what's the reference range?\"), he answers in kind, and it is the same answer: a screen flags things, and they're fine."
+          }
+        }
+      ],
+      "fingerprint": "6dd0fdf00e23d9e5"
+    },
+    {
+      "id": "intake-medicals-1014-5-lucan-obi",
+      "kind": "question",
+      "title": "Lucan and Obi: the plan has them in this queue, the scene doesn't",
+      "rank": 5,
+      "confidence": "medium",
+      "now": "The plan row for this scene says the six meet in the infirmary queue \"and Lucan and Obi are waiting if they came by train\". The scene never mentions either of them: they aren't in the cast and no beat uses them. Both already exist as people (Lucan Farrow, the cardsharp, and Obiajulu Eze, who checks every rumour) and they are cast in two of the night scenes.",
+      "change": "Nothing yet. Adding two people changes who is in the room, so this is your decision and not something the bot will patch.",
+      "why": "A promise in the plan that the scene doesn't keep will surprise whoever writes the Way In: By Train scene, and anyone reading the timeline will expect to see them here.",
+      "touches": "The plan row for this scene, the unwritten Way In: By Train scene, and (if you choose B) this scene's cast and one or two beats. The same plan row also says the opening at the gate will move into The Candidate Gate, so this scene is going to be reshaped anyway.",
+      "risk": "Adding them now would lengthen the scene that already runs longest in the episode (30 to 45 minutes), and means writing their lines before the Train scene has decided who they are.",
+      "recommendation": "Option A: leave it until the Train scene is written. The plan row has already said this scene will be reshaped, so the cheapest consistent move is to settle it then.",
+      "decisionAsk": "What should happen to the Lucan and Obi line?",
+      "options": [
+        {
+          "label": "A. Leave it for now",
+          "what": "The scene and the plan stay as they are, and the Train scene's author adds a line here when that scene is written. Costs nothing today; the plan promises something the scene doesn't yet deliver."
+        },
+        {
+          "label": "B. Add them now",
+          "what": "Cast both in this scene, standing in the queue only when a player came by train, with one line each. The world feels connected from the first morning; the scene gets longer and their lines are written before their own scene exists."
+        },
+        {
+          "label": "C. Drop the mention from the plan row",
+          "what": "Remove the sentence about Lucan and Obi from the plan row so the row matches the scene. Nothing to write, but the link back to the Train scene then has to be remembered by hand."
+        }
+      ],
+      "fingerprint": "89a689201aaec199"
+    }
+  ],
+  "npcCheck": {
+    "people": [
+      {
+        "npcRef": "shucks-mordant",
+        "file": true,
+        "statblock": true,
+        "roster": true,
+        "portrait": "registered",
+        "notes": "Level 15 founder, not built for a fight."
+      },
+      {
+        "npcRef": "intake-medicals-clerk",
+        "file": true,
+        "statblock": true,
+        "roster": true,
+        "portrait": "registered",
+        "notes": "Level 0 civilian clerk."
+      }
+    ],
+    "gaps": []
+  },
+  "chores": [
+    {
+      "title": "People checked",
+      "done": true,
+      "detail": "Both people the scene casts already have a file, a stat block, a roster entry and a portrait, so there is nothing to make."
+    },
+    {
+      "title": "Story check",
+      "done": true,
+      "detail": "Zero errors before and after; the proposals above are all ready to merge without touching anything outside this scene's check file."
+    }
+  ],
+  "leftAlone": [
+    {
+      "what": "Overhear the staff (Perception only)",
+      "why": "I looked for a second route and could only find skills in costume: Stealth for hovering near the hatch, Society for knowing how staff talk. The check is about listening, and Perception is the honest skill, so one route is the design here."
+    },
+    {
+      "what": "Recognise the name (Society only)",
+      "why": "Society is the right skill, and asking Shucks himself is a free route that needs no roll, so a second skill would add very little."
+    },
+    {
+      "what": "The read-aloud",
+      "why": "It puts the room in front of the table in a few short sentences and does its job. I wouldn't touch a word."
+    },
+    {
+      "what": "The line on the doctor's beat saying Craig played Shucks",
+      "why": "It looks like a note about how the scene was made, but your re-read record says it is deliberate: it is there so his character's turn with the doctor gets room. I left it."
+    },
+    {
+      "what": "The goal, the ending, the beat order and who is in the room",
+      "why": "These are the scene's direction. The tool that checks my patches refuses any change to them, so none of the proposals above can touch them."
+    }
+  ],
+  "changelog": [
+    "Study the form: Crafting added as a second way (DC 15).",
+    "Work out what the screen tests: Society added as a third way (DC 17).",
+    "Watch the hand: Crafting added as a third way (DC 17).",
+    "Ask him straight: Medicine added as a second way (DC 13).",
+    "No change to the cast, the beats, any result, any DC or the ending."
+  ],
+  "sceneHash": "b0d3824c9fc31880"
+}

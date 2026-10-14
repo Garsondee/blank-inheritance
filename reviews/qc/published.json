@@ -1,0 +1,6 @@
+{
+  "url": "https://claude.ai/artifact/1G66Uh9HyUXFNUjdgGffDU",
+  "title": "QC Inbox",
+  "firstPublishedAt": "2026-10-14T17:52:00Z",
+  "note": "The review page (tools/qc-bot/page.mjs). A private Artifact with the shared-store capability: decisions are saved in its `decisions` collection, one document per proposal id. Update it in place (read it first); never publish a second copy. /qc-merge describes the routine."
+}
