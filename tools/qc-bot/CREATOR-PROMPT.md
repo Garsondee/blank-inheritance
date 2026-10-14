@@ -52,6 +52,10 @@ This is the first test drive, so after your usual closing summary add a short "R
 - anything you wanted to do that the rules did not allow.
 ```
 
+By default it takes the next two scenes in play order (today From Up Here, the opening speech, and The Road In). To aim the
+test drive at scenes with more checks, name them in the first line instead, for example:
+`Run the QC protocol on episode-c1e1--assembly and episode-c1e1--kit-issue. Do not open a pull request.`
+
 ## 4. After it finishes
 
 Tell Claude, in the desktop app, to **merge the QC reports**. It runs `/qc-merge`: checks the branches with the guard, brings

@@ -56,8 +56,9 @@ node tools/qc-bot/qc.mjs queue --limit <N>      # the rows marked with an arrow 
 ```
 
 The queue lists the scenes that are about to be run, in play order, and leaves out scenes that are waiting for Ingram's
-decisions. Take the arrowed rows in order. For **each** scene (id below is its full id, `short` is the id without
-`episode-c1e1--`):
+decisions. Take the arrowed rows in order. If the first message **names scenes**, take those instead, in that order, but only
+the ones that carry an arrow; say why you skipped any that do not. For **each** scene (id below is its full id, `short` is
+the id without `episode-c1e1--`):
 
 ```bash
 git checkout -b qc/$(date -u +%F)-<short> master
