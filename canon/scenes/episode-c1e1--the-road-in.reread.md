@@ -102,3 +102,36 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R27.** The where line repeated the read-aloud's first sentence; it now says where the scene is (wherever each player says). The always-true carry-in ("go straight into the letter") is gone. The small problem's direction repeated its beat line, and every result ended "the player tells us how"; both trimmed.
+
+## Revision 2026-10-07: Ingram's grading of the first episode confidence run (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R16, R20 (opening).** The opening no longer says every character is a stranger to Kurose. It says the envelope came from the
+  Directorate, that some have lived in its shadow all their lives, some had only heard its name, and none has worn its
+  uniform. That is her rule (D065): nobody worked for the Directorate; anybody may have grown up beside it.
+- **R22 (the letter's names).** The letter, which is hers (D038) and unchanged, names Tokubetsu Taisaku Honbu and "the combined
+  campus". The beat's note now answers both if a player asks: the first is the Directorate's name on its own paperwork, the
+  second its island base. Two provisional facts (`directorate.paper-name`, `directorate.combined-campus`) hold them.
+- **R4, R8 (the arrival menu, her high priority).** The way in used to be asked twice: told in each spotlight, then chosen from a
+  screen at the end, where the two could disagree (a fishing boat, a motorbike, "the causeway on foot"). Each spotlight now
+  starts with how the character reaches Kurose, from the same eight ways the screen offers, so the story and the screen cannot
+  disagree; the screen only confirms ("Press the way you came"). "The causeway on foot" is gone: the causeway runs to the
+  island, and the Candidate Gate is on its landward side.
+- **R26, R27 (the spotlight's shape).** The three questions and the roll are one spotlight: the direction now says to stay with
+  one player from the first question to their roll. Before, the beats read as three rounds of the table.
+- **R6 (the mark).** The mark beat says who rolls and how often: one roll each, offered to the table at the first sighting,
+  then only to whoever hasn't rolled. The write-down already counted sightings.
+- **R6 (critical success).** "Something worth remembering" is now a question for the player: why was it worth remembering? What
+  they say is true from then on, and the write-down records it. Ingram: "you just have to trust me to improvise".
+- **R28.** Every edited line is inside its budget (beat lines 24 to 25 words, notes 78 words or fewer).
+- **Not changed, on her word.** The violet mark echoing the rift is intentional ("Intentional and fine").
+- **Still open.** Her note on the beat layout stops at "Just needs to be slightly "; the rest was lost by the grading page
+  (fixed since), and she has been asked for it.
+- **For Ingram.** She asked for "Directorate Lore" on character generation; that is a change to the Induction, not to this scene.
+
+## Revision 2026-10-07: the coast-road arrival's place (D067)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R24.** "By the coast road" used to end at the North Shore Town's own centre, which stands 16 m out in the water, so tokens set off from the sea. Its place is now a pin in grid square E1·40, on dry land, where Ingram said to put it. No words changed.

@@ -51,7 +51,7 @@
 
 **Worth avoiding:** the rigged briefcase. See [genya.md](genya.md) §5 — the delivery mechanism is the weakest link in the series' plot. **If a message is incomplete, the reason has to hold up on its own.**
 
-**Where it might attach:** the campaign's founding disaster (`ideas/story/dossier-first-impact.md`) and its redaction machinery (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`) are built for exactly this shape of reveal — an official record that is complete, coherent, internally consistent, and wrong. **This shelf proposes no content for either.**
+**Where it might attach:** the campaign's founding disaster (`quarantine/ideas/story/dossier-first-impact.md`) and its redaction machinery (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`) are built for exactly this shape of reveal — an official record that is complete, coherent, internally consistent, and wrong. **This shelf proposes no content for either.**
 
 ---
 

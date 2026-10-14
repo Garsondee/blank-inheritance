@@ -70,6 +70,7 @@ import { composeStamp, manifestFiles, STAMP_PATH_IN_DATA } from "./build-stamp.m
 import { runPreflight } from "./preflight.mjs";
 import { DEFAULT_VIDEO_FOLDER, EPISODE_TITLE_FOLDER, OPENING_FILES } from "../../module/blank-inheritance/scripts/core/opening-titles.mjs";
 import { checkReversions, pathsFor, sceneEditsForDeploy } from "../scene-edits/edits.mjs";
+import { checkTimelineReversions } from "../story/guard.mjs";
 
 const execFileAsync = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -297,6 +298,21 @@ export async function runDeploy(
     process.exitCode = 1;
     return result;
   }
+  // The same rule for what she set on the plot timeline (tools/story/guard.mjs, design/plot-timeline.md §5).
+  let timeline = [];
+  try {
+    timeline = (deps.checkTimelineReversions ?? checkTimelineReversions)(config.repoRoot);
+  } catch (err) {
+    result.warnings.push(`the timeline's guard couldn't read canon (${err.message}); deploying without it`);
+  }
+  if (timeline.length) {
+    const where = timeline.map((r) => `${r.id} ${r.field}`).join("; ");
+    const error = `canon has gone back to older words than Ingram set on the plot timeline in ${timeline.length} place(s): ${where}. Run \`node tools/story/story.mjs restore\`, then deploy again.`;
+    log(`REFUSED: ${error}`);
+    result.errors.push(error);
+    process.exitCode = 1;
+    return result;
+  }
 
   // 0. Preflight -------------------------------------------------------------
   const moduleDir = path.join(config.repoRoot, "module", "blank-inheritance");
@@ -496,7 +512,19 @@ export async function runDeploy(
  * records this machine's pushes, and the server's own stamp stays the truth.
  */
 async function writeDeployRecord(config, stamp, maps, channels) {
+  const recordPath = config.recordPath ?? RECORD_PATH;
   const video = channels.find((c) => c.name === "video");
+  // A channel this run did not cover (--no-video, a repo without Stagecraft)
+  // keeps what the last record said about it. Writing null instead made every
+  // later offline comparison blind to that channel until a deploy covered it
+  // again -- which the auto-sync watcher, deploying with --no-video for a plain
+  // code edit, would otherwise have done after every save.
+  let previous = null;
+  try {
+    previous = JSON.parse(readFileSync(recordPath, "utf8"));
+  } catch {
+    previous = null;
+  }
   const record = {
     id: stamp.id,
     deployedAt: stamp.deployedAt,
@@ -505,9 +533,10 @@ async function writeDeployRecord(config, stamp, maps, channels) {
     // Size and modification time rather than a hash: the session-start check
     // must stay fast, and re-reading 400 MB of video to notice a re-render
     // would not be.
-    video: video ? Object.fromEntries([...video.sources].map(([p, abs]) => [p, videoFingerprint(abs)])) : null
+    video: video ? Object.fromEntries([...video.sources].map(([p, abs]) => [p, videoFingerprint(abs)])) : previous?.video ?? null,
+    stagecraft: maps.stagecraft ? Object.fromEntries(maps.stagecraft) : previous?.stagecraft ?? null
   };
-  await writeFile(config.recordPath ?? RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`);
+  await writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`);
 }
 
 export function videoFingerprint(absolutePath) {

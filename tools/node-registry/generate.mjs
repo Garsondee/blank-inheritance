@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Node Registry generator. See design/node-registry.md.
 //
-// Scans ideas/story/**/*.md for Node blocks:
+// Scans quarantine/ideas/story/**/*.md for Node blocks:
 //   ### `some-id` — Title
 //   **Status:** open · **Last touched:** 2026-09-19
 //   **Setup:** ...
@@ -166,7 +166,7 @@ function findRefs(dataRoot) {
 // ---------------------------------------------------------------- generate
 
 export function generate() {
-  const mdFiles = walk(path.join(repoRoot, "ideas", "story"), (f) => f.endsWith(".md"));
+  const mdFiles = walk(path.join(repoRoot, "quarantine", "ideas", "story"), (f) => f.endsWith(".md"));
   const mdNodes = mdFiles.flatMap(parseMarkdownNodes);
   // naming-placeholders.json merged into open-questions.json 2026-09-19 (design/node-registry.md
   // §12) -- every naming-gap id now lives there too, same id. It's still loaded here in case it's

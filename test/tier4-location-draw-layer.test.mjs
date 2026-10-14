@@ -675,12 +675,12 @@ describe("what already exists on the map", () => {
     layer.setTool("pick");
     clickPick(layer, point(900, 900)); // opens the hall: selected, with handles
     assert.equal(layer.selectedIds.length, 1);
-    const [buildings, published, shapes, reference, draft, handles, overlay, focus] = layer.children;
+    const [buildings, published, shapes, reference, draft, handles, overlay, journey, focus] = layer.children;
     heard = 0;
     layer.quit();
     assert.deepEqual(layer.selectedIds, [], "nothing is selected");
     assert.equal(handles.children.length, 0, "and no handles are left drawn");
-    for (const container of [buildings, published, shapes, reference, draft, handles, overlay, focus]) assert.equal(container.visible, false, "every container of the editor is hidden");
+    for (const container of [buildings, published, shapes, reference, draft, handles, overlay, journey, focus]) assert.equal(container.visible, false, "every container of the editor is hidden");
     assert.equal(layer.tool, "pick");
     assert.equal(layer.hasEscapableState(), false);
     layer.setTool("pick");
@@ -689,7 +689,7 @@ describe("what already exists on the map", () => {
     layer.deactivate();
     layer.activate();
     await layer.activation;
-    for (const container of [shapes, reference, draft, handles, overlay, focus]) assert.equal(container.visible, true, "reopened: shown again");
+    for (const container of [shapes, reference, draft, handles, overlay, journey, focus]) assert.equal(container.visible, true, "reopened: shown again");
     assert.equal(published.visible, true);
   });
 
@@ -809,6 +809,138 @@ describe("what already exists on the map", () => {
     layer.armAssign({ label: "x", onPick() {}, onCancel: () => cancelled++ });
     layer.deactivate();
     assert.equal(cancelled, 3);
+  });
+
+  test("pin: the next click is handed back as a scene point rounded to a tenth, and ends the wait; empty ground is what it takes", () => {
+    const picks = [];
+    layer.setTool("pick");
+    layer.armPin({ label: "The Road In", onPick: (p) => picks.push(p) });
+    assert.equal(layer.pinArmed, true);
+    assert.equal(layer.hasEscapableState(), true);
+    clickPick(layer, point(9000.04, 9000.26));
+    assert.deepEqual(picks, [{ x: 9000, y: 9000.3 }]);
+    assert.equal(layer.pinArmed, false, "one click ends the wait");
+    assert.equal(Object.keys(layer.getSession().items).length, 0, "and nothing was opened into the session");
+    layer.armPin({ label: "x", onPick: (p) => picks.push(p) });
+    clickPick(layer, point(900, 900)); // on the hall: a pin does not care what is under it
+    assert.deepEqual(picks[1], { x: 900, y: 900 });
+    assert.equal(Object.keys(layer.getSession().items).length, 0, "the hall was not opened");
+  });
+
+  test("pin: a drag pans the map and takes no pin; the wait goes on", async () => {
+    const picks = [];
+    layer.setTool("pick");
+    layer.armPin({ label: "x", onPick: (p) => picks.push(p) });
+    layer._onClickLeft({ interactionData: { origin: point(900, 900) }, shiftKey: false });
+    layer._onDragLeftStart(dragEvent({ origin: point(900, 900), screenOrigin: point(10, 10) }));
+    layer._onDragLeftMove(dragEvent({ origin: point(900, 900), destination: point(950, 950), screenOrigin: point(10, 10), global: point(60, 60) }));
+    await layer._onDragLeftDrop(dragEvent({ origin: point(900, 900), destination: point(950, 950) }));
+    layer._onDragLeftCancel(dragEvent({ origin: point(900, 900) }));
+    globalThis.canvas.stage.emit("pointerup");
+    assert.deepEqual(picks, []);
+    assert.equal(layer.pinArmed, true);
+    assert.equal(panCalls.length, 1, "the map moved");
+  });
+
+  test("pin: while waiting, the cursor is reported (once a frame at most) and no hover outline is drawn", () => {
+    const moves = [];
+    layer.setTool("pick");
+    layer.armPin({ label: "x", onMove: (p) => moves.push(p), onPick() {} });
+    const overlay = layer.children[6];
+    moveHandlers.at(-1)(point(900, 900));
+    moveHandlers.at(-1)(point(910, 910));
+    moveHandlers.at(-1)(point(920, 920));
+    fakeTimers.tick(50);                                  // the harness's requestAnimationFrame is a (fake) timer
+    assert.ok(moves.length >= 1 && moves.length <= 3, `${moves.length} reports for three moves in one frame`);
+    assert.deepEqual(moves.at(-1), { x: 920, y: 920 }, "the latest position wins");
+    assert.equal(overlay.children.length, 0, "no hover outline over the hall: the cursor is the pin");
+    layer.disarmPin();
+    moveHandlers.at(-1)(point(900, 900));
+    assert.equal(overlay.children.length, 2, "an ordinary hover again once the wait is over");
+  });
+
+  test("pin: Escape, another tool, or leaving the editor ends the wait and tells whoever asked", () => {
+    let cancelled = 0;
+    layer.setTool("pick");
+    layer.armPin({ label: "x", onPick() {}, onCancel: () => cancelled++ });
+    assert.equal(layer._onDismissKey(), true);
+    assert.equal(cancelled, 1);
+    assert.equal(layer.pinArmed, false);
+    layer.armPin({ label: "x", onPick() {}, onCancel: () => cancelled++ });
+    layer.setTool("polygon");
+    assert.equal(cancelled, 2);
+    layer.setTool("pick");
+    layer.armPin({ label: "x", onPick() {}, onCancel: () => cancelled++ });
+    layer.deactivate();
+    assert.equal(cancelled, 3);
+    layer.activate();
+    layer.armPin({ label: "x", onPick() {}, onCancel: () => cancelled++ });
+    layer.quit();
+    assert.equal(cancelled, 4);
+    assert.equal(layer.pinArmed, false);
+  });
+
+  test("pin and assign: waiting for one ends the wait for the other", () => {
+    let assignCancelled = 0;
+    let pinCancelled = 0;
+    layer.setTool("pick");
+    layer.armAssign({ label: "x", onPick() {}, onCancel: () => assignCancelled++ });
+    layer.armPin({ label: "y", onPick() {}, onCancel: () => pinCancelled++ });
+    assert.equal(assignCancelled, 1);
+    assert.equal(layer.assignArmed, false);
+    assert.equal(layer.pinArmed, true);
+    layer.armAssign({ label: "x", onPick() {}, onCancel: () => assignCancelled++ });
+    assert.equal(layer.pinArmed, true, "a pick for a place does not end a pin wait");
+    layer.armPin({ label: "z", onPick() {}, onCancel: () => pinCancelled++ });
+    assert.equal(pinCancelled, 1, "a new pin wait replaces the old");
+    assert.equal(layer.assignArmed, false);
+  });
+
+  test("journeys: the overlay is made on first use, drawn in a passive container between the hover outline and the focus highlight, and calibrated to the hub", async () => {
+    globalThis.canvas.app.ticker = { deltaMS: 16, add() {}, remove() {} };
+    const [, , , , , , , container, focusContainer] = layer.children;
+    assert.equal(container.eventMode, "none", "the routes take no part in hit-testing");
+    assert.equal(focusContainer, layer.children.at(-1), "the focus highlight is still the last thing drawn");
+    assert.deepEqual(layer.calibration, { originX: 0, originY: 0, scale: 2 }, "the hub's own calibration, loaded with the existing locations");
+    const overlay = layer.journey;
+    assert.equal(layer.journey, overlay, "one overlay for the layer's life");
+    assert.equal(container.children.filter((c) => c instanceof Graphics).length, 6);
+    overlay.setJourneys({
+      legs: [{ id: "a", kind: "cut", label: "a", runs: [{ mode: "car", points: [{ x: 100, y: 100 }, { x: 400, y: 300 }] }], worst: null }],
+      stops: [{ n: 1, point: { x: 100, y: 100 }, title: "One" }]
+    });
+    const [, routes, , , stopsLayer] = container.children;
+    assert.ok(routes.lines.length > 0, "the route is drawn");
+    assert.deepEqual([stopsLayer.circles[0].x, stopsLayer.circles[0].y], [200, 200], "image px (100,100) is scene px (200,200) on this hub");
+    assert.equal(stopsLayer.circles[0].r, 11 / 0.1, "screen pixels at this zoom");
+  });
+
+  test("journeys: a zoom redraws them at the new size with everything else, and quitting takes them off the canvas", async () => {
+    globalThis.canvas.app.ticker = { deltaMS: 16, add() {}, remove() {} };
+    const overlay = layer.journey;
+    overlay.setJourneys({ legs: [{ id: "a", kind: "cut", label: "a", runs: [{ mode: "car", points: [{ x: 100, y: 100 }, { x: 400, y: 300 }] }], worst: null }], stops: [] });
+    const container = layer.children[7];
+    const widthBefore = container.children[1].lines.find((l) => l.alpha > 0).width;
+    globalThis.canvas.stage.scale.x = 0.2;
+    layer.onViewChange(0.2);
+    fakeTimers.tick(500);
+    const widthAfter = container.children[1].lines.find((l) => l.alpha > 0).width;
+    assert.equal(widthAfter, widthBefore / 2, "a screen weight at twice the zoom is half the scene pixels");
+    layer.quit();
+    assert.equal(container.visible, false);
+    assert.equal(container.children[1].lines.length, 0, "no route is left drawn");
+  });
+
+  test("journeys: a scene redraw gives the overlay its new container, and a teardown releases the old one", async () => {
+    globalThis.canvas.app.ticker = { deltaMS: 16, add() {}, remove() {} };
+    const overlay = layer.journey;
+    const first = layer.children[7];
+    await layer._tearDown({});
+    assert.doesNotThrow(() => overlay.setJourneys({ legs: [], stops: [] }), "the overlay was let go of before Foundry destroyed its container");
+    await layer._draw({});
+    const second = layer.children[7];
+    assert.notEqual(second, first);
+    assert.equal(second.children.filter((c) => c instanceof Graphics).length, 6, "fresh layers in the new container");
   });
 
   test("focus: outlines one location, labels it and brings the camera; an unknown one clears it", () => {

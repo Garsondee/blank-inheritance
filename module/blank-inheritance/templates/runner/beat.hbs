@@ -1,17 +1,18 @@
 {{!--
     One line of the running order.
 
-    FOLDED (every beat but the one being run): the tick, the instruction, and
-    a row of chips saying what the beat involves — who it is about, the DC,
-    a fight, a handout, notes already written, and what was recorded. That is
+    FOLDED (every beat but the one being run): the tick, the instruction (with
+    its check's pill in it), and a row of chips saying what the beat involves:
+    who it is about, a fight, a handout, notes already written, and what was
+    recorded. That is
     Ingram's 2026-09-09 shape, "one actionable line per beat, detail peekable
     underneath", which the panel before 2026-09-24 never actually delivered:
     it printed every beat in full.
 
     OPEN (the beat being run, the one just resolved, or any the GM opens):
     the read-aloud, the direction, the note, a choice, the fight, and the
-    check — each degree of success WITH its authored consequence, pressed to
-    record it — then who has rolled it and the notes written against it.
+    notes written against it. A check is the pill in the beat's own line
+    (2026-10-05), which opens the check console.
 
     The row is a role="button" div, not a <button>, because it holds real
     buttons of its own (the tick, inline trigger chips) that a <button> may
@@ -52,7 +53,6 @@
         <div class="bi-runner__beat-chips">
             {{#if recorded}}<span class="bi-runner__chip bi-runner__chip--recorded" data-degree="{{recordedDegree}}" data-tooltip="{{recorded}}">{{recorded}}</span>{{/if}}
             {{#if npcName}}<span class="bi-runner__chip bi-runner__chip--npc">{{npcName}}</span>{{/if}}
-            {{#if check}}<span class="bi-runner__chip bi-runner__chip--check" data-tooltip="{{check.name}} — {{check.label}}{{#if check.secret}} · {{localize 'BLANKINHERITANCE.Runner.BlindHint'}}{{/if}}"><i class="fa-solid fa-dice-d20"></i> {{#if check.dc}}{{check.dc}}{{else}}{{localize "BLANKINHERITANCE.Runner.Check"}}{{/if}}{{#if check.secret}} <i class="fa-solid fa-eye-slash" aria-label="{{localize 'BLANKINHERITANCE.Runner.Blind'}}"></i>{{/if}}</span>{{/if}}
             {{#if encounter}}<span class="bi-runner__chip bi-runner__chip--fight"><i class="fa-solid fa-burst"></i> {{localize "BLANKINHERITANCE.Runner.Fight"}}</span>{{/if}}
             {{#if handout}}<span class="bi-runner__chip"><i class="fa-regular fa-file-lines"></i> {{localize "BLANKINHERITANCE.Runner.Handout"}}</span>{{/if}}
             {{#if noteCount}}<span class="bi-runner__chip" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.NotesHere'}}"><i class="fa-solid fa-pen"></i> {{noteCount}}</span>{{/if}}
@@ -178,89 +178,10 @@
         </div>
         {{/if}}
 
-        {{#if check}}
-        <div class="bi-runner__checkbox{{#if isInsight}} bi-runner__checkbox--insight{{/if}}">
-            <div class="bi-runner__check-head">
-                <span class="bi-runner__check-name" title="{{check.title}}">{{check.name}}</span>
-                <span class="bi-runner__check-skills">{{check.skills}}{{#if check.dc}} · DC {{check.dc}}{{/if}}</span>
-                {{!-- Posted blind (sf2e's secret trait): the player sees no
-                      number, only the GM does. Said here so a player asking
-                      "what did I get?" is expected, not a bug. --}}
-                {{#if check.secret}}<span class="bi-runner__tag bi-runner__tag--blind" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.BlindHint'}}"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.Runner.Blind"}}</span>{{/if}}
-                <button type="button" class="bi-runner__stamp{{#if isInsight}} bi-runner__stamp--insight{{/if}}" data-action="postCheck"
-                    data-beat-id="{{id}}" title="{{check.title}}"><i class="fa-solid fa-dice-d20"></i> {{localize "BLANKINHERITANCE.Runner.PostCheck"}}</button>
-            </div>
-            {{!-- Recording WHICH degree it came out at, not just that it
-                  happened. A plain tick cannot open a degree-gated branch,
-                  which is most of what branching is for — found live, the
-                  first time a fork was clicked at. Each degree shows what it
-                  MEANS, so the GM reads the consequence and records it in the
-                  same place, in one press. --}}
-            <div class="bi-runner__outcomes">
-                {{#each outcomes}}
-                <button type="button" class="bi-runner__outcome{{#if isPicked}} bi-runner__outcome--picked{{/if}}{{#if isOther}} bi-runner__outcome--other{{/if}}"
-                    data-action="recordOutcome" data-beat-id="{{../id}}" data-degree="{{degree}}" aria-pressed="{{isPicked}}">
-                    <span class="bi-runner__outcome-label" data-degree="{{degree}}">{{label}}</span>
-                    {{#if consequence}}<span class="bi-runner__outcome-text">{{consequence}}</span>{{/if}}
-                </button>
-                {{/each}}
-            </div>
-            {{!-- A beat every player rolls in turn (2026-10-04): each one's
-                  own result beside their name, filled by their roll or one
-                  press here, and kept for the scenes after that name them
-                  (core/runner-party.mjs). --}}
-            {{#if perPlayer.length}}
-            <ul class="bi-runner__per-player">
-                {{#each perPlayer}}
-                <li class="bi-runner__per-player-row">
-                    <span class="bi-runner__per-player-name">{{name}}</span>
-                    {{#each degrees}}
-                    <button type="button" class="bi-runner__per-player-degree{{#if isPicked}} bi-runner__per-player-degree--picked{{/if}}" data-degree="{{degree}}"
-                        data-action="recordPlayerResult" data-beat-id="{{../../id}}" data-actor-id="{{../actorId}}" aria-pressed="{{isPicked}}"
-                        data-tooltip="{{label}}" aria-label="{{../name}}: {{label}}">{{short}}</button>
-                    {{/each}}
-                </li>
-                {{/each}}
-            </ul>
-            {{/if}}
-            {{!-- Who has rolled it, read back out of the chat log. The first
-                  result recorded itself; any other can be used instead with
-                  one press (foundry/scene-runner.mjs#recordRollResult). --}}
-            {{#if rolls.length}}
-            <ul class="bi-runner__rolls">
-                {{#each rolls}}
-                <li class="bi-runner__roll{{#if isRecorded}} bi-runner__roll--recorded{{/if}}">
-                    <span class="bi-runner__roll-who">{{#if name}}{{name}}{{else}}?{{/if}}</span>
-                    <span class="bi-runner__roll-degree" data-degree="{{degree}}">{{label}}</span>
-                    {{#if total}}<span class="bi-runner__roll-total">{{total}}</span>{{/if}}
-                    {{#if isRecorded}}<span class="bi-runner__roll-used">{{localize "BLANKINHERITANCE.Runner.RollUsed"}}</span>{{else}}<button type="button" class="bi-runner__linkbtn" data-action="useRoll" data-message-id="{{messageId}}">{{localize "BLANKINHERITANCE.Runner.UseRoll"}}</button>{{/if}}
-                </li>
-                {{/each}}
-            </ul>
-            {{/if}}
-            {{#if check.bySkill}}
-            {{!-- A different skill gets a genuinely different fictional
-                  result -- design/ux-doctrine.md's own "multiple named
-                  actions, each with its own consequence" ambition, made
-                  concrete rather than left as a same-outcome flavour pick.
-                  Read this BEFORE the roll lands, not after. --}}
-            <ul class="bi-runner__by-skill">
-                {{#each check.bySkill}}
-                <li><b class="bi-runner__by-skill-name">{{this.skill}}</b> {{this.text}}</li>
-                {{/each}}
-            </ul>
-            {{/if}}
-            {{#if check.tally}}
-            {{!-- How many times each degree has actually landed, across
-                  every attempt ever logged -- run state itself only ever
-                  keeps the latest, so this is the only place this history
-                  is visible. Requested 2026-09-19. --}}
-            <p class="bi-runner__tally">
-                {{#each check.tally}}<span class="bi-runner__tally-item{{#if this.count}} bi-runner__tally-item--hit{{/if}}">{{this.label}} {{this.count}}</span>{{/each}}
-            </p>
-            {{/if}}
-        </div>
-        {{/if}}
+        {{!-- The check is no longer a card here (2026-10-05): it is the pill in
+              the beat's own line (core/check-pill.mjs), and pressing it opens
+              the check console (foundry/check-console.mjs), where the DC, the
+              ways, each player's gem and what each degree means now live. --}}
 
         {{!-- A solo beat's button must call the solo action. It used to share
               revealHandout and only change its LABEL, so "Show one player"

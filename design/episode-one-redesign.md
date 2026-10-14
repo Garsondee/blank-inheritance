@@ -10,7 +10,7 @@ in `/goal` mode the same day with a dense set of scene-by-scene notes.*
 new: The Tram Back, The Walk Down, and the previously-unwritten Flood Tunnel Clearance; the count has
 grown since, and the scene-brief files are the current list), wired into
 `data/episodes/episode-c1e1-mothers-maiden-name.json`, and backed by real new canon
-(`ideas/story/dossier-second-generation-frames.md`, `bible/LEDGER.md` #20). This document is now the
+(`quarantine/ideas/story/dossier-second-generation-frames.md`, `bible/LEDGER.md` #20). This document is now the
 **design record** of what changed and why — read the real scene-brief files for what a GM actually
 runs at the table; read this for the reasoning behind each change. Sections below are left as
 originally written where the real files still match them, and annotated where Ingram's review changed

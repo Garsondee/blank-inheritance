@@ -32,7 +32,9 @@ the scene says. The statblocks are derived: change the roster, not the files.
   Perception, skills, AC, saves, HP, Speed and, for someone built to fight, one plain strike. (Nothing about spells, `nonCombatLevel` or
   abilities reaches the Actor today: `combat-statblock.mjs` does not map them.)
 - A skill is at the combat level, or at the non-combat level where the roster says so (GM Core, Non-Combat Level).
-- Nothing is above `drafted` (`assertNotPromotedStatus`); names, ancestry, descriptions and social profiles are never touched.
+- Nothing is above `drafted` (`assertNotPromotedStatus`); names, ancestry, canon links and social profiles are never touched. (An NPC file has
+  no `description` any more: its story prose was retired on 2026-10-07, D080, and the text on an Actor's sheet is generated from canon by
+  `tools/story/actor-notes.mjs`. A new foe's file from a roster `stub` says where the person comes from in its `designNotes`.)
 - **The DCs the scenes already told the GM stay true:** Vetch Perception 19 / Will 19 / Deception 19, the Deputy Director 26 / 29 / 26, Shucks
   39 / 36 / 37, Taka and Nobu 18 / 18 / 17 are what the roster generates (a test holds them). Shucks is level 15 with the founders (D047).
 

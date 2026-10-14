@@ -34,7 +34,11 @@ async function fetchEvery(fresh) {
       const id = ids[next++];
       try {
         const doc = await fetchModuleJson(`${LOCATIONS_DIR}/${id}.json`, { fresh });
-        if (doc && typeof doc.id === "string") index[doc.id] = { id: doc.id, name: doc.name ?? doc.id, tier: doc.tier ?? null, kind: doc.kind ?? "" };
+        if (doc && typeof doc.id === "string") index[doc.id] = {
+          id: doc.id, name: doc.name ?? doc.id, tier: doc.tier ?? null, kind: doc.kind ?? "",
+          // where a token stands for this place: the point the travel router is given (foundry/travel.mjs#locationCentroid reads the same field)
+          centroidPx: Array.isArray(doc.derived?.centroidPx) && doc.derived.centroidPx.length === 2 ? [Number(doc.derived.centroidPx[0]), Number(doc.derived.centroidPx[1])] : null
+        };
         const shape = publishedShapeFromDoc(doc);
         if (shape) shapes.push(shape);
         else failed.push(id);
@@ -81,5 +85,5 @@ export async function loadPublishedInScene({ refresh = false } = {}) {
   const [loaded, hub] = await Promise.all([loadPublishedShapes({ refresh }), hubCalibration()]);
   if (!hub) return null;
   const toScene = (p) => toScenePoint(p, hub.calibration);
-  return { sceneId: hub.sceneId, shapes: loaded.shapes.map((s) => shapeToScene(s, toScene)), failed: loaded.failed };
+  return { sceneId: hub.sceneId, calibration: hub.calibration, shapes: loaded.shapes.map((s) => shapeToScene(s, toScene)), failed: loaded.failed };
 }

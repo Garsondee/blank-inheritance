@@ -37,9 +37,9 @@ Translated directly onto this campaign's own structure:
 | Fronts vocabulary | This campaign's equivalent |
 |---|---|
 | Front | The Watcher's whole arc |
-| Impulse | Observe, multiply and expand (`ideas/story/bible/LEDGER.md` #31) |
+| Impulse | Observe, multiply and expand (`quarantine/ideas/story/bible/LEDGER.md` #31) |
 | Danger / grim portent | Each comprehension rung (v4 bible §15's table: what exists → what moves is alive → Frames matter → …) |
-| Impending doom | The runaway — its children feed it, and it no longer needs any human, Manako included, to supply it (`ideas/story/dossier-observer.md` §16) |
+| Impending doom | The runaway — its children feed it, and it no longer needs any human, Manako included, to supply it (`quarantine/ideas/story/dossier-observer.md` §16) |
 | Progress clock | The Mass Clock (§15) — explicitly "not a timer… advanced by what happens rather than by how many sessions pass" |
 
 This translation is worth having for one specific, practical reason: the fronts literature has hard-won, specific guidance about **how many fronts a campaign can carry at once** — roughly three is the usual working ceiling before a table can't hold the threats in mind, and the v4 bible's own **Known Risk #1** ("Six players, twelve sheets, six threads, three flashback layers, a side-plot engine, a procedural Contact system, a dossier metagame, and an AI antagonist reading logs… the apparatus collapsing under its own weight") is independently naming the same ceiling from the other direction. The fronts tradition's specific fix for "too many fronts" is worth knowing precisely because it's already the fix Known Risk #1 gestures at without naming it: **not every thread needs equal weight in every chapter.** The Thread Grid already does this (School is "live in every chapter" by explicit design choice, while Founders appears mainly as flashbacks at specific points) — the fronts framing just gives a name to *why* uneven weighting across sessions is the correct answer rather than a compromise: a table can track six fronts total across a campaign far more easily than it can track six fronts all advancing in every single session.
@@ -92,4 +92,4 @@ Standard, low-overhead practice for material at this weight, worth having explic
 
 *Related within this reference series: [agency-and-player-choice.md](agency-and-player-choice.md) §1 (the four families of narrative-paradox solution, of which §6 above is family one done honestly), [quests-objectives-and-threads.md](quests-objectives-and-threads.md) (individual mission/Contact design, one level down from the campaign-scale craft here), [pacing-and-the-responsive-campaign.md](pacing-and-the-responsive-campaign.md) (session-to-session rhythm, building on this document's fronts/clocks material).*
 
-*Related in this project: `ideas/story/blank-inheritance-v4.md` §15 (the Escalation Curve and Mass Clock, translated in §4 above), §17 (the Thread Grid, §2 above), §20 (Bifurcation Points, §6 above), §21 (the Peril Roster, §5 above), §22 (Known Risks, §4 above); `session-flow-and-overworld.md` (the open question §8 speaks to); the design bible's Time Economy table (§9 above).*
+*Related in this project: `quarantine/ideas/story/blank-inheritance-v4.md` §15 (the Escalation Curve and Mass Clock, translated in §4 above), §17 (the Thread Grid, §2 above), §20 (Bifurcation Points, §6 above), §21 (the Peril Roster, §5 above), §22 (Known Risks, §4 above); `session-flow-and-overworld.md` (the open question §8 speaks to); the design bible's Time Economy table (§9 above).*

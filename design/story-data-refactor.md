@@ -36,7 +36,7 @@ together.
 Everything here was measured on 2026-09-27, after seven rounds of editing the Casebook (LEDGER #40 to #46).
 
 **One fact lives in many places.**
-- The story is about 1 MB of prose in 31 documents under `ideas/story/`, plus 331 data files that carry GM notes.
+- The story is about 1 MB of prose in 31 documents under `quarantine/ideas/story/`, plus 331 data files that carry GM notes.
 - One subject, many retellings: Manako is written about in 55 files, the tea house in 30, Rand in 25, Inert 12 in 11.
 - About 140 dated correction notes ("Superseded…", "Rewritten…") are layered into the lore and data, and nearly
   280 "proposal" and "canon" labels are written into the prose itself.
@@ -62,7 +62,7 @@ material all read the same.
 **The files read at the start of every conversation are stale too.** `CLAUDE.md` (71 KB) and the memory index
 (19 KB) both retell story facts. `CLAUDE.md` still says Episode Two is a stub with one scene; it has fifteen.
 
-**The lore never reaches Foundry.** The bible, the dossiers and the LEDGER live in `ideas/story/`, which the
+**The lore never reaches Foundry.** The bible, the dossiers and the LEDGER live in `quarantine/ideas/story/`, which the
 deploy doesn't send. Ingram set the finish line for the data-fragmentation crisis on 2026-09-13: one structured
 store, uploaded to Foundry and usable inside it. We're not there.
 

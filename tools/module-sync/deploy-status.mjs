@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 
 import { hashSources, listSources } from "./local-hash.mjs";
 import { campaignDataSources } from "./stage-campaign-data.mjs";
-import { isLocalOnlyModulePath, RECORD_PATH, REPO_ROOT, videoFingerprint, videoSources } from "./deploy.mjs";
+import { isLocalOnlyModulePath, RECORD_PATH, REPO_ROOT, stagecraftSources, videoFingerprint, videoSources } from "./deploy.mjs";
 
 /**
  * The working tree in the same shape deploy.mjs records: content hashes for
@@ -32,7 +32,11 @@ export async function currentLocalState(repoRoot = REPO_ROOT) {
   return {
     module: await hashSources(await listSources(moduleDir, { skip: isLocalOnlyModulePath })),
     data: await hashSources(await campaignDataSources(path.join(repoRoot, "data"))),
-    video
+    video,
+    // Added 2026-10-07 with the auto-sync watcher: a Stagecraft edit is a
+    // reason to deploy like any other, and the watcher decides by this offline
+    // comparison, so the record has to cover it.
+    stagecraft: await hashSources(await stagecraftSources(repoRoot))
   };
 }
 
@@ -44,7 +48,7 @@ export function compareToRecord(record, current) {
   const changed = [];
   const added = [];
   const removed = [];
-  for (const channel of ["module", "data", "video"]) {
+  for (const channel of ["module", "data", "video", "stagecraft"]) {
     const was = record?.[channel];
     const now = current[channel];
     if (!was || !now) continue; // a channel this record never covered cannot be compared
@@ -68,7 +72,7 @@ export function statusLine(record, diff) {
   if (diff.added.length) parts.push(`${diff.added.length} new`);
   if (diff.removed.length) parts.push(`${diff.removed.length} deleted`);
   const examples = [...diff.changed, ...diff.added, ...diff.removed].slice(0, 3).join(", ");
-  return `Foundry server is BEHIND this working tree: ${parts.join(", ")} since the last deploy (${when} UTC), e.g. ${examples}. Run \`npm run deploy\` before calling work done.`;
+  return `Foundry server is BEHIND this working tree: ${parts.join(", ")} since the last deploy (${when} UTC), e.g. ${examples}. The auto-sync watcher pushes it once edits settle (\`npm run autosync -- status\`); \`npm run deploy\` forces it now.`;
 }
 
 export function readRecord(recordPath = RECORD_PATH) {

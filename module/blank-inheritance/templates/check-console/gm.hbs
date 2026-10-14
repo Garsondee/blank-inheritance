@@ -1,0 +1,191 @@
+{{!--
+    The check console, the GM's side (foundry/check-console.mjs#CheckConsoleWindow), opened from a check's pill in
+    the Scene Runner's prose, the Runner's Check key, the deck's Ask keys or the Palette. Ingram, 2026-10-05: "we can
+    use it to alter the DC, change the skills that could be asked for, create new random rolls up on the fly", and,
+    the same day, the second round (D062).
+
+    Built from the deck's own hardware, top to bottom:
+      the head      an engraved legend, the check's name on a screen, a purple Blind tag while it is rolled blind,
+                    how many have rolled;
+      the bank      the DC on the knob, its printed scale banded by how hard each DC is for the party's level, and one
+                    screen with the DC and how hard it is; beside them a black cell of the WAYS it can be met (pill
+                    keys, on or off), a dropdown that adds any other, and two lit two-way switches: Open or Blind, and
+                    the DC shown to the players or hidden;
+      the results   what each degree gives, per way (tabs, when the check has results of its own for its ways), best
+                    first, who it landed on, how often before; for a scene's check, the key that records a degree as
+                    the outcome;
+      the keys      ask again, post to chat, and close (which records it);
+      the lights    along the bottom, six tall lights, one per player, lit by their result: red a critical failure,
+                    orange a failure, blue a success, green a critical success; purple on the players' screens for a
+                    blind roll. Under each, who it is, what they rolled, four keys to set a result by hand, and
+                    whether they are asked.
+
+    Modifier classes are literal words inside {{#if}} blocks, never a built `--{{x}}` (tier0-architecture's lint).
+    Must render exactly ONE top-level element.
+--}}
+<div class="bi-check bi-check--gm">
+    {{#if session}}
+    <header class="bi-check__head">
+        <span class="bi-deck__grille bi-deck__grille--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="bi-deck__engraved">{{localize "BLANKINHERITANCE.CheckConsole.Legend"}}</span>
+        <span class="bi-deck__screen bi-check__title" title="{{title}}">{{title}}</span>
+        {{#if session.blind}}<span class="bi-check__blind-tag" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.BlindHint'}}"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.CheckConsole.Blind"}}</span>{{/if}}
+        <span class="bi-deck__chip bi-check__count{{#if allIn}} is-done{{/if}}"><em>{{localize "BLANKINHERITANCE.CheckConsole.In"}}</em><b>{{progress}}</b></span>
+    </header>
+
+    <div class="bi-check__bank">
+        <section class="bi-check__dial">
+            <span class="bi-deck__engraved bi-check__engraved">{{localize "BLANKINHERITANCE.CheckConsole.Dc"}}{{#if dial.forWay}} · {{dial.forWay}}{{/if}}</span>
+            <div class="bi-check__knob" data-bi-wheel="dc" data-bi-drag="dc">
+                <svg class="bi-check__scale" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    {{#each dial.bands}}<path class="bi-check__band" data-difficulty="{{this.key}}" d="{{this.d}}"></path>{{/each}}
+                    {{#if dial.notch}}<line class="bi-check__notch" x1="{{dial.notch.x1}}" y1="{{dial.notch.y1}}" x2="{{dial.notch.x2}}" y2="{{dial.notch.y2}}"></line>{{/if}}
+                    {{#each dial.ticks}}<line class="bi-check__tick{{#if this.major}} is-major{{/if}}{{#if this.active}} is-active{{/if}}" x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}"></line>{{/each}}
+                    {{#each dial.numerals}}<text class="bi-check__numeral{{#if this.active}} is-active{{/if}}" x="{{this.x}}" y="{{this.y}}" text-anchor="middle" dominant-baseline="central">{{this.text}}</text>{{/each}}
+                </svg>
+                <button type="button" class="bi-knob bi-check__dc-knob" style="--frame: {{dial.frame}}"
+                    data-action="stepDc" data-bi-wheel="dc" aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.DcKnob'}}"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.DcKnobHint'}}"></button>
+            </div>
+            <span class="bi-deck__screen bi-check__readout"{{#if dial.difficulty}} data-difficulty="{{dial.difficulty.key}}"{{/if}} aria-live="polite"
+                data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.DifficultyHint'}}">
+                <span class="bi-check__lcd">{{dial.lcd}}</span>
+                {{#if dial.difficulty}}
+                <span class="bi-check__difficulty"><b>{{dial.difficulty.label}}</b><small>{{dial.difficulty.delta}} · {{localize "BLANKINHERITANCE.CheckConsole.LevelShort"}} {{level}}</small></span>
+                {{/if}}
+            </span>
+            {{#if dial.changed}}
+            <button type="button" class="bi-deck-map bi-deck-map--wide bi-check__reset" data-action="resetDc"
+                data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.ResetHint'}}"><span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.CheckConsole.Reset"}} {{dial.authored}}</span></button>
+            {{/if}}
+        </section>
+
+        <section class="bi-deck__cell bi-check__ways">
+            <span class="bi-deck__legend bi-check__legend">{{localize "BLANKINHERITANCE.CheckConsole.Ways"}}</span>
+            {{#if noWays}}<p class="bi-check__empty">{{localize "BLANKINHERITANCE.CheckConsole.NoWays"}}</p>{{/if}}
+            <div class="bi-check__pills">
+                {{#each ways}}
+                <span class="bi-deck-pill{{#if this.on}} is-on{{/if}}{{#if this.focus}} is-focus{{/if}}">
+                    {{#if this.on}}
+                    <button type="button" class="bi-deck-pill__cap bi-check__cap{{#if this.own}} is-own{{/if}}{{#if this.focus}} is-focus{{/if}}" data-action="focusWay" data-slug="{{this.slug}}"
+                        aria-pressed="{{this.focus}}" aria-label="{{this.label}}: {{localize 'BLANKINHERITANCE.CheckConsole.Dc'}} {{this.dc}}"
+                        data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.WayDcHint'}}"><span class="bi-check__cap-dc">{{this.dc}}</span></button>
+                    {{else}}
+                    <button type="button" class="bi-deck-pill__cap bi-check__cap" data-action="toggleWay" data-slug="{{this.slug}}" aria-pressed="false"
+                        aria-label="{{this.label}}"><span class="bi-check__cap-dc">{{this.dc}}</span></button>
+                    {{/if}}
+                    <span class="bi-deck-pill__label">{{this.label}}</span>
+                    {{#if this.on}}{{#unless this.locked}}<button type="button" class="bi-check__remove" data-action="toggleWay" data-slug="{{this.slug}}"
+                        aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.RemoveWay'}}: {{this.label}}"
+                        data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.RemoveWay'}}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>{{/unless}}{{/if}}
+                </span>
+                {{/each}}
+            </div>
+            {{#if addGroups.length}}
+            <label class="bi-check__add">
+                <span class="bi-check__add-label">{{localize "BLANKINHERITANCE.CheckConsole.Add"}}</span>
+                <select class="bi-check__select" data-bi-add-way aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.AddWay'}}">
+                    <option value="">{{localize "BLANKINHERITANCE.CheckConsole.AddWay"}}</option>
+                    {{#each addGroups}}
+                    <optgroup label="{{this.label}}">
+                        {{#each this.options}}<option value="{{this.slug}}">{{this.label}}</option>{{/each}}
+                    </optgroup>
+                    {{/each}}
+                </select>
+            </label>
+            {{/if}}
+            <div class="bi-check__switches">
+                <span class="bi-check__switch-label">{{localize "BLANKINHERITANCE.CheckConsole.RollLegend"}}</span>
+                <div class="bi-check__switch" role="group" aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.RollLegend'}}">
+                    <button type="button" class="bi-check__seg{{#unless session.blind}} is-on{{/unless}}" data-action="setBlind" data-value="0"
+                        aria-pressed="{{#if session.blind}}false{{else}}true{{/if}}" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.OpenHint'}}">
+                        <i class="bi-check__lamp" aria-hidden="true"></i><i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.CheckConsole.Open"}}</button>
+                    <button type="button" class="bi-check__seg bi-check__seg--blind{{#if session.blind}} is-on{{/if}}" data-action="setBlind" data-value="1"
+                        aria-pressed="{{#if session.blind}}true{{else}}false{{/if}}" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.BlindHint'}}">
+                        <i class="bi-check__lamp" aria-hidden="true"></i><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.CheckConsole.Blind"}}</button>
+                </div>
+                <span class="bi-check__switch-label">{{localize "BLANKINHERITANCE.CheckConsole.DcLegend"}}</span>
+                <div class="bi-check__switch" role="group" aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.DcLegend'}}">
+                    <button type="button" class="bi-check__seg{{#if session.showDc}}{{#unless session.blind}} is-on{{/unless}}{{/if}}" data-action="setShowDc" data-value="1"
+                        {{#if session.blind}}disabled{{/if}} aria-pressed="{{#if session.blind}}false{{else}}{{#if session.showDc}}true{{else}}false{{/if}}{{/if}}" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.ShowDcHint'}}">
+                        <i class="bi-check__lamp" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.CheckConsole.DcShown"}}</button>
+                    <button type="button" class="bi-check__seg{{#if session.blind}} is-on{{else}}{{#unless session.showDc}} is-on{{/unless}}{{/if}}" data-action="setShowDc" data-value="0"
+                        {{#if session.blind}}disabled{{/if}} aria-pressed="{{#if session.blind}}true{{else}}{{#if session.showDc}}false{{else}}true{{/if}}{{/if}}" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.HideDcHint'}}">
+                        <i class="bi-check__lamp" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.CheckConsole.DcHidden"}}</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="bi-deck__cell bi-check__results">
+        <span class="bi-deck__legend bi-check__legend">{{localize "BLANKINHERITANCE.CheckConsole.Results"}}</span>
+        {{#if results.tabs.length}}
+        <div class="bi-check__tabs" role="tablist" aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.Ways'}}">
+            {{#each results.tabs}}
+            <button type="button" class="bi-check__tab{{#if this.on}} is-on{{/if}}" role="tab" aria-selected="{{this.on}}"
+                data-action="showResults" data-slug="{{this.slug}}">{{this.label}}</button>
+            {{/each}}
+        </div>
+        {{/if}}
+        {{#if results.note}}<p class="bi-check__note"><b>{{results.noteWay}}</b> {{results.note}}</p>{{/if}}
+        <ul class="bi-check__outcomes">
+            {{#each results.rows}}
+            <li class="bi-check__outcome{{#if this.hit}} is-hit{{/if}}{{#if this.isRecorded}} is-recorded{{/if}}" data-degree="{{this.degree}}">
+                {{#if ../canMark}}
+                <button type="button" class="bi-check__mark" data-action="markOutcome" data-degree="{{this.degree}}" aria-pressed="{{this.isRecorded}}"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.MarkHint'}}">
+                    <i class="bi-led-mini" data-state="{{this.degree}}" aria-hidden="true"></i><span class="bi-check__outcome-label">{{this.label}}</span>
+                </button>
+                {{else}}
+                <span class="bi-check__mark"><i class="bi-led-mini" data-state="{{this.degree}}" aria-hidden="true"></i><span class="bi-check__outcome-label">{{this.label}}</span></span>
+                {{/if}}
+                <span class="bi-check__outcome-text">{{#if this.text}}{{this.text}}{{else}}—{{/if}}{{#if this.shared}} <em class="bi-check__shared">{{localize "BLANKINHERITANCE.CheckConsole.SameForEvery"}}</em>{{/if}}{{#if this.tally}} <span class="bi-check__tally" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.TallyHint'}}">×{{this.tally}}</span>{{/if}}</span>
+                {{#if this.whoText}}<span class="bi-check__outcome-who"><i class="fa-solid fa-user-group" aria-hidden="true"></i> {{this.whoText}}</span>{{/if}}
+            </li>
+            {{/each}}
+        </ul>
+    </section>
+
+    <footer class="bi-check__keys">
+        <button type="button" class="bi-deck-map bi-deck-map--wide" data-action="askAgain" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.AskAgainHint'}}">
+            <span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.CheckConsole.AskAgain"}}</span></button>
+        <button type="button" class="bi-deck-map bi-deck-map--wide" data-action="postToChat" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.PostHint'}}">
+            <span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.CheckConsole.Post"}}</span></button>
+        <button type="button" class="bi-check__go" data-action="closeCheck" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.CloseHint'}}">
+            <i class="bi-deck__jewel{{#if allIn}} is-lit{{/if}}" aria-hidden="true"></i>{{localize "BLANKINHERITANCE.CheckConsole.Close"}}</button>
+    </footer>
+
+    <section class="bi-check__lights" aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.Lights'}}">
+        <ol class="bi-leds">
+            {{#each bank}}
+            {{#if this.empty}}
+            <li class="bi-leds__slot is-empty"><span class="bi-led" data-state="off" aria-hidden="true"><i class="bi-led__flare"></i></span></li>
+            {{else}}
+            <li class="bi-leds__slot{{#unless this.asked}} is-unasked{{/unless}}" data-user-id="{{this.userId}}">
+                <span class="bi-led" data-state="{{#if this.asked}}{{this.state}}{{else}}off{{/if}}"{{#if this.fresh}} data-fresh{{/if}}{{#if this.hidden}} data-hidden{{/if}} role="img"
+                    aria-label="{{this.name}}{{#if this.degreeLabel}}: {{this.degreeLabel}}{{/if}}"><i class="bi-led__flare" aria-hidden="true"></i>{{#if this.hidden}}<i class="bi-led__tag">{{localize "BLANKINHERITANCE.CheckConsole.Hidden"}}</i>{{/if}}</span>
+                <span class="bi-leds__name" title="{{this.name}}">{{this.name}}</span>
+                <span class="bi-leds__how">{{#if this.degreeLabel}}<b data-degree="{{this.degree}}">{{this.degreeLabel}}</b>{{/if}}{{#if this.how}} {{this.how}}{{/if}}{{#if this.byHand}} <i class="fa-solid fa-hand" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.ByHand'}}"></i>{{/if}}</span>
+                <span class="bi-leds__set">
+                    {{#each this.degrees}}
+                    <button type="button" class="bi-deck-map{{#if this.on}} is-on{{/if}}" data-action="setResult" data-user-id="{{../userId}}" data-degree="{{this.degree}}"
+                        aria-pressed="{{this.on}}" aria-label="{{../name}}: {{this.label}}" data-tooltip="{{this.label}}">{{this.short}}</button>
+                    {{/each}}
+                </span>
+                <span class="bi-deck-pill bi-check__asked{{#if this.asked}} is-on{{/if}}">
+                    <button type="button" class="bi-deck-pill__cap" data-action="toggleAsked" data-user-id="{{this.userId}}" aria-pressed="{{this.asked}}"
+                        aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.Asked'}}: {{this.name}}"></button>
+                    <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.CheckConsole.Asked"}}</span>
+                </span>
+            </li>
+            {{/if}}
+            {{/each}}
+        </ol>
+        <p class="bi-leds__key">
+            {{#each bankKey}}<span><i class="bi-led-mini" data-state="{{this.state}}" aria-hidden="true"></i> {{this.label}}</span>{{/each}}
+        </p>
+    </section>
+    {{else}}
+    <p class="bi-check__empty">{{localize "BLANKINHERITANCE.CheckConsole.NoneOpen"}}</p>
+    {{/if}}
+</div>

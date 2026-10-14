@@ -82,8 +82,11 @@ export function buildBoard(corpus) {
       // NOTE_EXEMPTIONS absence in checklist.mjs -- only a real waiver is.
       sited: Boolean(bundle.setEntry?.locationRef && corpus.locations[bundle.setEntry.locationRef]) ||
         Boolean(!bundle.setEntry?.locationRef && bundle.setEntry?.offMap?.reason) ||
-        results.find((r) => r.id === "P1")?.state === "waived",
-      locationWaived: results.find((r) => r.id === "P1")?.state === "waived",
+        ["waived", "excepted"].includes(results.find((r) => r.id === "P1")?.state),
+      locationWaived: ["waived", "excepted"].includes(results.find((r) => r.id === "P1")?.state),
+      // Set when the scene is off the map on purpose (scene-set.json `offMap`, written by the Location Editor's Story tab): a structured
+      // record with a reason from a fixed list, never a bare note.
+      offMap: bundle.setEntry?.offMap?.reason ?? null,
       radar: horizonsOf(bundle),
       checks,
       results

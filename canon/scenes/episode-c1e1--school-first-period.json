@@ -159,8 +159,12 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "the-statue",
-      "text": "There's a statue on the harbour with a name on it that the teacher can't explain, and doesn't mind."
+      "id": "the-map-rolls-up",
+      "text": "The pull-down map snaps back into its roller mid-sentence, twice. Ota carries on from memory, and the player who holds it down for him is his map stand for the period."
+    },
+    {
+      "id": "correct-his-map",
+      "text": "If a player comes from the city, Ota finds their street on the map, admits he has never walked it, and hands them the pencil to mark what's really there."
     }
   ],
   "reactionPrompts": [

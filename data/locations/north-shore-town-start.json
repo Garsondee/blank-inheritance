@@ -1,0 +1,63 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "north-shore-town-start",
+  "type": "location",
+  "tier": "point",
+  "name": "North Shore Town (starting point)",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "meeting point",
+  "tags": [],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [],
+    "point": [
+      135.26494550855057,
+      34.71108385719209
+    ]
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": null,
+    "centroidPx": [
+      9063,
+      247
+    ],
+    "cells": [
+      "E1·40"
+    ],
+    "ref": "E1·40",
+    "areaM2": null,
+    "withinRegionRef": "north-shore-town",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": null,
+    "sourceLocalId": "pin-north-shore-start",
+    "promotedDate": "2026-10-07"
+  },
+  "authoring": {
+    "note": "A pin, made 2026-10-07 because the North Shore Town's own centre (map pixel 8975, 797) is in the water, so tokens that set off from it stood in the sea (npm run journeys: 16 m from land). Ingram: put the starting point anywhere in grid square E1.40, which is clear. Set on the street junction there (trunk road and an unclassified street, map pixel 9063, 247) so the street network starts at it (canon/decisions/D067.md).",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The starting point for anyone arriving from the North Shore Town: a junction on the one road that joins the town to the city, on dry land.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

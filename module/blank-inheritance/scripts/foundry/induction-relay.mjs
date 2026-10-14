@@ -47,13 +47,33 @@
  * its own inner try/catch, separate from the Actor-create one -- a token
  * failing to place must never be reported back as character-creation
  * failing, since the actor itself is already real at that point.
+ *
+ * The portrait travels the same way for the same reason (found by the playtest
+ * rig, 2026-10-06). Page 6's upload needs the world permission FILES_UPLOAD,
+ * which Foundry gives a plain Player no more than ACTOR_CREATE, so on a stock
+ * world the step failed for every real player. A client that may not upload
+ * sends the cropped picture to the GM's client (base64 in a plain message;
+ * core/induction-portrait-relay.mjs is what may be sent and what the GM's side
+ * will write) and waits for the GM's answer, which is a message too: the path it
+ * saved to, or the reason it could not. A client that may upload (a GM, or any
+ * user the world has granted the permission) writes directly, as before, and
+ * needs no GM to be online.
  */
 
 import { placeActorOnLandingScene, removeActorTokenFromLandingScene } from "./landing-scene.mjs";
+import { writeStorageFile } from "./io.mjs";
+import {
+  NO_GM_FOR_PORTRAIT,
+  PORTRAIT_UPLOAD_REQUEST,
+  PORTRAIT_UPLOAD_RESULT,
+  buildPortraitUploadRequest,
+  checkPortraitUploadRequest
+} from "../core/induction-portrait-relay.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const SOCKET = `module.${MODULE_ID}`;
 const CREATE_TIMEOUT_MS = 20000;
+const PORTRAIT_TIMEOUT_MS = 20000;
 
 /**
  * GM only. The payload IS the same data the player's own
@@ -104,6 +124,32 @@ async function resolveActorDeleteRequest({ actorId }) {
 }
 
 /**
+ * GM only. Saves a player's cropped portrait into the module's storage, from a client that is allowed to, and
+ * answers with a message either way (the module socket has no acknowledgement, see the file header). Writes
+ * nothing it was not told is a portrait: core/induction-portrait-relay.mjs's check is the whole of what it trusts.
+ */
+async function resolvePortraitUploadRequest(payload) {
+  if (!game.user.isGM) return;
+  const requestId = typeof payload?.requestId === "string" ? payload.requestId : null;
+  const answer = (result) => {
+    if (requestId) game.socket.emit(SOCKET, { type: PORTRAIT_UPLOAD_RESULT, requestId, ...result });
+  };
+  const checked = checkPortraitUploadRequest(payload);
+  if (!checked.ok) {
+    console.warn("Blank Inheritance | Refused a portrait upload request:", checked.reason);
+    answer({ ok: false, reason: checked.reason });
+    return;
+  }
+  try {
+    const path = await writeStorageFile("", checked.filename, new Blob([checked.bytes], { type: checked.mimeType }), checked.mimeType);
+    answer({ ok: true, path });
+  } catch (err) {
+    console.error("Blank Inheritance | Could not save a portrait on a player's behalf:", err);
+    answer({ ok: false, reason: err?.message ?? String(err) });
+  }
+}
+
+/**
  * Both request types land here; only the one active GM client ever acts on
  * either -- same `activeGM?.isSelf` idiom as campaign-state.mjs's and
  * equipment-state.mjs's own socket registrations.
@@ -113,6 +159,42 @@ export function registerInductionSocket() {
     if (!game.users.activeGM?.isSelf) return;
     if (payload?.type === "induction-actor-create-request") resolveActorCreateRequest(payload);
     else if (payload?.type === "induction-actor-delete-request") resolveActorDeleteRequest(payload);
+    else if (payload?.type === PORTRAIT_UPLOAD_REQUEST) resolvePortraitUploadRequest(payload);
+  });
+}
+
+/**
+ * Saves one cropped portrait into the module's storage and gives back the path it landed on. A client that may
+ * upload (a GM, or a user the world has granted FILES_UPLOAD) writes it directly and needs no GM online; any other
+ * client sends it to the GM's and waits for the answer (see the file header). Rejects with a message fit to show
+ * the player: the GM's own reason, that the picture was refused, or that no GM answered in time.
+ *
+ * `timeoutMs` is only ever overridden by tests.
+ */
+export async function requestPortraitUpload({ filename, blob, mimeType }, { timeoutMs = PORTRAIT_TIMEOUT_MS } = {}) {
+  if (game.user.isGM || game.user.can?.("FILES_UPLOAD")) return writeStorageFile("", filename, blob, mimeType);
+
+  const requestId = foundry.utils.randomID();
+  const payload = buildPortraitUploadRequest({ requestId, userId: game.user.id, filename, mimeType, bytes: new Uint8Array(await blob.arrayBuffer()) });
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    function settle(run) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      game.socket.off(SOCKET, onResult);
+      run();
+    }
+    const onResult = (message) => {
+      if (message?.type !== PORTRAIT_UPLOAD_RESULT || message.requestId !== requestId) return;
+      if (message.ok === true && typeof message.path === "string" && message.path) settle(() => resolve(message.path));
+      else settle(() => reject(new Error(message.reason || "The GM's connection could not save the picture.")));
+    };
+    const timeout = setTimeout(() => settle(() => reject(new Error(NO_GM_FOR_PORTRAIT))), timeoutMs);
+
+    game.socket.on(SOCKET, onResult);
+    game.socket.emit(SOCKET, payload);
   });
 }
 

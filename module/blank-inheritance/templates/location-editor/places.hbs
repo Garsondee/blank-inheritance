@@ -1,0 +1,98 @@
+<div class="bi-places"{{#unless (eq tab "places")}} hidden{{/unless}}>
+    {{#if places}}
+    {{#with places}}
+    <header class="bi-places__top">
+        <input type="search" name="placesQuery" value="{{query}}" placeholder="{{localize 'BLANKINHERITANCE.LocationEditor.Places.Search'}}" autocomplete="off">
+        <label class="bi-story__check"><input type="checkbox" data-action="togglePlacesShared" {{#if shared}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Places.Shared"}}</label>
+    </header>
+    {{#if ready}}
+    <p class="bi-story__summary">{{localize "BLANKINHERITANCE.LocationEditor.Places.Count" shown=shown count=count}}</p>
+
+    {{#if bulk}}
+    {{#with bulk}}
+    <section class="bi-places__bulk">
+        <p class="bi-places__bulk-title"><i class="fa-solid fa-right-left"></i> {{localize "BLANKINHERITANCE.LocationEditor.Places.MoveTitle" name=fromName}}</p>
+        <p class="bi-story__also">{{localize "BLANKINHERITANCE.LocationEditor.Places.WhichUses"}}</p>
+        <ul class="bi-story__linked">
+            {{#each uses}}<li><label><input type="checkbox" data-action="toggleBulkSlot" data-slot-key="{{slotKey}}" {{#if checked}}checked{{/if}}> {{rowTitle}} <small>{{label}} · {{roleLabel}}</small></label></li>{{/each}}
+        </ul>
+        {{#if choice}}
+        <p class="bi-story__confirm-line">{{localize "BLANKINHERITANCE.LocationEditor.Places.MoveTo" name=choice.name}} <small>{{choice.tierWord}}{{#if choice.isNew}} · {{localize "BLANKINHERITANCE.LocationEditor.Story.NewNotPulled"}}{{/if}}</small>
+            <button type="button" class="bi-story__icon" data-action="bulkClearChoice" title="{{localize 'BLANKINHERITANCE.LocationEditor.Places.Change'}}"><i class="fa-solid fa-pen"></i></button></p>
+        {{#if whatIf}}
+        <div class="bi-story__whatif {{whatIf.summaryClass}}">
+            <p class="bi-story__whatif-head"><i class="fa-solid fa-route"></i> {{whatIf.headline}}</p>
+            <ul>
+                {{#each whatIf.legs}}
+                <li class="is-{{change}}"><span>{{label}}</span> <small>{{before}}{{#unless unchanged}} → {{after}}{{/unless}}</small>{{#each issues}}<em class="is-{{severity}}">{{text}}</em>{{/each}}</li>
+                {{/each}}
+            </ul>
+            {{#if whatIf.more}}<p class="bi-story__whatif-more">{{localize "BLANKINHERITANCE.LocationEditor.Places.AndMore" count=whatIf.more}}</p>{{/if}}
+            {{#each whatIf.places}}<p class="bi-story__whatif-place is-{{severity}}">{{text}}</p>{{/each}}
+        </div>
+        {{/if}}
+        <div class="bi-location-editor__row">
+            <button type="button" class="bi-location-editor__button bi-location-editor__button--primary" data-action="confirmBulk" {{#unless canMove}}disabled{{/unless}}><i class="fa-solid fa-check"></i> {{localize "BLANKINHERITANCE.LocationEditor.Places.Move" count=checkedCount}}</button>
+            <button type="button" class="bi-location-editor__button" data-action="cancelBulk">{{localize "BLANKINHERITANCE.LocationEditor.Story.Cancel"}}</button>
+        </div>
+        {{else}}
+        <div class="bi-story__chooser">
+            <p class="bi-story__editor-title">{{localize "BLANKINHERITANCE.LocationEditor.Places.MoveWhere"}}</p>
+            <div class="bi-location-editor__row">
+                <button type="button" class="bi-location-editor__button{{#if armed}} is-active{{/if}}" data-action="bulkPickOnMap"><i class="fa-solid fa-hand-pointer"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickOnMap"}}</button>
+                <span class="bi-story__targets" role="group" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.PickTargetHint'}}">
+                    <button type="button" class="bi-location-editor__button{{#if pickBuildings}} is-active{{/if}}" data-action="setBulkTarget" data-target="places"><i class="fa-solid fa-building"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickBuildings"}}</button>
+                    <button type="button" class="bi-location-editor__button{{#if pickAreas}} is-active{{/if}}" data-action="setBulkTarget" data-target="areas"><i class="fa-solid fa-map"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickAreas"}}</button>
+                </span>
+                <button type="button" class="bi-location-editor__button" data-action="bulkPin"><i class="fa-solid fa-location-dot"></i> {{localize "BLANKINHERITANCE.LocationEditor.Pin.Button"}}</button>
+                <button type="button" class="bi-location-editor__button" data-action="cancelBulk">{{localize "BLANKINHERITANCE.LocationEditor.Story.Cancel"}}</button>
+            </div>
+            <input type="text" name="bulkSearch" value="{{search}}" placeholder="{{localize 'BLANKINHERITANCE.LocationEditor.Story.SearchPlaceholder'}}" autocomplete="off">
+            {{#if suggestions.length}}
+            <ul class="bi-story__suggest">
+                {{#each suggestions}}
+                <li><button type="button" data-action="bulkStagePick" data-location-id="{{id}}" data-record-id="{{recordId}}" data-name="{{name}}" data-tier="{{tier}}">{{name}} <small>{{chipTier}}{{#if pending}} · {{localize "BLANKINHERITANCE.LocationEditor.Story.NewNotPulled"}}{{/if}}</small></button></li>
+                {{/each}}
+            </ul>
+            {{/if}}
+        </div>
+        {{/if}}
+    </section>
+    {{/with}}
+    {{/if}}
+
+    <ul class="bi-places__list">
+        {{#each rows}}
+        <li class="bi-places__row{{#if open}} is-open{{/if}}{{#if moving}} is-moving{{/if}}{{#if problem}} has-problem is-{{problem}}{{/if}}">
+            <div class="bi-places__head">
+                <button type="button" class="bi-places__name" data-action="openPlace" data-key="{{key}}" aria-expanded="{{open}}">
+                    <i class="fa-solid {{#if open}}fa-chevron-down{{else}}fa-chevron-right{{/if}}"></i>
+                    <span class="bi-places__title">{{name}}</span>
+                    {{#if tierWord}}<small>{{tierWord}}</small>{{/if}}
+                    {{#if pending}}<small class="bi-story__chip-wait">{{localize "BLANKINHERITANCE.LocationEditor.Story.Waiting"}}</small>{{/if}}
+                    {{#if broken}}<small class="bi-places__broken">{{localize "BLANKINHERITANCE.LocationEditor.Places.Broken"}}</small>{{/if}}
+                </button>
+                {{#if problem}}<i class="fa-solid fa-triangle-exclamation bi-story__place-problem is-{{problem}}" title="{{problemText}}"></i>{{/if}}
+                <span class="bi-places__count" title="{{localize 'BLANKINHERITANCE.LocationEditor.Places.UsesHint' scenes=scenes choices=choices}}">{{useCount}}</span>
+                {{#if canShow}}<button type="button" class="bi-story__icon" data-action="showPlace" data-key="{{key}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.Show'}}"><i class="fa-solid fa-crosshairs"></i></button>{{/if}}
+                <button type="button" class="bi-story__icon" data-action="startBulk" data-key="{{key}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Places.MoveAll'}}"><i class="fa-solid fa-right-left"></i></button>
+            </div>
+            {{#if open}}
+            <ul class="bi-places__uses">
+                {{#each uses}}
+                <li><span class="bi-places__use-title">{{rowTitle}}</span> <small>{{label}} · {{roleLabel}}{{#if pending}} · {{localize "BLANKINHERITANCE.LocationEditor.Story.Waiting"}}{{/if}}</small>
+                    <button type="button" class="bi-story__icon" data-action="openSlot" data-slot-key="{{slotKey}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.Change'}}"><i class="fa-solid fa-location-crosshairs"></i></button></li>
+                {{/each}}
+            </ul>
+            {{/if}}
+        </li>
+        {{else}}
+        <li class="bi-location-editor__empty">{{localize "BLANKINHERITANCE.LocationEditor.Places.Empty"}}</li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="bi-location-editor__busy"><i class="fa-solid fa-spinner fa-spin"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.Loading"}}</p>
+    {{/if}}
+    {{/with}}
+    {{/if}}
+</div>

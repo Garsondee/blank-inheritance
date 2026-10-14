@@ -1,0 +1,67 @@
+{{!--
+    The check console, a player's side (foundry/check-console.mjs#CheckPlayerWindow). Opens on every player's screen
+    when the GM puts a check to the table. Ingram, 2026-10-05: "the players will see their own version of it which
+    allows them to pick which thing to roll and doesn't give them the GM level controls but allows them to also see
+    the results as they come in."
+
+    The ways it can be met as the deck's own skill keys, each carrying the number this character would roll with it
+    (ux-doctrine Law 1); a press rolls it. Then, along the bottom, the same bank of six tall lights the GM sees (D062):
+    "as rolls come in the LEDs will light up attractively and broadcast the players results". A blind roll lights
+    purple, never its degree: the GM tells them.
+
+    Nothing here names the check or says what any degree means: some checks give the find away by their name, and the
+    meaning is the GM's to say. Must render exactly ONE top-level element.
+--}}
+<div class="bi-check bi-check--player">
+    {{#if session}}
+    <header class="bi-check__head">
+        <span class="bi-deck__grille bi-deck__grille--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="bi-deck__engraved">{{localize "BLANKINHERITANCE.CheckConsole.Legend"}}</span>
+        <span class="bi-deck__screen bi-check__title" title="{{words}}">{{words}}</span>
+        {{#if dc}}<span class="bi-deck__chip"><em>{{localize "BLANKINHERITANCE.CheckConsole.Dc"}}</em><b>{{dc}}</b></span>{{/if}}
+        {{#if blind}}<span class="bi-check__blind-tag" data-tooltip="{{localize 'BLANKINHERITANCE.CheckConsole.BlindPlayerHint'}}"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "BLANKINHERITANCE.CheckConsole.Blind"}}</span>{{/if}}
+    </header>
+
+    <section class="bi-deck__cell bi-check__ways bi-check__ways--roll">
+        <span class="bi-deck__legend bi-check__legend">{{localize "BLANKINHERITANCE.CheckConsole.Roll"}}</span>
+        <div class="bi-check__keybank">
+            {{#each ways}}
+            <button type="button" class="bi-deck-key" data-attribute="{{this.attribute}}" data-action="roll" data-slug="{{this.slug}}" data-rank="{{this.rank}}" {{#if this.disabled}}disabled{{/if}}
+                aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.Roll'}} {{this.label}} {{this.mod}}">
+                <span class="bi-deck-key__plate"><span class="bi-deck-key__label">{{this.label}}</span></span>
+                {{#if this.dc}}<span class="bi-check__key-dc"><small>{{localize "BLANKINHERITANCE.CheckConsole.Dc"}}</small> {{this.dc}}</span>{{/if}}
+                <span class="bi-deck-key__read">
+                    <span class="bi-deck-key__mod">{{this.mod}}</span>
+                    <span class="bi-deck-key__pips" aria-hidden="true">{{#each this.pips}}<i{{#if this}} class="is-lit"{{/if}}></i>{{/each}}</span>
+                </span>
+            </button>
+            {{/each}}
+        </div>
+        {{#if hint}}<p class="bi-check__hint">{{hint}}</p>{{/if}}
+    </section>
+
+    {{#if result}}<p class="bi-deck__screen bi-check__result" aria-live="polite">{{result}}</p>{{/if}}
+
+    <section class="bi-check__lights" aria-label="{{localize 'BLANKINHERITANCE.CheckConsole.Lights'}}">
+        <ol class="bi-leds">
+            {{#each bank}}
+            {{#if this.empty}}
+            <li class="bi-leds__slot is-empty"><span class="bi-led" data-state="off" aria-hidden="true"><i class="bi-led__flare"></i></span></li>
+            {{else}}
+            <li class="bi-leds__slot{{#if this.isMe}} is-me{{/if}}">
+                <span class="bi-led" data-state="{{this.state}}"{{#if this.fresh}} data-fresh{{/if}}{{#if this.isMe}} data-mine{{/if}} role="img"
+                    aria-label="{{this.name}}{{#if this.said}}: {{this.said}}{{/if}}"><i class="bi-led__flare" aria-hidden="true"></i></span>
+                <span class="bi-leds__name" title="{{this.name}}">{{this.name}}</span>
+                {{#if this.said}}<span class="bi-leds__how">{{this.said}}</span>{{/if}}
+            </li>
+            {{/if}}
+            {{/each}}
+        </ol>
+        <p class="bi-leds__key">
+            {{#each bankKey}}<span><i class="bi-led-mini" data-state="{{this.state}}" aria-hidden="true"></i> {{this.label}}</span>{{/each}}
+        </p>
+    </section>
+    {{else}}
+    <p class="bi-check__empty">{{localize "BLANKINHERITANCE.CheckConsole.Closed"}}</p>
+    {{/if}}
+</div>

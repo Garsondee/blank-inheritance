@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "watcher-file.schema.json",
   "title": "Watcher's file",
-  "description": "GM-ONLY. What the Watcher has actually observed about one player character, and nothing else. The Watcher is the campaign's adversary and Claude plays it (ideas/story/dossier-observer.md); this file is the hard gate that keeps it fair: it may only exploit what is recorded here as known. Every observation comes from the fiction (a rolled check, a fight it watched, an in-character message or document it could read). Nothing real about a player may ever be recorded. Lives in data/watcher/, which is deliberately NOT synced to the Foundry server. Pure logic: module/blank-inheritance/scripts/core/watcher-file.mjs.",
+  "description": "GM-ONLY. What the Watcher has actually observed about one player character, and nothing else. The Watcher is the campaign's adversary and Claude plays it (quarantine/ideas/story/dossier-observer.md); this file is the hard gate that keeps it fair: it may only exploit what is recorded here as known. Every observation comes from the fiction (a rolled check, a fight it watched, an in-character message or document it could read). Nothing real about a player may ever be recorded. Lives in data/watcher/, which is deliberately NOT synced to the Foundry server. Pure logic: module/blank-inheritance/scripts/core/watcher-file.mjs.",
   "type": "object",
   "required": ["id", "type", "subjectRef", "observations"],
   "additionalProperties": false,

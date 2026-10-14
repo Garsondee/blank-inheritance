@@ -26,6 +26,7 @@
             "description": "A grid reference (e.g. 'C4.11') pointing at roughly where this belongs, so opening the map means going straight there rather than searching. Null when nothing narrower than 'somewhere on the map' is known yet."
           },
           "status": { "enum": ["open", "resolved"] },
+          "blocks": { "type": "array", "items": { "type": "string" }, "description": "Scene brief ids (episode-c1e1--the-errand) whose placing is waiting on this request. While it is open, the journey corpus test (test/tier2-journey-corpus.test.mjs) lets those scenes have no place, and says what they are waiting for; once it is resolved they must have one. Added 2026-10-07." },
           "raisedAt": { "type": "string", "description": "ISO timestamp." },
           "resolvedAt": { "type": ["string", "null"] },
           "resolution": { "type": ["string", "null"], "description": "One line on how it was resolved -- e.g. the localId or location id that now fills the gap." }

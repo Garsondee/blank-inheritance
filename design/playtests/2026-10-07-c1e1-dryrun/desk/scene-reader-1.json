@@ -1,0 +1,117 @@
+{
+  "reviewer": "scene-reader-1",
+  "model": "opus",
+  "scenes": ["episode-c1e1--the-road-in"],
+  "verdicts": {
+    "episode-c1e1--the-road-in": {
+      "verdict": "close",
+      "why": "A warm, low-stakes montage with a good letter handout, free checks on every result and a clean objective hand-off. What holds it back is running order: the Runner lists per-player beats one after another, the mark beat sits after the spotlights it must happen inside, and the arrival menu comes after the arrivals are told."
+    }
+  },
+  "findings": [
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": "your-opening",
+      "lens": "gm-cold",
+      "kind": "content",
+      "severity": "S2",
+      "summary": "The scene is a per-player loop (opening, small-problem roll, maybe the mark), but the beats are laid out in sequence, so a GM working down the Runner goes round all six for looks, round again for rolls, and reaches the mark beat after every arrival is over.",
+      "quote": "A montage, one player at a time.",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "The GM knows that beats your-opening, the-small-problem and a-mark-at-head-height repeat as one loop per player, and the mark is placed inside a spotlight as it happens.",
+      "actual": "Three separate beats in order, two marked 'each' and one 'table'; the mark beat says 'When an arrival ends where people stand and wait', but by the time the GM reaches it the arrivals are already told.",
+      "proposal": { "type": "fix", "text": "Open your-opening's text with the loop: 'For each player in turn: their opening, then their small problem and its roll, then the mark if their arrival ends where people wait. Then the next player.' Or merge the two 'each' beats into one." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": "a-mark-at-head-height",
+      "lens": "gm-cold",
+      "kind": "rules",
+      "severity": "S2",
+      "summary": "It is unclear who rolls for the mark and how often: the beat is delivered to the table, the check is not repeatable, yet the write-down expects several sightings and several rollers.",
+      "quote": "How often the violet mark came up, and who rolled well on it.",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "One plain rule: e.g. each player whose arrival shows a mark rolls once, secretly, and the check is repeatable across players.",
+      "actual": "Challenge says repeatable false and secret; beat says 'offer the check' to the table; write-down counts multiple sightings and who rolled well.",
+      "proposal": { "type": "fix", "text": "Add to the beat: 'Each player whose spotlight shows a mark rolls once (secret); a player sees at most one.' Set the challenge check to repeatable per player, or say plainly that only the first player to see it rolls." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": "the-letter",
+      "lens": "player-fresh",
+      "kind": "content",
+      "severity": "S2",
+      "summary": "The first words of the letter name an organisation the table has never heard of. Scene 0 only ever says 'the Directorate', and neither the read-aloud nor the note connects the two names; 'the combined campus' is also new.",
+      "quote": "Your application to Tokubetsu Taisaku Honbu has been reviewed and accepted.",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "A listener hearing the letter once knows it is from the Directorate and roughly where the 'combined campus' is.",
+      "actual": "A bare Japanese organisation name, read aloud, with no gloss; the handout's English letterhead says 'Special Countermeasures Headquarters', still not 'Directorate'.",
+      "proposal": { "type": "fix", "text": "Add a first line to the beat's note: 'If asked: Tokubetsu Taisaku Honbu is the Directorate's own name, in Minkai; the combined campus is its island at the end of the causeway.' Or introduce the letter as 'a letter from the Directorate' in the beat text the GM says before reading it." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": null,
+      "lens": "gm-cold",
+      "kind": "content",
+      "severity": "S2",
+      "summary": "The arrival menu is asked at the outro, after every player has already narrated how they travelled; the stories and the menu can disagree (a fishing boat, a motorbike) and the question lands as a repeat.",
+      "quote": "How do you arrive in Kurose?",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "The mode of arrival is chosen at the start of each spotlight, so the small problem happens on that train, ferry or road.",
+      "actual": "The departure question sits in the outro; your-opening asks about the problem on the way in without the menu.",
+      "proposal": { "type": "fix", "text": "Ask 'How do you arrive in Kurose?' as each player's first question in your-opening (the menu's eight answers are good prompts for a small problem), and let the outro only send the tokens." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": null,
+      "lens": "player-fresh",
+      "kind": "content",
+      "severity": "S2",
+      "summary": "The opening read-aloud decides every character's backstory: all six come from outside Kurose and have never had reason to visit, which rules out a local applicant or a school-streamed candidate before the players speak.",
+      "quote": "an envelope had come for you from a city you had never had a reason to visit",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "The read-aloud leaves where each character lives to the player, as the intro's 'wherever each player says their character lives' promises.",
+      "actual": "It tells all six they are strangers to Kurose; yet the arrival menu includes the Flats and the Upper Wards, and canon says people are streamed on to the Directorate from school.",
+      "proposal": { "type": "question", "text": "Is 'all six are outsiders' a rule of this campaign? If not, soften to something like 'an envelope had come for you from the Directorate in Kurose', and let a local character exist." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": "a-mark-at-head-height",
+      "lens": "player-fresh",
+      "kind": "content",
+      "severity": "S2",
+      "summary": "Ten minutes earlier Scene 0 described the rift as 'a violet light with a black heart'. A deep-violet mark repeated at every arrival will be read by the table as a rift sign at once, which points them at the wrong mystery (or the right one, too early).",
+      "quote": "The same violet, at the same height, every time.",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "The author has decided whether the colour echo with the rift is meant to be read.",
+      "actual": "Nothing in the scene acknowledges the echo; the secret says the marks are Cicada's, unrelated to the rift.",
+      "proposal": { "type": "question", "text": "Is the violet-to-rift link an intended misdirection? If not, a different colour keeps the mark a curiosity instead of a theory. If so, say so in the secret so the GM can handle 'is that the rift?' with a prepared answer." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": "your-opening",
+      "lens": "gm-cold",
+      "kind": "continuity",
+      "severity": "S3",
+      "summary": "The journey prompt suggests 'the causeway on foot', but the causeway runs out to the Directorate's island, not into the city; the letter puts the Candidate Gate on its landward side, so no one arrives by it.",
+      "quote": "the causeway on foot",
+      "file": "canon/scenes/episode-c1e1--the-road-in.json",
+      "expected": "Journey prompts that match the map and the arrival menu.",
+      "actual": "A prompt that has a candidate walk in along the causeway before reaching a gate at its landward end; 'a motorbike' and 'a fishing boat' also match no menu option.",
+      "proposal": { "type": "fix", "text": "Replace with options from the menu: 'the coast road on foot', 'the early ferry into the Old Landing', 'a bicycle through the Flats'." }
+    },
+    {
+      "scene": "episode-c1e1--the-road-in",
+      "beat": "the-small-problem",
+      "lens": "gm-cold",
+      "kind": "rules",
+      "severity": "S3",
+      "summary": "The critical success promises 'something worth remembering' but never says what it is or where it goes, so the GM invents it on the spot and nothing carries.",
+      "quote": "It goes better than it had any right to, and something about it is worth remembering.",
+      "file": "data/challenges/c1e1-the-road-in.json",
+      "expected": "A concrete extra the GM can hand over and write down.",
+      "actual": "An open promise with no hook in writeDown or carryForward.",
+      "proposal": { "type": "fix", "text": "Make it concrete: 'They tell us one person or thing from the road that helped; write it down, as a face that may turn up again in Kurose.' and add it to outro.writeDown." }
+    }
+  ]
+}

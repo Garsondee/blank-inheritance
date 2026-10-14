@@ -1,0 +1,38 @@
+{
+  "raw": 46,
+  "invalid": 0,
+  "dropped": 0,
+  "kept": 46,
+  "byChannel": {
+    "gate": {
+      "raw": 38,
+      "dropped": 0,
+      "kept": 38
+    },
+    "desk": {
+      "raw": 8,
+      "dropped": 0,
+      "kept": 8
+    },
+    "walker": {
+      "raw": 0,
+      "dropped": 0,
+      "kept": 0
+    },
+    "table": {
+      "raw": 0,
+      "dropped": 0,
+      "kept": 0
+    }
+  },
+  "verdicts": {
+    "episode-c1e1--the-road-in": [
+      {
+        "reviewer": "scene-reader-1",
+        "model": "opus",
+        "verdict": "close",
+        "why": "A warm, low-stakes montage with a good letter handout, free checks on every result and a clean objective hand-off. What holds it back is running order: the Runner lists per-player beats one after another, the mark beat sits after the spotlights it must happen inside, and the arrival menu comes after the arrivals are told."
+      }
+    ]
+  }
+}

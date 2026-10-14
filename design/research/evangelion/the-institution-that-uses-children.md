@@ -59,4 +59,4 @@
 
 **Related on this shelf:** [characters/misato-katsuragi.md](characters/misato-katsuragi.md), [characters/gendo-ikari.md](characters/gendo-ikari.md), [characters/toji-suzuhara.md](characters/toji-suzuhara.md), [characters/keel-lorenz-and-seele.md](characters/keel-lorenz-and-seele.md), [operational-texture-and-the-sortie.md](operational-texture-and-the-sortie.md), [school-life-and-the-ordinary-day.md](school-life-and-the-ordinary-day.md).
 
-**Related in this project:** `ideas/story/blank-inheritance-v4.md`, `design/induction.md`, `data/factions/directorate.json`, `design/strategy-layer.md`, [design/research/giant-robo/npc-archetype-catalogue.md](../giant-robo/npc-archetype-catalogue.md) (for the warm adults).
+**Related in this project:** `quarantine/ideas/story/blank-inheritance-v4.md`, `design/induction.md`, `data/factions/directorate.json`, `design/strategy-layer.md`, [design/research/giant-robo/npc-archetype-catalogue.md](../giant-robo/npc-archetype-catalogue.md) (for the warm adults).

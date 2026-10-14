@@ -57,7 +57,7 @@ export const SYNCED_CAMPAIGN_DIRS = [
  * synced directory — the same "safer failure direction" reasoning as the
  * allow-list above, just at file rather than directory granularity.
  */
-export const SYNCED_MAP_FILES = ["travel-graph.json", "campaign-map.json", "gazetteer-requests.json", "buildings-index.json"];
+export const SYNCED_MAP_FILES = ["travel-graph.json", "campaign-map.json", "gazetteer-requests.json", "buildings-index.json", "land-grid.json"];
 
 /**
  * Exactly the files a campaign-data push carries, as a Map from the path they

@@ -9,7 +9,7 @@
   "role": "Warden, The Rock",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs the prison side of The Rock (data/locations/the-rock.json) -- who is held in which of the nine cells, on whose authority, and under what conditions. Deliberately not one of the Directorate's three visible poles (Commander/Caretaker/Transparency Advocate): The Rock is classified Omega-Zero specifically because most Directorate staff don't know it exists, and giving it a publicly-known face would undercut that.",
+  "canon": "directorate-posts.the-rock-warden",
   "designNotes": "Placeholder role, not a character -- created 2026-09-12 alongside the location itself, following the standing convention (see commander.json, repair-chief-sato.json). Name, personality, and exact relationship to the-rock-research-director (same chain of command, or a deliberately separate one) are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

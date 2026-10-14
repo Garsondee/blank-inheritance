@@ -16,6 +16,8 @@ const noImages = process.argv.includes("--no-images");
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 
 const registry = readJson("data/campaign/asset-registry.json").assets;
+// The NPC files' old story prose (`description`) was stripped on 2026-10-07 (D080); the words this page shows are kept, untouched, here.
+const oldDescriptions = fs.existsSync(path.join(root, "quarantine/data/npc-descriptions.json")) ? readJson("quarantine/data/npc-descriptions.json") : {};
 const ledger = fs.existsSync(path.join(root, "tools/art-review/ledger.json")) ? readJson("tools/art-review/ledger.json").changes : [];
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -88,7 +90,7 @@ function npcCard(scene, cast) {
   const changes = changesFor(scene.id, id);
   const b = cast.brief ?? {};
   const img = asset ? dataUri(asset.path, 520, 82) : "";
-  const desc = npc ? highlight(npc.description, changes).split("\n\n").map((p) => `<p>${p}</p>`).join("") : "<p><em>No NPC file yet.</em></p>";
+  const desc = npc ? highlight(npc.description ?? oldDescriptions[id], changes).split("\n\n").map((p) => `<p>${p}</p>`).join("") : "<p><em>No NPC file yet.</em></p>";
   const tics = (b.voice?.tics ?? []).map((t) => `<li>${highlight(t, changes)}</li>`).join("");
   const samples = (b.voice?.samples ?? []).map((t) => `<li>${highlight(t, changes)}</li>`).join("");
   const opens = b.opensWith ? `<p class="opens">${highlight(b.opensWith, changes)}</p>` : "";

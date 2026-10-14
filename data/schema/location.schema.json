@@ -187,7 +187,7 @@
     "npcRefs": { "type": "array", "items": { "type": "string" } },
     "episodeRefs": { "type": "array", "items": { "type": "string" } },
     "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
-    "bibleRef": { "type": ["string", "null"], "description": "ideas/story/bible/locations/<name>.md, for a place that recurs or carries weight." },
+    "bibleRef": { "type": ["string", "null"], "description": "quarantine/ideas/story/bible/locations/<name>.md, for a place that recurs or carries weight." },
     "assetRefs": { "type": "array", "items": { "type": "string" }, "description": "data/campaign/asset-registry.json entry ids." }
   },
 

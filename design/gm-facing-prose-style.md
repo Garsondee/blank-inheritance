@@ -229,7 +229,7 @@ The rules above police how a sentence is written. These four police whether the 
 
     | Provenance — cut it | Pointer — keep it |
     |---|---|
-    | When it was written or changed (`New 2026-09-20`, `REDESIGNED 2026-09-19`) | Where to read something before running it (`Read ideas/story/dossier-cicada.md §3 and §4 before running this`) |
+    | When it was written or changed (`New 2026-09-20`, `REDESIGNED 2026-09-19`) | Where to read something before running it (`Read quarantine/ideas/story/dossier-cicada.md §3 and §4 before running this`) |
     | What it used to be, and why it is not that any more | Where a thing the GM will need actually lives (`See data/campaign/equipment-catalogue.json`) |
     | Which memory key or design doc justified the decision (`see feedback_design_before_characters_exist in project memory`) | Which document owns a fact that is still open |
     | An SRD quote proving the rule is real (`GM Core's own surrender guidance: "one side might surrender when…", reference/srd/gm-core/610-running-encounters.json`) | The plain instruction that quote was defending (`Demoralize works exactly as normal`) |

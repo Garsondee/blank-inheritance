@@ -552,6 +552,24 @@ defect in it.
 
 ---
 
+## 5d. Exceptions an author writes (2026-10-07, D065)
+
+Ingram, grading the first episode confidence run: *"there has to be the ability to make intelligent exceptions to some rules"*. A required check could be waived only by the sealing review (`seal.mjs waive`) or, for a few recommended checks, by a sentence in the notes matched by a regex; neither is where an author is when writing the scene, and the first scene of the campaign was failing five checks that do not apply to a speech.
+
+A scene brief may now carry:
+
+```json
+"exceptions": [ { "check": "M8", "why": "The opening scene is a speech with no rolls (D048), so there is no skill to vary." } ]
+```
+
+- It shows on the board and in the report as **`excepted`** with its reason. It is a decision on the record, never a silent pass, and it counts as neither a pass nor a failure.
+- A reason under 20 characters, or an id that is not a check, is itself a failing result, **X1**.
+- It reaches the checks that depend on it as a waiver does (excepting P1 clears P2, P4 and P6).
+- **A scene with no place is not an exception**: mark it off the map (`offMap` in `scene-set.json`, the Location Editor's Story tab). The board counts that as placed on purpose.
+- The sealing review keeps its own `waive` and `notApplicable`; an exception is the author saying it in the scene, and the Sign-Off still reads it.
+
+The same day the checker stopped asking for what the house style retired: M2 and M10 read a scene's opening from its first beat when that beat is the speech and no longer need `firstThing`; M6 and M8 honour a check's `anySkill`; M7 reads a beat's `npcRef` as a member of the scene's own cast; M13 asks for a twist.
+
 ## 5c. One report per scene, shown section by section
 
 Ingram, 2026-09-22: *"produce a template document for these reviews and when you finish a section of
@@ -704,9 +722,13 @@ Growth should mean *replacing* weak checks more often than adding new ones, and 
 
 ## 9. Status
 
-**The process is a proposal; the tooling is built.** `tools/scene-signoff/` (console, seal path, the
-Place renderer), `data/campaign/signoff-checklist.json` at v1, the `live` rung and the `review` block
-in `authoring.schema.json`, `seal()` in `core/promote.mjs`, and the tests in
+**The process is in use; the tooling is built.** `tools/scene-signoff/` (console, seal path, the
+Place renderer), `data/campaign/signoff-checklist.json` (version 7, dated 2026-10-04), the `live` rung and
+the `review` block in `authoring.schema.json`, `seal()` in `core/promote.mjs`, and the tests in
 `test/tier1-signoff.test.mjs` and `test/tier2-signoff-board.test.mjs` all exist and run.
 
-No scene has been through it yet. The first one is `episode-c1e1--the-road-in`.
+No scene is `live`. The Road In went through the first dry run on 2026-09-22 and was sealed (checklist v5); that seal no
+longer counts, because the scene was rewritten whole on 2026-10-01 (`reviews/` keeps the record). Since
+2026-10-07 the board is also the first layer of the episode confidence run
+(`design/playtest-process.md` section 13), whose first grading by Ingram corrected the checker itself
+(section 5d) and took Episode One from 37 failing required checks (the gate's first reading) to 4, all of them siting.

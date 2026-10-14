@@ -9,7 +9,7 @@
   "role": "Natural history teacher, Main School Complex",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Teaches what lives in, on and under the island -- the drains, the tide-line, the flooded levels below the old works, and the sea around all of it. A collector. The room is full of trays, jars and pinned things, and almost all of it was caught within a mile of where it now sits. She is enormously, unguardedly enthusiastic about animals that most people on this island would rather not think about, and she is the only teacher in the building who will happily tell a class she does not know what something is.",
+  "canon": "school-natural-history-teacher",
   "designNotes": "Created 2026-09-21 for Episode One's second school period (data/scene-briefs/episode-c1e1--school-second-period.json), where her class is the one that pays off in the flood tunnel that night. Placeholder name, per the standing stub convention.\n\nHer one structural function beyond that: she keeps a specimen in the cabinet that she cannot classify and says so cheerfully, which is a plant and nothing more. It is never explained in Episode One or Two. Do not connect it to Frame technology, First Impact, or anything else at the table -- if a player does, that is theirs, and it goes on a Node before it becomes canon.\n\nHer register is the deliberate opposite of the history teacher's: he teaches an approved text straight and does not know it has been edited; she teaches what she has personally caught and is delighted by the gaps. A student who wants a true answer gets further with her, and the campaign should not make that a secret.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

@@ -11,10 +11,11 @@
  *     rules a real click meets (core/departures.mjs#applyPick with isGM
  *     false): a full place refuses them, a place not open to them refuses
  *     them. Optionally presses Go once everyone has chosen.
- *   - ROLLS. When the Scene Runner posts a check, every character on the
- *     roster rolls their best skill of those offered, carrying the Runner's
- *     own roll tag, so the Runner records the result exactly as it records a
- *     player's click.
+ *   - ROLLS. When a check is put to the table in the check console (or the
+ *     Scene Runner posts one to chat), every character on the roster who is
+ *     asked rolls their best skill of the ways offered, through the console's
+ *     own roll, so its gem lights and the Runner records the result exactly as
+ *     it records a player's press.
  *   - DOWNTIME. When the day ring moves, everyone with no booking for the new
  *     quarter books one of its offers.
  *
@@ -39,6 +40,7 @@ import { isChoosing, STATUS } from "../core/departures.mjs";
 import { momentKey } from "../core/day-ring.mjs";
 import { cityRoster, cityState, gmPick, goCityDeparture, privatePicksForViewer } from "./city-state.mjs";
 import { currentMoment, loadOffers, publicCommitments, readPrivateCommitments, writePublicCommitment } from "./campaign-state.mjs";
+import { currentCheck, rollForCheck } from "./check-console.mjs";
 
 const MODULE_ID = "blank-inheritance";
 export const SETTING_AUTOPILOT = "adminAutopilot";
@@ -47,6 +49,9 @@ const LOG_LENGTH = 12;
 let onActivity = () => {};
 let picking = false;
 let booking = false;
+let consoleRolling = false;
+/** Who has already been rolled for on which check ("<check id>:<user id>"), so a repaint never rolls them twice. */
+const consoleRolled = new Set();
 const activity = [];
 
 export function registerAutopilotSettings(onChange = () => {}) {
@@ -196,6 +201,47 @@ export async function rollCheckForEveryone(message, { stagger = true } = {}) {
   return rolled;
 }
 
+/**
+ * Everyone on the roster the open check is put to, and who has not rolled, rolls their best way of those offered
+ * (foundry/check-console.mjs#rollForCheck, as the GM for their character). Returns how many rolled.
+ */
+export async function rollConsoleForEveryone({ stagger = true } = {}) {
+  if (!isActiveGM() || consoleRolling) return 0;
+  const first = currentCheck();
+  if (!first?.skills?.length) return 0;
+  consoleRolling = true;
+  let rolled = 0;
+  try {
+    const roster = new Set(cityRoster().map((m) => m.userId));
+    for (const userId of first.asked) {
+      const session = currentCheck();
+      if (!session || session.id !== first.id) break;
+      const mark = `${session.id}:${userId}`;
+      if (!roster.has(userId) || session.rolls?.[userId] || consoleRolled.has(mark)) continue;
+      const actor = game.users.get(userId)?.character;
+      if (!actor) continue;
+      consoleRolled.add(mark);
+      const slug = bestSlug(session.skills, (s) => modifierOf(actor, s));
+      if (!slug) {
+        note(`${actor.name}: none of those skills on their sheet.`);
+        continue;
+      }
+      if (stagger) await beat();
+      try {
+        await rollForCheck(currentCheck() ?? session, slug, { actor });
+        rolled++;
+        note(`${actor.name} rolled ${slug}${Number.isInteger(session.dc) ? ` against DC ${session.dc}` : ""}.`);
+      } catch (err) {
+        console.error(`Blank Inheritance | Autopilot could not roll ${slug} for ${actor.name}:`, err);
+        note(`${actor.name}: the ${slug} roll failed.`);
+      }
+    }
+  } finally {
+    consoleRolling = false;
+  }
+  return rolled;
+}
+
 /** The newest check the Runner posted to chat, rolled for everyone. */
 export async function rollLastCheckForEveryone() {
   const latest = [...game.messages.contents].reverse().find((m) => !m.rolls?.length && postedChecks(m.content).length);
@@ -243,6 +289,7 @@ export async function bookForEveryone() {
 /** Look again at everything the switches cover: called when a switch turns on. */
 function kick() {
   const settings = autopilotSettings();
+  if (settings.rolls) rollConsoleForEveryone().catch((err) => console.error("Blank Inheritance | Autopilot roll failed:", err));
   if (settings.departures) pickForEveryone().catch((err) => console.error("Blank Inheritance | Autopilot pick failed:", err));
   if (settings.downtime) bookForEveryone().catch((err) => console.error("Blank Inheritance | Autopilot booking failed:", err));
 }
@@ -256,6 +303,9 @@ function onSettingChanged(setting) {
   if (key === `${MODULE_ID}.campaignMoment` && settings.downtime) {
     bookForEveryone().catch((err) => console.error("Blank Inheritance | Autopilot booking failed:", err));
   }
+  if (key === `${MODULE_ID}.checkConsole` && settings.rolls) {
+    rollConsoleForEveryone().catch((err) => console.error("Blank Inheritance | Autopilot roll failed:", err));
+  }
 }
 
 export function registerAutopilotHooks() {
@@ -266,6 +316,8 @@ export function registerAutopilotHooks() {
     // A request, never a result: a rolled check carries its roll.
     if (message.rolls?.length || message.author?.id !== game.user.id) return;
     if (!postedChecks(message.content).length) return;
+    // A check the console also posted to chat: the stand-ins roll it there (rollConsoleForEveryone).
+    if (String(message.content ?? "").includes("bi-check:")) return;
     rollCheckForEveryone(message).catch((err) => console.error("Blank Inheritance | Autopilot roll failed:", err));
   });
 }

@@ -264,12 +264,16 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "the-jar",
-      "text": "One jar on the top shelf has no label, and the teacher is watching to see who notices."
+      "id": "posted-on-the-forearm",
+      "text": "Hulda calls whoever edges toward the forearm \"Forearm\" for the rest of the period, and puts them in charge of keeping everyone back from it, themselves included."
     },
     {
-      "id": "the-forearm",
-      "text": "There's a four-metre hand on the trestles at the back of the workshop, and she's just told them not to go near it."
+      "id": "first-jam",
+      "text": "A player's new weapon jams on its first shot. The range officer calls the line safe, talks them through clearing it, calmly and in front of everyone, then lets them fire again."
+    },
+    {
+      "id": "what-lives-where-you-grew-up",
+      "text": "The natural history teacher turns the questions round: she asks a player what lives where they grew up, and takes notes, thrilled, especially if she's never heard of it."
     }
   ],
   "reactionPrompts": [

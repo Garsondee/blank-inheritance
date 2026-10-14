@@ -6,6 +6,9 @@ numpy, Pillow and OpenCV; ffmpeg for encoding (found through `BI_FFMPEG_DIR`, `~
 
 ## Running it
 
+(Needs `opencv-python` and a full ffmpeg build; point `BI_FFMPEG_DIR` at its `bin` folder. `tljson.py` reads and
+writes `data/title-sequences/*.json` in their own layout, so a scripted edit shows in git as the lines it changed.)
+
 ```
 python tools/title-sequence/render.py draft                          # the whole opening, with the music
 python tools/title-sequence/render.py draft --no-preroll             # ...without the tape before frame 0
@@ -128,6 +131,40 @@ python tools/title-sequence/render.py stills --compare --frames 8,9,10      # si
 
     The drawn ones (`ray_fan`, `arcs`, `streaks`, `radar`, `data_bars`) re-draw every `boil` frames, twos by
     default.
+  - **The Directorate's screens** (`titleseq/hud.py`, round 14), drawn in the orange-on-black of a control room:
+    - `cast_card`: one of the six players' cards in the verse: a portrait of any shape (`src`, `crop`, `focus`,
+      `zoom`, `zoom_to`: nothing is cut out, and the picture always covers its window) in a slanted window on `side`
+      `l` or `r` that assembles from slats, a reticle at `target` in the card's `accent` colour, and plates for
+      the `player` (`kana`, `roman`) and the character (`name`, or null while it is not made: it reads 未登録
+      UNREGISTERED). `dur` and `out` set the card's length and how long it takes to leave; `calm` drops the
+      beat's brightness pulse (the reduced-motion cut). To put a player's real portrait in, change the clip's
+      `src` and its `layer.name`.
+    - `tab_panel`: a control panel seen at an angle: `rows` of chevron tab pairs, each locked (red, latched) until
+      an event in `events` (`{t, rows, to}`: `to` 1 releases, 0 locks, `t` in track seconds) moves it, passing
+      through white to green. `quad` is where the panel's four corners land in the frame, so a keyed `quad` is
+      the camera.
+    - `status_wall`: a wall of status plates, rulers, crosshairs and loops that the camera crosses: `x` is the
+      view's left edge (keyed, it is the pan), `blur` the smear of speed in pixels, `label` and `focus_x` the
+      plate it comes to rest on.
+  - **The finale's layers** (`titleseq/finale.py`, round 15):
+    - `door_open`: the vault door splitting along its seam and sliding apart into light. `src`, `open` (0 shut,
+      1 wide), `circle` [cx, cy, r] (the doorway, as shares of the picture; r of its width), `seam` (x of the line the
+      leaves part along), `rays`. It takes the usual camera (`zoom`, `cx`, `cy`), and the effect is built in the
+      picture's own pixels first, so a push in carries the leaves, the light and the rays with it.
+    - `scope_hud`: a radar scope and a lock-on reticle over a picture. `scope` {cx, cy, r}, `contacts` (range share,
+      bearing), `target_x/y/w/h` (the reticle's box: keyed, it follows a pan), `lines` typed on from `lines_at`
+      seconds a `line_gap` apart, `lock` (when the reticle has closed), `sweep` (degrees a second). Time is measured
+      from the clip's own start.
+    - `stained_wall`: the end card's hangar wall painted in code (`color`, `seed`, `brightness`: key it from 0 to
+      come up out of black).
+    - `motes`: dust or embers drifting through a lit scene, in three layers of depth (`n`, `size`, `speed`,
+      `direction`, `color`, `strength`, `seed`).
+    - `lens_flare`: a light's flare, from `cx`, `cy`: a glint, an anamorphic streak that fades along its length
+      (`streak`, `thickness`) and a few warm ghost discs (`ghosts`), all scaled by a keyable `strength`.
+  - **Wipes and writing-on for pictures** (`image` and `video` layers): a polygon `mask` (frame pixels, a list of
+    polygons; key it and it is a wipe, and `mask_blur` softens its edge), and a soft `reveal` {box, angle, soft, p}
+    that writes the picture on from one side as `p` goes 0 to 1 (key `reveal_p`, since a clip's keys move numbers,
+    not dictionaries).
   - **Drafts only:** `ref_still` (a source frame, as a stand-in under our effects)
 - **Art layers** (`image`, `video`) are placed with a camera: `fit` (cover or contain), `zoom`, a focus point
   `cx`/`cy` (0–1 of the art) that lands on frame point `px`/`py`, `rot` in degrees clockwise, and `flip_x`. Then:
@@ -237,6 +274,18 @@ The tests cover:
   - every shot built, no image in two shots, camera moves on ones, title cards saying only the approved words, and
     every slate's prompt present in the prompts doc
   - the title cards set at the source's measured letter heights
+- the Directorate's screens (`test_hud.py`): a card draws nothing before it begins and is gone by the end of its
+  clip, mirrors on the other side, never smears a portrait pushed to its edge; a panel's pairs start red, turn
+  green on an event and lock again on the next; the wall pans, smears at speed and rests sharp
+- the round-14 cut: the sortie build's cuts land on the drum stem's kicks, the six cards are the same length, the
+  faces between the verse and the launch are real people, and the vehicles each get two beats
+- the finale's layers (`test_finale.py`): the door shut is just the picture and fills with light as it opens, its
+  leaves slide apart from a seam, a push carries it; the scope snaps on, the reticle closes and follows a keyed
+  target, the readout types on a line at a time; the wall, the dust and the flare; the mask and the reveal
+- the round-15 finale: one shot to each of the last four bars, cut on the bar lines; four pictures and a card; the
+  reticle on the walker all through the pan; the stripe wiping the pilot away in step; the credit gone before the
+  light; the door cracking on beat three; the plate settling and a flare on the crash; the studio's mark written on
+  as the music stops and seen whole in the silence
 - film type (boxes, weight, softness, halo, weave), the slates' justified blocks and dark ink on pale cards, every
   procedural effect (fields, the orb, rays, arcs, streaks, the radar, data bars) and the tape's halation
 - the reduced-motion version: it tiles the song, uses far fewer and longer shots, halves and slows every move

@@ -74,6 +74,13 @@ const LABEL_EDITS = [
 ];
 
 function main() {
+  // Finished 2026-09-30, and not safe to run again: it rewrites each data/npcs file whole (dropping the statblock, the canon link and
+  // everything added since) and writes the `description` field that D080 retired on 2026-10-07 (the old prose is in
+  // quarantine/data/npc-descriptions.json; an Actor sheet's text is generated from canon).
+  if (!process.argv.includes("--rewrite-npc-files-anyway")) {
+    console.error("tools/art-review/apply-npcs.mjs was a one-shot (2026-09-30) and would overwrite the NPC files. Pass --rewrite-npc-files-anyway only if you mean it.");
+    process.exit(1);
+  }
   const ledger = readLedger();
   const sceneCache = new Map();
   const loadScene = (id) => {

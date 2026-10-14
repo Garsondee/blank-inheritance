@@ -30,7 +30,13 @@
     "test:location-sync-py": "python -m unittest discover -s test/location-sync -t test/location-sync",
     "deploy": "node tools/module-sync/deploy.mjs",
     "deploy:check": "node tools/module-sync/deploy.mjs --dry-run",
+    "autosync": "node tools/module-sync/autosync.mjs",
     "edits": "node tools/scene-edits/edits.mjs",
+    "timeline": "node tools/timeline/serve.mjs",
+    "playtest": "node tools/playtest/pt.mjs",
+    "test:playtest": "node test/support/run-tests.mjs test/playtest",
+    "confidence:gate": "node tools/episode-confidence/gate.mjs",
+    "test:confidence": "node test/support/run-tests.mjs test/episode-confidence",
     "test:scene-edits": "node --test test/tier1-scene-edits.test.mjs test/tier1-scene-edit-sheet.test.mjs test/tier1-foundry-edits.test.mjs test/tier2-scene-edits-corpus.test.mjs test/tier3-scene-edit-sheet-contract.test.mjs test/tier4-scene-edits-adapter.test.mjs test/tier4-kept-journal.test.mjs test/tier4-handouts.test.mjs \"test/scene-edits/**/*.test.mjs\"",
     "haunts": "node tools/haunts/pull.mjs",
     "npcs": "node tools/npc-generator/apply.mjs",
@@ -39,6 +45,7 @@
     "stages": "node tools/stage-places/pull.mjs",
     "locations": "node tools/location-sync/sync.mjs",
     "locations:handoff": "node tools/location-sync/from-handoff.mjs",
+    "journeys": "node tools/location-sync/journeys.mjs",
     "test:location-sync": "node --test test/tier1-location-editor.test.mjs \"test/location-sync/**/*.test.mjs\""
   },
   "devDependencies": {

@@ -18,6 +18,7 @@
           "question": { "type": "string" },
           "status": { "enum": ["open", "resolved"] },
           "resolution": { "type": ["string", "null"] },
+          "canon": { "type": "array", "items": { "type": "string" }, "description": "Story questions only, from 2026-10-07 (D079): the canon fact id(s) this question moved into. The plot timeline is the home of story decisions, so a question that moved is closed here (status resolved, resolution says MOVED TO CANON) and kept only so references to its id still resolve. What stays open in this file is the design, mechanics and process questions." },
           "relatedRefs": { "type": "array", "items": { "type": "string" } },
           "notes": { "type": "string", "description": "For a question that got partially illuminated without being cleanly resolved — e.g. the user answered a related question that narrows this one without picking an option for it directly. Keep status \"open\" in that case; don't use notes as a backdoor resolution." },
           "label": { "type": "string", "description": "For a naming gap specifically: the short placeholder name currently in use everywhere (e.g. \"The Directorate\"), so authors know what string to keep typing until this resolves. `resolution` holds the chosen name once decided — do not add a second field for that, `finalName` was folded into `resolution` when naming-placeholders.json merged into this file 2026-09-19 (design/node-registry.md §12). Optional; most open questions don't need it." }

@@ -9,7 +9,7 @@
   "role": "Switchboard Supervisor, The Telephone Exchange",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs the island's switchboard. Every call between any two parts of the Directorate is physically connected by one of their operators, which makes this small team the best-informed people on the island almost by accident.",
+  "canon": "directorate-posts.switchboard-supervisor",
   "designNotes": "Created 2026-09-12 with The Telephone Exchange. Strong potential as a quiet ally who never volunteers anything but answers a direct question honestly. Name and manner open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

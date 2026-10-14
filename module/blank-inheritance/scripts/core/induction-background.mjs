@@ -12,20 +12,26 @@
  * Backgrounds have NO flaw slots (Player Core: "grants two boosts... and
  * the trained proficiency rank in two skills, one of which is a Lore
  * skill"), unlike ancestries. Trained skills, Lore skills and the granted
- * background feat are deliberately NOT resolved here -- see
- * background-catalogue.schema.json's own field descriptions for why (some
- * real backgrounds offer a prose CHOICE the flat data can't represent, and
- * the feat is a real menu pick with its own rule text, deferred to the
- * post-induction character sheet, same reasoning as ancestry feat/heritage
- * and class feats/spells, design doc §5).
+ * background feat are deliberately NOT resolved here -- the feat is a real
+ * menu pick with its own rule text, deferred to the post-induction
+ * character sheet, same reasoning as ancestry feat/heritage and class
+ * feats/spells, design doc §5.
+ *
+ * ONE thing a background does ask: when its rules carry a ChoiceSet (Starship
+ * Dweller is trained in Crafting OR Piloting; thirteen backgrounds in all),
+ * the catalogue entry has `choices`, the page asks each one, and the answers
+ * are written into the Item before it is embedded so Foundry opens no window
+ * of its own at Confirm (core/induction-rule-choices.mjs has the whole
+ * story). A background with an unanswered choice is not complete.
  */
 
 import { resolveSlots } from "./boost-slots.mjs";
+import { choicesComplete } from "./induction-rule-choices.mjs";
 
-/** Every boost slot resolved -- Page 3's Continue gate. */
-export function isBackgroundChoiceComplete(background, boostPicks) {
+/** Every boost slot resolved, and every choice the background asks answered -- Page 3's Continue gate. */
+export function isBackgroundChoiceComplete(background, boostPicks, choicePicks = {}) {
   if (!background) return false;
-  return resolveSlots(background.boosts, boostPicks).missing.length === 0;
+  return resolveSlots(background.boosts, boostPicks).missing.length === 0 && choicesComplete(background.choices, choicePicks);
 }
 
 /**
@@ -33,10 +39,13 @@ export function isBackgroundChoiceComplete(background, boostPicks) {
  * missing or illegal choice -- callers check isBackgroundChoiceComplete
  * first, same discipline as resolveAncestryIngredients.
  */
-export function resolveBackgroundIngredients(background, boostPicks) {
+export function resolveBackgroundIngredients(background, boostPicks, choicePicks = {}) {
   const boosts = resolveSlots(background.boosts, boostPicks);
   if (boosts.missing.length) {
     throw new Error("Not every background boost has been chosen yet.");
+  }
+  if (!choicesComplete(background.choices, choicePicks)) {
+    throw new Error("Not every choice this background asks has been made yet.");
   }
   return { backgroundBoosts: boosts.resolved };
 }

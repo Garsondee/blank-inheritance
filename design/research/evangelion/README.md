@@ -2,7 +2,7 @@
 
 *Written 2026-09-13, as the second shelf under `design/research/` and the follow-up to [Giant Robo](../giant-robo/README.md). A sweep of **Neon Genesis Evangelion** (新世紀エヴァンゲリオン, Hideaki Anno, 26 TV episodes 1995–96, plus *The End of Evangelion*, 1997), gathered to fill the gaps the Giant Robo sweep could not — school life, an institution whose treatment of its children is the subject, enemies built as puzzles, relationships that degrade, and operational texture.*
 
-***This is not a decision document, and none of it is lore.*** *Nothing here overrides `ideas/story/blank-inheritance-v4.md`, `ideas/story/bible/`, `design/campaign-arc.md`, or any entry in `data/campaign/open-questions.json`. No character described here exists in our world.*
+***This is not a decision document, and none of it is lore.*** *Nothing here overrides `quarantine/ideas/story/blank-inheritance-v4.md`, `quarantine/ideas/story/bible/`, `design/campaign-arc.md`, or any entry in `data/campaign/open-questions.json`. No character described here exists in our world.*
 
 > ## ⚠ The guardrail — read this before anything else
 >
@@ -105,4 +105,4 @@ Gathered 2026-09-13.
 
 This sweep covers the **1995–96 TV series and *The End of Evangelion***. The *Rebuild* tetralogy (2007–2021) is referenced only where it changes something structurally relevant, and the manga only where it differs usefully. Where the two TV endings and the film disagree, all are reported rather than reconciled.
 
-**Related in this project:** [design/craft-library.md](../../craft-library.md) §5 (the shelf index), [design/research/giant-robo/README.md](../giant-robo/README.md) (the first shelf — read its archetype catalogue alongside this one), `design/science-fiction-and-mecha-conventions.md`, `design/japanese-narrative-conventions.md`, `design/npc-social-intel.md`, `ideas/story/bible/`.
+**Related in this project:** [design/craft-library.md](../../craft-library.md) §5 (the shelf index), [design/research/giant-robo/README.md](../giant-robo/README.md) (the first shelf — read its archetype catalogue alongside this one), `design/science-fiction-and-mecha-conventions.md`, `design/japanese-narrative-conventions.md`, `design/npc-social-intel.md`, `quarantine/ideas/story/bible/`.

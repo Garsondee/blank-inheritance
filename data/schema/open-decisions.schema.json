@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "open-decisions.schema.json",
+  "title": "Open Decisions",
+  "description": "Every decision still Ingram's, generated from the open facts in canon/world/*.md by `node tools/story/story.mjs build` (D079: the plot timeline is the gold standard for story). Never edited by hand: a decision is answered on the timeline's Decisions view, which settles the fact in canon and removes it from here. Singleton file: data/campaign/open-decisions.json. It has the shape of open-questions.json so the Approvals Desk reads both the same way.",
+  "type": "object",
+  "required": ["id", "questions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" },
+    "id": { "const": "open-decisions" },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "status"],
+        "properties": {
+          "id": { "type": "string", "description": "The canon fact's id (entity.slug)." },
+          "question": { "type": "string", "description": "The open fact's words." },
+          "status": { "const": "open" },
+          "about": { "type": "string", "description": "The person, place or thing it is about." },
+          "candidates": { "type": "array", "items": { "type": "string" } },
+          "decideBy": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

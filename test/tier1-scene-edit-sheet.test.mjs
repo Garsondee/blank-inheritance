@@ -105,6 +105,23 @@ test("a beat's check is edited in its own check file, with the DC as a number an
   assert.deepEqual(settings.choice.options.map((o) => o.value), [...DELIVERY_OPTIONS]);
 });
 
+test("a way with its own result per degree (D062) is edited one box per degree it has, the line form as one box", () => {
+  const { brief, challenges } = fixture();
+  challenges["t1-kit"].checks[0].bySkill = {
+    deception: "He believes it.",
+    intimidation: { success: "He hands it over, sulking.", criticalFailure: "He calls the duty officer." }
+  };
+  const sheet = editSheet({ brief, challenges });
+  const fields = sheet.sections.find((s) => s.id === "beats").blocks[0].check.fields;
+  const keys = fields.filter((f) => /bySkill\./.test(f.key)).map((f) => [f.key.replace(/^.*bySkill\./, ""), f.labelData, f.value]);
+  assert.deepEqual(keys, [
+    ["deception", "deception", "He believes it."],
+    ["intimidation.success", "intimidation, success", "He hands it over, sulking."],
+    ["intimidation.criticalFailure", "intimidation, critical failure", "He calls the duty officer."]
+  ]);
+  for (const f of fields.filter((f) => /bySkill\./.test(f.key))) assert.equal(f.kind, FIELD_KINDS.PROSE);
+});
+
 test("a choice, a person, a handout and the lists are all on the sheet", () => {
   const { brief, challenges } = fixture();
   const sheet = editSheet({ brief, challenges });

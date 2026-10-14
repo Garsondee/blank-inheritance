@@ -6,7 +6,7 @@
 //   node tools/npc-generator/apply.mjs --check      write nothing; exit 1 if any file differs from what the roster generates
 //   node tools/npc-generator/apply.mjs --quiet      no table
 //
-// It writes ONLY `statblock` (and a new, unnamed-or-named, drafted file for a foe that had none): names, ancestry, descriptions,
+// It writes ONLY `statblock` (and a new, unnamed-or-named, drafted file for a foe that had none): names, ancestry, canon links,
 // social profiles and `authoring` are never touched, and nothing is ever written above `drafted` (core/promote.mjs
 // assertNotPromotedStatus). Deterministic: running it twice changes nothing. The roster is the file a person edits; the statblocks
 // are derived from it and are never edited by hand (a hand edit is overwritten, and `--check` says so).
@@ -54,7 +54,13 @@ export function withStatblock(file, statblock) {
   return out;
 }
 
-/** A new, drafted file for a foe a scene names in prose. It restates what the scene says and nothing else. */
+/**
+ * A new, drafted file for a foe a scene names in prose. It restates what the scene says and nothing else.
+ *
+ * No `description`: the old story prose of an NPC file is retired (D080), and the Actor sheet's text is generated from canon
+ * (tools/story/actor-notes.mjs), where a foe with no canon entity gets its blurb alone. Where the roster says the person comes
+ * from goes into the designNotes. `canon: null` says there is no canon entity for them yet.
+ */
 export function stubFor(person, statblock) {
   const status = "drafted";
   assertNotPromotedStatus(status, { source: "tools/npc-generator" });
@@ -67,8 +73,8 @@ export function stubFor(person, statblock) {
     role: person.stub.role,
     pole: null,
     affiliation: null,
-    description: person.stub.description,
-    designNotes: "Made by tools/npc-generator from data/campaign/npc-roster.json: a person a scene's events name in prose, so that there is a statblock for them and something to put on a token. Nothing about them is established beyond what the scene says; the statblock is derived and is changed in the roster, not here.",
+    canon: null,
+    designNotes: `Made by tools/npc-generator from data/campaign/npc-roster.json: a person a scene's events name in prose, so that there is a statblock for them and something to put on a token. Nothing about them is established beyond what the scene says; the statblock is derived and is changed in the roster, not here.\n\nWhere they come from: ${person.stub.description}`,
     namingPlaceholderRef: null,
     openQuestionRefs: [],
     statblock

@@ -1372,7 +1372,7 @@
             "items": {
               "type": "string"
             },
-            "description": "ids of Node entries (design/node-registry.md) this beat touches — a mystery-ledger plant, an open arc in a bible/dossier file's `## Arcs` section, an open-questions.json/naming-placeholders.json entry. State the fact here as a reference, not as restated prose; the canonical version lives at the Node."
+            "description": "SUPERSEDED 2026-10-07 (D079): the node registry is frozen and story now lives in canon/, so a new scene cites the canon facts a beat tells or relies on (`facts`, `gmFacts`) instead; kept only for the old drafts. ids of Node entries (design/node-registry.md) this beat touches — a mystery-ledger plant, an open arc in a bible/dossier file's `## Arcs` section, an open-questions.json/naming-placeholders.json entry. State the fact here as a reference, not as restated prose; the canonical version lives at the Node."
           },
           "when": {
             "type": "object",
@@ -1741,7 +1741,7 @@
       "items": {
         "type": "string"
       },
-      "description": "ids of Node entries (design/node-registry.md) this scene touches as a whole, rather than one specific beat. LONG HORIZON: this is where a campaign-scale plant's status lives, and the only legitimate home for the question of which chapter pays it off. Naming a payoff chapter or a numbered Ledger entry in a beat's prose instead is the drift bug found live 2026-09-19 (design/node-registry.md §11 Bug A), and the Sign-Off's M23 now fails a scene that does it."
+      "description": "SUPERSEDED 2026-10-07 (D079): the node registry is frozen and story now lives in canon/, so a new scene cites the canon facts a beat tells or relies on (`facts`, `gmFacts`) instead; kept only for the old drafts. ids of Node entries (design/node-registry.md) this scene touches as a whole, rather than one specific beat. LONG HORIZON: this is where a campaign-scale plant's status lives, and the only legitimate home for the question of which chapter pays it off. Naming a payoff chapter or a numbered Ledger entry in a beat's prose instead is the drift bug found live 2026-09-19 (design/node-registry.md §11 Bug A), and the Sign-Off's M23 now fails a scene that does it."
     },
     "carryForward": {
       "type": "array",
@@ -1779,9 +1779,22 @@
         "additionalProperties": false
       }
     },
+    "exceptions": {
+      "type": "array",
+      "description": "Added 2026-10-07 (D065). Checks of the Sign-Off checklist (data/campaign/signoff-checklist.json) that deliberately do not apply to THIS scene, each with the reason, written where the scene is. Ingram: there has to be the ability to make intelligent exceptions to some rules (the opening scene has no rolls and no cast; a relax beat has no skill check). An exception is a decision, not a suppression: the board and report show it with its reason (state `excepted`); a reason under 20 characters, or a check id that does not exist, is itself a failing result (X1). A scene with no place on the map is not an exception: mark it off the map (`offMap` in scene-set.json, set in the Location Editor's Story tab).",
+      "items": {
+        "type": "object",
+        "required": ["check", "why"],
+        "properties": {
+          "check": { "type": "string", "pattern": "^[A-Z]+[0-9]+$", "description": "A check id, such as M8." },
+          "why": { "type": "string", "minLength": 20, "description": "Why this check does not apply here, in one plain sentence a later reader can judge." }
+        },
+        "additionalProperties": false
+      }
+    },
     "temptations": {
       "type": "array",
-      "description": "Added 2026-09-20 (design/scene-triggers-and-depth.md §3). One sentence each, in the GM's own voice, ready to say out loud unprompted if the table stalls or nobody bites on the obvious hook. Not tied to any one beat — a GM reaches for one whenever the scene needs a nudge, not at a scripted moment. Never mandatory, never a check, the cheapest possible way to add width to a scene that's gone quiet.",
+      "description": "REDEFINED 2026-10-07 (D065, refined by D066, Ingram): a temptation is a TWIST, something the GM can pick up to enliven the scene, make it more interesting or add flavour and life to it (a comic turn, a complication, a gift, a way the scene might mutate), without breaking the scene's objective; the field keeps its name. Written 2026-09-20 as lines to say to a table that is not biting (design/scene-triggers-and-depth.md §3), and Ingram's reading found those too thin. Added 2026-09-20 (design/scene-triggers-and-depth.md §3). One sentence each, in the GM's own voice, ready to say out loud unprompted if the table stalls or nobody bites on the obvious hook. Not tied to any one beat — a GM reaches for one whenever the scene needs a nudge, not at a scripted moment. Never mandatory, never a check, the cheapest possible way to add width to a scene that's gone quiet.",
       "items": {
         "type": "object",
         "required": [

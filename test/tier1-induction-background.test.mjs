@@ -86,11 +86,14 @@ test("the real background catalogue has exactly 154 entries, each with a unique 
   assert.equal(new Set(CATALOGUE.backgrounds.map((b) => b.id)).size, 154);
 });
 
-test("every real background's boosts resolve cleanly once every free slot is given a legal pick", () => {
+test("every real background's boosts resolve cleanly once every free slot is given a legal pick, and each question it asks is answered", () => {
   for (const background of CATALOGUE.backgrounds) {
     const boostPicks = background.boosts.filter((slot) => slot.length > 1).map((slot) => slot[0]);
-    assert.ok(isBackgroundChoiceComplete(background, boostPicks), `${background.id} did not resolve to complete`);
-    const ingredients = resolveBackgroundIngredients(background, boostPicks);
+    // A background whose rules ask a question (Starship Dweller: Crafting or Piloting) is not complete until it is answered;
+    // test/tier1-induction-rule-choices.test.mjs holds that, and the questions themselves.
+    const choicePicks = Object.fromEntries((background.choices ?? []).map((choice) => [choice.flag, choice.options[0].key]));
+    assert.ok(isBackgroundChoiceComplete(background, boostPicks, choicePicks), `${background.id} did not resolve to complete`);
+    const ingredients = resolveBackgroundIngredients(background, boostPicks, choicePicks);
     assert.equal(ingredients.backgroundBoosts.length, background.boosts.length);
   }
 });

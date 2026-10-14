@@ -49,7 +49,10 @@
       "kind": "landing",
       "order": 0,
       "briefRef": "episode-c1e1--from-up-here",
-      "locationNote": "Deliberately no locationRef, and no pin on the campaign map: this is the whole city seen from the edge of the sky, not a place anyone stands, and the gazetteer has no single city-wide location to point at (its largest entries are districts and water regions). Same rule this manifest already applies to any scene with no one place to pin -- none rather than a guessed one. The Sign-Off's Place pass will report this as \"happens nowhere on the map\"; whether a view from above should be exempt from that check, or pinned to something, is Ingram's call.",
+      "locationNote": "Off the map on purpose (a view from above): the whole city seen from the edge of the sky is not a place anyone stands, and the gazetteer has no single city-wide location to point at. Ingram, 2026-10-06, grading the first episode confidence run: plenty of scenes might have no real location (D065).",
+      "offMap": {
+        "reason": "view-from-above"
+      },
       "blurb": "Kurose from very high up, at golden hour. The curve of the world along the top of the sky, cloud banked below you, a long bay with a pale beach running the whole length of it, and the city packed along the shore -- a river winding through the middle, farmland behind, and mountains behind that."
     },
     {
@@ -104,8 +107,9 @@
       "kind": "beat",
       "order": 8,
       "briefRef": "episode-c1e1--the-errand",
-      "locationRef": "the-general-store-416",
-      "blurb": "An instrument makers' workshop in the city: brass gauges, glass vials, and spirit levels in open boxes. The first time all six of you are outdoors in the city together — weather, noise, strangers."
+      "locationRef": "workshop-supplies-company",
+      "blurb": "An instrument makers' workshop in the city: brass gauges, glass vials, and spirit levels in open boxes. The first time all six of you are outdoors in the city together — weather, noise, strangers.",
+      "locationNote": "Placed 2026-10-07 at Workshop Supplies Company, the instrument makers' workshop Ingram chose in the Location Editor (req-6): a real building of The Slope, about 190 m by street from the tea house."
     },
     {
       "id": "e1-the-errand-tea-house",
@@ -116,7 +120,8 @@
       "order": 9,
       "navigation": false,
       "briefRef": "episode-c1e1--the-errand",
-      "locationRef": "the-tea-house-420"
+      "locationRef": "manakos-tea-house",
+      "locationNote": "Placed 2026-10-07 at Manako's Tea House, the building Ingram chose in the Location Editor (req-5): a real building of The Slope, about 190 m by street from the instrument makers'."
     },
     {
       "id": "e1-the-errand-alley",
@@ -127,7 +132,8 @@
       "order": 10,
       "navigation": false,
       "briefRef": "episode-c1e1--the-errand",
-      "locationRef": "the-general-store-416"
+      "locationRef": null,
+      "locationNote": "Deregistered 2026-10-07: the back alley between the workshop and the tea house, in the city. It follows wherever req-5 and req-6 are placed."
     },
     {
       "id": "e1-the-tram-back",
@@ -173,8 +179,9 @@
       "order": 14,
       "briefRef": "episode-c1e1--the-walk-down",
       "locationRef": "old-landing",
-      "locationNote": "PROPOSED, same guess as Flood Tunnel Clearance's own locationNote below and for the same reason: The Old Landing is the right district but Dock C's exact gate isn't in the gazetteer. Art is deliberately reused from Flood Tunnel Clearance, since this scene ends at the same site, same night, immediately before it.",
-      "blurb": "Waders from the night lockup, Dock C, and the duty launch across the harbour to the old town."
+      "locationNote": "PROPOSED, same guess as Flood Tunnel Clearance's own locationNote below and for the same reason: The Old Landing is the right district but Dock C's exact gate isn't in the gazetteer. Art is deliberately reused from Flood Tunnel Clearance, since this scene ends at the same site, same night, immediately before it. Open requests: req-7 (Dock C), req-8 (the night lockup) and req-9 (the hatch).",
+      "blurb": "Waders from the night lockup, Dock C, and the duty launch across the harbour to the old town.",
+      "approximate": true
     },
     {
       "id": "e1-flood-tunnel",
@@ -185,8 +192,9 @@
       "order": 15,
       "briefRef": "episode-c1e1--flood-tunnel",
       "locationRef": "old-landing",
-      "locationNote": "PROPOSED, and district-level rather than exact. The brief puts this in a disused drainage/compactor chamber under the old town, reached from Dock C. The Old Landing is the right ground -- the mainland's original waterfront -- but the chamber itself is not in the gazetteer. Wants a real location adding.",
-      "blurb": "The mainland's original waterfront, still the point every road eventually reaches. Ferry stages, chandlers, and a customs hall that predates the Directorate and is politely ignored by it. Underneath all of it, the drains."
+      "locationNote": "PROPOSED, and district-level rather than exact. The brief puts this in a disused drainage/compactor chamber under the old town, reached from Dock C. The Old Landing is the right ground -- the mainland's original waterfront -- but the chamber itself is not in the gazetteer. Wants a real location adding. Open request: req-9 (the hatch and the chamber).",
+      "blurb": "The mainland's original waterfront, still the point every road eventually reaches. Ferry stages, chandlers, and a customs hall that predates the Directorate and is politely ignored by it. Underneath all of it, the drains.",
+      "approximate": true
     },
     {
       "id": "e1-flood-tunnel-generator",
@@ -197,7 +205,9 @@
       "order": 16,
       "navigation": false,
       "briefRef": "episode-c1e1--flood-tunnel",
-      "locationRef": "old-landing"
+      "locationRef": "old-landing",
+      "approximate": true,
+      "locationNote": "A room of Flood Tunnel Clearance, approximate for the same reason as the scene: the drainage chamber is not on the map yet (req-9)."
     },
     {
       "id": "e1-flood-tunnel-machine",
@@ -208,7 +218,9 @@
       "order": 17,
       "navigation": false,
       "briefRef": "episode-c1e1--flood-tunnel",
-      "locationRef": "old-landing"
+      "locationRef": "old-landing",
+      "approximate": true,
+      "locationNote": "A room of Flood Tunnel Clearance, approximate for the same reason as the scene: the drainage chamber is not on the map yet (req-9)."
     },
     {
       "id": "e2-as-discussed",

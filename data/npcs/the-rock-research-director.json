@@ -9,7 +9,7 @@
   "role": "Research Director, The Rock",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs the laboratory side of The Rock (data/locations/the-rock.json) -- what is actually being studied, and why it needs a prison next to it rather than an ordinary research floor. What that research is remains an open question by design (see the location's own gmOnly text); this NPC is the person who knows the answer, not a vehicle for deciding it here.",
+  "canon": "directorate-posts.the-rock-research-director",
   "designNotes": "Placeholder role, not a character -- created 2026-09-12 alongside the location itself, following the standing convention (see commander.json, repair-chief-sato.json). Deliberately not one of the Directorate's three visible poles, for the same reason as the-rock-warden. Name, personality, and what the research actually is are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

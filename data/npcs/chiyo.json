@@ -10,7 +10,7 @@
   "pole": null,
   "ancestry": "Human",
   "affiliation": null,
-  "description": "A second-year candidate from a fishing village up the coast, with round cheeks, a scrap of blue cloth tying back her hair and her sleeves rolled to the elbow, who has not yet won a single hand of Last Ferry. She smiles the moment she picks up a good hand, knows she is doing it, and cannot stop; she counts her chores on her fingers. Warm and bright and a little breathless, and she apologises when she wins an argument.\n\nShe wants to win one hand, fairly, before the end of the term.",
+  "canon": "night-regulars.chiyo",
   "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--card-game.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Human ('Humans are known for their ability to adapt and thrive in the most challenging situations.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: A round-cheeked young woman with a scrap of blue cloth in her hair, cards clutched to her chest, hiding a hopeful smile.\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 1, a candidate with a sharp Perception for reading people, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

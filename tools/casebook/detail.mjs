@@ -15,8 +15,8 @@ export const STATE_LABEL = {
 const skillName = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 const DEGREES = [["criticalSuccess", "Critical success"], ["success", "Success"], ["failure", "Failure"], ["criticalFailure", "Critical failure"]];
 
-export function detailData(root) {
-  const model = loadModel(root);
+// `model` is the canon model when the caller already has one (build.mjs reads canon once and hands it to every part).
+export function detailData(root, model = loadModel(root)) {
   const facts = factIndex(model);
   const episodes = [];
   for (const r of model.plan) {
@@ -25,7 +25,7 @@ export function detailData(root) {
     ep.rows.push(r);
   }
   const scenes = model.plan
-    .filter((r) => r.state === "awaiting-read" || r.state === "approved")
+    .filter((r) => (r.state === "awaiting-read" || r.state === "approved") && model.scenes.some((s) => s.id === r.scene))
     .map((row) => {
       const scene = model.scenes.find((s) => s.id === row.scene);
       const rereadPath = path.join(root, "canon/scenes", row.scene + ".reread.md");
@@ -87,11 +87,18 @@ function checkHtml(beat, challenges, h) {
   return `<div class="checkbox"><p><span class="lbl">Roll</span><strong>${h(check.name || check.id)}</strong>: ${h(skills)}, DC ${check.dc?.value}${check.insight ? ". Costs nothing on any result." : "."}</p><dl>${rows}</dl></div>`;
 }
 
-function factsHtml(beat, facts, h) {
+// `link` (optional) says where a fact's one record lives on the whole Casebook page, so a scene's list can point to it.
+// A standalone scene page has no such place, and shows the id plain.
+function factsHtml(beat, facts, h, link) {
   const told = beat.facts || [];
   const gm = beat.gmFacts || [];
   if (!told.length && !gm.length) return "";
-  const li = (id) => { const f = facts.get(id); return `<li><code>${h(id)}</code> <span class="fst">${h(f ? f.status : "missing")}</span> ${h(f ? f.text : "")}</li>`; };
+  const li = (id) => {
+    const f = facts.get(id);
+    const href = link ? link(id) : null;
+    const code = `<code>${h(id)}</code>`;
+    return `<li>${href ? `<a class="ref" href="${href}">${code}</a>` : code} <span class="fst">${h(f ? f.status : "missing")}</span> ${h(f ? f.text : "")}</li>`;
+  };
   return `<details class="facts"><summary>Facts: ${told.length} told to the table, ${gm.length} for the GM only</summary>${told.length ? `<p class="lbl">Told to the table</p><ul>${told.map(li).join("")}</ul>` : ""}${gm.length ? `<p class="lbl">GM only</p><ul>${gm.map(li).join("")}</ul>` : ""}</details>`;
 }
 
@@ -108,7 +115,7 @@ ${b.readAloud ? `<blockquote class="ra">${paras(b.readAloud, h)}</blockquote>` :
 ${b.direction ? `<div class="dir"><span class="lbl">Direction</span>${paras(b.direction, h)}</div>` : ""}
 ${b.note ? `<div class="gmnote"><span class="lbl">GM</span>${paras(b.note, h)}</div>` : ""}
 ${checkHtml(b, x.challenges, h)}
-${factsHtml(b, d.facts, h)}
+${factsHtml(b, d.facts, h, d.linkFact)}
 </section>`).join("\n");
   const o = s.outro || {};
   return `<article class="scene" id="scene-${s.id}">
@@ -132,9 +139,11 @@ ${s.notes ? `<details><summary>Scene notes</summary>${paras(s.notes, h)}</detail
 }
 
 export function detailHtml(d, h) {
+  // A row links to its scene card only when there is one (a scene that is not in canon has none).
+  const written = new Set(d.scenes.map((x) => x.row.scene));
   const plan = d.episodes.map((ep) => `<h4 class="ep">${h(ep.name)}</h4>
 <div class="tbl plan"><table><thead><tr><th>#</th><th>Scene</th><th>Day</th><th>Time</th><th>State</th></tr></thead><tbody>
-${ep.rows.map((r) => `<tr class="st-${r.state}"><td>${r.order}</td><td>${r.state === "awaiting-read" || r.state === "approved" ? `<a href="#scene-${r.scene}">${h(r.title)}</a>` : h(r.title)}</td><td>${h(r.dayRaw)}</td><td>${h(r.time)}</td><td>${h(STATE_LABEL[r.state] || r.state)}</td></tr>`).join("\n")}
+${ep.rows.map((r) => `<tr class="st-${r.state}"><td>${r.order}</td><td>${written.has(r.scene) ? `<a href="#scene-${r.scene}">${h(r.title)}</a>` : h(r.title)}</td><td>${h(r.dayRaw)}</td><td>${h(r.time)}</td><td>${h(STATE_LABEL[r.state] || r.state)}</td></tr>`).join("\n")}
 </tbody></table></div>`).join("\n");
   return `<div class="part" id="part0">
 <header><div class="kicker">Part Zero</div><h2>Written in detail</h2><p>Scenes rebuilt one at a time in the new canon tree, in play order. Each is shown in full, as the GM would run it, with the record of its re-read. A scene is approved when you've read all of it and said so.</p></header>
@@ -182,8 +191,9 @@ export function detailMarkdown(d, m) {
     P();
     P(`**How to play it.** ${s.howToPlay} *Runs about ${s.runsAbout}.*`);
     P();
-    P(`**Where.** ${s.intro?.where}  `);
-    P(`**First thing.** ${s.intro?.firstThing}  `);
+    // A scene that has no "first thing" (the field is optional) leaves the line out, rather than printing "undefined".
+    if (s.intro?.where) P(`**Where.** ${s.intro.where}  `);
+    if (s.intro?.firstThing) P(`**First thing.** ${s.intro.firstThing}  `);
     if (s.intro?.holdInReserve) P(`**If a question isn't covered.** ${s.intro.holdInReserve}`);
     P();
     (s.beats || []).forEach((b, i) => {

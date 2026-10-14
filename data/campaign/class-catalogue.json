@@ -14,7 +14,8 @@
       "trainedSkills": { "fixed": [], "additional": 6 },
       "attacks": { "simple": 1, "martial": 1, "advanced": 0, "unarmed": 1, "otherName": null, "otherRank": null },
       "defenses": { "unarmored": 1, "light": 1, "medium": 0, "heavy": 0 },
-      "description": "You're a master influencer. You make your way in the universe with a charming smile, quick wit, and keen sense of self-preservation. You're a leader who motivates your teammates, pushes them past their limits, and helps them through tough spots. You excel at getting others to do what you want, but you're always ready to face trouble head-on when things take a turn for the worse. You might be a con artist, diplomat, performer, or military officer—or you might take on whatever role the situation demands."
+      "description": "You're a master influencer. You make your way in the universe with a charming smile, quick wit, and keen sense of self-preservation. You're a leader who motivates your teammates, pushes them past their limits, and helps them through tough spots. You excel at getting others to do what you want, but you're always ready to face trouble head-on when things take a turn for the worse. You might be a con artist, diplomat, performer, or military officer—or you might take on whatever role the situation demands.",
+      "choices": [{ "flag": "skill", "kind": "skill", "options": [{ "key": "deception", "label": "Deception" }, { "key": "diplomacy", "label": "Diplomacy" }, { "key": "intimidation", "label": "Intimidation" }] }]
     },
     {
       "id": "mystic",

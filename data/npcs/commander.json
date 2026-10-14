@@ -9,7 +9,7 @@
   "role": "The Commander",
   "pole": "mission-above-individuals",
   "affiliation": "directorate",
-  "description": "One of the Directorate's three deliberately-not-stable poles. Puts the mission above the individuals carrying it out.",
+  "canon": "commander",
   "openQuestionRefs": [],
   "status": "placeholder — not yet named or cast"
 }

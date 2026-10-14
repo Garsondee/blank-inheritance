@@ -379,12 +379,12 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "which-sign",
-      "text": "Somebody behind them in the queue asks, \"Which sign's right, do you reckon?\""
+      "id": "holding-the-feet",
+      "text": "A candidate ahead of them faints at the sight of the needle. Shucks steps out, says \"Feet up,\" and leaves the nearest player holding the feet."
     },
     {
-      "id": "the-badge",
-      "text": "MORDANT is right there on his pocket, and nobody has asked about it."
+      "id": "other-arm",
+      "text": "If a player has more than two arms, or fewer, Shucks's \"Other arm\" meets its match. He counts, says \"Right,\" and carries on in exactly the same tone."
     }
   ],
   "reactionPrompts": [

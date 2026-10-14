@@ -1,6 +1,6 @@
 # Propaganda, institutional comics, and documents that tell on themselves
 
-*Part of the [manga research shelf](README.md), gathered 2026-09-26 for [`design/propaganda-manga.md`](../../propaganda-manga.md). **Research, not lore, and not a decision:** it says what the sources say and what might transfer, and the plan decides. Every factual claim links its source; **(unverified)** marks what could not be confirmed. It names real works, people and places because it is GM-facing; none of them belongs in the comic. It covers hard history (wartime propaganda, a nuclear disaster, political purges) for its techniques only: the campaign's register stays warm and funny (`feedback_tone_giant_robo_not_eva`), and the Directorate is "calcified rather than sinister" (`ideas/story/dossier-the-directorate.md` §1).*
+*Part of the [manga research shelf](README.md), gathered 2026-09-26 for [`design/propaganda-manga.md`](../../propaganda-manga.md). **Research, not lore, and not a decision:** it says what the sources say and what might transfer, and the plan decides. Every factual claim links its source; **(unverified)** marks what could not be confirmed. It names real works, people and places because it is GM-facing; none of them belongs in the comic. It covers hard history (wartime propaganda, a nuclear disaster, political purges) for its techniques only: the campaign's register stays warm and funny (`feedback_tone_giant_robo_not_eva`), and the Directorate is "calcified rather than sinister" (`quarantine/ideas/story/dossier-the-directorate.md` §1).*
 
 ## The short version
 

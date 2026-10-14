@@ -141,6 +141,47 @@ const ok = (detail = "") => ({ ok: true, detail });
 const no = (detail) => ({ ok: false, detail });
 
 const nonEmpty = (v) => typeof v === "string" && v.trim().length > 0;
+
+/**
+ * The words that open a scene at the table: `intro.readAloud`, or the first beat's `readAloud` when the opening IS that beat's speech.
+ * The house style says each thing once, where it is used (design/gm-facing-prose-style.md, R27), so a scene whose first beat is the
+ * speech (Scene 0's, which is nothing else) must not be asked to copy it into the intro as well. Found by the first episode confidence
+ * run (2026-10-07): M2 and M10 failed Scene 0 for "no readAloud" while it held seven spoken beats, and Ingram's note on the finding
+ * was "the scene contains lots of spoken aloud text".
+ */
+function openerOf(brief) {
+  if (nonEmpty(brief?.intro?.readAloud)) return brief.intro.readAloud;
+  const first = (brief?.beats ?? [])[0];
+  return nonEmpty(first?.readAloud) ? first.readAloud : null;
+}
+
+/** A check that offers any skill the player names (`anySkill: true`) has declared its skill: the player's approach picks it. */
+const checkHasSkill = (check) => check?.anySkill === true || (check?.skillOptions ?? []).length > 0;
+
+export const MIN_EXCEPTION_WHY = 20;
+
+/**
+ * AUTHORED EXCEPTIONS. A scene brief may carry `exceptions: [{ check, why }]`: this check does not apply to this scene, and here is
+ * the reason. Ingram, 2026-10-06, grading the first episode confidence run: "there has to be the ability to make intelligent
+ * exceptions to some rules" (the opening scene has no rolls and no cast; a relax beat has no skill check; a scene can have no place).
+ * Before this, the only ways to say so were a `waive` written by the sealing review (seal.mjs) or a sentence in the notes matched by
+ * a regex, neither of which an author can write where the scene is. An exception is a DECISION, not a suppression: it shows on the
+ * board and in the report with its reason (state `excepted`), it is never silent, and one with no reason, or naming no real check,
+ * is itself a failing result (X1).
+ * @returns {{ byCheck: Map<string,string>, problems: string[] }}
+ */
+export function exceptionsOf(brief, checks = []) {
+  const byCheck = new Map();
+  const problems = [];
+  const ids = new Set(checks.map((c) => c.id));
+  for (const e of brief?.exceptions ?? []) {
+    if (!e || typeof e.check !== "string") { problems.push("an exception names no check"); continue; }
+    if (ids.size && !ids.has(e.check)) { problems.push(`${e.check}: no such check`); continue; }
+    if (!nonEmpty(e.why) || e.why.trim().length < MIN_EXCEPTION_WHY) { problems.push(`${e.check}: the reason is missing or under ${MIN_EXCEPTION_WHY} characters`); continue; }
+    byCheck.set(e.check, e.why.trim());
+  }
+  return { byCheck, problems };
+}
 const speaking = (member) => !member.walkOn;
 
 /**
@@ -150,7 +191,8 @@ const speaking = (member) => !member.walkOn;
  *
  *   short   what the GM records tonight        -> outro.writeDown
  *   medium  what lands in a few episodes       -> offers + tracks with a delta + carryForward
- *   long    a campaign-scale plant             -> nodeRefs, scene-level or on a beat
+ *   long    a campaign-scale plant             -> the canon facts a beat's GM notes rely on (gmFacts), plus the
+ *                                                 legacy nodeRefs of the old drafts (the node registry is frozen, D079)
  *
  * `carryForward` and `outro.writeDown` carried word-for-word identical purpose
  * clauses in the schema until this was written, and were used 2 and 26 times
@@ -161,7 +203,11 @@ export function horizonsOf(bundle) {
   const b = bundle.brief ?? {};
   const outro = b.outro ?? {};
   const long = new Set(b.nodeRefs ?? []);
-  for (const beat of b.beats ?? []) for (const n of beat.nodeRefs ?? []) long.add(n);
+  for (const beat of b.beats ?? []) {
+    for (const n of beat.nodeRefs ?? []) long.add(n);
+    // A fact the GM relies on but the table is not told here is held back for later: that is the long horizon.
+    for (const f of beat.gmFacts ?? []) long.add(f);
+  }
   return {
     short: (outro.writeDown ?? []).length,
     medium:
@@ -171,6 +217,12 @@ export function horizonsOf(bundle) {
     long: [...long]
   };
 }
+
+/**
+ * What holds a plant: a canon fact the beat cites (canon/README.md: a plant is a fact, with `payoff:` and `told:`; D070,
+ * D079), or, for the old drafts, a nodeRef. Either one has a status and a home; prose alone does not.
+ */
+const holdsPlant = (beat) => (beat.facts ?? []).length > 0 || (beat.gmFacts ?? []).length > 0 || (beat.nodeRefs ?? []).length > 0;
 
 /** Every authored prose string on a scene, for the checks that scan text. */
 function proseOf(brief) {
@@ -264,7 +316,9 @@ export const EVALUATORS = {
     return missing.length ? no(`missing: ${missing.join(", ")}`) : ok("all four present");
   },
   introFields(b) {
-    const missing = ["where", "firstThing", "readAloud"].filter((k) => !nonEmpty(b.brief?.intro?.[k]));
+    const missing = [];
+    if (!nonEmpty(b.brief?.intro?.where)) missing.push("where");
+    if (!openerOf(b.brief)) missing.push("words to open on (intro.readAloud, or readAloud on the first beat)");
     return missing.length ? no(`intro missing: ${missing.join(", ")}`) : ok();
   },
   outroFields(b) {
@@ -313,7 +367,7 @@ export const EVALUATORS = {
       if (!challenge) { faults.push(`${id}: unresolved`); continue; }
       for (const check of challenge.checks ?? []) {
         const gaps = [];
-        if (!(check.skillOptions ?? []).length) gaps.push("no skill");
+        if (!checkHasSkill(check)) gaps.push("no skill");
         if (typeof check.dc?.value !== "number") gaps.push("no DC");
         if (!nonEmpty(check.dc?.basis)) gaps.push("no DC basis");
         const outcomes = check.outcomes ?? {};
@@ -336,13 +390,28 @@ export const EVALUATORS = {
       checkRef("challenge", beat.challengeRef, corpus.challenges);
       checkRef("encounter", beat.encounterRef, corpus.encounters);
       checkRef("subsystem", beat.subsystemRef, corpus.subsystems);
-      checkRef("npc", beat.npcRef, corpus.npcs);
+      // A beat's npcRef names a member of THIS scene's cast (cast[].id), not a file in data/npcs: the cast entry carries the data id,
+      // and is checked above. Found by the first episode confidence run (2026-10-07): this used to look the cast id up in data/npcs, so
+      // five beats whose cast id differs from the NPC's file id (history-teacher / school-history-teacher) were reported as broken.
+      if (beat.npcRef && !(b.brief?.cast ?? []).some((m) => m.id === beat.npcRef)) broken.push(`cast:${beat.npcRef}`);
     }
     checkRef("subsystem", b.brief?.clockRef, corpus.subsystems);
+    // Every canon fact a beat cites must exist and not be cut (story check holds the same line; this says so in the review).
+    if (corpus.facts) {
+      for (const beat of b.brief?.beats ?? []) {
+        for (const id of [...(beat.facts ?? []), ...(beat.gmFacts ?? [])]) {
+          const f = corpus.facts.get(id);
+          if (!f) broken.push(`fact:${id}`);
+          else if (f.status === "cut") broken.push(`cut fact:${id}`);
+        }
+      }
+    }
     if (b.setEntry?.locationRef) checkRef("location", b.setEntry.locationRef, corpus.locations);
     return broken.length ? no(`${broken.length} broken: ${broken.join(", ")}`) : ok("all refs resolve");
   },
   skillVariety(b, corpus) {
+    const open = challengesFor(b, corpus).some(({ challenge }) => (challenge?.checks ?? []).some((c) => c.anySkill === true));
+    if (open) return ok("an open check: any skill the player's approach names");
     const skills = skillsFor(b, corpus);
     if (skills.size >= 2) return ok(`${skills.size} skills: ${[...skills].sort().join(", ")}`);
     if (skills.size === 1) return no(`one skill only (${[...skills][0]}) -- widen it, or say in notes why the single route is the design`);
@@ -363,7 +432,7 @@ export const EVALUATORS = {
   },
   tableBeatsHaveText(b) {
     const faults = [];
-    if (!nonEmpty(b.brief?.intro?.readAloud)) faults.push("intro has no readAloud");
+    if (!openerOf(b.brief)) faults.push("the scene has no opening words (no intro.readAloud and no readAloud on the first beat)");
     for (const beat of b.brief?.beats ?? []) {
       if (beat.kind === "reveal" && !nonEmpty(beat.readAloud)) faults.push(`reveal beat "${beat.id}" has no readAloud`);
       if (!nonEmpty(beat.text)) faults.push(`beat "${beat.id}" has no text at all`);
@@ -389,26 +458,26 @@ export const EVALUATORS = {
     const faults = [];
     for (const beat of b.brief?.beats ?? []) {
       const text = [beat.text, beat.note, beat.direction].filter(Boolean).join("\n");
-      const hasNode = (beat.nodeRefs ?? []).length > 0;
+      const hasNode = holdsPlant(beat);
       if (PLANT_DISCLAIMED.test(text)) continue; // the beat says outright it is not planting this
       for (const sentence of sentencesOf(text)) {
         if (NOT_A_PLANT.test(sentence) || CORRECTION_FRAMING.test(sentence)) continue;
         if (PAYOFF_CHAPTER.test(sentence)) {
-          faults.push(`beat "${beat.id}" names a payoff chapter in prose, which is the Node's fact: "${sentence.slice(0, 80)}"`);
+          faults.push(`beat "${beat.id}" names a payoff chapter in prose, which is the canon fact's to hold (told, payoff): "${sentence.slice(0, 80)}"`);
         } else if (!hasNode && NAMED_LEDGER_ENTRY.test(sentence)) {
-          faults.push(`beat "${beat.id}" names a numbered Ledger entry with no nodeRef to it: "${sentence.slice(0, 80)}"`);
+          faults.push(`beat "${beat.id}" names a numbered Ledger entry and cites no canon fact for it: "${sentence.slice(0, 80)}"`);
         }
       }
     }
     return faults.length
       ? no(faults.slice(0, 3).join(" | "))
-      : ok("no prose names a payoff chapter or a numbered Ledger entry without a Node");
+      : ok("no prose names a payoff chapter, or a numbered Ledger entry with no canon fact behind it");
   },
   /** M26, recommended: a plant labelled in prose that has no Node yet. */
   plantsWithoutNodes(b) {
     const loose = [];
     for (const beat of b.brief?.beats ?? []) {
-      if ((beat.nodeRefs ?? []).length) continue;
+      if (holdsPlant(beat)) continue;
       const text = [beat.text, beat.note, beat.direction].filter(Boolean).join("\n");
       if (PLANT_DISCLAIMED.test(text)) continue;
       for (const sentence of sentencesOf(text)) {
@@ -420,8 +489,8 @@ export const EVALUATORS = {
       }
     }
     return loose.length
-      ? no(`${loose.length} beat(s) plant something with no Node to hold it -- ${loose.slice(0, 2).join(" | ")}`)
-      : ok("every planting beat points at a Node");
+      ? no(`${loose.length} beat(s) plant something with no canon fact to hold it -- ${loose.slice(0, 2).join(" | ")}`)
+      : ok("every planting beat cites the canon fact that holds it");
   },
   consequenceRadar(b) {
     const h = horizonsOf(b);
@@ -649,6 +718,7 @@ export function runAutoChecks(bundle, corpus, { allScenes = [], only = null, inc
   const review = bundle.scene.authoring?.review ?? {};
   const waived = new Set((review.waived ?? []).map((w) => w.check));
   const notApplicable = new Map((review.notApplicable ?? []).map((n) => [n.check, n.why]));
+  const { byCheck: excepted, problems: exceptionProblems } = exceptionsOf(bundle.brief, corpus.checklist.checks);
   const neighbours = neighboursOf(bundle, allScenes);
   const i = allScenes.findIndex((s) => s.key === bundle.key);
   const previous = i > 0 ? allScenes[i - 1] : null;
@@ -676,6 +746,10 @@ export function runAutoChecks(bundle, corpus, { allScenes = [], only = null, inc
         continue;
       }
     }
+    if (excepted.has(check.id)) {
+      results.push({ ...check, state: "excepted", detail: `exception: ${excepted.get(check.id)}` });
+      continue;
+    }
     if (!check.auto) {
       results.push({ ...check, state: "manual", detail: "read by hand in the pass output" });
       continue;
@@ -700,7 +774,7 @@ export function runAutoChecks(bundle, corpus, { allScenes = [], only = null, inc
       // which is the exact "chosen exception, not default" boundary this
       // dependency exists to protect: a real waiver, once recorded, has to
       // actually clear the checks it makes unanswerable.
-      if (prereq && (prereq.state === "fail" || prereq.state === "waived")) {
+      if (prereq && (prereq.state === "fail" || prereq.state === "waived" || prereq.state === "excepted")) {
         results.push({ ...check, state: "n/a", detail: `unanswerable: ${prereq.id} is ${prereq.state} (${prereq.detail})` });
         continue;
       }
@@ -720,6 +794,10 @@ export function runAutoChecks(bundle, corpus, { allScenes = [], only = null, inc
     }
     results.push({ ...check, state: outcome.ok ? "pass" : "fail", detail: outcome.detail });
   }
+  // An exception that names no real check, or gives no reason, is a fault in the scene, never a silent pass.
+  if ((!only || only === "completeness") && exceptionProblems.length) {
+    results.push({ id: "X1", pass: "completeness", severity: "required", auto: "exceptions", question: "Does every authored exception name a real check and give a reason?", why: "An exception is a decision with its reason on the record, not a suppression flag.", source: "design/scene-signoff.md", state: "fail", detail: exceptionProblems.join("; ") });
+  }
   return results;
 }
 
@@ -729,6 +807,7 @@ export function summariseChecks(results) {
     requiredPass: tally("required", "pass"),
     requiredFail: tally("required", "fail"),
     requiredWaived: tally("required", "waived"),
+    requiredExcepted: tally("required", "excepted"),
     recommendedPass: tally("recommended", "pass"),
     recommendedFail: tally("recommended", "fail"),
     recommendedExempt: tally("recommended", "exempt"),

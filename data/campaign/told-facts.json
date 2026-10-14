@@ -38,6 +38,10 @@
       "text": "About a hundred and fifty years ago, the Directorate crossed the world and settled in Kurose.",
       "about": "The Directorate"
     },
+    "directorate.combined-campus": {
+      "text": "The combined campus named in the acceptance letter is the Directorate's island base.",
+      "about": "The Directorate"
+    },
     "directorate.curfew-minor": {
       "text": "Breaking curfew is a very minor offence: it is written down, and the candidate is told off.",
       "about": "The Directorate"
@@ -96,6 +100,10 @@
     },
     "directorate.orders-serious": {
       "text": "Refusing a direct order is the most serious thing a candidate can do. It means a hearing in front of someone senior, to explain themselves.",
+      "about": "The Directorate"
+    },
+    "directorate.paper-name": {
+      "text": "On its own paperwork the Directorate is called Tokubetsu Taisaku Honbu, Special Countermeasures Headquarters.",
       "about": "The Directorate"
     },
     "directorate.protectors": {
@@ -295,7 +303,7 @@
       "about": "Manako"
     },
     "manako.district": {
-      "text": "Manako's tea house is in a district of the city where he has a lot of influence.",
+      "text": "Manako's tea house is on The Slope, the hillside district of the city where he has a lot of influence.",
       "about": "Manako"
     },
     "manako.name": {

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playtest control room</title>
+<style>
+  :root {
+    --bg: #14161a; --panel: #1c1f25; --panel2: #232730; --line: #2f343f; --text: #e6e8ec; --dim: #9aa1ae;
+    --accent: #6cb4ff; --s0: #ff5d5d; --s1: #ff9f43; --s2: #f1d04b; --s3: #8fa3ad; --good: #54d38a;
+    --agent: #b48cff; --bot: #5fc9c9; --idle: #7d8590;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) { --bg: #f2f3f6; --panel: #ffffff; --panel2: #eef0f4; --line: #d3d7df; --text: #1b1e24; --dim: #5b6372; --accent: #1d6fd1; --s2: #a58400; --s3: #5d717b; --good: #1d8a4f; --agent: #6c3fc9; --bot: #167e7e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+  header h1 { font-size: 16px; margin: 0; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--idle); margin-right: 6px; }
+  .dot.up { background: var(--good); } .dot.down { background: var(--s0); }
+  .pill { padding: 1px 8px; border-radius: 999px; font-size: 12px; background: var(--panel2); border: 1px solid var(--line); }
+  .paused { background: var(--s1); color: #1b1e24; border-color: transparent; font-weight: 600; }
+  main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr); gap: 14px; padding: 14px 16px; }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+  .seats { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; align-content: start; }
+  .seat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seat .shot { aspect-ratio: 16 / 9; background: #0b0c0e; display: block; width: 100%; object-fit: cover; }
+  .seat .meta { padding: 7px 9px; display: grid; gap: 2px; }
+  .seat .row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .seat b { font-size: 14px; }
+  .brain { font-size: 11px; font-weight: 700; letter-spacing: .05em; padding: 0 6px; border-radius: 4px; color: #0e1013; }
+  .brain.agent { background: var(--agent); } .brain.bot { background: var(--bot); } .brain.idle { background: var(--idle); }
+  .dim { color: var(--dim); } .small { font-size: 12px; }
+  .err { color: var(--s0); font-weight: 600; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; display: flex; flex-direction: column; max-height: calc(100vh - 90px); position: sticky; top: 62px; }
+  .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+  .tabs button { background: none; border: 0; color: var(--dim); padding: 9px 12px; cursor: pointer; font: inherit; border-bottom: 2px solid transparent; }
+  .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  .tabs button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pane { padding: 10px 12px; overflow: auto; flex: 1; }
+  .pane[hidden] { display: none; }
+  .entry { padding: 3px 0; border-bottom: 1px dashed var(--line); word-break: break-word; }
+  .entry .who { font-weight: 600; }
+  .entry.k-gm .who { color: var(--accent); } .entry.k-system { color: var(--dim); font-style: italic; } .entry.k-private { color: var(--s2); } .entry.k-whisper { color: var(--agent); }
+  .sev { display: inline-block; min-width: 26px; text-align: center; font-weight: 700; font-size: 11px; border-radius: 4px; padding: 0 4px; color: #0e1013; margin-right: 6px; }
+  .sev.S0 { background: var(--s0); } .sev.S1 { background: var(--s1); } .sev.S2 { background: var(--s2); } .sev.S3 { background: var(--s3); }
+  form, .actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  input, select, button.btn { background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; }
+  input[type=text] { flex: 1; min-width: 120px; }
+  button.btn { cursor: pointer; } button.btn:hover { border-color: var(--accent); }
+  pre { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 8px; overflow: auto; max-height: 260px; white-space: pre-wrap; }
+  .bar { height: 8px; background: var(--panel2); border-radius: 4px; overflow: hidden; } .bar > i { display: block; height: 100%; background: var(--good); }
+  table { border-collapse: collapse; width: 100%; } td, th { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Playtest control room</h1>
+  <span id="run" class="pill">no run</span>
+  <span id="foundry" class="pill"><span class="dot"></span>Foundry</span>
+  <span id="paused" class="pill paused" hidden></span>
+  <span id="counts" class="small dim"></span>
+  <span style="flex:1"></span>
+  <span id="stream" class="small dim">connecting...</span>
+</header>
+<main>
+  <section>
+    <div id="seats" class="seats" aria-label="Seats"></div>
+    <p class="small dim">Pictures refresh every few seconds while this page is open (and only then). Agents and bots act in real browsers; nothing here changes what they see except Pause and the operator's table talk.</p>
+  </section>
+  <aside class="panel">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="pane-table" class="pane" role="tabpanel"></div>
+    <div id="pane-findings" class="pane" role="tabpanel" hidden></div>
+    <div id="pane-events" class="pane" role="tabpanel" hidden></div>
+    <div id="pane-coverage" class="pane" role="tabpanel" hidden></div>
+    <div id="pane-dice" class="pane" role="tabpanel" hidden></div>
+    <div id="pane-operator" class="pane" role="tabpanel" hidden></div>
+  </aside>
+</main>
+<script>
+const ORCH = "__PT_ORCH_TOKEN__";
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v !== null && v !== undefined) e.setAttribute(k, v); } for (const kid of kids.flat()) e.append(kid instanceof Node ? kid : document.createTextNode(String(kid ?? ""))); return e; };
+const op = async (name, body = {}) => (await fetch(`/o/${name}`, { method: "POST", headers: { "x-pt-orch": ORCH, "content-type": "application/json" }, body: JSON.stringify(body) })).json();
+
+const TABS = [["table", "Table"], ["findings", "Findings"], ["events", "Events"], ["coverage", "Coverage"], ["dice", "Dice"], ["operator", "Operator"]];
+const tabs = $("tabs");
+function pick(name) { for (const [id] of TABS) { $(`pane-${id}`).hidden = id !== name; } for (const b of tabs.children) b.setAttribute("aria-selected", String(b.dataset.tab === name)); try { localStorage.setItem("pt-tab", name); } catch {} if (name === "coverage") refreshCoverage(); }
+for (const [id, label] of TABS) tabs.append(el("button", { role: "tab", "data-tab": id, onclick: () => pick(id) }, label));
+
+const state = { seats: new Map(), table: [], findings: [], events: [], dice: [], bots: false };
+try { state.bots = localStorage.getItem("pt-bots") === "1"; } catch {}
+
+function renderSeats(status) {
+  const root = $("seats");
+  for (const s of status.seats) {
+    let card = state.seats.get(s.id);
+    if (!card) {
+      const img = el("img", { class: "shot", alt: `Screen of seat ${s.id}` });
+      card = { img, meta: el("div", { class: "meta" }), root: el("div", { class: "seat" }) };
+      card.root.append(img, card.meta);
+      root.append(card.root);
+      state.seats.set(s.id, card);
+    }
+    card.img.src = `/shot/${s.id}.jpg?t=${Date.now() % 100000}`;
+    card.meta.replaceChildren(
+      el("div", { class: "row" }, el("b", {}, `${s.id}  ${s.persona ?? ""}`), el("span", { class: `brain ${s.brain}` }, s.brain === "bot" ? "BOT" : s.brain.toUpperCase())),
+      el("div", { class: "row small" }, el("span", {}, s.character ? `${s.character}` : s.user), el("span", { class: s.state === "ready" ? "" : "err" }, s.state)),
+      el("div", { class: "row small dim" }, el("span", {}, s.scene ?? "no scene"), el("span", {}, `${s.actions} acts`, s.errors ? " " : "", s.errors ? el("span", { class: "err" }, `${s.errors} err`) : "")),
+      el("div", { class: "small dim" }, `${s.profile.viewport.join("x")}${s.profile.scale && s.profile.scale !== 1 ? ` @${s.profile.scale}` : ""}${s.profile.keyboardOnly ? " keyboard-only" : ""}${s.profile.reducedMotion ? " reduced-motion" : ""}${s.profile.network ? " slow-link" : ""}`)
+    );
+  }
+}
+function renderHeader(status) {
+  $("run").textContent = status.run ? `${status.run.name} - ${status.run.brief ?? "no scene yet"}` : "no run";
+  const f = status.foundry; const dot = $("foundry").querySelector(".dot"); dot.className = `dot ${f?.up ? "up" : "down"}`;
+  $("foundry").lastChild.textContent = f?.up ? `Foundry ${f.world ?? ""} (${f.usersActive ?? "?"} in)` : "Foundry down";
+  const p = $("paused"); p.hidden = !status.run?.paused; p.textContent = status.run?.paused ? `PAUSED: ${status.run.paused}` : "";
+  const t = status.findings?.tally; $("counts").textContent = t ? `findings ${t.total}  S0 ${t.bySeverity.S0}  S1 ${t.bySeverity.S1}  S2 ${t.bySeverity.S2}  S3 ${t.bySeverity.S3}${t.rig ? `  (+${t.rig} rig)` : ""}` : "";
+}
+const entryNode = (e) => el("div", { class: `entry k-${e.kind}` }, el("span", { class: "dim small" }, `${e.n} `), el("span", { class: "who" }, e.kind === "gm" ? "GM: " : e.kind === "system" ? "" : `${e.who ?? e.seat}${e.kind === "do" ? " " : e.kind === "whisper" ? ` whispers to ${(e.to || []).join(",")}: ` : e.kind === "private" ? " (private): " : ": "}`), e.text);
+const isBotChatter = (e) => e.kind === "private" && /^\[bot /.test(e.text);
+function renderTable() { const p = $("pane-table"); const box = p.querySelector(".log") || p.appendChild(el("div", { class: "log" })); box.replaceChildren(...state.table.filter((e) => state.bots || !isBotChatter(e)).slice(-120).map(entryNode)); box.scrollTop = box.scrollHeight; }
+function findingNode(f) { return el("div", { class: "entry" }, el("span", { class: `sev ${f.severity}` }, f.severity), el("b", {}, `${f.id} `), `${f.kind}${f.occurrences > 1 ? ` x${f.occurrences}` : ""} [${f.channel}${f.seat ? ` ${f.seat}` : ""}${f.scene ? ` ${f.scene}` : ""}] `, f.summary); }
+function renderFindings() { const box = $("pane-findings").querySelector(".log"); box.replaceChildren(...[...state.findings].reverse().map(findingNode)); }
+function renderEvents() { const box = $("pane-events").querySelector(".log"); box.replaceChildren(...state.events.slice(0, 80).map((e) => el("div", { class: "entry" }, el("span", { class: `sev ${e.severity}` }, e.severity), `${e.seat} ${e.category}${e.after ? ` (${e.after.ms} ms after ${e.after.verb})` : ""}: `, String(e.text ?? e.message ?? e.url ?? e.label ?? "").slice(0, 200)))); }
+function renderDice() { const box = $("pane-dice").querySelector(".log"); box.replaceChildren(...[...state.dice].reverse().slice(0, 40).map((d) => el("div", { class: "entry" }, `${d.seat} d20=${d.natural} ${d.modifier >= 0 ? "+" : ""}${d.modifier ?? "?"} = ${d.total ?? "?"} vs DC ${d.dc ?? "?"} -> ${d.degree == null ? "?" : ["crit fail", "fail", "success", "crit success"][d.degree]}`, d.forced ? " [FORCED]" : ""))); }
+async function refreshCoverage() { const box = $("pane-coverage"); const r = await op("coverage"); if (!r.ok) { box.replaceChildren(el("p", { class: "dim" }, r.text)); return; } const c = r.data; const bar = (n, t) => el("div", { class: "bar", title: `${n}/${t}` }, el("i", { style: `width:${t ? Math.round((100 * n) / t) : 0}%` })); const row = (name, g) => el("tr", {}, el("td", {}, name), el("td", {}, `${g.seen}/${g.total}`), el("td", { style: "width:45%" }, bar(g.seen, g.total))); box.replaceChildren(el("table", {}, row("scenes", c.scenes), row("beats", c.beats), row("mandatory beats", c.mandatoryBeats), row("check degrees", c.degrees), row("choice options", c.choices), row("handouts", c.handouts)), el("p", { class: "small dim" }, `Checks seen both ways: ${c.checks.seenBothWays}/${c.checks.total}`), el("button", { class: "btn", onclick: refreshCoverage }, "Refresh")); }
+
+function buildStatic() {
+  $("pane-table").append(el("label", { class: "small dim" }, el("input", { type: "checkbox", id: "showbots", onchange: (ev) => { state.bots = ev.target.checked; try { localStorage.setItem("pt-bots", state.bots ? "1" : "0"); } catch {} renderTable(); } }), " show the bots' chatter"), el("div", { class: "log" }), el("form", { onsubmit: async (ev) => { ev.preventDefault(); const f = ev.target; if (!f.text.value.trim()) return; await op("table", { positionals: [f.kind.value, f.text.value] }); f.text.value = ""; } }, el("select", { name: "kind" }, ...["system", "gm", "ruling", "say"].map((k) => el("option", { value: k }, k))), el("input", { type: "text", name: "text", placeholder: "Say something at the table as the operator", "aria-label": "Operator table talk" }), el("button", { class: "btn", type: "submit" }, "Send")));
+  $("pane-findings").append(el("div", { class: "log" }), el("form", { onsubmit: async (ev) => { ev.preventDefault(); const f = ev.target; if (!f.summary.value.trim()) return; const r = await op("findings", { positionals: ["add", f.summary.value], flags: { kind: f.kind.value, severity: f.severity.value, channel: "human", evidence: "control-room" } }); $("opout").textContent = r.text; f.summary.value = ""; } }, el("select", { name: "kind" }, ...["bug", "ux-friction", "material-gap", "material-weak", "praise", "continuity", "rules"].map((k) => el("option", { value: k }, k))), el("select", { name: "severity" }, ...["S0", "S1", "S2", "S3"].map((k) => el("option", { value: k }, k))), el("input", { type: "text", name: "summary", placeholder: "A finding of your own", "aria-label": "Finding summary" }), el("button", { class: "btn", type: "submit" }, "File it")));
+  $("pane-events").append(el("div", { class: "log" }));
+  $("pane-coverage").append(el("p", { class: "dim" }, "Open this tab to read the ledger."));
+  $("pane-dice").append(el("div", { class: "log" }), el("form", { onsubmit: async (ev) => { ev.preventDefault(); const f = ev.target; const flags = { degree: f.degree.value, count: 1 }; if (f.dc.value) flags.dc = f.dc.value; const r = await op("dice", { positionals: ["arm", f.seat.value], flags }); $("opout").textContent = r.text; } }, el("input", { type: "text", name: "seat", placeholder: "seat (P3)", style: "max-width:90px", "aria-label": "Seat to arm" }), el("select", { name: "degree" }, ...["crit-fail", "fail", "success", "crit-success"].map((k) => el("option", { value: k }, k))), el("input", { type: "text", name: "dc", placeholder: "dc", style: "max-width:70px", "aria-label": "DC" }), el("button", { class: "btn", type: "submit" }, "Arm next roll")));
+  const run = (label, name, body) => el("button", { class: "btn", onclick: async () => { $("opout").textContent = "..."; const r = await op(name, body); $("opout").textContent = r.text; } }, label);
+  $("pane-operator").append(
+    el("div", { class: "actions" }, el("button", { class: "btn", onclick: async () => { const reason = prompt("Pause the table: say why (the seats are told)"); if (reason) { const r = await op("pause", { positionals: [reason] }); $("opout").textContent = r.text; } } }, "Pause table"), run("Resume", "resume"), run("Checkpoint shots", "shots", { flags: { label: "checkpoint" } }), run("Detectors (all seats)", "detect"), run("Convergence", "probe", { positionals: ["convergence"] }), run("Leak scan", "probe", { positionals: ["leak"] }), run("Start bots", "bots")),
+    el("pre", { id: "opout" }, "Operator output appears here.")
+  );
+}
+
+buildStatic();
+$("showbots").checked = state.bots;
+let last = ""; try { last = localStorage.getItem("pt-tab") || ""; } catch {}
+pick(TABS.some(([id]) => id === last) ? last : "table");
+
+async function load() {
+  const [t, f] = await Promise.all([fetch("/api/table").then((r) => r.json()), fetch("/api/findings").then((r) => r.json())]);
+  state.table = t; state.findings = f; renderTable(); renderFindings();
+}
+function connect() {
+  const es = new EventSource("/api/stream");
+  es.onopen = () => { $("stream").textContent = "live"; load(); };
+  es.onerror = () => { $("stream").textContent = "reconnecting..."; };
+  es.addEventListener("status", (e) => { const s = JSON.parse(e.data); renderHeader(s); renderSeats(s); state.events = s.events ?? state.events; renderEvents(); });
+  es.addEventListener("table", (e) => { state.table.push(JSON.parse(e.data)); renderTable(); });
+  es.addEventListener("finding", (e) => { state.findings.push(JSON.parse(e.data)); renderFindings(); });
+  es.addEventListener("event", (e) => { state.events.unshift(JSON.parse(e.data)); renderEvents(); });
+  es.addEventListener("dice", (e) => { state.dice.push(JSON.parse(e.data)); renderDice(); });
+}
+connect();
+</script>
+</body>
+</html>

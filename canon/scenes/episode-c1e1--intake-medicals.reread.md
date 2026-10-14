@@ -140,3 +140,17 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R1, R15.** The clerk is `present`: she is handing out Form 12-B when the queue arrives. Shucks Mordant still waits for his glimpse in the opening read-aloud.
+
+## Revision 2026-10-07: temptations became twists (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude (first drafts by an Opus agent, reviewed and corrected by Claude) · state: awaiting Ingram's read
+
+Ingram, grading the first episode confidence run: temptations "need to be fun organic ways the scene might mutate, things that the GM might want to consider as ways to evolve the scene which won't break the overall objective of the scene."
+
+- **Replaced:** "Somebody behind them in the queue asks, "Which sign's right, do you reckon?""; "MORDANT is right there on his pocket, and nobody has asked about it.". Those were lines to say to a table that is not biting.
+- **Now 2 twists:** `holding-the-feet`, `other-arm`.
+- **R12, R13.** No twist states a fact, names a secret, or moves a held-back fact forward; each uses only people, objects and places already in this scene.
+- **R4, R5.** None needs a roll to reach, and none can stop the scene doing its job: every deadline and mandatory beat is still reachable.
+- **R3, R28.** No history or tool names; each twist is one or two sentences, 35 words or fewer.
+- **Conditional twists.** Some only apply if something is already true at the table (a player with a different number of arms, a player from the city, a section that filed its requisition loudly). The GM skips them otherwise.
+- **For Ingram.** These are a first attempt at what she described. Cut or rewrite any; the old lines are in this file's history (git) if one was better.

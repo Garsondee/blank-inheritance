@@ -307,7 +307,7 @@ export function buildStory(docs, { locations = {}, overrides = {}, newLocations 
     return { kind: departure.kind ?? "sent", question: departure.question ?? null, items, then };
   };
 
-  const makeRow = (key, { order, title, briefRef, status, when, mainEntry, group }) => {
+  const makeRow = (key, { order, title, briefRef, status, when, day = null, quarter = null, mainEntry, group }) => {
     const entries = sceneSet.filter((s) => briefRef && s.briefRef === briefRef);
     const main = mainEntry ?? entries.find((s) => !isRoom(s) && s.kind !== "hub") ?? null;
     const rooms = entries.filter((s) => isRoom(s) && s !== main).sort(byOrder);
@@ -319,6 +319,8 @@ export function buildStory(docs, { locations = {}, overrides = {}, newLocations 
       hasBrief: Boolean(briefRef && briefs[briefRef]),
       status: status ?? null,
       when: when ?? "",
+      day: Number.isFinite(day) ? day : null,
+      quarter: typeof quarter === "string" && quarter ? quarter : null,
       group,
       place: main ? sceneSlot(main) : null,
       rooms: rooms.map((room) => sceneSlot(room, room.name)),
@@ -344,6 +346,8 @@ export function buildStory(docs, { locations = {}, overrides = {}, newLocations 
       briefRef: scene.briefRef ?? null,
       status: scene.authoring?.status ?? null,
       when: whenText(scene),
+      day: scene.day,
+      quarter: scene.quarter,
       group: episode.id
     }));
     groups.push({ id: episode.id, kind: "episode", title: episode.title ?? episode.id, subtitle: episode.dayRange ? `Days ${episode.dayRange.start}-${episode.dayRange.end}` : "", rows });

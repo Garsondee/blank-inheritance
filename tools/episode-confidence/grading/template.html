@@ -1,0 +1,220 @@
+<title>Grades __RUN__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Courier+Prime&family=Noto+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: a single reading column of finding slips, a sticky tally strip above, the grade keys at each slip's foot. */
+:root {
+  --paper: #ece6d6;
+  --slip: #f7f3e9;
+  --ink: #1d1a14;
+  --muted: #6b6455;
+  --rule: #cfc5ad;
+  --accent: #be3219;
+  --brass: #8a6c33;
+  --good: #2f7a4a;
+  --warn: #a8701a;
+  --bad: #b02a1a;
+  --s0: #b02a1a; --s1: #c4521c; --s2: #a8701a; --s3: #6b6455;
+  --font-label: "Chakra Petch", "Bahnschrift", ui-sans-serif, sans-serif;
+  --font-body: "Noto Sans", system-ui, sans-serif;
+  --font-quote: "Courier Prime", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #18191b; --slip: #222326; --ink: #e6dfcd; --muted: #a39b87; --rule: #3a3b3f;
+  --accent: #e0573c; --brass: #c9a463; --good: #5fb07c; --warn: #d9a046; --bad: #e0573c;
+  --s0: #ef5a43; --s1: #e8773f; --s2: #d9a046; --s3: #a39b87; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #18191b; --slip: #222326; --ink: #e6dfcd; --muted: #a39b87; --rule: #3a3b3f;
+  --accent: #e0573c; --brass: #c9a463; --good: #5fb07c; --warn: #d9a046; --bad: #e0573c;
+  --s0: #ef5a43; --s1: #e8773f; --s2: #d9a046; --s3: #a39b87; color-scheme: dark }
+body { background: var(--paper); color: var(--ink); font: 15px/1.55 var(--font-body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; display: grid; gap: 18px; }
+h1 { font: 700 1.6rem/1.15 var(--font-label); letter-spacing: .02em; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 4px 0 0; max-width: 65ch; }
+.label { font: 600 .72rem/1 var(--font-label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.strip { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--paper); border-bottom: 1px solid var(--rule); padding-block: 10px; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.meter { flex: 1 1 200px; min-width: 0; display: grid; gap: 4px; }
+.bar { height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters select, .filters label { font: 600 .8rem var(--font-label); color: var(--ink); background: var(--slip); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; }
+.filters label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+details.verdicts { background: var(--slip); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 14px; }
+details.verdicts summary { cursor: pointer; font: 600 .9rem var(--font-label); }
+.verdict-row { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); gap: 4px 14px; padding-block: 6px; border-top: 1px solid var(--rule); }
+.verdict-row:first-of-type { border-top: 0; }
+.list { display: grid; gap: 14px; }
+.slip { background: var(--slip); border: 1px solid var(--rule); border-left: 4px solid var(--sev, var(--s3)); border-radius: 4px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.slip[data-sev="S0"] { --sev: var(--s0); } .slip[data-sev="S1"] { --sev: var(--s1); } .slip[data-sev="S2"] { --sev: var(--s2); } .slip[data-sev="S3"] { --sev: var(--s3); }
+.slip.is-graded { opacity: .78; }
+.head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.id { font: 700 .85rem var(--font-label); font-variant-numeric: tabular-nums; }
+.chip { font: 600 .7rem/1 var(--font-label); letter-spacing: .08em; text-transform: uppercase; padding: 3px 6px; border-radius: 3px; border: 1px solid var(--rule); color: var(--muted); }
+.chip.sev { color: var(--sev); border-color: var(--sev); }
+.where { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+.summary { font-size: 1rem; margin: 0; overflow-wrap: anywhere; }
+blockquote { margin: 0; padding: 8px 12px; border-left: 2px solid var(--brass); font: .9rem/1.5 var(--font-quote); background: color-mix(in srgb, var(--brass) 8%, transparent); overflow-wrap: anywhere; }
+.pair { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 2px 10px; font-size: .9rem; }
+.pair dt { font: 600 .72rem/1.8 var(--font-label); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.pair dd { margin: 0; overflow-wrap: anywhere; }
+.dups { font-size: .82rem; color: var(--muted); }
+.keys { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 4px; border-top: 1px dashed var(--rule); }
+.key { font: 600 .8rem var(--font-label); letter-spacing: .06em; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; }
+.key:hover { border-color: var(--ink); }
+.key:focus-visible, .filters :focus-visible, .note:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.key[aria-pressed="true"][data-grade="useful"] { background: var(--good); border-color: var(--good); color: var(--slip); }
+.key[aria-pressed="true"][data-grade="wrong"] { background: var(--bad); border-color: var(--bad); color: var(--slip); }
+.key[aria-pressed="true"][data-grade="nitpick"] { background: var(--warn); border-color: var(--warn); color: var(--slip); }
+.key[aria-pressed="true"][data-grade="knew"] { background: var(--muted); border-color: var(--muted); color: var(--slip); }
+.note { flex: 1 1 14rem; min-width: 0; min-height: 2.6rem; resize: vertical; font: .85rem var(--font-body); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+.status { font-size: .8rem; color: var(--muted); }
+.empty { color: var(--muted); padding: 24px; text-align: center; border: 1px dashed var(--rule); border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="label">Episode confidence run</div>
+    <h1 id="title">Grades</h1>
+    <p class="lede">Every finding the gate, the desk reviewers, the scripted walk and the table run kept, after fabricated quotes were dropped. Grade each one: <b>Useful</b> if it is right and worth acting on, <b>Wrong</b> if it is mistaken, <b>Nitpick</b> if it is right but not worth the time, <b>Knew</b> if you already knew. The grades are what the scorecard counts.</p>
+  </header>
+
+  <div class="strip">
+    <div class="meter"><div class="label" id="progress-label">0 of 0 graded</div><div class="bar"><i id="progress-bar"></i></div></div>
+    <div class="filters">
+      <select id="f-channel" aria-label="Layer"><option value="">Every layer</option></select>
+      <select id="f-sev" aria-label="Severity"><option value="">Every severity</option><option>S0</option><option>S1</option><option>S2</option><option>S3</option></select>
+      <label for="f-open"><input type="checkbox" id="f-open"> Ungraded only</label>
+      <label for="f-reveal"><input type="checkbox" id="f-reveal"> Show who found it</label>
+    </div>
+  </div>
+
+  <p class="status" id="store-status">Connecting to the grade store…</p>
+  <details class="verdicts" id="verdicts" hidden><summary>The desk's verdict on each scene</summary><div id="verdict-rows"></div></details>
+  <section class="list" id="list" aria-live="polite"></section>
+</main>
+
+<script>
+const DATA = /*__DATA__*/null;
+const GRADES = [["useful", "Useful"], ["wrong", "Wrong"], ["nitpick", "Nitpick"], ["knew", "Knew"]];
+const grades = new Map();
+let db = null;
+let canWrite = true;
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid) n.append(kid);
+  return n;
+};
+const pref = (key, value) => {
+  try { if (value === undefined) return localStorage.getItem(key); localStorage.setItem(key, value); } catch { return null; }
+  return null;
+};
+
+const findings = DATA?.findings ?? [];
+$("title").textContent = DATA?.title ?? "Grades";
+for (const c of [...new Set(findings.map((f) => f.channel))]) $("f-channel").append(el("option", { value: c, text: c }));
+$("f-reveal").checked = pref("reveal") === "1";
+$("f-open").checked = pref("open") === "1";
+for (const id of ["f-channel", "f-sev", "f-open", "f-reveal"]) $(id).addEventListener("change", () => {
+  pref("reveal", $("f-reveal").checked ? "1" : "0");
+  pref("open", $("f-open").checked ? "1" : "0");
+  render();
+});
+
+const sceneName = (id) => (id ? id.replace(/^episode-[a-z0-9]+--/, "").replace(/-/g, " ") : "the whole episode");
+
+function renderVerdicts() {
+  const v = DATA?.stats?.verdicts ?? {};
+  const rows = Object.entries(v);
+  if (!rows.length) return;
+  $("verdicts").hidden = false;
+  const host = $("verdict-rows");
+  host.replaceChildren(...rows.map(([scene, list]) => el("div", { class: "verdict-row" },
+    el("div", { class: "label", text: sceneName(scene) }),
+    el("div", {}, ...list.map((x) => el("div", {}, el("b", { text: `${x.verdict ?? "?"}` }), ` ${x.why ?? ""}`, $("f-reveal").checked && x.model ? el("span", { class: "where", text: ` (${x.reviewer}, ${x.model})` }) : null))))));
+}
+
+function slip(f) {
+  const g = grades.get(f.id);
+  const reveal = $("f-reveal").checked;
+  const who = [f.channel, reveal ? f.source : null, reveal ? f.model : null].filter(Boolean).join(" · ");
+  const pairs = [["Expected", f.expected], ["Actual", f.actual], [f.proposal?.type === "question" ? "Question" : "Proposed fix", f.proposal?.text]].filter(([, v]) => v);
+  const note = el("textarea", { class: "note", id: `note-${f.id}`, rows: "2", maxlength: "4000", placeholder: "Why (optional)", "aria-label": `Note on ${f.id}` , disabled: !canWrite || !db });
+  note.value = g?.note ?? "";
+  note.addEventListener("change", () => save(f.id, grades.get(f.id)?.grade ?? null, note.value));
+  note.addEventListener("blur", () => { if (note.value !== (grades.get(f.id)?.note ?? "")) save(f.id, grades.get(f.id)?.grade ?? null, note.value); });
+  return el("article", { class: `slip${g?.grade ? " is-graded" : ""}`, "data-sev": f.severity, id: f.id },
+    el("div", { class: "head" },
+      el("span", { class: "id", text: f.id }),
+      el("span", { class: "chip sev", text: f.severity }),
+      el("span", { class: "chip", text: f.kind }),
+      el("span", { class: "chip", text: who })),
+    el("div", { class: "where", text: [sceneName(f.scene), f.beat ? `beat ${f.beat}` : null, f.lens].filter(Boolean).join(" · ") }),
+    el("p", { class: "summary", text: f.summary }),
+    f.quote ? el("blockquote", {}, el("div", { text: f.quote }), f.file ? el("div", { class: "where", text: f.file }) : null) : null,
+    pairs.length ? el("dl", { class: "pair" }, ...pairs.flatMap(([k, v]) => [el("dt", { text: k }), el("dd", { text: v })])) : null,
+    f.duplicates?.length ? el("div", { class: "dups", text: `Also found by ${f.duplicates.length} other: ${[...new Set(f.duplicates.map((d) => d.channel))].join(", ")}` }) : null,
+    el("div", { class: "keys" },
+      ...GRADES.map(([key, label]) => el("button", { class: "key", type: "button", "data-grade": key, "aria-pressed": g?.grade === key ? "true" : "false", disabled: !canWrite || !db, onclick: () => save(f.id, g?.grade === key ? null : key, note.value), text: label })),
+      note));
+}
+
+function render() {
+  const ch = $("f-channel").value;
+  const sev = $("f-sev").value;
+  const open = $("f-open").checked;
+  const shown = findings.filter((f) => (!ch || f.channel === ch) && (!sev || f.severity === sev) && (!open || !grades.get(f.id)?.grade));
+  const list = $("list");
+  list.replaceChildren(...(shown.length ? shown.map(slip) : [el("div", { class: "empty", text: findings.length ? "Nothing matches these filters." : "This run kept no findings." })]));
+  const done = findings.filter((f) => grades.get(f.id)?.grade).length;
+  $("progress-label").textContent = `${done} of ${findings.length} graded`;
+  $("progress-bar").style.width = findings.length ? `${(100 * done) / findings.length}%` : "0";
+  renderVerdicts();
+}
+
+async function save(id, grade, note) {
+  if (!db || !canWrite) return;
+  const body = { grade: grade ?? null, note: (note ?? "").slice(0, 4000), at: new Date().toISOString() };
+  grades.set(id, body);
+  render();
+  try {
+    await db.collection("grades").doc(id).set(body);
+    $("store-status").textContent = `Saved ${id}.`;
+  } catch (e) {
+    if (e?.code === "invalid_argument") {
+      canWrite = false;
+      $("store-status").textContent = "You can read these grades but not change them.";
+      render();
+    } else $("store-status").textContent = `Could not save ${id} (${e?.code ?? "error"}). Press the key again.`;
+  }
+}
+
+render();
+(async () => {
+  try {
+    db = await window.claude?.use?.("db");
+    const user = await window.claude?.use?.("user");
+    if (user && (await user.can?.("data.write")) === false) canWrite = false;
+  } catch { db = null; }
+  if (!db) {
+    $("store-status").textContent = "The grade store is not available in this view, so grades cannot be saved here. Open the page in Claude.";
+    render();
+    return;
+  }
+  $("store-status").textContent = canWrite ? "Grades save as you press them." : "You can read these grades but not change them.";
+  db.collection("grades").onSnapshot((snap) => {
+    grades.clear();
+    for (const d of snap.docs) grades.set(d.id, d.data());
+    render();
+  }, (e) => { $("store-status").textContent = `The grade store stopped answering (${e.code}). Reload the page.`; });
+  render();
+})();
+</script>

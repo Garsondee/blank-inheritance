@@ -14,6 +14,8 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { loadModel } from "../story/lib.mjs";
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(here, "..", "..");
 const dataRoot = path.join(repoRoot, "data");
@@ -44,6 +46,36 @@ function indexDir(rel, { recursive = false } = {}) {
   return out;
 }
 
+/**
+ * The scene-set entry that carries each brief's map link: the scene's OWN entry, not one of its rooms.
+ * A scene-set entry of kind "sub" is a room of a scene (The Errand's tea house, its alley), and several entries can share one brief. This used to keep the LAST
+ * entry for a brief, which was a room, so the moment a room had no place the scene itself read as having none (found 2026-10-07, when the Errand's rooms were
+ * deregistered and its scene, already placed at the workshop, still failed P1). The Location Editor's Story (core/siting.mjs#buildStory) picks the same way:
+ * the first entry that is not a room.
+ */
+export function sceneSetIndex(entries = []) {
+  const isRoom = (entry) => entry.kind === "sub";
+  const out = {};
+  for (const entry of entries) {
+    if (!entry.briefRef) continue;
+    const held = out[entry.briefRef];
+    if (!held || (isRoom(held) && !isRoom(entry))) out[entry.briefRef] = entry;
+  }
+  return out;
+}
+
+/** Every canon fact by id (status, told, payoff), so a check can see that what a beat cites exists. Null when canon can't be read. */
+function canonFacts() {
+  try {
+    const m = loadModel();
+    const out = new Map();
+    for (const e of m.world) for (const f of e.facts) out.set(f.id, { status: f.status, told: f.told });
+    return out;
+  } catch {
+    return null;
+  }
+}
+
 export function loadCorpus() {
   const episodes = Object.values(indexDir("episodes")).sort(
     (a, b) => (a.dayRange?.start ?? Infinity) - (b.dayRange?.start ?? Infinity)
@@ -52,10 +84,7 @@ export function loadCorpus() {
     ? read(path.join(dataRoot, "campaign", "scene-set.json"))
     : { scenes: [] };
 
-  const sceneSetByBriefRef = {};
-  for (const entry of sceneSet.scenes ?? []) {
-    if (entry.briefRef) sceneSetByBriefRef[entry.briefRef] = entry;
-  }
+  const sceneSetByBriefRef = sceneSetIndex(sceneSet.scenes ?? []);
 
   return {
     episodes,
@@ -66,6 +95,7 @@ export function loadCorpus() {
     npcs: indexDir("npcs", { recursive: true }),
     creatures: indexDir("antagonists", { recursive: true }),
     locations: indexDir("locations"),
+    facts: canonFacts(),
     sceneSet,
     sceneSetByBriefRef,
     checklist: read(path.join(dataRoot, "campaign", "signoff-checklist.json"))

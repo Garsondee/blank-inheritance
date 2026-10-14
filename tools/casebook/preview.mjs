@@ -55,9 +55,9 @@ export function previewablesFromData(d) {
 
 // Writes out/scenes/<id>.html for `ids` (default: every scene in canon), plus out/scene-preview.html: for the given
 // `ids`'s first entry if any were named, otherwise for the first scene in play order still awaiting her read (the
-// next one to read, now that the night's rests put eleven in the queue at once).
-export function writePreviews(root, outDir, ids) {
-  const d = detailData(root);
+// next one to read, now that the night's rests put eleven in the queue at once). `d` is detail.mjs's data when the
+// caller (build.mjs) has already read canon.
+export function writePreviews(root, outDir, ids, d = detailData(root)) {
   const byId = previewablesFromData(d);
   fs.mkdirSync(path.join(outDir, "scenes"), { recursive: true });
   const written = [];
@@ -80,7 +80,7 @@ export function writePreviews(root, outDir, ids) {
   return written;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const REPO = path.resolve(DIR, "..", "..");
   const OUT = DIR + "out/";
   const args = process.argv.slice(2);

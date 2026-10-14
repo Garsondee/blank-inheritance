@@ -86,6 +86,19 @@
                     {{#if editPending}}<span class="bi-runner__edit-count" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Edit.PendingHint'}}">{{editPending}}</span>{{/if}}
                 </button>
                 {{/if}}
+                {{!-- A check made up on the spot (2026-10-05): any skill, any DC,
+                      put to the table in the check console. While one is open
+                      this brings it back. --}}
+                <button type="button" class="bi-runner__tier1-btn" data-action="openAdhocCheck"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.Runner.CheckKeyHint'}}">
+                    <i class="fa-solid fa-dice-d20"></i> {{localize "BLANKINHERITANCE.Runner.CheckKey"}}
+                </button>
+                {{!-- The Location Editor (2026-10-05): cuts this GM's screen to
+                      the Campaign Map, then opens the editor on it. --}}
+                <button type="button" class="bi-runner__tier1-btn" data-action="openLocationEditor"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.Runner.LocationsKeyHint'}}">
+                    <i class="fa-solid fa-map-location-dot"></i> {{localize "BLANKINHERITANCE.Runner.LocationsKey"}}
+                </button>
                 <button type="button" class="bi-runner__theme-toggle" data-action="toggleTheme"
                     title="{{localize 'BLANKINHERITANCE.Runner.ThemeToggle'}}"
                     aria-label="{{localize 'BLANKINHERITANCE.Runner.ThemeToggle'}}">

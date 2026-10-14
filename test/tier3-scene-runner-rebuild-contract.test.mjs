@@ -38,6 +38,10 @@ const camera = read("scripts", "foundry", "stage-camera.mjs");
 const panel = read("templates", "runner", "panel.hbs");
 const beatHbs = read("templates", "runner", "beat.hbs");
 const person = read("templates", "runner", "person.hbs");
+// 2026-10-05: a check runs in the check console (foundry/check-console.mjs) from its pill in the beat's line.
+const consoleSrc = read("scripts", "foundry", "check-console.mjs");
+const gmHbs = read("templates", "check-console", "gm.hbs");
+const moduleFn = (name) => src.match(new RegExp(`(?:async )?function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n\\}`))?.[0] ?? null;
 const css = read("styles", "bi-components.css");
 const bridge = read("styles", "bi-foundry-bridge.css");
 const tokens = read("styles", "bi-tokens.css");
@@ -164,22 +168,24 @@ test("a beat is one line until opened: the row toggles its detail, and the detai
 test("the beat being run is marked, and opening a later beat to read ahead does NOT move that mark", () => {
   assert.match(beatHbs, /\{\{#if isNow\}\} bi-runner__beat--now\{\{\/if\}\}/);
   assert.doesNotMatch(fnBody("onToggleBeatDetail"), /focusId/, "peeking ahead must not change which beat the GM is on");
-  for (const acts of ["onPostCheck", "onFireTrigger", "onOpenBeat"]) {
+  for (const acts of ["onOpenCheck", "onFireTrigger", "onOpenBeat"]) {
     assert.match(fnBody(acts), /this\.#focus\(/, `#${acts} is running a beat and should make it the one being run`);
   }
 });
 
 test("each degree of success shows its AUTHORED consequence and records it in the same press (never shown before 2026-09-24)", () => {
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/)?.[0];
-  assert.match(decorate, /consequence: check\.outcomes\?\.\[degree\] \?\? null/);
-  const outcomes = beatHbs.match(/\{\{#each outcomes\}\}[\s\S]*?\{\{\/each\}\}/)?.[0];
-  assert.ok(outcomes);
-  assert.match(outcomes, /data-action="recordOutcome" data-beat-id="\{\{\.\.\/id\}\}" data-degree="\{\{degree\}\}"/);
-  assert.match(outcomes, /\{\{consequence\}\}/);
+  // 2026-10-05: in the check console's Results, beside who it landed on; per way when the check has results per way.
+  const provider = src.match(/setCheckConsoleProvider\(\{[\s\S]*?\n\}\);/)?.[0];
+  assert.match(provider, /outcomes: found\.check\.outcomes \?\? \{\}/);
+  const rows = gmHbs.match(/\{\{#each results\.rows\}\}[\s\S]*?\{\{\/each\}\}/)?.[0];
+  assert.ok(rows);
+  assert.match(rows, /data-action="markOutcome" data-degree="\{\{this\.degree\}\}"/);
+  assert.match(rows, /\{\{this\.text\}\}/);
+  assert.match(consoleSrc, /await recordResult\?\.\(\{ kind: "outcome", session, degree: target\.dataset\.degree \}\);/);
 });
 
 test("recording an outcome keeps that beat open on its consequence; ticking the next thing folds it", () => {
-  assert.match(fnBody("onRecordOutcome"), /this\.#viewFor\(briefId\)\.resolvedId = beatId;/);
+  assert.match(moduleFn("recordMarkedOutcome"), /active\?\.markResolved\(beatId\);/);
   assert.match(fnBody("onRecordChoice"), /this\.#viewFor\(briefId\)\.resolvedId = beatId;/);
   assert.match(fnBody("onToggleBeat"), /view\.resolvedId = null;/);
 });
@@ -201,22 +207,25 @@ test("how to play it and how it ends reach the GM with their bold rendered, not 
 /*  Rolls come back by themselves                                    */
 /* ---------------------------------------------------------------- */
 
-test("every check the runner posts is tagged with its brief and beat (or topic)", () => {
-  // 2026-10-04 (D058): the call also carries the check's own `secret` flag, so a check whose critical failure is a
-  // belief rolls blind (core/roll-intent.mjs#enricherFor).
-  // 2026-10-04 (D059): all three post through one checkMessageContent, which tags with the brief and the key it is
-  // given and carries the secret flag, whichever shape the check posts as.
-  assert.match(fnBody("onPostCheck"), /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: beat\.id \}\)/);
-  assert.match(fnBody("onFireTrigger"), /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: beatId \}\)/);
-  assert.match(fnBody("onPostTopicCheck"), /checkMessageContent\(check, \{ dc, briefId: brief\.id, key: topicKey \}\)/);
-  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0];
-  assert.ok(content, "checkMessageContent is missing");
-  assert.match(content, /const options = rollTagFor\(briefId, key\);/);
-  assert.match(content, /const secret = check\.secret === true;/);
-  assert.match(content, /anySkillCard\(\{ skillOptions: skills, dc, options, secret,/);
-  assert.match(content, /enrichersFor\(\{ skillOptions: checkSkills\(check\), dc, secret, options \}\)/);
-  const tagFor = src.match(/function rollTagFor\(briefId, key\) \{[\s\S]*?\n\}/)?.[0];
-  assert.match(tagFor, /catch/, "an id that cannot be tagged must still post the check, untagged");
+test("every check the runner puts to the table is tagged with its brief and beat (or topic)", () => {
+  // 2026-10-04 (D058): a check whose critical failure is a belief rolls blind (sf2e's secret trait).
+  // 2026-10-05: every roll for a check carries the Runner's tag (brief + beat or topic key), the console's own
+  // tag and the way chosen (foundry/check-console.mjs#checkRollOptions), whether a player pressed a key in their
+  // window or clicked the copy the GM posted to chat; and a blind check rolls secret both ways.
+  const options = consoleSrc.match(/export function checkRollOptions\(session, slug\) \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(options, "checkRollOptions is missing");
+  assert.match(options, /out\.push\(runnerRollOption\(session\.briefId, session\.key\)\);/);
+  assert.match(options, /catch/, "an id that cannot be tagged must still let the check be rolled");
+  assert.match(options, /out\.push\(\.\.\.consoleRollOptions\(session\?\.id, slug\)\);/);
+  const roll = consoleSrc.match(/export async function rollForCheck\([^)]*\) \{[\s\S]*?\n\}/)?.[0];
+  assert.match(roll, /const extraRollOptions = checkRollOptions\(session, slug\);/);
+  assert.match(roll, /if \(session\.blind\) extraRollOptions\.push\("secret"\);/);
+  const post = consoleSrc.match(/async function postToChat\(session\) \{[\s\S]*?\n\}/)?.[0];
+  assert.match(post, /const tags = checkRollOptions\(session, null\);/);
+  assert.match(post, /secret: session\.blind/);
+  const spec = moduleFn("checkSpecFor");
+  assert.match(spec, /key: beat\.id,/);
+  assert.match(spec, /key: `\$\{castId\}:coercible:\$\{index\}`,/);
 });
 
 test("a tagged result records itself -- on the ACTIVE GM's client only, into a gap only, and only for the brief on screen", () => {
@@ -232,12 +241,17 @@ test("a tagged result records itself -- on the ACTIVE GM's client only, into a g
   assert.match(record, /outcomeLogSubject\(result\.key, result\.degree\)/, "a rolled result must tally in the log like a clicked one");
 });
 
-test("every result is listed on its beat, and any of them can be used instead with one press", () => {
-  const rolls = beatHbs.match(/\{\{#each rolls\}\}[\s\S]*?\{\{\/each\}\}/)?.[0];
-  assert.ok(rolls);
-  assert.match(rolls, /data-action="useRoll" data-message-id="\{\{messageId\}\}"/);
-  assert.match(fnBody("onUseRoll"), /recordRollResult\(result, \{ force: true \}\)/);
-  assert.match(fnBody("onUseRoll"), /game\.messages\?\.get\(target\.dataset\.messageId\)/, "read the result back out of the real message, never the button's copy");
+test("every result is shown as it lands, and any degree can be made the outcome with one press", () => {
+  // 2026-10-05: in the check console's bank, a tall light per player lit by their result (D062), with four keys under
+  // it to set one by hand, and a key per degree in Results that records it as how the check came out for the scene.
+  const bank = gmHbs.match(/\{\{#each bank\}\}[\s\S]*?\{\{\/each\}\}\s*<\/ol>/)?.[0];
+  assert.ok(bank);
+  assert.match(bank, /<span class="bi-led" data-state="/);
+  assert.match(bank, /data-action="setResult" data-user-id="\{\{\.\.\/userId\}\}" data-degree="\{\{this\.degree\}\}"/);
+  const record = moduleFn("recordMarkedOutcome");
+  assert.match(record, /if \(before\?\.degree === degree\) delete ticked\[beatId\];/, "marking the recorded degree again clears it");
+  // A result is read back out of the real chat message the roll made, never a copy kept on a button.
+  assert.match(consoleSrc, /const message = entry\.messageId \? game\.messages\?\.get\(entry\.messageId\) : null;/);
 });
 
 /* ---------------------------------------------------------------- */
@@ -293,7 +307,7 @@ test("every class the rebuild introduced is real CSS", () => {
   for (const cls of [
     "bi-runner__cols", "bi-runner__script", "bi-runner__side", "bi-runner__people", "bi-runner__kit",
     "bi-runner__beat-row", "bi-runner__beat-summary", "bi-runner__beat-chips", "bi-runner__beat--now", "bi-runner__now",
-    "bi-runner__outcome", "bi-runner__outcome--picked", "bi-runner__outcome-text", "bi-runner__rolls",
+    // 2026-10-05: the outcome buttons and the list of rolls left with the check card for the check console.
     "bi-runner__bookend", "bi-runner__unstage", "bi-runner__grip", "bi-runner__note-tag",
     "bi-runner__elsewhere", "bi-runner__meter-seg", "bi-runner__fight"
   ]) {
@@ -328,19 +342,17 @@ test("the clock has the GM's own +/- keys, clamped by the pool itself, logged, a
 // player names (an `anySkill` check with empty skillOptions). Every place the
 // runner posts a check must go through checkSkills, or that check posts an
 // empty chat message and the player has nothing to click.
-test("every check the runner posts goes through checkSkills, so an any-skill check is never an empty message", () => {
-  // 2026-10-04 (D059): the beat, topic and trigger post sites all go through checkMessageContent, and both of its
-  // shapes take their skills from checkSkills.
-  const posts = src.match(/ChatMessage\.create\(\{ content: checkMessageContent\(check, /g) ?? [];
-  assert.ok(posts.length >= 3, "expected the beat, topic and trigger post sites");
-  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0];
-  assert.match(content, /const skills = checkSkills\(check\);/);
-  assert.match(content, /enrichersFor\(\{ skillOptions: checkSkills\(check\),/);
+test("every check the runner puts to the table goes through checkSkills, so an any-skill check is never empty", () => {
+  // 2026-10-05: the beat's pill, the topic's pill and the post-check trigger all open the console with
+  // checkSkills(check), and the console posts or offers exactly those.
+  const spec = moduleFn("checkSpecFor");
+  assert.equal((spec.match(/skills: checkSkills\(check\),/g) ?? []).length, 2);
+  assert.match(fnBody("onFireTrigger"), /skills: checkSkills\(check\),/);
   assert.match(src, /import \{[^}]*checkSkills[^}]*\} from "\.\.\/core\/roll-intent\.mjs"/);
 });
 
-test("an any-skill check's button reads 'Any skill' rather than eighteen slugs", () => {
-  assert.match(src, /checkLabel\(check, dc, game\.i18n\.localize\("BLANKINHERITANCE\.Runner\.AnySkill"\)\)/);
+test("an any-skill check's pill reads 'Any skill' rather than eighteen skills", () => {
+  assert.match(moduleFn("checkPill"), /check\.anySkill \? game\.i18n\.localize\("BLANKINHERITANCE\.Runner\.AnySkill"\)/);
   const lang = JSON.parse(read("lang", "en.json"));
   assert.equal(lang.BLANKINHERITANCE.Runner.AnySkill, "Any skill");
 });

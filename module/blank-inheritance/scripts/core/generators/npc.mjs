@@ -1,4 +1,5 @@
 import { deriveFoundryId } from "../ids.mjs";
+import { sheetNotes } from "../actor-notes.mjs";
 import { buildCombatStatblockSystemData } from "./combat-statblock.mjs";
 import { resolveTokenRing } from "./token-ring.mjs";
 
@@ -24,10 +25,19 @@ import { resolveTokenRing } from "./token-ring.mjs";
  *    items/strikes — see tier1-generators.test.mjs). HP 1 rather than 0 is
  *    deliberate: 0 HP reads as dead/defeated on an npc-type Actor's sheet,
  *    which is wrong for a living NPC who simply has no authored combat
- *    stats. `details.blurb`/`details.publicNotes` are then overridden from
- *    `source.description` — the one piece of real prose a statblock-less
- *    NPC actually has, and the closest equivalent to a creature's
- *    flavorText/notes.
+ *    stats.
+ *
+ * BOTH branches then get the sheet's notes from core/actor-notes.mjs (D080,
+ * 2026-10-07; before it, a statblock-less NPC's `description` was written
+ * into details.blurb and details.publicNotes, and a statblock NPC's sheet
+ * said nothing at all): details.blurb is one line built from the source's
+ * role and affiliation, details.publicNotes is that same line and never a
+ * fact (a player may be able to read public notes), and details.privateNotes
+ * is the GM-only text generated from canon, passed in as `notes` (the
+ * person's entry in data/campaign/actor-notes.json). With no entry the Actor
+ * carries its blurb only. A statblock's own flavorText/notes, if anyone ever
+ * authors them, still win over the generated blurb/public notes: they were
+ * written for this sheet.
  *
  * _id via deriveFoundryId, same convention as every other generator. Pure:
  * no Foundry globals. Every field path this writes under `system`/`items` is
@@ -57,30 +67,20 @@ import { resolveTokenRing } from "./token-ring.mjs";
  * from `tokenImage` on purpose: the ring wants a circle-cropped square
  * subject, `img` wants the ordinary rectangular portrait a sheet or frame
  * actually looks right with.
+ *
+ * `notes` is likewise optional and caller-resolved: this person's entry from
+ * data/campaign/actor-notes.json (foundry/sync.mjs fetches the file once per
+ * sync), or null/omitted when the file is missing or does not list them.
  */
-export async function buildNpcActorData(source, { tokenImage = null, portraitImage = null } = {}) {
+export async function buildNpcActorData(source, { tokenImage = null, portraitImage = null, notes = null } = {}) {
   const id = await deriveFoundryId(source.id);
   const prototypeToken = {
     ring: resolveTokenRing("npc", source),
     ...(tokenImage ? { texture: { src: tokenImage } } : {})
   };
 
-  if (source.statblock) {
-    const { system, items } = buildCombatStatblockSystemData(source.statblock);
-    return {
-      _id: id,
-      name: source.name ?? source.id,
-      type: "npc",
-      system,
-      items,
-      prototypeToken,
-      ...(portraitImage ? { img: portraitImage } : {})
-    };
-  }
-
-  const { system, items } = buildCombatStatblockSystemData({});
-  system.details.blurb = source.description ?? "";
-  system.details.publicNotes = source.description ?? "";
+  const { system, items } = buildCombatStatblockSystemData(source.statblock ?? {});
+  applySheetNotes(system.details, sheetNotes(source, notes));
 
   return {
     _id: id,
@@ -91,4 +91,15 @@ export async function buildNpcActorData(source, { tokenImage = null, portraitIma
     prototypeToken,
     ...(portraitImage ? { img: portraitImage } : {})
   };
+}
+
+/**
+ * Write the generated notes into the sheet's details. The blurb and public notes only where the statblock mapping left them
+ * empty (its own flavorText/notes win); the private notes only when there are some, so a sheet canon has nothing to say about
+ * keeps exactly the fields the statblock mapping gave it.
+ */
+function applySheetNotes(details, { blurb, publicNotes, privateNotes }) {
+  if (!details.blurb && blurb) details.blurb = blurb;
+  if (!details.publicNotes && publicNotes) details.publicNotes = publicNotes;
+  if (privateNotes) details.privateNotes = privateNotes;
 }

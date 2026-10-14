@@ -114,3 +114,17 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R4, R19.** A new optional check, The stamp (Crafting or Perception, DC 15, blind): a player who looks closely at an extra from Nobu finds a ships' chandler's stamp under the fresh Directorate paint. On a critical success the stamp names a waterfront chandler, with a price pencilled beside it in Nobu's hand. It tells the table `nobu.off-book`, accepted in D059 and now told here.
 - **R8.** If they ask him about it: "Issue never arrives on time." He doesn't deny it.
 - **Carry-in.** "If anyone failed local studies" now names who (their own result on Learn the city), and shows Last at the counter beside them in the Runner's party strip.
+
+## Revision 2026-10-07: temptations became twists (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude (first drafts by an Opus agent, reviewed and corrected by Claude) · state: awaiting Ingram's read
+
+Ingram, grading the first episode confidence run: temptations "need to be fun organic ways the scene might mutate, things that the GM might want to consider as ways to evolve the scene which won't break the overall objective of the scene."
+
+- **Replaced:** "Nobu clearly has more in the back than he's putting on the counter.". Those were lines to say to a table that is not biting.
+- **Now 3 twists:** `swapped-tunics`, `hold-the-clipboard`, `nothing-to-fault`.
+- **R12, R13.** No twist states a fact, names a secret, or moves a held-back fact forward; each uses only people, objects and places already in this scene.
+- **R4, R5.** None needs a roll to reach, and none can stop the scene doing its job: every deadline and mandatory beat is still reachable.
+- **R3, R28.** No history or tool names; each twist is one or two sentences, 35 words or fewer.
+- **Conditional twists.** Some only apply if something is already true at the table (a player with a different number of arms, a player from the city, a section that filed its requisition loudly). The GM skips them otherwise.
+- **For Ingram.** These are a first attempt at what she described. Cut or rewrite any; the old lines are in this file's history (git) if one was better.

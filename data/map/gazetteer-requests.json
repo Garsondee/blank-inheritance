@@ -48,16 +48,72 @@
       "what": "Manako's tea house, in a particular district of the city where he has a lot of influence.",
       "why": "Blocks The Errand (episode-c1e1--the-errand), where the party meets Manako. Ingram, 2026-09-27 (LEDGER #46): \"Manako's tea house and the technical workshop both need placing and I don't know that I'm 100% confident where either of them are. These both need to be placed / review in the gazetteer before they are considered done. Manako's tea house needs to be a particular district in town, somewhere he has a lot of influence.\" The scene currently points at the-tea-house-420, which is up for review.",
       "hint": "A district of the city (not the Directorate's island) where an old man can be quietly important: locals and the tea house's staff defer to him without making a show of it. Review the-tea-house-420 and move or replace it.",
-      "status": "open",
-      "raisedAt": "2026-09-27T00:00:00Z"
+      "status": "resolved",
+      "raisedAt": "2026-09-27T00:00:00Z",
+      "resolvedAt": "2026-10-07T00:00:00Z",
+      "resolution": "manakos-tea-house (B3·83, The Slope, 119 m2): a real building Ingram chose in the Location Editor, 95 m from the workshop (about 190 m by street)."
     },
     {
       "id": "req-6",
       "what": "A technical workshop, an instrument makers', a few streets from Manako's tea house: the first place The Errand's docket sends the party.",
       "why": "Blocks The Errand. Ingram, 2026-09-27 (LEDGER #45, #46): the party goes first to a more technical workshop whose people can't help and send them on to Manako; it must be \"closer than 600m, ideally just a few streets away\" from the tea house. Claude's first pick, the Instrument Shop on the works, was about 600 m away and is withdrawn.",
       "hint": "Place it after req-5, a few streets from wherever the tea house lands. A small workshop with long benches and a counter; it makes gauges and spirit levels.",
+      "status": "resolved",
+      "raisedAt": "2026-09-27T00:00:00Z",
+      "resolvedAt": "2026-10-07T00:00:00Z",
+      "resolution": "workshop-supplies-company (B3·83, The Slope, 200 m2): a real building Ingram chose and named in the Location Editor."
+    },
+    {
+      "id": "req-7",
+      "what": "Dock C: the pier on the fortress island where the duty launch leaves, with its lit gate at the bottom of the hill.",
+      "why": "Blocks The Walk Down (episode-c1e1--the-walk-down). Vetch gives the party their job here and puts them on the duty launch for the ten-minute crossing to the old town; the scene's landmark is Dock C's gate, lit, at the bottom of the hill. The scene is currently marked approximate at the Old Landing, which is where it ends, not where it begins.",
+      "hint": "The fortress island's own water edge (the Directorate's base), not the mainland shore. Where the launch can be boarded for a ten-minute crossing to the Old Landing.",
       "status": "open",
-      "raisedAt": "2026-09-27T00:00:00Z"
+      "raisedAt": "2026-10-07T00:00:00Z",
+      "blocks": [
+        "episode-c1e1--the-walk-down"
+      ]
+    },
+    {
+      "id": "req-8",
+      "what": "The night lockup: a counter, a single bulb and a clerk, where the party is issued waders.",
+      "why": "Blocks The Walk Down's opening (the scene opens here, then walks down to Dock C): 'a counter, a single bulb and a clerk who has already issued everything worth having. Six pairs of waders and one chit to sign.' Its intro position has no place, so the Story tab shows 'Opens at' empty. It may be a hatch or room of a building that already exists; that is your call.",
+      "hint": "The fortress island, within walking distance of Dock C (the scene is called The Walk Down).",
+      "status": "open",
+      "raisedAt": "2026-10-07T00:00:00Z",
+      "blocks": [
+        "episode-c1e1--the-walk-down"
+      ]
+    },
+    {
+      "id": "req-9",
+      "what": "A hatch in the old town's quay and the disused drainage chamber below it (the generator room and the machine room are its two rooms).",
+      "why": "Blocks Flood Tunnel Clearance, the episode's fight, and the end of The Walk Down. The duty launch bumps the old town's quay, where a hatch already stands open with a ladder going down to a raised platform of panels; below it a flooded floor slopes to an amber grate with conveyor walkways along both walls. All four scene-set entries (the scene and its two rooms, and The Walk Down) point at the Old Landing district and are marked approximate.",
+      "hint": "The Old Landing (mainland), on a quay of the old town's waterfront. It is underground: a pin at the hatch is enough if no building fits.",
+      "status": "open",
+      "raisedAt": "2026-10-07T00:00:00Z",
+      "blocks": [
+        "episode-c1e1--flood-tunnel",
+        "episode-c1e1--the-walk-down"
+      ]
+    },
+    {
+      "id": "req-10",
+      "what": "Move the North Shore Town pin onto land.",
+      "why": "The Road In's 'By the coast road' arrival places tokens at the North Shore Town, and `npm run journeys` warns: 'Tokens would stand in the water at The North Shore Town, 16 m from land.' Drop the pin on the shore, or pick a building.",
+      "hint": null,
+      "status": "resolved",
+      "raisedAt": "2026-10-07T00:00:00Z",
+      "resolvedAt": "2026-10-07T00:00:00Z",
+      "resolution": "north-shore-town-start (E1·40): a pin on the trunk-road junction in the grid square Ingram named, now the 'By the coast road' arrival's place. npm run journeys reports no water stop."
+    },
+    {
+      "id": "req-11",
+      "what": "Where The Errand opens: the point the island train lets the party off in the city.",
+      "why": "The Errand's opening position has no place ('Opens at' empty in the Story tab). Its closing position is the tea house, which the scene says they leave. Mainland Platforms is 2.4 km from the workshop by street, about a half-hour walk, so if the train stops somewhere nearer, that is the better answer.",
+      "hint": "Candidate to review, not decided: mainland-platforms (Old Landing). Its entry says passengers for the island get off there, but nothing says the island line runs into it.",
+      "status": "open",
+      "raisedAt": "2026-10-07T00:00:00Z"
     }
   ]
 }

@@ -41,8 +41,8 @@
       "level": {
         "value": 0
       },
-      "blurb": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline's statblock-less NPC path only. Not a real NPC, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync.",
-      "publicNotes": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline's statblock-less NPC path only. Not a real NPC, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync."
+      "blurb": "Diagnostic Fixture",
+      "publicNotes": "<p>Diagnostic Fixture</p>"
     }
   },
   "items": [],

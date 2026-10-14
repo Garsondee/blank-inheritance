@@ -9,7 +9,7 @@
   "role": "Chief of Staff, The General Hospital",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs The General Hospital (data/locations/general-hospital.json) day to day -- wards, staff, and who is actually allowed to see whom. The hospital nominally answers to Shucks Mordant as the Directorate's Chief Medical Officer (see his own file's Proposed connection note, unconfirmed), but he is never there in person; this is the person a party actually deals with.",
+  "canon": "directorate-posts.hospital-chief-of-staff",
   "designNotes": "Placeholder role, not a character -- created 2026-09-12 alongside the location itself, following the standing convention (see commander.json, repair-chief-sato.json). Name, personality, and exactly how they relate to Shucks are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

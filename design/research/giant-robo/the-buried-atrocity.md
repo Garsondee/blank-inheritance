@@ -53,7 +53,7 @@ The story is told four times, and each telling is true.
 
 ## 7. For this campaign **[U]**
 
-The campaign already has a founding catastrophe (`ideas/story/dossier-first-impact.md`), a redaction system in design (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`), and a bible thesis that nobody has ever done anything evil — only flinched, and then built a life on the flinch. **That thesis and this engine are the same shape**, which is the single most useful finding in this shelf: the Bashtarle structure is a worked, seven-hour demonstration of exactly the story our v4 bible says it wants to tell.
+The campaign already has a founding catastrophe (`quarantine/ideas/story/dossier-first-impact.md`), a redaction system in design (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`), and a bible thesis that nobody has ever done anything evil — only flinched, and then built a life on the flinch. **That thesis and this engine are the same shape**, which is the single most useful finding in this shelf: the Bashtarle structure is a worked, seven-hour demonstration of exactly the story our v4 bible says it wants to tell.
 
 **This shelf proposes no content for our history.** What it offers is the four-pass discipline, the distributed-survivors method, and the warning in §5.
 
@@ -63,4 +63,4 @@ The campaign already has a founding catastrophe (`ideas/story/dossier-first-impa
 
 **Related on this shelf:** [characters/franken-von-vogler.md](characters/franken-von-vogler.md), [characters/professor-shizuma.md](characters/professor-shizuma.md), [characters/genya.md](characters/genya.md), [characters/professor-go.md](characters/professor-go.md), [characters/ivan.md](characters/ivan.md), [what-makes-it-tick.md](what-makes-it-tick.md) §9 and §11.
 
-**Related in this project:** `design/mystery-and-investigation-design.md`, `design/ttrpg-campaign-and-session-craft.md` §3, `design/narrative-theory-foundations.md`, `design/harvest-inference.md`, `ideas/story/blank-inheritance-v4.md`.
+**Related in this project:** `design/mystery-and-investigation-design.md`, `design/ttrpg-campaign-and-session-craft.md` §3, `design/narrative-theory-foundations.md`, `design/harvest-inference.md`, `quarantine/ideas/story/blank-inheritance-v4.md`.

@@ -366,3 +366,340 @@ export function planRoute({ graph = EMPTY_GRAPH, start, end }) {
 
   return { distance: entry.dist + dist.get(exitId) + lastLeg, usedNetwork: true, segments };
 }
+
+/* ------------------------------------------------------------------ */
+/*  The cached router                                                  */
+/* ------------------------------------------------------------------ */
+
+const heapPush = (heap, id, d) => {
+  if (heap.size === heap.ids.length) {
+    const grown = heap.ids.length * 2;
+    const ids = new Int32Array(grown);
+    const ds = new Float64Array(grown);
+    ids.set(heap.ids);
+    ds.set(heap.ds);
+    heap.ids = ids;
+    heap.ds = ds;
+  }
+  let i = heap.size++;
+  heap.ids[i] = id;
+  heap.ds[i] = d;
+  while (i > 0) {
+    const parent = (i - 1) >> 1;
+    if (heap.ds[parent] <= heap.ds[i]) break;
+    const pid = heap.ids[parent];
+    const pd = heap.ds[parent];
+    heap.ids[parent] = heap.ids[i];
+    heap.ds[parent] = heap.ds[i];
+    heap.ids[i] = pid;
+    heap.ds[i] = pd;
+    i = parent;
+  }
+};
+
+/** Pops the smallest entry into `out`; the same sift rules as `shortestPathsFrom`'s own heap, so ties break the same way. */
+const heapPop = (heap, out) => {
+  out.id = heap.ids[0];
+  out.d = heap.ds[0];
+  heap.size--;
+  if (heap.size > 0) {
+    heap.ids[0] = heap.ids[heap.size];
+    heap.ds[0] = heap.ds[heap.size];
+    let i = 0;
+    const n = heap.size;
+    for (;;) {
+      let smallest = i;
+      const l = 2 * i + 1;
+      const r = 2 * i + 2;
+      if (l < n && heap.ds[l] < heap.ds[smallest]) smallest = l;
+      if (r < n && heap.ds[r] < heap.ds[smallest]) smallest = r;
+      if (smallest === i) break;
+      const sid = heap.ids[smallest];
+      const sd = heap.ds[smallest];
+      heap.ids[smallest] = heap.ids[i];
+      heap.ds[smallest] = heap.ds[i];
+      heap.ids[i] = sid;
+      heap.ds[i] = sd;
+      i = smallest;
+    }
+  }
+};
+
+/** Cells this wide (in the graph's own units) index the trusted nodes for a nearest-node search. */
+const NEAREST_CELL = 128;
+
+/**
+ * The same router as `planRoute`, built ONCE for a graph and asked many times.
+ *
+ * `planRoute` rebuilds the whole graph's adjacency, component sizes and edge-way index and scans every node twice on EVERY call: about 0.7 s each on the
+ * real 68,000-node graph, which is fine for one token crossing a map and hopeless for a screen that wants to check forty journeys, or to follow a pointer
+ * across the map. This does the expensive part once (a compact adjacency array, the components, a spatial index over the trusted nodes) and keeps the last
+ * few shortest-path tables, so a route costs a nearest-node lookup and, for a new starting point, one Dijkstra over typed arrays.
+ *
+ * It is NOT a different router. It makes exactly the choices `planRoute` makes (the same trusted nodes, the same nearest node, the first in the graph's own
+ * order on an exact tie, the same Dijkstra with the same heap, the same "leave the network at the reachable node nearest the destination" rule when the
+ * destination's network is not connected, the same refusal to ride when reaching the road costs more than walking) and test/tier1-travel-router.test.mjs
+ * holds the two to identical output on synthetic graphs and on real journeys. That is what lets the Location Editor preview a route and promise that it is
+ * the route the tokens will take.
+ *
+ * `plan({ start, end })` returns `planRoute`'s `{ distance, usedNetwork, segments }` plus `meta`: how far each end had to walk to meet the network
+ * (`startWalk`, `endWalk`), how far was ridden (`networkMetres`), whether the destination's own network is connected to the start's (`connected`), why a plain
+ * walk was chosen if it was (`reason`), and the size of the network component the route began on. core/journey-checks.mjs reads those.
+ */
+export function createRouter(graph = EMPTY_GRAPH, { cacheSize = 16 } = {}) {
+  const nodeXy = graph.nodeXy || {};
+  const ids = Object.keys(nodeXy);
+  const n = ids.length;
+  const index = new Map();
+  const xs = new Float64Array(n);
+  const ys = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    index.set(ids[i], i);
+    const xy = nodeXy[ids[i]];
+    xs[i] = xy ? xy[0] : NaN;
+    ys[i] = xy ? xy[1] : NaN;
+  }
+  const dist2 = (i, j) => {
+    const dx = xs[i] - xs[j];
+    const dy = ys[i] - ys[j];
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Adjacency as flat arrays, each node's neighbours in the order buildAdjacency adds them (way by way, hop by hop).
+  const wayHops = [];
+  const degree = new Int32Array(n + 1);
+  for (const nodeIds of Object.values(graph.wayNodes || {})) {
+    for (let k = 0; k < nodeIds.length - 1; k++) {
+      const a = index.get(String(nodeIds[k]));
+      const b = index.get(String(nodeIds[k + 1]));
+      if (a === undefined || b === undefined || Number.isNaN(xs[a]) || Number.isNaN(xs[b])) continue;
+      wayHops.push(a, b);
+      degree[a]++;
+      degree[b]++;
+    }
+  }
+  const offsets = new Int32Array(n + 1);
+  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i] + degree[i];
+  const targets = new Int32Array(offsets[n]);
+  const weights = new Float64Array(offsets[n]);
+  const cursor = offsets.slice(0, n);
+  for (let h = 0; h < wayHops.length; h += 2) {
+    const a = wayHops[h];
+    const b = wayHops[h + 1];
+    const w = dist2(a, b);
+    targets[cursor[a]] = b;
+    weights[cursor[a]++] = w;
+    targets[cursor[b]] = a;
+    weights[cursor[b]++] = w;
+  }
+
+  // Components, and which nodes can be trusted as real network (MIN_TRUSTED_COMPONENT_SIZE).
+  const comp = new Int32Array(n).fill(-1);
+  const compSizes = [];
+  const queue = new Int32Array(n);
+  for (let s = 0; s < n; s++) {
+    if (comp[s] !== -1) continue;
+    const id = compSizes.length;
+    let head = 0;
+    let tail = 0;
+    queue[tail++] = s;
+    comp[s] = id;
+    while (head < tail) {
+      const u = queue[head++];
+      for (let e = offsets[u]; e < offsets[u + 1]; e++) {
+        const v = targets[e];
+        if (comp[v] === -1) {
+          comp[v] = id;
+          queue[tail++] = v;
+        }
+      }
+    }
+    compSizes.push(tail);
+  }
+  let trusted = [];
+  for (let i = 0; i < n; i++) if (compSizes[comp[i]] >= MIN_TRUSTED_COMPONENT_SIZE) trusted.push(i);
+  if (trusted.length === 0) trusted = Array.from({ length: n }, (_, i) => i);
+
+  // A coarse grid over the trusted nodes (each cell's list in the graph's own order) for the nearest-node search.
+  const cells = new Map();
+  let minCx = Infinity;
+  let maxCx = -Infinity;
+  let minCy = Infinity;
+  let maxCy = -Infinity;
+  for (const i of trusted) {
+    if (Number.isNaN(xs[i])) continue;
+    const cx = Math.floor(xs[i] / NEAREST_CELL);
+    const cy = Math.floor(ys[i] / NEAREST_CELL);
+    const key = `${cx},${cy}`;
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push(i);
+    if (cx < minCx) minCx = cx;
+    if (cx > maxCx) maxCx = cx;
+    if (cy < minCy) minCy = cy;
+    if (cy > maxCy) maxCy = cy;
+  }
+
+  /** The trusted node nearest `p`, as `{ i, dist }` (the first in the graph's own order on an exact tie, as `nearestNode` does), or null with no nodes. */
+  const nearestTrusted = (p) => {
+    if (cells.size === 0) return null;
+    const cx = Math.floor(p.x / NEAREST_CELL);
+    const cy = Math.floor(p.y / NEAREST_CELL);
+    let best = -1;
+    let bestDist = Infinity;
+    const consider = (list) => {
+      for (const i of list) {
+        const dx = p.x - xs[i];
+        const dy = p.y - ys[i];
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < bestDist || (d === bestDist && i < best)) {
+          bestDist = d;
+          best = i;
+        }
+      }
+    };
+    const reach = Math.max(maxCx - minCx, maxCy - minCy, Math.abs(cx - minCx), Math.abs(cx - maxCx), Math.abs(cy - minCy), Math.abs(cy - maxCy)) + 1;
+    for (let k = 0; k <= reach; k++) {
+      for (let gx = cx - k; gx <= cx + k; gx++) {
+        for (let gy = cy - k; gy <= cy + k; gy++) {
+          if (Math.max(Math.abs(gx - cx), Math.abs(gy - cy)) !== k) continue;
+          const list = cells.get(`${gx},${gy}`);
+          if (list) consider(list);
+        }
+      }
+      if (best !== -1 && bestDist <= k * NEAREST_CELL) break;
+    }
+    return best === -1 ? null : { i: best, dist: bestDist };
+  };
+
+  // Shortest paths from one node over the whole graph, kept for the next few asks from the same node.
+  const tables = new Map();
+  const shortestFrom = (source) => {
+    const hit = tables.get(source);
+    if (hit) {
+      tables.delete(source);
+      tables.set(source, hit);
+      return hit;
+    }
+    const dist = new Float64Array(n).fill(Infinity);
+    const prev = new Int32Array(n).fill(-1);
+    const settled = new Uint8Array(n);
+    const order = new Int32Array(n);
+    let reached = 0;
+    const heap = { ids: new Int32Array(1024), ds: new Float64Array(1024), size: 0 };
+    const top = { id: 0, d: 0 };
+    dist[source] = 0;
+    order[reached++] = source;
+    heapPush(heap, source, 0);
+    while (heap.size > 0) {
+      heapPop(heap, top);
+      const id = top.id;
+      const d = top.d;
+      if (settled[id]) continue;
+      settled[id] = 1;
+      if (d > dist[id]) continue;
+      for (let e = offsets[id]; e < offsets[id + 1]; e++) {
+        const to = targets[e];
+        const next = d + weights[e];
+        if (dist[to] === Infinity || next < dist[to]) {
+          if (dist[to] === Infinity) order[reached++] = to;
+          dist[to] = next;
+          prev[to] = id;
+          heapPush(heap, to, next);
+        }
+      }
+    }
+    const table = { dist, prev, order, reached };
+    tables.set(source, table);
+    if (tables.size > cacheSize) tables.delete(tables.keys().next().value);
+    return table;
+  };
+
+  let edgeWayIndex = null;
+  const nodePoint = (i) => ({ x: xs[i], y: ys[i] });
+
+  const plan = ({ start, end }) => {
+    const directDistance = distance(start, end);
+    const direct = (reason, extra = {}) => ({
+      distance: directDistance,
+      usedNetwork: false,
+      segments: [walkSegment(start, end)],
+      meta: { reason, startWalk: null, endWalk: null, networkMetres: 0, connected: null, componentSize: null, ...extra }
+    });
+
+    const entry = nearestTrusted(start);
+    if (!entry) return direct("no-graph");
+
+    const { dist, prev, order, reached } = shortestFrom(entry.i);
+    const goal = nearestTrusted(end);
+    const connected = dist[goal.i] !== Infinity;
+    let exitIdx = -1;
+    if (connected) {
+      exitIdx = goal.i;
+    } else {
+      let bestRemaining = Infinity;
+      for (let k = 0; k < reached; k++) {
+        const node = order[k];
+        const remaining = distance(nodePoint(node), end);
+        if (remaining < bestRemaining) {
+          bestRemaining = remaining;
+          exitIdx = node;
+        }
+      }
+    }
+    const componentSize = compSizes[comp[entry.i]];
+
+    const path = [exitIdx];
+    for (let cur = exitIdx; prev[cur] !== -1; ) {
+      cur = prev[cur];
+      path.push(cur);
+    }
+    path.reverse();
+    if (path.length < 2) return direct("stub", { connected, componentSize });
+
+    const networkPoints = path.map(nodePoint);
+    const onRamp = networkPoints[0];
+    const offRamp = networkPoints[networkPoints.length - 1];
+    const lastLeg = distance(offRamp, end);
+    if (entry.dist + lastLeg >= directDistance) return direct("not-shorter", { startWalk: entry.dist, endWalk: lastLeg, connected, componentSize });
+
+    edgeWayIndex ??= buildEdgeWayIndex(graph.wayNodes);
+    const wayIds = wayIdsForPath(path.map((i) => ids[i]), edgeWayIndex);
+
+    const segments = [];
+    if (entry.dist > 0) segments.push(walkSegment(start, onRamp));
+    segments.push({ kind: "network", points: networkPoints, wayIds });
+    if (lastLeg > 0) segments.push(walkSegment(offRamp, end));
+
+    return {
+      distance: entry.dist + dist[exitIdx] + lastLeg,
+      usedNetwork: true,
+      segments,
+      meta: { reason: null, startWalk: entry.dist, endWalk: lastLeg, networkMetres: dist[exitIdx], connected, componentSize }
+    };
+  };
+
+  return {
+    plan,
+    /** The trusted network node nearest `p`: `{ id, x, y, dist }`, or null. For snapping a pin onto a road or a rail. */
+    nearestNode(p) {
+      const hit = nearestTrusted(p);
+      return hit ? { id: ids[hit.i], x: xs[hit.i], y: ys[hit.i], dist: hit.dist } : null;
+    },
+    /** How the graph was read, for tests and for saying so out loud. */
+    stats() {
+      return { nodes: n, trusted: trusted.length, components: compSizes.length, largestComponent: compSizes.reduce((m, s) => Math.max(m, s), 0), cachedTables: tables.size };
+    }
+  };
+}
+
+const routers = new WeakMap();
+
+/** The one router for a graph object, built the first time it is asked for. A graph changed afterwards needs a fresh `createRouter`. */
+export function routerFor(graph) {
+  let router = routers.get(graph);
+  if (!router) {
+    router = createRouter(graph);
+    routers.set(graph, router);
+  }
+  return router;
+}

@@ -35,7 +35,7 @@
         "trainedSkills": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Fixed (non-Lore) skill(s) this background trains, informational only -- NOT a player choice the terminal resolves. Some real backgrounds offer a prose CHOICE the flat data doesn't capture (e.g. Starship Dweller: 'trained in the Crafting or Piloting skill'); the `description` field is always the source of truth for those cases. Empty array is real and means the raw compendium data didn't capture a skill grant this cleanly -- check `description`."
+          "description": "Fixed (non-Lore) skill(s) this background trains, informational only -- NOT a player choice the terminal resolves here. A background whose skill grant is a CHOICE (e.g. Starship Dweller: 'trained in the Crafting or Piloting skill') carries it in `choices` instead, which the terminal does ask. Empty array is real and means the raw compendium data didn't capture a skill grant this cleanly -- check `choices` and `description`."
         },
         "loreSkills": {
           "type": "array",
@@ -48,7 +48,11 @@
         },
         "description": {
           "type": "string",
-          "description": "Real Player Core / setting-book flavor text, HTML-stripped, @UUID inline-links resolved to their label text. Includes the background's own mechanical sentences verbatim (unlike ancestry-catalogue.json's pure-flavor description) -- background prose routinely embeds the exact boost/skill/feat wording, and is the only place a genuine choice (e.g. 'Crafting or Piloting') is preserved."
+          "description": "Real Player Core / setting-book flavor text, HTML-stripped, @UUID inline-links resolved to their label text. Includes the background's own mechanical sentences verbatim (unlike ancestry-catalogue.json's pure-flavor description) -- background prose routinely embeds the exact boost/skill/feat wording."
+        },
+        "choices": {
+          "$ref": "common/induction-choices.schema.json#/$defs/ruleChoices",
+          "description": "The genuine choices this background's rules ask (e.g. Starship Dweller: trained in Crafting or Piloting), which the terminal asks on Page 3 and writes into the Item before it is embedded, so Foundry opens no window of its own at Confirm. Written by tools/character-builder/extract-rule-choices.mjs from the real pack. Thirteen backgrounds have one."
         }
       }
     }

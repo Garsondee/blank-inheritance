@@ -6,7 +6,6 @@
   "role": "Diagnostic Fixture",
   "pole": null,
   "affiliation": null,
-  "description": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline's statblock-carrying NPC path only. Not a real NPC, not canon — do not use as campaign content.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "status": "test fixture",

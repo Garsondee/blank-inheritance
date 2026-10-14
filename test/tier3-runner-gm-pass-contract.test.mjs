@@ -26,6 +26,12 @@ const closeSrc = read("scripts", "foundry", "scene-close.mjs");
 const css = read("styles", "bi-components.css");
 
 const fnBody = (name) => src.match(new RegExp(`static (?:async )?#${name}\\((?:event, target)?\\) \\{[\\s\\S]*?\\n {2}\\}`))?.[0] ?? null;
+const moduleFn = (name) => src.match(new RegExp(`(?:async )?function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n\\}`))?.[0] ?? null;
+// 2026-10-05: a check runs in the check console (foundry/check-console.mjs) from its pill in the beat's line.
+const consoleSrc = read("scripts", "foundry", "check-console.mjs");
+const gmHbs = read("templates", "check-console", "gm.hbs");
+const checkCss = read("styles", "bi-check.css");
+const pillSrc = read("scripts", "core", "check-pill.mjs");
 
 /* ---------------------------------------------------------------- */
 /*  One press per moment                                             */
@@ -38,8 +44,12 @@ test("every way a beat becomes done (or stops being done) runs its objective chi
   assert.match(helper, /runObjectiveTrigger\(chip, \{ scene: [^}]*confirm: false, quiet: true \}\)/, "an automatic give must not ask again");
   assert.match(helper, /undoFor\(before\.fired\)/, "un-marking must undo what marking did");
   assert.match(helper, /subject: `\$\{beatId\}::auto::\$\{chip\.id\}`/, "an auto-fired chip is logged apart from a press, so a re-tick fires it again");
-  for (const name of ["onToggleBeat", "onRecordOutcome", "onRecordChoice", "onClosePrompt", "onRecordPlayerResult"]) {
+  for (const name of ["onToggleBeat", "onRecordChoice", "onClosePrompt"]) {
     assert.match(fnBody(name) ?? "", /beatAutomation\(briefId, beatId, before, /, `#${name} no longer fires (or undoes) the beat's objective chips`);
+  }
+  // 2026-10-05: a degree marked in the check console, and a result set there by hand.
+  for (const name of ["recordMarkedOutcome", "recordHandResult"]) {
+    assert.match(moduleFn(name) ?? "", /beatAutomation\(briefId, beatId, before, /, `${name} no longer fires (or undoes) the beat's objective chips`);
   }
   const record = src.match(/async function recordRollResult\(result, \{ force = false \} = \{\}\) \{[\s\S]*?\n\}/)?.[0];
   assert.match(record, /await beatAutomation\(briefId, result\.key, recorded, stamp\);/, "a roll that records itself must fire the chips too");
@@ -57,7 +67,8 @@ test("showing a handout gives the objective its beat gives, from the beat, the K
 });
 
 test("chips pressed or fired show a tick, in beats and in the opening and ending", () => {
-  assert.match(src, /decorateInlineTriggers\(beat\.text, beat\.triggers, beat\.id, \{ fired \}\)/);
+  assert.match(src, /const decorate = \(text\) => decorateInlineTriggers\(text, beat\.triggers, beat\.id, \{ fired \}\);/);
+  assert.match(src, /decorateInlineTriggers\(beat\.readAloud, beat\.triggers, beat\.id, \{ fired \}\)/);
   assert.match(src, /for \(const entry of runState\?\.ticked\?\.\[beat\.id\]\?\.fired \?\? \[\]\) fired\.add\(entry\.id\);/);
   assert.match(src, /decorateInlineTriggers\(section\?\.readAloud, section\?\.triggers, sectionId, \{ fired: firedTriggerIds\(entries, sectionId\) \}\)/);
   assert.match(css, /\.bi-trig--fired \{/);
@@ -82,13 +93,17 @@ test("a roll that does not take the beat still keeps that character's own result
   assert.match(record, /await writeRunState\(briefId, \{ \.\.\.state, results \}\);/, "a second player's roll must be kept, even when the beat already has its result");
 });
 
-test("a beat every player rolls in turn shows one row per character, one press per degree", () => {
-  assert.match(src, /perPlayer: beat\.check && beat\.delivery === "each" && members\.length/);
-  const rows = beatHbs.match(/\{\{#each perPlayer\}\}[\s\S]*?\{\{\/each\}\}\s*<\/li>/)?.[0];
-  assert.ok(rows, "the per-player rows are missing from beat.hbs");
-  assert.match(rows, /data-action="recordPlayerResult" data-beat-id="\{\{\.\.\/\.\.\/id\}\}" data-actor-id="\{\{\.\.\/actorId\}\}"/);
-  assert.match(src, /recordPlayerResult: SceneRunner\.#onRecordPlayerResult/);
-  assert.match(fnBody("onRecordPlayerResult"), /this\.#viewFor\(briefId\)\.resolvedId = beatId;/, "the beat must stay open for the next player's result");
+test("every player gets their own result on a check, one press per degree to set it by hand", () => {
+  // 2026-10-05: the console's bank has a slot per player (a light, their way and number, four keys), for a beat everyone
+  // rolls and for any other check. A result set by hand lands in the same per-character record a roll does
+  // (core/runner-party.mjs#withResult), and keeps the beat open for the next one.
+  const bank = gmHbs.match(/\{\{#each bank\}\}[\s\S]*?\{\{\/each\}\}\s*<\/ol>/)?.[0];
+  assert.ok(bank, "the bank is missing from the console");
+  assert.match(bank, /\{\{#each this\.degrees\}\}[\s\S]*?data-action="setResult"/);
+  assert.match(consoleSrc, /setResult: CheckConsoleWindow\.#onSetResult,/);
+  const hand = moduleFn("recordHandResult");
+  assert.match(hand, /const results = withResult\(state\.results, beatId, actorId, degree \? \{ degree, name, at, via: "hand" \} : null\);/);
+  assert.match(hand, /active\?\.markResolved\(beatId\);/, "the beat must stay open for the next player's result");
 });
 
 /* ---------------------------------------------------------------- */
@@ -143,10 +158,13 @@ test("the header numbers the scene the way the running order does", () => {
 /*  Blind checks, compact checks, people's DCs, the table's facts    */
 /* ---------------------------------------------------------------- */
 
-test("a blind check says so on its chip and its box", () => {
-  assert.match(src, /secret: check\.secret === true,\n\s*skills:/);
-  assert.match(beatHbs, /\{\{#if check\.secret\}\}<span class="bi-runner__tag bi-runner__tag--blind"/);
-  assert.match(beatHbs, /\{\{#if check\.secret\}\} <i class="fa-solid fa-eye-slash"/);
+test("a blind check says so on its pill and in the console", () => {
+  assert.match(moduleFn("checkPill"), /blind: check\.secret === true,/);
+  assert.match(pillSrc, /fa-eye-slash/, "the pill no longer marks a blind check");
+  assert.match(gmHbs, /data-action="setBlind" data-value="1"/);
+  assert.match(gmHbs, /\{\{#if session\.blind\}\}<span class="bi-check__blind-tag"/, "the GM's head says Blind while it is");
+  assert.match(read("templates", "check-console", "player.hbs"), /\{\{#if blind\}\}<span class="bi-check__blind-tag"/);
+  assert.match(checkCss, /\.bi-led\[data-state="rolled"\],\n\.bi-led-mini\[data-state="rolled"\] \{ --led: #8a3dff/, "a blind roll lights purple, never its degree");
 });
 
 test("a person's stopgap DCs sit beside their name", () => {

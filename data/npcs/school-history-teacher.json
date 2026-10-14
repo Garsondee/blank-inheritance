@@ -9,7 +9,7 @@
   "role": "History teacher, Main School Complex",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Teaches the one class at the Main School Complex (data/locations/main-school-complex.json) any student can attend and come out having learned something true about how the island actually got here -- the closest thing the school has to an official version of events, taught straight rather than as propaganda. Whether they know more than the official version, and say less than they know, is a GM call.",
+  "canon": "school-history-teacher",
   "designNotes": "Placeholder role, not a character -- created 2026-09-13 alongside the location itself, following the standing convention (see range-safety-officer.json). Ties to the (status: new, not yet accepted) School Schedule idea's own floated hope that a History class be the natural vector for campaign backstory (ideas/entries/school-schedule-system.json) -- this NPC exists so that idea has someone to be taught by if it's picked up, without the class-period system itself being assumed built. Name, personality, and what they actually teach are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

@@ -1,6 +1,6 @@
 # The Machine and the Pilot
 
-*Part of the [Evangelion research shelf](README.md). **Mined for structure, not for register** — see [tone-guardrail.md](tone-guardrail.md). Synchronisation, the berserk state, and the thing inside the machine, as the series built them. **This campaign has no berserk and takes control of a character away from no player (`ideas/story/bible/LEDGER.md` #31, D11).** **This is not a decision document and none of it is lore.** Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
+*Part of the [Evangelion research shelf](README.md). **Mined for structure, not for register** — see [tone-guardrail.md](tone-guardrail.md). Synchronisation, the berserk state, and the thing inside the machine, as the series built them. **This campaign has no berserk and takes control of a character away from no player (`quarantine/ideas/story/bible/LEDGER.md` #31, D11).** **This is not a decision document and none of it is lore.** Claims are tagged **[S]** source, **[R]** reading, **[U]** suggested use.*
 
 ---
 
@@ -46,4 +46,4 @@ Compare the Giant Robo shelf's [inherited weapon](../giant-robo/characters/giant
 
 **Related on this shelf:** [characters/evangelion-unit-01.md](characters/evangelion-unit-01.md), [characters/yui-ikari.md](characters/yui-ikari.md), [operational-texture-and-the-sortie.md](operational-texture-and-the-sortie.md), [tone-guardrail.md](tone-guardrail.md).
 
-**Related in this project:** `ideas/story/bible/LEDGER.md` #31 (D11, no berserk), `data/campaign/open-questions.json`, `design/campaign-arc.md` (penalties cost risk, never choice), `design/mechanics-as-meaning.md`, [design/research/giant-robo/characters/giant-robo.md](../giant-robo/characters/giant-robo.md).
+**Related in this project:** `quarantine/ideas/story/bible/LEDGER.md` #31 (D11, no berserk), `data/campaign/open-questions.json`, `design/campaign-arc.md` (penalties cost risk, never choice), `design/mechanics-as-meaning.md`, [design/research/giant-robo/characters/giant-robo.md](../giant-robo/characters/giant-robo.md).

@@ -67,3 +67,17 @@ test("statusLine: behind says BEHIND, counts each kind, gives examples and the c
   assert.match(line, /e\.g\. module:scripts\/a\.mjs, data:scene-briefs\/x\.json, data:scene-briefs\/y\.json/);
   assert.match(line, /npm run deploy/);
 });
+
+test("compareToRecord: Stagecraft is a channel, so an edit to it alone shows; a record written before it existed is skipped, not all-new", () => {
+  const withStagecraft = { ...RECORD, stagecraft: { "dist/stagecraft.js": "s1", "module.json": "s2" } };
+  const now = current({ stagecraft: new Map([["dist/stagecraft.js", "s1-rebuilt"], ["module.json", "s2"]]) });
+  assert.deepEqual(compareToRecord(withStagecraft, now), { changed: ["stagecraft:dist/stagecraft.js"], added: [], removed: [] });
+  assert.deepEqual(compareToRecord(RECORD, now), { changed: [], added: [], removed: [] });
+});
+
+test("statusLine: when behind, it says the auto-sync watcher will push it and how to force it", () => {
+  const line = statusLine(RECORD, { changed: ["module:scripts/a.mjs"], added: [], removed: [] });
+  assert.match(line, /auto-sync watcher pushes it/);
+  assert.match(line, /npm run autosync -- status/);
+  assert.match(line, /npm run deploy/);
+});

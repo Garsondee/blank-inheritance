@@ -97,7 +97,7 @@ function printScene(board, needle) {
     if (!results.length) continue;
     console.log(`\n${pass.toUpperCase()}`);
     for (const r of results) {
-      const glyph = { pass: "  ok ", fail: " FAIL", waived: " wvd ", exempt: " exmp", "n/a": " n/a ", broken: "BROKE" }[r.state] ?? "  ?  ";
+      const glyph = { pass: "  ok ", fail: " FAIL", waived: " wvd ", excepted: " exc ", exempt: " exmp", "n/a": " n/a ", broken: "BROKE" }[r.state] ?? "  ?  ";
       console.log(`  ${glyph} ${r.id.padEnd(4)} ${r.severity === "required" ? "[req]" : "[rec]"} ${r.question}`);
       if (r.detail) console.log(`             ${r.detail}`);
     }

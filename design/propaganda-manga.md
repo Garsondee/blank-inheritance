@@ -77,7 +77,7 @@ motion. Harder in three ways:
    weakest spot, and it sits at the centre of this job. §4.7 has the tools for it; §7 builds the process around it.
 
 **The one idea that makes it work: the comic is sincere.** It never winks. It believes every word it says, the way
-the Directorate believes in itself (`ideas/story/dossier-the-directorate.md` §1: "calcified rather than sinister").
+the Directorate believes in itself (`quarantine/ideas/story/dossier-the-directorate.md` §1: "calcified rather than sinister").
 The table sees through it from three directions, and none of them needs the comic to be in on the joke:
 
 - **What it leaves out.** The approved history goes from nothing to catastrophe in one sentence (LEDGER #27). The

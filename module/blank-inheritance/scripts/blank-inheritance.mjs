@@ -56,11 +56,13 @@ import {
   registerCitySettings
 } from "./foundry/city-state.mjs";
 import { registerChoicePromptConversation, registerChoicePromptSettings, syncChoicePromptWindow } from "./foundry/choice-prompt.mjs";
+import { registerCheckConsoleConversation, registerCheckConsoleSettings, syncCheckConsoleWindows } from "./foundry/check-console.mjs";
 import { registerPawnGuards } from "./foundry/city-pawns.mjs";
 import { repairActorOwnership } from "./foundry/ownership-repair.mjs";
 import { mountCityLayer, onCityPan, onCityTokenMoved, refreshCityLayer } from "./foundry/city-layer.mjs";
 import { openInductionTerminal, createInductionTerminalMacroIfMissing, registerInductionSettings } from "./foundry/induction-terminal.mjs";
 import { registerInductionSocket } from "./foundry/induction-relay.mjs";
+import { suppressFirstLoginUserConfig } from "./foundry/first-login.mjs";
 import { ensureLandingScene } from "./foundry/landing-scene.mjs";
 import {
   advanceSegment,
@@ -298,6 +300,14 @@ Hooks.once("init", () => {
     refreshSceneRunner();
   });
 
+  // The check console (2026-10-05): the check put to the table, the ways it can
+  // be met, the DC and each player's result. A player's window follows it; the
+  // GM's window and the Runner's pills repaint from it.
+  registerCheckConsoleSettings(() => {
+    syncCheckConsoleWindows();
+    refreshSceneRunner();
+  });
+
   // The admin panel: its record of the last reset and of the test party
   // (world), and the GM's own autopilot switches (client).
   registerAdminSettings(() => refreshAdminPanel());
@@ -324,6 +334,11 @@ Hooks.once("init", () => {
   // second page. World-scoped, off by default: the text is drafted and stays
   // hidden from players until Ingram has graded it (design/induction-agreement.md).
   registerInductionSettings();
+
+  // Foundry opens its own User Configuration window over a characterless player's
+  // screen at login, the very moment the induction terminal opens for the same
+  // player; it lay across the terminal's list (core/first-login.mjs).
+  suppressFirstLoginUserConfig();
 
   // The phone's Pet app. Client-scoped on purpose -- "purely textural, zero
   // mechanical weight" per the idea entry, so it is genuinely each player's
@@ -489,6 +504,14 @@ Hooks.once("ready", async () => {
     registerChoicePromptConversation();
   } catch (err) {
     console.error("Blank Inheritance | Could not open the choice-prompt conversation:", err);
+  }
+
+  // The check console: the active GM lights each gem as its roll lands, and a
+  // player who reloads mid-check gets their window back.
+  try {
+    registerCheckConsoleConversation();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the check console's conversation:", err);
   }
 
   // The admin panel's stand-in players act only on the active GM's client

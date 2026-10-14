@@ -232,7 +232,26 @@
     }
   },
   "carryForward": [],
-  "temptations": [],
+  "exceptions": [
+    {
+      "check": "M8",
+      "why": "A deliberate relax beat before the fight: the waders are comedy and the crossing is talk, so nothing in it is rolled."
+    }
+  ],
+  "temptations": [
+    {
+      "id": "too-big-for-the-ladder",
+      "text": "Whoever has the biggest pair can't get up the launch's ladder in them. The crew haul them over by the straps, and nobody lets it drop for the rest of the crossing."
+    },
+    {
+      "id": "the-launch-slows",
+      "text": "Halfway across, the launch idles for no reason the pilot will give, with the old town's front dark ahead. Let the table have the quiet and see what they say into it."
+    },
+    {
+      "id": "takas-small-gift",
+      "text": "If the table liked Taka, he's at the door with one small thing pressed into somebody's hand, and no explanation but a shrug."
+    }
+  ],
   "reactionPrompts": [
     {
       "id": "the-crossing",

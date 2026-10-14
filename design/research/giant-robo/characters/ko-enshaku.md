@@ -53,7 +53,7 @@ Three things, and all three are copyable.
 
 **Worth avoiding:** using him often. He works because he appears rarely and does one thing. Four appearances with no progress is the treadmill failure described in [the-recurring-antagonist-engine.md](../the-recurring-antagonist-engine.md) §8.
 
-**Where it might attach:** the campaign already has an antagonist structure with a distant authority and subordinate agents (`data/antagonists/`, `ideas/story/dossier-observer.md`). Whether a Minder figure belongs in it is the user's call, and the `feedback_watcher_is_unknown` rule constrains any figure standing near the Watcher — the Watcher is unwitnessed at campaign start and must not appear in any location's lore. **This shelf proposes nothing about the Watcher.**
+**Where it might attach:** the campaign already has an antagonist structure with a distant authority and subordinate agents (`data/antagonists/`, `quarantine/ideas/story/dossier-observer.md`). Whether a Minder figure belongs in it is the user's call, and the `feedback_watcher_is_unknown` rule constrains any figure standing near the Watcher — the Watcher is unwitnessed at campaign start and must not appear in any location's lore. **This shelf proposes nothing about the Watcher.**
 
 ---
 

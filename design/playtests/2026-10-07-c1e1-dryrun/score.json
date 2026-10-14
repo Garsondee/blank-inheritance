@@ -1,0 +1,30 @@
+[
+  {
+    "key": "gate",
+    "findings": 38,
+    "graded": 38,
+    "useful": 34,
+    "wrong": 4,
+    "nitpick": 0,
+    "knew": 0,
+    "unique": 38,
+    "fabricated": 0,
+    "minutes": 1,
+    "tokens": 0,
+    "precision": 0.8947368421052632
+  },
+  {
+    "key": "desk (opus)",
+    "findings": 8,
+    "graded": 8,
+    "useful": 7,
+    "wrong": 0,
+    "nitpick": 0,
+    "knew": 1,
+    "unique": 8,
+    "fabricated": 0,
+    "minutes": 3,
+    "tokens": 146000,
+    "precision": 0.875
+  }
+]

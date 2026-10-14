@@ -43,7 +43,7 @@ Stated by Ingram, 2026-09-24 (LEDGER #31), and the campaign's strongest over-arc
 
 **It is ludonarrative on purpose.** The Watcher is an alien artificial intelligence, and **Claude plays it**: it reads
 what the players write into the campaign's systems, learns how they fight, and plays against them with that
-knowledge (`ideas/story/dossier-observer.md` §2). Players are warned never to record anything real or personal in the
+knowledge (`quarantine/ideas/story/dossier-observer.md` §2). Players are warned never to record anything real or personal in the
 UI, are not told the messages are read, and need the system to reach some things. The Watcher only ever uses the
 fiction.
 
@@ -110,7 +110,7 @@ Stated directly by Ingram, 2026-09-24, while shaping The Road In:
 
 ## The 8-level arc
 
-*(2026-09-24: the campaign now runs twenty chapters, Chapter 1 to Chapter 20, and the heading is kept for its history. The box below is the current shape.)* *(And the chapter-by-chapter draft, the Casebook's sixth version, lives in `ideas/story/blank-inheritance-twenty-chapters.md`: the truth the mystery hides, how the mystery is built, and all twenty chapters in five Books. A draft, with proposals marked.)*
+*(2026-09-24: the campaign now runs twenty chapters, Chapter 1 to Chapter 20, and the heading is kept for its history. The box below is the current shape.)* *(And the chapter-by-chapter draft, the Casebook's sixth version, lives in `quarantine/ideas/story/blank-inheritance-twenty-chapters.md`: the truth the mystery hides, how the mystery is built, and all twenty chapters in five Books. A draft, with proposals marked.)*
 
 > **⚠ THE WHOLE-CAMPAIGN SHAPE, 2026-09-24 — Ingram (LEDGER #26, updated by #31), and it overrides the endgame
 > bullets below where they differ. GM-ONLY: "Record this, but don't tell the players too much."**
@@ -140,7 +140,7 @@ Stated directly by Ingram, 2026-09-24, while shaping The Road In:
 >   the students** (LEDGER #32, open). Abraxas can still emerge from her, and Anabala stays Pippa's to play
 >   (LEDGER #33).
 > - **There are two ships.** The generation ship lies at Kortos (First Impact happened there, on its cargo deck). The
->   search ship lies under Kurose, and it is **why** the gods named Kurose (`ideas/story/dossier-first-impact.md` §1a).
+>   search ship lies under Kurose, and it is **why** the gods named Kurose (`quarantine/ideas/story/dossier-first-impact.md` §1a).
 >   The dig that reaches the whole ship is a journey from the city, off the city map, and it is the first of **a few
 >   expeditions**: places off the city map, each drawn as its own real-data map, for a specific event or problem
 >   (LEDGER #42).
@@ -153,9 +153,9 @@ Stated directly by Ingram, 2026-09-24, while shaping The Road In:
 > - **The old enemy is alive** (GM-only, a secret kept for the right moment, LEDGER #32). **William Charles Baldwin**,
 >   the old campaign's mitflit hunter, bought his way through two centuries. He is now a criminal lord who arms gangs
 >   with incredible weapons made by essentially enslaved mitflits. The four founders are his natural enemies, and his
->   reveal is personal for the four players who played them (`ideas/story/bible/characters/william-charles-baldwin.md`).
+>   reveal is personal for the four players who played them (`quarantine/ideas/story/bible/characters/william-charles-baldwin.md`).
 >
-> Full record: `ideas/story/bible/LEDGER.md` #26, #31 and #32. The Casebook (a GM-only draft framework for all twenty
+> Full record: `quarantine/ideas/story/bible/LEDGER.md` #26, #31 and #32. The Casebook (a GM-only draft framework for all twenty
 > chapters) is the working plan, and is a draft.
 
 > **⚠ UPDATED 2026-09-20 — lockstep is now the literal, confirmed model.**
@@ -196,7 +196,7 @@ Needs an in-fiction justification tied to ongoing campaign events — explicitly
 > **Rewritten 2026-09-24 (LEDGER #31): the Watcher is the campaign's adversary, and Claude plays it.** It is the
 > generation ship's navigation and sensor system, torn into an unbound nanotech swarm at First Impact. Its objective
 > is to observe, and so to multiply and expand, and it learns how to defeat the party if they get in its way.
-> **The full, current account is `ideas/story/dossier-observer.md`**, which wins over anything below. The voice
+> **The full, current account is `quarantine/ideas/story/dossier-observer.md`**, which wins over anything below. The voice
 > recorded below (written 2026-08-23) is no longer its only voice: it is the voice of the Watcher **later** in the
 > campaign, once it has learned. Early on it is a drowning instrument (dossier §9). Structured facts:
 > `data/antagonists/the-watcher.json`.
@@ -214,6 +214,16 @@ Structured facts live in `data/antagonists/the-watcher.json`. Recorded here verb
 > I'm not interested in ending you. I'm interested in whether you're a pattern worth the trouble of continuing to watch — and the only proof that means anything, to either of us, is whether you can out-think something that has learned you completely. Win the war, and you've already beaten me. There's no separate throne room, no mask left to pull underneath. I am the sum of everything you survive. Survive all of it, and I'm done.
 
 Origin and design reasoning for the mechanic this voices — the move-log/adaptive-combat-AI concept, its connection to the XCOM/fog-of-war research the user asked for, and its open sub-questions — is tracked in `ideas/entries/adaptive-antagonist-combat-ai.json`, not duplicated here.
+
+## The mayor, the raids, and the two branches of personnel-scale combat
+
+Added 2026-10-07 from Ingram's lore. `canon/decisions/D068.md` holds her words and is the record; this section only says what the design does with them.
+
+- **Why the party fights at personnel scale.** The Directorate has a large number of people under arms and training. Kurose has an organised-crime problem, and its mayor is a big fan of the Directorate for the money it brings, so the Directorate and the city's police (who otherwise distrust each other, D035) are forced into uneasy cooperation whenever a raid or other activity is against organised criminals or dangerous cultists. That arrangement is the reasoning for the party being "a sort of Magical SWAT Team", brought in for certain missions.
+- **Two branches.** Criminals and cultists are the campaign's two main branches of personnel-level combat. Frames and vehicles remain a separate scale.
+- **Where each thread leads.** The organised-crime thread eventually leads to Baldwin and to Manako's underworld dealings. The cultist thread leads to Manako directly, and to the non-violent origins of Cicada: the Envoy incident (Hori and Aoi), and the tragic history of a man who tried to upset the order of things to warn about something invisible in our midst, was ostracised for it, and whose warning powerful people looked into and started to suspect was right. Who those people were is open (`canon/world/manako.md`, `manako.who-suspected`).
+- **The mayor.** A new character the party can meet: a blessing and a curse, their own agent, protecting the city and their own position equally. Not yet named or placed in the plan (`open-questions.json#kurose-mayor-name`, `#mayor-first-appearance`).
+- **Not settled by this:** Episode Two's call-out (`open-questions.json#episode-two-shape`) is Frame/vehicle-scale.
 
 ## Evolving mechanics threads and Foundry module concept threads
 
@@ -256,7 +266,7 @@ are famous (LEDGER #26); this is how the plant survives that.*
 campaign, *The Trouble with Mitflits*. It stopped with them on another plane, Nirvana. Presumably, when they came back,
 the First Impact rupture had grown and they swung in to stop it. **Blank Inheritance is also that campaign's
 closure**: it is meant to tie everything up at once while being a new campaign. The old campaign is in
-`ideas/story/source-material/the-trouble-with-mitflits/`. It is source material to draw on, not a straitjacket.
+`quarantine/ideas/story/source-material/the-trouble-with-mitflits/`. It is source material to draw on, not a straitjacket.
 
 **What everyone knows.** The four are household names. Hyuck, Rupiah, Anabala and Shucks Mordant closed
 the rift at Kortos and swore to be in Kurose when the next one came. Children are named after them.
@@ -269,7 +279,7 @@ There is a question on it in every school exam.
    small mitflit, and a man who is now a skeleton.
 2. **How the rift began.** The textbook goes from nothing to catastrophe in a single sentence. It says
    who closed the rift and never how it opened. The four opened it themselves, by accident, with a
-   fumbled catch (`ideas/story/dossier-first-impact.md` §3).
+   fumbled catch (`quarantine/ideas/story/dossier-first-impact.md` §3).
 
 **The three plants, as they now read at the table, still never connected:**
 
@@ -297,8 +307,8 @@ Shucks is openly himself. The statue being Hyuck, and Hyuck being alive and on t
 to assemble. A player may assemble it; a scene may not hand it over. If a player says it out loud, write it down and confirm nothing.
 
 **Canonical home:** `arc-the-four-founders`, in
-`ideas/story/bible/locations/the-gnoll-statue.md`. The truth is in
-`ideas/story/dossier-first-impact.md`.
+`quarantine/ideas/story/bible/locations/the-gnoll-statue.md`. The truth is in
+`quarantine/ideas/story/dossier-first-impact.md`.
 
 **What this is for.** It is still the campaign's answer to why an institution two hundred years old
 cannot say what it is built on. It is no longer a forgetting. It is a *tidying*: two centuries of
@@ -316,10 +326,10 @@ does not know who it is either, and it is not doing him any favours.
 By the last scene of Episode Two the same unfamiliar hand has chalked the party's six
 names up again under tomorrow's date, in a hangar with nobody in it.
 
-**Answered (LEDGER #34 — Claude's answer at Ingram's request, accepted in LEDGER #46): the hand is Rand, Shucks's detached right hand**, signing as a Medical officer who doesn't exist, in Shucks's own handwriting from before it came off. Ingram named it: *"Right hand... Rand."* It is a conspiracy theorist whose theory is right, and it put the six on the machines because it thinks the city will need pilots soon. No roll reveals it in Episode Two; the routes are in `ideas/story/bible/characters/rand.md`.
+**Answered (LEDGER #34 — Claude's answer at Ingram's request, accepted in LEDGER #46): the hand is Rand, Shucks's detached right hand**, signing as a Medical officer who doesn't exist, in Shucks's own handwriting from before it came off. Ingram named it: *"Right hand... Rand."* It is a conspiracy theorist whose theory is right, and it put the six on the machines because it thinks the city will need pilots soon. No roll reveals it in Episode Two; the routes are in `quarantine/ideas/story/bible/characters/rand.md`.
 
 **Canonical home:** `arc-the-countersignature`, in
-`ideas/story/bible/characters/the-section-officer.md`.
+`quarantine/ideas/story/bible/characters/the-section-officer.md`.
 
 *(Retired 2026-09-24, LEDGER #34: it is not nothing, it is Rand.)* **Deliberately kept live: it might be nothing.** A routine administrative
 countersignature that means nothing, with the party's interest in it being the
@@ -338,7 +348,7 @@ it. That is worth more than the answer would be, and the episode is built to mak
 they get it rather than the explanation.
 
 **Canonical home:** `arc-what-shucks-said`, in
-`ideas/story/bible/characters/shucks-mordant.md`. **The constraint that matters:** he
+`quarantine/ideas/story/bible/characters/shucks-mordant.md`. **The constraint that matters:** he
 is not their guardian angel, this is not a favour he will do twice, and the party has
 not acquired a protector. Whatever the answer turns out to be must not convert him
 into one.
@@ -351,7 +361,7 @@ an equipment fault, because that is the only box on the form it fits, and the pe
 who ticked it was doing their job.
 
 **Canonical home:** `arc-contacts-that-never-travelled`, in
-`ideas/story/dossier-observer.md` §10.
+`quarantine/ideas/story/dossier-observer.md` §10.
 
 **Why it is built as a failable check rather than a given.** Its failure result — a
 mistyped time under pressure, bearings not through yet — is a genuinely reasonable

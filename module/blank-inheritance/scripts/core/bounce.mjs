@@ -114,12 +114,14 @@ export function cutItem(entity, { gradedBy, note = null } = {}) {
  * actively misleading, not just incomplete (design/approvals-desk.md §5:
  * "the counter is honest").
  */
-export function computeOutTray({ loreInstructions, gazetteerRequests, allEntitiesById = {}, openQuestions, audioLibrary, audioReview } = {}) {
+export function computeOutTray({ loreInstructions, gazetteerRequests, allEntitiesById = {}, openQuestions, openDecisions, audioLibrary, audioReview } = {}) {
   const pendingInstructions = (loreInstructions?.instructions ?? []).filter((i) => i.status === "pending");
   const openGazetteerRequests = (gazetteerRequests?.requests ?? []).filter((r) => r.status === "open");
   const needsLoreItems = Object.values(allEntitiesById).filter((e) => e?.authoring?.status === "needs-lore");
 
-  const openCreativeQuestions = (openQuestions?.questions ?? []).filter((q) => q.status === "open");
+  // Her creative calls: the design questions still open, plus every open fact in canon (open-decisions.json, generated
+  // from canon: the story's own decisions, which the plot timeline answers; D079).
+  const openCreativeQuestions = [...(openQuestions?.questions ?? []), ...(openDecisions?.questions ?? [])].filter((q) => q.status === "open");
 
   const decisions = audioReview?.decisions ?? {};
   const unreviewedAudio = (audioLibrary?.assets ?? []).filter((asset) => (decisions[asset.id]?.status ?? "proposed") === "proposed");

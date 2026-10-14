@@ -4,10 +4,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  ATTRIBUTES,
   FALLBACK_SKILL_SLUGS,
   PERCEPTION_SLUG,
   SAVE_SLUGS,
+  SKILL_ATTRIBUTES,
   abbreviate,
+  attributeOf,
   buildCheckGroups,
   isSafeSlug,
   labelForSlug
@@ -165,4 +168,32 @@ test("groups carry no column count — the grid auto-fills instead", () => {
   for (const group of buildCheckGroups({ skills: SKILLS, saves: SAVES, hasPerception: true })) {
     assert.equal("columns" in group, false, `${group.id} still carries a column count`);
   }
+});
+
+/* ---------------------------------------------------------------- */
+/*  The attribute each check adds (D063)                             */
+/* ---------------------------------------------------------------- */
+
+test("every one of the eighteen has exactly one attribute, and only the eighteen do", () => {
+  assert.deepEqual(Object.keys(SKILL_ATTRIBUTES).sort(), [...FALLBACK_SKILL_SLUGS].sort());
+  for (const [slug, attribute] of Object.entries(SKILL_ATTRIBUTES)) assert.ok(ATTRIBUTES.includes(attribute), `${slug} adds "${attribute}"`);
+  assert.deepEqual(ATTRIBUTES, ["str", "dex", "con", "int", "wis", "cha"]);
+});
+
+test("each attribute's skills are the ones Player Core lists, and Constitution has none", () => {
+  const of = (attribute) => FALLBACK_SKILL_SLUGS.filter((slug) => SKILL_ATTRIBUTES[slug] === attribute);
+  assert.deepEqual(of("str"), ["athletics"]);
+  assert.deepEqual(of("dex"), ["acrobatics", "piloting", "stealth", "thievery"]);
+  assert.deepEqual(of("con"), []);
+  assert.deepEqual(of("int"), ["arcana", "computers", "crafting", "occultism", "society"]);
+  assert.deepEqual(of("wis"), ["medicine", "nature", "religion", "survival"]);
+  assert.deepEqual(of("cha"), ["deception", "diplomacy", "intimidation", "performance"]);
+});
+
+test("Perception and the saves add an attribute too; a lore or anything unknown adds none", () => {
+  assert.equal(attributeOf(PERCEPTION_SLUG), "wis");
+  assert.deepEqual(SAVE_SLUGS.map(attributeOf), ["con", "dex", "wis"]);
+  assert.equal(attributeOf("medicine"), "wis");
+  assert.equal(attributeOf("underworld-lore"), null);
+  assert.equal(attributeOf(undefined), null);
 });

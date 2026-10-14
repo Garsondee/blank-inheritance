@@ -1,0 +1,804 @@
+/* =====================================================================
+   BLANK INHERITANCE — THE CHECK CONSOLE (2026-10-05, second round D062)
+   ---------------------------------------------------------------------
+   Three things, all built from the deck's own hardware (bi-components.css,
+   "The deck"; the north star is third-party/UI-NORTH-STAR-analog-light.png):
+
+     .bi-chk    the pill in the Scene Runner's prose where a beat asks for a
+                check: a black key cap set into the paper, a die, the words,
+                the DC on an amber readout, and a small light per result in.
+     .bi-check  the console window, the GM's and each player's: a silver
+                plate with an engraved legend, black cells, the filmstrip knob
+                with a printed DC scale banded by difficulty, lit two-way
+                switches, pill keys, skill keys and a dropdown.
+     .bi-led    the bank of six tall lights along the bottom of both windows
+                (Ingram, D062): unlit while a player is still to roll; lit,
+                with a flare, by their result: red a critical failure, orange
+                a failure, blue a success, green a critical success, and
+                purple for a roll the players may not read (a blind one).
+                .bi-led-mini is the same light, small, in a pill or a key.
+
+   The lights' purple is the one asked for (D062: "use purple for a hidden
+   roll to conceal the result"); it is not Resonance violet, which stays
+   Claimant telemetry's alone (design/visual-identity.md).
+   ===================================================================== */
+
+/* --- The lights' colours, shared by the bank and its small lights -------- */
+
+.bi-led,
+.bi-led-mini {
+  --led: #23262a;
+  --led-hot: #31353a;
+  --led-deep: #0d0e10;
+  --led-glow: rgb(0 0 0 / 0%);
+}
+.bi-led[data-state="criticalFailure"],
+.bi-led-mini[data-state="criticalFailure"] { --led: #e3241d; --led-hot: #ffc4b8; --led-deep: #52060a; --led-glow: rgb(255 45 35 / 62%); }
+.bi-led[data-state="failure"],
+.bi-led-mini[data-state="failure"] { --led: #ff7a12; --led-hot: #ffe2b0; --led-deep: #5a2102; --led-glow: rgb(255 130 25 / 58%); }
+.bi-led[data-state="success"],
+.bi-led-mini[data-state="success"] { --led: #2a78ff; --led-hot: #cfe2ff; --led-deep: #071d55; --led-glow: rgb(55 130 255 / 62%); }
+.bi-led[data-state="criticalSuccess"],
+.bi-led-mini[data-state="criticalSuccess"] { --led: #19d25e; --led-hot: #d4ffe2; --led-deep: #04381a; --led-glow: rgb(35 230 105 / 60%); }
+.bi-led[data-state="rolled"],
+.bi-led-mini[data-state="rolled"] { --led: #8a3dff; --led-hot: #e8d6ff; --led-deep: #22064c; --led-glow: rgb(150 75 255 / 62%); }
+
+/* --- The bank of lights ---------------------------------------------------- */
+
+/* A black recess along the foot of the plate, like the meter bridge on a
+   mixing desk: six slots, a tall light in each, the player's name under it. */
+.bi-check__lights {
+  position: relative;
+  padding: 14px 12px 8px;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%) 0, rgb(255 255 255 / 0%) 18px),
+    linear-gradient(180deg, #0d0e10 0%, #17181b 100%);
+  box-shadow:
+    inset 0 2px 9px rgb(0 0 0 / 85%),
+    inset 0 0 0 1px rgb(0 0 0 / 70%),
+    0 1px 0 rgb(255 255 255 / 55%);
+}
+.bi-leds {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bi-leds__slot { display: grid; justify-items: center; align-content: start; gap: 5px; min-width: 0; }
+/* Two lines, so a whole name reads under a light as narrow as the player's window gives it; past two, the tooltip has
+   it. Every name keeps room for two, so the lines under each light stay level across the bank. */
+.bi-leds__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  max-width: 100%;
+  min-height: 2.3em;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-family: var(--bi-font-plate);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--bi-ns-legend);
+}
+.bi-leds__slot.is-me .bi-leds__name { color: var(--bi-vu-hot); }
+.bi-leds__slot.is-unasked .bi-leds__name { color: #6c7175; text-decoration: line-through; text-decoration-color: rgb(255 255 255 / 25%); }
+.bi-leds__how { min-height: 1.2em; max-width: 100%; font-size: 10.5px; line-height: 1.2; color: var(--bi-ns-legend-dim); text-align: center; overflow-wrap: anywhere; }
+.bi-leds__how b { font-weight: 600; }
+.bi-leds__how b[data-degree="criticalFailure"] { color: #ff8a80; }
+.bi-leds__how b[data-degree="failure"] { color: #ffb066; }
+.bi-leds__how b[data-degree="success"] { color: #8fbaff; }
+.bi-leds__how b[data-degree="criticalSuccess"] { color: #7ff0a8; }
+.bi-leds__set { display: flex; gap: 2px; }
+.bi-leds__set .bi-deck-map { width: 21px; height: 16px; font-size: 9px; }
+.bi-check__asked .bi-deck-pill__cap { width: 34px; }
+/* The colour key: what each light means, in its own colour. */
+.bi-leds__key {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+  margin: 9px 0 0;
+  font-family: var(--bi-font-plate);
+  font-size: 10.5px;
+  color: var(--bi-ns-legend-dim);
+}
+.bi-leds__key span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* The light: a tall lens in a black bezel, its diffuser ribbed, lit from the
+   foot up, with the room's light catching its top. Unlit it is smoked glass. */
+.bi-led {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 74%;
+  max-width: 48px;
+  min-width: 30px;
+  aspect-ratio: 5 / 11;
+  border-radius: 7px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 15%) 0%, rgb(255 255 255 / 0%) 24%),
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 5%) 0 1px, rgb(0 0 0 / 0%) 1px 3.5px),
+    radial-gradient(140% 70% at 50% 62%, var(--led-hot) 0%, var(--led) 44%, var(--led-deep) 100%);
+  box-shadow:
+    0 0 0 2px #040405,
+    0 0 0 3.5px #2a2c2f,
+    0 0 0 4.5px rgb(0 0 0 / 70%),
+    inset 0 3px 6px rgb(0 0 0 / 55%),
+    inset 0 -2px 4px rgb(0 0 0 / 40%),
+    0 0 26px 5px var(--led-glow);
+}
+/* Waiting: unlit, with a pinprick of standby at the foot, breathing. */
+.bi-led[data-state="waiting"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: rgb(255 150 60 / 70%);
+  box-shadow: 0 0 6px rgb(255 150 60 / 65%);
+  animation: bi-led-standby 2.4s ease-in-out infinite;
+}
+/* The player's own light, still to roll, says so a little louder. */
+.bi-led[data-state="waiting"][data-mine] { box-shadow: 0 0 0 2px #040405, 0 0 0 3.5px #6b4a1e, 0 0 0 4.5px rgb(0 0 0 / 70%), inset 0 3px 6px rgb(0 0 0 / 55%), 0 0 14px 2px rgb(255 150 60 / 30%); }
+/* Off: someone not asked, or a seat nobody sits in. */
+.bi-led[data-state="off"] { filter: brightness(0.7); }
+/* A lit light: its hot core runs up the middle of the lens. */
+.bi-led:not([data-state="waiting"]):not([data-state="off"])::before {
+  content: "";
+  position: absolute;
+  inset: 12% 30% 10%;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 55%), rgb(255 255 255 / 0%));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+/* The flare: a burst of white light over the lens and the recess round it,
+   and the lens itself overdriven, settling into its colour. Once. */
+.bi-led__flare {
+  position: absolute;
+  inset: -45% -60%;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 92%), color-mix(in srgb, var(--led-glow) 85%, transparent) 38%, rgb(255 255 255 / 0%) 72%);
+  mix-blend-mode: screen;
+}
+.bi-led[data-fresh] { animation: bi-led-flare 1.5s cubic-bezier(0.2, 0.75, 0.25, 1) 1; }
+.bi-led[data-fresh] .bi-led__flare { animation: bi-led-burst 1.2s ease-out 1; }
+/* The GM's mark on a blind roll: the players' lights show it purple. */
+.bi-led__tag {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #6b2fd6;
+  color: #f2e9ff;
+  font-family: var(--bi-font-plate);
+  font-size: 8.5px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 0 6px rgb(150 75 255 / 70%);
+}
+
+@keyframes bi-led-standby { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes bi-led-flare {
+  0% { filter: brightness(3.2) saturate(0.5); transform: scale(1.06); }
+  22% { filter: brightness(2) saturate(1.3); transform: scale(1.02); }
+  100% { filter: none; transform: none; }
+}
+@keyframes bi-led-burst {
+  0% { opacity: 1; transform: scale(0.25); }
+  35% { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+/* The small light: in a pill, beside a degree, in the colour key. */
+.bi-led-mini {
+  display: inline-block;
+  flex: none;
+  width: 6px;
+  height: 12px;
+  border-radius: 2px;
+  vertical-align: middle;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 30%) 0, rgb(255 255 255 / 0%) 45%),
+    linear-gradient(180deg, var(--led-hot), var(--led) 45%, var(--led-deep));
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 75%), 0 0 5px var(--led-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-led,
+  .bi-led::after,
+  .bi-led__flare { animation: none !important; }
+}
+
+/* --- The pill in the Runner's prose ------------------------------------ */
+
+/* A black key cap set into the paper: the one thing in a beat's line that
+   is a check, readable at a glance and pressed like a key. */
+.bi-chk {
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0 2px;
+  padding: 2px 9px 2px 3px;
+  vertical-align: baseline;
+  border: 1px solid #3d4044;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3a3d41, #1e1f22);
+  box-shadow: 0 2px 0 #0c0d0e, 0 2px 3px rgb(0 0 0 / 40%), inset 0 1px 0 rgb(255 255 255 / 12%);
+  color: var(--bi-ns-legend);
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+  transition: none;
+}
+.bi-chk:hover { border-color: rgb(255 138 31 / 80%); color: var(--bi-ns-cap); }
+.bi-chk:active { transform: translateY(1px); box-shadow: inset 0 2px 3px rgb(0 0 0 / 70%); }
+.bi-chk:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+/* Its console is open now: the key stays lit. */
+.bi-chk.is-open { border-color: var(--bi-vu-orange); box-shadow: 0 1px 2px rgb(0 0 0 / 60%), inset 0 -2px 0 var(--bi-vu-orange), 0 0 9px rgb(255 138 31 / 45%); }
+.bi-chk__die {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4b4f53, #17181a);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 10%);
+  color: var(--bi-vu-bright);
+  font-size: 11px;
+}
+.bi-chk.is-open .bi-chk__die { color: var(--bi-vu-hot); text-shadow: 0 0 6px rgb(255 138 31 / 90%); }
+.bi-chk__words { min-width: 0; }
+.bi-chk__dc {
+  flex: none;
+  padding: 1px 5px 0;
+  border-radius: 4px;
+  background: #0c0d0e;
+  box-shadow: inset 0 1px 2px #000;
+  color: #ffb866;
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  font-weight: normal;
+}
+.bi-chk__dc .fa-eye-slash { font-size: 10px; color: #b88cff; }
+.bi-chk__lights { display: inline-flex; gap: 2px; align-items: center; }
+
+/* A person's conversation check sits on its own line under the topic. */
+.bi-runner__topic-check .bi-chk { margin: 4px 0 0; }
+
+/* --- The console window ------------------------------------------------- */
+
+/* A window taller than the screen scrolls inside its own frame, rather than
+   running off the bottom of the screen. */
+.bi-check-window .window-content { padding: 0; overflow-x: hidden; overflow-y: auto; max-height: calc(100vh - 70px); }
+
+/* The plate: brushed silver held on by four screws, the deck's own silver
+   module (bi-components.css, "Silver: the shoulders and the spine"). Its dirt
+   is PLACED, not spread (2026-10-05): it settles along the bottom lip and
+   pools in the two lower corners, a little creeps in along the sides where
+   the plate meets its frame, and a thumb has dulled the metal by the DC knob
+   and by Close and record, the two things a hand reaches for every check. The
+   face between stays the cleaner metal it would be. */
+.bi-check {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  gap: 10px;
+  padding: 12px 16px 14px;
+  color: var(--bi-ns-ink);
+  font-family: var(--bi-font-plate);
+  line-height: 1.2;
+  background:
+    linear-gradient(180deg, #08090a 0 3px, rgb(255 255 255 / 62%) 3px 4px, rgb(255 255 255 / 0%) 4px),
+    var(--bi-screw-a) 6px 9px / 12px 12px no-repeat,
+    var(--bi-screw-b) calc(100% - 6px) 9px / 12px 12px no-repeat,
+    var(--bi-screw-b) 6px calc(100% - 5px) / 12px 12px no-repeat,
+    var(--bi-screw-a) calc(100% - 6px) calc(100% - 5px) / 12px 12px no-repeat,
+    radial-gradient(64px 40px at 92px 150px, rgb(70 52 28 / 9%) 0%, rgb(70 52 28 / 0%) 100%),
+    radial-gradient(80px 34px at calc(100% - 96px) calc(100% - 24px), rgb(70 52 28 / 10%) 0%, rgb(70 52 28 / 0%) 100%),
+    linear-gradient(0deg, rgb(48 38 24 / 18%) 0, rgb(48 38 24 / 7%) 10px, rgb(48 38 24 / 0%) 28px),
+    radial-gradient(110px 70px at 0 100%, rgb(40 31 18 / 20%) 0%, rgb(40 31 18 / 0%) 100%),
+    radial-gradient(110px 70px at 100% 100%, rgb(40 31 18 / 20%) 0%, rgb(40 31 18 / 0%) 100%),
+    linear-gradient(90deg, rgb(48 38 24 / 8%) 0, rgb(48 38 24 / 0%) 22px, rgb(48 38 24 / 0%) calc(100% - 22px), rgb(48 38 24 / 8%) 100%),
+    var(--bi-wear-scratch) -213px -61px / 560px 280px,
+    var(--bi-wear-grime) -137px -250px / 420px 420px,
+    var(--bi-wear-stain) -300px -90px / 640px 320px,
+    var(--bi-grain-brushed),
+    linear-gradient(180deg, var(--bi-ns-silver-hi) 0%, var(--bi-ns-silver) 36%, var(--bi-ns-silver-lo) 100%);
+}
+.bi-check__empty { margin: 0; padding: 6px 4px; font-size: 13px; color: var(--bi-ns-ink-soft); }
+
+/* The head: a mini grille, the engraved legend, the check's name on a screen. */
+.bi-check__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 2px 10px 0;
+}
+.bi-check__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 9px 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+.bi-check__count b { min-width: 2.4em; text-align: center; }
+.bi-check__count.is-done b { color: #b8ffcf; text-shadow: 0 0 6px rgb(60 220 130 / 70%); }
+.bi-check__head .bi-deck__chip b { white-space: nowrap; }
+/* Rolled blind: said in purple, the colour the players' lights will show it. */
+.bi-check__blind-tag {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #4a1f96, #2e1061);
+  box-shadow: inset 0 0 0 1px rgb(200 160 255 / 45%), 0 0 10px rgb(150 75 255 / 45%);
+  color: #f0e6ff;
+  font-family: var(--bi-font-plate);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The bank: the DC dial on the silver, the ways in a black cell beside it. */
+.bi-check__bank {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.bi-check__dial {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  padding-top: 4px;
+}
+.bi-check__engraved { letter-spacing: 0.3em; }
+/* The north star's centre knob: big, a knurled dark mount, a printed scale,
+   and inside the scale a band printed in the colour of each DC's difficulty
+   for the party's level, with a notch where its standard DC sits. */
+.bi-check__knob { position: relative; width: 132px; height: 132px; display: grid; place-items: center; }
+.bi-check__scale { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.bi-check__tick { stroke: #4d5559; stroke-width: 0.7; stroke-linecap: round; }
+.bi-check__tick.is-major { stroke: #2c3134; stroke-width: 1.2; }
+.bi-check__tick.is-active { stroke: var(--bi-vu-orange); stroke-width: 1.8; filter: drop-shadow(0 0 1.5px rgb(255 138 31 / 90%)); }
+.bi-check__numeral {
+  fill: #2c3134;
+  font-family: var(--bi-font-plate);
+  font-size: 7.5px;
+  font-weight: 600;
+}
+.bi-check__numeral.is-active { fill: #b4500c; }
+.bi-check__band { fill: none; stroke: var(--band); stroke-width: 3.4; stroke-linecap: butt; opacity: 0.9; }
+.bi-check__notch { stroke: #15181a; stroke-width: 1.3; stroke-linecap: round; }
+.bi-check__dc-knob {
+  --bi-knob-size: 64px;
+  appearance: none;
+  min-height: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: none;
+  background:
+    radial-gradient(60% 34% at 50% 78%, rgb(255 200 130 / 10%) 0%, rgb(255 200 130 / 0%) 100%),
+    repeating-conic-gradient(from 0deg, #2a2c2f 0 4deg, #111214 4deg 8deg),
+    radial-gradient(circle, #202225 58%, #0b0c0d 100%);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 70%), 0 0 0 2px #0c0d0e, inset 0 0 0 1px rgb(255 255 255 / 10%);
+}
+.bi-check__dc-knob::before { transition: none; }
+.bi-check__dc-knob:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 4px; }
+/* One screen: the DC, and under it how hard that is for the party. */
+.bi-check__readout {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 140px;
+  padding: 5px 10px 4px;
+  text-align: center;
+}
+.bi-check__lcd { font-size: 22px; line-height: 1; text-shadow: 0 0 8px rgb(255 160 70 / 55%); }
+.bi-check__difficulty { display: grid; justify-items: center; gap: 1px; }
+.bi-check__difficulty b {
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  font-weight: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--diff, #ffb866);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--diff, #ffb866) 50%, transparent);
+}
+.bi-check__difficulty small { font-family: var(--bi-font-readout); font-size: 10px; color: #b98a59; }
+/* Each difficulty's ink on the dial (--band) and on the screen (--diff):
+   cool and quiet for easy, the panel's amber for standard, hotter as it gets
+   harder. Never the lights' blue or green, which mean a result. */
+.bi-check [data-difficulty="incrediblyEasy"] { --band: #5f6d74; --diff: #a9b7be; }
+.bi-check [data-difficulty="veryEasy"] { --band: #6f7a63; --diff: #b6c2a8; }
+.bi-check [data-difficulty="easy"] { --band: #8f9147; --diff: #d4d48a; }
+.bi-check [data-difficulty="standard"] { --band: #c8941c; --diff: #ffbf5a; }
+.bi-check [data-difficulty="hard"] { --band: #d06a1c; --diff: #ff9a4a; }
+.bi-check [data-difficulty="veryHard"] { --band: #b8361f; --diff: #ff6e52; }
+.bi-check [data-difficulty="incrediblyHard"] { --band: #7d1830; --diff: #ff6f95; }
+.bi-check__reset { flex: none; width: auto; padding: 0 8px; }
+
+/* A black cell's legend sits ON the outline, breaking it, as the north star's
+   "Voice" and "Lfo" do. */
+.bi-check .bi-deck__cell { padding: 15px 12px 11px; min-width: 0; }
+.bi-check__legend {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 8px;
+  background: #232427;
+  border-radius: 3px;
+}
+
+.bi-check__ways { display: grid; gap: 10px; align-content: start; }
+.bi-check__ways--roll { gap: 8px; }
+.bi-check__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  justify-content: flex-start;
+}
+.bi-check__pills .bi-deck-pill { min-width: 58px; }
+.bi-check__pills .bi-deck-pill__label { font-size: 11px; }
+.bi-check__pills .bi-deck-pill { position: relative; }
+/* Each way's own DC, printed in its pill's own capsule. A lit way's capsule points the dial at that way (it glows when it
+   is the one being turned, amber when the way has a DC of its own); an unlit one turns the way on. */
+.bi-check__pills .bi-check__cap {
+  width: 58px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+}
+.bi-check__cap-dc {
+  font-family: var(--bi-font-readout);
+  font-size: 14px;
+  line-height: 1;
+  color: #b98a59;
+  text-shadow: 0 0 6px rgb(255 160 70 / 30%);
+}
+.bi-deck-pill:not(.is-on) .bi-check__cap-dc { color: #6c7175; text-shadow: none; }
+.bi-check__cap.is-own .bi-check__cap-dc { color: #ffbf5a; }
+.bi-check__pills .bi-check__cap.is-focus {
+  background: linear-gradient(180deg, #ffcf8a, #ff9a3a);
+  box-shadow: inset 0 0 0 1px #62676b, 0 0 10px rgb(255 160 70 / 60%);
+}
+.bi-check__cap.is-focus .bi-check__cap-dc { color: #1a1206; text-shadow: none; }
+.bi-check__key-dc { display: block; margin-top: 2px; font-family: var(--bi-font-readout); font-size: 11px; color: #ffb866; text-align: center; }
+.bi-check__key-dc small { font-size: 8.5px; letter-spacing: 0.1em; opacity: 0.75; }
+.bi-check__remove {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #0c0d0e;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 25%);
+  color: #c9c2b6;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bi-check__remove:hover, .bi-check__remove:focus-visible { background: #7d1830; color: #fff; outline: none; }
+/* The whole dial answers the hand: drag up and down, or the wheel. */
+.bi-check__knob[data-bi-drag] { cursor: ns-resize; touch-action: none; }
+.bi-check__knob[data-bi-drag] .bi-check__dc-knob { cursor: ns-resize; }
+body.bi-dragging-dial, body.bi-dragging-dial * { cursor: ns-resize !important; user-select: none; }
+.bi-check__pills .bi-deck-pill:not(.is-on) .bi-deck-pill__label { color: var(--bi-ns-legend-dim); text-decoration: line-through; text-decoration-color: rgb(255 255 255 / 30%); }
+
+/* Add a way: a dropdown on the cell's own screen, every way not yet offered,
+   in three groups (2026-10-05, D062: a knob was "probably the worst way to
+   select new things to roll"). Choosing one adds it. */
+.bi-check__add {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  padding-top: 9px;
+  border-top: 1px solid rgb(255 255 255 / 7%);
+}
+.bi-check__add-label,
+.bi-check__switch-label {
+  font-family: var(--bi-font-plate);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--bi-ns-legend);
+  white-space: nowrap;
+}
+.bi-check select.bi-check__select {
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  padding: 0 30px 0 10px;
+  border: none;
+  border-radius: 5px;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0h10L5 6z' fill='%23ffb866'/></svg>") no-repeat right 11px center,
+    linear-gradient(180deg, #040505, #121415);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 95%), 0 1px 0 rgb(255 255 255 / 12%);
+  color: #ffb866;
+  font-family: var(--bi-font-readout);
+  font-size: 13px;
+  cursor: pointer;
+}
+.bi-check select.bi-check__select:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+.bi-check select.bi-check__select option,
+.bi-check select.bi-check__select optgroup { background: #121314; color: #f0e6d6; font-family: var(--bi-font-plate); }
+
+/* Open or Blind, and the DC shown or hidden: two-way switches, each side a
+   key with its own lamp, the side that is in force pressed in and lit, Blind
+   in the purple the players' lights will show (D062: "'Blind' part of the UI
+   in no way makes it clear if the roll is blind or not"). */
+.bi-check__switches {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px 9px;
+  padding-top: 9px;
+  border-top: 1px solid rgb(255 255 255 / 7%);
+}
+.bi-check__switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #0b0c0d, #18191b);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 80%), 0 1px 0 rgb(255 255 255 / 10%);
+}
+.bi-check .bi-check__seg {
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  height: 26px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid #34373b;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #3a3d41, #232427);
+  box-shadow: 0 2px 0 #0a0b0c, inset 0 1px 0 rgb(255 255 255 / 10%);
+  color: #8d9397;
+  font-family: var(--bi-font-plate);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: none;
+}
+.bi-check .bi-check__seg:hover:not(:disabled) { color: #d8dcde; border-color: rgb(255 138 31 / 60%); }
+.bi-check .bi-check__seg.is-on {
+  transform: translateY(1px);
+  border-color: rgb(255 138 31 / 80%);
+  background: linear-gradient(180deg, #1a1b1e, #2a2c30);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 75%), 0 0 8px rgb(255 138 31 / 25%);
+  color: var(--bi-ns-cap);
+}
+.bi-check .bi-check__seg--blind.is-on {
+  border-color: #9b5cff;
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 75%), 0 0 12px rgb(150 75 255 / 50%);
+  color: #f0e6ff;
+}
+.bi-check .bi-check__seg:disabled { cursor: default; opacity: 0.5; }
+.bi-check .bi-check__seg:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+.bi-check__lamp {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4d5155, #1c1d20);
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 60%);
+}
+.bi-check__seg.is-on .bi-check__lamp {
+  background: radial-gradient(circle at 35% 30%, #fff3dc, var(--bi-vu-orange) 55%, var(--bi-vu-ember));
+  box-shadow: 0 0 6px rgb(255 138 31 / 85%);
+}
+.bi-check__seg--blind.is-on .bi-check__lamp {
+  background: radial-gradient(circle at 35% 30%, #f3e8ff, #9b5cff 55%, #4a1a99);
+  box-shadow: 0 0 7px rgb(155 92 255 / 90%);
+}
+
+/* Results: what each degree gives, per way when the check has ways of its
+   own (tabs), best first, who it landed on, and how often before. */
+.bi-check__results { display: grid; gap: 8px; }
+.bi-check__tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.bi-check .bi-check__tab {
+  appearance: none;
+  box-sizing: border-box;
+  width: auto;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 11px;
+  border: 1px solid #3d4044;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2c2e31, #1b1c1e);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+  color: var(--bi-ns-legend-dim);
+  font-family: var(--bi-font-plate);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: none;
+}
+.bi-check .bi-check__tab:hover { color: var(--bi-ns-legend); border-color: rgb(255 138 31 / 60%); }
+.bi-check .bi-check__tab.is-on { color: var(--bi-ns-cap); border-color: var(--bi-vu-orange); box-shadow: inset 0 -2px 0 var(--bi-vu-orange), 0 0 8px rgb(255 138 31 / 40%); }
+.bi-check__note { margin: 0; font-family: var(--bi-font-body); font-size: 12.5px; line-height: 1.35; color: var(--bi-ns-legend); }
+.bi-check__note b { color: #f0b46e; font-weight: 600; }
+.bi-check__shared { font-style: normal; font-size: 11px; color: var(--bi-ns-legend-dim); }
+.bi-check__outcomes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.bi-check__outcome {
+  display: grid;
+  grid-template-columns: 158px minmax(0, 1fr);
+  grid-template-areas: "mark text" "mark who";
+  column-gap: 10px;
+  align-items: start;
+  padding: 5px 6px;
+  border-radius: 8px;
+  color: var(--bi-ns-legend-dim);
+}
+.bi-check__outcome.is-hit { background: rgb(255 255 255 / 5%); color: var(--bi-ns-legend); }
+.bi-check__outcome.is-recorded { box-shadow: inset 0 0 0 1px rgb(255 138 31 / 60%); }
+.bi-check__mark {
+  grid-area: mark;
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid #3d4044;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #34373b, #1e1f22);
+  box-shadow: 0 2px 0 #0c0d0e, inset 0 1px 0 rgb(255 255 255 / 10%);
+  color: var(--bi-ns-legend);
+  font-family: var(--bi-font-plate);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: none;
+}
+span.bi-check__mark { cursor: default; box-shadow: none; background: none; border-color: transparent; }
+button.bi-check__mark:hover { border-color: rgb(255 138 31 / 80%); }
+button.bi-check__mark:active { transform: translateY(1px); box-shadow: inset 0 2px 3px rgb(0 0 0 / 70%); }
+button.bi-check__mark[aria-pressed="true"] { border-color: var(--bi-vu-orange); box-shadow: inset 0 -2px 0 var(--bi-vu-orange), 0 0 8px rgb(255 138 31 / 40%); }
+.bi-check__outcome-label { font-weight: 600; white-space: nowrap; }
+.bi-check__outcome-text { grid-area: text; font-family: var(--bi-font-body); font-size: 13px; line-height: 1.38; }
+.bi-check__outcome-who { grid-area: who; margin-top: 3px; font-size: 11.5px; color: #f0b46e; }
+/* How often it has come out this way before: a small amber readout. */
+.bi-check__tally {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #0c0d0e;
+  box-shadow: inset 0 1px 2px #000;
+  color: #ffb866;
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  vertical-align: 1px;
+}
+
+/* The keys; Close stands apart, the one that ends it. */
+.bi-check__keys { display: flex; align-items: center; gap: 8px; padding: 2px 4px 0; }
+.bi-check__keys .bi-deck-map--wide { flex: none; height: 26px; padding: 0 11px; }
+.bi-check__go {
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  height: 32px;
+  min-height: 0;
+  margin: 0 0 0 auto;
+  padding: 0 16px 0 12px;
+  border: 1px solid #45484c;
+  border-top-color: #5a5e62;
+  border-radius: 9px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 9%) 0%, rgb(255 255 255 / 0%) 55%),
+    linear-gradient(180deg, #3a3d41 0%, #2b2d31 42%, #212226 100%);
+  box-shadow: 0 3px 0 #0c0d0e, 0 4px 6px rgb(0 0 0 / 55%), inset 0 1px 0 rgb(255 255 255 / 16%);
+  color: var(--bi-ns-cap);
+  font-family: var(--bi-font-plate);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: none;
+}
+.bi-check__go:hover { border-color: rgb(255 138 31 / 75%); box-shadow: 0 3px 0 #0c0d0e, 0 4px 6px rgb(0 0 0 / 55%), 0 0 10px rgb(255 138 31 / 28%), inset 0 1px 0 rgb(255 255 255 / 20%); }
+.bi-check__go:active,
+.bi-check__go.is-pressed { transform: translateY(2px); box-shadow: 0 1px 0 #0c0d0e, inset 0 2px 5px rgb(0 0 0 / 70%); }
+.bi-check__go:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+
+/* --- The GM's window and a player's ------------------------------------- */
+
+.bi-check--gm { gap: 11px; }
+.bi-check--player { gap: 12px; }
+/* A player's heading is the ways in words, which can run long: two lines. */
+.bi-check--player .bi-check__title {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: 1.25;
+}
+/* The ways as the deck's own skill keys, centred, three to a row at most:
+   one way is one key in the middle, not a key in a corner. */
+.bi-check__keybank {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+}
+.bi-check__keybank .bi-deck-key { flex: 0 1 calc((100% - 14px) / 3); min-width: 0; min-height: 42px; }
+.bi-check__keybank .bi-deck-key:disabled { cursor: default; opacity: 0.45; transform: none; }
+.bi-check__hint { margin: 2px 0 0; font-family: var(--bi-font-body); font-size: 12.5px; color: var(--bi-ns-legend-dim); text-align: center; }
+.bi-check__result {
+  margin: 0;
+  padding: 7px 12px 6px;
+  text-align: center;
+  font-size: 15px;
+  text-shadow: 0 0 8px rgb(255 160 70 / 45%);
+}

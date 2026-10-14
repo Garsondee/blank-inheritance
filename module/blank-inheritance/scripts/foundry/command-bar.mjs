@@ -18,7 +18,7 @@ import { togglePhone } from "./phone.mjs";
 import { toggleNotebook } from "./notebook.mjs";
 import { toggleJournal } from "./journal.mjs";
 import { openConsoleTab, toggleConsoleWindow } from "./console-window.mjs";
-import { afterDeckRender, deckChecksFor, deckOrbFor, fitDeck, toggleActionPip } from "./deck.mjs";
+import { afterDeckRender, deckBankFor, deckChecksFor, deckOrbFor, fitDeck, toggleActionPip } from "./deck.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -177,7 +177,7 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
   #decorateSharedZone(zone, { mode, actor, checks }) {
     if (zone.partial === "checks") {
       const side = zone.track === "left" ? "left" : "right";
-      zone.bank = { side, keys: checks[side].skills };
+      zone.bank = deckBankFor(checks, side);
       return;
     }
     if (zone.partial === "orb") {

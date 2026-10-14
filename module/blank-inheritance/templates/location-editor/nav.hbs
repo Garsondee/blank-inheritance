@@ -1,8 +1,71 @@
-<nav class="bi-location-editor__tabs">
-    <button type="button" class="bi-location-editor__tab{{#if (eq tab "story")}} is-active{{/if}}" data-action="setTab" data-tab="story">
-        <i class="fa-solid fa-list-check"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Story"}}
-    </button>
-    <button type="button" class="bi-location-editor__tab{{#if (eq tab "map")}} is-active{{/if}}" data-action="setTab" data-tab="map">
-        <i class="fa-solid fa-draw-polygon"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Map"}}
-    </button>
-</nav>
+<div class="bi-location-editor__header">
+    <nav class="bi-location-editor__tabs">
+        <button type="button" class="bi-location-editor__tab{{#if (eq tab "story")}} is-active{{/if}}" data-action="setTab" data-tab="story">
+            <i class="fa-solid fa-list-check"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Story"}}
+        </button>
+        <button type="button" class="bi-location-editor__tab{{#if (eq tab "journeys")}} is-active{{/if}}" data-action="setTab" data-tab="journeys">
+            <i class="fa-solid fa-route"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Journeys"}}
+        </button>
+        <button type="button" class="bi-location-editor__tab{{#if (eq tab "places")}} is-active{{/if}}" data-action="setTab" data-tab="places">
+            <i class="fa-solid fa-location-dot"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Places"}}
+        </button>
+        <button type="button" class="bi-location-editor__tab{{#if (eq tab "map")}} is-active{{/if}}" data-action="setTab" data-tab="map">
+            <i class="fa-solid fa-draw-polygon"></i> {{localize "BLANKINHERITANCE.LocationEditor.Tab.Map"}}
+        </button>
+    </nav>
+
+    {{#if pin}}
+    <div class="bi-pin{{#if pin.placed}} is-placed{{/if}}" data-worst="{{#if pin.worst}}{{pin.worst}}{{else}}ok{{/if}}">
+        <div class="bi-pin__head">
+            <i class="fa-solid fa-location-dot"></i>
+            <strong>{{pin.title}}</strong>
+            {{#if pin.many}}<small>{{localize "BLANKINHERITANCE.LocationEditor.Pin.Many" count=pin.count}}</small>{{/if}}
+        </div>
+        {{#if pin.arming}}
+        <p class="bi-pin__help">{{localize "BLANKINHERITANCE.LocationEditor.Pin.Help"}}</p>
+        {{else}}
+        <div class="bi-pin__form">
+            <label class="bi-pin__field">{{localize "BLANKINHERITANCE.LocationEditor.Pin.Name"}}
+                <input type="text" name="pinName" value="{{pin.name}}" placeholder="{{pin.defaultName}}" autocomplete="off">
+            </label>
+            <label class="bi-pin__field">{{localize "BLANKINHERITANCE.LocationEditor.Pin.Note"}}
+                <input type="text" name="pinNote" value="{{pin.note}}" placeholder="{{localize 'BLANKINHERITANCE.LocationEditor.Pin.NotePlaceholder'}}" autocomplete="off">
+            </label>
+        </div>
+        {{/if}}
+        <ul class="bi-pin__readout">{{#each pin.lines}}<li class="is-{{severity}}"><i class="fa-solid {{icon}}"></i> {{text}}</li>{{/each}}</ul>
+        <div class="bi-location-editor__row">
+            <label class="bi-location-editor__radio"><input type="checkbox" data-action="togglePinSnap" {{#if pin.snap}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Pin.Snap"}}</label>
+        </div>
+        <div class="bi-location-editor__row">
+            {{#if pin.placed}}
+            <button type="button" class="bi-location-editor__button bi-location-editor__button--primary" data-action="confirmPin"><i class="fa-solid fa-check"></i> {{localize "BLANKINHERITANCE.LocationEditor.Pin.Place"}}</button>
+            <button type="button" class="bi-location-editor__button" data-action="movePin"><i class="fa-solid fa-arrows-up-down-left-right"></i> {{localize "BLANKINHERITANCE.LocationEditor.Pin.Move"}}</button>
+            {{/if}}
+            <button type="button" class="bi-location-editor__button" data-action="cancelPin">{{localize "BLANKINHERITANCE.LocationEditor.Story.Cancel"}}</button>
+        </div>
+    </div>
+    {{/if}}
+
+    {{#if player.visible}}
+    <div class="bi-jbar{{#if player.playing}} is-playing{{/if}}">
+        <div class="bi-jbar__row">
+            <button type="button" class="bi-jbar__button" data-action="skipStep" data-dir="-1" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Previous'}}"><i class="fa-solid fa-backward-step"></i></button>
+            <button type="button" class="bi-jbar__button bi-jbar__play" data-action="togglePlay" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.PlayPause'}}"><i class="fa-solid fa-play"></i><i class="fa-solid fa-pause"></i></button>
+            <button type="button" class="bi-jbar__button" data-action="skipStep" data-dir="1" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Next'}}"><i class="fa-solid fa-forward-step"></i></button>
+            <button type="button" class="bi-jbar__button" data-action="stopPlay" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Stop'}}"><i class="fa-solid fa-stop"></i></button>
+            <input type="range" class="bi-jbar__scrub" name="journeyScrub" min="0" max="1000" value="{{player.pos}}" aria-label="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Scrub'}}">
+            <span class="bi-jbar__time">{{player.time}}</span>
+        </div>
+        <div class="bi-jbar__row bi-jbar__row--info">
+            <span class="bi-jbar__what"><span class="bi-jbar__title">{{player.title}}</span> <small class="bi-jbar__detail">{{player.detail}}</small></span>
+            <small class="bi-jbar__count">{{player.count}}</small>
+            <span class="bi-jbar__speeds" role="group">
+                {{#each player.speeds}}<button type="button" class="bi-jbar__speed{{#if active}} is-active{{/if}}" data-action="setSpeed" data-speed="{{value}}">{{label}}</button>{{/each}}
+            </span>
+            <button type="button" class="bi-jbar__button bi-jbar__camera{{#if player.frame}} is-active{{/if}}" data-action="toggleFollow" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Camera'}}"><i class="fa-solid fa-video"></i></button>
+        </div>
+        <div class="bi-jbar__label">{{player.label}}{{#if player.real}} · {{player.real}}{{/if}}</div>
+    </div>
+    {{/if}}
+</div>

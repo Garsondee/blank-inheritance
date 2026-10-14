@@ -9,7 +9,7 @@
   "role": "Duty Engineer, The Generating Hall",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Keeps the works in power -- four sets, three running, one always stripped down. The person who decides which shop loses its supply first when the load will not stretch.",
+  "canon": "directorate-posts.generating-hall-engineer",
   "designNotes": "Created 2026-09-12 with The Generating Hall. A small, concrete source of pressure: power is finite and somebody chooses. Name and manner open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

@@ -126,7 +126,12 @@ for (const scene of scenes) {
     if ((s.reactionPrompts || []).length > BUDGET.reactionPrompts) over.push(`reactionPrompts: ${s.reactionPrompts.length} (budget ${BUDGET.reactionPrompts})`);
     for (const ch of challengesFor(scene)) {
       for (const c of ch.json.checks || []) {
-        for (const [k, v] of Object.entries({ ...(c.outcomes || {}), ...(c.bySkill || {}) })) check(`${ch.id}/${c.id}.${k}`, v, BUDGET.result);
+        for (const [k, v] of Object.entries(c.outcomes || {})) check(`${ch.id}/${c.id}.${k}`, v, BUDGET.result);
+        // A way's own result: one line, or (D062) one per degree, each held to the same budget.
+        for (const [skill, way] of Object.entries(c.bySkill || {})) {
+          if (way && typeof way === "object") for (const [degree, v] of Object.entries(way)) check(`${ch.id}/${c.id}.${skill}.${degree}`, v, BUDGET.result);
+          else check(`${ch.id}/${c.id}.${skill}`, way, BUDGET.result);
+        }
       }
     }
     const total = gmFields(scene).reduce((n, f) => n + words(f.value), 0);

@@ -9,7 +9,7 @@
   "role": "Works Manager, the south-west works",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs the whole south-western works strip -- the Erecting Shop, the Armour Shop and everything feeding them. Decides, in practice, what actually gets built this month and in which bay, which makes this the person whose goodwill determines whether a Frame is ready when it is needed.",
+  "canon": "directorate-posts.works-manager",
   "designNotes": "Created 2026-09-12 with the works strip. The most operationally powerful of these stubs: an unglamorous manager whose ordinary scheduling decisions have direct consequences for the pilots. Name, temperament, and whether they like the pilots are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

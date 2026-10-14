@@ -13,7 +13,7 @@
   ],
   "classification": null,
   "rank": 3,
-  "depth": "named",
+  "depth": "sketch",
   "geometry": {
     "rings": [
       [
@@ -579,12 +579,17 @@
   },
   "lore": {
     "summary": "The mainland's original waterfront, still the point every road eventually reaches. Ferry stages, chandlers, and a customs hall that predates the Directorate and is politely ignored by it.",
-    "playerFacing": "",
-    "gmOnly": ""
+    "playerFacing": "Rope, tar and diesel, and the slap of water against old stone. The ferry stages run along the front with the chandlers behind them, their shutters going up at dawn and down at dusk. The quay stones are worn into shallow dishes at every mooring, and the customs hall's brass plaque is brighter than the building around it. At night the stages go dark and the whole front looks like a different place.",
+    "gmOnly": "Two scenes end here: The Walk Down, when the duty launch puts in at a quay, and Flood Tunnel Clearance, through a hatch in that quay and down a ladder into a disused drainage chamber under the old town. The chamber is not on the map yet; this district is the nearest true ground. Players who came by ferry know these stages by day, so let them find them changed."
   },
   "scene": {
-    "hooks": [],
-    "activities": [],
+    "hooks": [
+      "The ferry stages are dark and the launch puts in somewhere that looks nothing like the place you left by day."
+    ],
+    "activities": [
+      "Take a ferry from the stages.",
+      "Buy rope, tar, tin mugs and charts from a chandler."
+    ],
     "history": "",
     "consequences": ""
   },

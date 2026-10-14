@@ -6942,7 +6942,6 @@
 }
 .bi-runner__chip > i { font-size: 10.5px; }
 .bi-runner__chip--npc { color: var(--sr-text); }
-.bi-runner__chip--check { color: var(--sr-info); border-color: color-mix(in srgb, var(--sr-info) 45%, var(--sr-border)); font-variant-numeric: tabular-nums; }
 .bi-runner__chip--fight { color: var(--sr-accent); border-color: color-mix(in srgb, var(--sr-accent) 45%, var(--sr-border)); }
 /* What was recorded, coloured by how it went. A choice (no degree) is
    neither good nor bad news, so it takes the neutral info colour. */
@@ -7082,109 +7081,10 @@
 .bi-runner__stamp:active { transform: translateY(1px) scale(0.98); }
 .bi-runner__stamp:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 2px; }
 .bi-runner__stamp[disabled] { opacity: 0.4; cursor: default; }
-/* The degree a topic check came out at, once recorded: filled, not outlined. */
-.bi-runner__stamp--picked { background: var(--sr-accent); border-color: var(--sr-accent); color: var(--sr-accent-ink); }
 .bi-runner__stamp--insight { border-color: var(--sr-good); color: var(--sr-good); }
 /* A beat's gmTool button (#176): cyan, this project's "system/utility
    action" colour — it launches a panel, it does not resolve anything. */
 .bi-runner__stamp--tool { border-color: var(--sr-info); color: var(--sr-info); }
-
-/* The check: what it is, what each degree MEANS, who rolled it. */
-.bi-runner__checkbox {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 9px 10px 10px;
-  border: 1px solid var(--sr-border);
-  border-radius: var(--sr-radius);
-  background: var(--sr-bg);
-}
-.bi-runner__checkbox--insight { border-color: color-mix(in srgb, var(--sr-good) 55%, var(--sr-border)); }
-.bi-runner__check-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-.bi-runner__check-name { font-family: var(--bi-font-condensed); font-size: 14px; font-weight: 700; color: var(--sr-text); }
-.bi-runner__check-skills {
-  flex: 1 1 auto;
-  font-family: var(--bi-font-condensed);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--sr-info);
-  text-transform: capitalize;
-}
-.bi-runner__outcomes { display: flex; flex-direction: column; gap: 4px; }
-.bi-runner__outcome {
-  appearance: none;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 10.5ch minmax(0, 1fr);
-  align-items: baseline;
-  justify-content: stretch;
-  gap: 10px;
-  width: 100%;
-  /* A degree and its consequence is a paragraph, not a label: it must grow
-     to its text (Foundry's button rule pins buttons to one line's height,
-     which laid the four degrees over each other — found live). */
-  height: auto;
-  font-family: var(--bi-font-document);
-  padding: 6px 9px;
-  border: 1px solid var(--sr-border);
-  border-radius: 5px;
-  background: var(--sr-bg-raised);
-  color: var(--sr-text);
-  font-size: 13px;
-  line-height: 1.45;
-  text-align: left;
-  transition: background-color var(--bi-dur-servo) var(--bi-ease-servo), border-color var(--bi-dur-servo) var(--bi-ease-servo), opacity var(--bi-dur-servo) var(--bi-ease-servo);
-}
-.bi-runner__outcome:hover { border-color: var(--sr-border-strong); background: var(--sr-bg-sunken); opacity: 1; }
-.bi-runner__outcome:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 1px; }
-.bi-runner__outcome-label {
-  font-family: var(--bi-font-condensed);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.bi-runner__outcome-label[data-degree="criticalSuccess"],
-.bi-runner__outcome-label[data-degree="success"],
-.bi-runner__roll-degree[data-degree="criticalSuccess"],
-.bi-runner__roll-degree[data-degree="success"] { color: var(--sr-good); }
-.bi-runner__outcome-label[data-degree="failure"],
-.bi-runner__roll-degree[data-degree="failure"] { color: var(--sr-warn); }
-.bi-runner__outcome-label[data-degree="criticalFailure"],
-.bi-runner__roll-degree[data-degree="criticalFailure"] { color: var(--sr-accent); }
-.bi-runner__outcome-text { font-weight: 400; color: var(--sr-text); }
-/* Once a degree is recorded, it is the loud one and the rest step back —
-   still there, still pressable, because the GM may change their mind. */
-.bi-runner__outcome--other { opacity: 0.5; }
-.bi-runner__outcome--picked { border-width: 1.5px; }
-.bi-runner__outcome--picked[data-degree="criticalSuccess"],
-.bi-runner__outcome--picked[data-degree="success"] { border-color: var(--sr-good); background: color-mix(in srgb, var(--sr-good) 16%, var(--sr-bg-raised)); }
-.bi-runner__outcome--picked[data-degree="failure"] { border-color: var(--sr-warn); background: color-mix(in srgb, var(--sr-warn) 16%, var(--sr-bg-raised)); }
-.bi-runner__outcome--picked[data-degree="criticalFailure"] { border-color: var(--sr-accent); background: color-mix(in srgb, var(--sr-accent) 16%, var(--sr-bg-raised)); }
-
-/* Who has rolled it, read back out of the chat log. */
-.bi-runner__rolls { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; }
-.bi-runner__roll { display: inline-flex; align-items: baseline; gap: 6px; }
-.bi-runner__roll--recorded .bi-runner__roll-who { text-decoration: underline; text-decoration-color: var(--sr-good); text-underline-offset: 3px; }
-.bi-runner__roll-who { font-weight: 700; color: var(--sr-text); }
-.bi-runner__roll-degree { font-family: var(--bi-font-condensed); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-.bi-runner__roll-total { color: var(--sr-text-dim); font-variant-numeric: tabular-nums; }
-.bi-runner__roll-used { font-family: var(--bi-font-condensed); font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--sr-good); }
-
-/* What a DIFFERENT skill actually gets, read before the roll lands. */
-.bi-runner__by-skill { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--sr-text-dim); }
-.bi-runner__by-skill-name {
-  margin-right: 6px;
-  font-family: var(--bi-font-condensed);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--sr-text);
-}
-/* How many times each degree has actually landed, across every attempt. */
-.bi-runner__tally { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; font-family: var(--bi-font-condensed); font-size: 12px; color: var(--sr-text-faint); }
-.bi-runner__tally-item { white-space: nowrap; }
-.bi-runner__tally-item--hit { color: var(--sr-text-dim); font-weight: 700; }
 
 /* A beat that is a fight. */
 .bi-runner__fight {
@@ -7664,7 +7564,6 @@
   .bi-runner__stamp,
   .bi-runner__tick,
   .bi-runner__tick::after,
-  .bi-runner__outcome,
   .bi-runner__chevron { transition: none; }
   .bi-runner__stamp:active { transform: none; }
 }
@@ -9308,12 +9207,22 @@
 .bi-deck__cell .bi-deck-pill.is-on .bi-deck-pill__cap {
   box-shadow: inset 0 0 0 1px #62676b, inset 0 -4px 0 -1px var(--bi-vu-orange), 0 0 8px rgb(255 138 31 / 45%);
 }
-.bi-deck__cell .bi-deck-pill__label { color: var(--bi-ns-legend); }
+/* Light legend on black: the engraved catch-light the silver needs (a light
+   shadow under dark ink) is wrong here, an offset pale ghost under pale text
+   that blurs it (Ingram, 2026-10-05: "an offset LIGHT coloured shadow which
+   makes it harder to read"). On black, a dark shadow seats it instead. */
+.bi-deck__cell .bi-deck-pill__label { color: var(--bi-ns-legend); text-shadow: 0 1px 1px rgb(0 0 0 / 70%); }
 
 /* --- The key banks (inner, black) --------------------------------------- */
 
-.bi-deck-bank { box-sizing: border-box; height: 100%; padding: 22px 11px 11px; }
-.bi-deck-bank__cell { height: 100%; padding: 13px 9px 9px; }
+/* Nine keys, three by three, and never a blank one for a character: Ingram,
+   2026-10-05 (D063), "there is no point physically grouping buttons thus
+   causing some buttons to be blank". The keys got wider instead: the bank's
+   own margins were trimmed and the inner modules widened (bi-tokens.css §7a,
+   --bi-deck-inner), so a cap is a little over twice as wide as it is tall,
+   where it was under twice. */
+.bi-deck-bank { box-sizing: border-box; height: 100%; padding: 22px 7px 11px; }
+.bi-deck-bank__cell { height: 100%; padding: 13px 6px 9px; }
 .bi-deck-bank__cell > .bi-deck__legend {
   position: absolute;
   top: -7px;
@@ -9343,7 +9252,13 @@
    Hover lifts the rim into the deck's one warm colour. Pressing is held on
    screen a beat longer than the click itself (.is-pressed, foundry/deck.mjs),
    and a key that has just rolled stays lit for a moment (.is-fired) so the
-   hand knows which one fired. */
+   hand knows which one fired.
+   Since D063 (Ingram: "a wider ratio, a plate to show the text on ... and we
+   should recolour them in a subtle way that indicates which main stat they
+   are effected by"), the cap carries a recessed NAMEPLATE across its top
+   with the skill's whole name, and below it the number beside its pips,
+   between two ribbed grips. The plate's wash and the grips are in the
+   colour of the attribute the skill adds. */
 .bi-deck-key {
   appearance: none;
   position: relative;
@@ -9352,14 +9267,18 @@
   min-height: 0;
   height: auto;
   margin: 0 0 3px;
-  padding: 4px 3px 4px;
+  padding: 4px 4px 3px;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  justify-items: center;
-  align-items: center;
+  /* One column the cap's whole width: Foundry's own button style centres a
+     grid's tracks, which shrank every nameplate to its text. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  justify-content: stretch;
+  row-gap: 2px;
+  align-items: stretch;
   border: 1px solid #45484c;
   border-top-color: #5a5e62;
-  border-radius: 9px;
+  border-radius: 8px;
   background:
     radial-gradient(58% 42% at 50% 56%, rgb(255 255 255 / 5%) 0%, rgb(255 255 255 / 0%) 100%),
     radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 9%) 0%, rgb(255 255 255 / 0%) 55%),
@@ -9387,7 +9306,7 @@
     inset 0 1px 0 rgb(255 255 255 / 20%),
     inset 0 -2px 3px rgb(0 0 0 / 35%);
 }
-.bi-deck-key:hover .bi-deck-key__label { color: #e4e8ea; }
+.bi-deck-key:hover .bi-deck-key__label { color: #eef1f2; }
 .bi-deck-key:active,
 .bi-deck-key.is-pressed {
   transform: translateY(2px);
@@ -9402,26 +9321,83 @@
 .bi-deck-key.is-fired .bi-deck-key__mod { color: var(--bi-vu-bright); text-shadow: 0 0 8px rgb(255 138 31 / 80%); }
 .bi-deck-key.is-fired { border-color: rgb(255 138 31 / 70%); }
 .bi-deck-key:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 1px; }
+/* The nameplate: let into the cap a shade darker than it, washed with the
+   attribute's colour (the "subtle" recolour), and wide enough for the
+   skill's whole name with room to spare (test/tier3-deck-keys-contract.test.mjs
+   works it out from these numbers; tools/deck-keys/live-check.mjs measures it). */
+.bi-deck-key__plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 16px;
+  box-sizing: border-box;
+  padding: 0 4px;
+  border-radius: 3px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--attr, #3a3d41) 26%, transparent) 0%, color-mix(in srgb, var(--attr, #3a3d41) 14%, transparent) 100%),
+    linear-gradient(180deg, #111214 0%, #18191c 100%);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 80%),
+    inset 0 0 0 1px rgb(0 0 0 / 40%),
+    0 1px 0 rgb(255 255 255 / 9%);
+}
 .bi-deck-key__label {
-  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
   line-height: 1.05;
-  color: #b7bdc1;
+  color: #cfd4d7;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 60%);
+}
+/* The number beside its pips, centred between the grips. */
+.bi-deck-key__read {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
 }
 .bi-deck-key__mod {
   font-family: var(--bi-font-readout);
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1;
   color: var(--bi-ns-cap);
 }
 .bi-deck-key[data-rank="0"] .bi-deck-key__mod { color: #82888c; }
-.bi-deck-key__pips { display: flex; gap: 3px; height: 4px; }
-.bi-deck-key__pips i { display: block; width: 4px; height: 4px; border-radius: 50%; background: #3b3e42; }
-.bi-deck-key__pips i.is-lit { background: var(--bi-vu-orange); box-shadow: 0 0 4px rgb(255 138 31 / 75%); }
-.bi-deck-key--blank { cursor: default; opacity: 0.45; box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%); }
+.bi-deck-key__pips { display: flex; gap: 2px; height: 3px; }
+.bi-deck-key__pips i { display: block; width: 3px; height: 3px; border-radius: 50%; background: #3b3e42; }
+.bi-deck-key__pips i.is-lit { background: var(--bi-vu-orange); box-shadow: 0 0 3px rgb(255 138 31 / 75%); }
+.bi-deck-key--blank { cursor: default; opacity: 0.4; box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%); }
+/* The grips (D063, keeping D062's "tactile bumped parts"): two moulded pads
+   at the ends of the number's row, ribbed like a knurled thumb grip, in the
+   colour of the attribute the skill adds. They ride the cap down when it is
+   pressed and leave the nameplate and the number clear. */
+.bi-deck-key::before,
+.bi-deck-key::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  width: 9px;
+  height: 11px;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 26%) 0 1px, rgb(0 0 0 / 45%) 1px 2px, rgb(0 0 0 / 0%) 2px 3px),
+    linear-gradient(180deg, color-mix(in srgb, var(--attr, #5a5e62) 70%, #ffffff) 0%, var(--attr, #5a5e62) 50%, color-mix(in srgb, var(--attr, #5a5e62) 55%, #000000) 100%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 50%), 0 1px 0 rgb(255 255 255 / 6%);
+  pointer-events: none;
+}
+.bi-deck-key::before { left: 6px; }
+.bi-deck-key::after { right: 6px; }
+/* The attribute colours (bi-tokens.css §7a-iii). */
+.bi-deck-key[data-attribute="str"] { --attr: var(--bi-attr-str); }
+.bi-deck-key[data-attribute="dex"] { --attr: var(--bi-attr-dex); }
+.bi-deck-key[data-attribute="con"] { --attr: var(--bi-attr-con); }
+.bi-deck-key[data-attribute="int"] { --attr: var(--bi-attr-int); }
+.bi-deck-key[data-attribute="wis"] { --attr: var(--bi-attr-wis); }
+.bi-deck-key[data-attribute="cha"] { --attr: var(--bi-attr-cha); }
 
 /* --- The spine: defences flanking the central instrument ------------------ */
 
@@ -9788,10 +9764,14 @@
      orange that darkens to its rim, and ALL the brightness comes from one
      lamp near the centre (.bi-orb__lamp below) — so when the lamp breathes,
      the face visibly breathes with it. A faint thumb-smudge low-left and a
-     little dust the backlight shows up sit on the glass itself. */
+     little dust the backlight shows up sit on the glass itself. The dust is
+     two offset layers of the same motes (2026-10-05): the dust went fainter
+     everywhere dark, but a lamp behind glass is exactly where dust shows, so
+     the glass keeps more of it than the black panels do. */
   background:
     radial-gradient(70px 46px at 32% 78%, rgb(40 18 4 / 12%) 0%, rgb(40 18 4 / 0%) 100%),
     var(--bi-wear-grime-light) -150px -210px / 420px 420px,
+    var(--bi-wear-grime-light) -310px -60px / 420px 420px,
     radial-gradient(circle at 50% 50%, #d4661a 0%, #ad4a0e 36%, #7a2e07 70%, #4a1a04 100%);
   box-shadow:
     0 0 0 2px #0a0b0c,
@@ -10437,7 +10417,6 @@
 
 /* --- Asking the table (the Director with nothing selected) --------------- */
 
-.bi-deck-key--ask { grid-template-rows: 1fr auto; }
 .bi-deck-key--ask .bi-deck-key__label { color: #d8dcde; }
 .bi-deck-key__ask {
   padding: 1px 5px;
@@ -13218,8 +13197,6 @@
 /* The drawing tools show a crosshair over the whole map, and a pan a closed hand. Foundry's canvas
    sets the cursor inline on every pointer move, so only !important can win (foundry/location-draw-layer.mjs#applyCursor). */
 #board.bi-loc-crosshair { cursor: crosshair !important; }
-.bi-story__targets { display: inline-flex; gap: 0.25em; margin-left: 0.4em; }
-.bi-story__targets .bi-location-editor__button { padding-inline: 0.55em; }
 #board.bi-loc-grabbing { cursor: grabbing !important; }
 
 /* The Story tab (design/location-editor.md §12): the episodes and haunts as an accordion, scene by scene. */
@@ -13241,6 +13218,8 @@
 .bi-story__pending { margin: 0; font-size: 0.82em; color: #4fc8d8; }
 .bi-story__problem { margin: 0; font-size: 0.82em; color: #e0a24a; }
 .bi-story__banner { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; background: #3b1f35; border: 1px solid #ff2bd6; border-radius: 4px; padding: 0.45em 0.6em; font-size: 0.88em; }
+.bi-story__targets { display: inline-flex; gap: 0.25em; margin-left: 0.4em; }
+.bi-story__targets .bi-location-editor__button { padding-inline: 0.55em; }
 
 .bi-story__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .bi-story__group-head { width: 100%; display: flex; align-items: baseline; gap: 0.5em; text-align: left; background: #2b2820; border: 1px solid #4a453a; border-radius: 4px; color: #e8e4da; padding: 0.45em 0.6em; cursor: pointer; margin-top: 0.3em; }
@@ -13429,35 +13408,6 @@
 }
 .bi-runner__pc-mark--condition { border-color: var(--sr-accent); color: var(--sr-accent); }
 
-/* Each player's own result on a beat everyone rolls. */
-.bi-runner__per-player { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
-.bi-runner__per-player-row { display: flex; align-items: center; gap: 4px; }
-.bi-runner__per-player-name { flex: 1 1 auto; min-width: 0; font-family: var(--bi-font-condensed); font-size: 13px; font-weight: 700; color: var(--sr-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bi-runner__per-player-degree {
-  appearance: none;
-  cursor: pointer;
-  flex: none;
-  min-width: 34px;
-  height: 24px;
-  padding: 0 6px;
-  border: 1px solid var(--sr-border);
-  border-radius: 4px;
-  background: var(--sr-bg-raised);
-  color: var(--sr-text-dim);
-  font-family: var(--bi-font-condensed);
-  font-size: 12.5px;
-  font-weight: 700;
-}
-.bi-runner__per-player-degree:hover { border-color: var(--sr-border-strong); color: var(--sr-text); }
-.bi-runner__per-player-degree:focus-visible { outline: 2px solid var(--sr-focus); outline-offset: 1px; }
-.bi-runner__per-player-degree--picked[data-degree="criticalSuccess"],
-.bi-runner__per-player-degree--picked[data-degree="success"] { border-color: var(--sr-good); background: var(--sr-good); color: var(--sr-good-ink); }
-.bi-runner__per-player-degree--picked[data-degree="failure"] { border-color: var(--sr-warn); background: var(--sr-warn); color: var(--sr-warn-ink); }
-.bi-runner__per-player-degree--picked[data-degree="criticalFailure"] { border-color: var(--sr-accent); background: var(--sr-accent); color: var(--sr-accent-ink); }
-
-/* A check posted blind. */
-.bi-runner__tag--blind { border-color: var(--sr-info); color: var(--sr-info); }
-.bi-runner__chip--check > .fa-eye-slash { margin-left: 2px; }
 
 /* The fight card: stat lines, the one key that sets it up, the clock. */
 .bi-runner__fight-list > li { margin: 2px 0; }

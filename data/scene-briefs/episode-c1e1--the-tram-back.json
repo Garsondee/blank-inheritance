@@ -145,8 +145,16 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "what-was-he-like",
-      "text": "Someone asks whoever talked to Manako most: what was he actually like?"
+      "id": "red-signal",
+      "text": "The train sits at a red signal halfway across the causeway for five long minutes, so the last stretch from the platform to the hatch is a run."
+    },
+    {
+      "id": "what-will-you-be",
+      "text": "An old woman across the aisle sees the new uniforms and asks each of them, delighted, what they're going to be. Let every player answer, with no track to give."
+    },
+    {
+      "id": "half-shut-hatch",
+      "text": "Nobu has the shutter halfway down when they reach the hatch, and does the whole thing through the gap at knee height without stopping or reading a word."
     }
   ],
   "reactionPrompts": [

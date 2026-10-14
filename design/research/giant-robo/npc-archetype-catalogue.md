@@ -10,7 +10,7 @@
 
 1. **Find the shape.** Scan the tables for a row that matches the job the campaign needs filling — a recurring enemy, a mentor, an institution's face.
 2. **Read the character file.** Each row links to one. The file carries what the series actually did, why it worked, the voice, and audition lines.
-3. **Check it against the project's own rules before writing anything.** `design/quests-objectives-and-threads.md` (every NPC needs one legible want — depth is free, wants are not), `feedback_npc_stubs_by_default` (a stub is the correct first version), `ideas/story/bible/` and `LEDGER.md` (the only sources of truth for who exists), and `design/craft-library.md` §1 for the writing task itself.
+3. **Check it against the project's own rules before writing anything.** `design/quests-objectives-and-threads.md` (every NPC needs one legible want — depth is free, wants are not), `feedback_npc_stubs_by_default` (a stub is the correct first version), `quarantine/ideas/story/bible/` and `LEDGER.md` (the only sources of truth for who exists), and `design/craft-library.md` §1 for the writing task itself.
 
 **[R]** The archetype is a skeleton, not a character. Two NPCs built from the same row and given different wants will not resemble each other.
 
@@ -113,4 +113,4 @@
 
 **Related on this shelf:** [the-recurring-antagonist-engine.md](the-recurring-antagonist-engine.md), [the-magnificent-ten-as-an-org-chart.md](the-magnificent-ten-as-an-org-chart.md), [legendary-sources-china-and-japan.md](legendary-sources-china-and-japan.md), [what-makes-it-tick.md](what-makes-it-tick.md).
 
-**Related in this project:** `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/dialogue-and-character-voice.md`, `design/character-creation-and-progression.md`, `ideas/story/bible/`, `data/campaign/open-questions.json` (the naming placeholders).
+**Related in this project:** `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/dialogue-and-character-voice.md`, `design/character-creation-and-progression.md`, `quarantine/ideas/story/bible/`, `data/campaign/open-questions.json` (the naming placeholders).

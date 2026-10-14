@@ -2,7 +2,7 @@
  * The Watcher's file: what the campaign's adversary has actually observed about one
  * player character, and the gate that stops it using anything else.
  *
- * The Watcher is played by Claude (ideas/story/dossier-observer.md §2, LEDGER #31/#32).
+ * The Watcher is played by Claude (quarantine/ideas/story/dossier-observer.md §2, LEDGER #31/#32).
  * The design goal is that it frightens the table by being FAIR: it knows only what it
  * has seen, through channels that exist in the fiction. A sharp party can learn that,
  * exploit it, and feed it false signals. So:

@@ -9,7 +9,7 @@
   "role": "Custodian, Deep Storage",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs the day-to-day of Deep Storage (data/locations/deep-storage.json): decides what still counts as 'currently being used', signs off on requisitions, and is the one person who actually knows which underground floors are real storage and which are a number on a door that was never built out behind it. Answers, eventually, to whoever has the authority to decide what Deep Storage is allowed to hold -- in practice the Commander's pole.",
+  "canon": "directorate-posts.deep-storage-custodian",
   "designNotes": "Placeholder role, not a character -- created 2026-09-12 alongside the location itself, following the standing convention (see commander.json, repair-chief-sato.json). Name, personality, and exactly how strict or bendable they are about Clearance rungs (design/strategy-layer.md) are all open for whenever this NPC needs to be more than a name on a requisition slip.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

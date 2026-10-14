@@ -53,6 +53,8 @@ import { fetchModuleJson, writeStorageJson } from "./io.mjs";
 import { adoptBuilding, adoptedBuildingIds, buildingAsShape, buildingPick } from "../core/buildings-index.mjs";
 import { loadPublishedInScene } from "./location-published.mjs";
 import { loadBuildingsInScene } from "./buildings-index.mjs";
+import { JourneyOverlay } from "./journey-overlay.mjs";
+import { toScenePoint } from "../core/travel-animation.mjs";
 
 // InteractionLayer is Foundry's own base class for a canvas layer with real
 // user interaction -- the same one Regions/Drawings/Walls extend, exposed to
@@ -191,6 +193,10 @@ export class LocationDrawLayer extends InteractionLayer {
   #referenceContainer;
   #overlayContainer;
   #focusContainer; // the one place the Story list is pointing at (foundry/location-editor.mjs)
+  #journeyContainer = null; // the journeys of the Story tab, drawn and played (foundry/journey-overlay.mjs); above the outlines, below the focus highlight
+  #journey = null; // the overlay that draws into it: made on first use, kept across scenes (attach() gives it each new container)
+  #calibration = null; // map-image px <-> scene px for the hub scene, as of the last load of the existing locations
+  #pinArm = null; // { label, onMove, onPick, onCancel } -- waiting for the GM to click where a pin should stand, or null
   #referenceRegion = null; // { locationId, ringScene: [{x,y}, ...] } -- a real, already-promoted region loaded for the Bisect tool, design doc §10 phase 2c
   #published = []; // every deployed location as a scene-px shape (core/location-published.mjs), for the hub scene
   #publishedSceneId = null;
@@ -257,6 +263,10 @@ export class LocationDrawLayer extends InteractionLayer {
     this.#draftContainer = this.addChild(this.#passive(new PIXI.Container()));
     this.#handlesContainer = this.addChild(new PIXI.Container()); // the one container whose children ARE interactive
     this.#overlayContainer = this.addChild(this.#passive(new PIXI.Container()));
+    // The routes of the Story tab and the token that walks them: above every outline, below the focus highlight and its label, so a label is never hidden by a line.
+    this.#journeyContainer = this.addChild(this.#passive(new PIXI.Container()));
+    this.#journeyContainer.visible = this.active;
+    this.#journey?.attach(this.#journeyContainer);
     // Last, so the Story list's highlight and its label sit above everything else.
     this.#focusContainer = this.addChild(this.#passive(new PIXI.Container()));
     this.#publishedContainer.visible = this.active;
@@ -289,9 +299,10 @@ export class LocationDrawLayer extends InteractionLayer {
     this.#drafting = null;
     this.#hover = null;
     this.#hoverLabel = null;
+    this.#journey?.detach();
     await super._tearDown(options);
     this.#publishedContainer = this.#shapesContainer = this.#referenceContainer = this.#buildingsContainer = null;
-    this.#draftContainer = this.#handlesContainer = this.#overlayContainer = this.#focusContainer = null;
+    this.#draftContainer = this.#handlesContainer = this.#overlayContainer = this.#focusContainer = this.#journeyContainer = null;
   }
 
   static #hooksRegistered = false;
@@ -358,6 +369,7 @@ export class LocationDrawLayer extends InteractionLayer {
     canvas.app?.view?.addEventListener?.("pointerleave", this.#leaveHandler);
     this.#showDrawings();
     if (this.#publishedContainer) this.#publishedContainer.visible = true;
+    this.#journey?.setVisible(true);
     if (!this.#sessionLoaded) await this.#loadSession();
     this.#renderAll();
     this.#report(this.#hintFor(this.#tool));
@@ -369,10 +381,13 @@ export class LocationDrawLayer extends InteractionLayer {
   _deactivate() {
     this.#fitted = false;
     this.disarmAssign({ cancelled: true });
+    this.disarmPin({ cancelled: true });
     this.#disarmPick();
     this.#endDrag();
     this.#cancelDraft({ quiet: true });
     this.#setHover(null);
+    this.#journey?.setVisible(false);
+    if (this.#journeyContainer && !this.#journeyContainer.destroyed) this.#journeyContainer.visible = false;
     canvas.app?.view?.removeEventListener?.("pointerleave", this.#leaveHandler);
     // What already exists is only drawn while the editor is in use; the GM's
     // own session drawings stay visible (they are work in progress).
@@ -382,7 +397,10 @@ export class LocationDrawLayer extends InteractionLayer {
   }
 
   setTool(tool) {
-    if (normaliseTool(tool) !== "pick") this.disarmAssign({ cancelled: true });
+    if (normaliseTool(tool) !== "pick") {
+      this.disarmAssign({ cancelled: true });
+      this.disarmPin({ cancelled: true });
+    }
     this.#disarmPick();
     this.#endDrag();
     this.#cancelDraft({ quiet: true });
@@ -405,12 +423,12 @@ export class LocationDrawLayer extends InteractionLayer {
    * and the panel must stay closable.
    */
   hasEscapableState() {
-    return this.active && Boolean(this.#assign || this.#drafting || this.#drag || this.#selectedIds.size);
+    return this.active && Boolean(this.#assign || this.#pinArm || this.#drafting || this.#drag || this.#selectedIds.size);
   }
 
   /** Every container the editor draws its own work in (not what already exists: published and buildings have their own switches). */
   #drawingContainers() {
-    return [this.#shapesContainer, this.#referenceContainer, this.#draftContainer, this.#handlesContainer, this.#overlayContainer, this.#focusContainer]
+    return [this.#shapesContainer, this.#referenceContainer, this.#draftContainer, this.#handlesContainer, this.#overlayContainer, this.#journeyContainer, this.#focusContainer]
       .filter((c) => c && !c.destroyed);
   }
 
@@ -427,6 +445,9 @@ export class LocationDrawLayer extends InteractionLayer {
    */
   quit() {
     this.disarmAssign({ cancelled: true });
+    this.disarmPin({ cancelled: true });
+    this.#journey?.clear();
+    this.#journey?.setVisible(false);
     this.configure({});
     clearTimeout(this.#statusTimer);
     this.#statusTimer = null;
@@ -564,6 +585,7 @@ export class LocationDrawLayer extends InteractionLayer {
         this.#publishedState = "no-hub";
       } else {
         this.#published = result.shapes;
+        this.#calibration = result.calibration ?? null;
         this.#publishedSceneId = result.sceneId;
         this.#publishedFailed = result.failed ?? [];
         this.#publishedState = "ok";
@@ -1399,6 +1421,10 @@ export class LocationDrawLayer extends InteractionLayer {
    * "clear", so Shift's whole point is "don't").
    */
   #pickAt(p, additive) {
+    if (this.#pinArm) {
+      this.#pinAt(p);
+      return;
+    }
     if (this.#assign) {
       this.#assignAt(p, additive);
       return;
@@ -1599,6 +1625,7 @@ export class LocationDrawLayer extends InteractionLayer {
   _onDismissKey() {
     if (!this.hasEscapableState()) return false;
     if (this.#assign) this.disarmAssign({ cancelled: true });
+    else if (this.#pinArm) this.disarmPin({ cancelled: true });
     else if (this.#drafting || this.#drag) this.cancelInProgress();
     else this.clearSelection();
     return true;
@@ -1632,6 +1659,96 @@ export class LocationDrawLayer extends InteractionLayer {
     else if (this.#tool === "bisect") this.#finishBisect();
     else this.#finishDraft();
     return true;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  pin: "put a pin THERE" -- the next click on the map is a point the  */
+  /*  tokens will stand at. Like assign, but the click lands on bare     */
+  /*  ground, and the panel hears the cursor move so it can show the     */
+  /*  routes that pin would give before it is dropped.                    */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Wait for the GM to click where a pin should stand. `onMove({ x, y })` (scene px) hears the cursor as it moves (once per frame at most), `onPick({ x, y })` the
+   * click, which ends the wait, and `onCancel()` hears Escape, another tool or the editor being left.
+   */
+  armPin({ label = "", onMove = null, onPick, onCancel = null } = {}) {
+    this.disarmPin({ cancelled: true });
+    this.disarmAssign({ cancelled: true });
+    if (!this.active) this.activate({ tool: "pick" });
+    if (this.#tool !== "pick") this.setTool("pick");
+    this.#pinArm = { label, onMove: onMove ? rafThrottle(onMove) : null, onPick, onCancel };
+    this.clearSelection();
+    this.#setHover(null);
+    this.#applyCursor();
+    this.#report(game.i18n?.format?.("BLANKINHERITANCE.LocationEditor.Journeys.PinArmed", { label }) ?? "", { now: true });
+  }
+
+  /** End the wait for a pin (a click took it, or it was abandoned). `cancelled` tells whoever asked. */
+  disarmPin({ cancelled = false } = {}) {
+    const arm = this.#pinArm;
+    if (!arm) return;
+    this.#pinArm = null;
+    this.#applyCursor();
+    this.#report(this.#hintFor(this.#tool), { now: true });
+    if (cancelled) arm.onCancel?.();
+  }
+
+  get pinArmed() {
+    return Boolean(this.#pinArm);
+  }
+
+  #pinAt(p) {
+    const arm = this.#pinArm;
+    if (!arm) return;
+    this.disarmPin();
+    this.#guard("pin", () => arm.onPick({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  journeys: the routes between places, drawn and played               */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * The journey overlay (foundry/journey-overlay.mjs): made the first time it is asked for, kept for as long as the layer lives, and given each new container
+   * the layer builds when a scene is drawn. It is lent what only the layer knows: how big a screen pixel is, where the map image sits in the scene, the camera,
+   * and the canvas's ticker (the layer's own timers are never used for animation).
+   */
+  get journey() {
+    if (!this.#journey) {
+      const wrapped = new Map();
+      this.#journey = new JourneyOverlay({
+        px: (screenPx) => this.#px(screenPx),
+        scale: () => this.#scale(),
+        toScene: (p) => (this.#calibration ? toScenePoint(p, this.#calibration) : null),
+        frame: (box, { duration = 700 } = {}) => {
+          const screen = canvas.app?.screen;
+          if (!screen) return;
+          const target = fitView(box, screen.width, screen.height, { margin: 0.35, insetLeft: this.#getViewInset?.()?.left ?? 0 });
+          if (target) canvas.animatePan({ ...target, scale: Math.min(target.scale, 2.2), duration });
+        },
+        ticker: {
+          add: (fn) => {
+            const tick = () => fn(canvas.app.ticker.deltaMS);
+            wrapped.set(fn, tick);
+            canvas.app.ticker.add(tick);
+          },
+          remove: (fn) => {
+            const tick = wrapped.get(fn);
+            if (!tick) return;
+            canvas.app.ticker.remove(tick);
+            wrapped.delete(fn);
+          }
+        }
+      });
+      if (this.#journeyContainer && !this.#journeyContainer.destroyed) this.#journey.attach(this.#journeyContainer);
+    }
+    return this.#journey;
+  }
+
+  /** Map-image px -> scene px for the hub scene, or null before the existing locations have loaded: what the panel needs to convert a clicked point and a route. */
+  get calibration() {
+    return this.#calibration;
   }
 
   /* ------------------------------------------------------------------ */
@@ -1809,6 +1926,12 @@ export class LocationDrawLayer extends InteractionLayer {
       if (this.#hover) this.#setHover(null);
       return;
     }
+    if (this.#pinArm) {
+      // waiting for a pin: no hover outline, the cursor is the pin and the panel shows what the journeys would be
+      if (this.#hover) this.#setHover(null);
+      this.#guard("pin preview", () => this.#pinArm?.onMove?.({ x: position.x, y: position.y }));
+      return;
+    }
     this.#guard("hover", () => {
       if (this.#assign) {
         const found = this.#locationAt(position.x, position.y, false);
@@ -1911,6 +2034,7 @@ export class LocationDrawLayer extends InteractionLayer {
     this.#renderReference();
     this.#renderHover(canvas.mousePosition);
     this.#renderFocus();
+    this.#journey?.redraw();
   }
 
   /**
@@ -2066,7 +2190,7 @@ export class LocationDrawLayer extends InteractionLayer {
     list.remove("bi-loc-crosshair", "bi-loc-grabbing");
     if (!this.active) return;
     if (this.#drag?.kind === "pan") list.add("bi-loc-grabbing");
-    else if (this.#tool !== "pick" || this.#assign) list.add("bi-loc-crosshair");
+    else if (this.#tool !== "pick" || this.#assign || this.#pinArm) list.add("bi-loc-crosshair");
   }
 
   #hintFor(tool) {

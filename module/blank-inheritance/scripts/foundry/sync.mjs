@@ -296,11 +296,16 @@ async function runRealCreatureCase(fetchPath, { tokenImage = null, portraitImage
 // runRealCreatureCase above -- see the block comment where REAL_NPC_PATHS
 // used to live, further down this file, for why a social NPC's Actor sync
 // and a creature/Claimant's are no longer the same gate.
-async function runRealNpcCase(fetchPath, { tokenImage = null, portraitImage = null } = {}) {
+//
+// `notes` is this person's entry in the generated data/campaign/actor-notes.json
+// (core/actor-notes.mjs): the GM-only text the sheet carries, made from canon. The
+// hash covers it, so a canon change that moves a fact rebuilds the Actor even though
+// the NPC file itself did not change.
+async function runRealNpcCase(fetchPath, { tokenImage = null, portraitImage = null, notes = null } = {}) {
   const source = await fetchModuleJson(fetchPath);
 
-  const data = await buildNpcActorData(source, { tokenImage, portraitImage });
-  const hash = await contentHash(source);
+  const data = await buildNpcActorData(source, { tokenImage, portraitImage, notes });
+  const hash = await contentHash(notes ? { source, notes } : source);
 
   const existing = game.actors.get(data._id);
   if (shouldSkip(existing, hash)) {
@@ -505,6 +510,10 @@ async function resolveArtForId(id, stagedTokenIds, stagedPortraitIds) {
 // content from a social NPC's blurb, and stays behind the Approvals Desk)
 // once a new, approved one exists.
 const NPC_DIR = "data/campaign/npcs";
+// What each person's sheet says, generated from canon by `node tools/story/story.mjs build` (D080). Like every campaign
+// singleton it lands under the doubled data/campaign/campaign/ path. Read fresh: its URL stays the same while a deploy
+// changes it under a running page.
+const ACTOR_NOTES_PATH = "data/campaign/campaign/actor-notes.json";
 // The episodes whose journals this syncs when the caller names none. Stale
 // for two weeks before 2026-09-27: it listed Episode One alone, a comment
 // having said "Episode One is now the only episode in the repo" on the same
@@ -513,6 +522,21 @@ const NPC_DIR = "data/campaign/npcs";
 // deploy stamp's own list of every episode file instead, and this list is
 // only the fallback -- shared with it, so the two cannot disagree.
 const REAL_EPISODE_PATHS = FALLBACK_EPISODE_PATHS.map((p) => `data/campaign/${p}`);
+
+/**
+ * The generated Actor notes, by NPC id. A missing or unreadable file is not an error: every Actor then carries its blurb
+ * only (core/actor-notes.mjs builds it from the NPC file's own role and affiliation), so a world is never left without its
+ * people because the generated file has not arrived.
+ */
+export async function loadActorNotes() {
+  try {
+    const file = await fetchModuleJson(ACTOR_NOTES_PATH, { fresh: true });
+    return file?.npcs && typeof file.npcs === "object" ? file.npcs : {};
+  } catch (err) {
+    console.warn(`Blank Inheritance | No generated Actor notes (${err?.message ?? err}); NPC sheets will carry their blurb only.`);
+    return {};
+  }
+}
 
 /**
  * Every source id this sync manages, for the world sync's old-document
@@ -560,9 +584,10 @@ export async function runRealContentSync({ quiet = false, episodePaths = REAL_EP
       listModuleImageIds(TOKEN_ART_DIR).then((ids) => new Set(ids)),
       listModuleImageIds(PORTRAIT_ART_DIR).then((ids) => new Set(ids))
     ]);
+    const actorNotes = await loadActorNotes();
     for (const id of npcIds) {
       const art = await resolveArtForId(id, stagedTokenIds, stagedPortraitIds);
-      report.results.push(await runCase(`npc:${id}`, () => runRealNpcCase(`${NPC_DIR}/${id}.json`, art)));
+      report.results.push(await runCase(`npc:${id}`, () => runRealNpcCase(`${NPC_DIR}/${id}.json`, { ...art, notes: actorNotes[id] ?? null })));
     }
     for (const path of episodePaths) {
       const label = path.split("/").pop().replace(/\.json$/, "");

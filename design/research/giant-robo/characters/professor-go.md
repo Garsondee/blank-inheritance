@@ -53,7 +53,7 @@
 
 **Worth avoiding:** making the withholding malicious. His silence should read as shame and procedure, not conspiracy.
 
-**Where it might attach:** the campaign has its own founding disaster material (`ideas/story/dossier-first-impact.md`) and a redaction system in design (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`). An NPC who is a redaction in human form — helpful, verifiable, and missing the same paragraph the documents are missing — is a natural fit for those systems. **Whether one exists is not decided here.**
+**Where it might attach:** the campaign has its own founding disaster material (`quarantine/ideas/story/dossier-first-impact.md`) and a redaction system in design (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`). An NPC who is a redaction in human form — helpful, verifiable, and missing the same paragraph the documents are missing — is a natural fit for those systems. **Whether one exists is not decided here.**
 
 ---
 

@@ -10,7 +10,7 @@
   "tags": [],
   "classification": null,
   "rank": null,
-  "depth": "named",
+  "depth": "sketch",
   "geometry": {
     "rings": [
       [
@@ -101,12 +101,14 @@
     "status": "drafted"
   },
   "lore": {
-    "summary": "The island line's own platforms, beyond the barrier. The trains are visibly smaller — narrower gauge, four short carriages, no first class — and run to a timetable that is not published outside the Transfer. Standing room only at shift change. The seaward side is fenced along its entire length; the posted notice calls it a safety measure.",
-    "playerFacing": "",
-    "gmOnly": ""
+    "summary": "The island line's own platforms, beyond the barrier. The trains are visibly smaller: narrow gauge, four short carriages, no first class, run to a timetable not published outside the Transfer. Standing room only at shift change. The seaward side is fenced along its whole length, and the posted notice calls it a safety measure.",
+    "playerFacing": "A low platform with a narrow-gauge train drawn up beside it, four short carriages and no first class. At shift change it is standing room only, and at dusk it is half empty, the light going copper on the water beyond the fence. The fence runs the whole length of the seaward side, and a posted notice says it is a safety measure.",
+    "gmOnly": "The Train Back is the ride on this line and the stores hatch at the end of it; nothing happens on the platform itself. It is where the run begins and ends, and the anchor the map cut uses. Do not explain the fence. Anyone who asks gets the notice."
   },
   "scene": {
-    "hooks": [],
+    "hooks": [
+      "The seaward side is fenced for its whole length, and the notice says only that it is a safety measure."
+    ],
     "activities": [],
     "history": "",
     "consequences": ""
@@ -114,7 +116,9 @@
   "realWorld": {},
   "factionRefs": [],
   "npcRefs": [],
-  "episodeRefs": [],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
   "openQuestionRefs": [],
   "bibleRef": null,
   "assetRefs": [],

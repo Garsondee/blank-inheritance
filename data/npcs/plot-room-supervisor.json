@@ -9,7 +9,7 @@
   "role": "Supervisor, The Plot Room",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs the plotting floor: the table, the markers, the headsets and the people wearing them. Responsible for how out of date the city's picture of itself is at any given moment, and acutely aware of it.",
+  "canon": "directorate-posts.plot-room-supervisor",
   "designNotes": "Created 2026-09-12 with The Plot Room. Best used as the person who knows exactly how much the board can be trusted and will say so plainly if asked properly. Name and manner open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

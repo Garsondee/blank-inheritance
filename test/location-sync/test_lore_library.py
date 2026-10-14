@@ -33,7 +33,7 @@ class TestRegistry(unittest.TestCase):
 
     def test_adding_a_document_returns_a_new_library_not_mutated_in_place(self):
         original = lib.empty_library()
-        updated = lib.add_document(original, entry("ledger", "ideas/story/bible/LEDGER.md",
+        updated = lib.add_document(original, entry("ledger", "quarantine/ideas/story/bible/LEDGER.md",
                                                     "The Ledger", 5, "ledger"))
         self.assertEqual(original["documents"], [])
         self.assertEqual(len(updated["documents"]), 1)

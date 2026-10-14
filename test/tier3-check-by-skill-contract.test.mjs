@@ -11,8 +11,13 @@
 // (#186/#184: every listed skill is now actually postable, not just the
 // first) -- this is what makes posting all four skills worth doing at all.
 //
-// scene-runner.mjs/beat.hbs are read as source/markup rather than mounted,
-// matching every other tier3-*-contract.test.mjs in this project.
+// 2026-10-05: the breakdown moved with the check, from the card under the beat
+// to the check console (foundry/check-console.mjs), where the GM reads it beside
+// the ways before anyone rolls. The Runner reads it off the check file again for
+// every repaint (checkOfSession), never from the shared setting.
+//
+// The sources and templates are read as text rather than mounted, matching
+// every other tier3-*-contract.test.mjs in this project.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -24,35 +29,43 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
 const moduleRoot = path.join(repoRoot, "module", "blank-inheritance");
 const src = readFileSync(path.join(moduleRoot, "scripts", "foundry", "scene-runner.mjs"), "utf8");
+const consoleSrc = readFileSync(path.join(moduleRoot, "scripts", "foundry", "check-console.mjs"), "utf8");
+const gmHbs = readFileSync(path.join(moduleRoot, "templates", "check-console", "gm.hbs"), "utf8");
 const beatHbs = readFileSync(path.join(moduleRoot, "templates", "runner", "beat.hbs"), "utf8");
-const css = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
+const checkCss = readFileSync(path.join(moduleRoot, "styles", "bi-check.css"), "utf8");
 
-test("a check's bySkill map is decorated onto the beat as a real array the template can iterate", () => {
-  const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
-  assert.ok(decorate, "#decorateBeat is missing from scene-runner.mjs");
-  assert.match(decorate[0], /bySkill:\s*check\.bySkill/, "check.bySkill is no longer read off the raw challenge data");
-  assert.match(decorate[0], /Object\.entries\(check\.bySkill\)/, "bySkill is no longer converted to a template-iterable shape");
+test("a check's results per way reach the console's Results: tabs for the ways, each degree's own result for the way shown (D062)", () => {
+  const provider = src.match(/setCheckConsoleProvider\(\{[\s\S]*?\n\}\);/)?.[0];
+  assert.ok(provider, "the Runner no longer tells the console about its checks");
+  assert.match(provider, /bySkill: found\.check\.bySkill \?\? null/, "check.bySkill is no longer read off the raw challenge data");
+  assert.match(consoleSrc, /const byWay = hasWayResults\(ctx\);/);
+  assert.match(consoleSrc, /const result = shownWay \? resultFor\(ctx, shownWay, degree\)/, "each row reads the way shown's own result");
+  assert.match(consoleSrc, /tabs: byWay \? session\.skills\.map\(\(slug\) => \(\{ slug, label: wayLabel\(slug\), on: slug === shownWay \}\)\) : \[\]/);
+  // "(the same for every way)" only means something when some way has results of its own per degree: under a check
+  // whose ways each have one line, it was printed on every row (found in the live screenshot, 2026-10-05).
+  assert.match(consoleSrc, /const perDegree = hasPerDegreeWays\(ctx\);/);
+  assert.match(consoleSrc, /shared: perDegree && !result\.own && Boolean\(result\.text\),/);
 });
 
-test("beat.hbs renders the by-skill breakdown right under the check button, and the block is correctly balanced", () => {
-  assert.match(beatHbs, /check\.bySkill/, "bySkill is never referenced in beat.hbs");
-  assert.match(beatHbs, /class="bi-runner__by-skill"/);
-  assert.match(beatHbs, /class="bi-runner__by-skill-name"/);
-
-  // Structural sanity: every #if/#each in the file (outside its own leading
-  // comment, which literally quotes "{{#if}}" as documentation prose and
-  // would otherwise produce a false mismatch) is properly closed. This is
-  // the exact check that caught a real off-by-one while building this
-  // feature -- an extra {{/if}} had closed the outer check-guard early.
-  const withoutComments = beatHbs.replace(/\{\{!--[\s\S]*?--\}\}/g, "");
-  const opens = (withoutComments.match(/\{\{#(if|each|unless)\b/g) ?? []).length;
-  const closes = (withoutComments.match(/\{\{\/(if|each|unless)\}\}/g) ?? []).length;
-  assert.equal(opens, closes, `beat.hbs has unbalanced Handlebars blocks (${opens} opens, ${closes} closes)`);
+test("the console's Results show the ways as tabs, a way's own line as a note, and say when a degree is the same for every way; its blocks are balanced", () => {
+  assert.match(gmHbs, /<section class="bi-deck__cell bi-check__results">[\s\S]*?\{\{localize "BLANKINHERITANCE\.CheckConsole\.Results"\}\}/, "the section is called Results");
+  assert.match(gmHbs, /\{\{#each results\.tabs\}\}[\s\S]*?data-action="showResults" data-slug="\{\{this\.slug\}\}"/);
+  assert.match(gmHbs, /\{\{#if results\.note\}\}<p class="bi-check__note">/);
+  assert.match(gmHbs, /\{\{#if this\.shared\}\} <em class="bi-check__shared">/);
+  // Structural sanity, the check that once caught an extra {{/if}} closing the outer check-guard early.
+  for (const hbs of [gmHbs, beatHbs]) {
+    const withoutComments = hbs.replace(/\{\{!--[\s\S]*?--\}\}/g, "");
+    const opens = (withoutComments.match(/\{\{#(if|each|unless)\b/g) ?? []).length;
+    const closes = (withoutComments.match(/\{\{\/(if|each|unless)\}\}/g) ?? []).length;
+    assert.equal(opens, closes, `unbalanced Handlebars blocks (${opens} opens, ${closes} closes)`);
+  }
 });
 
-test(".bi-runner__by-skill is real, styled CSS", () => {
-  assert.match(css, /\.bi-runner__by-skill\s*\{/);
-  assert.match(css, /\.bi-runner__by-skill-name\s*\{/);
+test("the Results' tabs and notes are real, styled CSS", () => {
+  assert.match(checkCss, /\.bi-check \.bi-check__tab \{/);
+  assert.match(checkCss, /\.bi-check \.bi-check__tab\.is-on \{/);
+  assert.match(checkCss, /\.bi-check__note \{/);
+  assert.match(checkCss, /\.bi-check__shared \{/);
 });
 
 // REAL DATA: every check this project has deliberately given a bySkill table

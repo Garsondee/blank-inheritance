@@ -129,3 +129,17 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R1, R15.** The read-aloud puts a line of staff on the platform as the intake files in, so the three of them with no entrance of their own (Shucks Mordant, Hulda Brack, the comms officer) are `present`: standing on the stage when the scene first opens. The Deputy Director still steps up at the address, and Vetch still collects Section Nine at the door.
+
+## Revision 2026-10-07: temptations became twists (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude (first drafts by an Opus agent, reviewed and corrected by Claude) · state: awaiting Ingram's read
+
+Ingram, grading the first episode confidence run: temptations "need to be fun organic ways the scene might mutate, things that the GM might want to consider as ways to evolve the scene which won't break the overall objective of the scene."
+
+- **Replaced:** "The charter hangs right above the platform, and somebody has polished the glass.". Those were lines to say to a table that is not biting.
+- **Now 2 twists:** `the-laugh`, `one-chair-short`.
+- **R12, R13.** No twist states a fact, names a secret, or moves a held-back fact forward; each uses only people, objects and places already in this scene.
+- **R4, R5.** None needs a roll to reach, and none can stop the scene doing its job: every deadline and mandatory beat is still reachable.
+- **R3, R28.** No history or tool names; each twist is one or two sentences, 35 words or fewer.
+- **Conditional twists.** Some only apply if something is already true at the table (a player with a different number of arms, a player from the city, a section that filed its requisition loudly). The GM skips them otherwise.
+- **For Ingram.** These are a first attempt at what she described. Cut or rewrite any; the old lines are in this file's history (git) if one was better.

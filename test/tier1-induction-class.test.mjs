@@ -58,11 +58,13 @@ test("the real class catalogue has exactly 6 entries, each with a unique id", ()
   assert.equal(new Set(CATALOGUE.classes.map((c) => c.id)).size, 6);
 });
 
-test("every real class's key ability resolves cleanly once given a legal pick (or needs none, if fixed)", () => {
+test("every real class's key ability resolves cleanly once given a legal pick (or needs none, if fixed), and each question it asks is answered", () => {
   for (const cls of CATALOGUE.classes) {
     const pick = cls.keyAbility.length > 1 ? [cls.keyAbility[0]] : [];
-    assert.ok(isClassChoiceComplete(cls, pick), `${cls.id} did not resolve to complete`);
-    const ingredients = resolveClassIngredients(cls, pick);
+    // Envoy's rules ask which of Deception, Diplomacy or Intimidation (test/tier1-induction-rule-choices.test.mjs).
+    const choicePicks = Object.fromEntries((cls.choices ?? []).map((choice) => [choice.flag, choice.options[0].key]));
+    assert.ok(isClassChoiceComplete(cls, pick, choicePicks), `${cls.id} did not resolve to complete`);
+    const ingredients = resolveClassIngredients(cls, pick, choicePicks);
     assert.ok(cls.keyAbility.includes(ingredients.classKeyAbility));
   }
 });

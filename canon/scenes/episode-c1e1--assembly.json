@@ -297,8 +297,12 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "the-charter",
-      "text": "The charter hangs right above the platform, and somebody has polished the glass."
+      "id": "the-laugh",
+      "text": "When the Deputy Director says they'll break most rules by accident, Hulda Brack's laugh goes off like a dropped spanner and stops halfway. He waits for silence, and the two rules land harder."
+    },
+    {
+      "id": "one-chair-short",
+      "text": "Section Nine's row is one chair short. Someone stands, shares or goes looking, and if the Deputy Director notices from the platform, he apologises for the chair before he says another word."
     }
   ],
   "reactionPrompts": [

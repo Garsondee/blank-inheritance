@@ -306,8 +306,16 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "ask-taka",
-      "text": "Taka knows everyone on this island, and he's dying to be asked something."
+      "id": "taka-borrowed-the-chairs",
+      "text": "The next table wants back the two chairs Taka dragged over. He offers pickles in exchange, in complete seriousness, and leaves Section Nine to close the deal."
+    },
+    {
+      "id": "first-night-toast",
+      "text": "If a player lets slip it's their first night away from home, Taka stands and makes the whole table toast it with canteen tea, loudly, and means every word."
+    },
+    {
+      "id": "slow-handclap",
+      "text": "If they filed loudly, someone starts a slow handclap for Section Nine as Vetch steps up. He pauses one beat, then thanks the hall for its attention and begins."
     }
   ],
   "reactionPrompts": [

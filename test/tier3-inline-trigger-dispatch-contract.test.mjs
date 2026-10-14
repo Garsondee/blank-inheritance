@@ -44,7 +44,10 @@ test("decorateInlineTriggers is imported and actually used to build decoratedTex
   const decorate = src.match(/#decorateBeat\(beat, brief, challenges, entries = \[\], runState = null\) \{[\s\S]*?\n {2}\}/);
   assert.ok(decorate, "#decorateBeat is missing from scene-runner.mjs");
   // 2026-10-04 (D059): the parser is also told which chips have fired, so they show a tick.
-  assert.match(decorate[0], /decorateInlineTriggers\(beat\.text, beat\.triggers, beat\.id, \{ fired \}\)/, "beat.text is no longer run through the trigger parser");
+  // 2026-10-05: beat.text goes through it on either side of its check's pill (core/check-pill.mjs#decorateWithCheck).
+  assert.match(decorate[0], /const decorate = \(text\) => decorateInlineTriggers\(text, beat\.triggers, beat\.id, \{ fired \}\);/, "beat.text is no longer run through the trigger parser");
+  assert.match(decorate[0], /decorateWithCheck\(beat\.text, decorate, /, "a beat with a check no longer decorates its text around the pill");
+  assert.match(decorate[0], /: decorate\(beat\.text\);/, "a beat with no check no longer decorates its text");
   assert.match(decorate[0], /decorateInlineTriggers\(beat\.readAloud, beat\.triggers, beat\.id, \{ fired \}\)/, "beat.readAloud is no longer run through the trigger parser");
   assert.match(decorate[0], /decoratedText/);
   assert.match(decorate[0], /decoratedReadAloud/);
@@ -83,13 +86,11 @@ test("#onFireTrigger dispatches every kind to the SAME existing function its non
 
   assert.match(body, /case "post-check":/);
   assert.match(body, /checkFor\(\{ challengeRef: beat\?\.challengeRef, checkRef: trigger\.checkRef \}, challenges\)/, "post-check no longer resolves the check through the shared checkFor helper");
-  // 2026-10-04 (D059): every check posts through one shared checkMessageContent, which builds sf2e's own inline checks
-  // (enrichersFor, or anySkillCard's compact card for an any-skill check).
-  assert.match(body, /await ChatMessage\.create\(\{ content: checkMessageContent\(check, /, "post-check no longer posts through the shared checkMessageContent/ChatMessage path");
-  const content = src.match(/function checkMessageContent\(check, \{ dc, briefId, key \}\) \{[\s\S]*?\n\}/)?.[0];
-  assert.ok(content, "checkMessageContent is missing");
-  assert.match(content, /enrichersFor\(/, "an ordinary check no longer posts sf2e's own inline checks");
-  assert.match(content, /anySkillCard\(/, "an any-skill check no longer posts the compact card");
+  // 2026-10-05: a post-check chip puts its check to the table in the check console (foundry/check-console.mjs),
+  // the same call a check's pill makes, with every skill the check offers.
+  assert.match(body, /await openCheckConsole\(\{/, "post-check no longer opens the check console");
+  assert.match(body, /source: \{ kind: "beat", briefId: brief\.id, beatId, checkRef: trigger\.checkRef \?\? null \},/);
+  assert.match(body, /skills: checkSkills\(check\),/);
 
   assert.match(body, /case "note":/);
 });

@@ -34,6 +34,7 @@ import { cueScene, openDirectorPanel, pullEveryoneHere } from "./director-panel.
 import { openCharacterCard } from "./character-card.mjs";
 import { recordLogEntry } from "./session-log.mjs";
 import { postInlineCheck, rollCheck, rollInitiative, runSystemAction } from "./rolls.mjs";
+import { askForWay } from "./check-console.mjs";
 import { removeFromStage, summonToStage } from "./stage.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { toggleSoundDesk } from "./sound-desk.mjs";
@@ -247,8 +248,17 @@ function checkCommands() {
     hint: SAVE_SLUGS.includes(slug) ? "saving throw — type a number after it for a DC" : "type a number after it for a DC",
     icon: SAVE_SLUGS.includes(slug) ? "fa-solid fa-shield-halved" : "fa-solid fa-dice-d20",
     keywords: ["check", "roll", "ask", SAVE_SLUGS.includes(slug) ? "save" : "skill", slug],
-    run: () => postInlineCheck({ slug, label })
+    run: () => askTheTable(slug)
   }));
+}
+
+/**
+ * Put a check to the table in the check console (foundry/check-console.mjs, 2026-10-05): every player's window opens
+ * on it, with a gem for each result. Asked again before anyone has rolled, it adds another way to the same check. The
+ * DC can be set on its knob there; typed here, it starts there.
+ */
+function askTheTable(slug, dc = null) {
+  return askForWay(slug, { dc: Number.isFinite(dc) ? dc : null });
 }
 
 /* ---------------------------------------------------------------- */
@@ -453,7 +463,7 @@ function quickCommands(query) {
         case "damage": return promptAndApply("damage", picked, intent.formula);
         case "heal": return promptAndApply("heal", picked, intent.formula);
         case "flat": return postInlineCheck({ slug: "flat", label: "Flat check", dc: intent.dc });
-        case "ask": return postInlineCheck({ slug: intent.slug, label: labelForSlug(intent.slug), dc: intent.dc });
+        case "ask": return askTheTable(intent.slug, intent.dc);
         case "note": return recordLogEntry({ text: intent.text, nowIso: new Date().toISOString(), scene: canvas?.scene?.name ?? null, mode: currentMode() });
         case "roll": {
           if (!foundry.dice.Roll.validate(intent.formula)) {

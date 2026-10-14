@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-05T14:32:05.226Z",
+  "generatedAt": "2026-10-07T01:40:58.273Z",
   "generatedBy": "tools/npc-gaps/generate.mjs -- do not hand-edit this file, rerun the script instead",
   "counts": {
     "total": 86,
@@ -885,7 +885,7 @@
     {
       "id": "the-storekeeper",
       "name": null,
-      "role": "Runs the counter at the harbour-quarter store, and is the obstacle in The Errand",
+      "role": "Runs the instrument makers' workshop the docket sends the party to, laughs at it, and sends them on to Manako",
       "hasPortrait": true,
       "hasSocialProfile": true,
       "factCount": 1,

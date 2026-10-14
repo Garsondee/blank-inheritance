@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build, OUTPUT } from "../tools/reference-extract/creature-building.mjs";
 import { BANDS, ABILITIES, SKILLS, buildStatblock, cellValue, dcOf, parseDamage, statAt } from "../module/blank-inheritance/scripts/core/npc-generator/statblock.mjs";
-import { generate, load } from "../tools/npc-generator/apply.mjs";
+import { generate, load, stubFor } from "../tools/npc-generator/apply.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // the SRD mirror (reference/srd, gitignored) is where the tables are extracted from; the extracted file is tracked, so everything but the two checks that re-read the mirror runs without it
@@ -145,6 +145,18 @@ test("the DCs the scene briefs already give for Vetch, the Deputy Director, Shuc
   assert.deepEqual(dcs("shucks-mordant"), { perception: 39, will: 36, deception: 37 });
   assert.deepEqual(dcs("taka"), { perception: 18, will: 18, deception: 17 });
   assert.deepEqual(dcs("nobu"), { perception: 18, will: 18, deception: 17 });
+});
+
+test("a stub file for a foe the scenes only name has no retired `description`: where it comes from goes into the designNotes, and its canon link is null (D080)", () => {
+  const stubbed = roster.people.find((p) => p.stub);
+  assert.ok(stubbed, "the roster has at least one foe with a stub");
+  const file = stubFor(stubbed, gen(stubbed.npcId));
+  assert.equal("description" in file, false, "the old story-prose field is not written any more");
+  assert.equal(file.canon, null);
+  assert.ok(file.designNotes.includes(stubbed.stub.description), "the roster's sentence about where the person comes from is kept, in the design notes");
+  assert.equal(file.name, stubbed.stub.name);
+  assert.equal(file.role, stubbed.stub.role);
+  assert.equal(file.authoring.status, "drafted");
 });
 
 test("the founder is level 15 and well above a first-level party (D047 item 5), and nobody is above a founder", () => {

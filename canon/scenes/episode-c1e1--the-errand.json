@@ -13,7 +13,7 @@
   "intro": {
     "where": "The city: an instrument makers' workshop, then a tea house a few streets on.",
     "readAloud": "Off the train, the city is loud and close: cranes working behind the rooftops, a tram grinding past, a man arguing with a delivery van. The harbour is two streets over, and you can smell it. Your new uniforms are very obviously new.",
-    "landmark": "The harbour, two streets over, always in earshot.",
+    "landmark": "The harbour, down the hill, always in earshot.",
     "carriesIn": [
       {
         "when": "If anyone has the tram map",
@@ -423,7 +423,7 @@
       "Who heard what he said about the Directorate."
     ],
     "position": {
-      "locationRef": null,
+      "locationRef": "manakos-tea-house",
       "state": "together",
       "note": "Leaving the city for the island."
     }
@@ -431,8 +431,16 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "ask-him",
-      "text": "Manako looks like a man who'd enjoy being asked a question about anything at all."
+      "id": "settle-the-van",
+      "text": "The man arguing with the delivery van sees six brand-new uniforms and asks them to settle it, since they look official. Whatever they rule, both sides start quoting it as Directorate policy."
+    },
+    {
+      "id": "hold-it-level",
+      "text": "The instrument maker is mid-repair when they arrive, and has whoever holds the docket keep a spirit level dead still while the glue sets."
+    },
+    {
+      "id": "a-regular-was-sent-too",
+      "text": "A regular at the next table hears the word bubble, laughs into his tea, and tells them about the left-handed spanner he was sent for in his first week on the docks."
     }
   ],
   "reactionPrompts": [

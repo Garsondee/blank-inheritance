@@ -2,7 +2,7 @@
 
 One file per player character: **what the Watcher has actually observed about them**, and nothing else.
 
-The Watcher is the campaign's adversary, and Claude plays it (`ideas/story/dossier-observer.md` §2; LEDGER #31, #32).
+The Watcher is the campaign's adversary, and Claude plays it (`quarantine/ideas/story/dossier-observer.md` §2; LEDGER #31, #32).
 These files are the hard gate that keeps it fair. It may only plan against what is recorded here as known.
 
 ## The rules, enforced in code

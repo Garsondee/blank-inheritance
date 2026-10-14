@@ -10,7 +10,7 @@
   "pole": null,
   "ancestry": "Goblin",
   "affiliation": null,
-  "description": "The oldest pit hand on the night crew: a grey-green goblin with big drooping ears, grease in every crease and a rag over one shoulder, who sucks his teeth before he disagrees with anything and talks to the Frame's leg as if it could hear him. Slow, gravelly and grumbling, with a joke hidden inside every second complaint.\n\nHe wants the job done properly, which means his way, and to be home before the trams start.",
+  "canon": "night-regulars.joji",
   "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--night-shift.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Goblin ('How goblins have managed to prosper long enough to spread across the galaxy is a testament to their ability to survive despite themselves.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: See the asset registry note for joji: image 4: cap, oil-stained overalls, a hand on a huge steel knee joint, a crooked half-smile. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 2, a strong, experienced working adult, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

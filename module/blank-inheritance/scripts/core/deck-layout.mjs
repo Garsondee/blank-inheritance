@@ -12,6 +12,8 @@
  * scrollbar.
  */
 
+import { SKILL_ATTRIBUTES } from "./skills.mjs";
+
 /**
  * The panel's authored size, in unscaled CSS pixels. bi-tokens.css mirrors
  * every number here (--bi-deck-width, --bi-deck-height, --bi-deck-crown) and
@@ -23,7 +25,7 @@
  * faceplate's top edge — the one part of the deck that breaks its own line.
  */
 export const DECK_REFERENCE = Object.freeze({
-  width: 1600,
+  width: 1664,
   faceplate: 196,
   crown: 120
 });
@@ -186,6 +188,12 @@ export const SKILL_SLOTS_PER_SIDE = 9;
  * the right. Lores are unbounded, so they never get keys at all: they go to a
  * rotary selector (see selectorState).
  *
+ * Every key carries the attribute its skill adds (core/skills.mjs#
+ * SKILL_ATTRIBUTES), which tints it (D063). The keys are NOT regrouped by it:
+ * Ingram, 2026-10-05, "No need to physically group them ... there is no point
+ * physically grouping buttons thus causing some buttons to be blank". The
+ * colour does the grouping and the alphabet does the finding.
+ *
  * Each bank is padded to exactly SKILL_SLOTS_PER_SIDE with nulls, so a
  * creature with fewer skills renders blank caps in the same places rather
  * than a bank that changes shape per token.
@@ -193,7 +201,7 @@ export const SKILL_SLOTS_PER_SIDE = 9;
 export function splitChecks(groups = []) {
   const skills = groups.find((g) => g.id === "skills")?.entries ?? [];
   const defences = groups.find((g) => g.id === "defences")?.entries ?? [];
-  const fixed = skills.filter((entry) => !entry.lore);
+  const fixed = skills.filter((entry) => !entry.lore).map((entry) => ({ ...entry, attribute: SKILL_ATTRIBUTES[entry.slug] ?? null }));
   const lores = skills.filter((entry) => entry.lore);
   const half = Math.ceil(fixed.length / 2);
   const pad = (list) => {
@@ -215,9 +223,9 @@ export function splitChecks(groups = []) {
  * caps and four dead defence buttons — the biggest surface on the deck,
  * doing nothing, at exactly the moment a GM most often wants a check: "all
  * of you, roll Perception." Now the same keys, in the same places, ASK THE
- * TABLE: pressing one posts that check to chat as a rollable link for
- * whoever it concerns (rolls.mjs#postInlineCheck, the Director's existing
- * shift-click). There is no number to print, since no one creature is
+ * TABLE: pressing one puts that check to the table in the check console
+ * (foundry/check-console.mjs#askForWay since 2026-10-05; it posted a rollable
+ * link to chat before), the Director's existing shift-click. There is no number to print, since no one creature is
  * rolling it, so each entry carries `ask: true` and an empty modifier and
  * the key says ASK instead (ux-doctrine Law 1 is about never printing a
  * WRONG number; printing none, and saying why, keeps it).

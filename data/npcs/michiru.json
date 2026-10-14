@@ -10,7 +10,7 @@
   "pole": null,
   "ancestry": "Human",
   "affiliation": null,
-  "description": "A third-year candidate with a neat bob, a stub of chalk between two fingers and the slate-grey tunic buttoned to the collar, who deals the game and keeps the debt board with the calm of a court clerk who enjoys the job more than she admits. She writes on the board while she talks and never looks at it, and she does not raise her voice: a rule is a rule because it is up there in her handwriting.\n\nShe wants the game kept honest, and somebody fit to keep the board when her time as a candidate is over. She has not found them yet.",
+  "canon": "night-regulars.michiru",
   "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--card-game.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Human ('Humans are known for their ability to adapt and thrive in the most challenging situations.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: A neat-bobbed young woman in the slate tunic with its orange collar tab, chalk behind her ear, a fan of cards in one hand: the uniform worn exactly as issued.\n\nVOICE NOTES: forced catchphrases in this regular's tics and sample lines were rewritten as habits and manner (tools/art-review/ledger.json has each before and after).\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 1, a candidate, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

@@ -55,6 +55,57 @@
       "port": 30000
     },
     {
+      "name": "foundry-playtest",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "foundryvtt/Foundry Virtual Tabletop/resources/app/main.js",
+        "--dataPath=C:/Users/Hivemind/Documents/Mythica Machina Business/Blank Inheritance/tools/playtest/foundry-data",
+        "--port=30100",
+        "--noupnp",
+        "--headless",
+        "--world=blank-inheritance-playtest"
+      ],
+      "port": 30100
+    },
+    {
+      "name": "playtest-hub",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/playtest/hub.mjs"
+      ],
+      "port": 30177
+    },
+    {
+      "name": "plot-timeline",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/timeline/serve.mjs"
+      ],
+      "port": 4193
+    },
+    {
+      "name": "plot-timeline-sandbox",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/timeline/serve.mjs",
+        "--sandbox",
+        "--port",
+        "4194"
+      ],
+      "port": 4194
+    },
+    {
+      "name": "plot-timeline-copy",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/timeline/serve.mjs",
+        "copy",
+        "--port",
+        "4195"
+      ],
+      "port": 4195
+    },
+    {
       "name": "foundry-blank-inheritance",
       "runtimeExecutable": "foundryvtt/Foundry Virtual Tabletop/Foundry Virtual Tabletop.exe",
       "runtimeArgs": [

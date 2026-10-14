@@ -49,7 +49,7 @@ const PASS_BLURB = {
 };
 const VERDICT_CLASS = { CLEAR: "clear", FIX: "fix", STOP: "stop", BLOCKED: "waiting" };
 const STATE_LABEL = {
-  pass: "ok", fail: "fail", waived: "waived", exempt: "exempt",
+  pass: "ok", fail: "fail", waived: "waived", excepted: "excepted", exempt: "exempt",
   "n/a": "n/a", manual: "by hand", broken: "broken"
 };
 
@@ -160,7 +160,7 @@ function asksBlock(review) {
 function tally(results) {
   const counts = {};
   for (const r of results) counts[r.state] = (counts[r.state] ?? 0) + 1;
-  const order = ["fail", "broken", "pass", "waived", "exempt", "manual", "n/a"];
+  const order = ["fail", "broken", "pass", "waived", "excepted", "exempt", "manual", "n/a"];
   return order
     .filter((s) => counts[s])
     .map((s) => {
@@ -293,7 +293,7 @@ function radarBlock(bundle) {
   return [
     row("h-short", "Short", "tonight · outro.writeDown", h.short),
     row("h-med", "Medium", "a few episodes · carryForward", h.medium),
-    row("h-long", "Long", "campaign · nodeRefs", h.long.length)
+    row("h-long", "Long", "campaign · facts the GM relies on", h.long.length)
   ].join("");
 }
 

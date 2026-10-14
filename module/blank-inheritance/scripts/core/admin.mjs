@@ -29,6 +29,7 @@
 
 import { normalizeMoment } from "./day-ring.mjs";
 import { emptyPromptState } from "./choice-prompt.mjs";
+import { emptyConsoleState } from "./check-console.mjs";
 import { emptyCityState, eligible, isChoosing, STATUS, takers } from "./departures.mjs";
 import { offersAt } from "./commitments.mjs";
 import { rollTagFromOptions } from "./runner-view.mjs";
@@ -48,6 +49,7 @@ export const RESET_SETTINGS = Object.freeze([
   "commitments",
   "cityState",
   "choicePrompt",
+  "checkConsole",
   "runnerEpisode",
   "runnerBrief",
   "runnerRuns",
@@ -94,6 +96,8 @@ export function resetValues(start) {
     commitments: [],
     cityState: emptyCityState(),
     choicePrompt: emptyPromptState(),
+    // No check open on anyone's screen.
+    checkConsole: emptyConsoleState(),
     runnerEpisode: start?.episodeId ?? START_EPISODE_ID,
     runnerBrief: start?.briefId ?? "",
     runnerRuns: {},

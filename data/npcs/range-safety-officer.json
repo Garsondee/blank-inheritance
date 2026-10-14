@@ -9,7 +9,7 @@
   "role": "Range Safety Officer, The Proving Ground",
   "pole": null,
   "affiliation": "directorate",
-  "description": "Runs live-fire and manoeuvre qualification at The Proving Ground (data/locations/the-proving-ground.json) -- the Frame- and vehicle-scale range east of the Gatehouse, not to be confused with The Butts (personnel small arms). Calls the line hot or safe from Range Control, and nothing fires without that call. The one person on the base whose 'no' on a Frame or a pilot is not really arguable in the moment, whatever the reason turns out to be.",
+  "canon": "directorate-posts.range-safety-officer",
   "designNotes": "Placeholder role, not a character -- created 2026-09-12 alongside the location itself, following the standing convention (see commander.json, repair-chief-sato.json). Name, personality, and how strict they actually are are all open.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

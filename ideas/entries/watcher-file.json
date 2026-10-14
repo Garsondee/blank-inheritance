@@ -16,11 +16,11 @@
     "Whether a PC who deliberately feeds the Watcher false messages should be modelled as a separate 'planted' observation, so the party's counter-play is visible in the record."
   ],
   "relatedRefs": [
-    "ideas/story/dossier-observer.md",
+    "quarantine/ideas/story/dossier-observer.md",
     "ideas/entries/adaptive-antagonist-combat-ai.json",
     "ideas/entries/watcher-reads-all-comms.json",
     "ideas/entries/watcher-recall-knowledge-on-party.json",
     "ideas/entries/chat-log-knowledge-base.json",
-    "ideas/story/bible/LEDGER.md"
+    "quarantine/ideas/story/bible/LEDGER.md"
   ]
 }

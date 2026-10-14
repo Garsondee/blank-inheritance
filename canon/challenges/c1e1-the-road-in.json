@@ -20,7 +20,7 @@
         "adjustment": "none"
       },
       "outcomes": {
-        "criticalSuccess": "It goes better than it had any right to, and something about it is worth remembering.",
+        "criticalSuccess": "It goes better than it had any right to. Ask the player why it was worth remembering, and whatever they say is true from now on.",
         "success": "It works.",
         "failure": "It doesn't quite work: they reach the city anyway, a bit late or a bit worse for wear.",
         "criticalFailure": "It goes wrong in a way that is funny, not harmful, and they still reach the city."

@@ -1,14 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(node tools/playtest/pt.mjs:*)",
+      "Read(tools/playtest/runs/**)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "node tools/node-registry/session-start-summary.mjs",
-            "timeout": 30,
-            "statusMessage": "Checking Node Registry health…"
-          },
           {
             "type": "command",
             "command": "node tools/scene-signoff/console.mjs --line",
@@ -20,6 +20,12 @@
             "command": "node tools/module-sync/deploy-status.mjs",
             "timeout": 30,
             "statusMessage": "Checking whether the Foundry server is behind…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/module-sync/autosync.mjs start",
+            "timeout": 30,
+            "statusMessage": "Starting the auto-sync watcher…"
           },
           {
             "type": "command",
@@ -38,6 +44,12 @@
             "command": "node tools/objectives/pull.mjs --line",
             "timeout": 30,
             "statusMessage": "Bringing the objectives home from the server…"
+          },
+          {
+            "type": "command",
+            "command": "node tools/story/session-start.mjs",
+            "timeout": 30,
+            "statusMessage": "Reading Ingram's edits and notes on the plot timeline…"
           }
         ]
       }
@@ -50,6 +62,11 @@
             "type": "command",
             "command": "node tools/scene-edits/pre-edit.mjs",
             "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node tools/story/pre-edit.mjs",
+            "timeout": 15
           }
         ]
       }

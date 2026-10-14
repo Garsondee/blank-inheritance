@@ -2,7 +2,7 @@
 
 *Written 2026-09-13. This is the index to the sixteen craft reference documents in `design/`. It exists to answer one question quickly: **I am about to write something — which documents should I read first?** Use §1 as a lookup table, not as reading material. The library covers narrative theory, game and TTRPG design, and fantasy/science-fiction writing convention, gathered because this campaign's own design was already arriving at a lot of it independently and it is worth having the theory alongside the instinct.*
 
-*Nothing in this library is a decision document. No document here overrides `ideas/story/blank-inheritance-v4.md`, the per-entity bible at `ideas/story/bible/`, `design/campaign-arc.md`, or any entry in `data/campaign/open-questions.json`. Where a library document touches a live design question it names it and stops.*
+*Nothing in this library is a decision document. No document here overrides `quarantine/ideas/story/blank-inheritance-v4.md`, the per-entity bible at `quarantine/ideas/story/bible/`, `design/campaign-arc.md`, or any entry in `data/campaign/open-questions.json`. Where a library document touches a live design question it names it and stops.*
 
 ---
 
@@ -24,7 +24,7 @@ Find the row that matches the task. Read the **primary** documents in full befor
 | **Downtime, the strategy layer, an economy** | `strategy-and-downtime-design.md` | `rpg-systems-design.md`, `mechanics-as-meaning.md` §7 (a game is about what it pays for) |
 | **Character creation, progression, a sheet** | `character-creation-and-progression.md` | `rpg-systems-design.md`, `induction.md` (outside this library) |
 | **Dialogue, an NPC's voice, a topic list** | `dialogue-and-character-voice.md` | `japanese-narrative-conventions.md` (register and honorifics), `prose-craft-and-naming.md` |
-| **Lore, history, an institution, a species** | `worldbuilding-craft.md` | `japanese-narrative-conventions.md`, `science-fiction-and-mecha-conventions.md`, and **always** `ideas/story/bible/` first |
+| **Lore, history, an institution, a species** | `worldbuilding-craft.md` | `japanese-narrative-conventions.md`, `science-fiction-and-mecha-conventions.md`, and **always** `quarantine/ideas/story/bible/` first |
 | **Anything mecha, or a Frame at scale** | `science-fiction-and-mecha-conventions.md` | `science-fiction-and-mecha-conventions.md` §11 (rendering scale in prose), `environmental-storytelling-and-place.md` §7 (theatre of the mind), `data/schema/frame.schema.json` (outside this library — the current Frame and vehicle model) |
 | **Anything set in the city, school, or era** | `japanese-narrative-conventions.md` | `worldbuilding-craft.md`, `environmental-storytelling-and-place.md` |
 | **Player-facing description read at the table** | `prose-craft-and-naming.md`, `environmental-storytelling-and-place.md` | `japanese-narrative-conventions.md` |
@@ -72,7 +72,7 @@ Four conventions hold across the library:
 
 ## 4. What this library is not
 
-It is not a source of campaign facts. For what is true in the world, read `ideas/story/blank-inheritance-v4.md`, the per-entity bible at `ideas/story/bible/`, and `ideas/story/bible/LEDGER.md` for questions already asked and answered. The bible answers *is this consistent?*; this library answers *is this well-built?* Both checks are required and neither substitutes for the other.
+It is not a source of campaign facts. For what is true in the world, read `quarantine/ideas/story/blank-inheritance-v4.md`, the per-entity bible at `quarantine/ideas/story/bible/`, and `quarantine/ideas/story/bible/LEDGER.md` for questions already asked and answered. The bible answers *is this consistent?*; this library answers *is this well-built?* Both checks are required and neither substitutes for the other.
 
 It is also not a rules reference. For exact SF2E mechanics, wording and numbers, use the local mirror at `reference/srd/` and the pre-extracted numeric tables in `reference/tables/`, which are more reliable than recalling the system from memory.
 
@@ -90,4 +90,4 @@ Research shelves tag their claims **[S]** source / **[R]** reading / **[U]** sug
 
 ---
 
-*Related in this project: `ideas/story/bible/README.md` (the per-entity bible discipline and its mandatory "what NOT to do" sections); `ideas/story/bible/LEDGER.md` (the append-only record of lore questions already answered — check before asking); `data/campaign/open-questions.json` (the live design questions this library may inform but never resolve); `design/ux-doctrine.md` (the lodestone for interface work); `design/design-layers.md` (build Layer 0 first, then overlay); `design/scene-audit.md` (turns this library into a concrete pre-signoff checklist — read it once a scene is drafted, not while writing it).*
+*Related in this project: `quarantine/ideas/story/bible/README.md` (the per-entity bible discipline and its mandatory "what NOT to do" sections); `quarantine/ideas/story/bible/LEDGER.md` (the append-only record of lore questions already answered — check before asking); `data/campaign/open-questions.json` (the live design questions this library may inform but never resolve); `design/ux-doctrine.md` (the lodestone for interface work); `design/design-layers.md` (build Layer 0 first, then overlay); `design/scene-audit.md` (turns this library into a concrete pre-signoff checklist — read it once a scene is drafted, not while writing it).*

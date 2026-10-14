@@ -122,6 +122,8 @@ test("every real data/ file validates against its declared $schema", async (t) =
   ajv.addSchema(commonSchema);
   const authoringSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "authoring.schema.json"), "utf8"));
   ajv.addSchema(authoringSchema);
+  // The induction catalogues' `choices` (a background's or class's own questions) is one shared definition.
+  ajv.addSchema(JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "induction-choices.schema.json"), "utf8")));
 
   const validatorCache = new Map();
   function getValidator(schemaAbsPath) {

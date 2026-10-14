@@ -44,7 +44,7 @@
 
 **Worth avoiding:** nothing much. **This is the single most tone-compatible character on the shelf** — she would sit comfortably in the Giant Robo register without a word changed, which is worth noting given how little else here would.
 
-**Where it might attach:** a class representative is a role our school setting implies and does not yet name (`ideas/story/bible/locations/main-school-complex.md`, `ideas/entries/school-schedule-system.json`). Per `feedback_npc_stubs_by_default`, a stub with a name, the role and one want is the right first version, and **who it is belongs to the user.**
+**Where it might attach:** a class representative is a role our school setting implies and does not yet name (`quarantine/ideas/story/bible/locations/main-school-complex.md`, `ideas/entries/school-schedule-system.json`). Per `feedback_npc_stubs_by_default`, a stub with a name, the role and one want is the right first version, and **who it is belongs to the user.**
 
 ---
 

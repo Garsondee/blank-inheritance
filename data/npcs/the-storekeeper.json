@@ -6,11 +6,11 @@
     "status": "drafted"
   },
   "name": null,
-  "role": "Runs the counter at the harbour-quarter store, and is the obstacle in The Errand",
+  "role": "Runs the instrument makers' workshop the docket sends the party to, laughs at it, and sends them on to Manako",
   "pole": null,
   "affiliation": null,
-  "description": "Keeps a small store in the harbour quarter that has been short of half its catalogue for years and has stopped apologising for it. Flat, unhurried and not unkind -- she is not being obstructive, she genuinely does not have the thing, and she has explained that to a great many people.\n\nHOW SHE TALKS. Short sentences. She answers the question asked and not the one behind it. She does not soften a no and she does not enjoy delivering one; it is simply the most common thing she says in a day.\n\nWHAT SHE WILL GIVE. Somebody who is polite, or funny, or straight with her gets the grumble -- what she cannot get any more, how long it has been, and who she has stopped expecting to hear back from. That grumble is the scene's actual information and it is freely available to anybody who treats her like a person.\n\nWHAT SHE WILL NOT DO. Pretend. She will not invent stock, will not offer a substitute she does not believe in, and will not speculate about why the supply stopped. She has a theory and considers it none of her business.",
-  "designNotes": "Created 2026-09-21. She was cast inline in `episode-c1e1--the-errand` with no npcRef, marked walk-on, and is the target of a real DC 13 check with three skill routes -- a person the party rolls against is not a walk-on. The missing-stock plant is hers to deliver.",
+  "canon": "the-storekeeper",
+  "designNotes": "Created 2026-09-21 as a storekeeper in a short-stocked shop, when The Errand's first stop was the general store. Rewritten 2026-10-07 to match The Errand as it now reads: D046 turned the general store into the instrument makers' workshop, and the scene's cast card is the newest and best source (Ingram, 2026-10-07: when content disagrees, align it to the newest and best). The id still says storekeeper; it is an internal key that Foundry ids and the scene's check id are built from, so it was left alone.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],
   "statblock": {

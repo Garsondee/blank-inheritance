@@ -1255,6 +1255,16 @@ Context-swapped, one at a time, in the right column:
     brief and beat; the result a player rolls from it records itself against that beat when nothing is
     recorded yet (never over the GM's own call), every result is listed on the beat, and any can be
     used instead with one press. This is §11 applied: sf2e computes the degree, the runner only reads it.
+  - **Moved 2026-10-05 (D061): a check is a pill in the beat's own words, and runs in the check
+    console.** Ingram: *"a dedicated UI that opens up when a skill check is required ... the dialogue is
+    per challenge, but allows a range of different solutions to that challenge."* The card above (the
+    outcome buttons, the per-player rows, the list of rolls, the by-skill notes, the tally) is gone from
+    the drawer; all of it lives in the console (`foundry/check-console.mjs`, `core/check-console.mjs`,
+    `core/check-pill.mjs`), built from the deck's own hardware: the DC on a knob whose scale is banded
+    by how hard each DC is for the party's level, the ways as pill keys, and a bank of six tall lights
+    along the bottom, lit in each result's colour as it lands (D062, which replaced D061's gems); each
+    player's own window has the same bank, with the ways as their skill keys. Rolls still record
+    themselves against the beat by its tag, exactly as above.
   - **The person the current beat is about opens beside it**, with their voice and lines.
   - **Clocks can be moved by hand** (+/−, clamped to the pool), read against their ceiling when they
     fill up, and name the threshold now in force and the next one coming (Law 19).

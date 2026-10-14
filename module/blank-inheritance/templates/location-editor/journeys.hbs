@@ -1,0 +1,95 @@
+<div class="bi-journeys"{{#unless (eq tab "journeys")}} hidden{{/unless}}>
+    {{#if journeys}}
+    {{#with journeys}}
+    <header class="bi-journeys__top">
+        {{#if groups.length}}
+        <select name="journeyGroup" class="bi-journeys__group" aria-label="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Episode'}}">
+            {{#each groups}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{title}}</option>{{/each}}
+        </select>
+        {{/if}}
+        <button type="button" class="bi-story__icon" data-action="recheckJourneys" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.Recheck'}}"><i class="fa-solid fa-rotate"></i></button>
+    </header>
+
+    {{#if loading}}<p class="bi-location-editor__busy"><i class="fa-solid fa-spinner fa-spin"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.Working"}}</p>{{/if}}
+    {{#if error}}<p class="bi-location-editor__warn">{{error}}</p>{{/if}}
+    {{#if missing.graph}}<p class="bi-location-editor__warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.NoGraph"}}</p>{{/if}}
+    {{#if missing.coast}}<p class="bi-location-editor__warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.NoCoast"}}</p>{{/if}}
+
+    {{#if group}}
+    <section class="bi-journeys__verdict {{group.verdictClass}}">
+        <p class="bi-journeys__verdict-head"><i class="fa-solid {{group.icon}}"></i> <strong>{{group.verdictLabel}}</strong></p>
+        <p class="bi-journeys__summary">{{group.summary}}</p>
+        {{#if group.main}}<p class="bi-journeys__summary">{{group.main}}{{#if group.fades}} <small>{{group.fades}}</small>{{/if}}</p>{{/if}}
+    </section>
+
+    <div class="bi-journeys__actions">
+        <button type="button" class="bi-location-editor__button bi-location-editor__button--primary" data-action="playGroup" data-main="true" {{#unless group.hasMain}}disabled{{/unless}}><i class="fa-solid fa-play"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.PlayMain"}}</button>
+        <button type="button" class="bi-location-editor__button" data-action="playGroup" data-main="false"><i class="fa-solid fa-diagram-project"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.PlayAll"}}</button>
+        <button type="button" class="bi-location-editor__button" data-action="fitGroup"><i class="fa-solid fa-expand"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.Fit"}}</button>
+        <button type="button" class="bi-location-editor__button" data-action="clearFocus"><i class="fa-solid fa-eraser"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.ClearFocus"}}</button>
+        <button type="button" class="bi-location-editor__button" data-action="copyJourneyReport" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.ReportHint'}}"><i class="fa-solid fa-copy"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.Report"}}</button>
+    </div>
+    <div class="bi-journeys__switches">
+        <label class="bi-story__check"><input type="checkbox" data-action="toggleShowAll" {{#if showAll}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.ShowAll"}}</label>
+        <label class="bi-story__check"><input type="checkbox" data-action="toggleNotes" {{#if showNotes}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.ShowNotes"}}</label>
+    </div>
+
+    <section class="bi-journeys__issues">
+        <h3 class="bi-journeys__heading">
+            {{localize "BLANKINHERITANCE.LocationEditor.Journeys.Problems"}} <small>{{issueCount}}</small>
+            {{#if issues.length}}
+            <span class="bi-journeys__stepper">
+                <button type="button" class="bi-story__icon" data-action="nextIssue" data-dir="-1" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.PreviousProblem'}}"><i class="fa-solid fa-chevron-up"></i></button>
+                <button type="button" class="bi-story__icon" data-action="nextIssue" data-dir="1" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.NextProblem'}}"><i class="fa-solid fa-chevron-down"></i></button>
+            </span>
+            {{/if}}
+        </h3>
+        {{#if issues.length}}
+        <ul class="bi-journeys__issue-list">
+            {{#each issues}}
+            <li class="bi-journeys__issue is-{{severity}}{{#if current}} is-current{{/if}}">
+                <i class="fa-solid {{icon}}"></i>
+                <div class="bi-journeys__issue-body">
+                    <p>{{text}}</p>
+                    {{#if hint}}<small>{{hint}}</small>{{/if}}
+                </div>
+                <span class="bi-journeys__issue-actions">
+                    <button type="button" class="bi-story__icon" data-action="showIssue" data-index="{{index}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.ShowProblem'}}"><i class="fa-solid fa-crosshairs"></i></button>
+                    {{#if slotKey}}<button type="button" class="bi-story__icon" data-action="openSlot" data-slot-key="{{slotKey}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.FixProblem'}}"><i class="fa-solid fa-location-crosshairs"></i></button>{{/if}}
+                </span>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p class="bi-journeys__allclear"><i class="fa-solid fa-circle-check"></i> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.AllClear"}}</p>
+        {{/if}}
+    </section>
+
+    <section class="bi-journeys__legs">
+        <h3 class="bi-journeys__heading">
+            {{localize "BLANKINHERITANCE.LocationEditor.Journeys.EveryJourney"}}
+            <label class="bi-story__check"><input type="checkbox" data-action="toggleOnlyProblems" {{#if onlyProblems}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Journeys.OnlyProblems"}}</label>
+        </h3>
+        <ol class="bi-journeys__leg-list">
+            {{#each legs}}
+            <li class="bi-journeys__leg is-{{kind}} {{worstClass}}{{#if shown}} is-shown{{/if}}{{#if playing}} is-playing{{/if}}" data-leg-row="{{id}}">
+                <span class="bi-journeys__leg-n">{{n}}</span>
+                <button type="button" class="bi-journeys__leg-main" data-action="showLeg" data-leg="{{id}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.ShowRoute'}}">
+                    <span class="bi-journeys__leg-label">{{label}}</span>
+                    <small class="bi-journeys__leg-badge"><em>{{kindLabel}}</em> {{summaryText}}</small>
+                </button>
+                {{#if watchable}}
+                <button type="button" class="bi-story__icon" data-action="playStep" data-leg="{{id}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.WatchIt'}}"><i class="fa-solid fa-play"></i></button>
+                {{/if}}
+            </li>
+            {{else}}
+            <li class="bi-location-editor__empty">{{localize "BLANKINHERITANCE.LocationEditor.Journeys.NoJourneys"}}</li>
+            {{/each}}
+        </ol>
+    </section>
+    {{else}}
+    {{#unless loading}}<p class="bi-location-editor__empty">{{localize "BLANKINHERITANCE.LocationEditor.Journeys.NoEpisodes"}}</p>{{/unless}}
+    {{/if}}
+    {{/with}}
+    {{/if}}
+</div>

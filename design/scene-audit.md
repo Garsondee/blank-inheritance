@@ -295,7 +295,7 @@ cold.
 - **Q12 (discernible + integrated): CLEAR.** The flag is told directly and privately (discernible) and
   explicitly tagged "PLANT — mystery ledger #1, pays off Chapter 6" (integrated, deferred at the
   standard distance). *(Stale then, and since fixed: that chapter belonged to a deleted draft. The brief
-  now leaves the payoff chapter deliberately unassigned, as does the Mystery Ledger, `ideas/story/blank-inheritance-ch1-v2.md` §5.)*
+  now leaves the payoff chapter deliberately unassigned, as does the Mystery Ledger, `quarantine/ideas/story/blank-inheritance-ch1-v2.md` §5.)*
 
 **D. Structural shape — CLEAR.** Not a breadcrumb repeat (the-road-in was personal spotlights, not
 "go ask someone"); this scene introduces a want, a complication, and a real outcome. The one
@@ -405,7 +405,7 @@ across the whole campaign, not just here, since Episode One is unusually adult-w
 **D. Thread & clue tracking.**
 - The flag → Chapter 6: assigned. The Frame-at-a-distance sighting → Ledger #11, Ch3/Ch6: assigned.
   *(Both were already stale: those chapters belonged to a deleted draft, and every Mystery Ledger
-  payoff is unassigned, `ideas/story/blank-inheritance-ch1-v2.md` §5.)*
+  payoff is unassigned, `quarantine/ideas/story/blank-inheritance-ch1-v2.md` §5.)*
 - **OPEN.** The violet cicada mark → Ledger #6, and the-errand's own note says so directly: *"Payoff
   chapter is currently unassigned."* Surfaced here mainly to keep it from becoming invisible once it's
   no longer the newest thing written.

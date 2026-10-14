@@ -580,7 +580,7 @@ Scene Set builds that no episode lists. Each scene is a row in play order with i
 of the Scene Set), the **options the players choose between** under the question they are asked ("Where do you spend
 the night?", with the muster that follows), and its **travel points** (where the party stands when the scene opens and
 closes). A haunt also shows every option, in any scene's departure, that offers it. A header line counts what is
-missing; **"Only what needs a place"** filters to the gaps. What is open is remembered in this browser.
+missing; **"Only problems"** (it said "Only what needs a place" until 2026-10-06) filters to the gaps, the places no token can stand at and the journeys that cannot be walked (section 16). What is open is remembered in this browser.
 
 **Where each place lives** (core/siting.mjs, read straight from the deployed data, never copied): a scene's place is
 `scenes[id].locationRef` in `scene-set.json`; an option is `outro.departure.destinations[id].placeRef` (or the `then`
@@ -708,3 +708,72 @@ Ingram: closing the editor's window did not quit the modes, the interface or the
 list's highlight, the bisect reference, the tool (back to pick) and the callbacks into the panel (a late one would render a closed window again); it takes
 the editor's drawing off the canvas (the saved drafts are kept and come back when the editor is next opened) and the canvas goes back to Tokens. Held by
 `test/tier4-location-draw-layer.test.mjs` and a real click on the window's X in `tools/location-sync/foundry-locations-key-check.mjs`.
+
+## 16. Journeys: the paths the tokens walk, previewed, played and checked (2026-10-06)
+
+Ingram, looking at the Story tab: *"I'd be able to use it to preview the paths that tokens will walk between locations, ideally it would actually show the animation itself playing out with the lines... Can we easily change a whole location from one place to another?... what if I want to be able to place a map pin somewhere on the map too and have the tokens go there? Can we check for token map movement continuity so that I can be sure that tokens can complete the whole episode of moving from place to place?"* The panel now has four tabs (**Story · Journeys · Places · Map tools**), a player bar under them while something plays, and a pin card under them while a pin is placed.
+
+### 16.1 What a journey is
+
+The campaign moves the party across the map two ways, and the model reads exactly those (`core/journey.mjs`):
+
+| leg | when | from → to |
+|---|---|---|
+| `cut` | the Scene Runner takes the table from one scene to the next and they are at different places (`foundry/travel.mjs#runTravelSequence`) | the scene's place → the next scene's place |
+| `option` | a scene's `outro.departure` puts a choice to the players; the pawns walk to what they chose (`foundry/city-state.mjs#goCityDeparture`) | the scene's place → each option's place |
+| `then` | the departure has a `then` muster that gathers everyone again | each option's place → the muster |
+| `arrival` | `kind: "arrive"`: each player appears where they came in | each way in → the muster |
+
+A leg's ends are Story **slots** with the GM's waiting placements already laid over them, so the tab judges the journeys as the editor has them *now*, not as they were last deployed. A scene reached by a departure whose `then` takes the party on has no cut of its own. `settle` records the scene a departure's destination leads to, for the check below. **Not modelled:** a scene's rooms (same place) and `position` travel points (`state: split`; no scene uses them yet).
+
+### 16.2 The routes are the game's routes
+
+`core/travel-route.mjs#createRouter` is `planRoute` made fast (one Dijkstra table per start node, cached): `test/tier1-travel-router.test.mjs` holds it **identical** to `planRoute` on hand-made graphs, twelve seeded random graphs full of ties, and real journeys. `foundry/travel.mjs` now routes with it too (`routerFor(graph).plan`), on the same graph object the tab loads (`foundry/journey-data.mjs`), so what the tab draws is what the tokens will do; sixty journeys are planned in about 350 ms. Timing is `hopPlan`'s own (the game's per-mode pace); `core/journey-timeline.mjs#motionAt` is where the game's token is `t` ms into a leg (each hop one straight glide of its planned duration). A scene cut also costs the table the 10 s fade into the map (`CUT_LEAD_SECONDS`), which the tab reports and never plays.
+
+### 16.3 The continuity check (`core/journey-checks.mjs`)
+
+A router always produces *some* route, so "it routed" proves nothing. Each rule is a failure the GM has met for real or one the story needs. Severities: **error** (the party cannot complete it), **warn** (probably wrong), **info** (worth knowing). Nothing blocks anything.
+
+| id | severity | says |
+|---|---|---|
+| `unplaced` / `broken` / `no-point` | error | a scene has no place, names a location that does not exist, or its place has no point on the map |
+| `no-network` | error | no street or rail is used on a journey of 700 m or more: the tokens walk it in a straight line (2026-09-23) |
+| `water-walk` | warn ≥ 40 m, error ≥ 250 m | part of the walk is across open water (2026-09-19: "landed in the ocean"). Needs `data/map/land-grid.json` (`tools/location-sync/export_land_grid.py`: 25 m samples of the painted map's sea, shipped with the campaign data, read by `core/land-grid.mjs`) |
+| `network-gap` | warn > 300 m, error > 600 m | the ride stops where its network does and the tokens walk a long last stretch (a short walk from a station is how a train journey goes, so says nothing) |
+| `water-stop` | warn ≤ 100 m from land, error beyond | a token would **stand** in the sea at a place (the centroid of a harbour or a coastal district) |
+| `settle` | warn > 150 m | a departure takes the party to a place and the scene it leads to opens somewhere else |
+| `story-time` | warn | two scenes in the same quarter of the day with an hour or more of real-time travel between them |
+| `long-walk`, `detour`, `slow`, `area-stop`, `approximate`, `pending` | info | a long walk off the streets; a ride 2.5× the crow's flight; more than a minute to watch; an **area** as a stop ("tokens go to its middle, wherever that falls"); an approximate or not-yet-pulled place |
+
+An episode's verdict is **continuous** (no errors or warnings), **needs attention** (warnings) or **broken** (an error or a scene with no place). Real data on 2026-10-06: both episodes route every journey, no errors; a handful of network-gap and water-stop warnings. The same engine runs three places: the panel, **`npm run journeys`** (`tools/location-sync/journeys.mjs`: a verdict in the terminal, `--episode`, `--notes`, `--legs`, exit 1 on an error, the report text is the one the panel copies) and `test/tier2-journey-corpus.test.mjs` (**the party can walk every episode** fails `npm test` on an error or an unplaced scene, so a placement that strands the party fails before it reaches the table).
+
+### 16.4 The Journeys tab, the player and the Story's route lines
+
+- **Journeys tab:** the episode, its verdict and counts, the main road's totals ("8 journeys · 18.3 km · 2 min 34 s to watch · about 60 min in the story"), **Play the main road** / **Play everything** (the players' choices too), every route on the map with a numbered stop per scene, the problems (step through with ▲▼, show on the map, or open the slot's chooser to change the place), every journey in play order (press one to see it bold with arrows, ▶ to watch it), **Copy report** (the same text `npm run journeys` prints, for the chat: Claude can fix what it names).
+- **The player bar** (under the tabs, whichever tab): back / play-pause / next step / stop, a scrubber, speeds 0.5× to 8×, a camera switch (follow each step, or stay). The legs the game plays at once (every option of one departure) are one *step* and walk together; the shorter arrives and waits. The bar is updated **in place** from the overlay's progress, never by re-rendering the window (`test/tier3-location-editor-contract.test.mjs`).
+- **The overlay** (`foundry/journey-overlay.mjs`, a passive container of the draw layer between the hover outline and the focus highlight): routes by the way they are travelled (dotted on foot, solid by road, heavier by rail), a red or amber glow under any with a problem, the players' choices lighter than the main road, the covered ground bright behind the token, stops named where they are looked at (or everywhere once zoomed in). Playback runs on the canvas's own ticker; a scene change detaches it before Foundry destroys its container. Executed against a recording PIXI stand-in in `test/tier4-journey-overlay.test.mjs`.
+- **The Story list** draws the way between two scenes as a line of its own ("↓ 1.6 km · 13 s · car 1.5 km · walk 136 m", with show and watch keys), a badge on each option, a ⚠ on any place a token cannot stand, and a **Routes** switch; "Only problems" now means a gap, a place no token can stand at or a journey that cannot be walked.
+
+### 16.5 What would that do? (`core/journey-whatif.mjs`)
+
+Staging a placement in the Story (and ticking the slots that move with it) judges it **before** it is confirmed: every journey it touches, before → after, what got better or worse, the new place's own problems, and the new routes drawn on the map. Pure (`whatIf`, `viewOfWhatIf`); writes nothing. The same function powers the Places tab's move and the pin's cursor preview (`previewAt`).
+
+### 16.6 Places: change a whole location at once
+
+The **Places** tab (`core/places-index.mjs`, `foundry/location-places.mjs`) lists every place the story uses with how many slots use it (where a scene happens, a room, where the party stands as a scene opens and closes, an option, a muster) and, opened, each use; ⇄ **Move all** turns "everything at the Old Landing" into another place across the slots the GM leaves ticked (pick on the map, search, or pin a new one), showing the what-if first, then writing **one `"site"` record per slot** exactly as the single placement does (each remembering what the editor saw, for the pull's clash check). `npm run locations` applies them as before.
+
+### 16.7 Pin on the map: one card
+
+The chooser's **Pin on the map** (`foundry/location-pin.mjs`) replaces the long way (pin tool, Map tab, a form that insists on a note, Save, back to the Story, confirm): press it, move the cursor (the routes the tokens would walk to and from that spot, and whether it is somewhere a token can stand, show as it moves; *Stand on the nearest street or rail* snaps the pin onto the network), click, name it if you like, **Place pin**. It writes the same records the long way does: one `"create"` (a point, in map-image pixels, with the note filled in) and one `"site"` per slot pointing at it. A place that is an **area** says so in the chooser ("tokens go to its middle"). Escape, another tool, or closing the editor ends the wait.
+
+### 16.8 Held by
+
+`test/tier1-journey*.test.mjs`, `tier1-places-index`, `tier1-land-grid`, `tier1-travel-router`, `tier1-story-lines-journeys`, `tier2-journey-corpus`, `tier2-journeys-cli`, `tier3-location-editor-contract` (the controllers' wiring, the pin's records, "playback never re-renders"), `tier4-journey-overlay`, `tier4-location-draw-layer` (the pin wait, the overlay's container, quitting), and **`tools/location-sync/foundry-journeys-check.mjs`**, the live check in the local Foundry with real pointer events and real button presses (38 checks: the Story's lines, the verdict, the routes on the canvas, play / pause / scrub / speed / skip / end / stop, a route and the problems, the report, Places and the move preview, a staged placement's what-if, the pin from cursor preview to the two records written, and closing the editor leaving nothing on the canvas).
+
+### 16.9 Known limits, and what was not built
+
+- The router picks a network by nearness, not by what an option *says* ("By ferry" ends at the dock; what the leg walks is the way on from there, so this is right, but the tab will never route over water by itself: there is no ferry network). A mode-aware router would be a change to the game's routing, not to the tab.
+- Journeys are drawn for one marker per leg; the game moves a pawn per player. The legs of one departure do play together.
+- The story-time estimate is a warning against the day's own quarters, not a schedule. A day-by-day travel budget view is not built.
+- A stylesheet added to `module.json` is read by Foundry only when a world launches, so the first deploy of `styles/bi-journeys.css` left the new tabs unstyled until a relaunch (`core/world-sync.mjs` says so in a banner). The editor now asks for its own stylesheet when it renders (`foundry/late-style.mjs`; the manifest still lists it, so after a relaunch it is found already loaded).
+- A placement waiting to be pulled cannot be taken back from the panel (a record is immutable); place the earlier choice again. Not built: reverting a slot to its deployed place in one press.

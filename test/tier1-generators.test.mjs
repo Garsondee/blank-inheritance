@@ -112,10 +112,13 @@ test("buildNpcActorData: statblock-less branch produces the exact same 'bare' de
   assert.deepEqual(data.items, []);
 });
 
-test("buildNpcActorData: statblock-less branch populates BOTH details.blurb and details.publicNotes from source.description", async () => {
-  const data = await buildNpcActorData({ id: "x", name: "X", description: "A quiet clerk who wants the form filled in correctly." });
-  assert.equal(data.system.details.blurb, "A quiet clerk who wants the form filled in correctly.");
-  assert.equal(data.system.details.publicNotes, "A quiet clerk who wants the form filled in correctly.");
+test("buildNpcActorData: the blurb and public notes come from the role and affiliation, never from a legacy `description` (D080)", async () => {
+  // The old story prose (`description`) is retired: it was a stale second home of the story. Whatever a file still carries in
+  // that field is ignored; the sheet says what core/actor-notes.mjs builds. The full cases are in tier1-actor-notes.test.mjs.
+  const data = await buildNpcActorData({ id: "x", name: "X", role: "Clerk", affiliation: "directorate", description: "Old prose that must not reach the sheet." });
+  assert.equal(data.system.details.blurb, "Clerk (Directorate)");
+  assert.equal(data.system.details.publicNotes, "<p>Clerk (Directorate)</p>");
+  assert.equal(data.system.details.privateNotes, undefined, "no generated entry, so no private notes");
 });
 
 test("buildNpcActorData: statblock branch produces the IDENTICAL {system, items} shape buildCreatureActorData would for the same combatStatblock", async () => {
@@ -414,7 +417,7 @@ test("validateActor + summarizeReport: a matching Actor passes every check", asy
   assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
 });
 
-test("validateActor: entityLabel 'npc' passes every check for a matching statblock-less Actor, checked against source.description-derived defaults rather than a top-level source.ac/hitPoints/level", async () => {
+test("validateActor: entityLabel 'npc' passes every check for a matching statblock-less Actor, checked against the defaults rather than a top-level source.ac/hitPoints/level", async () => {
   const source = readFixture("test-npc.json");
   const data = await buildNpcActorData(source);
   const created = { ...data, id: data._id };

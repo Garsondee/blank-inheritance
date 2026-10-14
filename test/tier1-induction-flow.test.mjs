@@ -118,8 +118,8 @@ function fresh() {
     furthest: 1,
     agreement: { signed: false, signedAt: null, secondsOnPage: null, furthestRead: null },
     ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
-    background: { id: null, filter: "", boostPicks: [] },
-    class: { id: null, keyAbilityPicks: [] },
+    background: { id: null, filter: "", boostPicks: [], choices: {} },
+    class: { id: null, keyAbilityPicks: [], choices: {} },
     attributes: { freeBoostPicks: [] },
     portrait: { path: null, uploading: false, error: null },
     finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], personalFile: {}, personality: {} },
@@ -133,7 +133,7 @@ function midway() {
   s.page = 5;
   s.furthest = 5;
   s.ancestry = { id: "vesk", filter: "ves", boostPicks: ["dex"], flawPicks: [] };
-  s.background = { id: "smuggler", filter: "", boostPicks: ["dex", "con"] };
+  s.background = { id: "smuggler", filter: "", boostPicks: ["dex", "con"], choices: {} };
   s.class = { id: "soldier", keyAbilityPicks: [] };
   s.attributes.freeBoostPicks = ["str", "dex"];
   s.portrait = { path: "modules/blank-inheritance/storage/portraits/x.webp", uploading: true, error: "boom" };
@@ -206,10 +206,30 @@ test("restoreDraft: a saved form comes back laid over a blank one, transient fie
   assert.equal(restored.savedAt, "t");
   const s = restored.state;
   assert.equal(s.page, 5);
-  assert.deepEqual(s.background, { id: "smuggler", filter: "", boostPicks: ["dex", "con"] });
+  assert.deepEqual(s.background, { id: "smuggler", filter: "", boostPicks: ["dex", "con"], choices: {} });
   assert.deepEqual(s.portrait, { path: "modules/blank-inheritance/storage/portraits/x.webp", uploading: false, error: null });
   assert.deepEqual(s.review, { confirming: false, error: null, createdActorId: null });
   assert.deepEqual(s.finishing.personality, { likes: "Cold tea." });
+});
+
+test("restoreDraft: the answers to a background's or class's questions come back whole, and a form saved before they existed gets none", () => {
+  const withAnswers = midway();
+  withAnswers.background = { id: "starship-dweller", filter: "", boostPicks: ["dex", "con"], choices: { skill: "piloting" } };
+  withAnswers.class = { id: "envoy", keyAbilityPicks: [], choices: { skill: "intimidation" } };
+  const back = restoreDraft(JSON.parse(JSON.stringify(serializeDraft(withAnswers, "t"))), fresh()).state;
+  assert.deepEqual(back.background.choices, { skill: "piloting" });
+  assert.deepEqual(back.class.choices, { skill: "intimidation" });
+
+  const old = JSON.parse(JSON.stringify(serializeDraft(midway(), "t")));
+  delete old.state.background.choices;
+  delete old.state.class.choices;
+  const restored = restoreDraft(old, fresh()).state;
+  assert.deepEqual(restored.background.choices, {}, "a draft saved before the field existed lays over a blank one that has it");
+  assert.deepEqual(restored.class.choices, {});
+
+  const hostile = JSON.parse(JSON.stringify(serializeDraft(withAnswers, "t")));
+  hostile.state.background.choices = { skill: "piloting", sneaky: { nested: true }, n: 4 };
+  assert.deepEqual(restoreDraft(hostile, fresh()).state.background.choices, { skill: "piloting" }, "only text answers are kept");
 });
 
 test("restoreDraft: a field added since the save keeps its default; one removed since is dropped", () => {

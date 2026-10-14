@@ -52,3 +52,17 @@ status: decided · source: D029, D032, D040, S001 · known: few · told: later
 ## rift.how-it-was-closed
 Sarenrae sent the four back from Nirvana with a way to close it, and it worked because it was one dropped container.
 status: decided · source: D040 · known: few · told: later
+
+## Pencil
+
+## rift.the-fumble
+How First Impact began: on the generation ship's cargo deck, a clean throw got the container of fuel clear, and the catch failed, two attempts and two natural ones. The container split open. An "exhaling portal" opened, space curved, and a planar breach flung the four founders across the planes to Nirvana, leaving a violet aperture with a black core in the heart of the ship. When they came back, the rift had carved across Kortos into Absalom.
+status: sketch · by: claude · source: D071, D030, D072, D031, D032, D081 · from: cb:truth.1, cb:words.42, d-first-impact:3-the-incident-first-impact, mt:the-history · known: few · told: later · when: 4721 AR
+
+## rift.sarenrae-sent
+What exactly Sarenrae sent the four back from Nirvana with, to close Kortos, is not decided. It belongs to the Book IV flashback, and it closes the old campaign, which ended in Nirvana.
+status: open · source: D071, D040 · from: cb:still-yours.5, cb:ch15.gm.0, cb:flashbacks.3 · known: nobody · told: later · decide-by: before the Book IV flashback is written
+
+## rift.arrived-late
+When the four came back from Nirvana the rupture was much larger, and they swung in to stop it expanding further. That is why they arrived late to their own disaster: they were on another plane while it grew. This is Ingram's working account, marked "presumably".
+status: sketch · by: ingram · source: D072, D030 · from: d-first-impact:3b-nirvana-and-the-return, mt:the-history · known: few · told: later · when: 4721 AR

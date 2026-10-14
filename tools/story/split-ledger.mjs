@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const ledgerPath = path.join(root, "ideas/story/bible/LEDGER.md");
+const ledgerPath = path.join(root, "quarantine/ideas/story/bible/LEDGER.md");
 const outDir = path.join(root, "canon/decisions");
 const text = fs.readFileSync(ledgerPath, "utf8").replace(/\r\n/g, "\n");
 

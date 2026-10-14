@@ -350,12 +350,13 @@ test("a proposed location match is labelled as proposed rather than asserted", (
     assert.ok(scene.locationRef, `${scene.id} is flagged approximate but names no locationRef to be approximate about`);
     assert.ok(scene.locationNote, `${scene.id} is flagged approximate but carries no locationNote explaining the guess`);
   }
-  // Nothing in the current manifest is flagged approximate. e1-flood-tunnel
-  // and e1-the-walk-down still read PROPOSED in their own locationNote prose
-  // (a real, tracked siting gap -- The Old Landing is the right district but
-  // not the exact chamber/gate the briefs describe) but do not carry
-  // `approximate: true` to match; that is a campaign-data call for Ingram to
-  // make, not something for this test to paper over.
+  // The call was made on 2026-10-07 (canon/decisions/D065.md; Ingram: "Any
+  // locations which feel wrong are probably wrong"): the Old Landing is the
+  // right district for Flood Tunnel Clearance and The Walk Down, but not the
+  // exact chamber, hatch or Dock C the briefs describe, so those entries (and
+  // the Flood Tunnel's two rooms) are flagged approximate and the Location
+  // Editor's Story tab counts them. Each is tracked by an open request in
+  // data/map/gazetteer-requests.json (req-7 to req-9).
   const flagged = manifest.scenes.filter((s) => s.approximate).map((s) => s.id).sort();
-  assert.deepEqual(flagged, []);
+  assert.deepEqual(flagged, ["e1-flood-tunnel", "e1-flood-tunnel-generator", "e1-flood-tunnel-machine", "e1-the-walk-down"]);
 });

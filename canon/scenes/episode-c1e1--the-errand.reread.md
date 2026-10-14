@@ -161,3 +161,30 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **R1.** The instrument maker is `present`, outside her shop, which is what the stage shows. Manako still waits for his chip at the tea house.
+
+## Revision 2026-10-07: temptations became twists (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude (first drafts by an Opus agent, reviewed and corrected by Claude) · state: awaiting Ingram's read
+
+Ingram, grading the first episode confidence run: temptations "need to be fun organic ways the scene might mutate, things that the GM might want to consider as ways to evolve the scene which won't break the overall objective of the scene."
+
+- **Replaced:** "Manako looks like a man who'd enjoy being asked a question about anything at all.". Those were lines to say to a table that is not biting.
+- **Now 3 twists:** `settle-the-van`, `hold-it-level`, `a-regular-was-sent-too`.
+- **R12, R13.** No twist states a fact, names a secret, or moves a held-back fact forward; each uses only people, objects and places already in this scene.
+- **R4, R5.** None needs a roll to reach, and none can stop the scene doing its job: every deadline and mandatory beat is still reachable.
+- **R3, R28.** No history or tool names; each twist is one or two sentences, 35 words or fewer.
+- **Conditional twists.** Some only apply if something is already true at the table (a player with a different number of arms, a player from the city, a section that filed its requisition loudly). The GM skips them otherwise.
+- **For Ingram.** These are a first attempt at what she described. Cut or rewrite any; the old lines are in this file's history (git) if one was better.
+
+## Revision 2026-10-07: the two places are on the map (D067)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+Ingram drew the two real buildings of The Slope the scene needs: **Workshop Supplies Company** (the instrument makers') and, beside it, **Manako's tea house**. No words of the scene changed except one.
+
+- **R24. Does every place agree with the map?** The one place that did not: the landmark said "The harbour, two streets over". The harbour is about 400 m from the workshop and 500 m from the tea house, so it now says "down the hill" (The Slope is a hillside district). The opening read-aloud keeps "two streets over", because it describes where the party steps off the train, not the workshop.
+- **R24. The distance between the two.** 95 m as the crow flies, about 190 m by street: a few streets, inside the limit she set (D046).
+- **R14. Time.** The walk from the Mainland Platforms to the workshop is 2.4 km by street, about half an hour; "somewhere a clock striking five" and the nineteen hundred deadline leave room for it, but no nearer stop for the island train is known (req-11).
+- **The closing position** is now the tea house, because the scene ends "They leave the tea house with a plan, a part number and the time". The opening position is still open.
+- **Still without a place:** the Alley room.
+- **For Ingram.** The instrument maker's NPC file (`the-storekeeper`) still describes a storekeeper in a short-stocked shop, which is not the warm, laughing instrument maker this scene writes; the scene's own cast card wins at the table. "Manako's Tea House" is a working name (`open-questions.json#manakos-tea-house-name`).

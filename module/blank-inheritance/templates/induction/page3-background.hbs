@@ -123,6 +123,24 @@
                 {{/each}}
             </div>
 
+            {{#if selected.hasChoices}}
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page3.ChoiceTitle"}}</h2>
+            <div class="bi-induction__slots">
+                {{#each selected.choiceGroups}}
+                <div class="bi-induction__slot">
+                    <span class="bi-induction__slot-hint">{{#if this.isSkill}}{{localize "BLANKINHERITANCE.Induction.Page3.ChoiceSkill"}}{{else}}{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}{{/if}}</span>
+                    <div class="bi-induction__options">
+                        {{#each this.options}}
+                        <button type="button" class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                data-action="pickBackgroundChoice" data-flag="{{this.flag}}" data-key="{{this.key}}"
+                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+
             <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GrantsTitle"}}</h2>
             {{#if selected.hasNamedSkills}}
             {{#if selected.hasTrainedSkills}}
@@ -140,7 +158,7 @@
             </div>
             {{/if}}
             {{else}}
-            <p class="bi-induction__no-flaw">{{localize "BLANKINHERITANCE.Induction.Page3.SkillsSeeDescription"}}</p>
+            {{#unless selected.hasChoices}}<p class="bi-induction__no-flaw">{{localize "BLANKINHERITANCE.Induction.Page3.SkillsSeeDescription"}}</p>{{/unless}}
             {{/if}}
             {{#if selected.feat}}
             <div class="bi-form-row">

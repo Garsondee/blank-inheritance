@@ -5,7 +5,7 @@
   "version": 7,
   "versionDate": "2026-10-04",
   "description": "The checklist the Sign-Off runs a scene against, as data rather than prose, so that adding a check is a recorded act with a version bump behind it. A scene's seal records the version it cleared; when this file's version rises, every scene sealed under an older one becomes STALE against the specific checks it never faced, and re-clearing it is a targeted look at those checks alone rather than a fresh review. design/scene-signoff.md is the procedure; this is its content.",
-  "notes": "Written 2026-09-22 from Ingram's brief. Every check is phrased as a question with one right answer, because a check phrased as a topic ('consider pacing') cannot be cleared and so never is. `auto` names the evaluator in tools/scene-signoff/checklist.mjs for the mechanically decidable subset -- roughly a third; the rest are read by hand and answered in the pass output. A check with auto:null is not softer, it is only unmechanisable. v2, same day, from the first dry run (The Road In): P4 was asking two questions and verifying one, M5 passed vacuously on an empty cast, recommended checks ignored an exemption the author had already written into the scene's own notes, and nothing asked whether the beat structure describes what will actually happen. Plus the consequence radar (M23/M24/Q17), Ingram's own addition. Applicability added the same day, after the second dry run found that 7 of 63 checks cannot be answered for a six-spotlight montage with no NPCs -- and that a manual check had no way to say so, leaving a reviewer to invent an answer or silently skip it, the latter being indistinguishable from forgetting. `appliesWhenAuto` decides the structural cases; a per-scene `notApplicable` entry on the review record handles the rest. No version bump: narrowing when a check applies cannot make an already-sealed scene wrong. v3, same day, from Ingram's answers to the first report's three questions: long-horizon payoffs are suspect until reviewed against their source (M27), the Place pass writes back into the location file rather than only reading it (P11/P12), and any location a scene touches owes real depth (P6, raised to required). v4, same day: the Seam pass. Ingram noticed that nothing in the process compared a scene to the one it leads into -- specifically whether both ends have valid positions for the whole party, who travels together, and who splits up. Four passes became five, and it is the first pass whose subject is a JOIN rather than a scene. v5, same day: the Seam pass reworked from togetherness to COORDINATES after Ingram corrected a miscommunication -- every scene edge owes a real locationRef, because that is what the runner's automatic cut to the world map fires on. S11 added to check the cut actually happens. v6, 2026-09-24: Q18, contamination. Ingram, settling N20 (LEDGER #34): \"We can store files where ever we like, but we must make sure our scenes never contaminate with information which the players shouldn't know yet.\" Q7 asks whether a deliberate disclosure is right; Q18 asks whether anything reached the table that nobody meant to disclose. v7, 2026-10-04: M28 and M29, objectives (design/objectives.md, D057). Every objective is given by someone in the world, in their own words; a scene that gives one is where that rule is kept or broken at the table.",
+  "notes": "Written 2026-09-22 from Ingram's brief. Every check is phrased as a question with one right answer, because a check phrased as a topic ('consider pacing') cannot be cleared and so never is. `auto` names the evaluator in tools/scene-signoff/checklist.mjs for the mechanically decidable subset -- roughly a third; the rest are read by hand and answered in the pass output. A check with auto:null is not softer, it is only unmechanisable. v2, same day, from the first dry run (The Road In): P4 was asking two questions and verifying one, M5 passed vacuously on an empty cast, recommended checks ignored an exemption the author had already written into the scene's own notes, and nothing asked whether the beat structure describes what will actually happen. Plus the consequence radar (M23/M24/Q17), Ingram's own addition. Applicability added the same day, after the second dry run found that 7 of 63 checks cannot be answered for a six-spotlight montage with no NPCs -- and that a manual check had no way to say so, leaving a reviewer to invent an answer or silently skip it, the latter being indistinguishable from forgetting. `appliesWhenAuto` decides the structural cases; a per-scene `notApplicable` entry on the review record handles the rest. No version bump: narrowing when a check applies cannot make an already-sealed scene wrong. v3, same day, from Ingram's answers to the first report's three questions: long-horizon payoffs are suspect until reviewed against their source (M27), the Place pass writes back into the location file rather than only reading it (P11/P12), and any location a scene touches owes real depth (P6, raised to required). v4, same day: the Seam pass. Ingram noticed that nothing in the process compared a scene to the one it leads into -- specifically whether both ends have valid positions for the whole party, who travels together, and who splits up. Four passes became five, and it is the first pass whose subject is a JOIN rather than a scene. v5, same day: the Seam pass reworked from togetherness to COORDINATES after Ingram corrected a miscommunication -- every scene edge owes a real locationRef, because that is what the runner's automatic cut to the world map fires on. S11 added to check the cut actually happens. v6, 2026-09-24: Q18, contamination. Ingram, settling N20 (LEDGER #34): \"We can store files where ever we like, but we must make sure our scenes never contaminate with information which the players shouldn't know yet.\" Q7 asks whether a deliberate disclosure is right; Q18 asks whether anything reached the table that nobody meant to disclose. v7, 2026-10-04: M28 and M29, objectives (design/objectives.md, D057). Every objective is given by someone in the world, in their own words; a scene that gives one is where that rule is kept or broken at the table. 2026-10-07 (no version bump: nothing newly required; D065, from Ingram's grading of the first episode confidence run): M2 and M10 read the opening from the first beat when that beat is the speech, and M2 no longer asks for firstThing, which the house style folds into readAloud (R27); M6 and M8 honour a check's anySkill; M13 asks for a twist rather than a line to say to a table that is not biting; a scene may declare exceptions (check id and reason), shown as state excepted, and an invalid one fails X1. 2026-10-07 (no version bump: nothing newly required; D079, the timeline is the gold standard and the node registry is frozen): M7, M23 and M26 now ask for a canon fact (a beat's facts or gmFacts) where they asked for a Node, a nodeRef still counts for the old drafts, the consequence radar's long horizon reads the facts a beat's GM notes rely on, and M7 also checks that every canon fact a beat cites exists and is not cut.",
   "passes": [
     {
       "id": "comprehension",
@@ -186,8 +186,8 @@
       "pass": "completeness",
       "severity": "required",
       "auto": "introFields",
-      "question": "Does intro carry where, firstThing and readAloud?",
-      "why": "A scene with no authored first thing starts with the GM thinking.",
+      "question": "Does the intro say where the party is, and does the scene open on words to say aloud (intro.readAloud, or the first beat's readAloud)?",
+      "why": "A scene with no authored opening starts with the GM thinking.",
       "source": "data/schema/scene-brief.schema.json"
     },
     {
@@ -231,7 +231,7 @@
       "pass": "completeness",
       "severity": "required",
       "auto": "refsResolve",
-      "question": "Does every reference resolve -- npcRef, challengeRef, encounterRef, subsystemRef, locationRef, nodeRefs, artefactRefs?",
+      "question": "Does every reference resolve -- npcRef, challengeRef, encounterRef, subsystemRef, locationRef, and every canon fact the beats cite?",
       "why": "A broken ref is a scene that half-exists, and it is invisible until the night it is run.",
       "source": "design/node-registry.md"
     },
@@ -285,9 +285,9 @@
       "pass": "completeness",
       "severity": "required",
       "auto": "temptations",
-      "question": "Is there at least one temptation -- a line ready to say when nobody is biting?",
-      "why": "A scene needs something to offer a quiet table that is not the GM asking 'so what do you do?'",
-      "source": "design/scene-triggers-and-depth.md §3"
+      "question": "Is there at least one twist -- something the GM can pick up to enliven the scene, make it more interesting or add flavour and life, without breaking the scene's objective?",
+      "why": "A scene needs something to evolve it that is not the GM asking 'so what do you do?'. Ingram, 2026-10-06 and 2026-10-07: temptations should be something she can pick up to enliven a scene, not lines to say to a table that is not biting.",
+      "source": "canon/decisions/D065.md, D066.md; design/scene-triggers-and-depth.md §3"
     },
     {
       "id": "M14",
@@ -375,8 +375,8 @@
       "pass": "completeness",
       "severity": "required",
       "auto": "longPlantsHaveNodes",
-      "question": "Is any specific long-horizon fact -- a payoff chapter, a numbered Ledger entry -- asserted in this file's prose instead of on a Node?",
-      "why": "A chapter number or a Ledger entry number written into a beat is a second copy of the Node's own identity, and copies drift. Not hypothetical: The Road In's beat claimed 'pays off Ch5' while the Ledger's payoff column had been cleared -- found live 2026-09-19, design/node-registry.md §11 Bug A. Generic plant language with no Node is the softer M26, because that is an authoring decision rather than a duplicated fact.",
+      "question": "Is any specific long-horizon fact -- a payoff chapter, a numbered Ledger entry -- asserted in this file's prose instead of in a canon fact?",
+      "why": "A chapter number or a Ledger entry number written into a beat is a second copy of what the canon fact holds (told, payoff), and copies drift. Not hypothetical: The Road In's beat claimed 'pays off Ch5' while the Ledger's payoff column had been cleared -- found live 2026-09-19, design/node-registry.md §11 Bug A. Generic plant language with no canon fact is the softer M26, because that is an authoring decision rather than a duplicated fact.",
       "source": "design/node-registry.md; Ingram's consequence radar, 2026-09-22",
       "addedIn": 2,
       "addedBecause": "The first dry run's radar pass: 20 long-horizon plants across 13 scenes, and the one prose/Node collision this project has actually had was exactly this shape."
@@ -408,8 +408,8 @@
       "pass": "completeness",
       "severity": "recommended",
       "auto": "plantsWithoutNodes",
-      "question": "Does every beat that plants something long-horizon point at a Node to hold it?",
-      "why": "A plant with no Node has no status, no backlinks and no record that it is still open -- which is how a payoff gets forgotten or paid off twice. Recommended rather than required because a newly written plant legitimately may not have earned a Node yet; M23 holds the hard line for facts that are already specific.",
+      "question": "Does every beat that plants something long-horizon cite the canon fact that holds it?",
+      "why": "A plant with no canon fact has no status, no payoff link and no record that it is still open -- which is how a payoff gets forgotten or paid off twice. Recommended rather than required because a newly written plant legitimately may not have earned a canon fact yet; M23 holds the hard line for facts that are already specific.",
       "source": "design/node-registry.md; Ingram's consequence radar, 2026-09-22",
       "addedIn": 2,
       "addedBecause": "The first run of M23 conflated two faults: 17 findings, of which some were numbered Ledger references duplicated into prose (a real error) and some were generic 'PLANT' labels (a prompt at most). Two findings in that run were outright false positives -- 'not a planted clue' and 'Nothing in this scene foreshadows anything' -- which is what forced the negation guard."

@@ -201,6 +201,24 @@
     }
   },
   "carryForward": [],
+  "exceptions": [
+    {
+      "check": "M5",
+      "why": "The opening scene is one speech to the whole table; nobody in the fiction is there to talk to, so it has no cast."
+    },
+    {
+      "check": "M8",
+      "why": "The opening scene is a speech with no rolls (D048), so there is no skill to vary."
+    },
+    {
+      "check": "M11",
+      "why": "Nothing is decided at the table in a speech, so there is nothing for the GM to write down when it closes."
+    },
+    {
+      "check": "M13",
+      "why": "A speech to the whole table cannot mutate; its twists would only break it (D065)."
+    }
+  ],
   "temptations": [],
   "reactionPrompts": [
     {

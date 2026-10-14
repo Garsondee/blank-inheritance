@@ -188,8 +188,23 @@ reviews/*.html
 # The Casebook build output (tools/casebook/build.mjs); the source is tools/casebook/ and canon/
 tools/casebook/out/
 
+# The plot timeline's read-only copy for claude.ai (npm run timeline -- export); the source is canon/
+tools/timeline/out/
+# Which saves the timeline made and which of them this checkout's Claude has been told about (tools/story/timeline-state.mjs)
+tools/timeline/.state/
+harvest/timeline/.merge.lock
+
 # Stagecraft lab screenshots: they show Ingram's portrait and place art, which is never committed.
 /design/stagecraft/lab/shots/
 
 # Stagecraft: the dev build's source map is for working only; the shipped bundle (dist/stagecraft.js) is committed
 /module/stagecraft/dist/*.map
+
+# The playtest rig (design/playtest-process.md, tools/playtest/): its own Foundry data root (a deploy of the working tree, a copy of
+# the system, about 2 GB of media, the playtest world), every run's evidence, and the world snapshots. All regenerable (pt build).
+/tools/playtest/foundry-data/
+/tools/playtest/runs/
+/tools/playtest/snapshots/
+/tools/playtest/.state/
+# The auto-sync watcher's own lock, state and log (tools/module-sync/autosync.mjs).
+/tools/module-sync/.autosync/

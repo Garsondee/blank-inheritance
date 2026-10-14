@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tools/episode-confidence/finding.schema.json",
+  "title": "A desk reviewer's file (episode confidence run, design/playtest-process.md section 13)",
+  "description": "What one reviewer agent writes to <run dir>/desk/<reviewer>.json. collect.mjs normalises it (core/findings.mjs#normalizeFinding) and drops any finding whose quote is not found verbatim in its cited file.",
+  "type": "object",
+  "required": ["reviewer", "model", "scenes", "findings"],
+  "properties": {
+    "reviewer": { "type": "string", "description": "scene-reader-1 .. scene-reader-4, arc-reader, rules-referee" },
+    "model": { "type": "string", "description": "the model the agent ran on: opus or sonnet" },
+    "scenes": { "type": "array", "items": { "type": "string" }, "description": "the brief ids this reviewer read" },
+    "verdicts": {
+      "type": "object",
+      "description": "per brief id: would you run this scene tonight?",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["verdict", "why"],
+        "properties": {
+          "verdict": { "enum": ["ready", "close", "not-ready"] },
+          "why": { "type": "string", "maxLength": 400 }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene", "kind", "severity", "summary", "quote", "file", "proposal"],
+        "properties": {
+          "scene": { "type": ["string", "null"], "description": "brief id, or null for the whole episode" },
+          "beat": { "type": ["string", "null"] },
+          "lens": { "enum": ["gm-cold", "player-fresh", "arc", "rules", "craft"] },
+          "kind": { "enum": ["bug", "content", "rules", "continuity", "craft"] },
+          "severity": { "enum": ["S0", "S1", "S2", "S3"], "description": "S0 stops the session; S1 a GM would stall or a player would be lost; S2 noticeably weaker; S3 polish" },
+          "summary": { "type": "string", "maxLength": 300 },
+          "quote": { "type": "string", "minLength": 8, "description": "the exact words you mean, copied from the file (not paraphrased)" },
+          "file": { "type": "string", "description": "repo-relative path the quote is copied from" },
+          "expected": { "type": "string" },
+          "actual": { "type": "string" },
+          "proposal": {
+            "type": "object",
+            "required": ["type", "text"],
+            "properties": {
+              "type": { "enum": ["fix", "question"], "description": "fix: a concrete change anyone could make; question: it touches meaning, reveal timing or character, so it is Ingram's call" },
+              "text": { "type": "string", "maxLength": 500 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

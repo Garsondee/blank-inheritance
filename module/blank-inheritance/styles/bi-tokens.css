@@ -402,14 +402,20 @@
      with the sidebar collapsed and about 4% of scale with it open — and they
      all went to the two silver shoulders (+78 each), which is where the
      cropped pills and the two-line log lived. */
-  --bi-deck-width: 1600px;
+  /* Widened again, 1600 -> 1664, on 2026-10-05 (D063, Ingram: "Skill roll
+     buttons could do with having a wider ratio, a plate to show the text
+     on"): all 64 went to the two black key banks (+32 each), so each skill
+     key's nameplate holds the longest name with room to spare. Height-bound
+     at 16:9 with the sidebar collapsed, so it costs nothing there, and about
+     4% of scale where the panel is width-bound. */
+  --bi-deck-width: 1664px;
   --bi-deck-height: 196px;     /* the faceplate, top trim included        */
   --bi-deck-crown: 120px;      /* how far the instrument's collar rises —
                                   collar minus crown leaves the orb's foot
                                   6px inside the faceplate, never past it  */
   --bi-deck-cheek: 24px;       /* the black end cheeks, each side         */
   --bi-deck-outer: 285px;      /* silver shoulder modules                 */
-  --bi-deck-inner: 272px;      /* black key-bank modules                  */
+  --bi-deck-inner: 304px;      /* black key-bank modules                  */
   --bi-deck-spine: 438px;      /* the silver spine carrying the orb       */
   --bi-orb-collar: 310px;      /* the machined silver disc around the orb */
   --bi-orb-bezel: 282px;       /* the black ring the day/action arcs sit in */
@@ -501,30 +507,50 @@
      All inline SVG, same reasoning as the grains above: no request, and the
      material scales with the panel. Every seed is fixed, so the table sees
      the same machine every evening.
+
+     THIRD PASS (2026-10-05). Ingram: "the white grime on a dark background
+     needs to be more subtle. Dealer's choice, improve the grime." On the
+     black cells it read as smoke: grey clouds twenty-odd levels of brightness
+     over the black, and white specks like stars. On silver, round coffee
+     blotches at up to half strength. Measured at her 150% scaling on clean
+     swatches of each surface (tools/ui-grime/measure.mjs): a black cell's
+     cloudiness went from 8.2 to 2.9 and its brightest speck from 14 levels
+     above its surroundings to 4; a silver shoulder's cloudiness from 10.0 to
+     8.2, its own top-to-bottom shading included. The rule now: a dark
+     surface carries a dust film and a few motes, never a light stain; silver
+     tarnishes along its brushing; and the visible dirt is PLACED per module
+     in bi-components.css and bi-check.css (lips, lower corners, seams, where
+     a thumb lands), with the face between left cleaner.
+     test/tier0-grime-budget.test.mjs holds every texture to its budget.
      --------------------------------------------------------------- */
 
-  /* Broad staining: a very low-frequency field, mapped to a warm grey-brown
-     with soft edges — the patina a painted panel takes on over years of
-     handling and hangar air. Low contrast on purpose; it should be seen as
-     "this metal is uneven", never as a pattern. */
-  --bi-wear-stain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='320'><filter id='s' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.009 0.015' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.2  0 0 0 0 0.14  0 0 0 1.3 -0.56'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
-  --bi-wear-stain-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='320'><filter id='s' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.009 0.015' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.78  0 0 0 0 0.74  0 0 0 0 0.66  0 0 0 0.6 -0.28'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+  /* Tarnish: a low-frequency field stretched ALONG the brushing (low across,
+     higher down), mapped to a warm grey-brown — the patina brushed metal
+     takes on as it is wiped the same way for years. Low contrast on purpose;
+     it should be seen as "this metal is uneven", never as a pattern.
+     The -light one is no stain at all: a dust film for dark surfaces, the
+     same broad field with finer octaves at a few levels of brightness, the
+     matte unevenness of old plastic. */
+  --bi-wear-stain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='320'><filter id='s' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.0047 0.022' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3  0 0 0 0 0.25  0 0 0 0 0.18  0 0 0 0.6 -0.27'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+  --bi-wear-stain-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='320'><filter id='s' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.011 0.016' numOctaves='5' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.72  0 0 0 0 0.7  0 0 0 0 0.65  0 0 0 0.11 -0.045'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
 
   /* Clustered grime: soft specks (blurred, several pixels across) that are
      only allowed to appear where a second, coarse field says dirt has
      collected — the `in` composite is the whole trick. The result reads as
      grubby patches with clean metal between them, not an even sprinkle.
      A third, sparser field adds the odd larger blot (a dried drip, a
-     thumbprint of oil). */
-  --bi-wear-grime: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.3' numOctaves='2' seed='21' stitchTiles='stitch' result='f'/><feColorMatrix in='f' values='0 0 0 0 0.13  0 0 0 0 0.11  0 0 0 0 0.08  0 0 0 11 -7.3' result='d'/><feGaussianBlur in='d' stdDeviation='0.55' result='db'/><feTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='2' seed='5' stitchTiles='stitch' result='c'/><feColorMatrix in='c' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 7 -3.2' result='k'/><feComposite in='db' in2='k' operator='in' result='cl'/><feTurbulence type='fractalNoise' baseFrequency='0.07' numOctaves='2' seed='13' stitchTiles='stitch' result='b'/><feColorMatrix in='b' values='0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0 0.09  0 0 0 16 -11.6' result='bl'/><feGaussianBlur in='bl' stdDeviation='1.1' result='blb'/><feMerge><feMergeNode in='blb'/><feMergeNode in='cl'/></feMerge></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.34'/></svg>");
-  --bi-wear-grime-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.3' numOctaves='2' seed='21' stitchTiles='stitch' result='f'/><feColorMatrix in='f' values='0 0 0 0 0.86  0 0 0 0 0.83  0 0 0 0 0.76  0 0 0 11 -7.3' result='d'/><feGaussianBlur in='d' stdDeviation='0.55' result='db'/><feTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='2' seed='5' stitchTiles='stitch' result='c'/><feColorMatrix in='c' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 7 -3.2' result='k'/><feComposite in='db' in2='k' operator='in' result='cl'/><feTurbulence type='fractalNoise' baseFrequency='0.07' numOctaves='2' seed='13' stitchTiles='stitch' result='b'/><feColorMatrix in='b' values='0 0 0 0 0.8  0 0 0 0 0.77  0 0 0 0 0.7  0 0 0 16 -11.6' result='bl'/><feGaussianBlur in='bl' stdDeviation='1.1' result='blb'/><feMerge><feMergeNode in='blb'/><feMergeNode in='cl'/></feMerge></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.1'/></svg>");
+     thumbprint of oil). The -light one, for dark surfaces, keeps the motes
+     and drops the blots: a white blot on black reads as a fleck of paint. */
+  --bi-wear-grime: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.3' numOctaves='2' seed='21' stitchTiles='stitch' result='f'/><feColorMatrix in='f' values='0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0 0.09  0 0 0 11 -7.6' result='d'/><feGaussianBlur in='d' stdDeviation='0.45' result='db'/><feTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='2' seed='5' stitchTiles='stitch' result='c'/><feColorMatrix in='c' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 7 -3.5' result='k'/><feComposite in='db' in2='k' operator='in' result='cl'/><feTurbulence type='fractalNoise' baseFrequency='0.07' numOctaves='2' seed='13' stitchTiles='stitch' result='b'/><feColorMatrix in='b' values='0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0 0.11  0 0 0 16 -12.2' result='bl'/><feGaussianBlur in='bl' stdDeviation='1.4' result='blb'/><feMerge><feMergeNode in='blb'/><feMergeNode in='cl'/></feMerge></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.24'/></svg>");
+  --bi-wear-grime-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.3' numOctaves='2' seed='21' stitchTiles='stitch' result='f'/><feColorMatrix in='f' values='0 0 0 0 0.8  0 0 0 0 0.78  0 0 0 0 0.72  0 0 0 11 -7.7' result='d'/><feGaussianBlur in='d' stdDeviation='0.4' result='db'/><feTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='2' seed='5' stitchTiles='stitch' result='c'/><feColorMatrix in='c' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 7 -3.5' result='k'/><feComposite in='db' in2='k' operator='in'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.055'/></svg>");
 
   /* Scratches, drawn by hand rather than generated — noise cannot make a
      straight line. Mostly short hairlines running WITH the brushed grain
-     (bright: they catch the light), a few darker gouges ACROSS it, and two
-     swirled scuffs where something was dragged over the panel. One fixed
-     tile, deliberately wide, so the repeat is not findable at a glance. */
-  --bi-wear-scratch: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='280'><g fill='none' stroke-linecap='round'><g stroke='%23fff' stroke-opacity='0.34' stroke-width='0.6'><path d='M14 38 L101 33'/><path d='M150 84 q42 -4 91 -10'/><path d='M306 24 L378 27'/><path d='M420 58 L521 52'/><path d='M60 150 L118 148'/><path d='M232 190 L341 183'/><path d='M396 214 L452 216'/><path d='M22 236 L90 229'/><path d='M478 132 L548 128'/><path d='M180 252 L236 250'/><path d='M338 110 L372 108'/><path d='M96 96 L132 94'/></g><g stroke='%23fff' stroke-opacity='0.2' stroke-width='0.45'><path d='M120 40 L180 37'/><path d='M260 64 L300 63'/><path d='M452 90 L487 88'/><path d='M8 118 L48 116'/><path d='M280 150 L320 148'/><path d='M500 250 L552 246'/><path d='M140 206 L176 205'/></g><g stroke='%23231d15' stroke-opacity='0.2' stroke-width='0.7'><path d='M204 30 L226 74'/><path d='M438 160 L470 176'/><path d='M70 196 L84 238'/><path d='M358 234 L396 222'/><path d='M532 16 L548 40'/></g><g stroke='%23231d15' stroke-opacity='0.1' stroke-width='1.4'><path d='M250 118 c18 -10 44 -8 58 6 c10 10 4 22 -12 24'/><path d='M40 60 c10 8 30 10 44 2'/></g></g></svg>");
+     (bright: they catch the light) and a few short darker gouges ACROSS it.
+     One fixed tile, deliberately wide, so the repeat is not findable at a
+     glance. Two swirled scuffs were taken out on 2026-10-05: at any strength
+     they read as a pencil doodle, not wear. */
+  --bi-wear-scratch: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='280'><g fill='none' stroke-linecap='round'><g stroke='%23fff' stroke-opacity='0.28' stroke-width='0.55'><path d='M14 38 L101 33'/><path d='M150 84 q42 -4 91 -10'/><path d='M306 24 L378 27'/><path d='M420 58 L521 52'/><path d='M60 150 L118 148'/><path d='M232 190 L341 183'/><path d='M396 214 L452 216'/><path d='M22 236 L90 229'/><path d='M478 132 L548 128'/><path d='M180 252 L236 250'/><path d='M338 110 L372 108'/><path d='M96 96 L132 94'/></g><g stroke='%23fff' stroke-opacity='0.16' stroke-width='0.45'><path d='M120 40 L180 37'/><path d='M260 64 L300 63'/><path d='M452 90 L487 88'/><path d='M8 118 L48 116'/><path d='M280 150 L320 148'/><path d='M500 250 L552 246'/><path d='M140 206 L176 205'/></g><g stroke='%23231d15' stroke-opacity='0.13' stroke-width='0.6'><path d='M204 30 L214 50'/><path d='M438 160 L456 169'/><path d='M70 196 L76 214'/><path d='M358 234 L378 228'/></g></g></svg>");
 
   /* A countersunk slotted screw, two slot angles so a row of them never looks
      stamped. The dark ring is the countersink's shadow; a faint brown bloom
@@ -535,6 +561,22 @@
   /* The north star's vent hatch ("////////" under its Chorus and Phaser
      cells): diagonal slots cut through the panel, lit from above. */
   --bi-vent-hatch: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='76' height='8'><g stroke-linecap='round'><g stroke='%23000' stroke-opacity='0.9' stroke-width='2.2'><path d='M3 7 L6 1'/><path d='M11 7 L14 1'/><path d='M19 7 L22 1'/><path d='M27 7 L30 1'/><path d='M35 7 L38 1'/><path d='M43 7 L46 1'/><path d='M51 7 L54 1'/><path d='M59 7 L62 1'/><path d='M67 7 L70 1'/></g><g stroke='%23fff' stroke-opacity='0.16' stroke-width='0.7'><path d='M4.6 7.4 L7.6 1.4'/><path d='M12.6 7.4 L15.6 1.4'/><path d='M20.6 7.4 L23.6 1.4'/><path d='M28.6 7.4 L31.6 1.4'/><path d='M36.6 7.4 L39.6 1.4'/><path d='M44.6 7.4 L47.6 1.4'/><path d='M52.6 7.4 L55.6 1.4'/><path d='M60.6 7.4 L63.6 1.4'/><path d='M68.6 7.4 L71.6 1.4'/></g></g></svg>");
+
+  /* ---------------------------------------------------------------
+     7a-iii. ATTRIBUTE COLOURS (D063, 2026-10-05)
+     The six attributes as muted service paints, one each, for the deck's
+     skill keys (a grip tab, and a wash on the nameplate at under a third
+     strength) and the swatches that name the banks' sections. Ingram asked
+     for it "in a subtle way": every one is mid-tone and greyed, which keeps
+     them apart from the deck's one warm accent (the VU orange of hover and
+     firing) and from the check console's bright result lights.
+     --------------------------------------------------------------- */
+  --bi-attr-str: #a8563f;   /* oxide red     Strength     */
+  --bi-attr-dex: #6b9550;   /* field green   Dexterity    */
+  --bi-attr-con: #a08758;   /* khaki         Constitution */
+  --bi-attr-int: #5381b3;   /* steel blue    Intelligence */
+  --bi-attr-wis: #3f968a;   /* sea green     Wisdom       */
+  --bi-attr-cha: #95618f;   /* heather plum  Charisma     */
 
   /* ---------------------------------------------------------------
      7b. RUNTIME-DRIVEN

@@ -108,3 +108,16 @@ Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingr
 - **R15, R21.** Both added sentences are full sentences, read aloud at the end of the crossing.
 - **Objective chips.** Wearing the waders never ticks itself when the beat is marked done (`auto: false`): some won't wear them. Drawing them, reaching Dock C and the three jobs do.
 - **Carry-in.** "If anyone arrived by ferry" now names who, from The Road In's arrivals.
+
+## Revision 2026-10-07: Ingram's grading of the first episode confidence run (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **R4.** Still no rolls, on purpose: a relax beat before the fight. The scene's `exceptions` now says so for M8.
+- **R19 (twists, D065).** The scene had no temptations. It now has three twists, each a way the scene might mutate without
+  breaking its job (reach the hatch, hear the job): the biggest waders will not climb the launch's ladder; the launch idles
+  halfway across with the old town dark ahead; Taka presses one small thing into someone's hand at the door.
+- **R13, R12.** None of the three states a fact. The idle launch does not explain itself and does not point at the side street,
+  so the crossing's secret is untouched.
+- **R3.** No history, no tool names in any of the three.
+- **For Ingram.** The twists are Claude's first attempt at what she asked for; rewrite or cut any of them.

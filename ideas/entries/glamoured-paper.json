@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "glamoured-paper",
+  "type": "idea",
+  "title": "Glamoured paper: a document every player reads differently, whose differences are the secret",
+  "status": "accepted",
+  "domains": [
+    "narrative",
+    "mechanics",
+    "ui",
+    "worldbuilding",
+    "puzzle-design"
+  ],
+  "summary": "Some handouts deliberately give each player their own variant of the text; the players believe they are all reading one document, and the hidden message only appears when they notice their copies differ and lay them side by side.",
+  "description": "Ingram, 2026-10-05: \"A fun idea, glamoured paper. You generate a document, you also generate a version of the text per player. The idea is that hidden messages are in there but only readable when players notice that they are all looking at different versions of the same thing. So we make some documents deliberately work like that, players think it's one document they are accessing, but actually each get their own copy and each copy has differences which when all put together become a secret message.\" She asked for it to be remembered as something she wants to do eventually.\n\n**The shape of it.** One authored document, N rendered variants (one per player). Each variant is a plausible, complete document on its own, so nobody has a reason to suspect anything. The message lives in the differences between variants, so no single player can read it and the table has to compare. The reveal is the players' own act of noticing, which is the whole point.\n\n**What already exists that this can stand on.** design/handouts.md: a handout with `personal: true` already gives each player a private copy in the Papers folder with their character's name typed in, so per-player copies, per-player ownership and the single filer (scripts/core/handouts.mjs plans, scripts/foundry/handouts.mjs carries it out) are built. This idea is a variant generator that sits in front of that (what text does each player's copy hold) rather than a new delivery route. core/redact.mjs is the sibling mechanism (the same document at several clearances); this is the same document at several readers.\n\n**Real-world cousin, for honesty about originality.** Distributing slightly different copies of a document so a leak can be traced to its recipient is a canary trap (also called a barium meal). The novel part here is turning it inside out: the players are the recipients, and the differences are a puzzle for them to assemble instead of a way to catch a leaker. That reversal is the idea, and it should be easy to justify in the fiction (a Directorate habit of marking every issued copy, glamoured stationery in the setting's own terms, or the Watcher's own signature).\n\n**Theme fit, noted rather than decided.** The campaign's themes are mass surveillance and runaway agentic systems, and the Directorate already censors what it gives pilots (redacted-document-chain). Per-reader versions are the surveillance technique pointed at its own targets: the institution marks each copy to know who read what, and the pilots turn the marking into a message. Whether the Watcher or someone else is the author of the hidden message is left open.\n\n**Design cautions to keep in mind when it is built.** (1) Every variant must read as ordinary and complete alone; if one copy looks broken, the trick is spoiled. (2) The message must not depend on colour, font or layout alone, so it works through screen readers and for colour-blind players. (3) Foundry ownership does not hide data from a player's browser (GitHub #212), which is fine here because the intended reveal is the players comparing, but it means a determined player can see other copies, so the puzzle should not be treated as secure. (4) Some tables will compare screens and some will read aloud, so the differences should survive being read out, not only being seen. (5) Handouts must still pass test/tier3-handouts-contract.test.mjs, since Foundry strips unknown tags, so any authoring tag for variants has to be rendered to plain text first, as the existing campaign tags are.",
+  "capturedDate": "2026-10-05",
+  "lastTouchedDate": "2026-10-05",
+  "sourceContext": "Ingram's message, 2026-10-05: 'A fun idea, glamoured paper...' followed by 'Remember this as something I want to do eventually.' Status set accepted because she said she wants to do it; nothing is scheduled.",
+  "openSubQuestions": [
+    "How the message is encoded across variants (a word or phrase each copy carries, words that differ at fixed positions, a different missing line per copy, a message that only reads when copies are ordered). Not decided, and it determines how many players it needs and whether it survives a player being absent.",
+    "How many players must be present and compare for the message to resolve, and what happens when someone is away that session. Six variants are generated; whether the message needs all six or degrades gracefully is open.",
+    "How the table is nudged to notice, if at all. Options run from nothing (pure observation) to an in-fiction hint such as an NPC remarking that the paper is 'odd'. Ingram described it as players noticing for themselves.",
+    "The in-fiction explanation for why copies differ ('glamoured' is her word for it), and whether that explanation is ever given.",
+    "Where it first appears, and which documents work this way. Her words were 'some documents', so it is a rare tool, not a house style. Nothing in Episode One is assigned.",
+    "Authoring surface: a tag in the handout's source text marking the variant spots, or a separate per-player text table beside the handout. Needs to fit handouts.md's single-filer design.",
+    "Whether a variant is stable once issued (the same player always has the same copy) or the document can reshuffle between sessions."
+  ],
+  "relatedRefs": [
+    "redacted-document-chain",
+    "party-notebook",
+    "watcher-reads-all-comms",
+    "design/handouts.md",
+    "design/campaign-arc.md",
+    "module/blank-inheritance/scripts/core/handouts.mjs",
+    "module/blank-inheritance/scripts/core/redact.mjs",
+    "test/tier3-handouts-contract.test.mjs"
+  ],
+  "resolution": null
+}

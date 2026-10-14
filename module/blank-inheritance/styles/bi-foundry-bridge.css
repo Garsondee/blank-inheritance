@@ -388,6 +388,29 @@ body.bi-theme:has(#bi-command-bar.bi-deck) #action-bar .slot:nth-child(5) {
   margin-right: calc(var(--bi-orb-collar) * var(--bi-deck-scale));
 }
 
+/* The rampart is ONE row at every screen size. Foundry's own hotbar goes
+   "compact" at 1488px and under (hotbar.mjs#_onResize adds .sm, and .md.offset
+   beside a camera dock; .compact is the same layout asked for by name): two
+   rows of five slots in a bar held to 332px, which is how it fits a narrow
+   screen when nothing else shares the row. Here the fifth slot carries the
+   orb-sized gap above, so in a 332px bar it fell onto a row of its own, the
+   right flank under it, and a row of empty slots lay across the deck's
+   Perception key at 1366 x 768: pressing it pressed the slot. Found by the
+   playtest rig's covered-control detector on its laptop-sized seat, 2026-10-06
+   (design/playtest-process.md section 12.5, F-0014); a stock Foundry bar has
+   nothing to collide with, so only the deck's own layout needs this. The bar
+   keeps its own width (max-content) and never wraps; verified one row, and no
+   slot over a deck control, from 2560 x 1271 down to 1024 x 768. */
+body.bi-theme:has(#bi-command-bar.bi-deck) #hotbar.compact,
+body.bi-theme:has(#bi-command-bar.bi-deck) #hotbar.md.offset,
+body.bi-theme:has(#bi-command-bar.bi-deck) #hotbar.sm {
+  height: var(--hotbar-size);
+}
+body.bi-theme:has(#bi-command-bar.bi-deck) #hotbar #action-bar {
+  width: auto;
+  flex-wrap: nowrap;
+}
+
 /* The deck owns the bottom band of the screen, edge to edge — so Foundry's
    furniture that lives at the foot of its two side columns stands ON TOP of
    the deck instead of the deck shrinking around it: the player roster (foot of

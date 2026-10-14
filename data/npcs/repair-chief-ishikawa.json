@@ -8,8 +8,8 @@
   "name": null,
   "role": "Repair Crew Chief, Ishikawa Susumu's Frame",
   "affiliation": "directorate",
+  "canon": null,
   "crewChiefForRef": "ishikawa-susumu",
-  "description": "One of six named heads of a pilot's own standing repair crew (campaign/config.json#frameEconomy.repairCrew), confirmed 2026-09-09. Currently a placeholder role, not a character -- Ingram's own framing: 'six lesser NPCs who may grow into bigger more interesting roles later.'",
   "designNotes": "As of 2026-09-09, repair crews also maintain Ishikawa's vehicle alongside the Frame, competing for the same technician-day allocation. Personality, name, and how they relate to Ishikawa specifically are all open.",
   "openQuestionRefs": [
     "repair-crew-relationship"

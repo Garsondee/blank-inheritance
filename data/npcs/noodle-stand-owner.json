@@ -9,7 +9,7 @@
   "role": "Runs the late stand by the harbour where off-duty Directorate staff end up",
   "pole": null,
   "affiliation": null,
-  "description": "Works a late stand by the harbour that stays open long after everything else has shut, which makes it where Directorate staff end up when they are off duty and do not want to be on the base. She has been doing it long enough that she knows most of them by face and none of them by rank.\n\nHOW SHE TALKS. Brisk while working, and she is always working. Gives the impression of only half-listening and misses nothing.\n\nWHY SHE MATTERS AT THE TABLE. She is not a source and she is not a hook. She is the proof that there is an outside -- a place within walking distance where nobody is anybody's section, where a trainee and a works manager queue in the same line. A party who finds her should be able to come back.\n\nWHAT SHE WILL NOT DO. Repeat anything. She hears a great deal and passes none of it on, which is precisely why the stand is where people go.",
+  "canon": "noodle-stand-owner",
   "designNotes": "Created 2026-09-21. Cast inline in `episode-c1e2--the-night-off` with no npcRef. Given a file because the stand is a place the party can return to and because she is the campaign's only civilian fixture the Directorate does not own.\n\nDo not make her an informant. The one thing that would ruin her is turning the stand into a place where the party farms overheard conversation.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

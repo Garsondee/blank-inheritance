@@ -10,7 +10,7 @@
   "pole": null,
   "ancestry": "Halfling",
   "affiliation": null,
-  "description": "A small, quick second-year candidate from Absalom, with a rakish grin, the uniform tunic hanging open over a mustard-yellow silk waistcoat, and a coin that walks across his knuckles while he thinks. He is the loudest thing at the table and he cheats, cheerfully and well, and he gets more generous the closer he is to doing it: the drinks are on him, the good seat is yours.\n\nHe wants to win, and to be the cleverest person in the room. What he would never say is that he would like to see Chiyo win a hand.",
+  "canon": "night-regulars.lucan",
   "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--card-game.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Halfling ('Halflings are small and plucky folk who took to the freedom of spacefaring with bravery and resilience.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: A cocky small young man in the slate tunic worn open over a mustard-yellow waistcoat, a coin in his raised fist: the sore thumb of the card table.\n\nVOICE NOTES: forced catchphrases in this regular's tics and sample lines were rewritten as habits and manner (tools/art-review/ledger.json has each before and after).\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 1, a candidate and cardsharp with strong Deception and Thievery, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

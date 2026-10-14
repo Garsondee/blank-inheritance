@@ -24,7 +24,7 @@
  * animated crossing; they always still get to the next scene.
  */
 
-import { planRoute } from "../core/travel-route.mjs";
+import { routerFor } from "../core/travel-route.mjs";
 import { travelLegsFor } from "../core/travel-trigger.mjs";
 import { sceneCalibration, toScenePoint } from "../core/travel-animation.mjs";
 import { hopPlan, totalDurationMs } from "../core/travel-speed.mjs";
@@ -62,7 +62,11 @@ const FADE_MS = 10000;
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let graphCache = null;
-async function loadTravelGraph() {
+/**
+ * The road/rail graph, fetched once. Exported (2026-10-06) so the Location Editor's journey preview plans its routes over the very same graph object, and so
+ * through the very same cached router (`routerFor`), as the tokens do: what it shows is what they will walk.
+ */
+export async function loadTravelGraph() {
   if (graphCache) return graphCache;
   try {
     graphCache = await fetchModuleJson(TRAVEL_GRAPH_PATH);
@@ -290,7 +294,7 @@ async function animateOnHub(legs) {
   for (const leg of legs) {
     const [from, to] = await Promise.all([locationCentroid(leg.from), locationCentroid(leg.to)]);
     if (!from || !to) continue;
-    const route = planRoute({ graph, start: from, end: to });
+    const route = routerFor(graph).plan({ start: from, end: to });
     const hops = hopPlan(route.segments, { wayClass: graph.wayClass ?? {} });
     if (hops.length === 0) continue;
     planned.push({ ...leg, startPoint: toScenePoint(from, calibration), endPoint: toScenePoint(to, calibration), hops });
@@ -361,7 +365,7 @@ export async function convergeTokensOnHub(moves) {
     if (!token) continue;
     const [from, to] = await Promise.all([locationCentroid(move.from), locationCentroid(move.to)]);
     if (!from || !to) continue;
-    const route = planRoute({ graph, start: from, end: to });
+    const route = routerFor(graph).plan({ start: from, end: to });
     const hops = hopPlan(route.segments, { wayClass: graph.wayClass ?? {} });
     if (hops.length === 0) continue;
     planned.push({ token, hops, startPoint: toScenePoint(from, calibration), endPoint: toScenePoint(to, calibration) });

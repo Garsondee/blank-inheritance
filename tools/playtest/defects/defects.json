@@ -1,0 +1,41 @@
+{
+  "_about": "The seeded defects of the shakedown (design/playtest-process.md, Phase 1): known bugs planted in the PLAYTEST COPY of the module (never the working tree) to find out whether the rig and its agents catch what they should. If they do not find these, their silence on the real run means nothing. Each is applied by exact find-and-replace (or an append) and refuses if its anchor is not there exactly once. `pt build` puts the copy back.",
+  "defects": [
+    {
+      "id": "plant-swallower",
+      "file": "scripts/blank-inheritance.mjs",
+      "append": "\n// PT-SEEDED-DEFECT plant-swallower\nHooks.once(\"ready\", () => { if (game.user?.isGM) return; const d = document.createElement(\"div\"); d.id = \"pt-plant-swallower\"; d.setAttribute(\"style\", \"position:fixed;left:0;bottom:0;width:18vw;height:22vh;z-index:99998;\"); document.body.appendChild(d); });\n",
+      "kind": "bug",
+      "describe": "An empty, invisible box over the bottom left of every player's screen that swallows clicks meant for what is under it (the class of bug found live 2026-10-01: the Scene Runner's closed host).",
+      "shouldBeCaughtBy": "the click-through detector, unaided; and any agent who tries to press the Dossier or the first rounds of the deck"
+    },
+    {
+      "id": "plant-error-on-begin",
+      "file": "scripts/foundry/induction-terminal.mjs",
+      "find": "    if (this._savedDraft) return; // Page 1 shows Continue",
+      "replace": "    setTimeout(() => { throw new Error(\"PT-SEEDED-DEFECT plant-error-on-begin\"); }, 60); // PT-SEEDED-DEFECT\n    if (this._savedDraft) return; // Page 1 shows Continue",
+      "kind": "bug",
+      "describe": "A script error thrown a moment after the Begin button on the induction terminal is pressed. Nothing visibly breaks.",
+      "shouldBeCaughtBy": "telemetry (a page error 60 ms after the press, stamped with the press), unaided; no agent could see it"
+    },
+    {
+      "id": "plant-gm-secret-visible",
+      "file": "templates/induction/page1-orientation.hbs",
+      "find": "<button type=\"button\" class=\"bi-induction__begin\" data-action=\"begin\">",
+      "replace": "<p class=\"bi-induction__hint\">Shucks uses mothers' maiden names to trace the marker through families. Nobody else remembers why the form asks.</p><button type=\"button\" class=\"bi-induction__begin\" data-action=\"begin\">",
+      "kind": "leak",
+      "describe": "A GM-only line (one of the 'Secret:' notes of Intake Medicals) printed on the first page of the induction terminal, where every player reads it.",
+      "shouldBeCaughtBy": "the leak scan (visible page text, S0), unaided; and a player who notices a line that reads like a GM's note"
+    },
+    {
+      "id": "plant-dc-changed",
+      "file": "data/campaign/challenges/c1e1-the-road-in.json",
+      "repoFile": "data/challenges/c1e1-the-road-in.json",
+      "find": "\"value\": 15,",
+      "replace": "\"value\": 31,",
+      "kind": "continuity",
+      "describe": "The DC of The Road In's first check changed from the authored 15 to 31 in what is delivered. The check console will read it as incredibly hard for a level 1 party.",
+      "shouldBeCaughtBy": "the Scribe's authored-versus-delivered diff; and a GM or a rules-lawyer who reads the difficulty band against the party's level"
+    }
+  ]
+}

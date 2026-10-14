@@ -210,6 +210,48 @@ test("deploy: a second deploy with nothing changed sends nothing and leaves the 
   }
 });
 
+test("deploy: a deploy that skips video keeps the record's video fingerprint, so later offline comparisons are not blind to video", async () => {
+  // Found 2026-10-07 with the auto-sync watcher, which deploys with --no-video for a plain code edit: the record used to
+  // be rewritten with `video: null`, and compareToRecord skips a channel the record never covered.
+  const repo = await repoTree();
+  const server = fakeServer();
+  try {
+    await deploy(config(repo.root), server);
+    const recordFile = path.join(repo.root, ".last-deploy.json");
+    const first = JSON.parse(readFileSync(recordFile, "utf8"));
+    assert.ok("opening-full.mp4" in first.video);
+
+    await writeFile(path.join(repo.root, "module/blank-inheritance/scripts/main.mjs"), "export const x = 2;");
+    await deploy(config(repo.root, { video: false }), server);
+    const second = JSON.parse(readFileSync(recordFile, "utf8"));
+    assert.deepEqual(second.video, first.video, "the video channel was not covered by this run, so the record keeps what it said");
+    assert.notEqual(second.module["scripts/main.mjs"], first.module["scripts/main.mjs"], "while the channels it did cover are updated");
+  } finally {
+    await repo.cleanup();
+  }
+});
+
+test("deploy: the record covers Stagecraft, and a deploy that leaves that channel out keeps its entry", async () => {
+  const repo = await repoTree({
+    "module/stagecraft/module.json": "{}",
+    "module/stagecraft/LICENSE": "MIT",
+    "module/stagecraft/dist/stagecraft.js": "bundle v1"
+  });
+  const server = fakeServer();
+  const deps = { ...DEPS, staleStagecraftBundle: async () => null };
+  try {
+    await deploy(config(repo.root, { stagecraftRemoteDir: "/srv/Data/modules/stagecraft" }), server, deps);
+    const recordFile = path.join(repo.root, ".last-deploy.json");
+    const first = JSON.parse(readFileSync(recordFile, "utf8"));
+    assert.deepEqual(Object.keys(first.stagecraft).sort(), ["LICENSE", "dist/stagecraft.js", "module.json"]);
+
+    await deploy(config(repo.root, { stagecraft: false }), server, deps);
+    assert.deepEqual(JSON.parse(readFileSync(recordFile, "utf8")).stagecraft, first.stagecraft);
+  } finally {
+    await repo.cleanup();
+  }
+});
+
 test("deploy: only what changed is sent, and the new stamp says what it was", async () => {
   const repo = await repoTree();
   const server = fakeServer();
@@ -388,6 +430,24 @@ test("deploy: with the pull switched off (--no-edits), the check that the repo h
     assert.equal(checked, true);
     assert.equal(result.ok, false);
     assert.equal(server.calls.uploadFiles.length, 0);
+  } finally {
+    await repo.cleanup();
+  }
+});
+
+test("deploy: CRITICAL -- if canon holds older words than she set on the plot timeline, NOTHING is sent", async () => {
+  const repo = await repoTree();
+  const server = fakeServer();
+  try {
+    const { result, exitCode, lines } = await deploy(config(repo.root, { sceneEdits: false }), server, {
+      ...DEPS,
+      checkReversions: () => [],
+      checkTimelineReversions: () => [{ id: "manako.inert-12", field: "when", record: "D073", expected: "about 46 years ago", found: "about 44 years ago" }]
+    });
+    assert.equal(result.ok, false);
+    assert.equal(exitCode, 1);
+    assert.equal(server.calls.uploadFiles.length, 0);
+    assert.ok(lines.some((l) => l.includes("REFUSED") && l.includes("story.mjs restore") && l.includes("manako.inert-12 when")), lines.join("\n"));
   } finally {
     await repo.cleanup();
   }

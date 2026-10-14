@@ -4,26 +4,20 @@
 // Found genuinely missing, not just imperfect: `person.hbs`'s `coercible`
 // list — the one topic type real authored data actually attaches a
 // `challengeRef` to (confirmed by scanning every scene brief: `willDiscuss`
-// never carries one, `coercible` does twice, in c1e1-canteen and
-// c1e1-intake-medicals) — rendered as plain, unclickable text. A GM wanting
-// to press a coercible topic had to leave the Scene Runner, find the right
-// challenge by hand, and post the check manually; recording how it landed
-// meant a free-text log line rather than the structured, tallyable record a
-// beat's own check already gets.
+// never carries one, `coercible` does) — rendered as plain, unclickable text.
 //
-// This mirrors beat.hbs/scene-runner.mjs's own #decorateBeat / #onPostCheck /
-// #onRecordOutcome as closely as the shape allows, deliberately: a GM who has
-// learned the beat interaction should not have to learn a second one for a
-// topic. The one real difference is storage — a topic's degree lives in its
-// own `state.topics` bag, never `state.ticked`, because a coercible topic is
-// a side conversation, not a beat that gates branching.
+// A topic's check works exactly the way a beat's does, deliberately: a GM who
+// has learned the beat interaction should not have to learn a second one for
+// a topic. Since 2026-10-05 that interaction is the pill (core/check-pill.mjs)
+// that opens the check console (foundry/check-console.mjs). The one real
+// difference is storage — a topic's degree lives in its own `state.topics`
+// bag, never `state.ticked`, because a coercible topic is a side
+// conversation, not a beat that gates branching.
 //
 // scene-runner.mjs and person.hbs are read as source/markup rather than
 // mounted, matching every other tier3-scene-runner-*-contract.test.mjs in
 // this project (ApplicationV2 destructures foundry.applications.api at
-// module scope, and this feature's own #onPostTopicCheck/#onRecordTopicOutcome
-// touch ChatMessage.create/game.settings, neither modelled deeply enough by
-// test/support/mock-foundry.mjs to execute this behaviourally either).
+// module scope).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -37,13 +31,17 @@ const moduleRoot = path.join(repoRoot, "module", "blank-inheritance");
 const src = readFileSync(path.join(moduleRoot, "scripts", "foundry", "scene-runner.mjs"), "utf8");
 const person = readFileSync(path.join(moduleRoot, "templates", "runner", "person.hbs"), "utf8");
 
-test("a coercible topic with a challengeRef is decorated with a real check, keyed by castId+index rather than a beat id", () => {
+const moduleFn = (name) => src.match(new RegExp(`(?:async )?function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n\\}`))?.[0] ?? null;
+
+test("a coercible topic with a challengeRef is decorated with its check's pill, keyed by castId+index rather than a beat id", () => {
   const fn = src.match(/#decorateCoercibleTopic\(topic, castId, index, brief, challenges, runState\) \{[\s\S]*?\n {2}\}/);
   assert.ok(fn, "#decorateCoercibleTopic is missing from scene-runner.mjs");
   assert.match(fn[0], /if \(!topic\?\.challengeRef\) return topic;/, "a topic with no challengeRef must be returned unchanged, not given a check it was never authored with");
   assert.match(fn[0], /const check = checkFor\(topic, challenges\);/, "no longer reuses the same checkFor() a beat's own check goes through");
-  assert.match(fn[0], /const topicKey = `\$\{castId\}:coercible:\$\{index\}`;/, "the topic key is no longer castId+coercible+index -- this MUST stay in sync with #onRecordTopicOutcome's own key construction below");
-  assert.match(fn[0], /const pickedDegree = runState\.topics\?\.\[topicKey\]\?\.degree \?\? null;/, "no longer reads its persisted degree from state.topics");
+  assert.match(fn[0], /const topicKey = `\$\{castId\}:coercible:\$\{index\}`;/, "the topic key is no longer castId+coercible+index -- this MUST stay in sync with checkSpecFor's own key");
+  assert.match(fn[0], /const picked = runState\.topics\?\.\[topicKey\]\?\.degree \?\? null;/, "no longer reads its persisted degree from state.topics");
+  assert.match(fn[0], /check: \{ pill: checkPill\(\{ key, check, dc, words: null, lights \}\) \}/, "the topic no longer carries its check's pill");
+  assert.match(fn[0], /const key = `topic:\$\{castId\}:\$\{index\}`;/);
 });
 
 test("cast is decorated with coercible topics BEFORE being handed to the template, in _prepareContext", () => {
@@ -54,71 +52,54 @@ test("cast is decorated with coercible topics BEFORE being handed to the templat
   );
 });
 
-test("#onPostTopicCheck posts a real inline check the same way #onPostCheck does, addressed by castId+topicIndex", () => {
-  const fn = src.match(/static async #onPostTopicCheck\(event, target\) \{[\s\S]*?\n {2}\}/);
-  assert.ok(fn, "#onPostTopicCheck is missing");
-  assert.match(fn[0], /this\.#coercibleTopic\(target\.dataset\.castId, Number\(target\.dataset\.topicIndex\)\)/, "no longer resolves the topic from castId/topicIndex dataset attributes");
-  // 2026-09-24: the posted check also carries the runner's roll tag (brief +
-  // topic key), so the result the table rolls records itself against the
-  // topic — see tier3-runner-roll-capture-contract.test.mjs.
-  // checkSkills(check), not check.skillOptions: #onPostCheck resolves a
-  // check's skills through core/roll-intent.mjs's checkSkills, and this must
-  // stay the same way (the assertion was stale from 2026-09-26's big commit).
-  // 2026-10-04 (D058): it also passes the check's own `secret` flag, so a check whose critical failure is a belief
-  // rolls blind here exactly as it does from a beat.
-  // 2026-10-04 (D059): through the one shared checkMessageContent, which tags the roll with brief + topic key and
-  // posts the check's own secret flag (tier3-scene-runner-rebuild-contract.test.mjs pins its body).
-  assert.match(fn[0], /ChatMessage\.create\(\{ content: checkMessageContent\(check, \{ dc, briefId: brief\.id, key: topicKey \}\) \}\)/, "no longer posts a real sf2e inline check the same way #onPostCheck does");
-  // The key it tags with must be the SAME key #onRecordTopicOutcome and
-  // #decorateCoercibleTopic build, or a rolled result would land nowhere.
-  assert.match(fn[0], /const topicKey = `\$\{target\.dataset\.castId\}:coercible:\$\{Number\(target\.dataset\.topicIndex\)\}`;/);
+test("a topic's pill puts its check to the table the same way a beat's does, under the same topic key", () => {
+  const spec = moduleFn("checkSpecFor");
+  assert.ok(spec, "checkSpecFor is missing");
+  assert.match(spec, /if \(key\.startsWith\("topic:"\)\) \{/);
+  assert.match(spec, /const topic = member\?\.brief\?\.coercible\?\.\[index\] \?\? null;/);
+  // The key its rolls are tagged with must be the SAME key #decorateCoercibleTopic
+  // builds and the run state keeps, or a rolled result would land nowhere.
+  assert.match(spec, /key: `\$\{castId\}:coercible:\$\{index\}`,/);
+  assert.match(spec, /source: \{ kind: "topic", briefId: brief\.id, castId, index \},/);
+  assert.match(spec, /blind: check\.secret === true/, "a topic's check whose critical failure is a belief must roll blind, as a beat's does");
 });
 
-test("#onRecordTopicOutcome writes to state.topics, never state.ticked -- a topic must never participate in beat-branch logic", () => {
-  const fn = src.match(/static async #onRecordTopicOutcome\(event, target\) \{[\s\S]*?\n {2}\}/);
-  assert.ok(fn, "#onRecordTopicOutcome is missing");
-  assert.match(fn[0], /const topics = \{ \.\.\.state\.topics \};/, "no longer copies state.topics as its own bag");
-  assert.doesNotMatch(fn[0], /state\.ticked/, "#onRecordTopicOutcome must never touch state.ticked -- that would make a topic's outcome silently gate beat branching");
-  assert.match(fn[0], /await writeRunState\(briefId, \{ \.\.\.state, topics \}\);/, "no longer persists the updated topics bag");
+test("a topic's result is written to state.topics, never state.ticked -- a topic must never participate in beat-branch logic", () => {
+  for (const name of ["recordHandResult", "recordMarkedOutcome"]) {
+    const fn = moduleFn(name);
+    assert.ok(fn, `${name} is missing`);
+    const topicBranch = fn.match(/if \(isTopicKey\(session\.key\)\) \{[\s\S]*?\n {2}\} else \{/)?.[0];
+    assert.ok(topicBranch, `${name} no longer treats a topic apart from a beat`);
+    assert.match(topicBranch, /const topics = \{ \.\.\.state\.topics \};/, "no longer copies state.topics as its own bag");
+    assert.doesNotMatch(topicBranch, /ticked/, "a topic must never touch state.ticked -- that would make it silently gate beat branching");
+    assert.match(topicBranch, /await writeRunState\(briefId, \{ \.\.\.state, topics \}\);/, "no longer persists the updated topics bag");
+  }
 });
 
-test("#onRecordTopicOutcome logs through the exact same outcomeLogSubject/recordLogEntry pipeline a beat's own outcome does, so it is tallyable and filterable identically", () => {
-  const fn = src.match(/static async #onRecordTopicOutcome\(event, target\) \{[\s\S]*?\n {2}\}/);
-  assert.match(fn[0], /subject: outcomeLogSubject\(topicKey, degree\)/, "no longer tags the log entry with outcomeLogSubject, the same beat outcomes reuse for their own tally");
+test("a topic's result logs through the same outcomeLogSubject/recordLogEntry pipeline a beat's does, so it is tallyable identically", () => {
+  for (const name of ["recordHandResult", "recordMarkedOutcome"]) {
+    assert.match(moduleFn(name), /subject: outcomeLogSubject\(session\.key, degree\)/, `${name} no longer tags the log entry with outcomeLogSubject`);
+  }
 });
 
-test("both new actions are wired on DEFAULT_OPTIONS.actions, alongside postCheck/recordOutcome", () => {
-  assert.match(src, /postTopicCheck:\s*SceneRunner\.#onPostTopicCheck,/, "postTopicCheck is no longer wired as an action");
-  assert.match(src, /recordTopicOutcome:\s*SceneRunner\.#onRecordTopicOutcome,/, "recordTopicOutcome is no longer wired as an action");
+test("the pill's press is wired on DEFAULT_OPTIONS.actions", () => {
+  assert.match(src, /openCheck:\s*SceneRunner\.#onOpenCheck,/, "openCheck is no longer wired as an action");
+  assert.match(src, /static async #onOpenCheck\(event, target\) \{\s*\n\s*const spec = checkSpecFor\(this\._scene, target\.dataset\.checkKey\);/);
 });
 
-test("person.hbs only offers the check/outcome buttons on a coercible topic that actually has one, and never on willDiscuss (real data: only coercible ever carries a challengeRef)", () => {
+test("person.hbs only offers the pill on a coercible topic that actually has a check, and never on willDiscuss (real data: only coercible ever carries a challengeRef)", () => {
   const willDiscussBlock = person.match(/\{\{#each brief\.willDiscuss\}\}[\s\S]*?\{\{\/each\}\}/);
   assert.ok(willDiscussBlock, "could not find the willDiscuss each-block in person.hbs");
-  assert.doesNotMatch(
-    willDiscussBlock[0],
-    /data-action="postTopicCheck"/,
-    "willDiscuss must not offer a check button -- no willDiscuss entry in any real scene brief carries a challengeRef"
-  );
+  assert.doesNotMatch(willDiscussBlock[0], /check\.pill|data-action="openCheck"/, "willDiscuss must not offer a check -- no willDiscuss entry in any real scene brief carries a challengeRef");
   const coercibleBlock = person.match(/\{\{#each brief\.coercible\}\}[\s\S]*?\{\{\/each\}\}/);
   assert.ok(coercibleBlock, "could not find the coercible each-block in person.hbs");
-  assert.match(coercibleBlock[0], /\{\{#if check\}\}/, "the coercible block no longer gates its check UI behind {{#if check}} -- a topic with no challengeRef would render a broken button");
-  assert.match(coercibleBlock[0], /data-action="postTopicCheck"/);
-  assert.match(coercibleBlock[0], /data-action="recordTopicOutcome"/);
+  assert.match(coercibleBlock[0], /\{\{#if check\}\}\s*\n\s*<div class="bi-runner__topic-check">\{\{\{check\.pill\}\}\}<\/div>\s*\n\s*\{\{\/if\}\}/, "the coercible block no longer gates its pill behind {{#if check}}");
 });
 
-test("person.hbs addresses the person two context levels up from the nested outcomes each, correctly reaching past both the coercible-topic and the if-check levels", () => {
-  // {{#if}} does not push a Handlebars context, {{#each}} does -- the real
-  // nesting from the outcomes button back to the person is exactly two
-  // #each levels (brief.coercible, then outcomes), hence ../../id, not ../id
-  // (which is what the shallower beat.hbs -- whose own top-level partial
-  // context already IS the beat -- correctly uses instead).
-  assert.match(person, /data-cast-id="\{\{\.\.\/\.\.\/id\}\}"/, "the outcome button's data-cast-id no longer climbs two context levels back to the person");
+test("person.hbs carries no hand-built outcome buttons any more, and none of the invalid {{../@index}} syntax", () => {
   // Regression, found live 2026-09-19: `{{../@index}}` is NOT valid Handlebars
   // -- Foundry's own parser rejected it outright ("Expecting 'ID', got
-  // 'DATA'"), which took the whole panel down (ApplicationV2 renders no
-  // fallback DOM on a template parse failure). The private @index variable
-  // has to come FIRST, the parent-hop second: `{{@../index}}`.
+  // 'DATA'"), which took the whole panel down.
   assert.doesNotMatch(person, /\{\{\.\.\/@index\}\}/, "the invalid {{../@index}} syntax is back -- this fails to parse in real Foundry, not just a style nit");
-  assert.match(person, /data-topic-index="\{\{@\.\.\/index\}\}"/, "the outcome button's data-topic-index no longer reads the parent each's own @index via the correct {{@../index}} syntax");
+  assert.doesNotMatch(person, /data-action="(?:postTopicCheck|recordTopicOutcome)"/, "the old post and record stamps are back beside the pill");
 });

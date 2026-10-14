@@ -129,12 +129,12 @@ test("nobody a scene places stands where a cut-out would hide them entirely, and
 });
 
 test("the deck's cover over a stage is where the deck really is: measured on the live GM window, 2026-10-03", () => {
-  // 2560 x 1271, the sidebar folded: the faceplate from x 291 to 2221, its top at y 1035; the orb's collar 374 across, its
+  // 2560 x 1271, the sidebar folded: the faceplate was x 291 to 2221 when the deck was 1600 wide (252 to 2260 at 1664, D063: the same scale, 64 authored px wider, the orb unmoved), its top at y 1035; the orb's collar 374 across, its
   // top at y 890 (window pixels). At that size one window pixel is one page pixel, and the page's top 84.5 are cut off.
   const [plate, orb] = deckCover({ viewportWidth: 2560, viewportHeight: 1271, rightReserve: 48 });
   const near = (a, b, what) => assert.ok(Math.abs(a - b) < 2, `${what}: ${a} is not ${b}`);
-  near(plate.rect[0], 291, "faceplate left");
-  near(plate.rect[2], 2221, "faceplate right");
+  near(plate.rect[0], 252, "faceplate left");
+  near(plate.rect[2], 2260, "faceplate right");
   near(plate.rect[1], 1035 + 84.5, "faceplate top");
   near(orb.circle[2], 187, "collar radius");
   near(orb.circle[1] - orb.circle[2], 890 + 84.5, "collar top");

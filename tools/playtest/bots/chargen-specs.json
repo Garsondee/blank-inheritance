@@ -1,0 +1,10 @@
+{
+  "_about": "What each bot-driven seat makes at the induction terminal (TEST FIXTURES, never proposals for the six real kids: PT- names, deleted with the world). Ids are from data/campaign/{ancestry,background,class}-catalogue.json. `free` is the four free attribute boosts (they must differ); `keyAbility` is for the one class with a real choice. `backgroundChoice` and `classChoice` answer the question a background or class asks (Starship Dweller: Crafting or Piloting; Envoy: Deception, Diplomacy or Intimidation); without one the bot takes the first option. `portrait` is a file in tools/playtest/assets/. `fill` types into the optional questions too; `blank` leaves every optional field empty.",
+  "P1": { "name": "PT-Ada Quillon", "ancestry": "human", "background": "smuggler", "class": "soldier", "free": ["str", "dex", "wis", "cha"], "portrait": null, "fill": true },
+  "P2": { "name": "PT-Brann Okoro", "ancestry": "vesk", "background": "starship-dweller", "backgroundChoice": "piloting", "class": "solarian", "free": ["str", "con", "dex", "wis"], "portrait": null, "fill": false },
+  "P3": { "name": "PT-Cora Lindqvist", "ancestry": "elf", "background": "spike-larcenist", "class": "witchwarper", "keyAbility": "int", "free": ["int", "dex", "con", "wis"], "portrait": "portrait-1.png", "fill": true },
+  "P4": { "name": "PT-Dax Merrow", "ancestry": "gnome", "background": "escaped-experiment", "class": "operative", "free": ["dex", "int", "cha", "wis"], "portrait": null, "fill": false },
+  "P5": { "name": "PT-Eve Tanaka", "ancestry": "android", "background": "absalom-local", "class": "mystic", "free": ["wis", "con", "dex", "int"], "portrait": null, "fill": false, "blank": true },
+  "P6": { "name": "PT-Fenwick Of-The-Seven-Harbours-And-Many-Other-Long-Names-Besides", "ancestry": "halfling", "background": "smuggler", "class": "envoy", "classChoice": "intimidation", "free": ["con", "dex", "str", "cha"], "portrait": "portrait-2.png", "fill": true },
+  "default": { "name": "PT-Wanderer", "ancestry": "human", "background": "smuggler", "class": "soldier", "free": ["str", "dex", "con", "wis"], "portrait": null, "fill": false }
+}

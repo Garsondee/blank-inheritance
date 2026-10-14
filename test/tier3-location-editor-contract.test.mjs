@@ -154,20 +154,26 @@ test("the panel's selected item is the layer's LIVE one, never the snapshot it w
 
 const storyTpl = read("templates", "location-editor", "story.hbs");
 const navTpl = read("templates", "location-editor", "nav.hbs");
+const journeysTpl = read("templates", "location-editor", "journeys.hbs");
+const placesTpl = read("templates", "location-editor", "places.hbs");
 
 test("every data-action in the panel's templates is a registered action, and every action is used", () => {
   const used = new Set();
-  for (const tpl of [template, storyTpl, navTpl]) for (const m of tpl.matchAll(/data-action="([A-Za-z]+)"/g)) used.add(m[1]);
+  for (const tpl of [template, storyTpl, navTpl, journeysTpl, placesTpl]) for (const m of tpl.matchAll(/data-action="([A-Za-z]+)"/g)) used.add(m[1]);
   const block = panel.slice(panel.indexOf("actions: {"), panel.indexOf("static PARTS"));
   const registered = new Set([...block.matchAll(/^\s+([A-Za-z]+): LocationEditorApplication\./gm)].map((m) => m[1]));
   assert.deepEqual([...used].filter((a) => !registered.has(a)), [], "a button with no handler does nothing, silently");
   assert.deepEqual([...registered].filter((a) => !used.has(a)), [], "an action no template can reach is dead code");
 });
 
-test("the panel is three parts: the tab bar, the Story and the map tools, each hidden when it is not the current tab", () => {
+test("the panel is five parts: the tab bar (with the player bar and the pin card), the Story, the Journeys, the Places and the map tools, each hidden when it is not the current tab", () => {
   assert.match(panel, /nav: \{ template: `modules\/\$\{MODULE_ID\}\/templates\/location-editor\/nav\.hbs` \}/);
   assert.match(panel, /story: \{ template/);
+  assert.match(panel, /journeys: \{ template/);
+  assert.match(panel, /places: \{ template/);
   assert.match(storyTpl, /<div class="bi-story"\{\{#unless \(eq tab "story"\)\}\} hidden\{\{\/unless\}\}>/);
+  assert.match(journeysTpl, /<div class="bi-journeys"\{\{#unless \(eq tab "journeys"\)\}\} hidden\{\{\/unless\}\}>/);
+  assert.match(placesTpl, /<div class="bi-places"\{\{#unless \(eq tab "places"\)\}\} hidden\{\{\/unless\}\}>/);
   assert.match(template, /\{\{#unless \(eq tab "map"\)\}\} hidden\{\{\/unless\}\}/);
   assert.match(css, /\.bi-location-editor \[hidden\] \{ display: none !important; \}/, "the part's own display rule must not defeat [hidden]");
 });
@@ -209,4 +215,130 @@ test("the Story reads the same deployed paths the Scene Runner and the world map
   assert.match(story, /data\/campaign\/scene-briefs/);
   const cityLayer = read("scripts", "foundry", "city-layer.mjs");
   assert.match(cityLayer, /data\/campaign\/campaign\/scene-set\.json/, "if the Scene Set moves, both must move");
+});
+
+/* ------------------------------------------------------------------ */
+/*  Journeys, Places and the quick pin (design/location-editor.md section 16) */
+/* ------------------------------------------------------------------ */
+
+const journeysJs = read("scripts", "foundry", "location-journeys.mjs");
+const pinJs = read("scripts", "foundry", "location-pin.mjs");
+const placesJs = read("scripts", "foundry", "location-places.mjs");
+const overlayJs = read("scripts", "foundry", "journey-overlay.mjs");
+const dataJs = read("scripts", "foundry", "journey-data.mjs");
+const journeysCss = read("styles", "bi-journeys.css");
+const lang = JSON.parse(read("lang", "en.json"));
+
+test("the journey overlay is a passive container between the hover outline and the focus highlight, so a line never hides a label and never takes a click", () => {
+  const draw = method(layer, /\n {2}async _draw\(/);
+  assert.ok(draw.includes("this.#journeyContainer = this.addChild(this.#passive(new PIXI.Container()))"));
+  assert.ok(draw.indexOf("#overlayContainer") < draw.indexOf("#journeyContainer") && draw.indexOf("#journeyContainer") < draw.indexOf("#focusContainer = "));
+  assert.match(draw, /this\.#journey\?\.attach\(this\.#journeyContainer\)/, "each scene's new container is handed to the overlay");
+  assert.match(method(layer, /\n {2}async _tearDown\(/), /this\.#journey\?\.detach\(\)/, "a scene change must release the ticker before Foundry destroys the container");
+});
+
+test("leaving the editor takes the journeys, a waiting pin and a playing token off the canvas", () => {
+  const quit = method(layer, /\n {2}quit\(/);
+  assert.match(quit, /this\.disarmPin\(\{ cancelled: true \}\)/);
+  assert.match(quit, /this\.#journey\?\.clear\(\)/);
+  assert.match(method(layer, /\n {2}_deactivate\(/), /this\.#journey\?\.setVisible\(false\)/, "another layer taking over pauses the playback");
+  assert.match(panel, /this\.#pin\.cancel\(\{ quiet: true \}\)/, "closing the panel ends a pin being placed");
+});
+
+test("a pin waiting for its click is an Escape-able state, ends with any other tool, and its click is the pick tool's own release", () => {
+  assert.match(method(layer, /\n {2}hasEscapableState\(/), /this\.#pinArm/);
+  assert.match(method(layer, /\n {2}_onDismissKey\(/), /this\.disarmPin\(\{ cancelled: true \}\)/);
+  assert.match(method(layer, /\n {2}setTool\(/), /this\.disarmPin\(\{ cancelled: true \}\)/);
+  assert.match(method(layer, /\n {2}#pickAt\(/), /if \(this\.#pinArm\)/, "the pin is taken on release, so a drag still pans the map");
+  assert.match(method(layer, /\n {2}#onMouseMove\(/), /this\.#pinArm\?\.onMove/);
+});
+
+test("the camera and the clock are the canvas's: playback runs on its ticker and never re-renders the panel", () => {
+  assert.doesNotMatch(overlayJs, /setInterval|setTimeout|requestAnimationFrame/, "the overlay animates on the canvas ticker only");
+  assert.match(layer, /canvas\.app\.ticker\.add\(tick\)/);
+  assert.match(layer, /canvas\.app\.ticker\.remove\(tick\)/);
+  const paint = method(journeysJs, /\n {2}#paint\(/);
+  assert.doesNotMatch(paint, /rerender|\.render\(/, "a render of the whole window every frame is what this must never do");
+  assert.match(paint, /querySelector/, "the bar is updated in place");
+  const pinPaint = method(pinJs, /\n {2}#paint\(/);
+  assert.doesNotMatch(pinPaint, /rerender|\.render\(/);
+});
+
+test("the journeys are planned by the router the tokens walk with, on the very same graph object", () => {
+  assert.match(dataJs, /routerFor\(graph\)/);
+  assert.match(dataJs, /loadTravelGraph/);
+  const travel = read("scripts", "foundry", "travel.mjs");
+  assert.match(travel, /export async function loadTravelGraph/);
+  assert.match(travel, /routerFor\(graph\)\.plan\(/, "foundry/travel.mjs routes with the same cached router");
+});
+
+test("a placement staged in the Story is judged against the journeys before it is confirmed, and judging writes nothing", () => {
+  const judge = method(panel, /\n {2}#judgeStaged\(/);
+  assert.match(judge, /whatIfFor\(/);
+  assert.doesNotMatch(judge, /saveLocationEdit/);
+  assert.match(method(panel, /\n {2}#stagePlace\(/), /this\.#judgeStaged\(\)/);
+  assert.match(method(panel, /\n {2}static #onToggleLinked\(/), /this\.#judgeStaged\(\)/, "ticking a linked slot changes what the journeys become");
+  assert.doesNotMatch(read("scripts", "core", "journey-whatif.mjs"), /saveLocationEdit|writeStorageJson/, "the what-if is pure");
+});
+
+test("a quick pin writes exactly what the long way writes: one 'create' for a point, one 'site' per slot pointing at it, and only on Place", () => {
+  const confirm = method(pinJs, /\n {2}async confirm\(/);
+  assert.match(confirm, /op: "create", tier: "point"/);
+  assert.match(confirm, /op: "site"[^}]*viaRecord: record\.id/);
+  assert.match(confirm, /before: slot\.before, beforeVia: slot\.beforeVia/, "each slot remembers what the editor saw, for the pull's clash check");
+  for (const name of ["start", "#onMove", "#onPick", "#show", "toggleSnap", "move", "cancel"]) {
+    const body = method(pinJs, new RegExp(String.raw`\n {2}(async )?${name.replace("#", "#")}\(`));
+    assert.doesNotMatch(body, /saveLocationEdit/, `${name} only previews; the confirm writes`);
+  }
+  assert.match(panel, /static #onConfirmPin\(\)\s*\{\s*return this\.#pin\.confirm\(\)/);
+});
+
+test("moving everything at a place writes one 'site' record per ticked slot, and only on confirm", () => {
+  const confirm = method(placesJs, /\n {2}async confirm\(/);
+  assert.match(confirm, /for \(const write of plan\.writes\)/);
+  assert.match(confirm, /op: "site"/);
+  assert.match(confirm, /before: write\.before, beforeVia: write\.beforeVia/);
+  for (const name of ["startBulk", "toggleSlot", "choose", "stagePick", "#recompute", "pickOnMap", "pinForAll"]) {
+    assert.doesNotMatch(method(placesJs, new RegExp(String.raw`\n {2}(async )?${name}\(`)), /saveLocationEdit/, `${name} only previews`);
+  }
+});
+
+test("the Story's 'Drop a pin' is the one-step card; the long way is still there for a building", () => {
+  assert.match(storyTpl, /data-action="quickPin"/);
+  assert.doesNotMatch(storyTpl, /data-action="drawFor" data-kind="point"/);
+  assert.match(storyTpl, /data-action="drawFor" data-kind="site"/);
+});
+
+test("the controllers reach the panel only through the bridge it lends them, and the panel builds them before first use", () => {
+  assert.match(panel, /#journeys = new LocationJourneys\(this\.#bridge\(\)\)/);
+  assert.match(panel, /#places = new LocationPlaces\(this\.#bridge\(\)\)/);
+  assert.match(panel, /#pin = new LocationPin\(this\.#bridge\(\)\)/);
+  for (const [name, source] of [["location-journeys", journeysJs], ["location-pin", pinJs], ["location-places", placesJs]]) {
+    assert.doesNotMatch(source, /canvas\.locationDraw/, `${name} asks for the layer through the host`);
+    assert.doesNotMatch(source, /foundry\.applications/, `${name} is not an application`);
+  }
+});
+
+test("the stylesheet ships, is in the manifest, balances its braces, and has a rule for every class the new templates use", () => {
+  const manifest = JSON.parse(read("module.json"));
+  assert.ok(manifest.styles.includes("styles/bi-journeys.css"));
+  assert.equal((journeysCss.match(/\{/g) ?? []).length, (journeysCss.match(/\}/g) ?? []).length);
+  const used = new Set();
+  for (const tpl of [navTpl, journeysTpl, placesTpl]) for (const m of tpl.matchAll(/class="([^"]+)"/g)) for (const c of m[1].replace(/\{\{[^}]*\}\}/g, " ").split(/\s+/)) if (/^bi-(jbar|pin|journeys|places)/.test(c)) used.add(c);
+  const missing = [...used].filter((c) => !journeysCss.includes(`.${c}`));
+  assert.deepEqual(missing, [], "a class the templates use that no rule styles");
+  for (const c of ["bi-story__leg", "bi-story__leg-badge", "bi-story__place-problem", "bi-story__whatif"]) assert.ok(journeysCss.includes(`.${c}`), c);
+});
+
+test("every language key the new templates and controllers use exists", () => {
+  const has = (key) => key.split(".").reduce((node, part) => (node && typeof node === "object" ? node[part] : undefined), lang) !== undefined;
+  const missing = [];
+  for (const [name, source] of [["nav", navTpl], ["story", storyTpl], ["journeys", journeysTpl], ["places", placesTpl], ["panel", panel]]) {
+    for (const m of source.matchAll(/["'](BLANKINHERITANCE\.LocationEditor\.[A-Za-z.]+)["']/g)) if (!has(m[1])) missing.push(`${name}: ${m[1]}`);
+  }
+  for (const [name, source, prefix] of [["journeys", journeysJs, "Journeys"], ["pin", pinJs, "Pin"], ["places", placesJs, "Places"]]) {
+    for (const m of source.matchAll(/\bL\("([A-Za-z.]+)"/g)) if (!has(`BLANKINHERITANCE.LocationEditor.${prefix}.${m[1]}`)) missing.push(`${name}: ${prefix}.${m[1]}`);
+  }
+  for (const m of layer.matchAll(/["'](BLANKINHERITANCE\.LocationEditor\.[A-Za-z.]+)["']/g)) if (!has(m[1])) missing.push(`layer: ${m[1]}`);
+  assert.deepEqual(missing, [], "a key with no text shows as its own name on the panel");
 });

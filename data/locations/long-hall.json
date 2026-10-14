@@ -10,7 +10,7 @@
   "tags": [],
   "classification": null,
   "rank": null,
-  "depth": "named",
+  "depth": "scene",
   "geometry": {
     "rings": [
       [
@@ -333,22 +333,38 @@
     "status": "drafted"
   },
   "lore": {
-    "summary": "The one building big enough to feed several hundred candidates in three seatings — trestle tables, a serving line, a noticeboard at the door thick with drill schedules and the occasional handwritten notice about a lost card key. Loud, steamed-up, genuinely the social centre of the whole housing row.",
-    "playerFacing": "",
-    "gmOnly": ""
+    "summary": "The base's canteen, and the one building big enough to feed several hundred candidates in three seatings: trestle tables, a serving line, and a noticeboard at the door thick with drill schedules and handwritten notices about lost card keys. Loud, steamed-up and the social centre of the whole housing row.",
+    "playerFacing": "You hear the Long Hall before you see it. Inside, the windows run with steam and several hundred candidates talk at once at long tables, all about the same day. Every table seems to belong to somebody already. Behind the serving line a radio on a shelf plays an evening phone-in that nobody is listening to, and the noticeboard by the door is pinned three deep.",
+    "gmOnly": "The Canteen runs here: the evening sitting, Taka's table, and Vetch reading the evening's orders to the whole hall. The noise is cover, so the table can say almost anything at supper and be heard only by whoever leans in. Whatever the hall hears at one sitting it repeats at the next, so an order read tonight is common talk by morning. The radio is only a radio: read it once, under the noise, and let it go."
   },
   "scene": {
-    "hooks": [],
-    "activities": [],
+    "hooks": [
+      "The next table is loudly pleased with its harbour patrol, and somebody at Section Nine's table has to decide whether to mind.",
+      "Taka knows everyone on the island and is dying to be asked something."
+    ],
+    "activities": [
+      "Queue at the serving line, then find a table.",
+      "Eat, and compare the day with the other sections.",
+      "Read the noticeboard for drill schedules and lost card keys.",
+      "Listen to the evening's orders being read to the hall."
+    ],
     "history": "",
     "consequences": ""
   },
   "realWorld": {},
   "factionRefs": [],
-  "npcRefs": [],
-  "episodeRefs": [],
+  "npcRefs": [
+    "taka",
+    "section-officer",
+    "the-young-one"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
   "openQuestionRefs": [],
   "bibleRef": null,
-  "assetRefs": [],
+  "assetRefs": [
+    "episode-c1e1--canteen"
+  ],
   "playlistRefs": []
 }

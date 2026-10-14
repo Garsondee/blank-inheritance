@@ -127,6 +127,24 @@
                 </div>
             </div>
 
+            {{#if selected.hasChoices}}
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page4.ChoiceTitle"}}</h2>
+            <div class="bi-induction__slots">
+                {{#each selected.choiceGroups}}
+                <div class="bi-induction__slot">
+                    <span class="bi-induction__slot-hint">{{#if this.isSkill}}{{localize "BLANKINHERITANCE.Induction.Page4.ChoiceSkill"}}{{else}}{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}{{/if}}</span>
+                    <div class="bi-induction__options">
+                        {{#each this.options}}
+                        <button type="button" class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                data-action="pickClassChoice" data-flag="{{this.flag}}" data-key="{{this.key}}"
+                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+
             <h2>{{localize "BLANKINHERITANCE.Induction.Page4.SkillsTitle"}}</h2>
             {{#if selected.hasTrainedSkills}}
             <div class="bi-form-row">

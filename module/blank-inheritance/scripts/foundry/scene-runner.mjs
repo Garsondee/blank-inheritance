@@ -52,10 +52,8 @@ import {
   goalOpen,
   isTopicKey,
   nowBeatId,
-  resultsByKey,
   roomLabel,
   runnerPhase,
-  runnerRollOption,
   runnerWidthCss,
   scenePosition,
   sceneStartedAt,
@@ -64,7 +62,7 @@ import {
   toggleDetail,
   widthFractionFrom
 } from "../core/runner-view.mjs";
-import { carryInsWithNames, partyStrip, perPlayerRows, withResult, PASSING } from "../core/runner-party.mjs";
+import { carryInsWithNames, partyStrip, withResult, PASSING } from "../core/runner-party.mjs";
 import { chipsToFireOnDone, chipsToFireOnHandout, firedTriggerIds, undoFor } from "../core/beat-autofire.mjs";
 import { toldCount, toldSoFar } from "../core/table-knows.mjs";
 import { clockStepOnRound, creatureLines, roundEnded } from "../core/fight-setup.mjs";
@@ -73,7 +71,11 @@ import { partyMemberRecords } from "./runner-party.mjs";
 import { decorateInlineTriggers, escapeHtml } from "../core/inline-triggers.mjs";
 import { renderProse } from "../core/emphasis.mjs";
 import { parseNoteLines } from "../core/note-lines.mjs";
-import { anySkillCard, checkLabel, checkSkills, enrichersFor } from "../core/roll-intent.mjs";
+import { checkSkills } from "../core/roll-intent.mjs";
+import { checkPillHtml, decorateWithCheck, waysInWords } from "../core/check-pill.mjs";
+import { DEGREES as CONSOLE_DEGREES } from "../core/check-console.mjs";
+import { currentCheck, gmLights, openCheckConsole, setCheckConsoleProvider, showCheckConsole, wayLabel } from "./check-console.mjs";
+import { openLocationEditorOnMap } from "./location-editor.mjs";
 import { needsTravel } from "../core/travel-trigger.mjs";
 import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
@@ -146,7 +148,6 @@ const DEGREE_LABELS = Object.freeze([
 ]);
 
 /** The per-player row's four small keys: best to worst, the same order. */
-const DEGREE_SHORT = Object.freeze({ criticalSuccess: "✓✓", success: "✓", failure: "✗", criticalFailure: "✗✗" });
 
 const SETTING_EPISODE = "runnerEpisode";
 const SETTING_BRIEF = "runnerBrief";
@@ -406,28 +407,6 @@ function encounterSummary(encounter, { clockAuto = true, hasClock = false } = {}
 }
 
 /**
- * What a check posts to chat. An any-skill check is one compact card, the
- * eighteen skills as short labelled links (core/roll-intent.mjs#anySkillCard);
- * any other check is its skills' inline checks joined by "or". Both carry the
- * runner's roll tag, so a result records itself against its beat.
- */
-function checkMessageContent(check, { dc, briefId, key }) {
-  const options = rollTagFor(briefId, key);
-  const secret = check.secret === true;
-  if (check.anySkill) {
-    const skills = checkSkills(check);
-    const labels = Object.fromEntries(
-      skills.map((slug) => {
-        const key18 = CONFIG?.PF2E?.skills?.[slug]?.label ?? null;
-        return [slug, key18 ? game.i18n.localize(key18) : null];
-      }).filter(([, label]) => label)
-    );
-    return anySkillCard({ skillOptions: skills, dc, options, secret, labels, heading: game.i18n.localize("BLANKINHERITANCE.Runner.AnySkillHeading") });
-  }
-  return enrichersFor({ skillOptions: checkSkills(check), dc, secret, options });
-}
-
-/**
  * Every Foundry Scene built against this brief, in build order.
  *
  * Matched on the scene's own `briefRef` flag, which foundry/scene-build.mjs
@@ -603,22 +582,6 @@ function checkFor(beat, challenges) {
   return (beat.checkRef ? checks.find((c) => c.id === beat.checkRef) : checks[0]) ?? null;
 }
 
-/**
- * The roll option a check posted from this brief carries, so the result a
- * player rolls from it can find its way back to the beat (or topic) that
- * asked (core/runner-view.mjs#runnerRollOption). An id that could not be put
- * safely into an enricher posts the check untagged rather than not at all —
- * the table still gets its check, the runner just cannot record it by itself.
- */
-function rollTagFor(briefId, key) {
-  try {
-    return [runnerRollOption(briefId, key)];
-  } catch (err) {
-    console.warn("Blank Inheritance | Posting this check without a runner tag:", err);
-    return [];
-  }
-}
-
 /** One chat message read as a result of a check this runner posted, or null. */
 function resultFromMessage(message) {
   return checkResultFrom({
@@ -628,22 +591,6 @@ function resultFromMessage(message) {
     timestamp: message?.timestamp ?? null,
     total: message?.rolls?.[0]?.total ?? null
   });
-}
-
-/**
- * Every result the table has rolled against this brief's checks, read back
- * out of the chat log — the log is the record, so the runner shows it rather
- * than keeping a second copy. Only the most recent few hundred messages are
- * read: a result that old belongs to a scene long closed.
- */
-function tableRollResults(briefId) {
-  if (!briefId) return [];
-  const results = [];
-  for (const message of (game.messages?.contents ?? []).slice(-400)) {
-    const result = resultFromMessage(message);
-    if (result?.briefId === briefId) results.push(result);
-  }
-  return results;
 }
 
 /**
@@ -722,6 +669,236 @@ async function recordRollResult(result, { force = false } = {}) {
   refreshSceneRunner();
   return true;
 }
+
+/* ---------------------------------------------------------------- */
+/*  The check console (2026-10-05)                                   */
+/* ---------------------------------------------------------------- */
+
+/**
+ * A check is put to the table from its pill in the prose (core/check-pill.mjs) and run in the check console
+ * (foundry/check-console.mjs): the DC, the ways it can be met, each player's light. What the Runner keeps of it is
+ * unchanged: a roll still records itself against its beat or topic through its tag (recordRollResult, above). What
+ * the console cannot know (the check's name, what each degree means, which degree the scene recorded) it asks for
+ * here, and a result the GM sets by hand, or a degree marked as the outcome, is written here.
+ */
+
+/** The open check, when it is this brief's check under this key (a beat id, or a person's topic key). */
+function openCheckFor(briefId, key) {
+  const session = currentCheck();
+  return session && session.briefId === briefId && session.key === key ? session : null;
+}
+
+/** Is the check this pill opens the one open now? */
+function pillIsOpen(key) {
+  const briefId = currentBriefId();
+  if (key.startsWith("beat:")) return currentCheck()?.source?.kind === "beat" && Boolean(openCheckFor(briefId, key.slice(5)));
+  if (key.startsWith("topic:")) {
+    const [, castId, index] = key.split(":");
+    return Boolean(openCheckFor(briefId, `${castId}:coercible:${index}`));
+  }
+  return false;
+}
+
+/** A beat's lights: the open check's, or else each character's result kept on the beat. */
+function beatLights(briefId, beatId, runState) {
+  const open = openCheckFor(briefId, beatId);
+  if (open) return gmLights(open);
+  return Object.values(runState?.results?.[beatId] ?? {})
+    .filter((r) => CONSOLE_DEGREES.includes(r?.degree))
+    .map((r) => ({ state: r.degree, name: r.name ?? null }));
+}
+
+/** The pill a check carries in the prose: its words (or its ways), its DC, blind or not, and its lights. */
+function checkPill({ key, check, dc, words = null, lights = [] }) {
+  const or = game.i18n.localize("BLANKINHERITANCE.CheckConsole.Or");
+  const ways = check.anySkill ? game.i18n.localize("BLANKINHERITANCE.Runner.AnySkill") : waysInWords(checkSkills(check).map(wayLabel), or);
+  return checkPillHtml({
+    key,
+    words: words ?? `${ways} ${game.i18n.localize("BLANKINHERITANCE.CheckConsole.CheckWord")}`,
+    dc,
+    blind: check.secret === true,
+    lights,
+    open: pillIsOpen(key),
+    title: check.name ?? check.id ?? "",
+    blindLabel: game.i18n.localize("BLANKINHERITANCE.Runner.Blind")
+  });
+}
+
+/** The DC a check is put to the table at: the authored one, moved by any hidden modifier on this scene. */
+function dcFor(brief, holder, check) {
+  return postedDc(check.dc?.value ?? null, hiddenAdjustment(brief.gmModifiers ?? [], { challengeRef: holder.challengeRef, locationKey: brief.sceneRef }));
+}
+
+/** What the console needs to put a check to the table, from a pill's key (`beat:<id>` or `topic:<castId>:<index>`). */
+function checkSpecFor(scene, key) {
+  const brief = scene?.brief;
+  if (!brief || typeof key !== "string") return null;
+  const challenges = scene.challenges ?? {};
+  if (key.startsWith("beat:")) {
+    const beat = (brief.beats ?? []).find((b) => b.id === key.slice(5));
+    const check = beat ? checkFor(beat, challenges) : null;
+    if (!check) return null;
+    return {
+      briefId: brief.id,
+      key: beat.id,
+      source: { kind: "beat", briefId: brief.id, beatId: beat.id, checkRef: null },
+      skills: checkSkills(check),
+      dc: dcFor(brief, beat, check),
+      blind: check.secret === true
+    };
+  }
+  if (key.startsWith("topic:")) {
+    const [, castId, raw] = key.split(":");
+    const index = Number(raw);
+    const member = (brief.cast ?? []).find((m) => m.id === castId);
+    const topic = member?.brief?.coercible?.[index] ?? null;
+    const check = topic ? checkFor(topic, challenges) : null;
+    if (!check) return null;
+    return {
+      briefId: brief.id,
+      key: `${castId}:coercible:${index}`,
+      source: { kind: "topic", briefId: brief.id, castId, index },
+      skills: checkSkills(check),
+      dc: dcFor(brief, topic, check),
+      blind: check.secret === true
+    };
+  }
+  return null;
+}
+
+/** The scene a check belongs to: the one the Runner has open, or loaded fresh (her edits laid over it either way). */
+async function sceneOf(briefId) {
+  if (!briefId) return null;
+  return active?._scene?.brief?.id === briefId ? active._scene : loadScene(briefId);
+}
+
+/** The check a console session is running, read from its scene again: never trusted from the setting. */
+async function checkOfSession(session) {
+  const scene = await sceneOf(session?.briefId);
+  const brief = scene?.brief;
+  if (!brief) return null;
+  const challenges = scene.challenges ?? {};
+  if (session.source?.kind === "beat") {
+    const beat = (brief.beats ?? []).find((b) => b.id === session.source.beatId);
+    if (!beat) return null;
+    const check = checkFor({ challengeRef: beat.challengeRef, checkRef: session.source.checkRef ?? beat.checkRef }, challenges);
+    return check ? { check, beat, topic: null } : null;
+  }
+  if (session.source?.kind === "topic") {
+    const member = (brief.cast ?? []).find((m) => m.id === session.source.castId);
+    const topic = member?.brief?.coercible?.[session.source.index] ?? null;
+    const check = topic ? checkFor(topic, challenges) : null;
+    return check ? { check, beat: null, topic } : null;
+  }
+  return null;
+}
+
+/** A result the GM set by hand in the console, kept the way a rolled one is. `degree` null takes it back. */
+async function recordHandResult(session, { userId, actorId, degree }) {
+  const briefId = session.briefId;
+  const state = runStateFor(briefId);
+  const at = new Date().toISOString();
+  const name = game.actors?.get(actorId)?.name ?? game.users?.get(userId)?.character?.name ?? game.users?.get(userId)?.name ?? "?";
+  const found = await checkOfSession(session);
+  const what = found?.check?.name ?? found?.topic?.topic ?? session.key;
+
+  if (isTopicKey(session.key)) {
+    // A person's conversation check keeps one result, with who it was.
+    const topics = { ...state.topics };
+    if (degree) topics[session.key] = { at, degree, via: "hand", actorId, by: name };
+    else if (!topics[session.key]?.actorId || topics[session.key].actorId === actorId) delete topics[session.key];
+    await writeRunState(briefId, { ...state, topics });
+  } else {
+    // Each character's own result on the beat (core/runner-party.mjs), and the
+    // first result on a beat with none marks it done at that degree.
+    const beatId = session.key;
+    const results = withResult(state.results, beatId, actorId, degree ? { degree, name, at, via: "hand" } : null);
+    const before = state.ticked?.[beatId] ?? null;
+    let ticked = state.ticked;
+    let after = before;
+    if (degree && !before) {
+      after = { at, degree, via: "hand", actorId, by: name };
+      ticked = { ...state.ticked, [beatId]: after };
+      fireBeatAudio(briefId, beatId);
+    }
+    await writeRunState(briefId, { ...state, results, ticked });
+    active?.markResolved(beatId);
+    if (after !== before) await beatAutomation(briefId, beatId, before, after);
+  }
+  if (degree) {
+    await recordLogEntry({ text: `${name}: ${degree} on ${what}.`, nowIso: at, scene: canvas?.scene?.name ?? null, subject: outcomeLogSubject(session.key, degree) })
+      .catch((err) => console.error("Blank Inheritance | Could not log that result:", err));
+  }
+  refreshSceneRunner();
+}
+
+/**
+ * A degree marked in the console as how the check came out for the scene: the beat's (or topic's) one recorded
+ * outcome, which its branches read. Marking the same degree again clears it.
+ */
+async function recordMarkedOutcome(session, degree) {
+  const briefId = session.briefId;
+  const state = runStateFor(briefId);
+  const at = new Date().toISOString();
+  const found = await checkOfSession(session);
+  const what = found?.check?.name ?? found?.topic?.topic ?? found?.beat?.text ?? session.key;
+  let set = false;
+
+  if (isTopicKey(session.key)) {
+    const topics = { ...state.topics };
+    if (topics[session.key]?.degree === degree) delete topics[session.key];
+    else {
+      topics[session.key] = { at, degree };
+      set = true;
+    }
+    await writeRunState(briefId, { ...state, topics });
+  } else {
+    const beatId = session.key;
+    const ticked = { ...state.ticked };
+    const before = ticked[beatId] ?? null;
+    if (before?.degree === degree) delete ticked[beatId];
+    else {
+      ticked[beatId] = { at, degree };
+      set = true;
+      fireBeatAudio(briefId, beatId);
+      // Keep the beat open on its consequence: the GM is about to say it.
+      active?.markResolved(beatId);
+    }
+    await writeRunState(briefId, { ...state, ticked });
+    await beatAutomation(briefId, beatId, before, ticked[beatId] ?? null);
+  }
+  if (set) {
+    await recordLogEntry({ text: `${degree} on ${what}.`, nowIso: at, scene: canvas?.scene?.name ?? null, subject: outcomeLogSubject(session.key, degree) })
+      .catch((err) => console.error("Blank Inheritance | Could not log that outcome:", err));
+  }
+  refreshSceneRunner();
+}
+
+setCheckConsoleProvider({
+  async context(session) {
+    if (!session?.briefId || session.source?.kind === "adhoc") return null;
+    const found = await checkOfSession(session);
+    if (!found) return null;
+    const state = runStateFor(session.briefId);
+    const recorded = isTopicKey(session.key) ? state.topics?.[session.key]?.degree : state.ticked?.[session.key]?.degree;
+    return {
+      title: found.check.name ?? found.check.id ?? found.topic?.topic ?? null,
+      outcomes: found.check.outcomes ?? {},
+      bySkill: found.check.bySkill ?? null,
+      recordedDegree: recorded ?? null,
+      // How many times each degree has landed on it, across every attempt the
+      // log holds (Ingram, 2026-09-19: "record how many Crit success, success,
+      // ... crit fails we get for each challenge"; core/scene-brief.mjs#outcomeTally).
+      tally: outcomeTally(currentEntries(), session.key),
+      canMark: true
+    };
+  },
+  async record({ kind, session, userId, actorId, degree }) {
+    if (!game.user?.isGM || !session?.briefId || !session.key) return;
+    if (kind === "hand") await recordHandResult(session, { userId, actorId, degree });
+    else if (kind === "outcome" && degree) await recordMarkedOutcome(session, degree);
+  }
+});
 
 /**
  * One press per moment (core/beat-autofire.mjs, D059). When a beat becomes
@@ -805,7 +982,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       toggle: SceneRunner.#onToggle,
       toggleBeat: SceneRunner.#onToggleBeat,
-      recordOutcome: SceneRunner.#onRecordOutcome,
       openBeat: SceneRunner.#onOpenBeat,
       openGmTool: SceneRunner.#onOpenGmTool,
       spend: SceneRunner.#onSpend,
@@ -816,7 +992,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       stagePerson: SceneRunner.#onStagePerson,
       revealName: SceneRunner.#onRevealName,
       closeScene: SceneRunner.#onCloseScene,
-      postCheck: SceneRunner.#onPostCheck,
+      // 2026-10-05: a check's pill opens the check console on it; the header's
+      // Check key opens one made up on the spot.
+      openCheck: SceneRunner.#onOpenCheck,
+      openAdhocCheck: SceneRunner.#onOpenAdhocCheck,
+      openLocationEditor: SceneRunner.#onOpenLocationEditor,
       // D050: a relaxed scene's event deck, and a rest's healing.
       drawEvent: SceneRunner.#onDrawEvent,
       witnessEvent: SceneRunner.#onWitnessEvent,
@@ -829,8 +1009,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // D052: a haunt's own upgrades/setbacks, toggled by hand.
       toggleUpgrade: SceneRunner.#onToggleUpgrade,
       toggleSetback: SceneRunner.#onToggleSetback,
-      postTopicCheck: SceneRunner.#onPostTopicCheck,
-      recordTopicOutcome: SceneRunner.#onRecordTopicOutcome,
       revealHandout: SceneRunner.#onRevealHandout,
       revealHandoutSolo: SceneRunner.#onRevealHandoutSolo,
       grantArtefact: SceneRunner.#onGrantArtefact,
@@ -847,14 +1025,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       togglePerson: SceneRunner.#onTogglePerson,
       toggleShowAll: SceneRunner.#onToggleShowAll,
       unstagePerson: SceneRunner.#onUnstagePerson,
-      useRoll: SceneRunner.#onUseRoll,
       // 2026-10-04: one rule the scene's own words name, opened as the system's own card or the SRD article.
       openRule: SceneRunner.#onOpenRule,
       noteTag: SceneRunner.#onNoteTag,
       nudgeClock: SceneRunner.#onNudgeClock,
-      // 2026-10-04 (D059): each character's own result on a beat everyone
-      // rolls, a fight set up in one press, and its clock rising by itself.
-      recordPlayerResult: SceneRunner.#onRecordPlayerResult,
+      // 2026-10-04 (D059): a fight set up in one press, and its clock rising by itself.
       setUpFight: SceneRunner.#onSetUpFight,
       toggleClockAuto: SceneRunner.#onToggleClockAuto,
       jumpToNow: SceneRunner.#onJumpToNow,
@@ -1498,7 +1673,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     // the marker back to it.
     if (view.focusId && view.focusId !== nowId) view.focusId = null;
     const phase = runnerPhase(state.progress, runState);
-    const rolls = resultsByKey(tableRollResults(briefId));
     // The party, read off the sheets, and whom each carry-in into this scene
     // applies to, looked up in the record (core/runner-party.mjs, 2026-10-04).
     let members = [];
@@ -1509,7 +1683,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     const carryIns = carryInsWithNames(state.intro?.carriesIn ?? [], { runs, members, arrivals: cityArrivals() });
     const decorated = state.beats.map((beat) =>
-      this.#withView(this.#decorateBeat(beat, brief, challenges, entries, runState), { nowId, view, sections, runState, rolls, members, hasClock: Boolean(subsystem) })
+      this.#withView(this.#decorateBeat(beat, brief, challenges, entries, runState), { nowId, view, sections, runState, hasClock: Boolean(subsystem) })
     );
     // The City (design/world-map-destinations.md §7): who went where on the way
     // into this scene. A beat tagged for destinations shows the players who are
@@ -1702,7 +1876,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * who it is about, what was recorded and by whom, and every result the
    * table has rolled against it.
    */
-  #withView(beat, { nowId, view, sections, runState, rolls, members = [], hasClock = false }) {
+  #withView(beat, { nowId, view, sections, runState, hasClock = false }) {
     const tick = runState.ticked?.[beat.id] ?? null;
     const degreeLabel = (degree) => {
       const entry = DEGREE_LABELS.find(([key]) => key === degree);
@@ -1722,20 +1896,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       recordedDegree: beat.degree ?? null,
       encounter: beat.encounterRef
         ? encounterSummary(this._scene?.encounters?.[beat.encounterRef], { clockAuto: runState.clockAuto !== false, hasClock: hasClock && Boolean(beat.subsystemRef) })
-        : null,
-      // A beat every player rolls in turn: each one's own result, one press
-      // each, beside their name (core/runner-party.mjs#perPlayerRows).
-      perPlayer: beat.check && beat.delivery === "each" && members.length
-        ? perPlayerRows(members, runState, beat.id).map((row) => ({
-            ...row,
-            degrees: DEGREE_LABELS.map(([degree, key]) => ({ degree, label: game.i18n.localize(key), short: DEGREE_SHORT[degree], isPicked: row.degree === degree }))
-          }))
-        : null,
-      rolls: (rolls.get(beat.id) ?? []).map((result) => ({
-        ...result,
-        label: degreeLabel(result.degree),
-        isRecorded: Boolean(tick?.messageId && tick.messageId === result.messageId)
-      }))
+        : null
     };
   }
 
@@ -1802,7 +1963,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     // panel itself (inline-triggers.mjs's own doctrine), but a typo is still
     // worth a console line too, the same courtesy #onOpenGmTool gives a bad
     // toolId, since a GM mid-scene may not be looking at the exact word.
-    const { html: decoratedText, unknownIds: unknownInText } = decorateInlineTriggers(beat.text, beat.triggers, beat.id, { fired });
+    // A beat with a check carries its pill in its own line, where the words ask
+    // for it (core/check-pill.mjs): one press opens the check console on it.
+    const decorate = (text) => decorateInlineTriggers(text, beat.triggers, beat.id, { fired });
+    const { html: decoratedText, unknownIds: unknownInText } = check
+      ? decorateWithCheck(beat.text, decorate, (words) => checkPill({ key: `beat:${beat.id}`, check, dc, words, lights: beatLights(brief.id, beat.id, runState) }))
+      : decorate(beat.text);
     const { html: decoratedReadAloud, unknownIds: unknownInReadAloud } = beat.readAloud
       ? decorateInlineTriggers(beat.readAloud, beat.triggers, beat.id, { fired })
       : { html: null, unknownIds: [] };
@@ -1864,59 +2030,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // water..." under "someone studies the water first" read it twice).
       whenLabel: conditionLabelShown(beat.when?.condition, beat.text) ? beat.when.condition : null,
       handout,
-      // Four, never five. A plain Failure with no listed effect is what
-      // reads as "neutral" at a table; SF2E has no fifth rung.
-      //
-      // Each degree carries its AUTHORED CONSEQUENCE (the challenge's own
-      // `outcomes`, present on all 64 checks in the real data) -- which the
-      // panel never showed before 2026-09-24. The GM saw four bare buttons and
-      // had to remember, or go and find, what a crit fail actually did.
-      outcomes: check
-        ? DEGREE_LABELS.map(([degree, key]) => ({
-            degree,
-            label: game.i18n.localize(key),
-            consequence: check.outcomes?.[degree] ?? null,
-            isPicked: beat.degree === degree,
-            isOther: Boolean(beat.degree) && beat.degree !== degree
-          }))
-        : [],
-      check: check
-        ? {
-            name: check.name ?? check.id,
-            dc,
-            // Posted with sf2e's secret trait: the player rolls blind and only
-            // the GM sees the number (D058). Said on the beat, so the GM knows
-            // why a player sees no result.
-            secret: check.secret === true,
-            skills: check.anySkill ? game.i18n.localize("BLANKINHERITANCE.Runner.AnySkill") : (check.skillOptions ?? []).join(" / "),
-            label: checkLabel(check, dc, game.i18n.localize("BLANKINHERITANCE.Runner.AnySkill")),
-            // The GM sees what was done to the number; the players never will.
-            title: adjustment
-              ? `${check.name ?? check.id} — DC ${baseDc} ${adjustment > 0 ? "−" : "+"}${Math.abs(adjustment)} here`
-              : (check.name ?? check.id),
-            // What a DIFFERENT skill actually gets, when authored -- most
-            // checks correctly leave this out (same outcome whichever skill
-            // reached it). See core/roll-intent.mjs#enrichersFor's own header
-            // for the companion fix (every skill is now actually postable).
-            bySkill: check.bySkill
-              ? Object.entries(check.bySkill).map(([skill, text]) => ({ skill, text }))
-              : null,
-            // How many times each degree has actually landed, across every
-            // attempt ever logged -- shown only once there is at least one,
-            // so a check nobody has rolled yet doesn't clutter the line.
-            // Same DEGREE_LABELS order/wording as the outcome-recording
-            // buttons themselves, for one consistent vocabulary.
-            tally: (() => {
-              const counts = outcomeTally(entries, beat.id);
-              if (Object.values(counts).every((n) => n === 0)) return null;
-              return DEGREE_LABELS.map(([degree, key]) => ({
-                degree,
-                label: game.i18n.localize(key),
-                count: counts[degree] ?? 0
-              }));
-            })()
-          }
-        : null
+      // The check itself lives in the pill in the beat's line and the console
+      // it opens (2026-10-05): the DC, the ways, each player's result and what
+      // each degree means. The beat keeps only that it has one.
+      check: check ? { name: check.name ?? check.id, dc, secret: check.secret === true } : null
     };
   }
 
@@ -1946,24 +2063,15 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       locationKey: brief.sceneRef
     });
     const dc = postedDc(baseDc, adjustment);
-    const pickedDegree = runState.topics?.[topicKey]?.degree ?? null;
+    const picked = runState.topics?.[topicKey]?.degree ?? null;
+    const key = `topic:${castId}:${index}`;
+    const open = openCheckFor(brief.id, topicKey);
+    const lights = open ? gmLights(open) : picked ? [{ state: picked }] : [];
 
     return {
       ...topic,
       topicKey,
-      outcomes: DEGREE_LABELS.map(([degree, key]) => ({
-        degree,
-        label: game.i18n.localize(key),
-        consequence: check.outcomes?.[degree] ?? null,
-        isPicked: pickedDegree === degree
-      })),
-      check: {
-        dc,
-        label: checkLabel(check, dc, game.i18n.localize("BLANKINHERITANCE.Runner.AnySkill")),
-        title: adjustment
-          ? `${check.name ?? check.id} — DC ${baseDc} ${adjustment > 0 ? "−" : "+"}${Math.abs(adjustment)} here`
-          : (check.name ?? check.id)
-      }
+      check: { pill: checkPill({ key, check, dc, words: null, lights }) }
     };
   }
 
@@ -2000,64 +2108,9 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * Record how a check actually came out.
-   *
-   * Ticks the beat as a side effect, because a check that produced a degree
-   * self-evidently happened — asking the GM to click twice for one event is
-   * the kind of bookkeeping doctrine §10.1 says will simply not get done.
-   * Clicking the same degree again clears it back to an untouched beat.
-   *
-   * Also logs the degree, one entry per attempt -- run state's own
-   * `ticked[beatId]` only ever keeps the LATEST outcome, which is right for
-   * branching (a beat is either gated open or not, by its current state) but
-   * wrong for the question "how many times has this actually landed on each
-   * degree" (requested 2026-09-19). The log is append-only, so this is the
-   * one place that history can live without a run-state schema change.
-   * core/scene-brief.mjs#outcomeTally reads it back out.
-   */
-  static async #onRecordOutcome(event, target) {
-    const briefId = currentBriefId();
-    const beatId = target.dataset.beatId;
-    const degree = target.dataset.degree;
-    const state = runStateFor(briefId);
-    const ticked = { ...state.ticked };
-    const before = ticked[beatId] ?? null;
-
-    if (ticked[beatId]?.degree === degree) {
-      delete ticked[beatId];
-    } else {
-      ticked[beatId] = { at: new Date().toISOString(), degree };
-      fireBeatAudio(briefId, beatId);
-      // Keep this beat open on its consequence (core/runner-view.mjs
-      // #beatDetailOpen's one exception) — the GM is about to say it.
-      this.#viewFor(briefId).resolvedId = beatId;
-      // Awaited, and BEFORE the render below -- a fire-and-forget write here
-      // raced the very next render's own read of the log (found live: the
-      // tally never appeared on the first click, only after a second
-      // unrelated re-render had given the write time to land).
-      const beat = this.#beat(beatId);
-      const check = beat ? checkFor(beat, this._scene?.challenges ?? {}) : null;
-      try {
-        await recordLogEntry({
-          text: `${degree} on ${check?.name ?? beat?.text ?? beatId}.`,
-          nowIso: new Date().toISOString(),
-          scene: canvas?.scene?.name ?? null,
-          subject: outcomeLogSubject(beatId, degree)
-        });
-      } catch (err) {
-        console.error("Blank Inheritance | Could not log that outcome:", err);
-      }
-    }
-
-    await writeRunState(briefId, { ...state, ticked });
-    this.render({});
-    if ((await beatAutomation(briefId, beatId, before, ticked[beatId] ?? null)).length) this.render({});
-  }
-
-  /**
    * Record which way a `choicePoint` actually went (design/scene-triggers-and-depth.md
-   * §2.4, ux-doctrine.md Law 21) -- same toggle-and-log shape as
-   * #onRecordOutcome just above: clicking the same option again clears it
+   * §2.4, ux-doctrine.md Law 21) -- same toggle-and-log shape as a check's
+   * outcome marked in the check console (recordMarkedOutcome): clicking the same option again clears it
    * back to undecided, and `ticked[beatId]` is replaced wholesale rather than
    * merged, matching that same precedent (a beat is authored as either a
    * check or a choice, never both, so there is nothing to lose).
@@ -2265,19 +2318,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render({});
   }
 
-  /**
-   * Use one particular rolled result as the beat's (or topic's) outcome — the
-   * GM's pick when more than one player rolled, or overriding the result that
-   * recorded itself. Reads the result back out of the real chat message rather
-   * than trusting the button's own copy of it.
-   */
-  static async #onUseRoll(event, target) {
-    const message = game.messages?.get(target.dataset.messageId);
-    const result = message ? resultFromMessage(message) : null;
-    if (!result) return;
-    await recordRollResult(result, { force: true });
-  }
-
   /** One of the scene's rules, pressed: the system's own card for it (a condition, an action, a creature), or the SRD article. */
   static async #onOpenRule(event, target) {
     const rule = (this._sceneRules ?? []).find((r) => r.id === target.dataset.ruleId);
@@ -2453,10 +2493,17 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
           hiddenAdjustment(brief.gmModifiers ?? [], { challengeRef: beat?.challengeRef, locationKey: brief.sceneRef })
         );
         try {
-          await ChatMessage.create({ content: checkMessageContent(check, { dc, briefId: brief.id, key: beatId }) });
+          await openCheckConsole({
+            briefId: brief.id,
+            key: beatId,
+            source: { kind: "beat", briefId: brief.id, beatId, checkRef: trigger.checkRef ?? null },
+            skills: checkSkills(check),
+            dc,
+            blind: check.secret === true
+          });
           await logFired();
         } catch (err) {
-          console.error("Blank Inheritance | Could not post that check:", err);
+          console.error("Blank Inheritance | Could not put that check to the table:", err);
           ui.notifications.warn(String(err?.message ?? err));
         }
         return;
@@ -2687,20 +2734,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     });
   }
 
-  /**
-   * Post the check for the table to roll.
-   *
-   * The DC posted is already adjusted by any hidden modifier, so the player
-   * rolls against a number nobody tells them and we never touch their sheet
-   * (Law 18 — never recompute what sf2e already computes; the `@Check`
-   * enricher is sf2e's own, with 1,586 uses in the shipped compendia).
-   *
-   * EVERY listed skill option is posted, not just the first — found live
-   * 2026-09-19: the button already shows all of them ("PERCEPTION / MEDICINE
-   * / SOCIETY 17"), but only ever posted Perception. `enrichersFor` posts
-   * one real inline check per skill, joined by "or", so whichever character
-   * actually has Society rolls Society.
-   */
   /** Draw one event from this scene's deck (core/event-deck.mjs). */
   static async #onDrawEvent() {
     const brief = this._scene?.brief;
@@ -2781,92 +2814,31 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
-  static async #onPostCheck(event, target) {
-    const beat = this.#beat(target.dataset.beatId);
-    const check = beat ? checkFor(beat, this._scene?.challenges ?? {}) : null;
-    if (!check) return;
-
-    const brief = this._scene.brief;
-    const dc = postedDc(check.dc?.value ?? null, hiddenAdjustment(brief.gmModifiers ?? [], {
-      challengeRef: beat.challengeRef,
-      locationKey: brief.sceneRef
-    }));
-    // Posting a beat's check is running that beat.
-    this.#focus(beat.id);
-
-    try {
-      // Tagged with this brief and beat, so the result a player rolls from it
-      // records itself here (the createChatMessage hook below).
-      await ChatMessage.create({ content: checkMessageContent(check, { dc, briefId: brief.id, key: beat.id }) });
-      this.render({});
-    } catch (err) {
-      console.error("Blank Inheritance | Could not post that check:", err);
-      ui.notifications.warn(String(err?.message ?? err));
-    }
-  }
-
-  /** The raw, authored coercible topic this many-selectors-deep action targets — re-read from `this._scene.brief` fresh, same discipline as `#beat` above, never trusted from a stale render. */
-  #coercibleTopic(castId, index) {
-    const member = this._scene?.brief?.cast?.find((m) => m.id === castId);
-    return member?.brief?.coercible?.[index] ?? null;
-  }
-
-  /** Post a coercible topic's own check — identical body to #onPostCheck, addressed by castId+index instead of a beatId, since a topic is not a beat. */
-  static async #onPostTopicCheck(event, target) {
-    const topic = this.#coercibleTopic(target.dataset.castId, Number(target.dataset.topicIndex));
-    const check = topic ? checkFor(topic, this._scene?.challenges ?? {}) : null;
-    if (!check) return;
-
-    const brief = this._scene.brief;
-    const dc = postedDc(check.dc?.value ?? null, hiddenAdjustment(brief.gmModifiers ?? [], {
-      challengeRef: topic.challengeRef,
-      locationKey: brief.sceneRef
-    }));
-    const topicKey = `${target.dataset.castId}:coercible:${Number(target.dataset.topicIndex)}`;
-
-    try {
-      await ChatMessage.create({ content: checkMessageContent(check, { dc, briefId: brief.id, key: topicKey }) });
-    } catch (err) {
-      console.error("Blank Inheritance | Could not post that check:", err);
-      ui.notifications.warn(String(err?.message ?? err));
-    }
-  }
-
   /**
-   * Record how a coercible topic's check actually came out — the other half
-   * of #onPostTopicCheck, mirroring #onRecordOutcome's own shape but writing
-   * to `state.topics`, never `state.ticked`: a topic is a side conversation,
-   * not a beat, and must never participate in beat-branch logic. Clicking
-   * the same degree again clears it, same toggle behaviour as a beat.
+   * A check's pill, pressed: the check console opens on it (foundry/check-console.mjs), on the GM's screen and every
+   * player's. Pressing the pill of the check already open just brings its window back.
    */
-  static async #onRecordTopicOutcome(event, target) {
-    const briefId = currentBriefId();
-    const castId = target.dataset.castId;
-    const index = target.dataset.topicIndex;
-    const topicKey = `${castId}:coercible:${index}`;
-    const degree = target.dataset.degree;
-    const state = runStateFor(briefId);
-    const topics = { ...state.topics };
-
-    if (topics[topicKey]?.degree === degree) {
-      delete topics[topicKey];
-    } else {
-      topics[topicKey] = { at: new Date().toISOString(), degree };
-      const topic = this.#coercibleTopic(castId, Number(index));
-      try {
-        await recordLogEntry({
-          text: `${degree} on "${topic?.topic ?? topicKey}".`,
-          nowIso: new Date().toISOString(),
-          scene: canvas?.scene?.name ?? null,
-          subject: outcomeLogSubject(topicKey, degree)
-        });
-      } catch (err) {
-        console.error("Blank Inheritance | Could not log that outcome:", err);
-      }
-    }
-
-    await writeRunState(briefId, { ...state, topics });
+  static async #onOpenCheck(event, target) {
+    const spec = checkSpecFor(this._scene, target.dataset.checkKey);
+    if (!spec) return;
+    // Putting a beat's check to the table is running that beat.
+    if (spec.source.kind === "beat") this.#focus(spec.source.beatId);
+    await openCheckConsole(spec);
     this.render({});
+  }
+
+  /** The header's Locations key: the Campaign Map first, then the Location Editor on it (location-editor.mjs#openLocationEditorOnMap). */
+  static async #onOpenLocationEditor() {
+    await openLocationEditorOnMap();
+  }
+
+  /** The header's Check key: the check that is open, or a new one made up on the spot (any skill, any DC). */
+  static async #onOpenAdhocCheck() {
+    if (currentCheck()) {
+      showCheckConsole();
+      return;
+    }
+    await openCheckConsole({ briefId: currentBriefId() || null, key: null, source: { kind: "adhoc" }, skills: [], dc: 15 });
   }
 
   /**
@@ -2961,48 +2933,6 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     if (said.length) ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.AutoFired", { what: said.join(" · ") }));
     return said;
-  }
-
-  /**
-   * One character's own result on a beat everyone rolls (2026-10-04): the
-   * per-player row beside their name. Pressing the degree they already have
-   * clears it. The first result on a beat with none also marks the beat done
-   * at that degree, the same as the first roll that records itself.
-   */
-  static async #onRecordPlayerResult(event, target) {
-    const briefId = currentBriefId();
-    const { beatId, actorId, degree } = target.dataset;
-    if (!briefId || !beatId || !actorId || !degree) return;
-    const state = runStateFor(briefId);
-    const current = state.results?.[beatId]?.[actorId]?.degree ?? null;
-    const name = game.actors?.get(actorId)?.name ?? "?";
-    const at = new Date().toISOString();
-    const clearing = current === degree;
-    const results = withResult(state.results, beatId, actorId, clearing ? null : { degree, name, at, via: "hand" });
-    const before = state.ticked?.[beatId] ?? null;
-    let ticked = state.ticked;
-    let after = before;
-    if (!clearing && !before) {
-      after = { at, degree, via: "hand", actorId, by: name };
-      ticked = { ...state.ticked, [beatId]: after };
-      fireBeatAudio(briefId, beatId);
-    }
-    await writeRunState(briefId, { ...state, results, ticked });
-    // Stay open on the row: the next player's result is one press away, and a
-    // beat that folded after the first would hide the rest of the round.
-    this.#viewFor(briefId).resolvedId = beatId;
-    if (!clearing) {
-      const beat = this.#beat(beatId);
-      const check = beat ? checkFor(beat, this._scene?.challenges ?? {}) : null;
-      await recordLogEntry({
-        text: `${name}: ${degree} on ${check?.name ?? beat?.text ?? beatId}.`,
-        nowIso: at,
-        scene: canvas?.scene?.name ?? null,
-        subject: outcomeLogSubject(beatId, degree)
-      }).catch((err) => console.error("Blank Inheritance | Could not log that result:", err));
-    }
-    this.render({});
-    if (after !== before && (await beatAutomation(briefId, beatId, before, after)).length) this.render({});
   }
 
   /**
@@ -3411,8 +3341,8 @@ Hooks.on("updateScene", (doc, change) => {
 });
 
 /**
- * A result the table rolled from a check this runner posted (tagged with its
- * brief and beat — see rollTagFor) records itself against that beat, filling
+ * A result the table rolled for one of this runner's checks (tagged with its
+ * brief and beat — foundry/check-console.mjs#checkRollOptions) records itself against that beat, filling
  * a gap and never overwriting the GM's own call (core/runner-view.mjs
  * #shouldAutoRecord). The GM still sees every result on the beat and can use
  * a different one with a click.

@@ -140,6 +140,16 @@ test("computeOutTray: open questions are counted separately from the out-tray to
   assert.equal(result.total, 0, "open questions must never inflate the out-tray's own 'waiting on Claude' total");
 });
 
+test("computeOutTray: canon's open facts join the creative questions (D079: the timeline is the gold standard for story), and a closed one never counts", () => {
+  const result = computeOutTray({
+    openQuestions: { questions: [{ id: "design-1", status: "open" }, { id: "moved-1", status: "resolved" }] },
+    openDecisions: { questions: [{ id: "watcher.real-name", status: "open" }, { id: "hyuck.protocol", status: "open" }] }
+  });
+  assert.deepEqual(result.openCreativeQuestions.map((q) => q.id), ["design-1", "watcher.real-name", "hyuck.protocol"]);
+  assert.equal(result.total, 0, "still never part of the out-tray total");
+  assert.equal(computeOutTray({ openDecisions: { questions: [] } }).openCreativeQuestions.length, 0);
+});
+
 test("computeOutTray: audio review counts against the FULL library, not just review.json's own decisions map -- an asset with no entry is still 'proposed' per audio-review.schema.json's own rule", () => {
   const result = computeOutTray({
     audioLibrary: { assets: [{ id: "a" }, { id: "b" }, { id: "c" }] },

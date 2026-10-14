@@ -8,8 +8,8 @@
   "name": null,
   "role": "Repair Crew Chief, Watanabe Yumiko's Frame",
   "affiliation": "directorate",
+  "canon": null,
   "crewChiefForRef": "watanabe-yumiko",
-  "description": "One of six named heads of a pilot's own standing repair crew (campaign/config.json#frameEconomy.repairCrew), confirmed 2026-09-09. Currently a placeholder role, not a character -- Ingram's own framing: 'six lesser NPCs who may grow into bigger more interesting roles later.'",
   "designNotes": "As of 2026-09-09, repair crews also maintain Watanabe's vehicle alongside the Frame, competing for the same technician-day allocation. Personality, name, and how they relate to Watanabe specifically are all open.",
   "openQuestionRefs": [
     "repair-crew-relationship"

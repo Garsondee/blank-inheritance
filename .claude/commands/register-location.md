@@ -47,6 +47,7 @@ first), and retires the old place after proving nothing else names it. Siting a 
   re-read (`canon/reread.md`, `<scene>.reread.md`) and `node tools/story/story.mjs build`.
 - `npm test` (the corpus tests validate the new file's schema, the haunt tests the scene's place), `python -m unittest` in `test/location-sync` if
   the bridge changed.
+- `npm run journeys`: the party can still walk every episode (`design/location-editor.md` section 16). A new or moved place can strand a scene (a token that would stand in the sea, a street network that stops short); it exits 1 on an error, and `--notes` lists what a place being an area, a detour or a slow walk costs. Fix an error, or say it in the report.
 - Commit only your own files (blob-stage anything another session also changed), then `npm run deploy` (`--prune` when a location was retired:
   `npm run deploy:check` first and read what it would delete). Ingram has said: deploy at the end, do not ask.
 - Report in her terms: what the place is, what you proposed that she should check, what is still open, the build id.

@@ -18,7 +18,7 @@
         "generation": {
           "enum": ["gen1", "gen2", null],
           "default": "gen1",
-          "description": "Gen 1 is the classic century-and-a-half-old utility fleet the party starts on — converted diggers, cranes, disaster-response rigs — reverse-engineered from a single fragment and flyable by anyone. Gen 2 is built from genuinely recovered ship material, DNA-gated, and arrives MUCH later (roughly level 4 at the earliest). See ideas/story/dossier-second-generation-frames.md."
+          "description": "Gen 1 is the classic century-and-a-half-old utility fleet the party starts on — converted diggers, cranes, disaster-response rigs — reverse-engineered from a single fragment and flyable by anyone. Gen 2 is built from genuinely recovered ship material, DNA-gated, and arrives MUCH later (roughly level 4 at the earliest). See quarantine/ideas/story/dossier-second-generation-frames.md."
         },
         "level": {
           "type": "integer",

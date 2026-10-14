@@ -465,7 +465,7 @@ theme — Session 0/1 has no combat-capable antagonist on stage yet (see below):
 **The cicada mark gets sound design, not scoring.** The stencil recurs across
 `the-road-in` and `the-errand` as a small, unexplained, deep-violet mark —
 and, per the story bible, its meaning is inseparable from the campaign's
-central secret (`ideas/story/bible/characters/manako.md`: the warm old man
+central secret (`quarantine/ideas/story/bible/characters/manako.md`: the warm old man
 who saves the party in "The Errand" is, unknowingly, the whole antagonist
 structure's own operator). **No cue anywhere touches this and none should.**
 The cicada motif itself is safe to score — Ingram's own idea entry canonises

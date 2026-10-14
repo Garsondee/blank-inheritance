@@ -1,0 +1,174 @@
+/*
+ * The Location Editor's journeys (design/location-editor.md section 16): the Journeys and Places tabs, the player bar under the tabs, the pin card, the
+ * route lines and badges in the Story list, and the "what would that do" card. Everything is scoped to the editor's own window so nothing here can reach the
+ * deck, the Scene Runner or the table's own screens. Colours match the editor's (bi-components.css): a dark panel, phosphor green for what is chosen, amber for
+ * advice, red for what cannot work, cyan for what is waiting, and the three colours of a way of moving the map draws them in (core/journey-draw.mjs MODE_STYLE).
+ */
+
+.bi-location-editor .bi-journeys,
+.bi-location-editor .bi-places { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0.4em 0.6em; color: #e8e4da; display: flex; flex-direction: column; gap: 0.5em; }
+.bi-location-editor .bi-journeys[hidden],
+.bi-location-editor .bi-places[hidden] { display: none !important; }
+
+.bi-location-editor .bi-location-editor__header { flex: 0 0 auto; display: flex; flex-direction: column; }
+
+/* ---------------------------------------------------------------- the player bar */
+
+.bi-location-editor .bi-jbar { flex: 0 0 auto; display: flex; flex-direction: column; gap: 0.25em; padding: 0.4em 0.6em 0.35em; background: #14120f; border-bottom: 1px solid #4a453a; color: #e8e4da; }
+.bi-jbar__row { display: flex; align-items: center; gap: 0.4em; }
+.bi-jbar__row--info { font-size: 0.85em; }
+.bi-jbar__button { flex: 0 0 auto; width: 2em; height: 1.9em; display: inline-flex; align-items: center; justify-content: center; background: #24211c; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0; cursor: pointer; }
+.bi-jbar__button:hover { border-color: var(--bi-phosphor, #6fe39a); }
+.bi-jbar__button.is-active { background: var(--bi-phosphor-dim, #2f6a48); border-color: var(--bi-phosphor, #6fe39a); }
+.bi-jbar__play { background: var(--bi-phosphor-dim, #2f6a48); border-color: var(--bi-phosphor, #6fe39a); }
+.bi-jbar__play .fa-pause { display: none; }
+.bi-jbar.is-playing .bi-jbar__play .fa-pause { display: inline; }
+.bi-jbar.is-playing .bi-jbar__play .fa-play { display: none; }
+.bi-jbar__camera { margin-left: 0.2em; }
+.bi-jbar__scrub { flex: 1 1 auto; min-width: 0; accent-color: var(--bi-phosphor, #6fe39a); }
+.bi-jbar__time { flex: 0 0 auto; min-width: 5.6em; text-align: right; font-variant-numeric: tabular-nums; font-size: 0.82em; color: #cfc9b8; }
+.bi-jbar__what { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bi-jbar__title { font-weight: 600; }
+.bi-jbar__detail,
+.bi-jbar__count { color: #8c877a; }
+.bi-jbar__speeds { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.bi-jbar__speed { background: #1c1a16; border: 1px solid #3a362e; color: #b7b2a4; border-radius: 3px; padding: 0 0.4em; font-size: 0.85em; cursor: pointer; }
+.bi-jbar__speed.is-active { background: var(--bi-phosphor-dim, #2f6a48); border-color: var(--bi-phosphor, #6fe39a); color: #e8e4da; }
+.bi-jbar__label { font-size: 0.76em; color: #8c877a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- the pin card */
+
+.bi-location-editor .bi-pin { flex: 0 0 auto; display: flex; flex-direction: column; gap: 0.3em; padding: 0.45em 0.6em; background: #1f1a12; border-bottom: 1px solid #d1402a; border-left: 3px solid #d1402a; color: #e8e4da; font-size: 0.88em; }
+.bi-pin[data-worst="error"] { border-left-color: #d97a6c; background: #241512; }
+.bi-pin[data-worst="warn"] { border-left-color: #e0a24a; }
+.bi-pin__head { display: flex; align-items: baseline; gap: 0.4em; }
+.bi-pin__head small { color: #b7b2a4; }
+.bi-pin__help { margin: 0; color: #cfc9b8; }
+.bi-pin__form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4em; }
+.bi-pin__field { display: flex; flex-direction: column; gap: 0.15em; font-size: 0.9em; color: #b7b2a4; }
+.bi-pin__field input { background: #14120f; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0.3em 0.5em; font-family: inherit; }
+.bi-pin__readout { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; font-size: 0.92em; }
+.bi-pin__readout li.is-info { color: #9fb4c8; }
+.bi-pin__readout li.is-warn { color: #e0a24a; }
+.bi-pin__readout li.is-error { color: #d97a6c; }
+
+/* ---------------------------------------------------------------- the Journeys tab */
+
+.bi-journeys__top { display: flex; align-items: center; gap: 0.5em; }
+.bi-journeys__group { flex: 1 1 auto; min-width: 0; background: #1c1a16; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0.3em 0.5em; font-family: inherit; }
+.bi-journeys__verdict { border: 1px solid #4a453a; border-left-width: 4px; border-radius: 4px; padding: 0.45em 0.65em; background: #1c1a16; }
+.bi-journeys__verdict--continuous { border-color: #3d6b47; background: #16201a; }
+.bi-journeys__verdict--attention { border-color: #e0a24a; background: #231d12; }
+.bi-journeys__verdict--broken { border-color: #a8483a; background: #241512; }
+.bi-journeys__verdict-head { margin: 0 0 0.2em; font-size: 1em; }
+.bi-journeys__verdict--continuous .bi-journeys__verdict-head { color: var(--bi-phosphor, #6fe39a); }
+.bi-journeys__verdict--attention .bi-journeys__verdict-head { color: #e0a24a; }
+.bi-journeys__verdict--broken .bi-journeys__verdict-head { color: #d97a6c; }
+.bi-journeys__summary { margin: 0.1em 0 0; font-size: 0.83em; color: #cfc9b8; }
+.bi-journeys__summary small { color: #8c877a; }
+.bi-journeys__actions { display: flex; flex-wrap: wrap; gap: 0.35em; }
+.bi-journeys__switches { display: flex; flex-wrap: wrap; gap: 0.9em; font-size: 0.85em; }
+.bi-journeys__heading { display: flex; align-items: center; gap: 0.5em; margin: 0.2em 0 0.3em; font-size: 0.92em; color: #cfc9b8; border-bottom: 1px solid #3a362e; padding-bottom: 0.2em; }
+.bi-journeys__heading small { color: #8c877a; }
+.bi-journeys__heading .bi-story__check { margin-left: auto; font-weight: 400; font-size: 0.88em; }
+.bi-journeys__stepper { margin-left: auto; display: inline-flex; gap: 0.2em; }
+.bi-journeys__allclear { margin: 0.2em 0; color: var(--bi-phosphor, #6fe39a); font-size: 0.9em; }
+
+.bi-journeys__issues,
+.bi-journeys__legs { display: flex; flex-direction: column; gap: 0.2em; }
+.bi-journeys__issue-list,
+.bi-journeys__leg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-journeys__issue { display: flex; align-items: flex-start; gap: 0.5em; background: #1c1a16; border: 1px solid #3a362e; border-left-width: 3px; border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.84em; }
+.bi-journeys__issue.is-error { border-left-color: #d97a6c; }
+.bi-journeys__issue.is-warn { border-left-color: #e0a24a; }
+.bi-journeys__issue.is-info { border-left-color: #9fb4c8; }
+.bi-journeys__issue.is-current { background: #2a2220; outline: 1px solid #ff2bd6; }
+.bi-journeys__issue > i { margin-top: 0.15em; }
+.bi-journeys__issue.is-error > i { color: #d97a6c; }
+.bi-journeys__issue.is-warn > i { color: #e0a24a; }
+.bi-journeys__issue.is-info > i { color: #9fb4c8; }
+.bi-journeys__issue-body { flex: 1 1 auto; min-width: 0; }
+.bi-journeys__issue-body p { margin: 0; }
+.bi-journeys__issue-body small { color: #8c877a; }
+.bi-journeys__issue-actions { flex: 0 0 auto; display: inline-flex; gap: 0.25em; }
+
+.bi-journeys__leg { display: flex; align-items: center; gap: 0.4em; background: #1c1a16; border: 1px solid #3a362e; border-radius: 4px; padding: 0.15em 0.3em; }
+.bi-journeys__leg.is-shown { border-color: #ff2bd6; }
+.bi-journeys__leg.is-playing { background: #16261c; border-color: var(--bi-phosphor, #6fe39a); }
+.bi-journeys__leg.bi-story__leg--error { box-shadow: inset 3px 0 0 #d97a6c; }
+.bi-journeys__leg.bi-story__leg--warn { box-shadow: inset 3px 0 0 #e0a24a; }
+.bi-journeys__leg-n { flex: 0 0 auto; min-width: 1.6em; text-align: right; font-variant-numeric: tabular-nums; color: #8c877a; font-size: 0.82em; }
+.bi-journeys__leg-main { flex: 1 1 auto; min-width: 0; height: auto; min-height: 0; line-height: 1.3; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; background: transparent; border: none; color: #e8e4da; text-align: left; padding: 0.15em 0.2em; cursor: pointer; }
+.bi-journeys__leg-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88em; }
+.bi-journeys__leg-badge { color: #8c877a; font-size: 0.76em; }
+.bi-journeys__leg-badge em { font-style: normal; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 0.4em; color: #6f6a5e; }
+.bi-journeys__leg.is-option .bi-journeys__leg-n::before,
+.bi-journeys__leg.is-then .bi-journeys__leg-n::before { content: "\21b3"; margin-right: 0.2em; color: #6f6a5e; }
+
+/* ---------------------------------------------------------------- the Places tab */
+
+.bi-places__top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+.bi-places__top input[type="search"] { flex: 1 1 10em; min-width: 0; background: #1c1a16; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0.3em 0.5em; font-family: inherit; }
+.bi-places__top .bi-story__check { font-size: 0.85em; }
+.bi-places__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-places__row { background: #1c1a16; border: 1px solid #3a362e; border-radius: 4px; }
+.bi-places__row.is-moving { border-color: var(--bi-phosphor, #6fe39a); }
+.bi-places__row.has-problem.is-error { box-shadow: inset 3px 0 0 #d97a6c; }
+.bi-places__row.has-problem.is-warn { box-shadow: inset 3px 0 0 #e0a24a; }
+.bi-places__head { display: flex; align-items: center; gap: 0.4em; padding: 0.15em 0.3em; }
+.bi-places__name { flex: 1 1 auto; min-width: 0; height: auto; min-height: 0; line-height: 1.3; display: flex; align-items: baseline; justify-content: flex-start; gap: 0.4em; background: transparent; border: none; color: #e8e4da; text-align: left; padding: 0.25em 0.1em; cursor: pointer; }
+.bi-places__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bi-places__name small { color: #8c877a; font-size: 0.76em; }
+.bi-places__broken { color: #d97a6c !important; }
+.bi-places__count { flex: 0 0 auto; min-width: 1.6em; text-align: center; font-size: 0.78em; color: #b7b2a4; border: 1px solid #4a453a; border-radius: 10px; padding: 0 0.4em; }
+.bi-places__uses { list-style: none; margin: 0; padding: 0.1em 0.5em 0.4em 1.8em; display: flex; flex-direction: column; gap: 2px; font-size: 0.84em; }
+.bi-places__uses li { display: flex; align-items: center; gap: 0.4em; }
+.bi-places__use-title { color: #e8e4da; }
+.bi-places__uses small { color: #8c877a; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bi-places__bulk { background: #1a1814; border: 1px solid var(--bi-phosphor, #6fe39a); border-radius: 4px; padding: 0.5em 0.6em; display: flex; flex-direction: column; gap: 0.3em; }
+.bi-places__bulk-title { margin: 0; font-size: 0.92em; color: #e8e4da; }
+.bi-places__bulk input[type="text"] { width: 100%; background: #14120f; border: 1px solid #4a453a; color: #e8e4da; border-radius: 4px; padding: 0.3em 0.5em; }
+
+/* ---------------------------------------------------------------- journeys in the Story list */
+
+.bi-story__leg { display: flex; align-items: center; gap: 0.4em; min-height: 1.6em; padding: 0 0.3em 0 2.3em; font-size: 0.8em; color: #9a958a; }
+.bi-story__leg-arrow { flex: 0 0 auto; color: #6b665a; }
+.bi-story__leg-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bi-story__leg-text small { color: #7c776b; margin-left: 0.4em; }
+.bi-story__leg .bi-story__icon { padding: 0.05em 0.4em; font-size: 0.9em; }
+.bi-story__leg--error { color: #d97a6c; }
+.bi-story__leg--warn { color: #e0a24a; }
+.bi-story__leg.is-shown { background: rgba(255, 43, 214, 0.1); }
+.bi-story__leg.is-playing { background: rgba(111, 227, 154, 0.14); }
+.bi-story__leg-badge { flex: 0 0 auto; font-size: 0.74em; color: #9a958a; border: 1px solid #3a362e; border-radius: 10px; padding: 0 0.5em; white-space: nowrap; }
+.bi-story__leg-badge.bi-story__leg--error { border-color: #a8483a; }
+.bi-story__leg-badge.bi-story__leg--warn { border-color: #e0a24a; }
+.bi-story__leg-badge.is-playing { background: rgba(111, 227, 154, 0.14); }
+.bi-story__leg-badge.is-shown { border-color: #ff2bd6; }
+.bi-story__slot .bi-story__icon { padding: 0.05em 0.4em; font-size: 0.85em; }
+.bi-story__place-problem { flex: 0 0 auto; }
+.bi-story__place-problem.is-error { color: #d97a6c; }
+.bi-story__place-problem.is-warn { color: #e0a24a; }
+.bi-story__hint { margin: 0 0 0.3em; font-size: 0.8em; color: #9fb4c8; }
+
+/* ---------------------------------------------------------------- what would that do */
+
+.bi-story__whatif { margin: 0.3em 0 0.4em; padding: 0.4em 0.55em; background: #14120f; border: 1px solid #3a362e; border-left-width: 3px; border-radius: 4px; font-size: 0.82em; }
+.bi-story__whatif--same { border-left-color: #4a453a; }
+.bi-story__whatif--better { border-left-color: #3d6b47; }
+.bi-story__whatif--worse { border-left-color: #a8483a; }
+.bi-story__whatif--mixed { border-left-color: #e0a24a; }
+.bi-story__whatif-head { margin: 0 0 0.2em; color: #cfc9b8; }
+.bi-story__whatif ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.bi-story__whatif li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.5em; }
+.bi-story__whatif li::before { content: "\2022"; color: #6b665a; }
+.bi-story__whatif li.is-better::before { content: "\25b2"; color: var(--bi-phosphor, #6fe39a); }
+.bi-story__whatif li.is-worse::before { content: "\25bc"; color: #d97a6c; }
+.bi-story__whatif li small { color: #8c877a; }
+.bi-story__whatif li em { flex-basis: 100%; padding-left: 1.3em; font-style: normal; }
+.bi-story__whatif em.is-error,
+.bi-story__whatif-place.is-error { color: #d97a6c; }
+.bi-story__whatif em.is-warn,
+.bi-story__whatif-place.is-warn { color: #e0a24a; }
+.bi-story__whatif-more { margin: 0.2em 0 0; color: #8c877a; }
+.bi-story__whatif-place { margin: 0.2em 0 0; }

@@ -3,6 +3,7 @@
     <header class="bi-story__top">
         <p class="bi-story__summary">{{#if story.summary}}{{story.summary}}{{else}}&nbsp;{{/if}}</p>
         <div class="bi-story__tools">
+            {{#if story.journeysReady}}<label class="bi-story__check"><input type="checkbox" data-action="toggleRoutes" {{#if story.showRoutes}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Story.Routes"}}</label>{{/if}}
             <label class="bi-story__check"><input type="checkbox" data-action="toggleOnlyGaps" {{#if story.onlyGaps}}checked{{/if}}> {{localize "BLANKINHERITANCE.LocationEditor.Story.OnlyGaps"}}</label>
             <button type="button" class="bi-story__icon" data-action="refreshStory" title="{{localize 'BLANKINHERITANCE.LocationEditor.Refresh'}}"><i class="fa-solid fa-rotate"></i></button>
         </div>
@@ -30,6 +31,17 @@
                 <span class="bi-story__group-sub">{{summary}}</span>
             </button>
         </li>
+        {{else if (eq type "leg")}}
+        <li class="bi-story__leg {{worstClass}}{{#if playing}} is-playing{{/if}}{{#if shown}} is-shown{{/if}}" data-leg-row="{{legId}}">
+            <i class="fa-solid fa-arrow-down-long bi-story__leg-arrow"></i>
+            {{#if watchable}}
+            <span class="bi-story__leg-text">{{distance}} · {{time}}{{#if modes}} <small>{{modes}}</small>{{/if}}</span>
+            <button type="button" class="bi-story__icon" data-action="showLeg" data-leg="{{legId}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.ShowRoute'}}"><i class="fa-solid fa-route"></i></button>
+            <button type="button" class="bi-story__icon" data-action="playLeg" data-leg="{{legId}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.WatchIt'}}"><i class="fa-solid fa-play"></i></button>
+            {{else}}
+            <span class="bi-story__leg-text">{{statusText}}</span>
+            {{/if}}
+        </li>
         {{else if (eq type "scene")}}
         <li class="bi-story__line bi-story__scene{{#if gap}} is-gap{{/if}}{{#if focused}} is-focused{{/if}}">
             <div class="bi-story__row">
@@ -42,6 +54,7 @@
                 <span class="bi-story__title">{{title}}{{#if when}} <small class="bi-story__when">{{when}}</small>{{/if}}</span>
                 {{#if optionCount}}<span class="bi-story__badge" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.Options'}}"><i class="fa-solid fa-code-branch"></i> {{optionCount}}</span>{{/if}}
                 {{#if status}}<span class="bi-story__status {{statusClass}}">{{status}}</span>{{/if}}
+                {{#if placeProblem}}<i class="fa-solid fa-triangle-exclamation bi-story__place-problem is-{{placeProblem}}" title="{{placeProblemText}}"></i>{{/if}}
                 <button type="button" class="bi-story__chip {{chip.cls}}" {{#if focusable}}data-action="focusSlot" data-slot-key="{{slotKey}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.Show'}}"{{else}}disabled{{/if}}>
                     <span class="bi-story__chip-text">{{chip.text}}</span>{{#if chip.tier}}<small>{{chip.tier}}</small>{{/if}}{{#if chip.pending}}<small class="bi-story__chip-wait">{{localize "BLANKINHERITANCE.LocationEditor.Story.Waiting"}}</small>{{/if}}
                 </button>
@@ -53,6 +66,15 @@
         <li class="bi-story__line bi-story__slot {{roleClass}} {{depthClass}}{{#if focused}} is-focused{{/if}}">
             <div class="bi-story__row">
                 <span class="bi-story__slot-label">{{label}}{{#if mode}} <small>{{mode}}</small>{{/if}}{{#if partyState}} <small>{{partyState}}</small>{{/if}}{{#if mystery}} <small>?</small>{{/if}}</span>
+                {{#each legs}}
+                <span class="bi-story__leg-badge {{worstClass}}{{#if playing}} is-playing{{/if}}{{#if shown}} is-shown{{/if}}" data-leg-row="{{id}}" title="{{label}}">{{#if watchable}}{{distance}} · {{time}}{{else}}{{statusText}}{{/if}}</span>
+                {{#if watchable}}<button type="button" class="bi-story__icon" data-action="playStep" data-leg="{{id}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.WatchIt'}}"><i class="fa-solid fa-play"></i></button>{{/if}}
+                {{/each}}
+                {{#if legSummary}}
+                <span class="bi-story__leg-badge {{legSummary.worstClass}}">{{localize "BLANKINHERITANCE.LocationEditor.Journeys.Journeys" count=legSummary.count}}</span>
+                {{#if legSummary.watchable}}<button type="button" class="bi-story__icon" data-action="playStep" data-leg="{{legSummary.firstLegId}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Journeys.WatchThem'}}"><i class="fa-solid fa-play"></i></button>{{/if}}
+                {{/if}}
+                {{#if placeProblem}}<i class="fa-solid fa-triangle-exclamation bi-story__place-problem is-{{placeProblem}}" title="{{placeProblemText}}"></i>{{/if}}
                 <button type="button" class="bi-story__chip {{chip.cls}}" {{#if focusable}}data-action="focusSlot" data-slot-key="{{slotKey}}" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.Show'}}"{{else}}disabled{{/if}}>
                     <span class="bi-story__chip-text">{{chip.text}}</span>{{#if chip.tier}}<small>{{chip.tier}}</small>{{/if}}{{#if chip.pending}}<small class="bi-story__chip-wait">{{localize "BLANKINHERITANCE.LocationEditor.Story.Waiting"}}</small>{{/if}}
                 </button>
@@ -73,6 +95,18 @@
                     {{#if staged.offMap}}{{localize "BLANKINHERITANCE.LocationEditor.Story.ConfirmOffMap" label=staged.label reason=staged.offMap}}{{else if staged.clear}}{{localize "BLANKINHERITANCE.LocationEditor.Story.ConfirmClear" label=staged.label}}{{else}}{{localize "BLANKINHERITANCE.LocationEditor.Story.ConfirmPlace" label=staged.label name=staged.name}}{{#if staged.isNew}} <em>{{localize "BLANKINHERITANCE.LocationEditor.Story.NewPlace"}}</em>{{/if}}{{/if}}
                 </p>
                 <p class="bi-story__was">{{localize "BLANKINHERITANCE.LocationEditor.Story.Was"}} {{staged.from}}</p>
+                {{#if staged.whatIf}}
+                <div class="bi-story__whatif {{staged.whatIf.summaryClass}}">
+                    <p class="bi-story__whatif-head"><i class="fa-solid fa-route"></i> {{staged.whatIf.headline}}</p>
+                    <ul>
+                        {{#each staged.whatIf.legs}}
+                        <li class="is-{{change}}"><span>{{label}}</span> <small>{{before}}{{#unless unchanged}} → {{after}}{{/unless}}</small>{{#each issues}}<em class="is-{{severity}}">{{text}}</em>{{/each}}</li>
+                        {{/each}}
+                    </ul>
+                    {{#if staged.whatIf.more}}<p class="bi-story__whatif-more">{{localize "BLANKINHERITANCE.LocationEditor.Places.AndMore" count=staged.whatIf.more}}</p>{{/if}}
+                    {{#each staged.whatIf.places}}<p class="bi-story__whatif-place is-{{severity}}">{{text}}</p>{{/each}}
+                </div>
+                {{/if}}
                 {{#if staged.anyLinked}}
                 <p class="bi-story__also">{{localize "BLANKINHERITANCE.LocationEditor.Story.AlsoMove"}}</p>
                 <ul class="bi-story__linked">
@@ -92,6 +126,7 @@
             {{else}}
             <div class="bi-story__chooser">
                 <p class="bi-story__editor-title">{{label}}</p>
+                {{#if isArea}}<p class="bi-story__hint"><i class="fa-solid fa-circle-info"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.AreaHint"}}</p>{{/if}}
                 <div class="bi-location-editor__row">
                     <button type="button" class="bi-location-editor__button{{#if armed}} is-active{{/if}}" data-action="pickOnMap"><i class="fa-solid fa-hand-pointer"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickOnMap"}}</button>
                     <span class="bi-story__targets" role="group" title="{{localize 'BLANKINHERITANCE.LocationEditor.Story.PickTargetHint'}}">
@@ -99,7 +134,7 @@
                         <button type="button" class="bi-location-editor__button{{#if pickAreas}} is-active{{/if}}" data-action="setPickTarget" data-target="areas"><i class="fa-solid fa-map"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.PickAreas"}}</button>
                     </span>
                     <button type="button" class="bi-location-editor__button" data-action="drawFor" data-kind="site"><i class="fa-solid fa-draw-polygon"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.DrawBuilding"}}</button>
-                    <button type="button" class="bi-location-editor__button" data-action="drawFor" data-kind="point"><i class="fa-solid fa-location-dot"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.DropPin"}}</button>
+                    <button type="button" class="bi-location-editor__button" data-action="quickPin" title="{{localize 'BLANKINHERITANCE.LocationEditor.Pin.Hint'}}"><i class="fa-solid fa-location-dot"></i> {{localize "BLANKINHERITANCE.LocationEditor.Pin.Button"}}</button>
                     {{#if canOffMap}}<button type="button" class="bi-location-editor__button{{#if offMapOpen}} is-active{{/if}}" data-action="offMapMenu"><i class="fa-solid fa-map-pin"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.OffMap"}}</button>{{/if}}
                     {{#if canClear}}<button type="button" class="bi-location-editor__button bi-location-editor__button--danger" data-action="clearSlot"><i class="fa-solid fa-ban"></i> {{localize "BLANKINHERITANCE.LocationEditor.Story.NoPlace"}}</button>{{/if}}
                 </div>

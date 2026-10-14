@@ -21,7 +21,7 @@
 //     the six real PCs exist")
 //
 // WHAT IS DELIBERATELY ALLOWED. A pointer to something the GM needs is not
-// provenance: "Read ideas/story/dossier-cicada.md §3 and §4 before running
+// provenance: "Read quarantine/ideas/story/dossier-cicada.md §3 and §4 before running
 // this" is the most useful sentence in that beat. Provenance answers "why is
 // this text the way it is"; a pointer answers "what do you need to go and
 // read". Nine repo paths survive in the corpus and all nine are pointers.

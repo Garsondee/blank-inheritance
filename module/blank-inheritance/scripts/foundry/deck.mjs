@@ -81,6 +81,36 @@ export function deckChecksFor(actor, { ask = false } = {}) {
   return { ...splitChecks(askTheTable(groups)), lores: [] };
 }
 
+/** Each attribute's name, for a key's hover line ("Trained · Wisdom"). Literal keys, so the language test sees them. */
+const ATTRIBUTE_NAME_KEYS = Object.freeze({
+  str: "BLANKINHERITANCE.Deck.AttrStr",
+  dex: "BLANKINHERITANCE.Deck.AttrDex",
+  con: "BLANKINHERITANCE.Deck.AttrCon",
+  int: "BLANKINHERITANCE.Deck.AttrInt",
+  wis: "BLANKINHERITANCE.Deck.AttrWis",
+  cha: "BLANKINHERITANCE.Deck.AttrCha"
+});
+
+/** An attribute's name in the table's language, or null. */
+export function attributeName(attribute) {
+  const key = ATTRIBUTE_NAME_KEYS[attribute];
+  return key ? game.i18n.localize(key) : null;
+}
+
+/**
+ * One key bank as its template draws it: its nine keys, each tinted by the attribute it adds and saying so on hover
+ * ("Trained · Wisdom", D063).
+ */
+export function deckBankFor(checks, side) {
+  return {
+    side,
+    keys: (checks?.[side]?.skills ?? []).map((key) => {
+      if (!key || key.ask) return key;
+      return { ...key, previewSub: [key.rankLabel, attributeName(key.attribute)].filter(Boolean).join(" · ") };
+    })
+  };
+}
+
 /** Focus, and the dying/wounded track — read the same way sheet-data reads everything else. */
 function vitalsFor(actor) {
   const sys = actor?.system ?? {};

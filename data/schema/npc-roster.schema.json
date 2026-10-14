@@ -91,7 +91,7 @@
           "properties": {
             "name": { "type": ["string", "null"] },
             "role": { "type": "string" },
-            "description": { "type": "string" }
+            "description": { "type": "string", "description": "Where the person comes from in the scenes' prose. Written into the new file's designNotes: the NPC file's own `description` field is retired (D080), and the Actor sheet's text is generated from canon." }
           }
         },
         "appearsIn": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Scene ids (episode or haunt) the person is cast in, or where a foe is fought." },

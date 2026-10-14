@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-04T23:08:38.874Z",
+  "generatedAt": "2026-10-12T14:42:05.151Z",
   "generatedBy": "tools/node-registry/generate.mjs -- do not hand-edit this file, rerun the script instead",
   "counts": {
-    "total": 99,
-    "open": 53,
-    "resolved": 46,
+    "total": 104,
+    "open": 26,
+    "resolved": 78,
     "superseded": 0,
     "brokenRefs": 0,
     "orphans": 2,
@@ -69,7 +69,7 @@
       "constraint": "it is unable to talk normally (Ingram, directly) — any resolution keeps it nonverbal;\r\nhow else it might communicate (gesture, writing, tapping a code) is itself still open, not assumed. *(LEDGER #34,\r\nClaude's answer at Ingram's request, accepted in LEDGER #46: it writes, in Shucks's old handwriting. It is still nonverbal.)*",
       "resolution": null,
       "source": {
-        "file": "ideas/story/bible/characters/shucks-mordant.md",
+        "file": "quarantine/ideas/story/bible/characters/shucks-mordant.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -87,7 +87,7 @@
       "constraint": "he is not their guardian angel, this is not a favour he will do twice, and the party\r\nhas not acquired a protector. Whatever the answer turns out to be, it must not convert him into one —\r\nsee this file's Tone section, which already forbids retrofitting weight onto his earlier scenes.\r\nHe must also stay entirely unremarkable in\r\n`data/scene-briefs/episode-c1e2--school-period-two.json`, which runs earlier the same episode and is\r\ndeliberately flattening the ground for this.",
       "resolution": null,
       "source": {
-        "file": "ideas/story/bible/characters/shucks-mordant.md",
+        "file": "quarantine/ideas/story/bible/characters/shucks-mordant.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -104,7 +104,7 @@
       "constraint": "whoever it is, the Section Officer is not in on it. His not knowing is the whole reason\r\nthe override lands on him as a humiliation rather than as support. *(Satisfied by Rand: he has never heard of it.)*",
       "resolution": null,
       "source": {
-        "file": "ideas/story/bible/characters/the-section-officer.md",
+        "file": "quarantine/ideas/story/bible/characters/the-section-officer.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -122,7 +122,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/bible/locations/the-gnoll-statue.md",
+        "file": "quarantine/ideas/story/bible/locations/the-gnoll-statue.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -155,7 +155,7 @@
       "constraint": "any resolution must keep a mitflit reading as a person, never a vehicle or component —\r\nthe mitflit-pilot fact already established elsewhere in this file (LEDGER #15) does a lot of that work\r\nregardless of which candidate is eventually chosen. *(Added 2026-09-24, LEDGER #31 item 14.)* No\r\nresolution may give the core a will that takes the machine away from its pilot. Nothing in this\r\ncampaign goes berserk.",
       "resolution": "2026-09-24, LEDGER #34 (Ingram, Casebook D13), with none of the three candidates adopted.\r\nThe Gen 2 core is biomechanical mitflit technology: robotic parts that are living flesh melded with\r\ntechnology. It is not a living mitflit. Ingram: *\"Mitflit technology, not a living Mitflit but technology\r\nwhich is biomechanical, robotic parts which are living flesh melded with technology. The wild mitflits\r\nshould be uncomfortable around Gen 2 mechs, but I think it's important that the Mitflits don't instantly\r\nunderstand the origin of Gen 2 Frames.\"* The end result is that these mechs aren't usable by just anyone.\r\nHer #15 worry, riding into battle inside a mitflit, does not arise: nobody does. Still open from her\r\nanswer, and tracked outside this Node: whether a small part of Mother is in every Gen 2, the \"cerebral\r\nglue\" that makes the technology work. \"Maybe\" is Ingram's word (`open-questions.json#mother-in-gen2`).\r\n\r\n*(These three candidates are my own framing of the tension, written to give this open question a\r\nconcrete shape to react to — not sourced from anything Ingram has said, and none is favoured. Nothing\r\nhere is decided; treat all three as equally live until she says otherwise.)* *(Corrected 2026-09-24,\r\nLEDGER #34: she has decided, and her answer is none of the three. The note above is kept as history.)*",
       "source": {
-        "file": "ideas/story/bible/species/mitflits.md",
+        "file": "quarantine/ideas/story/bible/species/mitflits.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -173,7 +173,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -194,7 +194,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -211,7 +211,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -229,7 +229,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -246,7 +246,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -263,7 +263,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": []
@@ -294,7 +294,7 @@
       "constraint": null,
       "resolution": null,
       "source": {
-        "file": "ideas/story/blank-inheritance-ch1-v2.md",
+        "file": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
         "kind": "markdown"
       },
       "referencedBy": []
@@ -309,7 +309,7 @@
       "constraint": "nothing at the table in Episode Two names the Watcher, by either name, and it must never\r\nappear in any location's or scene's lore (standing hard rule). This is an anomaly in a log, observed by\r\nchildren, and it stays that.",
       "resolution": null,
       "source": {
-        "file": "ideas/story/dossier-observer.md",
+        "file": "quarantine/ideas/story/dossier-observer.md",
         "kind": "markdown"
       },
       "referencedBy": [
@@ -380,12 +380,12 @@
     {
       "id": "third-npc-pole",
       "title": "Keep the Transparency Advocate as written, reshape them, or cut back to a two-pole Commander/Caretaker structure?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": null,
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `directorate.the-three-poles`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -626,12 +626,12 @@
     {
       "id": "repair-crew-relationship",
       "title": "Each pilot has their own repair crew (confirmed 2026-09-06, alongside the decision that upgrade points are individual rather than pooled). The crew is a standing NPC relationship with real mechanical weight in both directions: treat them well — the user's example is going out drinking with them — and they may put in an unasked-for night shift; neglect them and they provide less HP healing per repair. Open parameters: how is crew standing tracked, what exactly does it scale (HP restored per technician-day? chance of free work? both?), how many named crew NPCs per pilot, and how does crew standing interact with the SHARED technician-day pool?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "PARTIALLY ANSWERED 2026-09-09. (a) NAMED NPCS: one per pilot, six total, confirmed and scaffolded as placeholders (data/npcs/repair-chief-*.json, linked via npc.schema.json's new crewChiefForRef) — currently 'lesser NPCs who may grow into bigger more interesting roles later,' not characterised yet. (b) WHAT IT SCALES: a guaranteed baseline HP repair happens every technician-day cycle regardless of PC involvement (the floor — 'repair crews are always working around the clock'); direct PC involvement, working alongside the crew rather than just spending the resource, restores substantially more. STILL OPEN, numeric: the exact floor amount and the exact PC-involvement multiplier/bonus are not set. (c) VEHICLES: confirmed the same crew also maintains the pilot's assigned chassis (campaign/chassis-catalogue.json, added 2026-09-09) from the same technician-day allocation, so splitting a limited pool between a Frame and a vehicle is a real player choice — this wasn't a live question when the entry was first written, since vehicles as a concrete catalogue didn't exist yet. The two resources are still cleanly non-redundant: the technician-day pool is the Directorate's SHARED allocation — how much repair time you are granted, competed for between pilots — while crew standing/involvement is PERSONAL and scales how much you get OUT of that time. This also gives the Night Out rest activity (design/downtime-activities.md §2) a second payoff beyond Bleed reduction, and gives every pilot a recurring named NPC relationship that is professional rather than personal, sitting alongside Anchors rather than duplicating them. TERMINOLOGY WARNING unchanged: these are NPC repair technicians, verbally distinct from the PC-played Ground Roles in the cut ground-roles file (deleted 2026-09-25) (Sensor Operator, Umbilical Control, etc.), which are something else entirely.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `frames.repair-crews`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -853,12 +853,12 @@
     {
       "id": "the-gap-name",
       "title": "What is \"the Gap\" actually called?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The missing span of history predating the setting -- a Second Impact analogue.\"\n\n2026-09-24: this description is stale twice over. The Gap is a FUTURE event, not a missing span of history (the-gap-is-future, 2026-09-20). And 'Second Impact' is now the in-world name for the coming rupture in Kurose (LEDGER #31 item 7), so it can no longer serve as an outside comparison here. Whether the Gap and Second Impact are the same thing has not been asked; don't assume it.\n\n2026-09-24 (LEDGER #33; Ingram, Casebook N24): \"Let's leave The Gap as being an event that happens after the adventure, perhaps a result of it, perhaps to undo the Second Impact the only way to do it is to create The Gap. Maybe. We'll resolve this later.\" So the Gap is NOT Second Impact. It is an event after the adventure: perhaps a result of it; perhaps the only way to undo Second Impact is to create it. Open, to resolve later. What it is called is still open too (Ingram herself calls it \"The Gap\"). CLAUDE'S NOTE for whoever resolves it, not a decision: in Starfinder's published setting the Gap is \"amnesiac\", a stretch of history that every mind and record lost at once, after which Golarion was gone (\"Lost Golarion\", reference/srd/gm-core/1219-timeshifted-adventures.json), and GM Core offers it as \"a plot device that supernaturally alters or censors sensitive information\" (reference/srd/gm-core/1234-archaic-adventures.json). A Gap made to undo Second Impact would have that exact shape: the price of undoing the rupture is that nobody remembers it.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `second-rift.gap-is-after`, `second-rift.gap-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -868,12 +868,12 @@
     {
       "id": "kids-and-frames",
       "title": "What are the six kids and their six Frames actually called, collectively?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"All twelve PCs.\" Distinct from any individual PC's own name -- this is a placeholder for a collective term, if one is wanted at all.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `party.collective-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -883,12 +883,12 @@
     {
       "id": "the-watcher-name",
       "title": "Does the Watcher have a real name beyond its antagonist working title, and if so what is it?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Antagonist working name.\"\n\n2026-09-24 (LEDGER #31): the Watcher is the generation ship's navigation and sensor system. 'The Observer' is what the mitflits call it, the crew's own word for part of their ship (ideas/story/dossier-observer.md), and the gap between the two names is itself a clue. Whether it has a real name beyond those two -- for instance, whatever its makers called the system -- is still open, and it does not give one.",
+      "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Antagonist working name.\"\n\n2026-09-24 (LEDGER #31): the Watcher is the generation ship's navigation and sensor system. 'The Observer' is what the mitflits call it, the crew's own word for part of their ship (quarantine/ideas/story/dossier-observer.md), and the gap between the two names is itself a clue. Whether it has a real name beyond those two -- for instance, whatever its makers called the system -- is still open, and it does not give one.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `watcher.real-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -900,12 +900,12 @@
     {
       "id": "excavation-site-name",
       "title": "What is the dig site actually called?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The excavation that produced the Frames and, at the campaign's midpoint, the spaceship. Distinct from 'the Gap' (the missing span of history) -- this is the physical site.\"\n\n2026-09-24: 'distinct from the Gap (the missing span of history)' is stale, since the Gap is now a future event (the-gap-is-future). The excavation that produced the Frames is also now two sites: the Kortos crater, where Gen 1's specimen was found, and the dig under Kurose, which is the search ship's (LEDGER #31 item 1) and is where Gen 2 comes from.\n\n2026-09-24 (LEDGER #32 item 6): the note above is stale on one point. There is no specimen: the Kortos site is the generation ship's ruin, opened by First Impact, which the Directorate was first born to guard, and Gen 1 Frames are Golarion technology informed by looking at it, not copies of anything found there. The dig under Kurose is the search ship's, and Gen 2 is Anabala's, built from its actual technology (item 7).",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `search-ship.dig-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -915,12 +915,12 @@
     {
       "id": "excavated-spaceship-name",
       "title": "What is the excavated spaceship called?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"The midpoint-arc ship, unearthed from the same dig site as the Frames, running on the same sync/Resonance technology. Becomes the party's shared asset. See design/campaign-arc.md.\"\n\n2026-09-24 (LEDGER #31): there are now two ships -- the generation ship (fallen tens of thousands of years ago in a hidden jungle valley on Kortos; the black obelisk) and the search ship (fallen a thousand years later; its hull under Kurose). 'The excavated spaceship' presumably means the one being dug up under Kurose, i.e. the search ship, and each ship may now want its own name. Two parts of the original description are stale: Resonance was cut 2026-09-20, and 'the midpoint-arc ship that becomes the party's shared asset' predates the starship final act (LEDGER #26), in which the party takes a spaceship to the mitflit home world. Whether that is this ship is not stated.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `generation-ship.name`, `search-ship.name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -930,12 +930,12 @@
     {
       "id": "school-name",
       "title": "What is the school actually called?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see #school-facility-same-location, resolved) -- this and 'the huge facility' from the design bible are one location, so may end up sharing a single name rather than needing two. REFINED 2026-09-12 (LEDGER #13): one campus, one island, but NOT co-sited. The island's north-west end -- causeway, Roadgate, Frame hangar, workshops, vehicle control point, candidate camp -- is 'pure military and checkpoints' in Ingram's words; the school is further south-east on the same island. Entry 12's deliberate military/school mix is achieved by walking between the two ends, not by blending them in one place. A single name may therefore still be wrong; check before assuming.\"",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `directorate.two-ends`, `directorate.school-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -945,12 +945,12 @@
     {
       "id": "the-original-cultist",
       "title": "What is Cicada's unidentified founder actually called, in a way people would say out loud in a briefing?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "MERGED FROM naming-placeholders.json, 2026-09-19. Original description: \"Working name, 2026-09-13, explicitly not final. The designation for Cicada's unidentified founder. IN-FICTION this is a label for a person nobody has a name for -- the Directorate has never identified him (LEDGER #17), so any term the party or the institution uses is one they invented for a gap in the file. That makes the label itself a piece of characterisation: an institution that gives a case number to someone it cannot name. Whatever this becomes, it must read as something people would actually say out loud in a briefing.\"",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `cicada.founders-label`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1140,12 +1140,12 @@
     {
       "id": "comms-officer-name",
       "title": "What is the Comms Officer's name?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "Created 2026-09-20 with data/npcs/comms-officer.json. She is deliberately a blank slate beyond being a woman, working the radio off the plotting floor, and warning the party away from danger because she genuinely fears for them. Name should sound like a real Directorate radio callsign-adjacent person, not a mysterious figure.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `comms-officer.name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1158,12 +1158,12 @@
     {
       "id": "deputy-director-name",
       "title": "What is the Deputy Director's name?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "Created 2026-09-20 with data/npcs/deputy-director.json -- the senior authority one rung below the top of the Directorate, intimidating on first meeting and actually a good and wise leader. A Kozo Fuyutsuki type, in Ingram's own reference. Name should carry rank and weight without sounding villainous.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `deputy-director.name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1176,12 +1176,12 @@
     {
       "id": "watcher-probing-cause",
       "title": "Why does the Observer start probing the city's defences when it does -- tied to Manako's own arc, or a separate, more independent escalation?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-19 (LEDGER #21). This is the trigger that forces the Directorate to deploy whatever Frames are ready (including the party's utility ones), pulling them into real Frame combat for the first time -- the concrete cause behind the already-agreed Episode Two shape (ch1-v2.md §8). Left deliberately open whether it's caused by / tied to dossier-cicada.md §13.1's five movements or is its own thread.\n\n2026-09-24 (LEDGER #31) -- a note, not a resolution; still open. #31 recasts the Watcher: it is the generation ship's navigation and sensor system and the campaign's adversary, with the objective to multiply, to expand and to keep observing, and it learns how to defeat the party if they get in its way (item 4). Two things now bear on this. (1) Its children are given purposes of their own, and the runaway begins when those children start producing their own Sap (item 8; Ingram, D4: 'The Watcher learns'). Read one way, the probing is the start of that same escalation (a reading, not a decision). (2) A mass-gated PROPOSAL, Claude's, in the Casebook and in ideas/story/dossier-observer.md's section on its children, would answer this: at first it can condense only where Sap has been released, so every early attack carries a cult fingerprint; later it is dense enough to condense wherever attention pools, with no Sap at all. Not decided. One wording clash to settle if it is adopted: the proposal calls its Chapters 5-10 stage 'the probing', while LEDGER #21 and ideas/story/dossier-second-generation-frames.md §5a use 'probing' for what first pulls the party into Frame combat within the first two levels. Under the proposal, those early call-outs are condensations at Sap-release sites.\n\n2026-09-27 (LEDGER #40) -- bears on this; still open. The Watcher 'observes, adapts and responds' and escalates without understanding why; so long without a guiding framework, it has drifted from helpful to an accidental antagonist. Its escalation ends in a weapon built from exotic matter (Second Impact). Nobody knows it exists until the party uncovers it.\n\n2026-09-27 (LEDGER #41) -- bears on this; still open. After Second Impact the Watcher stays over Kurose as a perpetual threat: nothing has stopped its escalation, so it goes on causing chaos and probing the city's defences, without malice.",
+      "setup": "Raised 2026-09-19 (LEDGER #21). This is the trigger that forces the Directorate to deploy whatever Frames are ready (including the party's utility ones), pulling them into real Frame combat for the first time -- the concrete cause behind the already-agreed Episode Two shape (ch1-v2.md §8). Left deliberately open whether it's caused by / tied to dossier-cicada.md §13.1's five movements or is its own thread.\n\n2026-09-24 (LEDGER #31) -- a note, not a resolution; still open. #31 recasts the Watcher: it is the generation ship's navigation and sensor system and the campaign's adversary, with the objective to multiply, to expand and to keep observing, and it learns how to defeat the party if they get in its way (item 4). Two things now bear on this. (1) Its children are given purposes of their own, and the runaway begins when those children start producing their own Sap (item 8; Ingram, D4: 'The Watcher learns'). Read one way, the probing is the start of that same escalation (a reading, not a decision). (2) A mass-gated PROPOSAL, Claude's, in the Casebook and in quarantine/ideas/story/dossier-observer.md's section on its children, would answer this: at first it can condense only where Sap has been released, so every early attack carries a cult fingerprint; later it is dense enough to condense wherever attention pools, with no Sap at all. Not decided. One wording clash to settle if it is adopted: the proposal calls its Chapters 5-10 stage 'the probing', while LEDGER #21 and quarantine/ideas/story/dossier-second-generation-frames.md §5a use 'probing' for what first pulls the party into Frame combat within the first two levels. Under the proposal, those early call-outs are condensations at Sap-release sites.\n\n2026-09-27 (LEDGER #40) -- bears on this; still open. The Watcher 'observes, adapts and responds' and escalates without understanding why; so long without a guiding framework, it has drifted from helpful to an accidental antagonist. Its escalation ends in a weapon built from exotic matter (Second Impact). Nobody knows it exists until the party uncovers it.\n\n2026-09-27 (LEDGER #41) -- bears on this; still open. After Second Impact the Watcher stays over Kurose as a perpetual threat: nothing has stopped its escalation, so it goes on causing chaos and probing the city's defences, without malice.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `watcher.probing-cause`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1206,30 +1206,30 @@
     {
       "id": "the-young-one-name",
       "title": "What is the Young One actually called?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Confirmed 2026-09-19: promoted from a disposable Canteen walk-on to a real, tracked character, at Ingram's direct instruction ('Promote and they are cicada involved, we'll build on it later') -- not a new naming gap, she already carried '(placeholder name)' in ideas/story/dossier-cicada.md's own Cadre table. Rich canon already established there and in the dossier's own dedicated section on him: a Directorate Frame pilot the party knows casually from the canteen, turned by the same kind of show Nozomi walked out of, Cicada's intelligence source, and later the Cadre's one member who will kill. First casual, unremarkable appearance wired into data/scene-briefs/episode-c1e1--canteen.json the same day. Do not invent his name unprompted -- 'we'll build on it later' is a deliberate hold, not an oversight.",
+      "setup": "Confirmed 2026-09-19: promoted from a disposable Canteen walk-on to a real, tracked character, at Ingram's direct instruction ('Promote and they are cicada involved, we'll build on it later') -- not a new naming gap, she already carried '(placeholder name)' in quarantine/ideas/story/dossier-cicada.md's own Cadre table. Rich canon already established there and in the dossier's own dedicated section on him: a Directorate Frame pilot the party knows casually from the canteen, turned by the same kind of show Nozomi walked out of, Cicada's intelligence source, and later the Cadre's one member who will kill. First casual, unremarkable appearance wired into data/scene-briefs/episode-c1e1--canteen.json the same day. Do not invent his name unprompted -- 'we'll build on it later' is a deliberate hold, not an oversight.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `the-young-one.name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
       },
       "referencedBy": [
-        "data/generated/npc-asset-gaps.json#npcs.71.namingPlaceholderRef",
+        "data/generated/npc-asset-gaps.json#npcs.76.namingPlaceholderRef",
         "data/npcs/the-young-one.json#namingPlaceholderRef"
       ]
     },
     {
       "id": "second-generation-frame-name",
       "title": "What do people actually call the second-generation Frames (built from the generation ship's technology, and flyable only by a pilot with 'the right DNA or the right something'), as distinct from the old cargo-cult fleet?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "New 2026-09-19, alongside LEDGER #20 and dossier-second-generation-frames.md. Needs a name that works both as in-universe Directorate paperwork language and as something a pilot would actually say out loud -- \"second-generation\" is this dossier's own working label, explicitly not final.\n\nCORRECTED 2026-09-24: the question used to describe these as 'true-hull-tech' and as 'the party's own six'. LEDGER #21 had already overturned the second -- the party starts on Gen 1 and is offered Gen 2 at the end of Chapter 4 (LEDGER #31 item 13) -- and LEDGER #31 item 1 replaces the first: Gen 2 is built from a second ship, the search ship, not from the rest of the Kortos ship.\n\n2026-09-24 (LEDGER #34): the question used to say the Gen 2 Frames were built from the search ship under Kurose. That was Claude's inference. Ingram's own words put Gen 2's technology at the First Impact crash site (LEDGER #20) and in \"the original ship\" (LEDGER #34), which is the generation ship at Kortos.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `frames.gen-2-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1271,10 +1271,10 @@
       "title": "The gods told Rupiah the next rift would open in Kurose \"many hundreds of years in the future\" — but the present day is about two hundred years after Kortos. Is the rift due now, still centuries off, or genuinely unknowable?",
       "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 while recording the founding prophecy (ideas/story/bible/LEDGER.md #25, dossier-first-impact.md §10a). Ingram also said the threat \"cannot be precisely predicted in time\", so one answer is that nobody — not even the founders — knows.",
+      "setup": "Raised 2026-09-24 while recording the founding prophecy (quarantine/ideas/story/bible/LEDGER.md #25, dossier-first-impact.md §10a). Ingram also said the threat \"cannot be precisely predicted in time\", so one answer is that nobody — not even the founders — knows.",
       "candidates": [],
       "constraint": null,
-      "resolution": "Resolved 2026-09-24 (Ingram): nobody knows, because the conditions are not yet right — which is why augury and fortune-telling magic return no answer. The players and the antagonists will bring the right mix of things together, about three-quarters of the way through the campaign, and the second rift is then unstoppable from here: the party must take a spaceship to the mitflit home world to bring back the means to stop the exotic-matter runaway, and the last quarter is a starship campaign with the players as command staff on an enterprise-sized intergalactic ship. The cause is deliberately open (a cultist detonating stolen mitflit ship fuel on purpose, an accident, or a tragic misunderstanding). GM-ONLY: 'don't tell the players too much'. See design/campaign-arc.md and ideas/story/bible/LEDGER.md #26. SUPERSEDED 2026-09-27 (LEDGER #40): the cause is a weapon the Watcher builds from exotic matter, without understanding what it can do.",
+      "resolution": "Resolved 2026-09-24 (Ingram): nobody knows, because the conditions are not yet right — which is why augury and fortune-telling magic return no answer. The players and the antagonists will bring the right mix of things together, about three-quarters of the way through the campaign, and the second rift is then unstoppable from here: the party must take a spaceship to the mitflit home world to bring back the means to stop the exotic-matter runaway, and the last quarter is a starship campaign with the players as command staff on an enterprise-sized intergalactic ship. The cause is deliberately open (a cultist detonating stolen mitflit ship fuel on purpose, an accident, or a tragic misunderstanding). GM-ONLY: 'don't tell the players too much'. See design/campaign-arc.md and quarantine/ideas/story/bible/LEDGER.md #26. SUPERSEDED 2026-09-27 (LEDGER #40): the cause is a weapon the Watcher builds from exotic matter, without understanding what it can do.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1319,7 +1319,7 @@
       "setup": "Raised 2026-09-24. Affects Scene 0's pitch and every recruitment line in Episode One.",
       "candidates": [],
       "constraint": null,
-      "resolution": "Resolved 2026-09-24 (Ingram): two services. The kingdom's own national service (army and navy) is the one everyone's parents did; the Directorate recruits separately — candidates apply or are streamed to it — and sits outside the kingdom's lines, which is where the rivalry comes from. Recorded in ideas/story/dossier-the-directorate.md §1 and §1a.",
+      "resolution": "Resolved 2026-09-24 (Ingram): two services. The kingdom's own national service (army and navy) is the one everyone's parents did; the Directorate recruits separately — candidates apply or are streamed to it — and sits outside the kingdom's lines, which is where the rivalry comes from. Recorded in quarantine/ideas/story/dossier-the-directorate.md §1 and §1a.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1331,10 +1331,10 @@
       "title": "What is the machine found buried impossibly deep in the Kortos crater -- the bisected specimen every Gen 1 Frame is copied from? Ingram's working assumption is a teleportation accident: the machine ended up inside the rock itself and could never be extracted. To decide: whose machine it is (part of the generation ship, something from the search ship, or neither), how and when it came to be inside the rock, and how that sits with the existing account that the rift bisected it on the way down.",
       "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Ingram's correction A3.2, filed as LEDGER #31 item 23 and flagged there as needing clarification: \"I assume that the machine that was buried deep was the result of a teleportation accident, ending up within the rock itself and impossible to extract. This is an area we should flag as being in need of clarification.\" The existing account (ideas/story/dossier-first-impact.md): a specimen buried 'far deeper than should have been possible -- deeper than dwarven caverns', bisected by the aperture, whose cross-section let the era's magic-users reverse-engineer the Frames. It matters more now that there are two ships (LEDGER #31 item 1): Gen 1 is copied from this specimen, Gen 2 is built from the search ship under Kurose (ideas/story/dossier-second-generation-frames.md), and what the living core inside every Frame is has been re-asked separately as Casebook D13. Nothing here is decided; don't build on any reading.\n\n2026-09-24 (LEDGER #32 item 6): withdrawn; see resolution. Not to be confused with the generation ship's shuttle, which #32 also puts 'buried deep under the rock of Kortos'. The shuttle is a real object, tracked as kortos-shuttle.",
+      "setup": "Raised 2026-09-24 from Ingram's correction A3.2, filed as LEDGER #31 item 23 and flagged there as needing clarification: \"I assume that the machine that was buried deep was the result of a teleportation accident, ending up within the rock itself and impossible to extract. This is an area we should flag as being in need of clarification.\" The existing account (quarantine/ideas/story/dossier-first-impact.md): a specimen buried 'far deeper than should have been possible -- deeper than dwarven caverns', bisected by the aperture, whose cross-section let the era's magic-users reverse-engineer the Frames. It matters more now that there are two ships (LEDGER #31 item 1): Gen 1 is copied from this specimen, Gen 2 is built from the search ship under Kurose (quarantine/ideas/story/dossier-second-generation-frames.md), and what the living core inside every Frame is has been re-asked separately as Casebook D13. Nothing here is decided; don't build on any reading.\n\n2026-09-24 (LEDGER #32 item 6): withdrawn; see resolution. Not to be confused with the generation ship's shuttle, which #32 also puts 'buried deep under the rock of Kortos'. The shuttle is a real object, tracked as kortos-shuttle.",
       "candidates": [],
       "constraint": null,
-      "resolution": "Withdrawn 2026-09-24 (Ingram, Casebook N4; LEDGER #32 item 6): there is no bisected specimen. \"We could make this simpler and I think it works just as well. It's not a bisected mech that get's revealed, it's the inner layers of the spaceship (the generation ship) which get's opened up by the rupture.\" Scientists and magic-users descended on the opened ship, adventurers came for valuables, and the organisations around Kortos banded together to guard it, which is how the Directorate was born. Gen 1 Frames are Golarion technology only, informed by looking at the ship's technology (item 7), so nothing is copied from a single machine, and the teleportation-accident assumption (A3.2, LEDGER #31 item 23) has nothing left to explain. Carried into ideas/story/dossier-second-generation-frames.md (§2, §5b, §8) and ideas/story/bible/species/mitflits.md; ideas/story/dossier-first-impact.md was rewritten to match the same day.",
+      "resolution": "Withdrawn 2026-09-24 (Ingram, Casebook N4; LEDGER #32 item 6): there is no bisected specimen. \"We could make this simpler and I think it works just as well. It's not a bisected mech that get's revealed, it's the inner layers of the spaceship (the generation ship) which get's opened up by the rupture.\" Scientists and magic-users descended on the opened ship, adventurers came for valuables, and the organisations around Kortos banded together to guard it, which is how the Directorate was born. Gen 1 Frames are Golarion technology only, informed by looking at the ship's technology (item 7), so nothing is copied from a single machine, and the teleportation-accident assumption (A3.2, LEDGER #31 item 23) has nothing left to explain. Carried into quarantine/ideas/story/dossier-second-generation-frames.md (§2, §5b, §8) and quarantine/ideas/story/bible/species/mitflits.md; quarantine/ideas/story/dossier-first-impact.md was rewritten to match the same day.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1344,12 +1344,12 @@
     {
       "id": "mother-and-the-watcher",
       "title": "Was Mother -- the old campaign's level-15 incorporeal construct, met in the mitflit village and on the generation ship's cargo deck -- the generation ship's reasoning core, the mind the Watcher's reports went to? Claude has proposed yes. Either way: where is she now, in what state, and does she matter to the Watcher or to solving it?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 (LEDGER #31). CANON underneath it: the Watcher is the generation ship's navigation and sensor system (item 3). THE PROPOSAL (Claude's fill-in, veto freely): Mother was the ship's reasoning core -- the old ship map has an 'AI Reasoning Core' chamber on its bridge deck -- and First Impact tore the navigation and sensor system away from her, which is the organising layer the swarm lost. LEDGER #31 lists 'Mother's fate' as still open. Source material, not canon: ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md (Arc 5: Mother built 8 Nov 2023 at level 15, a construct, incorporeal and highly intelligent) and ideas/story/source-material/BRIEFING-for-an-LLM.md §8, which first asked whether Mother is the ship's AI. ideas/story/dossier-observer.md carries the proposal and points here. Its museum piece, a coherent fragment of the navigation and sensor system that 'possibly' remembers what it answered to, is the nearest existing hook.\n\n2026-09-24 (LEDGER #32 item 3; Ingram, Casebook N1) -- a working answer, not a resolution; still open. \"She could still be alive, perhaps in the fragment in the museum? Weakened, unable to control The Watcher directly, but still a valuable witness and source of information for the players.\" So, as Ingram's own 'perhaps': alive, in the museum fragment; weakened; unable to control the Watcher directly; and a witness and source of information the players can reach. Her answer takes the proposal above (Mother as the ship's mind) as its starting point without objecting to it. LEDGER #32 keeps open 'Mother's fate, if the museum isn't it'. Reconciled the same day: ideas/story/dossier-observer.md first described the museum piece as a fragment of the navigation and sensor system (the Watcher's own layer), and now calls it a fragment of the generation ship, with Mother perhaps alive in it.\n\n2026-09-24 (LEDGER #34, Casebook D13): Ingram's \"maybe\" that a small part of Mother is in every Gen 2 Frame, as the cerebral glue that makes the technology work. Tracked separately at mother-in-gen2.\n\n2026-09-27 (LEDGER #41): \"The fragment of Mother\" -- the museum fragment is hers. With the search ship itself, it is the only proof the party has, on the home world, that they represent the descendants of the generation ship's crew. The Watcher's final fate is left open (perhaps permanently dispersed, perhaps surviving and becoming harmless, perhaps scooped out of the air by returning mitflits and taken home), to be built as the ending approaches.",
+      "setup": "Raised 2026-09-24 (LEDGER #31). CANON underneath it: the Watcher is the generation ship's navigation and sensor system (item 3). THE PROPOSAL (Claude's fill-in, veto freely): Mother was the ship's reasoning core -- the old ship map has an 'AI Reasoning Core' chamber on its bridge deck -- and First Impact tore the navigation and sensor system away from her, which is the organising layer the swarm lost. LEDGER #31 lists 'Mother's fate' as still open. Source material, not canon: quarantine/ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md (Arc 5: Mother built 8 Nov 2023 at level 15, a construct, incorporeal and highly intelligent) and quarantine/ideas/story/source-material/BRIEFING-for-an-LLM.md §8, which first asked whether Mother is the ship's AI. quarantine/ideas/story/dossier-observer.md carries the proposal and points here. Its museum piece, a coherent fragment of the navigation and sensor system that 'possibly' remembers what it answered to, is the nearest existing hook.\n\n2026-09-24 (LEDGER #32 item 3; Ingram, Casebook N1) -- a working answer, not a resolution; still open. \"She could still be alive, perhaps in the fragment in the museum? Weakened, unable to control The Watcher directly, but still a valuable witness and source of information for the players.\" So, as Ingram's own 'perhaps': alive, in the museum fragment; weakened; unable to control the Watcher directly; and a witness and source of information the players can reach. Her answer takes the proposal above (Mother as the ship's mind) as its starting point without objecting to it. LEDGER #32 keeps open 'Mother's fate, if the museum isn't it'. Reconciled the same day: quarantine/ideas/story/dossier-observer.md first described the museum piece as a fragment of the navigation and sensor system (the Watcher's own layer), and now calls it a fragment of the generation ship, with Mother perhaps alive in it.\n\n2026-09-24 (LEDGER #34, Casebook D13): Ingram's \"maybe\" that a small part of Mother is in every Gen 2 Frame, as the cerebral glue that makes the technology work. Tracked separately at mother-in-gen2.\n\n2026-09-27 (LEDGER #41): \"The fragment of Mother\" -- the museum fragment is hers. With the search ship itself, it is the only proof the party has, on the home world, that they represent the descendants of the generation ship's crew. The Watcher's final fate is left open (perhaps permanently dispersed, perhaps surviving and becoming harmless, perhaps scooped out of the air by returning mitflits and taken home), to be built as the ending approaches.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `generation-ship.mind-and-eyes`, `mother.ships-mind`, `mother.the-fragment`, `mother.voice`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1361,7 +1361,7 @@
       "title": "Why did the mitflits living by the generation ship, in the hidden jungle valley on Kortos, want its exotic fuel -- the errand during which the four founders caused First Impact? What were they going to do with it, and did they know how dangerous it was?",
       "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24. LEDGER #31 item 22 settles the errand -- First Impact happened while the four were trying to get exotic fuel for the mitflits who lived there (Ingram, A3.1: 'they cause The First Impact when trying to get the exotic fuel for the Mitflits who live there') -- and lists why they wanted it as still open. Related canon: the exotic matter is fuel, and a breached container causes a subspace rupture (item 7); the mitflits are gathering in Kurose so that they can all leave to go home together (ideas/story/bible/species/mitflits.md); the campaign's last quarter needs the home world (LEDGER #26). The obvious reading, fuel to fly home, has not been said by anyone, so don't build on it. Source material: the old campaign's jungle and cargo-deck arcs, including the ship's two reactors and the mitflit village beside it (ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md, Arcs 5 and 6).\n\n2026-09-24 (LEDGER #32 item 5): answered; see resolution. The caution above still applies one step on: 'fuel for the shuttle' has been said, but what the shuttle was for (flying home, going for help, anything else) has not.",
+      "setup": "Raised 2026-09-24. LEDGER #31 item 22 settles the errand -- First Impact happened while the four were trying to get exotic fuel for the mitflits who lived there (Ingram, A3.1: 'they cause The First Impact when trying to get the exotic fuel for the Mitflits who live there') -- and lists why they wanted it as still open. Related canon: the exotic matter is fuel, and a breached container causes a subspace rupture (item 7); the mitflits are gathering in Kurose so that they can all leave to go home together (quarantine/ideas/story/bible/species/mitflits.md); the campaign's last quarter needs the home world (LEDGER #26). The obvious reading, fuel to fly home, has not been said by anyone, so don't build on it. Source material: the old campaign's jungle and cargo-deck arcs, including the ship's two reactors and the mitflit village beside it (quarantine/ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md, Arcs 5 and 6).\n\n2026-09-24 (LEDGER #32 item 5): answered; see resolution. The caution above still applies one step on: 'fuel for the shuttle' has been said, but what the shuttle was for (flying home, going for help, anything else) has not.",
       "candidates": [],
       "constraint": null,
       "resolution": "Resolved 2026-09-24 (Ingram, Casebook N3; LEDGER #32 item 5), as her own working assumption: the fuel was for the shuttle. \"I cannot remember the original reasoning, so let's assume that it was fuel for the Shuttle. The players never got to the shuttle which was buried deep under the rock of Kortos away from the original destroyed spaceship. We can leave this as something that we need to tie up eventually.\" The shuttle itself, and the rest of what this question asked (what the jungle mitflits meant to do with it, and whether they knew how dangerous the fuel was), is tracked as kortos-shuttle.",
@@ -1374,12 +1374,12 @@
     {
       "id": "why-ships-fall",
       "title": "Why do spaceships fall on Golarion? Ingram's working hypothesis, marked 'perhaps': something about Golarion is both attractive to the mitflits and critically dangerous to exploring ships -- perhaps the gods, jealous of their domain, who foresaw that mitflits landing and spreading freely would change the world in ways they did not want. Is it the gods? If so, which gods, how do they bring ships down, and does anyone in the campaign ever learn it?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Casebook D1, verbatim in LEDGER #31 and summarised there as item 2. Ingram: 'Mitflits aren't evil, they are not a conquering empire, but perhaps Mitflits had identified the world as a potential place to live without understanding the concept of gods and perhaps without even understanding the concept of a territorial domain.' Both ships fell: the generation ship, and the search ship sent after it a thousand years later (item 1). A working hypothesis, not a lock. Things to check it against when it is decided, none of them decided: the gods named Kurose as the place of the next rift (LEDGER #25 and #26), and the search ship's hull lies under Kurose; the old campaign's never-played 'ancient alien god' map (ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md §7); and the late-campaign 'something worse beyond' reserve in ideas/entries/antagonist-structure-cicada-org-moral-complexity.json, which this could fill.",
+      "setup": "Raised 2026-09-24 from Casebook D1, verbatim in LEDGER #31 and summarised there as item 2. Ingram: 'Mitflits aren't evil, they are not a conquering empire, but perhaps Mitflits had identified the world as a potential place to live without understanding the concept of gods and perhaps without even understanding the concept of a territorial domain.' Both ships fell: the generation ship, and the search ship sent after it a thousand years later (item 1). A working hypothesis, not a lock. Things to check it against when it is decided, none of them decided: the gods named Kurose as the place of the next rift (LEDGER #25 and #26), and the search ship's hull lies under Kurose; the old campaign's never-played 'ancient alien god' map (quarantine/ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md §7); and the late-campaign 'something worse beyond' reserve in ideas/entries/antagonist-structure-cicada-org-moral-complexity.json, which this could fill.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `mitflit-home-world.who-fells-ships`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1391,10 +1391,10 @@
       "title": "Is the knowledge demon Abraxas, which Anabala has carried through the ages, written as he, she or it? LEDGER #7 (Ingram, 2026-09-10) called Anabala's demon 'a powerful female demon'; Paizo usually writes Abraxas as male; LEDGER #31 names the demon without giving a pronoun.",
       "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 (LEDGER #31, 'Still open'). LEDGER #31's own summary uses 'it', which is the neutral default until this is answered. This setting departs from Paizo freely (LEDGER #4), so either reading is legitimate. Source material, for context only: Anabala's old PF2e sheet wears the Silent Heart tattoo, a Paizo item of Abraxas's faith whose text uses 'his' (ideas/story/source-material/the-trouble-with-mitflits/raw/anabala-macthata.json), and journals/abraxa.md in the same folder sketches a homebrew pact-binder class for her. The demon is GM-only and not mentioned openly for a long time (item 20), so this matters for GM prose and for the moment it emerges, not for anything said at the table early.\n\n2026-09-24 (LEDGER #32 item 10): answered; see resolution. LEDGER #7's 'a powerful female demon' was right.",
+      "setup": "Raised 2026-09-24 (LEDGER #31, 'Still open'). LEDGER #31's own summary uses 'it', which is the neutral default until this is answered. This setting departs from Paizo freely (LEDGER #4), so either reading is legitimate. Source material, for context only: Anabala's old PF2e sheet wears the Silent Heart tattoo, a Paizo item of Abraxas's faith whose text uses 'his' (quarantine/ideas/story/source-material/the-trouble-with-mitflits/raw/anabala-macthata.json), and journals/abraxa.md in the same folder sketches a homebrew pact-binder class for her. The demon is GM-only and not mentioned openly for a long time (item 20), so this matters for GM prose and for the moment it emerges, not for anything said at the table early.\n\n2026-09-24 (LEDGER #32 item 10): answered; see resolution. LEDGER #7's 'a powerful female demon' was right.",
       "candidates": [],
       "constraint": null,
-      "resolution": "Resolved 2026-09-24 (Ingram, Casebook N7; LEDGER #32 item 10): female. \"In our version, she, Anabala is played by a woman who wants to RP as a woman (Anabala) who has a pact with a demon (Abaraxas) and they are all female in this version.\" Write Abraxas as she/her. Paizo's usual 'he' does not apply (this setting departs from Paizo freely, LEDGER #4). Carried into ideas/story/bible/characters/anabala.md and ideas/story/bible/species/mitflits.md.",
+      "resolution": "Resolved 2026-09-24 (Ingram, Casebook N7; LEDGER #32 item 10): female. \"In our version, she, Anabala is played by a woman who wants to RP as a woman (Anabala) who has a pact with a demon (Abaraxas) and they are all female in this version.\" Write Abraxas as she/her. Paizo's usual 'he' does not apply (this setting departs from Paizo freely, LEDGER #4). Carried into quarantine/ideas/story/bible/characters/anabala.md and quarantine/ideas/story/bible/species/mitflits.md.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1404,12 +1404,12 @@
     {
       "id": "kortos-cataclysm-placement",
       "title": "Where does the old campaign's 'Kortos Cataclysm' fit in Blank Inheritance, if anywhere? In the original campaign's lore it was an Inicrium explosion about a thousand years before 4721 AR (the founders' era, so roughly twelve hundred years before the present day) that left part of Kortos uninhabitable. It is a different event from both the Baldwin Manor battery and First Impact. Keep it as its own old disaster, connect it to something already in the lore, or drop it?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 (LEDGER #29 left it unplaced; LEDGER #31 lists it as still open). Source: ideas/story/source-material/the-trouble-with-mitflits/journals/inicrium.md, the GM's in-world treatise. Inicrium is 'solid magic potential', a magical battery material that collapses into an unstable grey ball above about 50 g and explodes at around 100 g. Beware a coincidence of numbers: the search ship came 'a thousand years' after the generation ship, but that was tens of thousands of years ago, while the Cataclysm is a thousand years before the founders' era. They are not the same span. The same LEDGER line also leaves two other old-campaign items unplaced, not yet tracked as questions of their own: the never-played 'ancient alien god' map and 'Te'Alay' (campaign-timeline.md in the same folder).",
+      "setup": "Raised 2026-09-24 (LEDGER #29 left it unplaced; LEDGER #31 lists it as still open). Source: quarantine/ideas/story/source-material/the-trouble-with-mitflits/journals/inicrium.md, the GM's in-world treatise. Inicrium is 'solid magic potential', a magical battery material that collapses into an unstable grey ball above about 50 g and explodes at around 100 g. Beware a coincidence of numbers: the search ship came 'a thousand years' after the generation ship, but that was tens of thousands of years ago, while the Cataclysm is a thousand years before the founders' era. They are not the same span. The same LEDGER line also leaves two other old-campaign items unplaced, not yet tracked as questions of their own: the never-played 'ancient alien god' map and 'Te'Alay' (campaign-timeline.md in the same folder).",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `era.kortos-cataclysm`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1419,12 +1419,12 @@
     {
       "id": "gauntlight-siege-outcome",
       "title": "What became of the mitflits the old campaign left besieged at Gauntlight Keep? The battle was prepared and never played: 49 mitflits and their royal guard against William Charles Baldwin's army of hunters, infantry, archers and mobs, while the four founders were flung across the planes to Nirvana. Did the mitflits hold, and does the answer reach the present day -- how mitflits remember the four, Anabala, the Baldwin line?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 (LEDGER #31, 'Still open'). Source: ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md §7. The 'Gauntlight Revived' map was set with 49 mitflits, six Royal Guards, Miriq, Esther Williams and Arun against Baldwin's forces, and the mitflits' plea from the cargo deck asked the four to come back through a counterpart portal 'before anyone else gets killed'. Only the GM ever looked at that map. Blank Inheritance exists partly to give that campaign closure (LEDGER #30), and the lord is canon as William Charles Baldwin (LEDGER #31 item 21), so this is one of the loose ends the closure has to answer or deliberately leave. Related: baldwin-line-in-kurose.",
+      "setup": "Raised 2026-09-24 (LEDGER #31, 'Still open'). Source: quarantine/ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md §7. The 'Gauntlight Revived' map was set with 49 mitflits, six Royal Guards, Miriq, Esther Williams and Arun against Baldwin's forces, and the mitflits' plea from the cargo deck asked the four to come back through a counterpart portal 'before anyone else gets killed'. Only the GM ever looked at that map. Blank Inheritance exists partly to give that campaign closure (LEDGER #30), and the lord is canon as William Charles Baldwin (LEDGER #31 item 21), so this is one of the loose ends the closure has to answer or deliberately leave. Related: baldwin-line-in-kurose.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `baldwin.gauntlight-siege`, `baldwin.gauntlight-army`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1434,12 +1434,12 @@
     {
       "id": "baldwin-line-in-kurose",
       "title": "Baldwin's line in the present day is decided as a beat the players will eventually come across (LEDGER #31 item 24), and LEDGER #32 makes it William Charles Baldwin himself: alive, secret until the right moment, and a criminal lord. What shape does his presence in Kurose take (his organisation, his gangs, his mitflit workshops, any front), and do any descendants exist too?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Decided as a beat 2026-09-24; its shape is open. Ingram, on Claude's proposal: 'I love the idea of bringing in Baldwin's ancestors and making that a beat the players will eventually come across. That's great.' LEDGER #31 reads 'ancestors' there as his present-day line. CLAUDE'S PROPOSAL, not decided: Baldwin House as the arms concern, or the crime lords, that Manako works with, carrying a two-hundred-year grudge against the four. Background: WCB led the old campaign's mitflit hunters, and when members of his own family died by accident in the shadow siege at Baldwin Manor he blamed the four anyway (item 22). In the source material the Baldwins also ran one of Kortos's largest magical-weapons manufactories (ideas/story/source-material/the-trouble-with-mitflits/journals/history-of-baldwin-manor.md); LEDGER #29 left open whether that carries over.\n\nQUESTION REWORDED 2026-09-24 (LEDGER #32 item 1; Ingram's Baldwin paragraph, and Casebook N9, 'See above'). It used to ask only about his descendants two hundred years on. Now canon, GM-only and secret until the right moment: William Charles Baldwin is alive (\"He was insanely rich, that might give him access to ways to stay alive\"), a criminal lord who arms criminal gangs with incredible weapons, and those weapons are still made by essentially enslaved mitflits. The four founders are his natural enemies, and meeting him is personal for the players, four of whom played the four. Descendants may exist too; the man matters more (LEDGER #32). CLAUDE'S PROPOSALS (LEDGER #32, veto freely): he is the crime lord Manako works for, at arm's length, so Nobu's laundering, the Fixer's 'crime partners' and the heist crews all run through his organisation; the mitflits gathering in Kurose to go home are easy prey for his workshops; his front might trade under the old castle's name, Croglang. These take over from the earlier proposal above (Baldwin House as the arms concern, or the crime lords Manako works with). Split out the same day: how he stays alive (baldwin-longevity) and when and how he is revealed (baldwin-reveal). His file: ideas/story/bible/characters/william-charles-baldwin.md.",
+      "setup": "Decided as a beat 2026-09-24; its shape is open. Ingram, on Claude's proposal: 'I love the idea of bringing in Baldwin's ancestors and making that a beat the players will eventually come across. That's great.' LEDGER #31 reads 'ancestors' there as his present-day line. CLAUDE'S PROPOSAL, not decided: Baldwin House as the arms concern, or the crime lords, that Manako works with, carrying a two-hundred-year grudge against the four. Background: WCB led the old campaign's mitflit hunters, and when members of his own family died by accident in the shadow siege at Baldwin Manor he blamed the four anyway (item 22). In the source material the Baldwins also ran one of Kortos's largest magical-weapons manufactories (quarantine/ideas/story/source-material/the-trouble-with-mitflits/journals/history-of-baldwin-manor.md); LEDGER #29 left open whether that carries over.\n\nQUESTION REWORDED 2026-09-24 (LEDGER #32 item 1; Ingram's Baldwin paragraph, and Casebook N9, 'See above'). It used to ask only about his descendants two hundred years on. Now canon, GM-only and secret until the right moment: William Charles Baldwin is alive (\"He was insanely rich, that might give him access to ways to stay alive\"), a criminal lord who arms criminal gangs with incredible weapons, and those weapons are still made by essentially enslaved mitflits. The four founders are his natural enemies, and meeting him is personal for the players, four of whom played the four. Descendants may exist too; the man matters more (LEDGER #32). CLAUDE'S PROPOSALS (LEDGER #32, veto freely): he is the crime lord Manako works for, at arm's length, so Nobu's laundering, the Fixer's 'crime partners' and the heist crews all run through his organisation; the mitflits gathering in Kurose to go home are easy prey for his workshops; his front might trade under the old castle's name, Croglang. These take over from the earlier proposal above (Baldwin House as the arms concern, or the crime lords Manako works with). Split out the same day: how he stays alive (baldwin-longevity) and when and how he is revealed (baldwin-reveal). His file: quarantine/ideas/story/bible/characters/william-charles-baldwin.md.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `baldwin.alive`, `baldwin.workshops`, `baldwin.croglang`, `baldwin.criminal-lord`, `baldwin.family`, `baldwin.workshops-where`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1449,12 +1449,12 @@
     {
       "id": "berserk-protocol-fate",
       "title": "The 'berserk protocol' recited at assembly (Mystery Ledger #8, 'the protocol's line about brothers') no longer has a berserk to be about: nothing in this campaign goes berserk (LEDGER #31 item 14). Rework it or cut it? Claude's proposal: it becomes Hyuck's emergency protocol for machines that fail under their pilots, written by a test pilot who has crashed everything, and it still opens with the line about brothers.",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 (LEDGER #31, Claude's fill-in, veto freely). Where it still appears as 'the berserk protocol': ideas/story/blank-inheritance-ch1-v2.md §4 (Show, Never Tell) and §5 (Mystery Ledger #8), and design/induction.md (the assembly step). ideas/story/blank-inheritance-v4.md already calls it 'the emergency protocol' and marks that as this proposal, with 'if the proposal is vetoed, cut the protocol'. The line about brothers is literal, not metaphor, and belongs to Hyuck ('second son, killed his brother', v4). Hyuck being alive and the Directorate's test pilot of its worst Frame concepts is canon (LEDGER #28), and Steve plays him in flashbacks (LEDGER #31 item 12). Related: hero-points-vs-berserk, whose premise went with Bleed (cut 2026-09-20) and with item 14.\n\n2026-09-24 (LEDGER #32 item 11; Ingram, Casebook N8) -- still open, to be pinned down much later. \"Hyuck absolutely would build something like that, but maybe we develop this idea to only happen with Gen 2. Leave it as an open question to be pinned down much later.\" Read: Hyuck's emergency protocol would exist, but only with Gen 2 (Gen 1 Frames are Golarion technology with no living core, LEDGER #32 item 7). Her answer keeps the protocol and gives it an owner and a machine; its shape is not decided. One thing to check when it is: the protocol is recited at assembly in Chapter 1 (Mystery Ledger #8), while Gen 2 reaches the field only at the end of Chapter 4. The Gen 2 prototypes are decades old and were mothballed (LEDGER #20), so a protocol written for them could already exist; nobody has said so.",
+      "setup": "Raised 2026-09-24 (LEDGER #31, Claude's fill-in, veto freely). Where it still appears as 'the berserk protocol': quarantine/ideas/story/blank-inheritance-ch1-v2.md §4 (Show, Never Tell) and §5 (Mystery Ledger #8), and design/induction.md (the assembly step). quarantine/ideas/story/blank-inheritance-v4.md already calls it 'the emergency protocol' and marks that as this proposal, with 'if the proposal is vetoed, cut the protocol'. The line about brothers is literal, not metaphor, and belongs to Hyuck ('second son, killed his brother', v4). Hyuck being alive and the Directorate's test pilot of its worst Frame concepts is canon (LEDGER #28), and Steve plays him in flashbacks (LEDGER #31 item 12). Related: hero-points-vs-berserk, whose premise went with Bleed (cut 2026-09-20) and with item 14.\n\n2026-09-24 (LEDGER #32 item 11; Ingram, Casebook N8) -- still open, to be pinned down much later. \"Hyuck absolutely would build something like that, but maybe we develop this idea to only happen with Gen 2. Leave it as an open question to be pinned down much later.\" Read: Hyuck's emergency protocol would exist, but only with Gen 2 (Gen 1 Frames are Golarion technology with no living core, LEDGER #32 item 7). Her answer keeps the protocol and gives it an owner and a machine; its shape is not decided. One thing to check when it is: the protocol is recited at assembly in Chapter 1 (Mystery Ledger #8), while Gen 2 reaches the field only at the end of Chapter 4. The Gen 2 prototypes are decades old and were mothballed (LEDGER #20), so a protocol written for them could already exist; nobody has said so.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `hyuck.protocol`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1464,12 +1464,12 @@
     {
       "id": "kortos-shuttle",
       "title": "The generation ship's shuttle is buried deep under the rock of Kortos, away from the ship's ruin. The exotic fuel the four founders were fetching when they caused First Impact was for it, and they never reached it (LEDGER #32 item 5). What is the shuttle, what did the jungle mitflits mean to do with it (and did they know how dangerous the fuel was), is it still there, and how does Blank Inheritance tie the thread up?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N3 (LEDGER #32): \"I cannot remember the original reasoning, so let's assume that it was fuel for the Shuttle. The players never got to the shuttle which was buried deep under the rock of Kortos away from the original destroyed spaceship. We can leave this as something that we need to tie up eventually.\" Canon: it exists, it is buried deep under the rock of Kortos away from the generation ship, the fuel was for it, and the four never got to it. Everything else is open. Don't assume the obvious reading (a shuttle to fly home, or to go for help); nobody has said it. Things to check it against when it is decided, none of them decided: the old campaign's Kortos map already marked a 'Shuttle Location' (ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md; source, not canon); Blank Inheritance exists partly to close the old campaign's loose ends (LEDGER #30); the Directorate was born to guard the Kortos site (LEDGER #32 item 6); and the campaign's last quarter already needs a way to the mitflit home world (LEDGER #26). Not to be confused with the withdrawn 'deep-buried machine' (bisected-specimen-origin), which was the bisected specimen and does not exist. Replaces jungle-mitflit-fuel-purpose, resolved the same day.\n\n2026-09-24 (LEDGER #34, Casebook N25): Anabala's own ultimate objective is a way home for her people, using mitflit technology. CLAUDE'S NOTE, not a decision: the shuttle is one candidate for that way home, and the search ship under Kurose, which lifts at Chapter 15 in the draft, is another.",
+      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N3 (LEDGER #32): \"I cannot remember the original reasoning, so let's assume that it was fuel for the Shuttle. The players never got to the shuttle which was buried deep under the rock of Kortos away from the original destroyed spaceship. We can leave this as something that we need to tie up eventually.\" Canon: it exists, it is buried deep under the rock of Kortos away from the generation ship, the fuel was for it, and the four never got to it. Everything else is open. Don't assume the obvious reading (a shuttle to fly home, or to go for help); nobody has said it. Things to check it against when it is decided, none of them decided: the old campaign's Kortos map already marked a 'Shuttle Location' (quarantine/ideas/story/source-material/the-trouble-with-mitflits/campaign-timeline.md; source, not canon); Blank Inheritance exists partly to close the old campaign's loose ends (LEDGER #30); the Directorate was born to guard the Kortos site (LEDGER #32 item 6); and the campaign's last quarter already needs a way to the mitflit home world (LEDGER #26). Not to be confused with the withdrawn 'deep-buried machine' (bisected-specimen-origin), which was the bisected specimen and does not exist. Replaces jungle-mitflit-fuel-purpose, resolved the same day.\n\n2026-09-24 (LEDGER #34, Casebook N25): Anabala's own ultimate objective is a way home for her people, using mitflit technology. CLAUDE'S NOTE, not a decision: the shuttle is one candidate for that way home, and the search ship under Kurose, which lifts at Chapter 15 in the draft, is another.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `generation-ship.fuel-purpose`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1479,12 +1479,12 @@
     {
       "id": "baldwin-longevity",
       "title": "How has William Charles Baldwin stayed alive for two hundred years? Ingram: \"He was insanely rich, that might give him access to ways to stay alive\" (LEDGER #32). Looted ship technology, bought magic, a bargain with something, or something else?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "Raised 2026-09-24 (LEDGER #32, 'Still open'). GM-only: that he is alive at all is a secret kept until the right moment (baldwin-reveal). Canon underneath it: he is alive, and his wealth bought it somehow. CLAUDE'S PROPOSAL (LEDGER #32, veto freely): he was on Kortos when First Impact opened the generation ship, with hunters, money and a weapons works on the island, so he was among the first to loot the site; ship technology (medical, repair nanites) keeps him alive, and his mitflit slaves, fascinated by that technology, keep it running. Alternatives named in the same entry: bought magic, or a bargain. Things to check it against, none decided: Sap is canon as the generation ship's stock for its repair nanites (LEDGER #32 item 9), so a body kept going by repair nanites sits close to the Watcher's own feedstock; and his file notes that if he runs on ship technology, the Watcher may already be able to see through him. The founders' own longevity is a separate thread (LEDGER #8; Hyuck's is answered by LEDGER #41, the Carrying).\n\n2026-09-24 (LEDGER #33): asked again as Casebook N16 and parked. Ingram: \"We'll work this out later.\"",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `baldwin.how-alive`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1494,12 +1494,12 @@
     {
       "id": "baldwin-reveal",
       "title": "When and how is William Charles Baldwin revealed to the players, and to whom first? Ingram: \"This would have to be a reveal we keep secret till the right moment\" (LEDGER #32).",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 (LEDGER #32, 'Still open'). GM-only. Canon: he is alive; the reveal is kept secret until the right moment; the original Tuesday group would be his natural enemies if he revealed himself (Ingram: \"The original Tuesday group of Rupiah, Shucks, Anabala and Hyuck would be natural enemies of Baldwin if he revealed himself\"); and the moment is personal for the players, four of whom played those four. Until then his name, his face and his survival are held back; his organisation can be felt long before he is (ideas/story/bible/characters/william-charles-baldwin.md). CLAUDE'S PROPOSAL, from his file (veto freely): signs build long before, each deniable on its own (impossible weapons in gang hands, missing mitflits from the gathering, a front company called Croglang, a crime lord nobody has ever seen), so that when he steps out the founders, and their players, know him on sight.\n\n2026-09-24 (LEDGER #33): asked again as Casebook N17 and parked. Ingram: \"We'll work this out later.\"",
+      "setup": "Raised 2026-09-24 (LEDGER #32, 'Still open'). GM-only. Canon: he is alive; the reveal is kept secret until the right moment; the original Tuesday group would be his natural enemies if he revealed himself (Ingram: \"The original Tuesday group of Rupiah, Shucks, Anabala and Hyuck would be natural enemies of Baldwin if he revealed himself\"); and the moment is personal for the players, four of whom played those four. Until then his name, his face and his survival are held back; his organisation can be felt long before he is (quarantine/ideas/story/bible/characters/william-charles-baldwin.md). CLAUDE'S PROPOSAL, from his file (veto freely): signs build long before, each deniable on its own (impossible weapons in gang hands, missing mitflits from the gathering, a front company called Croglang, a crime lord nobody has ever seen), so that when he steps out the founders, and their players, know him on sight.\n\n2026-09-24 (LEDGER #33): asked again as Casebook N17 and parked. Ingram: \"We'll work this out later.\"",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `baldwin.reveal`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1509,12 +1509,12 @@
     {
       "id": "the-stray",
       "title": "What is the stray, and what does it become? Plainly: a small, broken-off piece of the Watcher (v4 §6) that follows one PC home, waiting to be fed. Ingram calls it \"a less developed concept\" and leaves it open to be solved later (LEDGER #32 item 13).",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N11 (when the stray's second nature, the microphone, is revealed): \"You are being mysterious again. The stray, by which you mean 'The Watcher' right? Or some broken off aspect of The Watcher? This is a less developed concept, so let's leave that an open question to be solved later.\" Stated plainly, as she asked: the stray is a small, broken-off piece of the Watcher (v4 §6). What exists already, all of it drafted rather than decided: it comes through a lab spill and follows one PC home, patiently, the way the first fragment followed Manako; the player names it; it is a pet and a microphone at once (ideas/story/dossier-observer.md, 'Where it appears'); and in the v4 bible it can become the demonstration that breaks Manako's faith, a piece of the same swarm raised by somebody else. Open: when (or whether) its second nature is revealed, what it becomes if raised kindly, and whether it can ever speak. In GM-facing prose, name it plainly as a piece of the Watcher: 'You are being mysterious again' was her objection to the Casebook calling it only 'the stray'.\n\n2026-09-27 (LEDGER #42): KEPT, as a possibility. Ingram: \"Keep it, I think it's an interesting idea and possibility, the players encounter part of The Watcher and then they end up befriending it or it becomes like a mascot, but in fact it's a piece of the thing threatening the whole city. It's a fun idea, we'll have to see if we can make it work.\" Still open: whether it works at the table, and the details. Claude's proposal for its origin: after a fight in Chapter 5, the one crumb that doesn't drain home.",
+      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N11 (when the stray's second nature, the microphone, is revealed): \"You are being mysterious again. The stray, by which you mean 'The Watcher' right? Or some broken off aspect of The Watcher? This is a less developed concept, so let's leave that an open question to be solved later.\" Stated plainly, as she asked: the stray is a small, broken-off piece of the Watcher (v4 §6). What exists already, all of it drafted rather than decided: it comes through a lab spill and follows one PC home, patiently, the way the first fragment followed Manako; the player names it; it is a pet and a microphone at once (quarantine/ideas/story/dossier-observer.md, 'Where it appears'); and in the v4 bible it can become the demonstration that breaks Manako's faith, a piece of the same swarm raised by somebody else. Open: when (or whether) its second nature is revealed, what it becomes if raised kindly, and whether it can ever speak. In GM-facing prose, name it plainly as a piece of the Watcher: 'You are being mysterious again' was her objection to the Casebook calling it only 'the stray'.\n\n2026-09-27 (LEDGER #42): KEPT, as a possibility. Ingram: \"Keep it, I think it's an interesting idea and possibility, the players encounter part of The Watcher and then they end up befriending it or it becomes like a mascot, but in fact it's a piece of the thing threatening the whole city. It's a fun idea, we'll have to see if we can make it work.\" Still open: whether it works at the table, and the details. Claude's proposal for its origin: after a fight in Chapter 5, the one crumb that doesn't drain home.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `stray.what-it-is`, `stray.where-it-comes-from`, `stray.microphone`, `stray.raised`, `stray.works`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1524,12 +1524,12 @@
     {
       "id": "anabala-as-student",
       "title": "Pippa may choose to keep playing Anabala in the new campaign, as one of the students (LEDGER #32 item 14). Does she, and if so, how does Anabala come to be one of the six?",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
       "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N12: \"Anabala must be there for it to happen. Anabala may even be one of the 'students' because Pippa may choose to continue playing as Anabala in the new adventure. We can solve this later in the adventure and leave it open for now, but Anabala could be there at the right time and place easily enough.\" Canon: Anabala must be present for Abraxas to emerge (item 14). Open: whether Pippa plays her as a student. Pippa already plays her in flashbacks (LEDGER #31 item 12). Things this would touch, none of them decided: (1) Abraxas's emergence would happen to a player character, and nothing in this campaign takes a character away from their player (LEDGER #31 item 14), so that version needs working out with Pippa first; (2) the six carry 'the right stuff' by coincidence (LEDGER #31 item 10), but a mitflit carries it natively, and Anabala built Gen 2 (LEDGER #32 item 7); (3) she knows things the rest of the table must not learn early: Frame Sickness (LEDGER #23), the mitflits' whole origin (LEDGER #15), and Abraxas, GM-only and unmentioned for a long time (LEDGER #31 item 20); (4) the six kids are the players' own creative work, and the draft roster in data/characters/kids/ is unconfirmed, so nothing here decides who the six are.\n\n2026-09-24 (LEDGER #33; Ingram, Casebook N23): \"Abraxes could emerge from Anabala, but Anabala is still a character that Pippa can play. Not an issue to worry too much about.\" So item (1) above is settled: the emergence does not take the character from her player. Abraxas comes out; Anabala stays Pippa's. Still open: whether Pippa chooses to play her as a student, how Anabala comes to be one of the six, and items (2) to (4). CLAUDE'S PROPOSAL for what the emergence costs (veto freely): she lived through the ages because of Abraxas, so without the demon she may begin to age, or weaken; a price that is Anabala's and Pippa's to pay or refuse.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `anabala.as-a-student`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1539,12 +1539,12 @@
     {
       "id": "bobbin-sit-in-machine",
       "title": "Whose machine does Bobbin sit in? The sit-in (a pacifist mitflit Elder entering a Frame so it cannot be used, and cannot be extracted without killing him) must not take a player's machine away from them (LEDGER #31 item 14), and LEDGER #32 leaves the answer open (item 17).",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Casebook N15, which Ingram left open: \"Let's leave that as an open question to resolve later.\" The problem as the Casebook put it: the sit-in now sits awkwardly with 'nothing takes control away from a player'; if he sits in a PC's own Frame, a player loses their machine to an NPC. CLAUDE'S PROPOSAL from the Casebook, NOT adopted: he occupies something the city needs instead (a combat-corps Frame, or the search ship's own seat, so it can never be flown as a weapon), which keeps the discomfort without taking anything from a player. LEDGER #32 adds a second constraint: Gen 1 Frames are Golarion technology with no living core (item 7), so if he sits in a Gen 1, 'the Directorate cannot extract them without killing them' (ideas/story/blank-inheritance-v4.md §9) needs a reason other than a core; if he sits in a Gen 2, the answer bears on arc-mitflit-frame-core-link (ideas/story/bible/species/mitflits.md). The bible's own instruction stands either way: do not resolve the discomfort quickly.\n\n2026-09-24 (LEDGER #34, Casebook D13): the Gen 2 core is biomechanical mitflit technology, not a living mitflit, and wild mitflits are uncomfortable around Gen 2 Frames. CLAUDE'S PROPOSAL: if Bobbin sits in a Gen 2, the discomfort is part of his price for the strike, which fits the bible's instruction not to resolve it quickly. Whose machine is still open.",
+      "setup": "Raised 2026-09-24 from Casebook N15, which Ingram left open: \"Let's leave that as an open question to resolve later.\" The problem as the Casebook put it: the sit-in now sits awkwardly with 'nothing takes control away from a player'; if he sits in a PC's own Frame, a player loses their machine to an NPC. CLAUDE'S PROPOSAL from the Casebook, NOT adopted: he occupies something the city needs instead (a combat-corps Frame, or the search ship's own seat, so it can never be flown as a weapon), which keeps the discomfort without taking anything from a player. LEDGER #32 adds a second constraint: Gen 1 Frames are Golarion technology with no living core (item 7), so if he sits in a Gen 1, 'the Directorate cannot extract them without killing them' (quarantine/ideas/story/blank-inheritance-v4.md §9) needs a reason other than a core; if he sits in a Gen 2, the answer bears on arc-mitflit-frame-core-link (quarantine/ideas/story/bible/species/mitflits.md). The bible's own instruction stands either way: do not resolve the discomfort quickly.\n\n2026-09-24 (LEDGER #34, Casebook D13): the Gen 2 core is biomechanical mitflit technology, not a living mitflit, and wild mitflits are uncomfortable around Gen 2 Frames. CLAUDE'S PROPOSAL: if Bobbin sits in a Gen 2, the discomfort is part of his price for the strike, which fits the bible's instruction not to resolve it quickly. Whose machine is still open.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `bobbin.whose-machine`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1556,7 +1556,7 @@
       "title": "A Gen 2 Frame's living core makes a seat shaped to its pilot's true form (LEDGER #5, Gen 2 only since LEDGER #32). In this campaign a disguised PC's reveal belongs to the player, always (design/induction.md §2). How do the two meet when a disguised PC climbs into a Gen 2 Frame: who can see the seat's shape, and can it give away something the player hasn't chosen to reveal?",
       "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 by Claude while filing LEDGER #32; an open question, not a decision. The two facts: (1) the core forms a seat for whoever can link with it, shaped to the pilot's true form, and when a pilot dies the Frame holds that shape in the hangar until it re-forms (LEDGER #5; ideas/story/blank-inheritance-v4.md, 'The cavity conforms'); since #32 this is Gen 2 only, because Gen 1 Frames have no core. (2) Every character presents as human, elf, halfling or similar at the start, and anything else is disguised; and 'The reveal belongs to the player, always. Not to the GM, not to the induction system, not to a skill check somebody else rolls. The system may know; the table finds out when the player decides' (design/induction.md §2). design/induction.md §2 already names the meeting as a scene: 'A character in a borrowed shape climbing into a hollow moulded to their real one is a scene that writes itself, and it is available the first time they sit in a Frame.' Since #32 that is the first time they sit in a Gen 2, at the end of Chapter 4 at the earliest (LEDGER #31 item 13), and that line wants updating to say so. Until this is decided, don't write a Gen 2 cockpit scene with a disguised pilot in it.",
+      "setup": "Raised 2026-09-24 by Claude while filing LEDGER #32; an open question, not a decision. The two facts: (1) the core forms a seat for whoever can link with it, shaped to the pilot's true form, and when a pilot dies the Frame holds that shape in the hangar until it re-forms (LEDGER #5; quarantine/ideas/story/blank-inheritance-v4.md, 'The cavity conforms'); since #32 this is Gen 2 only, because Gen 1 Frames have no core. (2) Every character presents as human, elf, halfling or similar at the start, and anything else is disguised; and 'The reveal belongs to the player, always. Not to the GM, not to the induction system, not to a skill check somebody else rolls. The system may know; the table finds out when the player decides' (design/induction.md §2). design/induction.md §2 already names the meeting as a scene: 'A character in a borrowed shape climbing into a hollow moulded to their real one is a scene that writes itself, and it is available the first time they sit in a Frame.' Since #32 that is the first time they sit in a Gen 2, at the end of Chapter 4 at the earliest (LEDGER #31 item 13), and that line wants updating to say so. Until this is decided, don't write a Gen 2 cockpit scene with a disguised pilot in it.",
       "candidates": [],
       "constraint": null,
       "resolution": "RESOLVED 2026-09-24 (LEDGER #33; Ingram, Casebook N19): \"When they enter the machine they find it uncomfortable to do so except in their true form.\" So a disguised pilot can climb into a Gen 2 and fly it; it is uncomfortable unless they are in their true form. Nothing forces a reveal, and the reveal stays the player's (design/induction.md §2). The natural reading: the seat is shaped to the true body, so a borrowed shape does not fit it. CLAUDE'S FILL-INS (LEDGER #33, veto freely): (1) the v4 bible has a Gen 2 cavity keep its current pilot's shape even when the cockpit is empty ('The cavity conforms'), so a hangar crew could see a hollow shaped to a disguised pilot's true body; the induction rule already covers it ('The system may know; the table finds out when the player decides'): the crew may know, and the GM never describes the hollow's shape to the table until the player reveals. (2) The discomfort is not Frame Sickness (LEDGER #23), which is the sync problem any pilot has in a Gen 2 new to them, disguised or not; keep the two apart. Open, not decided: whether the discomfort ever has a mechanical cost. If it does, it must raise risk in a specific moment and never shrink the pilot's options (design/campaign-arc.md, 'penalties cost risk, never choice').",
@@ -1569,12 +1569,12 @@
     {
       "id": "manako-arrested-after-the-envoy",
       "title": "Was Manako arrested, though not imprisoned, as part of the court proceeding over Hori's shooting of the Envoy? Ingram: \"Manako may have even been arrested but not imprisoned as part of this, but maybe not\" (LEDGER #33).",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N22 (LEDGER #33). Canon around it: Hori learned Aoi's name at a complex court proceeding to decide whether the killing was lawful; on the day he was dealing with a local disturbance, alone, with no backup, and it escalated; the circle scattered from the street, Manako with it (LEDGER #32 item 15). CHECKED, NOT A CONTRADICTION: if he was arrested, it was by the police, as a man at a public disturbance, before Cicada existed, and he was released without charge. That does not identify him as Cicada's founder, and the Directorate has never connected the two, so LEDGER #17 stands. KNOCK-ONS IF IT HAPPENED: (1) Hori may have seen him, or heard his name, at the proceeding (ideas/story/bible/characters/hori.md, open question 4); (2) a fifteen-year-old police record with his name in it exists, which the players can find for themselves; no NPC may point them at it (ideas/story/dossier-cicada.md §13.5).\n\n2026-09-24 (LEDGER #34): Ingram, on this: \"Manako could be known to the Directorate and that wouldn't be the worst thing in the world because they can't locate them and they don't know them or understand them.\" So whether he was arrested no longer matters to LEDGER #17 either way. It stays open as a detail to decide when it is useful.\n\n2026-09-24 (LEDGER #35): the police and the Directorate distrust each other, and what happens with the police doesn't reach the Directorate. So an arrest, if there was one, sits in police records only; the Directorate's whole knowledge of the Envoy incident is its official line, that a cultist was killed during a confrontation in which someone magically summoned a monster.",
+      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook N22 (LEDGER #33). Canon around it: Hori learned Aoi's name at a complex court proceeding to decide whether the killing was lawful; on the day he was dealing with a local disturbance, alone, with no backup, and it escalated; the circle scattered from the street, Manako with it (LEDGER #32 item 15). CHECKED, NOT A CONTRADICTION: if he was arrested, it was by the police, as a man at a public disturbance, before Cicada existed, and he was released without charge. That does not identify him as Cicada's founder, and the Directorate has never connected the two, so LEDGER #17 stands. KNOCK-ONS IF IT HAPPENED: (1) Hori may have seen him, or heard his name, at the proceeding (quarantine/ideas/story/bible/characters/hori.md, open question 4); (2) a fifteen-year-old police record with his name in it exists, which the players can find for themselves; no NPC may point them at it (quarantine/ideas/story/dossier-cicada.md §13.5).\n\n2026-09-24 (LEDGER #34): Ingram, on this: \"Manako could be known to the Directorate and that wouldn't be the worst thing in the world because they can't locate them and they don't know them or understand them.\" So whether he was arrested no longer matters to LEDGER #17 either way. It stays open as a detail to decide when it is useful.\n\n2026-09-24 (LEDGER #35): the police and the Directorate distrust each other, and what happens with the police doesn't reach the Directorate. So an arrest, if there was one, sits in police records only; the Directorate's whole knowledge of the Envoy incident is its official line, that a cultist was killed during a confrontation in which someone magically summoned a monster.",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `manako.arrested-after-the-envoy`, `kurose-police.the-file`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1584,12 +1584,12 @@
     {
       "id": "mother-in-gen2",
       "title": "Is a small part of Mother in every Gen 2 Frame, the 'cerebral glue' that makes the technology work? Ingram: \"Maybe a small part of 'Mother' ends up in every Gen 2 mech, maybe that's the cerebral glue needed to get the tech to work, but the end result is that these mechs aren't usable by just anyone\" (LEDGER #34).",
-      "status": "open",
+      "status": "resolved",
       "lastTouched": null,
-      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook D13 (LEDGER #34). CANON around it: the Gen 2 core is biomechanical mitflit technology, robotic parts that are living flesh melded with technology, not a living mitflit; wild mitflits are uncomfortable around Gen 2 Frames, and mitflits don't instantly understand where Gen 2 comes from; the result is that these mechs aren't usable by just anyone. Gen 2 is built from the original ship's technology, the generation ship at Kortos (LEDGER #20, #34), and Mother was that ship's mind, perhaps still alive in the museum fragment (LEDGER #32 item 3). CLAUDE'S PROPOSALS if it is adopted (veto freely): Anabala took the pieces from the generation ship's reasoning core under the restricted access she bargained for (LEDGER #34, N25), and the museum fragment is one more piece nobody else understands; it would explain why the Watcher's children are drawn hard to Gen 2 (ideas/story/dossier-observer.md, the G3 generation), since each one carries a piece of the mind the Watcher used to report to; and it bears on Mother's voice (Casebook N21) and on mother-and-the-watcher. Don't write it as settled anywhere. Tone guardrail (2026-09-25): this echoes the mother-in-the-machine of the Evangelion research shelf. Take structure from it if useful, never its register (design/research/evangelion/tone-guardrail.md).",
+      "setup": "Raised 2026-09-24 from Ingram's answer to Casebook D13 (LEDGER #34). CANON around it: the Gen 2 core is biomechanical mitflit technology, robotic parts that are living flesh melded with technology, not a living mitflit; wild mitflits are uncomfortable around Gen 2 Frames, and mitflits don't instantly understand where Gen 2 comes from; the result is that these mechs aren't usable by just anyone. Gen 2 is built from the original ship's technology, the generation ship at Kortos (LEDGER #20, #34), and Mother was that ship's mind, perhaps still alive in the museum fragment (LEDGER #32 item 3). CLAUDE'S PROPOSALS if it is adopted (veto freely): Anabala took the pieces from the generation ship's reasoning core under the restricted access she bargained for (LEDGER #34, N25), and the museum fragment is one more piece nobody else understands; it would explain why the Watcher's children are drawn hard to Gen 2 (quarantine/ideas/story/dossier-observer.md, the G3 generation), since each one carries a piece of the mind the Watcher used to report to; and it bears on Mother's voice (Casebook N21) and on mother-and-the-watcher. Don't write it as settled anywhere. Tone guardrail (2026-09-25): this echoes the mother-in-the-machine of the Evangelion research shelf. Take structure from it if useful, never its register (design/research/evangelion/tone-guardrail.md).",
       "candidates": [],
       "constraint": null,
-      "resolution": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `mother.in-every-gen-2`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
       "source": {
         "file": "data/campaign/open-questions.json",
         "kind": "registry"
@@ -1627,6 +1627,85 @@
       "referencedBy": [
         "data/campaign/config.json#frameEconomy.damageStateEffects.openQuestionRef"
       ]
+    },
+    {
+      "id": "seaward-platform-name",
+      "title": "What is the long train platform on the seaward flank of the Transfer Hall actually called, and which trains stop at it?",
+      "status": "resolved",
+      "lastTouched": null,
+      "setup": "Raised 2026-10-05 (canon/decisions/D064.md). Ingram said the building the map called Baggage Inspection is really a train platform; she gave no name. 'Seaward Platform' is Claude's, from where the strip lies (about 334 m by 4 m, along the Transfer Hall's seaward side and on past its end). Not decided: whether it is the 'up-line platforms' the Transfer Hall's text says mainland passengers come down from (the Mainland Platforms location is also described as where ordinary trains terminate), a third platform of its own, or something else; which trains stop there. data/locations/seaward-platform.json carries only 'a train platform' until she says.",
+      "candidates": [],
+      "constraint": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `directorate.seaward-platform`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
+      "source": {
+        "file": "data/campaign/open-questions.json",
+        "kind": "registry"
+      },
+      "referencedBy": [
+        "data/locations/seaward-platform.json#namingPlaceholderRef"
+      ]
+    },
+    {
+      "id": "backgrounds-rework",
+      "title": "Which Starfinder 2e backgrounds does the Induction hide, reskin or keep, and which backgrounds of our own come first?",
+      "status": "open",
+      "lastTouched": null,
+      "setup": "Raised 2026-10-07 (canon/decisions/D066.md). Ingram: a range of backgrounds of the campaign's own creation, shown first; a decent number of the other Paizo backgrounds that work; no Paizo-centric plot backgrounds. Claude's first sort of the 154 (53 hide, 31 reskin, 70 keep) and fourteen proposed backgrounds of our own are in design/induction-backgrounds.md; none of it is decided. Also open: whether \"Directorate Lore\" (D065) is offered wherever a background's Lore is open, or only on Directorate-related backgrounds.",
+      "candidates": [],
+      "constraint": null,
+      "resolution": null,
+      "source": {
+        "file": "data/campaign/open-questions.json",
+        "kind": "registry"
+      },
+      "referencedBy": []
+    },
+    {
+      "id": "manakos-tea-house-name",
+      "title": "What is the tea house actually called, on its sign?",
+      "status": "resolved",
+      "lastTouched": null,
+      "setup": "Raised 2026-10-07 (canon/decisions/D067.md). Ingram drew the building for The Errand (req-5) and did not name it. 'Manako's Tea House' is Claude's working name, from the request's wording; it is not what is painted over the door, and players should not be told the owner's name by a sign. data/locations/manakos-tea-house.json carries the working name until she says.",
+      "candidates": [],
+      "constraint": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `manako.tea-house-name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
+      "source": {
+        "file": "data/campaign/open-questions.json",
+        "kind": "registry"
+      },
+      "referencedBy": [
+        "data/locations/manakos-tea-house.json#namingPlaceholderRef"
+      ]
+    },
+    {
+      "id": "kurose-mayor-name",
+      "title": "What is the mayor of Kurose called, and how do they hold office?",
+      "status": "resolved",
+      "lastTouched": null,
+      "setup": "Raised 2026-10-07 (canon/decisions/D068.md). Ingram gave the mayor as a new character the group can meet: a blessing and a curse, their own agent, protecting the city and their own position equally. She gave no name and no gender, and Claude has proposed neither. The canon fact is mayor.name in canon/world/mayor.md.",
+      "candidates": [],
+      "constraint": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `mayor.name`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
+      "source": {
+        "file": "data/campaign/open-questions.json",
+        "kind": "registry"
+      },
+      "referencedBy": []
+    },
+    {
+      "id": "mayor-first-appearance",
+      "title": "Where and when does the party first meet the mayor of Kurose, and what does the mayor ask of them?",
+      "status": "resolved",
+      "lastTouched": null,
+      "setup": "Raised 2026-10-07 (canon/decisions/D068.md). The mayor's support for the Directorate is why the police and the Directorate are forced into uneasy cooperation on raids against organised criminals and dangerous cultists, which is the reasoning for the party being sent on such missions. Nothing is placed in the plan; the first raid is Ingram's call. Not settled by this: episode-two-shape, which is a Frame/vehicle-scale call-out.",
+      "candidates": [],
+      "constraint": null,
+      "resolution": "MOVED TO CANON (2026-10-07, D079): this question now lives in canon as `mayor.support-forces-cooperation`, where the plot timeline's Decisions view answers it. The entry stays only so references to its id still resolve; do not answer it here.",
+      "source": {
+        "file": "data/campaign/open-questions.json",
+        "kind": "registry"
+      },
+      "referencedBy": []
     }
   ]
 }

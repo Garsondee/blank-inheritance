@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Stale absence-claim detector. See design/node-registry.md §8's "third bug class."
 //
-// Scans design/**/*.md, ideas/story/**/*.md, and CLAUDE.md for prose claiming something
+// Scans design/**/*.md, quarantine/ideas/story/**/*.md, and CLAUDE.md for prose claiming something
 // doesn't exist yet ("not yet written", "doesn't exist", "unbuilt", ...), paired with a
 // specific file/path reference nearby, and checks that claim against the real filesystem.
 //
@@ -141,7 +141,7 @@ function sentenceAround(source, at) {
 export function detectStaleClaims() {
   const files = [
     ...walk(path.join(repoRoot, "design"), (f) => f.endsWith(".md")),
-    ...walk(path.join(repoRoot, "ideas", "story"), (f) => f.endsWith(".md")),
+    ...walk(path.join(repoRoot, "quarantine", "ideas", "story"), (f) => f.endsWith(".md")),
   ];
   const claudeMd = path.join(repoRoot, "CLAUDE.md");
   if (existsSync(claudeMd)) files.push(claudeMd);

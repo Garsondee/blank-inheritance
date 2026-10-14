@@ -5,7 +5,7 @@
 // every real data file of an affected type actually carries the block.
 // See design/approvals-desk.md §2/§6, design/data-ownership.md §3-4.
 //
-// Markdown lore (ideas/story/bible/, design/) has no JSON envelope to hang a
+// Markdown lore (quarantine/ideas/story/bible/, design/) has no JSON envelope to hang a
 // status on and is explicitly OUT OF SCOPE for this item (issue #166's own
 // note) -- handled at file granularity later, or not at all. Not tested here
 // on purpose, not an oversight.

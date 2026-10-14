@@ -297,16 +297,29 @@ class TestTheShippedTimeline(unittest.TestCase):
                 u, v, _ = inv @ np.array([x - 0.5, y - 0.5, 1.0])
                 self.assertTrue(-1 <= u <= iw and -1 <= v <= ih, f"frame {n}: corner {x},{y} falls off the still")
 
-    def test_the_verse_carries_only_the_cast_and_the_watcher(self):
+    def test_the_verse_is_six_cards_of_even_length_and_the_watchers_credit(self):
+        # Ingram, round 14: "we'll have six of them, we want to give them roughly even screen time... We could also
+        # take this chance to pair the character name with the player name." The verse is one card per player, in
+        # the order Japanese credits use (a, ku, ji, su, pi, ri), alternating sides; the old cast credit is gone
+        # because each card carries its player's name.
         texts = [c for c in self.doc["clips"] if c["layer"]["type"] == "text" and c["shot"] in ("R11", "R12", "R13")]
-        self.assertEqual(sorted(c["id"] for c in texts), ["r11-cast", "r11-watcher"])
-        cast = [it["text"] for it in self.clip("r11-cast")["layer"]["items"]]
-        self.assertEqual(cast[0], "出演")
-        names = "　".join(cast[1:]).split("　")
-        # all six players, in the kana order Japanese credits use: a, ku, ji, su, pi, ri
-        self.assertEqual(names, ["アン", "クレイグ", "ジェイミー", "スティーブ", "ピッパ", "リアム"])
+        self.assertEqual([c["id"] for c in texts], ["r11-watcher"])
         watcher = [it["text"] for it in self.clip("r11-watcher")["layer"]["items"]]
         self.assertEqual(watcher, ["監視者", "クロード・コード"])
+        cards = sorted((c for c in self.doc["clips"] if c["layer"]["type"] == "cast_card"), key=lambda c: c["start"])
+        self.assertEqual([c["layer"]["player"]["kana"] for c in cards],
+                         ["アン", "クレイグ", "ジェイミー", "スティーブ", "ピッパ", "リアム"])
+        self.assertEqual([c["layer"]["player"]["roman"] for c in cards],
+                         ["Anne", "Craig", "Jamie", "Steve", "Pippa", "Liam"])
+        self.assertEqual([c["layer"]["number"] for c in cards], [1, 2, 3, 4, 5, 6])
+        self.assertEqual([c["layer"]["side"] for c in cards], ["l", "r", "l", "r", "l", "r"])
+        starts = [c["start"] for c in cards]
+        gaps = [b - a for a, b in zip(starts, starts[1:])]
+        self.assertLessEqual(max(gaps) / min(gaps), 1.05)                    # each card holds the same time
+        self.assertLessEqual((cards[-1]["end"] - starts[-1]) / min(gaps), 1.25)   # the last one only waits for the cut
+        for c in cards:
+            self.assertIsNone(c["layer"]["name"])        # the characters are not made yet: nobody invents their names
+            self.assertTrue(c["note"].startswith("LEAD BEAT"))
 
     def test_every_text_layer_says_whether_it_is_a_credit(self):
         # stencils and counters are text in the world, and title cards are the opening's own words: neither may be
@@ -416,14 +429,15 @@ class TestTheShippedTimeline(unittest.TestCase):
         self.assertLess(per_frame, 6.0)                                    # a few pixels a frame at most
         self.assertGreater(abs(cxs[-1] - cxs[0]), 0.03)                    # but it does pan
 
-    def test_r35_is_ingrams_art_not_effects_on_their_own(self):
-        # Ingram (2026-09-26): "R35 needs replacing, we don't have any graphics for it and it makes no sense on it's
-        # own."
-        r35 = [c for c in self.doc["clips"] if c["shot"] == "R35"]
-        self.assertTrue(r35)
-        self.assertTrue(all(c["layer"]["type"] in ("image", "video") for c in r35))
-        on = [n for n in range(1511, 1581) if any(timeline.params_at(c, frame_t(n)) for c in r35)]
-        self.assertEqual(len(on), 70)
+    def test_the_salute_is_out_and_the_vehicles_have_its_time(self):
+        # Ingram, round 14: "R35 is not a real character, so this section can be removed to give more time for other
+        # things", and of the vehicles, "good but far too quick which means that they don't register".
+        self.assertEqual([c["id"] for c in self.doc["clips"] if c["shot"] == "R35"], [])
+        shots = {sh["id"]: sh for sh in self.doc["shots"]}
+        self.assertEqual(shots["R35"]["in"], shots["R36"]["in"])               # no length: it is out of the cut
+        for cid in ("r33-scout", "r33-tracked", "r33-recon", "r34-art"):
+            c = self.clip(cid)
+            self.assertGreaterEqual(clock.time_to_frame(c["end"]) - clock.time_to_frame(c["start"]), 22, cid)  # >= 0.9 s
 
     def test_the_welder_is_on_long_enough_to_read(self):
         # Ingram (2026-09-26): "74.50s bar 2.1 - this animation is so shortened that it's not obvious what is
@@ -446,16 +460,21 @@ class TestTheShippedTimeline(unittest.TestCase):
                         continue
                     self.assertEqual(c["layer"].get(p), v, f"{c['id']}: {p} is first keyed at key {i}, so it jumps")
 
-    def test_lead_beat_three_is_the_animated_newcomer_not_the_extreme_close_up(self):
-        # Ingram (2026-09-26): "00:57 - not a fan of this moment, it's far too zoomed in. Get rid of it entirely and
-        # select something else." The still pushed from 1.8 to 2.8 times; her animated newcomer only drifts in.
-        face = self.clip("r24-face")
-        self.assertEqual(face["layer"]["type"], "video")
-        on = [timeline.params_at(face, frame_t(n)) for n in range(1288, 1336)]
-        self.assertTrue(all(on))                                   # the whole of R24 to R26
-        self.assertLessEqual(max(p.get("zoom", 1.0) for p in on), 1.1)
+    def test_the_faces_between_the_verse_and_the_launch_are_real_people(self):
+        # Ingram, round 14: "Ideally all characters seen in this intro would be real characters that the players will
+        # meet, not generic anime characters they won't." R14 is Manako (the tea-house chemist) and R24 to R26 is
+        # Section Officer Vetch; the animated newcomers who stood in for them are out of the cut.
+        manako, vetch = self.clip("r14-face"), self.clip("r24-vetch")
+        self.assertTrue(manako["layer"]["src"].endswith("R78-manako.png"))
+        self.assertTrue(vetch["layer"]["src"].endswith("R65-vetch.png"))
         srcs = [c["layer"].get("src", "") for c in self.doc["clips"]]
-        self.assertFalse(any(s.endswith("R24-newcomer.png") for s in srcs))
+        for gone in ("R14-newcomer.mp4", "R24-newcomer.mp4", "R24-newcomer.png", "R35-salute.png"):
+            self.assertFalse(any(s.endswith(gone) for s in srcs), gone)
+        on = [timeline.params_at(vetch, frame_t(n)) for n in range(1338, 1383)]
+        self.assertTrue(all(on))                                              # a whole bar of him
+        self.assertLessEqual(max(p.get("zoom", 1.0) for p in on), 1.15)       # and never the extreme close-up
+        for cid in ("r14-glare", "r14-glare-haze"):
+            self.assertNotIn(cid, {c["id"] for c in self.doc["clips"]})
 
     def test_full_frame_art_never_shows_its_own_edge(self):
         # found 2026-09-26: R54, R65 and R78 were keyed a little past their pictures' edges (R78 began off-centre at
@@ -546,20 +565,6 @@ class TestTheShippedTimeline(unittest.TestCase):
         self.assertEqual(self.clip("r14-music")["shot"], "R14")      # where the source credits its own music
         self.assertEqual(self.clip("r15-song")["shot"], "R15")
 
-    def test_the_silhouettes_fade_slowly_and_drift_slowly(self):
-        # Ingram, Step 3 review: "Silhouettes must fade in and out slowly and move slower."
-        for cid in ("r11-standing", "r11-pass-a", "r11-pass-b"):
-            c = self.clip(cid)
-            on = [n for n in range(500, 900) if timeline.params_at(c, frame_t(n))]
-            ops = [timeline.params_at(c, frame_t(n)).get("opacity", 1.0) for n in on]
-            peak = max(ops)
-            self.assertGreaterEqual(next(i for i, o in enumerate(ops) if o >= peak - 1e-6), 12, cid)   # half a second in
-            self.assertGreaterEqual(len(ops) - 1 - max(i for i, o in enumerate(ops) if o >= peak - 1e-6), 12, cid)
-            pxs = [timeline.params_at(c, frame_t(n)).get("px", 0) for n in on]
-            exposure = c.get("on", 1)                                        # it steps once per drawing
-            self.assertLessEqual(max(abs(b - a) for a, b in zip(pxs, pxs[1:])), 6 * exposure, cid)
-            self.assertLessEqual(abs(pxs[-1] - pxs[0]) / len(pxs), 6, cid)   # slow on average, too
-
     def test_the_blueprint_drifts_down_the_whole_time_at_one_speed(self):
         # Ingram: it moved "in a jerky fashion at two speeds"; then: "keep moving the whole time, slower, just moving
         # from top to bottom... slightly less opaque"
@@ -622,12 +627,11 @@ class TestTheShippedTimeline(unittest.TestCase):
         # Ingram: "should your procedural elements... animate on twos?" (the source's effects step on twos, measured);
         # then "I was wrong about animating on less frames for backgrounds, that looks very jerky. Animate on 1s for
         # the background."
-        for cid in ["r03-dust", "r20-counter"] + [f"r22-lamps-{k}" for k in range(10)]:
+        for cid in ["r03-dust", "r20-counter"]:
             self.assertEqual(self.clip(cid).get("on"), 2, cid)
         for c in self.doc["clips"]:
             if c["layer"]["type"] in ("image", "video"):
                 self.assertEqual(c.get("on", 1), 1, c["id"])
-        self.assertEqual(self.clip("r11-face")["layer"]["hold"], 3)      # the newcomer's own drawings stay on threes
 
     def test_the_rooftop_shimmers_in_the_heat_under_a_crisp_credit_and_pans(self):
         # Ingram: "a soft, subtle heat haze... reasonably subtle and a slight pan might help make it feel more alive";
@@ -637,11 +641,16 @@ class TestTheShippedTimeline(unittest.TestCase):
         self.assertEqual(haze["layer"]["type"], "heat_haze")
         self.assertLess(roof.get("z", 0), haze.get("z", 0))                # it shimmers the rooftop...
         self.assertLess(haze.get("z", 0), song.get("z", 0))                # ...never the credit's type
-        amp, scale = haze["layer"]["amp"], haze["layer"]["scale"]
-        self.assertGreaterEqual(amp, 4.0)                                   # well past the first pass's 2 px
-        self.assertLessEqual(scale, 20)                                     # ripples finer than its 38 px
-        self.assertGreater(haze["layer"]["speed"] / scale, 55 / 38 * 2)     # and shimmering faster
-        self.assertLessEqual(amp / scale, 0.35)                             # but the mitflit keeps its outline
+        amp, scale, speed = haze["layer"]["amp"], haze["layer"]["scale"], haze["layer"]["speed"]
+        # Ingram, round 14, of the second pass (4.5 px ripples 14 px across, rising at 110 px/s): "make the haze
+        # softer and less amplitude and slightly slower". It still shimmers (more than the first pass's 2 px, 38 px
+        # across, 55 px/s) but with less swing, wider ripples and a slower rise than the second.
+        self.assertLess(amp, 4.5)
+        self.assertGreater(amp, 2.0)
+        self.assertGreater(scale, 14)                                       # wider ripples are softer ones
+        self.assertLess(speed, 110)
+        self.assertGreater(speed, 55)                                       # "slightly" slower, not still
+        self.assertLessEqual(amp / scale, 0.35)                             # and the mitflit keeps its outline
         shot = [n for n in range(1000, 1200) if timeline.shot_at(self.doc, frame_t(n))["id"] == "R15"]
         self.assertEqual([n for n in range(1000, 1200) if timeline.params_at(haze, frame_t(n))], shot)
         cxs = [timeline.params_at(roof, frame_t(n))["cx"] for n in shot]
@@ -698,20 +707,6 @@ class TestTheShippedTimeline(unittest.TestCase):
             self.assertEqual(b[-4:], sorted(b[-4:], reverse=True))           # darkening, never lightening
             self.assertLess(b[-1], 0.2)
 
-    def test_the_newcomer_plays_through_once_without_looping(self):
-        from titleseq import layers
-        face = self.clip("r11-face")
-        path = os.path.join(ROOT, face["layer"]["src"])
-        if not os.path.exists(path):
-            self.skipTest("the gitignored art isn't in this checkout")
-        n_frames = len(layers.load_video(face["layer"]["src"]))           # a clip, or Ingram's folder of keyed PNGs
-        p = face["layer"]
-        first, last = clock.time_to_frame(face["start"]) + 1, clock.time_to_frame(face["end"])
-        shown = [layers.video_frame_index(n_frames, n - first, p["speed"], p["hold"], p["mode"])
-                 for n in range(first, last + 1)]
-        self.assertEqual(shown, sorted(shown))                  # never jumps back to the start
-        self.assertLess(shown[-1], n_frames - 1)                # and never runs out and freezes
-
     def test_the_watcher_is_only_a_glimpse(self):
         # LEDGER #37: under a second, a hard cut in and out, pushing in on the eye; Ingram keeps it short for mystery
         eye = self.clip("r17-eye")
@@ -723,12 +718,219 @@ class TestTheShippedTimeline(unittest.TestCase):
         self.assertEqual(zooms, sorted(zooms))
         self.assertIn("R17", self.doc["built"])
 
-    def test_the_blue_sky_dissolves_to_the_sunset_as_the_newcomer_fades(self):
-        sunset, face = self.clip("r12-sunset"), self.clip("r11-face")
+    def test_the_blue_sky_dissolves_to_the_sunset_as_the_last_card_leaves(self):
+        sunset = self.clip("r12-sunset")
+        last = self.clip("r11-card-6")
         self.assertAlmostEqual(timeline.params_at(sunset, frame_t(889))["opacity"], 0.0, places=3)
         self.assertGreater(timeline.params_at(sunset, frame_t(896))["opacity"], 0.8)
-        self.assertIsNone(timeline.params_at(face, frame_t(897)))
+        self.assertIsNone(timeline.params_at(last, frame_t(897)))
         self.assertEqual(timeline.shot_at(self.doc, frame_t(897))["id"], "R13")
+
+    # The drum stem's kicks from the start of the sortie build to the head (one a beat, 0.467 s apart), measured
+    # 2026-10-11 from artwork/title-sequences/reference/source-op/audio/stems/htdemucs/ost2-stereo44k/drums.wav. The
+    # big accents fall on every fourth: bar 21 begins at 49.662, bar 22 at 51.525, and so on.
+    KICKS = [49.662, 50.132, 50.602, 51.072, 51.525, 52.001, 52.460, 52.930, 53.394, 53.859, 54.323, 54.793,
+             55.269, 55.740, 56.192, 56.662, 57.127, 57.603, 58.061, 58.526, 59.002, 59.478, 59.931, 60.395,
+             60.860, 61.336, 61.794, 62.264, 62.735, 63.193, 63.669, 64.134, 64.604, 65.086]
+
+    def test_the_sortie_build_is_cut_on_the_drums(self):
+        # Ingram, round 14: "R18 onwards... We probably want to do some of our edits to align with the percussion.
+        # This set of edits is a bit clunky, maybe a bit too complex." Every cut from the stencil card to the vehicles
+        # lands on a kick (the card's first line on the snare just before the downbeat).
+        shots = {sh["id"]: sh for sh in self.doc["shots"]}
+        self.assertLessEqual(abs(shots["R18"]["in"] - 49.418), 0.045)
+        for sid in ("R19", "R20", "R21", "R22", "R23", "R24", "R25", "R26", "R28", "R29", "R30", "R31", "R32",
+                    "R33", "R34"):
+            t = shots[sid]["in"]
+            nearest = min(abs(t - k) for k in self.KICKS)
+            self.assertLessEqual(nearest, 0.045, f"{sid} is {nearest:.3f} s from the nearest kick")
+
+    def test_the_sortie_build_has_fewer_and_longer_cuts(self):
+        # the same stretch used to cut twenty times in sixteen seconds, nine of them in under half a second
+        shots = [sh for sh in self.doc["shots"] if "R18" <= sh["id"] <= "R36"]
+        spans = [b["in"] - a["in"] for a, b in zip(shots, shots[1:])]
+        self.assertEqual(sum(1 for d in spans if d <= 0), 2)                  # only the two shots that are out
+        self.assertLessEqual(sum(1 for d in spans if 0 < d < 0.45), 1)        # and almost none under a beat
+
+    def test_the_launch_tunnel_is_a_control_panel_seen_at_an_angle(self):
+        # Ingram, round 14: "Replace this with a control panel screen, the same sort of EVA thing where coloured tabs
+        # are locking or unlocking from each other... instead of a tunnel make it a control panel seen at an angle."
+        ids = {c["id"] for c in self.doc["clips"]}
+        self.assertFalse([i for i in ids if i.startswith("r22-lamps")])
+        panel = self.clip("r22-panel")
+        self.assertEqual(panel["layer"]["type"], "tab_panel")
+        self.assertGreaterEqual(panel["end"] - panel["start"], 1.2)           # long enough to watch it work
+        quads = [k["quad"] for k in panel["keys"]]
+        self.assertNotEqual(quads[0], quads[-1])                              # the camera drifts across it
+        for e in panel["layer"]["events"]:                                    # on a kick or halfway between two
+            marks = self.KICKS + [(a + b) / 2 for a, b in zip(self.KICKS, self.KICKS[1:])]
+            self.assertLessEqual(min(abs(e["t"] - m) for m in marks), 0.02, e)
+        self.assertTrue(any(e["to"] == 0 for e in panel["layer"]["events"]))  # tabs lock as well as release
+
+    def test_the_mech_bay_has_time_to_be_seen(self):
+        # Ingram, round 14: "R23 is too brief to allow the user to see what is happening."
+        bay = self.clip("r23-art")
+        self.assertGreaterEqual(bay["end"] - bay["start"], 2.2)               # it was 1.8 s
+
+    def test_the_machinery_pan_is_a_wall_of_the_directorates_own_screens(self):
+        # Ingram, round 14: "R44, a generic pan across a generic looking Sci-fi space. We can do better."
+        wall = self.clip("r44-wall")
+        self.assertEqual(wall["layer"]["type"], "status_wall")
+        srcs = [c["layer"].get("src", "") for c in self.doc["clips"]]
+        self.assertFalse(any(x.endswith("R44-machinery.png") for x in srcs))
+        keys = wall["keys"]
+        self.assertGreater(keys[-1]["x"], keys[0]["x"])                       # a pan...
+        self.assertLessEqual(keys[-1]["blur"], 1)                             # ...that comes to rest, sharp
+        self.assertLessEqual(clock.time_to_frame(keys[-1]["t"]), clock.time_to_frame(wall["end"]) - 4)
+
+    def test_the_star_children_last_into_the_red_star(self):
+        # Ingram, round 14: "R02 we show the background image but it's too fast... Can we make this Mitflit image
+        # last longer? It could leak into R03."
+        mural, chart = self.clip("r02-mural"), self.clip("r03-chart")
+        self.assertGreaterEqual(mural["end"] - mural["start"], 4.5)           # it was 2.3 s
+        r03 = clock.time_to_frame(chart["start"]) + 1
+        self.assertGreater(timeline.params_at(mural, frame_t(r03 + 4))["opacity"], 0.5)   # still there as R03 opens
+        self.assertLess(mural["z"], chart["z"])                               # and the red star fades in over it
+
+    def test_the_flashes_of_vetch_and_manako_are_gone_because_they_are_used_whole(self):
+        # no image appears in two shots, so their old five-frame flashes (R65, R78) went when they took R14 and R24
+        ids = {c["id"] for c in self.doc["clips"]}
+        self.assertFalse({"r65-art", "r78-art"} & ids)
+
+    def test_the_finale_is_one_shot_a_bar(self):
+        # Ingram, round 15: "R94 - R110... we need less edits and we need to enhance this section as best we can...
+        # What might fit better at a slower pace?" Seven seconds had a dozen cuts; now it is one shot to each of the
+        # last four bars of the song, cut on the bar lines (bars 37 to 40), then the end card on the last.
+        shots = {sh["id"]: sh for sh in self.doc["shots"]}
+        bars = [clock.BAR1 + (n - 1) * 4 * clock.BEAT for n in range(37, 42)]
+        for sid, t in zip(("R96", "R98", "R101", "R104", "R111"), bars):
+            self.assertLessEqual(abs(shots[sid]["in"] - t), 0.025, sid)
+        for a, b in zip(("R96", "R98", "R101", "R104"), ("R98", "R101", "R104", "R111")):
+            self.assertAlmostEqual(shots[b]["in"] - shots[a]["in"], 4 * clock.BEAT, delta=0.06, msg=a)
+        order = [sh["id"] for sh in self.doc["shots"]]
+        for sid in ("R95", "R97", "R99", "R100", "R102", "R103", "R105", "R106", "R107", "R108", "R109", "R110"):
+            nxt = order[order.index(sid) + 1]
+            self.assertEqual(shots[sid]["in"], shots[nxt]["in"], f"{sid} is folded into the shot after it")
+
+    def test_the_finale_shows_four_pictures_and_a_card(self):
+        # the section showed a dozen images in seven seconds: the Gen 2 head, the walker, the pilot, the vault, the
+        # witch, the machine in the alley, the engineer, the trainee
+        start, end = clock.frame_to_time(1917), clock.frame_to_time(2102)
+        pictures = [c["layer"]["src"].split("/")[-1] for c in self.doc["clips"]
+                    if c["layer"]["type"] in ("image", "video", "door_open") and start - 1e-6 <= c["start"] < end]
+        self.assertEqual(sorted(pictures), ["R101-vault.png", "R104-war-witch-pan.png", "R96-gen2-walker.png",
+                                            "R99-gen2-pilot.png"])
+
+    def test_here_is_the_last_flash_and_the_quiet_begins_on_the_bar_line(self):
+        card, hill = self.clip("r95-card"), self.clip("r96-art")
+        self.assertEqual(clock.time_to_frame(card["end"]) - clock.time_to_frame(card["start"]), 5)
+        self.assertEqual(clock.time_to_frame(card["end"]), clock.time_to_frame(hill["start"]))
+
+    def test_the_radar_scope_lies_over_the_hill_and_the_reticle_follows_the_pan(self):
+        hill, hud = self.clip("r96-art"), self.clip("r96-hud")
+        self.assertEqual(hud["layer"]["type"], "scope_hud")
+        self.assertEqual((hud["start"], hud["end"]), (hill["start"], hill["end"]))
+        n0, n1 = clock.time_to_frame(hill["start"]), clock.time_to_frame(hill["end"]) - 1
+        self.assertGreater(timeline.params_at(hill, frame_t(n0))["cx"], timeline.params_at(hill, frame_t(n1))["cx"])
+        for n in range(n0, n1 + 1):                                  # the reticle stays on the walker all the way
+            cx = timeline.params_at(hill, frame_t(n))["cx"]
+            want = 720 + (0.59 - cx) * 3104 * (1080 / 1568)
+            self.assertAlmostEqual(timeline.params_at(hud, frame_t(n))["target_x"], want, delta=3.0, msg=n)
+        layer = hud["layer"]
+        self.assertAlmostEqual(layer["lines_at"], clock.BEAT, places=3)       # the readout starts on beat two
+        self.assertGreaterEqual(len(layer["lines"]), 4)
+
+    def test_the_pilot_tilts_for_the_whole_bar_and_the_stripe_wipes_it_away(self):
+        pilot, stripe = self.clip("r99-art"), self.clip("r101-stripe")
+        self.assertEqual(clock.time_to_frame(pilot["start"]), 1967)
+        cys = [timeline.params_at(pilot, frame_t(n))["cy"] for n in range(1967, 2012)]
+        self.assertLess(cys[0], 0.34)
+        self.assertGreater(cys[-1], 0.66)                                     # the whole tilt, head to pilot
+        self.assertEqual(cys, sorted(cys))
+        self.assertLessEqual(max(b - a for a, b in zip(cys, cys[1:])) * 2304 * (1440 / 2048), 40)   # no lurch
+        for n, key in ((2012, 0), (2021, 0)):                                 # the pilot shows ahead of the stripe
+            lead = timeline.params_at(stripe, frame_t(n))["points"][0][1]     # the stripe's leading bottom corner
+            edge = timeline.params_at(pilot, frame_t(n))["mask"][0][0]
+            self.assertAlmostEqual(lead[0], edge[0], delta=0.5, msg=n)
+            self.assertEqual(lead[1], edge[1], n)
+        self.assertIsNone(timeline.params_at(pilot, frame_t(2022)))           # and is gone when the stripe has crossed
+
+    def test_the_director_credit_lies_over_the_vault_and_is_gone_before_the_light(self):
+        credit, vault = self.clip("r100-director"), self.clip("r101-art")
+        self.assertNotIn("r100-black", {c["id"] for c in self.doc["clips"]})          # no black card of its own
+        self.assertEqual(clock.time_to_frame(credit["start"]), 2012)                   # it lands on the bar line
+        for n in range(2012, 2057):
+            opened = timeline.params_at(vault, frame_t(n))["open"]
+            opacity = (timeline.params_at(credit, frame_t(n)) or {}).get("opacity", 0.0)
+            if opened >= 0.6:
+                self.assertLess(opacity, 0.05, n)                                      # never white over the light
+
+    def test_the_door_cracks_on_beat_three_and_the_picture_floods_to_white(self):
+        vault, flood = self.clip("r101-art"), self.clip("r101-flood")
+        crack = clock.time_to_frame(clock.BAR1 + 38 * 4 * clock.BEAT + 2 * clock.BEAT)
+        opens = {n: timeline.params_at(vault, frame_t(n))["open"] for n in range(2012, 2057)}
+        self.assertTrue(all(v < 1e-3 for n, v in opens.items() if n <= crack))          # shut until beat three
+        self.assertGreater(opens[crack + 4], 0.0)
+        self.assertAlmostEqual(opens[2056], 1.0, places=3)
+        later = [opens[n] for n in range(crack, 2057)]
+        self.assertEqual(later, sorted(later))
+        zooms = [timeline.params_at(vault, frame_t(n))["zoom"] for n in range(2012, 2057)]
+        self.assertEqual(zooms, sorted(zooms))
+        self.assertGreater(zooms[-1], 3.0)
+        steps = [b - a for a, b in zip(zooms, zooms[1:])]
+        self.assertGreater(max(steps[-6:]), 3 * max(steps[:10]))               # slow at first, quick into the light
+        self.assertAlmostEqual(timeline.params_at(flood, frame_t(2056))["amount"], 1.0, places=3)
+
+    def test_the_vault_push_never_shows_the_pictures_edge(self):
+        from PIL import Image
+        vault = self.clip("r101-art")
+        path = os.path.join(ROOT, vault["layer"]["src"])
+        if not os.path.exists(path):
+            self.skipTest("the gitignored art isn't in this checkout")
+        iw, ih = Image.open(path).size
+        for n in range(2012, 2057):
+            p = timeline.params_at(vault, frame_t(n))
+            s = max(1440 / iw, 1080 / ih) * p["zoom"]
+            hw, hh = 720 / s, 540 / s
+            cx, cy = p["cx"] * iw, p["cy"] * ih
+            gap = max(hw - cx, cx + hw - iw, hh - cy, cy + hh - ih) * s
+            self.assertLessEqual(gap, 0.5, f"frame {n} shows {gap:.0f} px past the vault picture's edge")
+
+    def test_the_hero_plate_comes_out_of_the_light_settles_and_catches_a_flare_on_the_crash(self):
+        plate, light = self.clip("r104-art"), self.clip("r104-lightin")
+        self.assertTrue(plate["layer"]["src"].endswith("R104-war-witch-pan.png"))
+        self.assertEqual(clock.time_to_frame(plate["start"]), 2057)
+        cxs = [timeline.params_at(plate, frame_t(n))["cx"] for n in range(2057, 2102)]
+        self.assertEqual(cxs, sorted(cxs, reverse=True))
+        steps = [a - b for a, b in zip(cxs, cxs[1:])]
+        self.assertGreater(max(steps[:8]), 3 * max(steps[-8:]))                # it arrives at speed and settles
+        self.assertAlmostEqual(timeline.params_at(light, frame_t(2057))["amount"], 1.0, places=3)   # out of the white
+        self.assertIsNone(timeline.params_at(light, frame_t(2075)))
+        flare = self.clip("r104-flare")
+        peak = max(range(2070, 2095), key=lambda n: (timeline.params_at(flare, frame_t(n)) or {"strength": 0})["strength"])
+        self.assertLessEqual(abs(peak - clock.time_to_frame(86.1)), 1)         # the cymbal crash
+        self.assertAlmostEqual(timeline.params_at(self.clip("r104-out"), frame_t(2101))["amount"], 1.0, places=3)
+
+    def test_the_end_card_carries_the_production_companys_mark(self):
+        # Ingram, round 15: "there is a graphic here you can use, this is the 'Production Company' that needs to go
+        # on the end titles."
+        logo, credit, wall = self.clip("r111-logo"), self.clip("r111-credit"), self.clip("r111-wall")
+        self.assertTrue(logo["layer"]["src"].endswith("R111-mythica-machina-logo.png"))
+        self.assertTrue(logo["layer"]["keyed"])
+        self.assertEqual(logo["end"], wall["end"])                              # it stays to the end of the opening
+        self.assertAlmostEqual(logo["keys"][-1]["t"], 88.55, delta=0.05)        # written on as the music stops
+        self.assertEqual(logo["keys"][-1]["reveal_p"], 1.0)
+        self.assertEqual(logo["keys"][0]["reveal_p"], 0.0)
+        self.assertLess(credit["keys"][0]["t"], logo["start"])                  # the committee line comes first
+        box = logo["layer"]["reveal"]["box"]
+        self.assertTrue(all(it["y"] > box[3] for it in credit["layer"]["items"]))   # the mark is the focal point
+        self.assertGreater(box[2] - box[0], 800)
+
+    def test_the_mark_is_seen_whole_in_the_silence_before_the_tail_fades_it(self):
+        logo, fade = self.clip("r111-logo"), self.clip("r111-fade")
+        written = clock.time_to_frame(logo["keys"][-1]["t"])
+        faded = clock.time_to_frame(fade["start"])
+        self.assertGreaterEqual((faded - written) / clock.FPS, 0.9)
 
     def test_it_is_never_synced_to_the_server(self):
         # its credits will name who plays the Watcher (LEDGER #37); the module sync is an allow-list

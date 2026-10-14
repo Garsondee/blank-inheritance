@@ -1,0 +1,10 @@
+{
+ "gate": {
+  "minutes": 1,
+  "tokens": 0
+ },
+ "desk (opus)": {
+  "minutes": 3,
+  "tokens": 146000
+ }
+}

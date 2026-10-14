@@ -30,7 +30,7 @@
 **[U]** Our equivalent of "Yokoyama's back catalogue" is the material this project has already written and is not yet using:
 
 - the gazetteer's 207 locations and their NPCs;
-- `ideas/story/bible/` — its characters, locations and species;
+- `quarantine/ideas/story/bible/` — its characters, locations and species;
 - `ideas/entries/` — a long tail of ideas with real statuses;
 - `data/locations/`, `data/hangar/legacy-units.json` (empty, and therefore an invitation), `data/npcs/`;
 - the battle-simulator's fixtures, which are explicitly **not** casting proposals and should stay that way.
@@ -40,7 +40,7 @@
 1. **Sift rather than invent.** Read the existing material looking for people it already implies but has never named. A location described as a working shed implies a foreman; a rank implies someone who was passed over for it. `design/quests-objectives-and-threads.md` calls this story sifting, and `design/location-depth.md` and `design/harvest-inference.md` are the project's own machinery for it.
 2. **Keep one relationship per pair.** When two implied people could plausibly know each other, decide that they do, and write down how. This is where the method gets its density.
 3. **Unify the register before casting.** Ours is already fixed — `design/visual-identity.md` and the locked 1950s tone pivot. Anything cast from the catalogue has to be drawable in that register, or it will read as an import.
-4. **Defend the spine.** Check the resulting roster against `ideas/story/blank-inheritance-v4.md` and the bible. If the most interesting people on the roster have nothing to do with the campaign's actual subject, the §3 failure has happened.
+4. **Defend the spine.** Check the resulting roster against `quarantine/ideas/story/blank-inheritance-v4.md` and the bible. If the most interesting people on the roster have nothing to do with the campaign's actual subject, the §3 failure has happened.
 
 ## 5. The test to apply before borrowing anything
 
@@ -56,4 +56,4 @@
 
 **Related on this shelf:** [legendary-sources-china-and-japan.md](legendary-sources-china-and-japan.md), [npc-archetype-catalogue.md](npc-archetype-catalogue.md), [characters/the-big-nine.md](characters/the-big-nine.md), [characters/ryozanpaku-rank-and-file.md](characters/ryozanpaku-rank-and-file.md).
 
-**Related in this project:** `design/quests-objectives-and-threads.md`, `design/location-depth.md`, `design/harvest-inference.md`, `design/worldbuilding-craft.md`, `design/visual-identity.md`, `ideas/story/bible/`.
+**Related in this project:** `design/quests-objectives-and-threads.md`, `design/location-depth.md`, `design/harvest-inference.md`, `design/worldbuilding-craft.md`, `design/visual-identity.md`, `quarantine/ideas/story/bible/`.

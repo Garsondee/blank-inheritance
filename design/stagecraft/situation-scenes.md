@@ -210,8 +210,10 @@ not "what's next?" but "where are they, and what happens if they do that?"
 
 ## 8. A worked example: The Errand, as a situation
 
-*Illustration of the shape only. The Errand is an old draft (`canon/plan/chapter-01.md`, Scene 7); its content is
-rebuilt in canon when its turn comes, and none of this is canon.*
+*Illustration of the shape only, drawn when The Errand was an old draft (`canon/plan/chapter-01.md`, Scene 7). It has
+since been rebuilt in canon (`canon/scenes/episode-c1e1--the-errand.json`), and the sketch below no longer matches it:
+the scene's instrument maker is a *she*, not a *he*, and the scene has no apprentice. Where the two differ, the canon
+scene is the newer. None of this is canon.*
 
 - **Goal**: get an impossible requisition docket satisfied before nineteen-hundred.
 - **Floor**: they come back with it satisfied, one way or another. **Ceiling**: they win it properly, and one of them

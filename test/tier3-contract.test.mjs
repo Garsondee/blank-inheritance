@@ -155,10 +155,19 @@ test("buildNpcActorData: every field path it writes exists on sf2e's real npc Ac
   // Branch 1: a real combatStatblock, same shape the creature contract test
   // above already verifies -- buildNpcActorData must write the identical
   // field set via the shared combat-statblock.mjs mapping.
+  // `notes` is a generated entry with one of everything (D080), so details.privateNotes is among the paths checked below: the
+  // blurb, public notes and private notes are all fields the sf2e npc template really has.
+  const notes = {
+    blurb: "Contract check blurb",
+    canon: "x",
+    settled: [{ id: "x.one", text: "A settled fact.", status: "decided", known: "some", told: "start", toldAt: "the start", heldBack: false }],
+    open: [{ id: "x.two", text: "An open one.", candidates: ["a", "b"], decideBy: "soon" }],
+    sketched: 2
+  };
   const withStatblock = await buildNpcActorData({
     id: "contract-check-npc-statblock",
     name: "Contract Check NPC (statblock)",
-    description: "Has a description too, but a statblock branch never reads it for blurb/publicNotes.",
+    role: "Contract Check",
     statblock: {
       abilityModifiers: { str: 1 },
       ac: 10,
@@ -170,7 +179,8 @@ test("buildNpcActorData: every field path it writes exists on sf2e's real npc Ac
       size: "medium",
       skills: { athletics: { modifier: 1 } }
     }
-  });
+  }, { notes });
+  assert.ok(withStatblock.system.details.privateNotes, "the contract check must really write details.privateNotes");
   const invalidWithStatblock = findInvalidActorFieldPaths(templateJson, "npc", withStatblock.system);
   assert.deepEqual(
     invalidWithStatblock,
@@ -184,8 +194,9 @@ test("buildNpcActorData: every field path it writes exists on sf2e's real npc Ac
   const withoutStatblock = await buildNpcActorData({
     id: "contract-check-npc-bare",
     name: "Contract Check NPC (no statblock)",
-    description: "A purely social NPC with no combat stats at all."
-  });
+    role: "A purely social NPC with no combat stats at all."
+  }, { notes });
+  assert.ok(withoutStatblock.system.details.privateNotes && withoutStatblock.system.details.publicNotes && withoutStatblock.system.details.blurb);
   const invalidWithoutStatblock = findInvalidActorFieldPaths(templateJson, "npc", withoutStatblock.system);
   assert.deepEqual(
     invalidWithoutStatblock,

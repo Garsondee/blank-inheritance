@@ -10,7 +10,7 @@
   "pole": null,
   "ancestry": "Human",
   "affiliation": null,
-  "description": "The keeper of the shrine, seventy-eight years old, deeply lined, in a padded indigo coat, who sweeps the paving every night and has done for sixty years. He leans on his broom before he says anything he thinks is important, and talks to the shrine cat as if the cat were in charge. Slow, dry and old-town plain: he says exactly what he means and not a word more.\n\nHe wants the shrine to stay where it is, and for someone younger to care about it when he can no longer hold a broom.",
+  "canon": "night-regulars.tokuji",
   "designNotes": "Created 2026-09-30 from this regular's cast entry in canon/scenes/rest--shrine-gate.json. Everything about who they are and what they want is that entry's own; only the physical description and the ancestry are new.\n\nANCESTRY, chosen by Claude under Ingram's 2026-09-30 goal (any ancestry is allowed): Human ('Humans are known for their ability to adapt and thrive in the most challenging situations.' -- ancestry-catalogue.json): one of Golarion's own peoples, so no disguise is needed.\n\nPORTRAIT: See the asset registry note for tokuji: second attempt: the first came out as tiny full-length figures with no usable face, so it was re-prompted as a close portrait with the cat on his shoulder; image 3. Character-portrait template, --ar 2:3, stylize 200, gouache and watercolour anime illustration on a flat teal-grey wall, warm orange golden-hour light across the face.\n\nHer or his real statblock is still a placeholder in the scene file (Proposed: level 0, an old working adult, non-combat. Made with Ingram once the NPC generator exists.); not carried here.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

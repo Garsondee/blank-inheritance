@@ -329,7 +329,12 @@
         "bySkill": {
           "type": "object",
           "description": "What a DIFFERENT skill actually gets you, keyed by skill slug — added 2026-09-19 after a real gap: a check offering diplomacy/deception/intimidation/society reached the exact same outcome regardless of which one a player rolled, short of this campaign's own settled ambition ('multiple named actions, each with its own consequence, so players are pushed to think laterally'). Distinct from `outcomes`, which is the SAME text no matter which listed skill got there — this is for the specific, deliberate case where the fiction should genuinely differ by approach. Optional: most checks correctly share one outcome across every skill, and inventing a difference where the fiction doesn't call for one is worse than not having this field at all.",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string", "description": "One line about this way that holds whatever degree it comes out at (the shape used before 2026-10-05)." },
+              { "$ref": "#/$defs/degreeOfSuccessOutcome", "description": "Since 2026-10-05 (D062: \"all skills will have different results per skill and per degree of success\"): this way's own result for each degree it has one for. A degree it leaves out falls back to the check's own `outcomes`; the check console's Results show each way's own (core/check-console.mjs#resultFor)." }
+            ]
+          }
         },
         "repeatable": { "type": "boolean" },
         "maxAttempts": { "type": "integer" },

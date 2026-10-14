@@ -20,14 +20,22 @@
  * already applied to background's own skill grants (design doc §1), and
  * class features/feats/spells are the form's original, first-decided
  * deferral (§5).
+ *
+ * ONE thing a class does ask: Envoy's rules carry a ChoiceSet (trained in
+ * Deception, Diplomacy or Intimidation). Its catalogue entry has `choices`,
+ * the page asks it, and the answer is written into the Item before it is
+ * embedded so Foundry opens no window of its own at Confirm
+ * (core/induction-rule-choices.mjs). A class with an unanswered choice is
+ * not complete.
  */
 
 import { resolveSlots } from "./boost-slots.mjs";
+import { choicesComplete } from "./induction-rule-choices.mjs";
 
-/** The class's key ability is complete once its one slot has a pick (or was already fixed). */
-export function isClassChoiceComplete(cls, keyAbilityPicks) {
+/** The class's key ability has a pick (or was already fixed), and every choice the class asks is answered. */
+export function isClassChoiceComplete(cls, keyAbilityPicks, choicePicks = {}) {
   if (!cls) return false;
-  return resolveSlots([cls.keyAbility], keyAbilityPicks).missing.length === 0;
+  return resolveSlots([cls.keyAbility], keyAbilityPicks).missing.length === 0 && choicesComplete(cls.choices, choicePicks);
 }
 
 /**
@@ -36,10 +44,13 @@ export function isClassChoiceComplete(cls, keyAbilityPicks) {
  * Throws on a missing or illegal choice, same discipline as
  * resolveAncestryIngredients/resolveBackgroundIngredients.
  */
-export function resolveClassIngredients(cls, keyAbilityPicks) {
+export function resolveClassIngredients(cls, keyAbilityPicks, choicePicks = {}) {
   const { resolved, missing } = resolveSlots([cls.keyAbility], keyAbilityPicks);
   if (missing.length) {
     throw new Error("This class's key ability has not been chosen yet.");
+  }
+  if (!choicesComplete(cls.choices, choicePicks)) {
+    throw new Error("Not every choice this class asks has been made yet.");
   }
   return { classKeyAbility: resolved[0] };
 }

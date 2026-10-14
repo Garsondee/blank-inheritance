@@ -11,6 +11,7 @@
  */
 
 import { buildStory, overridesFromRecords } from "../core/siting.mjs";
+import { pointsForPendingCreates } from "../core/journey-points.mjs";
 import { fetchModuleJson, tryListModuleJsonIds } from "./io.mjs";
 import { loadPublishedShapes } from "./location-published.mjs";
 import { locationEditsState } from "./location-edits.mjs";
@@ -94,6 +95,11 @@ export function storyOverrides() {
     return entry?.state === "merged" && entry.locationId ? entry.locationId : null;
   };
   return { overrides: overridesFromRecords(pendingSites, { resolveVia }), newLocations, pendingCount: pendingSites.length };
+}
+
+/** Where a token would stand for each place drawn but not yet pulled, by the record that drew it (map-image px): what the journeys are worked out from. */
+export function pendingPlacePoints() {
+  return pointsForPendingCreates(pendingRecords().pendingCreates);
 }
 
 /**

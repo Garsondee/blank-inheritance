@@ -50,7 +50,7 @@
 
 This is the closest match on either shelf to work already in progress.
 
-- The campaign is a school campaign. `ideas/story/bible/locations/main-school-complex.md` exists; `ideas/entries/school-schedule-system.json` is a tracked idea with its own status; the four-quarter day ring in `data/campaign/config.json` already models a day split into slices that school events compete for (`design/ux-doctrine.md` §3, §7a).
+- The campaign is a school campaign. `quarantine/ideas/story/bible/locations/main-school-complex.md` exists; `ideas/entries/school-schedule-system.json` is a tracked idea with its own status; the four-quarter day ring in `data/campaign/config.json` already models a day split into slices that school events compete for (`design/ux-doctrine.md` §3, §7a).
 - **The finding that transfers most directly:** the day ring currently treats school as one category of demand on a slice. This series suggests school is also **an information channel and a consequence surface** — which would mean a school slice should sometimes deliver plot rather than only cost time. Whether that is worth building is a design question for the user and the `school-schedule-system` idea's own status, **not a decision this file makes.**
 - The campaign already has a buried official history and a redaction system in design (`ideas/entries/redacted-document-chain.json`, `design/harvest-inference.md`). **A teacher who sincerely teaches the redacted version is the cheapest possible way to put that lie in front of the players every week**, and it costs one NPC stub (`feedback_npc_stubs_by_default`).
 
@@ -60,4 +60,4 @@ This is the closest match on either shelf to work already in progress.
 
 **Related on this shelf:** [characters/hikari-horaki.md](characters/hikari-horaki.md), [characters/toji-suzuhara.md](characters/toji-suzuhara.md), [characters/kensuke-aida.md](characters/kensuke-aida.md), [the-institution-that-uses-children.md](the-institution-that-uses-children.md), [relationships-that-degrade.md](relationships-that-degrade.md).
 
-**Related in this project:** `design/japanese-narrative-conventions.md` (the school story), `design/ux-doctrine.md` §3 and §7a (the day ring), `ideas/entries/school-schedule-system.json`, `ideas/story/bible/locations/main-school-complex.md`, `design/harvest-inference.md`.
+**Related in this project:** `design/japanese-narrative-conventions.md` (the school story), `design/ux-doctrine.md` §3 and §7a (the day ring), `ideas/entries/school-schedule-system.json`, `quarantine/ideas/story/bible/locations/main-school-complex.md`, `design/harvest-inference.md`.

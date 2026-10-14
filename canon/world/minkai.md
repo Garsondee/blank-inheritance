@@ -17,6 +17,8 @@ status: decided · source: D025, D048 · known: everyone · told: start
 Minkai's national pride is wounded.
 status: decided · source: D048 · known: everyone · told: start
 
+## Pencil
+
 ## minkai.government
 Whether Minkai is now a kingdom, an empire or something else.
 status: open · source: D049 · known: everyone · told: later · candidates: "A kingdom, as older material has it" | "An empire, as Golarion's own Minkai was" · decide-by: before The Road In's letter is rebuilt

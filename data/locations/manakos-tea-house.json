@@ -1,0 +1,179 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "manakos-tea-house",
+  "type": "location",
+  "tier": "site",
+  "name": "Manako's Tea House",
+  "nameJa": null,
+  "namingPlaceholderRef": "manakos-tea-house-name",
+  "kind": "commercial",
+  "tags": [
+    "tea-house",
+    "the-slope"
+  ],
+  "classification": null,
+  "rank": 2,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.19066314082247,
+          34.699243737101185
+        ],
+        [
+          135.1907050701007,
+          34.699160508112804
+        ],
+        [
+          135.19065468312007,
+          34.69914319347368
+        ],
+        [
+          135.1906585377394,
+          34.69913084883057
+        ],
+        [
+          135.1906380446489,
+          34.69911990122463
+        ],
+        [
+          135.1906230977172,
+          34.69911671769946
+        ],
+        [
+          135.19060815078672,
+          34.6991135341725
+        ],
+        [
+          135.19060429616079,
+          34.69912587881397
+        ],
+        [
+          135.19059489538105,
+          34.6991304593701
+        ],
+        [
+          135.19056067528356,
+          34.699188999040466
+        ],
+        [
+          135.19057007607182,
+          34.69918441848714
+        ],
+        [
+          135.19055296600902,
+          34.69921368831965
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          3871,
+          4838
+        ],
+        [
+          3879,
+          4844
+        ],
+        [
+          3876,
+          4848
+        ],
+        [
+          3877,
+          4849
+        ],
+        [
+          3876,
+          4851
+        ],
+        [
+          3875,
+          4852
+        ],
+        [
+          3874,
+          4853
+        ],
+        [
+          3873,
+          4852
+        ],
+        [
+          3872,
+          4852
+        ],
+        [
+          3866,
+          4848
+        ],
+        [
+          3867,
+          4848
+        ],
+        [
+          3864,
+          4846
+        ]
+      ]
+    ],
+    "centroidPx": [
+      3871.83,
+      4845.56
+    ],
+    "cells": [
+      "B3·83"
+    ],
+    "ref": "B3·83",
+    "areaM2": 119,
+    "withinRegionRef": "slope",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": null,
+    "sourceLocalId": "draft-9",
+    "promotedDate": "2026-10-07"
+  },
+  "authoring": {
+    "note": "A real building of the map (footprint 118 m2, store id 0b95d637fdf37455), adopted as it stands. Manako's tea house in The Errand (req-5), placed 2026-10-07 (canon/decisions/D067.md). The name is Claude's working name, from the request's wording: Ingram drew the building and did not name it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Manako's tea house, in a district of the city where he has a lot of influence: small, warm and full, with a counter polished by a century of elbows. Its regulars nod to the old man at the corner table as they pass, and his tea arrives without his asking. The party's second stop on The Errand, a couple of streets from the instrument makers'.",
+    "playerFacing": "A small tea house, warm and full of steam and low voices. The counter is polished by what must be a century of elbows. Every regular who passes the corner table nods to the old man sitting there, and a cup of tea is put in front of him without his asking.",
+    "gmOnly": "The Errand's second stop runs here: the old man at the corner table, the regulars, the vial plan and the napkin with his number. Every line of Manako's is a leak risk (the scene's notes say what must stay out, and data/npcs/manako.json is his voice): when unsure, have him talk chemistry. His influence in this district shows as quiet deference from the regulars, so show it and never explain it. Episode Two comes back to his usual table here, and nothing about the room changes."
+  },
+  "scene": {
+    "hooks": [
+      "Manako has the docket in his eyes before the six have finished explaining.",
+      "The regulars' nods tell the party who matters in this room before anyone says a word."
+    ],
+    "activities": [
+      "Sit with Manako and hear how he would win the errand.",
+      "Watch the regulars rather than the old man.",
+      "Settle together how to file the requisition.",
+      "Take his number on a napkin, if he offers it."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "manako"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e1--the-errand--tea-house"
+  ],
+  "playlistRefs": []
+}

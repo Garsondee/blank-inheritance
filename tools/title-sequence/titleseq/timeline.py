@@ -21,13 +21,14 @@ import json
 import math
 import numbers
 
-from . import clock, fx, layers, matte
+from . import clock, finale, fx, hud, layers, matte
 from .raster import canvas, rgb01
 
 LAYER_TYPES = {"solid", "glow_dot", "glint", "cel_band", "droplets", "airbrush_ring", "wash", "bloom",
                "image", "video", "text", "dust", "logo", "logo_light", "beam", "polygon", "ref_still",
                "vhs_damage", "heat_haze", "tape_blank", "osd", "slate", "light_column", "field", "orb", "ray_fan",
-               "arcs", "radar", "data_bars", "streaks"}
+               "arcs", "radar", "data_bars", "streaks", "cast_card", "tab_panel", "status_wall", "door_open", "scope_hud", "stained_wall",
+               "motes", "lens_flare"}
 TEXT_KINDS = {"credit", "diegetic", "title"}
 LOGO_PARTS = {"wordmark", "kanji", "book", "kanji_alpha"}
 
@@ -314,6 +315,22 @@ def draw(img, p, ref=None):
                      [tuple(c) for c in p.get("colors", [(255, 76, 60), (76, 255, 140), (255, 206, 70),
                                                          (90, 196, 255)])],
                      p.get("boil", 2), p.get("strength", 1.0), p.get("seed", 0))
+    elif t == "cast_card":
+        hud.cast_card(img, p)
+    elif t == "tab_panel":
+        hud.tab_panel(img, p)
+    elif t == "status_wall":
+        hud.status_wall(img, p)
+    elif t == "door_open":
+        finale.door_open(img, p)
+    elif t == "scope_hud":
+        finale.scope_hud(img, p)
+    elif t == "stained_wall":
+        finale.stained_wall(img, p)
+    elif t == "motes":
+        finale.motes(img, p)
+    elif t == "lens_flare":
+        finale.lens_flare(img, p)
     elif t == "heat_haze":
         fx.heat_haze(img, p["_t"], p.get("amp", 1.6), p.get("scale", 40.0), p.get("speed", 45.0), p.get("y_hot", 860.0),
                      p.get("y_cool", 260.0), p.get("seed", 0))

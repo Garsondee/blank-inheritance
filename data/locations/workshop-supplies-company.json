@@ -1,0 +1,131 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "workshop-supplies-company",
+  "type": "location",
+  "tier": "site",
+  "name": "Workshop Supplies Company",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [
+    "workshop",
+    "instruments",
+    "the-slope"
+  ],
+  "classification": null,
+  "rank": 3,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.19024784877774,
+          34.6983785110308
+        ],
+        [
+          135.19042890173864,
+          34.69843682247518
+        ],
+        [
+          135.19046528473672,
+          34.6983458294629
+        ],
+        [
+          135.19025433841085,
+          34.69828115093888
+        ],
+        [
+          135.1902389198553,
+          34.698330529464954
+        ],
+        [
+          135.19026881340693,
+          34.69833689660415
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          3887,
+          4940
+        ],
+        [
+          3898,
+          4926
+        ],
+        [
+          3906,
+          4933
+        ],
+        [
+          3893,
+          4949
+        ],
+        [
+          3889,
+          4945
+        ],
+        [
+          3891,
+          4943
+        ]
+      ]
+    ],
+    "centroidPx": [
+      3896.17,
+      4937.09
+    ],
+    "cells": [
+      "B3·83"
+    ],
+    "ref": "B3·83",
+    "areaM2": 200,
+    "withinRegionRef": "slope",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": null,
+    "sourceLocalId": "draft-7",
+    "promotedDate": "2026-10-07"
+  },
+  "authoring": {
+    "note": "A real building of the map (footprint 193 m2, store id 0a788daf37c377ad), adopted as it stands, and named by Ingram. The instrument makers' workshop of The Errand (req-6), placed 2026-10-07 (canon/decisions/D067.md).",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The instrument makers' on The Slope, trading under the plain name Workshop Supplies Company: a counter at the front, long benches behind it, and gauges, glass vials and spirit levels in open boxes on every surface. The people here make the vials. It is the first place The Errand's docket sends the party, and where they are laughed at, kindly.",
+    "playerFacing": "A shopfront on a terraced street, WORKSHOP SUPPLIES COMPANY lettered across the window. Inside there is a counter at the front and long benches behind it, and every surface is crowded with brass gauges, glass vials and spirit levels in open boxes. Someone is always in the middle of a repair, and whoever is at the counter reads whatever you hand her twice.",
+    "gmOnly": "The Errand's first stop runs here (beat the-store): the instrument maker reads the docket twice, laughs, and on any result sends the party on to Manako, whose tea house is a couple of streets away (about 190 m on foot). Vetch sends every new section for the same part, so she has heard it before and is not being unkind. Outside that scene it is where a gauge, a vial or a spirit level is made or mended. The harbour is down the hill, about 400 m off, close enough to hear."
+  },
+  "scene": {
+    "hooks": [
+      "Six new uniforms arrive at the counter with a docket for a part that does not exist, and the maker has heard it before.",
+      "Whoever tries to talk her round decides how warmly she sends the party on to Manako."
+    ],
+    "activities": [
+      "Hand over the docket and be laughed at.",
+      "Talk the maker round, to be sent on warmly.",
+      "Look through the open boxes of gauges, vials and spirit levels."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "the-storekeeper"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [
+    "episode-c1e1--the-errand"
+  ],
+  "playlistRefs": []
+}

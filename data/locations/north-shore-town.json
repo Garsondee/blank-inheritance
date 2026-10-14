@@ -318,7 +318,9 @@
     "ref": "D1·90",
     "areaM2": 1746620.8,
     "withinRegionRef": null,
-    "containsRefs": [],
+    "containsRefs": [
+      "north-shore-town-start"
+    ],
     "neighbourRefs": [],
     "sourceSession": "session-20260911-144323",
     "sourceLocalId": "item-183",

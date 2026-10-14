@@ -241,7 +241,8 @@ test("the player's selectors carry an Action knob, and Strike has Damage and Cri
 
 test("with nothing selected the Director's banks ask the table instead of lying dead", () => {
   assert.match(commandBar, /deckChecksFor\(actor, \{ ask: seat === SEATS\.DIRECTOR \}\)/);
-  assert.match(directorBar, /if \(event\?\.shiftKey \|\| !actor\) \{\s*await postInlineCheck/);
+  // 2026-10-05 (D061): asking puts the check to the table in the check console rather than posting a card to chat.
+  assert.match(directorBar, /if \(event\?\.shiftKey \|\| !actor\) \{\s*await askForWay\(slug\);/);
 });
 
 /* ---------------------------------------------------------------- */

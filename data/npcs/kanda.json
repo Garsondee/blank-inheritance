@@ -9,7 +9,7 @@
   "role": "A sly criminal",
   "pole": null,
   "affiliation": null,
-  "description": "One of the two men the group may meet at the ninth pier (rest--card-game, the-ninth-pier event): level 1, a sly criminal.",
+  "canon": null,
   "designNotes": "Made by tools/npc-generator from data/campaign/npc-roster.json: a person a scene's events name in prose, so that there is a statblock for them and something to put on a token. Nothing about them is established beyond what the scene says; the statblock is derived and is changed in the roster, not here.",
   "namingPlaceholderRef": null,
   "openQuestionRefs": [],

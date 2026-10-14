@@ -56,7 +56,7 @@ column running unstopped. **Falls only when the party takes something off the bo
 canisters, a demonstration prevented rather than fought, the column interrupted.
 
 At maximum, the Watcher no longer needs Manako or any other human to feed it: its own children
-make its Sap, which is the runaway (LEDGER #31, `ideas/story/dossier-observer.md` §16). **This is
+make its Sap, which is the runaway (LEDGER #31, `quarantine/ideas/story/dossier-observer.md` §16). **This is
 not a loss condition.**
 
 **Show the number to the players once they understand what Sap is** (Chapter 9 in the
@@ -71,7 +71,7 @@ happening.
 ### COMPREHENSION — the enemy's tech tree *(bible §15, already designed)*
 
 Its rungs run from *what exists* to *there are people*, now paced across the twenty chapters as the
-Watcher's generations (`ideas/story/blank-inheritance-twenty-chapters.md` Appendix C). **The
+Watcher's generations (`quarantine/ideas/story/blank-inheritance-twenty-chapters.md` Appendix C). **The
 party's own conduct advances it.** Fight it and it learns that fighting is the job. Every victory
 by force teaches the correct lesson badly.
 
@@ -355,8 +355,8 @@ tutorial.
 
 *(Superseded 2026-09-24: a 2026-09-09 eight-part plan for Chapter One and its two breadcrumb
 tables, built on the old eight-chapter shape, the cut ground roles, mitflits as bountied vermin
-(against `ideas/story/bible/species/mitflits.md`) and a crowd seeing the sky in Chapter One. Chapter
-One's plan and plants now live in `ideas/story/blank-inheritance-twenty-chapters.md` §5 and
+(against `quarantine/ideas/story/bible/species/mitflits.md`) and a crowd seeing the sky in Chapter One. Chapter
+One's plan and plants now live in `quarantine/ideas/story/blank-inheritance-twenty-chapters.md` §5 and
 Appendix B. Removed from this document 2026-09-25.)*
 
 **The rule every breadcrumb obeys:** give them the anomaly before the question. Every unexplained
@@ -374,7 +374,7 @@ Chapter Six has had the best experience this campaign can offer.
 
 ---
 
-*Related: `ideas/story/blank-inheritance-v4.md` §6 (the Mirror), §15 (escalation and the Mass
+*Related: `quarantine/ideas/story/blank-inheritance-v4.md` §6 (the Mirror), §15 (escalation and the Mass
 Clock), §16–17 (threads), §20 (bifurcations), §21 (peril roster), §22 (risks);
 `design/ux-doctrine.md` §3, §7a, §10.7; `ideas/entries/redacted-document-chain.json`;
 `ideas/entries/phone-app-suite.json`; `data/campaign/config.json`.*

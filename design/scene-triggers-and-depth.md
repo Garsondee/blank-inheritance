@@ -150,6 +150,8 @@ No trigger silently changes campaign state without the log entry (Law 12). No tr
 
 ## 3. The temptation list
 
+> **Redefined 2026-10-07 (D065, Ingram).** A temptation is a **twist**: something the GM can pick up to enliven the scene, make it more interesting or add flavour and life to it, without breaking the scene's objective (D066 refined D065, which had said "a fun, organic way the scene might mutate"; a mutation is one way, not the only one). The field keeps its name and shape. What follows is the original design, a line to say to a table that is not biting, which her reading found too thin; scenes written before 2026-10-07 still hold lines of that kind and are rewritten as twists when each is next re-read. The first scene written this way is The Walk Down (three twists). A scene where a twist would only break it, such as Scene 0's speech, says so in its `exceptions` (design/scene-signoff.md section 5d).
+
 A new, optional, scene-level field, `temptations[]` — not tied to any one beat, because the whole point is that a GM reaches for one *whenever* the table needs a nudge, not at a scripted moment:
 
 ```jsonc

@@ -138,6 +138,18 @@ test("splitChecks puts A–M on the left bank and N–T on the right, nine and n
   assert.equal(right.skills.length, SKILL_SLOTS_PER_SIDE);
 });
 
+test("every key carries the attribute its skill adds, and keeps its alphabetical place: colour groups, the order does not (D063)", () => {
+  const { left, right } = splitChecks(sf2eGroups());
+  const keys = [...left.skills, ...right.skills];
+  assert.ok(keys.every(Boolean), "eighteen skills fill both banks: no blank key");
+  const by = Object.fromEntries(keys.map((k) => [k.slug, k.attribute]));
+  assert.deepEqual(
+    [by.athletics, by.acrobatics, by.computers, by.medicine, by.performance, by.piloting],
+    ["str", "dex", "int", "wis", "cha", "dex"]
+  );
+  assert.ok(keys.every((k) => ["str", "dex", "int", "wis", "cha"].includes(k.attribute)));
+});
+
 test("splitChecks flanks the instrument with the defences: Perception and Fortitude left, Reflex and Will right", () => {
   const { left, right } = splitChecks(sf2eGroups());
   assert.deepEqual(left.defences.map((d) => d.slug), ["perception", "fortitude"]);
@@ -157,6 +169,13 @@ test("splitChecks pads a creature with fewer skills out to fixed banks, so the p
   assert.equal(right.skills.length, SKILL_SLOTS_PER_SIDE);
   assert.equal(left.skills.filter(Boolean).length + right.skills.filter(Boolean).length, 5);
   assert.deepEqual(left.defences, [null, null], "a missing defence is an empty slot, not a shifted one");
+});
+
+test("a skill sf2e gives no fixed attribute still gets its key, untinted", () => {
+  const groups = sf2eGroups();
+  groups[0].entries = [entry("Acrobatics"), entry("Mecha Handling")];
+  const { left, right } = splitChecks(groups);
+  assert.deepEqual([...left.skills, ...right.skills].filter(Boolean).map((k) => [k.slug, k.attribute]), [["acrobatics", "dex"], ["mecha-handling", null]]);
 });
 
 /* ---------------------------------------------------------------- */

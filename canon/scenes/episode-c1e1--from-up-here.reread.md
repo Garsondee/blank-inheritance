@@ -113,3 +113,16 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 - **R26, R15.** Chips (an entrance, an objective) moved from inside sentences to the end of the beat line, so the line reads as one sentence and the chips sit after it as a row of buttons. An entrance chip straight after a name had read as the name twice.
 - **R27.** The summary no longer starts "Scene N." (the Runner's header already numbers the scene) and no longer restates the goal: goal is when it ends, summary is what happens, how to play is the feel.
 - **R27.** Goal, summary and how to play said the same thing three times; now one line each.
+
+## Revision 2026-10-07: Ingram's grading of the first episode confidence run (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
+
+- **What changed.** No words. The scene now says, where it is written, which of the Sign-Off's rules do not apply to it: no
+  cast (M5), no rolls (M8), nothing to write down (M11) and no twists (M13), each with its reason in the scene's own
+  `exceptions`. It is also marked off the map, "a view from above" (`scene-set.json`). Ingram's words: "There is nothing wrong
+  with a scene which is exposition heavy and doesn't feature any rolls if that is the very first scene of an adventure."
+- **R4.** Still no rolls, on purpose (D048). The exception now says so instead of the checker failing it.
+- **R1, R2.** Unchanged: every beat is spoken to the table; nothing was added or cut.
+- **For Ingram.** If any of these exceptions is wrong, delete its entry from `exceptions` and the Sign-Off asks the question again.
+  The off-the-map mark is hers to undo in the Location Editor's Story tab.

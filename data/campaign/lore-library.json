@@ -5,7 +5,7 @@
   "documents": [
     {
       "id": "ledger",
-      "path": "ideas/story/bible/LEDGER.md",
+      "path": "quarantine/ideas/story/bible/LEDGER.md",
       "title": "The Ledger",
       "importance": 1,
       "category": "ledger",
@@ -19,7 +19,7 @@
     },
     {
       "id": "bible-readme",
-      "path": "ideas/story/bible/README.md",
+      "path": "quarantine/ideas/story/bible/README.md",
       "title": "Bible: Structure & Rules",
       "importance": 1,
       "category": "bible",
@@ -31,7 +31,7 @@
     },
     {
       "id": "story-bible-v4",
-      "path": "ideas/story/blank-inheritance-v4.md",
+      "path": "quarantine/ideas/story/blank-inheritance-v4.md",
       "title": "Story Bible v4",
       "importance": 1,
       "category": "bible",
@@ -44,7 +44,7 @@
     },
     {
       "id": "chapter-one",
-      "path": "ideas/story/blank-inheritance-ch1-v2.md",
+      "path": "quarantine/ideas/story/blank-inheritance-ch1-v2.md",
       "title": "Chapter One v2",
       "importance": 2,
       "category": "bible",
@@ -57,7 +57,7 @@
     },
     {
       "id": "master-timeline",
-      "path": "ideas/story/blank-inheritance-master-timeline.md",
+      "path": "quarantine/ideas/story/blank-inheritance-master-timeline.md",
       "title": "Master Timeline",
       "importance": 2,
       "category": "bible",
@@ -70,7 +70,7 @@
     },
     {
       "id": "dossier-observer",
-      "path": "ideas/story/dossier-observer.md",
+      "path": "quarantine/ideas/story/dossier-observer.md",
       "title": "Dossier: The Watcher",
       "importance": 3,
       "category": "bible",
@@ -82,7 +82,7 @@
     },
     {
       "id": "dossier-cicada",
-      "path": "ideas/story/dossier-cicada.md",
+      "path": "quarantine/ideas/story/dossier-cicada.md",
       "title": "Dossier: Cicada",
       "importance": 3,
       "category": "bible",
@@ -94,7 +94,7 @@
     },
     {
       "id": "dossier-shinobu",
-      "path": "ideas/story/dossier-shinobu.md",
+      "path": "quarantine/ideas/story/dossier-shinobu.md",
       "title": "Dossier: Shinobu",
       "importance": 3,
       "category": "bible",
@@ -106,7 +106,7 @@
     },
     {
       "id": "dossier-first-impact",
-      "path": "ideas/story/dossier-first-impact.md",
+      "path": "quarantine/ideas/story/dossier-first-impact.md",
       "title": "Dossier: First Impact",
       "importance": 3,
       "category": "bible",
@@ -161,7 +161,7 @@
     },
     {
       "id": "char-nozomi",
-      "path": "ideas/story/bible/characters/nozomi.md",
+      "path": "quarantine/ideas/story/bible/characters/nozomi.md",
       "title": "Nozomi",
       "importance": 3,
       "category": "bible",
@@ -173,7 +173,7 @@
     },
     {
       "id": "char-nobu",
-      "path": "ideas/story/bible/characters/nobu.md",
+      "path": "quarantine/ideas/story/bible/characters/nobu.md",
       "title": "Nobu",
       "importance": 3,
       "category": "bible",
@@ -185,7 +185,7 @@
     },
     {
       "id": "char-taka",
-      "path": "ideas/story/bible/characters/taka.md",
+      "path": "quarantine/ideas/story/bible/characters/taka.md",
       "title": "Taka",
       "importance": 3,
       "category": "bible",
@@ -197,7 +197,7 @@
     },
     {
       "id": "char-shucks",
-      "path": "ideas/story/bible/characters/shucks-mordant.md",
+      "path": "quarantine/ideas/story/bible/characters/shucks-mordant.md",
       "title": "Shucks Mordant",
       "importance": 3,
       "category": "bible",
@@ -210,7 +210,7 @@
     },
     {
       "id": "species-mitflits",
-      "path": "ideas/story/bible/species/mitflits.md",
+      "path": "quarantine/ideas/story/bible/species/mitflits.md",
       "title": "Mitflits",
       "importance": 3,
       "category": "bible",
@@ -223,7 +223,7 @@
     },
     {
       "id": "loc-central-fortification",
-      "path": "ideas/story/bible/locations/central-fortification.md",
+      "path": "quarantine/ideas/story/bible/locations/central-fortification.md",
       "title": "Central Fortification",
       "importance": 3,
       "category": "bible",
@@ -235,7 +235,7 @@
     },
     {
       "id": "loc-the-rock",
-      "path": "ideas/story/bible/locations/the-rock.md",
+      "path": "quarantine/ideas/story/bible/locations/the-rock.md",
       "title": "The Rock",
       "importance": 3,
       "category": "bible",
@@ -247,7 +247,7 @@
     },
     {
       "id": "loc-deep-storage",
-      "path": "ideas/story/bible/locations/deep-storage.md",
+      "path": "quarantine/ideas/story/bible/locations/deep-storage.md",
       "title": "Deep Storage",
       "importance": 3,
       "category": "bible",
@@ -259,7 +259,7 @@
     },
     {
       "id": "loc-general-hospital",
-      "path": "ideas/story/bible/locations/general-hospital.md",
+      "path": "quarantine/ideas/story/bible/locations/general-hospital.md",
       "title": "General Hospital",
       "importance": 3,
       "category": "bible",
@@ -271,7 +271,7 @@
     },
     {
       "id": "loc-main-school-complex",
-      "path": "ideas/story/bible/locations/main-school-complex.md",
+      "path": "quarantine/ideas/story/bible/locations/main-school-complex.md",
       "title": "Main School Complex",
       "importance": 3,
       "category": "bible",
@@ -285,7 +285,7 @@
     },
     {
       "id": "loc-gnoll-statue",
-      "path": "ideas/story/bible/locations/the-gnoll-statue.md",
+      "path": "quarantine/ideas/story/bible/locations/the-gnoll-statue.md",
       "title": "The Gnoll Statue",
       "importance": 4,
       "category": "bible",

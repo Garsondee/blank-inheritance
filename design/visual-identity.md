@@ -788,6 +788,29 @@ as a real printed VU face and its levels as three knobs side by side. The Consol
 floats in the same band instead of covering the deck, its Log tab is a readable ledger, and
 every log display shares one local 24-hour clock.
 
+**Third grime pass, 2026-10-05.** "The white grime on a dark background needs to be more subtle.
+Dealer's choice, improve the grime." On the black cells the light stain read as smoke, grey
+clouds over the black, and its specks as stars; on silver the stain read as coffee blotches. The
+rule since: **a dark surface carries a dust film and a few faint motes, never a light stain**;
+silver **tarnishes along its brushing**; and the dirt you actually see is **placed** (lips,
+lower corners, seams, where a thumb lands), with the face between left cleaner. Backlit glass
+(the orb) keeps more dust than black panels, because a lamp is where dust shows. It is
+measured, not eyeballed: `tools/ui-grime/measure.mjs` renders a clean swatch of each surface at
+150% scaling and reports how cloudy and how speckled it is (a black cell's cloudiness went from
+8.2 to 2.9), and `test/tier0-grime-budget.test.mjs` holds each texture to its budget.
+
+**Skill keys, 2026-10-05 (D063).** "A wider ratio, a plate to show the text on ... recolour them in a
+subtle way that indicates which main stat they are effected by", and then: no physical grouping, no
+colour legend, no blank keys. Each key is a wider cap (about 88 by 39 authored px, from 73 by 40)
+with a recessed **nameplate** across its top carrying the skill's whole name, and below it the number
+beside its pips between two ribbed grips. The plate's wash and the grips are in the colour of the
+attribute the skill adds (`--bi-attr-*`, bi-tokens.css §7a-iii: oxide red, field green, khaki, steel
+blue, sea green, heather plum), muted so they never compete with the orange accent or the check
+console's result lights. The banks stay nine keys, three by three, alphabetical. The width came from
+the two black key banks (272 to 304 each), so the deck is now **1664** authored px wide; it costs
+nothing where the deck is height-bound and about 4% of scale where it is width-bound. Live check:
+`node tools/deck-keys/live-check.mjs`.
+
 **The session rail** is new: a thin GM-only strip across the top of the screen between
 Foundry's scene navigation and the sidebar — tonight's session on a clock-time track, scene
 bands, a pin per log entry, a needle at now, how long is left, and a one-press **Mark**. Its

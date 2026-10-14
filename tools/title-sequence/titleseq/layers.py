@@ -216,6 +216,41 @@ def draw_image(img, p):
     return _place(img, p, src, alpha, s * iw / src.shape[1], opacity)
 
 
+def poly_coverage(polygons, blur=0.0):
+    """Anti-aliased coverage (0..1, frame size) of a list of polygons given in frame pixels, softened by `blur`
+    pixels if asked."""
+    import cv2
+    m = np.zeros((H, W), np.uint8)
+    for pts in polygons:
+        cv2.fillPoly(m, [np.round(np.asarray(pts, np.float64) * 16).astype(np.int32)], 255, cv2.LINE_AA, 4)
+    out = m.astype(np.float32) / 255.0
+    if blur > 0:
+        out = cv2.GaussianBlur(out, (0, 0), float(blur))
+    return out
+
+
+def reveal_ramp(r):
+    """A soft wipe, as a hand writes a mark on: the front crosses `box` [x0, y0, x1, y1] (default the frame) in the
+    direction `angle` (degrees, 0 = left to right, 90 = top to bottom) as `p` goes from 0 to 1, leaving a `soft`-pixel
+    edge. Returns each frame pixel's coverage, 0 (not yet written) to 1."""
+    from .raster import grid
+    pr = float(r["p"])
+    if pr <= 0.0:                                  # nothing before it starts, everything when it is done, whatever
+        return np.zeros((H, W), np.float32)        # lies outside the box
+    if pr >= 1.0:
+        return np.ones((H, W), np.float32)
+    yy, xx = grid()
+    x0, y0, x1, y1 = r.get("box", (0, 0, W, H))
+    th = math.radians(float(r.get("angle", 0.0)))
+    c, sn = math.cos(th), math.sin(th)
+    proj = [c * x + sn * y for x, y in ((x0, y0), (x1, y0), (x0, y1), (x1, y1))]
+    lo, hi = min(proj), max(proj)
+    soft = max(1.0, float(r.get("soft", 60.0)))
+    front = lo - soft + pr * (hi - lo + 2 * soft)
+    u = c * (xx + 0.5) + sn * (yy + 0.5)
+    return np.clip((front - u) / soft, 0.0, 1.0).astype(np.float32)
+
+
 def _place(img, p, src, alpha, s_l, opacity):
     """Warp art (native pixels, scale s_l to the frame) into place, grade it and blend it into img."""
     import cv2
@@ -233,6 +268,13 @@ def _place(img, p, src, alpha, s_l, opacity):
         wa = cv2.warpAffine(alpha, m, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
         warped = np.clip(warped / np.maximum(wa, 1e-4)[..., None], 0.0, 1.0)
         a = a * wa
+    if p.get("mask"):                              # a wipe: only what lies inside these polygons (frame pixels) shows
+        a = a * poly_coverage(p["mask"], p.get("mask_blur", 0.0))
+    if p.get("reveal"):                            # a soft wipe that writes the picture on (see reveal_ramp)
+        r = dict(p["reveal"])
+        if "reveal_p" in p:                        # keyed on its own, since a clip's keys move numbers, not dicts
+            r["p"] = p["reveal_p"]
+        a = a * reveal_ramp(r)
     if "fill" in p:
         warped[:] = rgb01(p["fill"])
     if "levels" in p:

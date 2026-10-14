@@ -819,6 +819,53 @@ now.
 1995 TV anime background painting, Neon Genesis Evangelion, Gainax, background art by Hiroshi Kato, hand-painted poster-colour background, a stained concrete hangar wall in dim red-brown light, large faint alien glyphs painted across it in flaking paint, water stains and rust streaks, flat and straight-on, VHS film grain, 4:3 broadcast frame, no text
 ```
 
+## Round 15: the finale, four prompts (2026-10-12)
+
+The finale (R94 to R110) is now one slow shot to a bar (`opening-titles.md`, "Fifteenth round"), built from the art in
+hand. These four prompts are the images that would lift it most. **If you only make one, make R104-six.** Each
+slots into a place that is already built, with the same camera move, so nothing else has to change when it arrives.
+The same rules as ever: no violet anywhere, no text, and nothing that ties the six to the rift's cause (§8).
+
+### R104-six · The six at the sea wall (85.2–87.1 s)
+
+**The group shot.** It replaces the witch plate (`art/R104-war-witch-pan.png`, which holds this place) on the last
+bar before the end card, and the camera comes round slowly across it as it does across the witch plate now. **Set
+the shape to 3:2** (wider than 4:3) so there is room to move. The six stay in silhouette on purpose: nobody's
+character is decided by it, and the PCs' true forms stay off screen (§6.5, §8). Each stands differently, so each
+player can claim one.
+
+```
+1995 TV anime screenshot, Neon Genesis Evangelion, Gainax, directed by Hideaki Anno, 1995 TV anime cel animation, original characters, six teenage trainees in plain khaki-grey trainee uniforms with stand-up collars standing in a loose line along the edge of a concrete sea wall, seen from low in front, every one of them backlit and almost silhouetted against an enormous low orange sun sinking into a calm bay, faces in deep shadow so that none can be recognised, long shadows stretching toward the camera, wind lifting jackets and hair, each standing differently: one with hands in pockets, one with arms crossed, one with a cap pulled low, one with a long scarf blowing, one sitting on the wall's edge with a boot up, one with a hand raised against the sun, behind them at the water's edge six different heavy machines in silhouette, some tall riveted walking Frames kneeling and some squat tracked and wheeled vehicles, boxy cream-and-vermilion armour plates with orange-and-black chevron stripes, hydraulic pistons and hoses, thin gold haze over the water, hand-painted cel on a poster-colour painted sky background by Hiroshi Kato, crisp black ink outlines, two-tone hard cel shading, airbrushed highlights, limited 1990s broadcast palette of orange, gold and deep blue, LaserDisc capture, film grain, 3:2 broadcast frame, no text, no logos
+```
+
+### R104-tilt · The same six, as a tilt (alternative to R104-six)
+
+The same idea as a tall plate, for a slow tilt up from the six to the machines and the sky: scale rather than a pan.
+**Set the shape to 1:2** (tall). Use one or the other.
+
+```
+1995 TV anime screenshot, Neon Genesis Evangelion, Gainax, directed by Hideaki Anno, 1995 TV anime cel animation, original characters, six tiny teenage trainees in plain khaki-grey uniforms standing in a row at the very bottom of the frame on a concrete quay, backlit and almost silhouetted, faces in deep shadow, looking up, above them six colossal heavy machines towering one behind another in silhouette against a vast sky at sunset, tall riveted walking Frames and enormous tracked vehicles, boxy cream-and-vermilion armour plates with orange-and-black chevron stripes, hydraulic pistons and hoses, towering golden cumulonimbus clouds lit orange from below, the sky climbing to deep blue at the very top, seen from far below with a strong upward perspective, hand-painted cel on a poster-colour painted sky background by Hiroshi Kato, crisp black ink outlines, two-tone hard cel shading, airbrushed highlights, limited 1990s broadcast palette of orange, gold and deep blue, LaserDisc capture, film grain, 1:2 tall frame, no text, no logos
+```
+
+### R101-open · The vault door ajar (84.3–85.2 s)
+
+Optional: the door is opened by a light effect built here, and it works, but a painted one would be richer. **Attach
+`art/R101-vault.png`.** Best as a video with the closed vault as the start frame and this as the end frame (Midjourney's
+start and end frames), so the leaves slide apart. Nobody is in the doorway: it is only light.
+
+```
+1995 TV anime screenshot, Neon Genesis Evangelion, Gainax, 1995 TV anime cel animation, the same dark green-teal industrial bunker room and the same huge round riveted vault door seen straight on, now swung wide open into the wall, a blinding column of white-gold daylight pouring out of the doorway and across the wet concrete floor, long soft rays fanning into the room, dust hanging in the light, the stacked orange-red crates and the grey steel cabinets lit warm on one side, the doorway itself too bright to see into, nobody in it, hand-painted cel on a poster-colour painted background by Hiroshi Kato, crisp black ink outlines, two-tone hard cel shading, airbrushed light, limited 1990s broadcast palette, LaserDisc capture, film grain, 4:3 broadcast frame, no text, no logos
+```
+
+### R111-wall · The end card's wall, revised (87.1 s to the end)
+
+**Use this in place of the R111-wall prompt above.** The studio's mark now sits in the middle of this wall and the
+committee's line beneath it, so the middle has to stay clear. Until it comes, the wall is painted in code.
+
+```
+1995 TV anime background painting, Neon Genesis Evangelion, Gainax, background art by Hiroshi Kato, hand-painted poster-colour background, a stained poured-concrete hangar wall in dim red-brown light seen flat and straight-on, panel joints and round form-tie holes in a loose grid, long water stains and rust streaks running down from the top, flaking paint, a wide empty area of plain stained concrete left clear across the middle, a few large faint alien glyphs painted in flaking pale paint only near the far left and far right edges, warm dim light falling from the upper left, deep vignette into darkness at the corners, VHS film grain, 4:3 broadcast frame, no text, no logos
+```
+
 ## Retired: style calibration (Batch 0)
 
 **Superseded 2026-09-25.** Everything is generated new, and existing portraits are never used as references (Ingram), so

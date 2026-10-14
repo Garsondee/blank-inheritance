@@ -10,7 +10,7 @@
   "tags": [],
   "classification": null,
   "rank": null,
-  "depth": "named",
+  "depth": "scene",
   "geometry": {
     "rings": [
       [
@@ -85,22 +85,37 @@
     "status": "drafted"
   },
   "lore": {
-    "summary": "Where the semester's screening blood draws actually happen — thirty seconds, no explanation, exactly as brisk and unremarkable as intended. Otherwise it's just a nurse, a cot, and a drawer of plasters for drill scrapes; nobody who works here seems to know or care what the draw is actually for.",
-    "playerFacing": "",
-    "gmOnly": ""
+    "summary": "The island's intake infirmary, where every new candidate's blood is drawn and screened on the first Monday. A waiting room, a clerk's hatch, an examination room and a corridor, run on forms and a patience that never changes tone. Between intakes it is a nurse, a cot and a drawer of plasters for drill scrapes.",
+    "playerFacing": "The waiting room smells of disinfectant, floor polish and somebody's wet coat. Chairs line the wall and the queue moves along them one seat at a time. Two signs hang over the clerk's hatch, one taped over the other: FORMS FIRST, NO EXCEPTIONS, in a hurried hand, covering MEDICALS FIRST in a much better one. Down the corridor a patient voice says \"other arm\", over and over, in exactly the same tone.",
+    "gmOnly": "Intake Medicals runs here: the clerk's Form 12-B, Shucks's examination room, and the corridor where Section Nine's cards are handed out. Nobody in the building explains what the screen tests for, and that silence is the whole manner of the place. Keep it dull and brisk. The unease comes from what is not said, never from the room, and Shucks never hurries and never raises his voice. Outside that scene it is where anyone who scrapes a knee in drill gets a plaster and a signature, no questions beyond the form."
   },
   "scene": {
-    "hooks": [],
-    "activities": [],
+    "hooks": [
+      "The two signs over the hatch disagree, and the queue has been arguing about which one is right since before the six arrived.",
+      "The corridor outside is the only place the six can compare what each was told alone, and the clerk will not hurry them out of it."
+    ],
+    "activities": [
+      "Queue, fill in Form 12-B and hand it to the hatch.",
+      "Sit the blood draw and the two or three questions that follow it.",
+      "Compare cards and answers in the corridor afterwards.",
+      "Collect a plaster for a drill scrape from the drawer."
+    ],
     "history": "",
     "consequences": ""
   },
   "realWorld": {},
   "factionRefs": [],
-  "npcRefs": [],
-  "episodeRefs": [],
+  "npcRefs": [
+    "shucks-mordant",
+    "intake-medicals-clerk"
+  ],
+  "episodeRefs": [
+    "episode-c1e1-mothers-maiden-name"
+  ],
   "openQuestionRefs": [],
   "bibleRef": null,
-  "assetRefs": [],
+  "assetRefs": [
+    "episode-c1e1--intake-medicals"
+  ],
   "playlistRefs": []
 }

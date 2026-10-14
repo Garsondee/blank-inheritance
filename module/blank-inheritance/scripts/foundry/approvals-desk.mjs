@@ -31,6 +31,7 @@ import { computePlaySequenceSet } from "../core/play-sequence.mjs";
 import { promote } from "../core/promote.mjs";
 import { fileChangesInstruction, cutItem, computeOutTray } from "../core/bounce.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
+import { sheetNotes } from "../core/actor-notes.mjs";
 import { fetchModuleJson, listModuleJsonIds, writeStorageJson } from "./io.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 
@@ -136,10 +137,24 @@ export async function loadCatalog() {
   // core/bounce.mjs's own header for why they're kept out of the out-tray's
   // "waiting on Claude" total despite sharing its screen.
   let openQuestions = null;
+  let openDecisions = null;
   try {
     openQuestions = await fetchModuleJson("data/campaign/campaign/open-questions.json");
   } catch (err) {
     console.warn("Blank Inheritance | Approvals Desk could not load open-questions.json", err);
+  }
+  try {
+    openDecisions = await fetchModuleJson("data/campaign/campaign/open-decisions.json");
+  } catch (err) {
+    console.warn("Blank Inheritance | Approvals Desk could not load open-decisions.json", err);
+  }
+  // What each NPC's Actor sheet says, generated from canon (D080): an NPC's card here shows it where the retired
+  // `description` used to be. Absent is fine: the card then shows the role and design notes alone.
+  let actorNotes = null;
+  try {
+    actorNotes = await fetchModuleJson("data/campaign/campaign/actor-notes.json");
+  } catch (err) {
+    console.warn("Blank Inheritance | Approvals Desk could not load actor-notes.json", err);
   }
   let audioLibrary = null;
   let audioReview = null;
@@ -160,14 +175,14 @@ export async function loadCatalog() {
 
   return {
     episodes, npcs, challenges, subsystems, encounters, locations, creatures, sceneBriefs, sceneSetByBriefRef,
-    allEntitiesById, loreInstructions, gazetteerRequests, openQuestions, audioLibrary, audioReview
+    allEntitiesById, loreInstructions, gazetteerRequests, openQuestions, openDecisions, actorNotes, audioLibrary, audioReview
   };
 }
 
 /** Plain-language fields worth showing per type, in order -- not every field, not raw JSON. */
 const SUMMARY_FIELDS_BY_TYPE = {
   "episode-scene": [["description", "Description"]],
-  npc: [["role", "Role"], ["description", "Description"], ["designNotes", "Design notes"]],
+  npc: [["role", "Role"], ["designNotes", "Design notes"]],
   location: [["kind", "Kind"], ["lore.summary", "Summary"], ["lore.playerFacing", "Player-facing"], ["lore.gmOnly", "GM only"]],
   challenge: [["description", "Description"], ["levelContext", "Level context"]],
   encounter: [["description", "Description"], ["environment", "Environment"], ["specialRules", "Special rules"]],
@@ -184,8 +199,24 @@ function itemDisplayName(item, catalog) {
   return entity.name ?? entity.title ?? entity.workingName ?? item.id;
 }
 
-/** Renders the CURRENT item's own authored fields, honestly and simply -- see this file's header for the costume-fidelity scope note. */
-function renderItemBody(item, catalog) {
+/**
+ * What an NPC's Actor sheet will say, for its card (D080): the blurb, then the GM notes generated from canon (what the table is
+ * told, what is held back, what is not decided yet). It replaces the NPC file's retired `description`. The notes are HTML this
+ * module's own pure renderer escaped (core/actor-notes.mjs).
+ */
+function renderSheetRows(entity, entry) {
+  const { blurb, privateNotes } = sheetNotes(entity, entry);
+  return [
+    blurb ? `<p class="bi-desk__field"><strong>On the sheet:</strong> ${foundry.utils.escapeHTML(blurb)}</p>` : "",
+    privateNotes ? `<div class="bi-desk__field"><strong>GM notes on the sheet, from canon:</strong>${privateNotes}</div>` : ""
+  ].join("");
+}
+
+/**
+ * Renders the CURRENT item's own authored fields, honestly and simply -- see this file's header for the costume-fidelity scope note.
+ * Exported purely so a mocked-adapter test can assert on it.
+ */
+export function renderItemBody(item, catalog) {
   const entity = catalog.allEntitiesById[item.id] ?? {};
   const fields = SUMMARY_FIELDS_BY_TYPE[item.type] ?? [];
   const rows = fields
@@ -196,7 +227,8 @@ function renderItemBody(item, catalog) {
       return `<p class="bi-desk__field"><strong>${label}:</strong> ${foundry.utils.escapeHTML(text)}</p>`;
     })
     .join("");
-  return rows || `<p class="bi-desk__field bi-desk__field--empty">Nothing authored on this field set yet.</p>`;
+  const sheet = item.type === "npc" ? renderSheetRows(entity, catalog.actorNotes?.npcs?.[item.id] ?? null) : "";
+  return rows + sheet || `<p class="bi-desk__field bi-desk__field--empty">Nothing authored on this field set yet.</p>`;
 }
 
 async function actorIdForNpc(npcId) {
@@ -263,6 +295,7 @@ export class ApprovalsDesk extends HandlebarsApplicationMixin(ApplicationV2) {
       gazetteerRequests: this.#catalog.gazetteerRequests,
       allEntitiesById: this.#catalog.allEntitiesById,
       openQuestions: this.#catalog.openQuestions,
+      openDecisions: this.#catalog.openDecisions,
       audioLibrary: this.#catalog.audioLibrary,
       audioReview: this.#catalog.audioReview
     });

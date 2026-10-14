@@ -103,3 +103,17 @@ Re-read against `canon/reread.md` version 3 · by Claude, reading the scene in t
 Re-read against `canon/reread.md` version 3 · by Claude · state: awaiting Ingram's read
 
 - **Objective chips.** At the hatch, the requisition and being in by nineteen hundred never tick themselves when the beat is marked done (`auto: false`): either can go the other way. Closing the docket does, and asks for the Record's paragraph.
+
+## Revision 2026-10-07: temptations became twists (D065)
+
+Re-read against `canon/reread.md` version 3 · by Claude (first drafts by an Opus agent, reviewed and corrected by Claude) · state: awaiting Ingram's read
+
+Ingram, grading the first episode confidence run: temptations "need to be fun organic ways the scene might mutate, things that the GM might want to consider as ways to evolve the scene which won't break the overall objective of the scene."
+
+- **Replaced:** "Someone asks whoever talked to Manako most: what was he actually like?". Those were lines to say to a table that is not biting.
+- **Now 3 twists:** `red-signal`, `what-will-you-be`, `half-shut-hatch`.
+- **R12, R13.** No twist states a fact, names a secret, or moves a held-back fact forward; each uses only people, objects and places already in this scene.
+- **R4, R5.** None needs a roll to reach, and none can stop the scene doing its job: every deadline and mandatory beat is still reachable.
+- **R3, R28.** No history or tool names; each twist is one or two sentences, 35 words or fewer.
+- **Conditional twists.** Some only apply if something is already true at the table (a player with a different number of arms, a player from the city, a section that filed its requisition loudly). The GM skips them otherwise.
+- **For Ingram.** These are a first attempt at what she described. Cut or rewrite any; the old lines are in this file's history (git) if one was better.

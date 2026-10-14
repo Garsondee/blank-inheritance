@@ -140,13 +140,13 @@
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatBackground"}}</span>
             <span class="bi-form-row__lead"></span>
-            <span class="bi-form-row__value">{{backgroundName}} ({{#each backgroundBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}})</span>
+            <span class="bi-form-row__value">{{backgroundName}} ({{#each backgroundBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}{{#each backgroundChoiceLabels}}; {{this}}{{/each}})</span>
             <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="3" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.StatBackground')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatClass"}}</span>
             <span class="bi-form-row__lead"></span>
-            <span class="bi-form-row__value">{{className}} ({{classKeyAbilityLabel}})</span>
+            <span class="bi-form-row__value">{{className}} ({{classKeyAbilityLabel}}{{#each classChoiceLabels}}; {{this}}{{/each}})</span>
             <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="4" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.StatClass')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
         <div class="bi-form-row">

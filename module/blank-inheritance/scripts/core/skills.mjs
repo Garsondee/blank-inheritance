@@ -34,6 +34,29 @@ export const SAVE_SLUGS = Object.freeze(["fortitude", "reflex", "will"]);
 
 export const PERCEPTION_SLUG = "perception";
 
+/** The six attributes, in the order SF2E's own sheet lists them. */
+export const ATTRIBUTES = Object.freeze(["str", "dex", "con", "int", "wis", "cha"]);
+
+/**
+ * The attribute each fixed skill adds, exactly as sf2e's own `CONFIG.PF2E.skills` gives it (sf2e.mjs, verified
+ * 2026-10-05; test/tier3-skill-attributes-contract.test.mjs reads the shipped system and holds the two together). The
+ * deck groups its skill keys into sections by it and tints each key with it (D063, Ingram: "grouped into sections
+ * with other skills which use the same stat like Wisdom").
+ */
+export const SKILL_ATTRIBUTES = Object.freeze({
+  acrobatics: "dex", arcana: "int", athletics: "str", computers: "int", crafting: "int", deception: "cha",
+  diplomacy: "cha", intimidation: "cha", medicine: "wis", nature: "wis", occultism: "int", performance: "cha",
+  piloting: "dex", religion: "wis", society: "int", stealth: "dex", survival: "wis", thievery: "dex"
+});
+
+/** Perception and the three saves add an attribute too (Player Core): the check console's keys are tinted by them. */
+const DEFENCE_ATTRIBUTES = Object.freeze({ perception: "wis", fortitude: "con", reflex: "dex", will: "wis" });
+
+/** The attribute a skill, Perception or a save adds; null for anything else (a lore, which has its own selector). */
+export function attributeOf(slug) {
+  return SKILL_ATTRIBUTES[slug] ?? DEFENCE_ATTRIBUTES[slug] ?? null;
+}
+
 /** Slugs safe to interpolate into an `@Check[...]` enricher string. */
 const SAFE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

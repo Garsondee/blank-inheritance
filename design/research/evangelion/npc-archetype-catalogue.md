@@ -6,7 +6,7 @@
 
 ## 1. How to use this
 
-**[U]** Same three steps as the other shelf — find the shape, read the character file, check it against the project's own rules (`design/quests-objectives-and-threads.md` for the want, `feedback_npc_stubs_by_default` for the first version, `ideas/story/bible/` and `LEDGER.md` for what actually exists).
+**[U]** Same three steps as the other shelf — find the shape, read the character file, check it against the project's own rules (`design/quests-objectives-and-threads.md` for the want, `feedback_npc_stubs_by_default` for the first version, `quarantine/ideas/story/bible/` and `LEDGER.md` for what actually exists).
 
 **[U] One additional step here, and it is not optional: read [tone-guardrail.md](tone-guardrail.md) first.** Every archetype below came out of a work whose register this campaign has explicitly rejected. The shapes are sound; the temperature is not. Where a row has a warmth problem, the "one rule" column is usually the correction.
 
@@ -53,7 +53,7 @@
 | **The Machine That Is Not A Machine** | [Unit-01](characters/evangelion-unit-01.md) | It acts on its own before anyone explains why | Equipment described in language that is not true |
 | **The Unexplained Harmless Thing** | [Pen Pen](characters/pen-pen.md) | **Never make it important** | A household member who is not part of the plot |
 
-**[U]** The two rows where a machine acts on its own (the Mother in the Machine, §4, and Unit-01 above) must stop short of a PC's own machine acting without its player: this campaign rules that out (`ideas/story/bible/LEDGER.md` #31, D11).
+**[U]** The two rows where a machine acts on its own (the Mother in the Machine, §4, and Unit-01 above) must stop short of a PC's own machine acting without its player: this campaign rules that out (`quarantine/ideas/story/bible/LEDGER.md` #31, D11).
 
 ## 6. Casting balance **[U]**
 
@@ -109,4 +109,4 @@ Derived from what the series actually used, corrected for our register:
 
 **Related on this shelf:** [tone-guardrail.md](tone-guardrail.md), [the-enemy-as-puzzle.md](the-enemy-as-puzzle.md), [the-institution-that-uses-children.md](the-institution-that-uses-children.md), [relationships-that-degrade.md](relationships-that-degrade.md), [school-life-and-the-ordinary-day.md](school-life-and-the-ordinary-day.md).
 
-**Related in this project:** [design/research/giant-robo/npc-archetype-catalogue.md](../giant-robo/npc-archetype-catalogue.md), `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/character-creation-and-progression.md`, `ideas/story/bible/`, `data/campaign/open-questions.json` (the naming placeholders).
+**Related in this project:** [design/research/giant-robo/npc-archetype-catalogue.md](../giant-robo/npc-archetype-catalogue.md), `design/quests-objectives-and-threads.md`, `design/npc-social-intel.md`, `design/character-creation-and-progression.md`, `quarantine/ideas/story/bible/`, `data/campaign/open-questions.json` (the naming placeholders).

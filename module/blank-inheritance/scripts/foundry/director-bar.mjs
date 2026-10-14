@@ -13,7 +13,8 @@
 
 import { CommandBar, currentMode, refreshCommandBar } from "./command-bar.mjs";
 import { SEATS } from "../core/console-model.mjs";
-import { actorForSeat, postInlineCheck, rollCheck } from "./rolls.mjs";
+import { actorForSeat, rollCheck } from "./rolls.mjs";
+import { askForWay } from "./check-console.mjs";
 import { selectCastRow } from "./cast.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 import { recordLogEntry } from "./session-log.mjs";
@@ -153,8 +154,11 @@ export class DirectorBar extends CommandBar {
    * Shift deliberately does NOT mean what it means on a character sheet
    * here — sf2e uses it to invert the roll-dialog setting. On the
    * Director's deck the far more common intent is "somebody roll this",
-   * so it posts an inline check instead. The sheet still has the original
-   * behaviour, and the player seat is untouched.
+   * so it puts the check to the table instead: in the check console
+   * (foundry/check-console.mjs, 2026-10-05), where each player rolls it from
+   * their own window and their gem lights. A second Ask before anyone has
+   * rolled adds another way to the same check. The sheet still has the
+   * original behaviour, and the player seat is untouched.
    */
   static async #onRollCheck(event, target) {
     const slug = target.dataset.slug;
@@ -164,7 +168,7 @@ export class DirectorBar extends CommandBar {
     // there is no one creature for a plain press to roll for.
     const actor = actorForSeat(DirectorBar.SEAT);
     if (event?.shiftKey || !actor) {
-      await postInlineCheck({ slug, label: target.dataset.label ?? null });
+      await askForWay(slug);
       return;
     }
     await rollCheck({ actor, slug, event });

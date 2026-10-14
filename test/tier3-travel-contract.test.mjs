@@ -99,7 +99,7 @@ test("convergeTokensOnHub is GM-gated, resolves each move's own token by id, and
 test("convergeTokensOnHub shares the SAME calibration, graph, and hop planning as animateOnHub -- one real transform and one real speed model, not a second copy", () => {
   const fn = travel.match(/export async function convergeTokensOnHub\([\s\S]*?\n\}/);
   assert.match(fn[0], /sceneCalibration\(/);
-  assert.match(fn[0], /planRoute\(/);
+  assert.match(fn[0], /routerFor\(graph\)\.plan\(/, "no longer plans through the cached router (core/travel-route.mjs#routerFor, held to planRoute by test/tier1-travel-router.test.mjs)");
   assert.match(fn[0], /hopPlan\(route\.segments, \{ wayClass: graph\.wayClass \?\? \{\} \}\)/);
   assert.match(fn[0], /animateTokenAlongHops\(/, "no longer reuses the shared per-hop animation function animateOnHub itself uses");
 });

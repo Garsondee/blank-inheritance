@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common/induction-choices.schema.json",
+  "title": "Induction rule choices",
+  "description": "The choices a background or class asks for through a ChoiceSet rule element, as the induction terminal asks them on its own pages (core/induction-rule-choices.mjs; design/induction-terminal.md Page 3 and Page 4). Written into the catalogues by tools/character-builder/extract-rule-choices.mjs from the real compendium packs, never by hand: `--check` fails when a catalogue is behind the packs.",
+  "$defs": {
+    "ruleChoices": {
+      "type": "array",
+      "description": "One entry per question the item asks, in the order its rules ask them. Absent on an item that asks none. A ChoiceSet whose answer only feeds a GrantItem rule (a background's skill feat) is not here: the terminal drops the GrantItem, so it drops that question with it.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["flag", "kind", "options"],
+        "additionalProperties": false,
+        "properties": {
+          "flag": { "type": "string", "minLength": 1, "description": "The ChoiceSet's own flag (sf2e's `flags.<system>.rulesSelections.<flag>`); also the key of the player's answer in the terminal's state." },
+          "kind": { "enum": ["skill", "other"], "description": "`skill` when every option is one of the game's skills (the page says \"trained in one of these\"); `other` for any other list." },
+          "options": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["key", "label"],
+              "additionalProperties": false,
+              "properties": {
+                "key": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "description": "What the terminal keeps as the answer, unique within the question. For a skill, its slug." },
+                "label": { "type": "string", "description": "English display name; the terminal localizes a skill's own name." }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

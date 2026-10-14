@@ -27,6 +27,7 @@ import {
 } from "../core/location-editor.mjs";
 import { TOOL_DEFS, toolsForMode, toolSurvivesModeChange } from "../core/location-draw-tools.mjs";
 import { chipOf, groupSummary, slotIndex, storyLines } from "../core/story-lines.mjs";
+import { viewOfWhatIf } from "../core/journey-whatif.mjs";
 import { linkedSlots, OFF_MAP_REASONS, offMapLabel, searchPlaces } from "../core/siting.mjs";
 import { itemGeometryChanged } from "../core/location-published.mjs";
 import { buildHandoff, serialiseHandoff } from "../core/location-handoff.mjs";
@@ -37,6 +38,11 @@ import { loadLocationEdits, pendingRecordsFor, saveLocationEdit } from "./locati
 import { fetchModuleJson } from "./io.mjs";
 import { hubCalibration } from "./location-published.mjs";
 import { buildStoryView, loadStoryInputs, resetStoryCache, storyOverrides } from "./location-story.mjs";
+import { ensureStylesheet } from "./late-style.mjs";
+import { LocationJourneys } from "./location-journeys.mjs";
+import { LocationPin } from "./location-pin.mjs";
+import { LocationPlaces } from "./location-places.mjs";
+import { resetJourneyAnalysis } from "./journey-data.mjs";
 import { campaignMapMetresPerPixel, hubScene } from "./travel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 
@@ -78,7 +84,11 @@ function writeStoryUi(state) {
 }
 
 export class LocationEditorApplication extends HandlebarsApplicationMixin(ApplicationV2) {
-  #tab = "story"; // "story": the episodes and haunts, scene by scene. "map": the drawing tools.
+  #tab = "story"; // "story": the episodes and haunts, scene by scene. "journeys": the paths the tokens walk between them. "places": which places the story uses. "map": the drawing tools.
+  #showRoutes = true; // the way between scenes drawn in the Story list
+  #journeys = new LocationJourneys(this.#bridge());
+  #places = new LocationPlaces(this.#bridge());
+  #pin = new LocationPin(this.#bridge());
   #storyInputs = null; // { docs, locations } once loaded
   #storyLoading = false;
   #storyError = null;
@@ -135,6 +145,43 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     position: { width: 540, height: 820, top: 70, left: 100 },
     actions: {
       setTab: LocationEditorApplication.#onSetTab,
+      toggleRoutes: LocationEditorApplication.#onToggleRoutes,
+      recheckJourneys: LocationEditorApplication.#onRecheckJourneys,
+      playGroup: LocationEditorApplication.#onPlayGroup,
+      toggleShowAll: LocationEditorApplication.#onToggleShowAll,
+      toggleNotes: LocationEditorApplication.#onToggleNotes,
+      toggleOnlyProblems: LocationEditorApplication.#onToggleOnlyProblems,
+      fitGroup: LocationEditorApplication.#onFitGroup,
+      clearFocus: LocationEditorApplication.#onClearFocus,
+      copyJourneyReport: LocationEditorApplication.#onCopyJourneyReport,
+      showLeg: LocationEditorApplication.#onShowLeg,
+      playLeg: LocationEditorApplication.#onPlayLeg,
+      playStep: LocationEditorApplication.#onPlayStep,
+      showIssue: LocationEditorApplication.#onShowIssue,
+      nextIssue: LocationEditorApplication.#onNextIssue,
+      openSlot: LocationEditorApplication.#onOpenSlot,
+      togglePlay: LocationEditorApplication.#onTogglePlay,
+      stopPlay: LocationEditorApplication.#onStopPlay,
+      skipStep: LocationEditorApplication.#onSkipStep,
+      setSpeed: LocationEditorApplication.#onSetSpeed,
+      toggleFollow: LocationEditorApplication.#onToggleFollow,
+      togglePlacesShared: LocationEditorApplication.#onTogglePlacesShared,
+      openPlace: LocationEditorApplication.#onOpenPlace,
+      showPlace: LocationEditorApplication.#onShowPlace,
+      startBulk: LocationEditorApplication.#onStartBulk,
+      toggleBulkSlot: LocationEditorApplication.#onToggleBulkSlot,
+      setBulkTarget: LocationEditorApplication.#onSetBulkTarget,
+      bulkPickOnMap: LocationEditorApplication.#onBulkPickOnMap,
+      bulkStagePick: LocationEditorApplication.#onBulkStagePick,
+      bulkClearChoice: LocationEditorApplication.#onBulkClearChoice,
+      bulkPin: LocationEditorApplication.#onBulkPin,
+      confirmBulk: LocationEditorApplication.#onConfirmBulk,
+      cancelBulk: LocationEditorApplication.#onCancelBulk,
+      quickPin: LocationEditorApplication.#onQuickPin,
+      togglePinSnap: LocationEditorApplication.#onTogglePinSnap,
+      movePin: LocationEditorApplication.#onMovePin,
+      confirmPin: LocationEditorApplication.#onConfirmPin,
+      cancelPin: LocationEditorApplication.#onCancelPin,
       toggleGroup: LocationEditorApplication.#onToggleGroup,
       toggleScene: LocationEditorApplication.#onToggleScene,
       toggleOnlyGaps: LocationEditorApplication.#onToggleOnlyGaps,
@@ -173,6 +220,8 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   static PARTS = {
     nav: { template: `modules/${MODULE_ID}/templates/location-editor/nav.hbs` },
     story: { template: `modules/${MODULE_ID}/templates/location-editor/story.hbs`, scrollable: [".bi-story"] },
+    journeys: { template: `modules/${MODULE_ID}/templates/location-editor/journeys.hbs`, scrollable: [".bi-journeys"] },
+    places: { template: `modules/${MODULE_ID}/templates/location-editor/places.hbs`, scrollable: [".bi-places"] },
     body: { template: `modules/${MODULE_ID}/templates/location-editor/panel.hbs`, scrollable: [".bi-location-editor__body"] }
   };
 
@@ -199,6 +248,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   _onClose(options) {
     super._onClose?.(options);
     this.#claimed = false;
+    this.#pin.cancel({ quiet: true });
     // Leaving the editor means leaving ALL of it: the selection and its handles, a waiting pick, the highlight, the tool and the drawing on the canvas
     // (location-draw-layer.mjs#quit), then the canvas back to Tokens.
     canvas.locationDraw?.quit?.();
@@ -251,6 +301,43 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     }
   }
 
+  /** What the Journeys, Places and Pin controllers are lent: the panel's own members are private, so they ask through this. */
+  #bridge() {
+    return {
+      rerender: () => { if (this.rendered) this.render(); },
+      element: () => this.element,
+      tab: () => this.#tab,
+      layer: () => canvas.locationDraw ?? null,
+      view: () => this.#storyView(),
+      inputs: () => this.#storyInputs,
+      ensureMap: () => this.#ensureMap(),
+      journeys: () => this.#journeys,
+      pin: () => this.#pin,
+      openSlot: (slotKey) => this.#openSlotEditor(slotKey),
+      run: (labelKey, fn) => this.#run(labelKey, fn),
+      notify: (level, text) => ui.notifications[level]?.(text)
+    };
+  }
+
+  /** The Story tab, open on a slot with its place chooser showing: the way from a problem or a use to changing it. */
+  #openSlotEditor(slotKey) {
+    const view = this.#storyView();
+    const entry = view ? slotIndex(view.story).get(slotKey) : null;
+    if (!entry) return;
+    this.#tab = "story";
+    this.#openGroups.add(entry.group.id);
+    this.#openRows.add(entry.row.key);
+    this.#persistStoryUi();
+    this.#editing = slotKey;
+    this.#pickTarget = "places";
+    this.#scrollToEditor = true;
+    this.#search = "";
+    this.#staged = null;
+    this.#journeys.tabChanged();
+    canvas.locationDraw?.disarmAssign?.();
+    this.render();
+  }
+
   async _prepareContext() {
     await loadLocationEdits();
     const layer = canvas.locationDraw;
@@ -262,6 +349,10 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     return {
       tab: this.#tab,
       story: this.#tab === "story" ? this.#storyContext(layer) : null,
+      journeys: this.#tab === "journeys" ? this.#journeys.context() : null,
+      places: this.#tab === "places" ? this.#places.context() : null,
+      player: this.#journeys.playerContext(),
+      pin: this.#pin.context(),
       drawFor: this.#drawFor ? { label: this.#drawFor.label, kind: this.#drawFor.kind } : null,
       busy: this.#busy,
       mode: this.#mode,
@@ -329,6 +420,8 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
 
   _onRender(context, options) {
     super._onRender?.(context, options);
+    // the Journeys stylesheet is in the manifest, which Foundry reads only when a world launches: until then, ask for it here (foundry/late-style.mjs)
+    ensureStylesheet("styles/bi-journeys.css");
     if (!canvas.locationDraw?.getSession) {
       // The layer registers at module init, but a scene change can outrun it on first paint.
       setTimeout(() => this.#wireLayer(), 0);
@@ -337,6 +430,10 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     }
     const root = this.element;
     if (this.#tab === "story" && !this.#storyInputs && !this.#storyLoading && !this.#storyError) queueMicrotask(() => this.#loadStory());
+    else if (this.#storyInputs) queueMicrotask(() => this.#journeys.ensure());
+    this.#journeys.bindDom(root);
+    this.#places.bindDom(root);
+    this.#pin.bindDom(root);
     const search = root.querySelector('[name="storySearch"]');
     if (search) {
       let timer = null;
@@ -693,6 +790,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       this.#openGroups = new Set(saved.groups ?? []);
       this.#openRows = new Set(saved.rows ?? []);
       this.#onlyGaps = Boolean(saved.onlyGaps);
+      this.#showRoutes = saved.routes !== false;
       return;
     }
     const flagged = story.groups.filter((g) => g.counts.gaps > 0 || g.counts.optionGaps > 0);
@@ -700,15 +798,20 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   }
 
   #persistStoryUi() {
-    writeStoryUi({ groups: [...this.#openGroups], rows: [...this.#openRows], onlyGaps: this.#onlyGaps });
+    writeStoryUi({ groups: [...this.#openGroups], rows: [...this.#openRows], onlyGaps: this.#onlyGaps, routes: this.#showRoutes });
   }
 
   #storyContext(layer) {
-    const base = { loading: this.#storyLoading, error: this.#storyError, lines: [], summary: "", onlyGaps: this.#onlyGaps, problems: [], pendingCount: 0, armed: null, editor: null };
+    const base = { loading: this.#storyLoading, error: this.#storyError, lines: [], summary: "", onlyGaps: this.#onlyGaps, showRoutes: this.#showRoutes, journeysReady: Boolean(this.#journeys.result), problems: [], pendingCount: 0, armed: null, editor: null };
     const view = this.#storyView();
     if (!view) return base;
     this.#seedStoryUi(view.story);
-    const lines = storyLines(view.story, { openGroups: this.#openGroups, openRows: this.#openRows, onlyGaps: this.#onlyGaps, editing: this.#editing, focused: this.#focusKey });
+    const found = this.#journeys.result;
+    const lines = storyLines(view.story, {
+      openGroups: this.#openGroups, openRows: this.#openRows, onlyGaps: this.#onlyGaps, editing: this.#editing, focused: this.#focusKey,
+      journey: found ? { model: found.model, analysis: found.analysis } : null, routes: this.#showRoutes,
+      shownLegIds: this.#journeys.focusedLegIds, playingLegIds: this.#journeys.playingLegIds
+    });
     const entry = this.#editing ? slotIndex(view.story).get(this.#editing) : null;
     const extra = Object.entries(view.newLocations).map(([recordId, fresh]) => ({ recordId, ...fresh }));
     const suggestions = entry && this.#search && !this.#staged
@@ -727,6 +830,7 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
           slotKey: entry.slot.key, label: `${entry.row.title} · ${entry.slot.label}`, search: this.#search, suggestions, staged: this.#stagedView(), armed: Boolean(armed),
           pickTarget: this.#pickTarget, pickPlaces: this.#pickTarget === "places", pickAreas: this.#pickTarget === "areas",
           canClear: entry.slot.state !== "gap" && entry.slot.state !== "offmap",
+          isArea: entry.slot.location?.tier === "region",
           canOffMap: entry.slot.target.kind === "scene",
           offMapOpen: this.#offMapOpen,
           reasons: OFF_MAP_REASONS.map((r) => ({ ...r, current: entry.slot.offMapReason === r.id }))
@@ -748,8 +852,30 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       isScene: s.isScene,
       note: s.note,
       linked: s.linked.map((l) => ({ key: l.key, label: l.label, checked: l.checked })),
-      anyLinked: s.linked.length > 0
+      anyLinked: s.linked.length > 0,
+      whatIf: s.whatIf ?? null
     };
+  }
+
+  /**
+   * Judge the staged placement (and the linked slots ticked with it) against the journeys: what each would become, drawn on the map and listed in the card.
+   * Nothing is written. Quiet when the journeys are not worked out yet: the card simply has no verdict until they are.
+   */
+  #judgeStaged() {
+    const s = this.#staged;
+    const overlay = canvas.locationDraw?.journey;
+    if (!s) {
+      overlay?.setPreview(null);
+      return;
+    }
+    const place = s.offMap ? { offMap: s.offMap } : s.viaRecord ? { viaRecord: s.viaRecord } : { locationId: s.locationId ?? null };
+    const changes = [{ target: s.target, ...place }, ...s.linked.filter((l) => l.checked).map((l) => ({ target: l.target, ...place }))];
+    const raw = this.#journeys.whatIfFor(changes);
+    s.whatIf = viewOfWhatIf(raw);
+    const result = this.#journeys.result;
+    const point = result && !s.offMap ? result.deps.pointOf({ locationId: s.locationId ?? null, viaRecord: s.viaRecord ?? null }) : null;
+    if (overlay && raw && point) overlay.setPreview({ point, legs: raw.legs.map((l) => ({ runs: l.after.runs, worst: l.after.errors ? "error" : l.after.warns ? "warn" : null })) });
+    else overlay?.setPreview(null);
   }
 
   #editEntry() {
@@ -807,10 +933,21 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
     this.#scrollToEditor = true;
     this.#tab = "story";
     this.#search = "";
+    this.#judgeStaged();
   }
 
-  static #onSetTab(event, target) {
-    this.#tab = target.dataset.tab === "map" ? "map" : "story";
+  static async #onSetTab(event, target) {
+    const wanted = target.dataset.tab;
+    this.#tab = ["story", "journeys", "places", "map"].includes(wanted) ? wanted : "story";
+    if (this.#tab !== "map" && !this.#storyInputs && !this.#storyLoading) await this.#loadStory();
+    this.#journeys.tabChanged();
+    this.render();
+    if (this.#tab === "journeys") this.#journeys.fitGroup();
+  }
+
+  static #onToggleRoutes(event, target) {
+    this.#showRoutes = Boolean(target.checked);
+    this.#persistStoryUi();
     this.render();
   }
 
@@ -969,12 +1106,14 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
   static #onToggleLinked(event, target) {
     const link = this.#staged?.linked.find((l) => l.key === target.dataset.key);
     if (link) link.checked = Boolean(target.checked);
+    this.#judgeStaged();
     this.render();
   }
 
   static #onCancelStage() {
     this.#staged = null;
     canvas.locationDraw?.clearFocus?.();
+    canvas.locationDraw?.journey?.setPreview(null);
     this.render();
   }
 
@@ -996,7 +1135,166 @@ export class LocationEditorApplication extends HandlebarsApplicationMixin(Applic
       ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Story.Saved", { count: writes.length }));
       this.#staged = null;
       this.#editing = null;
+      canvas.locationDraw?.journey?.setPreview(null);
     });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Journeys, Places and the quick pin (design/location-editor.md section 16) */
+  /* ------------------------------------------------------------------ */
+
+  static async #onRecheckJourneys() {
+    resetStoryCache();
+    resetJourneyAnalysis();
+    await this.#loadStory({ refresh: true });
+    await this.#journeys.recheck();
+  }
+
+  static #onPlayGroup(event, target) {
+    return this.#journeys.playGroup(target.dataset.main === "true");
+  }
+
+  static #onToggleShowAll(event, target) {
+    this.#journeys.toggleShowAll(target.checked);
+  }
+
+  static #onToggleNotes(event, target) {
+    this.#journeys.toggleNotes(target.checked);
+  }
+
+  static #onToggleOnlyProblems(event, target) {
+    this.#journeys.toggleOnlyProblems(target.checked);
+  }
+
+  static #onFitGroup() {
+    if (!this.#journeys.fitGroup()) ui.notifications.info(L("BLANKINHERITANCE.LocationEditor.Journeys.NothingToShow"));
+  }
+
+  static #onClearFocus() {
+    this.#journeys.clearFocus();
+  }
+
+  static #onCopyJourneyReport() {
+    return this.#journeys.copyReport();
+  }
+
+  static #onShowLeg(event, target) {
+    return this.#journeys.showLeg(target.dataset.leg);
+  }
+
+  static #onPlayLeg(event, target) {
+    return this.#journeys.playLeg(target.dataset.leg);
+  }
+
+  static #onPlayStep(event, target) {
+    return this.#journeys.playStep(target.dataset.leg);
+  }
+
+  static #onShowIssue(event, target) {
+    return this.#journeys.showIssue(Number(target.dataset.index));
+  }
+
+  static #onNextIssue(event, target) {
+    return this.#journeys.nextIssue(Number(target.dataset.dir) < 0 ? -1 : 1);
+  }
+
+  static #onOpenSlot(event, target) {
+    this.#openSlotEditor(target.dataset.slotKey);
+  }
+
+  static #onTogglePlay() {
+    this.#journeys.togglePlay();
+  }
+
+  static #onStopPlay() {
+    this.#journeys.stopPlay();
+  }
+
+  static #onSkipStep(event, target) {
+    this.#journeys.skip(Number(target.dataset.dir) < 0 ? -1 : 1);
+  }
+
+  static #onSetSpeed(event, target) {
+    this.#journeys.setSpeed(Number(target.dataset.speed));
+  }
+
+  static #onToggleFollow() {
+    this.#journeys.toggleFollow();
+  }
+
+  static #onTogglePlacesShared(event, target) {
+    this.#places.setShared(target.checked);
+  }
+
+  static #onOpenPlace(event, target) {
+    this.#places.toggleOpen(target.dataset.key);
+  }
+
+  static #onShowPlace(event, target) {
+    return this.#places.show(target.dataset.key);
+  }
+
+  static #onStartBulk(event, target) {
+    this.#places.startBulk(target.dataset.key);
+  }
+
+  static #onToggleBulkSlot(event, target) {
+    this.#places.toggleSlot(target.dataset.slotKey);
+  }
+
+  static #onSetBulkTarget(event, target) {
+    this.#places.setTarget(target.dataset.target);
+  }
+
+  static #onBulkPickOnMap() {
+    return this.#places.pickOnMap();
+  }
+
+  static #onBulkStagePick(event, target) {
+    this.#places.stagePick({ locationId: target.dataset.locationId || null, recordId: target.dataset.recordId || null, name: target.dataset.name ?? "", tier: target.dataset.tier || null });
+  }
+
+  static #onBulkClearChoice() {
+    this.#places.clearChoice();
+  }
+
+  static #onBulkPin() {
+    return this.#places.pinForAll();
+  }
+
+  static #onConfirmBulk() {
+    return this.#places.confirm();
+  }
+
+  static #onCancelBulk() {
+    this.#places.cancelBulk();
+  }
+
+  /** "Pin on the map" for the slot being edited: one card, click the map, Place. */
+  static #onQuickPin() {
+    const entry = this.#editEntry();
+    if (!entry) return;
+    const { slot, row } = entry;
+    return this.#pin.start({
+      slots: [{ key: slot.key, target: slot.target, label: `${row.title} · ${slot.label}`, slotLabel: slot.label, rowTitle: row.title, before: slot.locationId, beforeVia: slot.location?.pending ? slot.viaRecord : null, isScene: slot.target.kind === "scene" }],
+      title: `${row.title} · ${slot.label}`
+    });
+  }
+
+  static #onTogglePinSnap(event, target) {
+    this.#pin.toggleSnap(target.checked);
+  }
+
+  static #onMovePin() {
+    this.#pin.move();
+  }
+
+  static #onConfirmPin() {
+    return this.#pin.confirm();
+  }
+
+  static #onCancelPin() {
+    this.#pin.cancel();
   }
 
   /**

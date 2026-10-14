@@ -75,7 +75,11 @@
             "heavy": { "type": "integer", "minimum": 0, "maximum": 4 }
           }
         },
-        "description": { "type": "string", "description": "Real Player Core flavor text, HTML-stripped, @UUID inline-links resolved to their label text." }
+        "description": { "type": "string", "description": "Real Player Core flavor text, HTML-stripped, @UUID inline-links resolved to their label text." },
+        "choices": {
+          "$ref": "common/induction-choices.schema.json#/$defs/ruleChoices",
+          "description": "The genuine choices this class's rules ask (Envoy: trained in Deception, Diplomacy or Intimidation), which the terminal asks on Page 4 and writes into the Item before it is embedded. Written by tools/character-builder/extract-rule-choices.mjs from the real pack; the file is hand-formatted, so for it that tool prints the field to add rather than rewriting the file."
+        }
       }
     }
   }

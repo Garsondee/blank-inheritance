@@ -2,7 +2,7 @@
   "$schema": "../schema/background-catalogue.schema.json",
   "id": "background-catalogue",
   "type": "background-catalogue",
-  "description": "The real, complete SF2E background catalogue (154 entries), extracted live from gamesystems/sf2e/packs/backgrounds for the induction terminal Page 3 (design/induction-terminal.md). Skill/Lore/feat grants are informational only -- some real backgrounds offer a prose CHOICE (e.g. Starship Dweller: trained in the Crafting or Piloting skill) that this flat shape cannot represent; the description text is always the source of truth, never overridden by the terminal.",
+  "description": "The real, complete SF2E background catalogue (154 entries), extracted live from gamesystems/sf2e/packs/backgrounds for the induction terminal Page 3 (design/induction-terminal.md). Skill/Lore/feat grants are informational only. A background whose rules ask a CHOICE (e.g. Starship Dweller: trained in the Crafting or Piloting skill) carries it as `choices`, which the terminal asks on Page 3 and writes into the Item before it is embedded (tools/character-builder/extract-rule-choices.mjs keeps it in step with the packs); the description text is always the source of truth for wording, never overridden by the terminal.",
   "backgrounds": [
     {
       "id": "absalom-local",
@@ -106,7 +106,23 @@
         "Legal Lore"
       ],
       "feat": null,
-      "description": "You love being a member of the Starfinder Society, and deeply cherish the bonds you've formed with your fellow Starfinders. Inspired by these bonds, your moral compass, a sense of justice, or perhaps fellow Starfinder Zigvigix's public effort, you advocate for the betterment of all Starfinders. Sometimes this means lobbying to improve work conditions and support systems, sometimes this means volunteering your time to causes and services you believe make a positive impact, and sometimes this means healing wounds, assisting with recovery, or offering a compassionate shoulder to lean on to a Starfinder in need. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in your choice of either the Diplomacy or the Medicine skill, and the Legal Lore skill. If you choose Diplomacy, you gain the No Cause for Alarm skill feat. If you choose Medicine, you gain the Battle Medicine skill feat."
+      "description": "You love being a member of the Starfinder Society, and deeply cherish the bonds you've formed with your fellow Starfinders. Inspired by these bonds, your moral compass, a sense of justice, or perhaps fellow Starfinder Zigvigix's public effort, you advocate for the betterment of all Starfinders. Sometimes this means lobbying to improve work conditions and support systems, sometimes this means volunteering your time to causes and services you believe make a positive impact, and sometimes this means healing wounds, assisting with recovery, or offering a compassionate shoulder to lean on to a Starfinder in need. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in your choice of either the Diplomacy or the Medicine skill, and the Legal Lore skill. If you choose Diplomacy, you gain the No Cause for Alarm skill feat. If you choose Medicine, you gain the Battle Medicine skill feat.",
+      "choices": [
+        {
+          "flag": "advocate",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "diplomacy",
+              "label": "Diplomacy"
+            },
+            {
+              "key": "medicine",
+              "label": "Medicine"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "akashic-recorder",
@@ -210,7 +226,31 @@
         "Eox Lore"
       ],
       "feat": null,
-      "description": "You're an ancient resident of Eox. You might have survived in magitech stasis deep inside a ruined necropolis, or you might serve as the trusted, longtime attendant of an undying bone sage. You likely view modern life in the Pact Worlds with a mixture of amusement and contempt. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. Choose a magic tradition. You're trained in that tradition's associated skill and the Eox Lore skill. Choose one 2nd-rank or lower spell from that tradition. You can cast this spell once per day as an innate spell."
+      "description": "You're an ancient resident of Eox. You might have survived in magitech stasis deep inside a ruined necropolis, or you might serve as the trusted, longtime attendant of an undying bone sage. You likely view modern life in the Pact Worlds with a mixture of amusement and contempt. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. Choose a magic tradition. You're trained in that tradition's associated skill and the Eox Lore skill. Choose one 2nd-rank or lower spell from that tradition. You can cast this spell once per day as an innate spell.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "arcana",
+              "label": "Arcana"
+            },
+            {
+              "key": "nature",
+              "label": "Nature"
+            },
+            {
+              "key": "occultism",
+              "label": "Occultism"
+            },
+            {
+              "key": "religion",
+              "label": "Religion"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "anomaly-hunter",
@@ -1808,7 +1848,23 @@
         "Warfare Lore"
       ],
       "feat": "Assurance",
-      "description": "You've forged yourself to join the ranks of the Hellknights, and completing this mission to the letter of the contract is your duty, thrice sworn and infernally sealed. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in either the Athletics or Religion skill and the Warfare Lore skill. You gain the Assurance general feat for a skill of your choice."
+      "description": "You've forged yourself to join the ranks of the Hellknights, and completing this mission to the letter of the contract is your duty, thrice sworn and infernally sealed. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in either the Athletics or Religion skill and the Warfare Lore skill. You gain the Assurance general feat for a skill of your choice.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "athletics",
+              "label": "Athletics"
+            },
+            {
+              "key": "religion",
+              "label": "Religion"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "hero-in-the-making",
@@ -1883,7 +1939,87 @@
       "trainedSkills": [],
       "loreSkills": [],
       "feat": "Experienced Professional",
-      "description": "You've learned how to thrive in the gig economy of a dystopian world like Akiton, Apostae, or Verces. You might be an office worker moonlighting as a dive bar entertainer, a cyber café owner running a side business as a bounty hunter, or a courier who isn't too scrupulous to take on a shady side job. You always follow the money. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in your choice of skill and a Lore skill relevant to your profession. You gain the Experienced Professional skill feat."
+      "description": "You've learned how to thrive in the gig economy of a dystopian world like Akiton, Apostae, or Verces. You might be an office worker moonlighting as a dive bar entertainer, a cyber café owner running a side business as a bounty hunter, or a courier who isn't too scrupulous to take on a shady side job. You always follow the money. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in your choice of skill and a Lore skill relevant to your profession. You gain the Experienced Professional skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "acrobatics",
+              "label": "Acrobatics"
+            },
+            {
+              "key": "arcana",
+              "label": "Arcana"
+            },
+            {
+              "key": "athletics",
+              "label": "Athletics"
+            },
+            {
+              "key": "computers",
+              "label": "Computers"
+            },
+            {
+              "key": "crafting",
+              "label": "Crafting"
+            },
+            {
+              "key": "deception",
+              "label": "Deception"
+            },
+            {
+              "key": "diplomacy",
+              "label": "Diplomacy"
+            },
+            {
+              "key": "intimidation",
+              "label": "Intimidation"
+            },
+            {
+              "key": "medicine",
+              "label": "Medicine"
+            },
+            {
+              "key": "nature",
+              "label": "Nature"
+            },
+            {
+              "key": "occultism",
+              "label": "Occultism"
+            },
+            {
+              "key": "performance",
+              "label": "Performance"
+            },
+            {
+              "key": "piloting",
+              "label": "Piloting"
+            },
+            {
+              "key": "religion",
+              "label": "Religion"
+            },
+            {
+              "key": "society",
+              "label": "Society"
+            },
+            {
+              "key": "stealth",
+              "label": "Stealth"
+            },
+            {
+              "key": "survival",
+              "label": "Survival"
+            },
+            {
+              "key": "thievery",
+              "label": "Thievery"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "icon",
@@ -2122,7 +2258,31 @@
         "Academia Lore"
       ],
       "feat": "Quick Identification",
-      "description": "You study magic at the Arcanamirium on Absalom Station, one of Dykon's or Pabaq's universities, or somewhere else. You might be a novice still learning the basics of magic while enjoying university life or an opinionated professor researching a niche subject. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in your choice of the Arcana, Nature, Occultism, or Religion skill, based on your primary field of study, and the Academia Lore skill. You gain the Quick Identification skill feat."
+      "description": "You study magic at the Arcanamirium on Absalom Station, one of Dykon's or Pabaq's universities, or somewhere else. You might be a novice still learning the basics of magic while enjoying university life or an opinionated professor researching a niche subject. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in your choice of the Arcana, Nature, Occultism, or Religion skill, based on your primary field of study, and the Academia Lore skill. You gain the Quick Identification skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "arcana",
+              "label": "Arcana"
+            },
+            {
+              "key": "nature",
+              "label": "Nature"
+            },
+            {
+              "key": "occultism",
+              "label": "Occultism"
+            },
+            {
+              "key": "religion",
+              "label": "Religion"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "magitech-specialist",
@@ -2147,7 +2307,23 @@
         "Magitech Lore"
       ],
       "feat": "Quick Identification",
-      "description": "First Ones sites are known to integrate magitech: a combination of advanced technology and magic, working in synergy to create something utterly unique. You've studied modern magitech as well as the strange magical anomalies and warped realities that surround First Ones sites. You're certain your studies will serve you well in the Wreck of the Returned. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained your choice of either the Arcana or Occultism skill, as well as the Magitech Lore skill. You gain the Quick Identification skill feat."
+      "description": "First Ones sites are known to integrate magitech: a combination of advanced technology and magic, working in synergy to create something utterly unique. You've studied modern magitech as well as the strange magical anomalies and warped realities that surround First Ones sites. You're certain your studies will serve you well in the Wreck of the Returned. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained your choice of either the Arcana or Occultism skill, as well as the Magitech Lore skill. You gain the Quick Identification skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "arcana",
+              "label": "Arcana"
+            },
+            {
+              "key": "occultism",
+              "label": "Occultism"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "manifold-recruiter",
@@ -2677,7 +2853,23 @@
         "Robot Lore skill"
       ],
       "feat": null,
-      "description": "You recognize the dreaded illumantula from databases the Starfinder Society discovered in Eternity and know without a doubt the danger it—and the First Ones—pose to the Pact Worlds. While you know you can't defeat such a formidable creation yourself (and you hope you'll never have to try!), you've trained to combat robots and other technological creatures the First Ones are known to have created. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in your choice of either the Computers or Crafting skill, as well as the Robot Lore skill. You gain a skill feat: Phreaker if you chose Computers or Quick Repair if you chose Crafting."
+      "description": "You recognize the dreaded illumantula from databases the Starfinder Society discovered in Eternity and know without a doubt the danger it—and the First Ones—pose to the Pact Worlds. While you know you can't defeat such a formidable creation yourself (and you hope you'll never have to try!), you've trained to combat robots and other technological creatures the First Ones are known to have created. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in your choice of either the Computers or Crafting skill, as well as the Robot Lore skill. You gain a skill feat: Phreaker if you chose Computers or Quick Repair if you chose Crafting.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "computers",
+              "label": "Computers"
+            },
+            {
+              "key": "crafting",
+              "label": "Crafting"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "runetouched",
@@ -2804,7 +2996,23 @@
         "Piracy Lore"
       ],
       "feat": "Intimidating Shot",
-      "description": "You might be a scoundrel with a heart of gold, or a pirate who's learned to play nice for a paycheck—either way, your crew's set their sights on a new prize: the mysterious asteroid the sensors detected in the Diaspora. Choose two attribute boosts. One must be Dexterity or Charisma, and one is a free attribute boost. You're trained in either the Diplomacy or Intimidation skill and the Piracy Lore skill. You gain the Intimidating Shot skill feat."
+      "description": "You might be a scoundrel with a heart of gold, or a pirate who's learned to play nice for a paycheck—either way, your crew's set their sights on a new prize: the mysterious asteroid the sensors detected in the Diaspora. Choose two attribute boosts. One must be Dexterity or Charisma, and one is a free attribute boost. You're trained in either the Diplomacy or Intimidation skill and the Piracy Lore skill. You gain the Intimidating Shot skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "diplomacy",
+              "label": "Diplomacy"
+            },
+            {
+              "key": "intimidation",
+              "label": "Intimidation"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "scaletouched",
@@ -2856,7 +3064,31 @@
       ],
       "loreSkills": [],
       "feat": "Trick Magic Item",
-      "description": "You can't cast spells but mimic spellwork well enough to convince others you have magical powers. You've pretended to be a magical adept for so long you've learned to fool magic items into working at your touch. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Deception skill and a magic tradition skill of your choice (Arcana, Nature, Occultism, or Religion). You gain the Trick Magic Item skill feat."
+      "description": "You can't cast spells but mimic spellwork well enough to convince others you have magical powers. You've pretended to be a magical adept for so long you've learned to fool magic items into working at your touch. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Deception skill and a magic tradition skill of your choice (Arcana, Nature, Occultism, or Religion). You gain the Trick Magic Item skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "arcana",
+              "label": "Arcana"
+            },
+            {
+              "key": "nature",
+              "label": "Nature"
+            },
+            {
+              "key": "occultism",
+              "label": "Occultism"
+            },
+            {
+              "key": "religion",
+              "label": "Religion"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "scientist",
@@ -3114,7 +3346,23 @@
       "trainedSkills": [],
       "loreSkills": [],
       "feat": "Multilingual",
-      "description": "As a Starfinder, your motto is explore, report, cooperate! Your goal is to discover and explore new places in distant space, uncover secrets of lost civilizations, and learn more about the galaxy around you by getting out there and adventuring. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in either the Piloting or Society skill and a Lore skill of your choice. You gain the Multilingual skill feat."
+      "description": "As a Starfinder, your motto is explore, report, cooperate! Your goal is to discover and explore new places in distant space, uncover secrets of lost civilizations, and learn more about the galaxy around you by getting out there and adventuring. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in either the Piloting or Society skill and a Lore skill of your choice. You gain the Multilingual skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "piloting",
+              "label": "Piloting"
+            },
+            {
+              "key": "society",
+              "label": "Society"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "space-pirate",
@@ -3275,7 +3523,23 @@
         "Starfinder Society Lore"
       ],
       "feat": null,
-      "description": "You're a Starfinder megafan turned new recruit who's training at the Lorespire Complex and you're working hard to prepare for your final exam, the Commencement! You grew up watching Starfinder vidshows and playing Starfinder vidgames, you're a faithful subscriber to the Starfinder Chronicles podcast, and you obsessively follow news of the Society's exploits. You consider Starfinders celebrities and hope to meet all your favorites! Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in your choice of either the Acrobatics or the Athletics skill, and the Starfinder Society Lore skill. If you choose Acrobatics, you gain the Steady Balance skill feat. If you choose Athletics, you gain the Combat Climber skill feat."
+      "description": "You're a Starfinder megafan turned new recruit who's training at the Lorespire Complex and you're working hard to prepare for your final exam, the Commencement! You grew up watching Starfinder vidshows and playing Starfinder vidgames, you're a faithful subscriber to the Starfinder Chronicles podcast, and you obsessively follow news of the Society's exploits. You consider Starfinders celebrities and hope to meet all your favorites! Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in your choice of either the Acrobatics or the Athletics skill, and the Starfinder Society Lore skill. If you choose Acrobatics, you gain the Steady Balance skill feat. If you choose Athletics, you gain the Combat Climber skill feat.",
+      "choices": [
+        {
+          "flag": "starfinderHopeful",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "acrobatics",
+              "label": "Acrobatics"
+            },
+            {
+              "key": "athletics",
+              "label": "Athletics"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "starfinder-snoop",
@@ -3353,7 +3617,23 @@
       "trainedSkills": [],
       "loreSkills": [],
       "feat": null,
-      "description": "You grew up on the Idari or another starship and are accustomed to the artificial cycles, tight spaces, and maintenance shifts that have defined your lifestyle. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Crafting or Piloting skill and the Idari Lore skill. If you aren't from the Idari, choose another Lore skill relevant to the ship you lived on or Drift Lore. You are never clumsy or Off-Guard while Untethered."
+      "description": "You grew up on the Idari or another starship and are accustomed to the artificial cycles, tight spaces, and maintenance shifts that have defined your lifestyle. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Crafting or Piloting skill and the Idari Lore skill. If you aren't from the Idari, choose another Lore skill relevant to the ship you lived on or Drift Lore. You are never clumsy or Off-Guard while Untethered.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "crafting",
+              "label": "Crafting"
+            },
+            {
+              "key": "piloting",
+              "label": "Piloting"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "stowaway",
@@ -3536,7 +3816,23 @@
         "Academia Lore"
       ],
       "feat": "Experienced Professional",
-      "description": "You are incredibly knowledgeable, skilled, and perhaps even trained to teach children and adults about the world and its wonders. From books to classes, you're committed to imparting knowledge to all. Not everything can be taught or learned from a book, though, so you've become an adventurer to learn subjects more directly and bring that wisdom back to your students. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in your choice of either the Performance or Society skill, as well as the Academia Lore skill. You gain the Experienced Professional skill feat."
+      "description": "You are incredibly knowledgeable, skilled, and perhaps even trained to teach children and adults about the world and its wonders. From books to classes, you're committed to imparting knowledge to all. Not everything can be taught or learned from a book, though, so you've become an adventurer to learn subjects more directly and bring that wisdom back to your students. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in your choice of either the Performance or Society skill, as well as the Academia Lore skill. You gain the Experienced Professional skill feat.",
+      "choices": [
+        {
+          "flag": "skill",
+          "kind": "skill",
+          "options": [
+            {
+              "key": "performance",
+              "label": "Performance"
+            },
+            {
+              "key": "society",
+              "label": "Society"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "tech-delver",

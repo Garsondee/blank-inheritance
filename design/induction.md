@@ -257,7 +257,7 @@ lint could flag any scene declaring fewer than two.
 
 *(Updated 2026-09-25: this section describes the Watcher's early stages, before it learns. Since LEDGER #31 it is
 the campaign's adversary and it changes over the campaign; the current treatment, with all four stages and its later
-voice, is `ideas/story/dossier-observer.md`.)*
+voice, is `quarantine/ideas/story/dossier-observer.md`.)*
 
 Ingram, 2026-09-09: *"it's a strange and curious mix of godlike and childlike intelligence."*
 
@@ -269,7 +269,7 @@ Enormous capability, no framework to hang it on. That is why it can be sympathet
 in the same sentence.
 
 **Three rules when writing it:**
-- **Never malice.** It is never evil; it is an objective pursued without limit (`ideas/story/dossier-observer.md` §6).
+- **Never malice.** It is never evil; it is an objective pursued without limit (`quarantine/ideas/story/dossier-observer.md` §6).
 - **Scale in the perception, innocence in the conclusion.** It knows an impossible amount and draws
   a child's inference from it.
 - **It has Manako's personality, not its own.** Read its behaviour backwards and it is a portrait of
@@ -277,6 +277,6 @@ in the same sentence.
 
 ---
 
-*Related: `ideas/story/blank-inheritance-v4.md` §1 (the thesis and the image), §3 (the Frames and
-the cavity), §20 (the intake quiz); `ideas/story/blank-inheritance-ch1-v2.md` (Chapter One and
+*Related: `quarantine/ideas/story/blank-inheritance-v4.md` §1 (the thesis and the image), §3 (the Frames and
+the cavity), §20 (the intake quiz); `quarantine/ideas/story/blank-inheritance-ch1-v2.md` (Chapter One and
 Episode One); `design/strategy-layer.md` (Clearance and the Board); `ideas/entries/character-creation-intake-form.json`.*

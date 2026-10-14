@@ -108,20 +108,12 @@
             {{#each brief.coercible}}
             <li class="bi-runner__topic">
                 <b>{{topic}}</b>{{#if how}} — <i>{{how}}</i>{{/if}}
-                {{!-- One-click DC-plus-degree-of-success recording per subject
-                      (design/ux-doctrine.md §10.7's Cast drawer). Only a topic
-                      authored with a challengeRef gets these -- #decorateCoercibleTopic
-                      in scene-runner.mjs leaves everything else exactly as before. --}}
+                {{!-- A topic authored with a challengeRef carries its check's
+                      pill (core/check-pill.mjs, 2026-10-05): one press opens the
+                      check console on it, where the DC, the ways, each player's
+                      gem and what each degree means live. --}}
                 {{#if check}}
-                <div class="bi-runner__topic-check">
-                    <button type="button" class="bi-runner__stamp" data-action="postTopicCheck"
-                        data-cast-id="{{../id}}" data-topic-index="{{@index}}" title="{{check.title}}"><i class="fa-solid fa-dice-d20"></i> {{check.label}}</button>
-                    {{#each outcomes}}
-                    <button type="button" class="bi-runner__stamp{{#if isPicked}} bi-runner__stamp--picked{{/if}}"
-                        data-action="recordTopicOutcome" data-cast-id="{{../../id}}" data-topic-index="{{@../index}}" data-degree="{{degree}}"
-                        {{#if consequence}}data-tooltip="{{consequence}}"{{/if}}>{{label}}</button>
-                    {{/each}}
-                </div>
+                <div class="bi-runner__topic-check">{{{check.pill}}}</div>
                 {{/if}}
             </li>
             {{/each}}

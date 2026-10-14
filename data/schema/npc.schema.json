@@ -18,7 +18,16 @@
       "description": "This NPC's ancestry, matching a `name` in data/campaign/ancestry-catalogue.json (51 entries). Added 2026-09-20: ancestry is load-bearing in this setting rather than decoration — the founders include a gnoll, the intake doctor is a literal skeleton, and 'make them non-human' has been a real casting instruction. Null or omitted means human or not yet decided; do not assume human from absence. Note that the catalogue mixes Golarion-native ancestries (Dwarf, Elf, Gnome, Goblin, Halfling, Orc, Leshy, Nuar) with genuinely alien ones (Shirren, Vesk, Ysoki, Barathu and the rest) — the distinction matters when casting, since 'non-human' and 'alien' are not the same ask here."
     },
     "affiliation": { "type": ["string", "null"], "description": "Faction id ref." },
-    "description": { "type": "string" },
+    "canon": {
+      "type": ["string", "null"],
+      "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)?$",
+      "description": "The canon entity this person is (D080, 2026-10-07): the id of a file in canon/world/ (\"manako\" is canon/world/manako.md), or entity.slug for one person inside a group file that holds many (\"night-regulars.kiku\" is the facts of canon/world/night-regulars.md whose slug is kiku, or starts \"kiku-\"). null means there is no canon entity for them. What the person's Actor sheet says is generated from it: the settled facts, the open decisions flagged, a count of the pencil (tools/story/actor-notes.mjs, data/campaign/actor-notes.json). Required in every file by test/story/actor-notes.test.mjs, so a person is never left out by omission."
+    },
+    "description": {
+      "type": "string",
+      "deprecated": true,
+      "description": "RETIRED 2026-10-07 (D080): an NPC file no longer carries story prose. The old text of all 86 files is kept, untouched, in quarantine/data/npc-descriptions.json; the story it told lives in canon/world/, and the Actor sheet's text is generated from canon (see `canon`). Nothing reads this field any more and test/story/actor-notes.test.mjs fails if a file has it."
+    },
     "designNotes": { "type": "string" },
     "namingPlaceholderRef": { "type": ["string", "null"] },
     "openQuestionRefs": { "type": "array", "items": { "type": "string" } },

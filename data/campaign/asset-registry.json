@@ -2,7 +2,7 @@
   "$schema": "../schema/asset-registry.schema.json",
   "id": "asset-registry",
   "type": "asset-registry",
-  "description": "Source of truth for which artwork has been confirmed and assigned. artwork/ itself is gitignored (bulk, large); this file is tracked, so it's the only durable record that an assignment happened. Check this before assigning anything new -- the same picture must never get used for two things. A `kind: \"npc\"` entry's `ref` is the character's canonical id (matching its ideas/story/bible/characters/<id>.md filename stem where one exists) -- it will NOT resolve against data/npcs/*.json for any character that hasn't been promoted to a real NPC file yet (Shucks Mordant, Hyuck, Rupiah and Anabala all currently have none). That's expected, not a bug: the portrait exists and is assigned before the data file does. Scene-brief cast ids are kept aligned to this same canonical id where practical (episode-c1e1--intake-medicals.json's Shucks cast entry was renamed shucks -> shucks-mordant 2026-09-09 for exactly this reason).",
+  "description": "Source of truth for which artwork has been confirmed and assigned. artwork/ itself is gitignored (bulk, large); this file is tracked, so it's the only durable record that an assignment happened. Check this before assigning anything new -- the same picture must never get used for two things. A `kind: \"npc\"` entry's `ref` is the character's canonical id (matching its quarantine/ideas/story/bible/characters/<id>.md filename stem where one exists) -- it will NOT resolve against data/npcs/*.json for any character that hasn't been promoted to a real NPC file yet (Shucks Mordant, Hyuck, Rupiah and Anabala all currently have none). That's expected, not a bug: the portrait exists and is assigned before the data file does. Scene-brief cast ids are kept aligned to this same canonical id where practical (episode-c1e1--intake-medicals.json's Shucks cast entry was renamed shucks -> shucks-mordant 2026-09-09 for exactly this reason).",
   "assets": [
     {
       "id": "episode-c1e1--from-up-here",
@@ -275,7 +275,7 @@
       },
       "assignedDate": "2026-09-17",
       "sourceFilename": "tea-house-exterior.png",
-      "note": "A wooden shopfront under a huge tree, flowers in pots down the steps, deep summer light. The hero image for The Errand -- the quarter around The General Store, and the Tea House a few doors down. (The Errand's first stop is now an instrument makers' workshop, and both it and the tea house await siting: LEDGER #45, #46.)"
+      "note": "A wooden shopfront under a huge tree, flowers in pots down the steps, deep summer light. The hero image for The Errand -- the quarter around The General Store, and the Tea House a few doors down. (The Errand's first stop is now an instrument makers' workshop, Workshop Supplies Company, and the tea house is Manako's, a couple of streets away: both sited on The Slope 2026-10-07, D067.)"
     },
     {
       "id": "episode-c1e1--the-errand--tea-house",

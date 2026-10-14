@@ -52,7 +52,7 @@
  * that mixin's _replaceHTML/_configureRenderParts for why.
  */
 
-import { fetchModuleJson, fetchModuleText, writeStorageFile } from "./io.mjs";
+import { fetchModuleJson, fetchModuleText } from "./io.mjs";
 import { loadAgreement, mountAgreementView, effectiveZoom } from "./induction-agreement-view.mjs";
 import { stepOrder, trackerSteps, canJumpTo, laterStep, remainingPicks } from "../core/induction-flow.mjs";
 import { draftKey, hasProgress, serializeDraft, restoreDraft, resumeStep } from "../core/induction-draft.mjs";
@@ -76,6 +76,8 @@ import {
   filterBackgrounds
 } from "../core/induction-background.mjs";
 import { isClassChoiceComplete, resolveClassIngredients } from "../core/induction-class.mjs";
+import { applyRuleChoices, decorateRuleChoices, pickedChoiceLabels, remainingChoices } from "../core/induction-rule-choices.mjs";
+import { FALLBACK_SKILL_SLUGS } from "../core/skills.mjs";
 import { FREE_BOOST_SLOTS, isFreeBoostsComplete, resolveFreeBoosts, toggleFreeBoost, abilityTally } from "../core/induction-attributes.mjs";
 import { isReviewComplete, stripGrantItemRules } from "../core/induction-review.mjs";
 import {
@@ -88,7 +90,8 @@ import {
 } from "../core/induction-intake.mjs";
 import { buildBioUpdate } from "../core/induction-bio.mjs";
 import { getPath, setPath } from "../core/state-path.mjs";
-import { requestActorCreation, requestActorDeletion } from "./induction-relay.mjs";
+import { requestActorCreation, requestActorDeletion, requestPortraitUpload } from "./induction-relay.mjs";
+import { claimKeyboardFor } from "./keyboard-focus.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -144,6 +147,8 @@ const sizeLabel = (key) => game.i18n.localize(SIZE_KEYS[key] ?? key);
 const rankLabel = (rank) => game.i18n.localize(RANK_KEYS[rank] ?? RANK_KEYS[0]);
 /** Reuses sf2e's own PF2E.Skill.<Name> keys (ux-doctrine.md §11) -- verified against gamesystems/sf2e/lang/en.json's real nested shape, see #page3Context's own history with this. */
 const skillLabel = (slug) => game.i18n.localize(`PF2E.Skill.${slug.charAt(0).toUpperCase()}${slug.slice(1)}`);
+/** A background's or class's own question (core/induction-rule-choices.mjs): a skill's name is localized, any other option shows the catalogue's own label. */
+const choiceLabel = (key, label) => (FALLBACK_SKILL_SLUGS.includes(key) ? skillLabel(key) : label);
 
 /**
  * Titlecase per word, not just the string's first letter -- ancestry
@@ -254,10 +259,12 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       continueFromAncestry: InductionTerminal.#onContinueFromAncestry,
       pickBackground: InductionTerminal.#onPickBackground,
       pickBackgroundBoost: InductionTerminal.#onPickBackgroundBoost,
+      pickBackgroundChoice: InductionTerminal.#onPickBackgroundChoice,
       continueFromBackground: InductionTerminal.#onContinueFromBackground,
       backFromBackground: InductionTerminal.#onBackFromBackground,
       pickClass: InductionTerminal.#onPickClass,
       pickClassKeyAbility: InductionTerminal.#onPickClassKeyAbility,
+      pickClassChoice: InductionTerminal.#onPickClassChoice,
       continueFromClass: InductionTerminal.#onContinueFromClass,
       backFromClass: InductionTerminal.#onBackFromClass,
       toggleFreeBoost: InductionTerminal.#onToggleFreeBoost,
@@ -452,8 +459,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       case 1: return true;
       case "agreement": return s.agreement.signed || !agreementPageEnabled();
       case 2: return isAncestryChoiceComplete(this._ancestries.find((a) => a.id === s.ancestry.id) ?? null, s.ancestry.boostPicks, s.ancestry.flawPicks);
-      case 3: return isBackgroundChoiceComplete(this._backgrounds.find((b) => b.id === s.background.id) ?? null, s.background.boostPicks);
-      case 4: return isClassChoiceComplete(this._classes.find((c) => c.id === s.class.id) ?? null, s.class.keyAbilityPicks);
+      case 3: return isBackgroundChoiceComplete(this._backgrounds.find((b) => b.id === s.background.id) ?? null, s.background.boostPicks, s.background.choices);
+      case 4: return isClassChoiceComplete(this._classes.find((c) => c.id === s.class.id) ?? null, s.class.keyAbilityPicks, s.class.choices);
       case 5: return isFreeBoostsComplete(s.attributes.freeBoostPicks);
       case 6: return !s.portrait.uploading;
       case 7: return isFinishingComplete(s.finishing);
@@ -560,13 +567,15 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       case 3: {
         const background = this._backgrounds.find((b) => b.id === s.background.id);
         if (!background) return say("PickBackground");
-        const left = remainingPicks(background.boosts, s.background.boostPicks);
+        const left = remainingPicks(background.boosts, s.background.boostPicks) + remainingChoices(background.choices, s.background.choices);
         return left ? say(left === 1 ? "OneMorePick" : "MorePicks", { count: left }) : null;
       }
       case 4: {
         const cls = this._classes.find((c) => c.id === s.class.id);
         if (!cls) return say("PickClass");
-        return remainingPicks([cls.keyAbility], s.class.keyAbilityPicks) ? say("PickKeyAbility") : null;
+        if (remainingPicks([cls.keyAbility], s.class.keyAbilityPicks)) return say("PickKeyAbility");
+        const choicesLeft = remainingChoices(cls.choices, s.class.choices);
+        return choicesLeft ? say(choicesLeft === 1 ? "OneMorePick" : "MorePicks", { count: choicesLeft }) : null;
       }
       case 5: {
         const left = remainingPicks(FREE_BOOST_SLOTS, s.attributes.freeBoostPicks);
@@ -748,7 +757,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       filterValue: this.state.background.filter,
       backgroundGroups: { common: common.map(toRow), uncommon: uncommon.map(toRow), rare: rare.map(toRow) },
       selected: background ? this.#decorateBackground(background) : null,
-      isComplete: isBackgroundChoiceComplete(background, this.state.background.boostPicks)
+      isComplete: isBackgroundChoiceComplete(background, this.state.background.boostPicks, this.state.background.choices)
     };
   }
 
@@ -797,6 +806,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       hasLoreSkills: (background.loreSkills ?? []).length > 0,
       hasNamedSkills: (background.trainedSkills ?? []).length > 0 || (background.loreSkills ?? []).length > 0,
       feat: background.feat,
+      hasChoices: (background.choices ?? []).length > 0,
+      choiceGroups: decorateRuleChoices(background.choices, this.state.background.choices, { labelOf: choiceLabel }),
       boostSlots
     };
   }
@@ -815,7 +826,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
         meta: game.i18n.format("BLANKINHERITANCE.Induction.Page4.CardMeta", { key: c.keyAbility.map(abilityLabel).join(" or "), hp: c.hp })
       })),
       selected: cls ? this.#decorateClass(cls) : null,
-      isComplete: isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)
+      isComplete: isClassChoiceComplete(cls, this.state.class.keyAbilityPicks, this.state.class.choices)
     };
   }
 
@@ -866,7 +877,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       additionalSkillsNote,
       attacksLabel: proficiencySummary(cls.attacks, ATTACK_CATEGORIES),
       defensesLabel: proficiencySummary(cls.defenses, DEFENSE_CATEGORIES),
-      keyAbilitySlot
+      keyAbilitySlot,
+      hasChoices: (cls.choices ?? []).length > 0,
+      choiceGroups: decorateRuleChoices(cls.choices, this.state.class.choices, { labelOf: choiceLabel })
     };
   }
 
@@ -1095,6 +1108,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       .filter((ability) => ability != null)
       .map((ability) => abilityLabel(ability));
 
+    // "trained in Piloting": what a background's or class's own question was answered with, as the review reads it.
+    const choicePhrases = (picked) => picked.map(({ kind, label }) => (kind === "skill" ? game.i18n.format("BLANKINHERITANCE.Induction.Page9.TrainedIn", { skill: label }) : label));
+
     const answerRows = (questions, answers) => questions
       .map((q) => ({ prompt: q.text ?? q.prompt, answer: getPath({ a: answers }, `a.${q.id}`) }))
       .filter((row) => row.answer);
@@ -1109,8 +1125,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       ancestryFlawLabels: ancestry ? resolvedLabels(ancestry.flaws, this.state.ancestry.flawPicks) : [],
       backgroundName: background?.name ?? null,
       backgroundBoostLabels: background ? resolvedLabels(background.boosts, this.state.background.boostPicks) : [],
+      backgroundChoiceLabels: background ? choicePhrases(pickedChoiceLabels(background.choices, this.state.background.choices, { labelOf: choiceLabel })) : [],
       className: cls?.name ?? null,
       classKeyAbilityLabel: cls ? resolvedLabels([cls.keyAbility], this.state.class.keyAbilityPicks)[0] : null,
+      classChoiceLabels: cls ? choicePhrases(pickedChoiceLabels(cls.choices, this.state.class.choices, { labelOf: choiceLabel })) : [],
       freeBoostLabels: resolvedLabels(FREE_BOOST_SLOTS, this.state.attributes.freeBoostPicks),
       name: this.state.finishing.name,
       pronouns: this.state.finishing.pronouns || null,
@@ -1170,6 +1188,12 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   /** @override */
   _onRender(context, options) {
     super._onRender?.(context, options);
+    // Foundry eats Tab and the arrow, +, - and Page keys for itself (Cycle View, the camera) unless the focused element says the keys are its own; the
+    // form's buttons and its crop area are not inside a <form>, so without this a player on the keyboard alone could not press Begin (foundry/keyboard-focus.mjs).
+    if (this._keyboardRoot !== this.element) {
+      this._keyboardRoot = this.element;
+      claimKeyboardFor(this.element);
+    }
     this.#arriveOnPage();
     this.#bindFilter();
     this.#bindPromptFields();
@@ -1651,6 +1675,33 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /**
+   * An answer to a question the chosen background asks (Starship Dweller: Crafting or Piloting). The terminal asks it here, and writes
+   * it into the Item before it is embedded, so Foundry opens no window of its own at Confirm (core/induction-rule-choices.mjs).
+   */
+  static async #onPickBackgroundChoice(_event, target) {
+    const background = this._backgrounds.find((b) => b.id === this.state.background.id);
+    this.#pickRuleChoice("background.choices", background?.choices ?? [], target);
+  }
+
+  /** The same for the class (Envoy: Deception, Diplomacy or Intimidation). */
+  static async #onPickClassChoice(_event, target) {
+    const cls = this._classes.find((c) => c.id === this.state.class.id);
+    this.#pickRuleChoice("class.choices", cls?.choices ?? [], target);
+  }
+
+  /**
+   * Records one answer. Refuses a key that is not one of that question's own options, as #pickFreeSlot does for a boost: the page
+   * never renders a button for one, so only a stale render or a forged target could send it.
+   */
+  #pickRuleChoice(picksPath, choices, target) {
+    const { flag, key } = target.dataset;
+    const choice = choices.find((c) => c.flag === flag);
+    if (!choice?.options.some((option) => option.key === key)) return;
+    getPath(this.state, picksPath)[flag] = key;
+    this.render({});
+  }
+
+  /**
    * Shared by every free-boost/flaw picker (ancestry's two, background's
    * one). `picksPath` is a dotted state path -- generalized 2026-09-10 when
    * background became a third consumer, replacing a two-array identity
@@ -1701,12 +1752,13 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this._resetDetailScroll = true;
     this.state.background.id = target.dataset.backgroundId;
     this.state.background.boostPicks = [];
+    this.state.background.choices = {};
     this.render({});
   }
 
   static async #onContinueFromBackground(_event, _target) {
     const background = this._backgrounds.find((b) => b.id === this.state.background.id);
-    if (!isBackgroundChoiceComplete(background, this.state.background.boostPicks)) return this.#pointAtMissing();
+    if (!isBackgroundChoiceComplete(background, this.state.background.boostPicks, this.state.background.choices)) return this.#pointAtMissing();
     this.state.page = 4;
     this.render({});
   }
@@ -1721,6 +1773,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this._resetDetailScroll = true;
     this.state.class.id = target.dataset.classId;
     this.state.class.keyAbilityPicks = [];
+    this.state.class.choices = {};
     this.render({});
   }
 
@@ -1731,7 +1784,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   static async #onContinueFromClass(_event, _target) {
     const cls = this._classes.find((c) => c.id === this.state.class.id);
-    if (!isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)) return this.#pointAtMissing();
+    if (!isClassChoiceComplete(cls, this.state.class.keyAbilityPicks, this.state.class.choices)) return this.#pointAtMissing();
     this.state.page = 5;
     this.render({});
   }
@@ -1831,7 +1884,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
     const { blob, mimeType, extension } = await this.#exportCanvasBlob(canvas);
     const filename = `portrait-${foundry.utils.randomID()}.${extension}`;
-    return writeStorageFile("", filename, blob, mimeType);
+    // A plain Player's own client may not upload (FILES_UPLOAD): the GM's client does, over the relay, like Page 9's Actor.create.
+    return requestPortraitUpload({ filename, blob, mimeType });
   }
 
   /** WebP first -- matches tools/stage-assets/stage_assets.py's own precedent (Foundry serves it natively, PIXI loads it as a texture with no special handling); a PNG fallback for a browser build that can't encode WebP. */
@@ -1983,8 +2037,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     // Throws (and creates nothing) if any prior page's choice doesn't
     // actually resolve cleanly -- see this method's own doc comment.
     resolveAncestryIngredients(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks);
-    resolveBackgroundIngredients(background, this.state.background.boostPicks);
-    resolveClassIngredients(cls, this.state.class.keyAbilityPicks);
+    resolveBackgroundIngredients(background, this.state.background.boostPicks, this.state.background.choices);
+    resolveClassIngredients(cls, this.state.class.keyAbilityPicks, this.state.class.choices);
     resolveFreeBoosts(this.state.attributes.freeBoostPicks);
 
     const slotSelections = (field, resolved) => Object.fromEntries(
@@ -2026,8 +2080,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     try {
       const [ancestrySrc, backgroundSrc, classSrc] = await Promise.all([
         this.#prepareAbcSource(ancestryUuid, ancestrySelections),
-        this.#prepareAbcSource(backgroundUuid, backgroundSelections),
-        this.#prepareAbcSource(classUuid, classSelections)
+        this.#prepareAbcSource(backgroundUuid, backgroundSelections, this.state.background.choices),
+        this.#prepareAbcSource(classUuid, classSelections, this.state.class.choices)
       ]);
       await actor.createEmbeddedDocuments("Item", [ancestrySrc, backgroundSrc, classSrc], { keepId: true, render: false });
 
@@ -2160,12 +2214,14 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
    * AttributeBuilder application writes to live (verified against
    * gamesystems/sf2e/sf2e.mjs directly, not guessed).
    */
-  async #prepareAbcSource(uuid, selections) {
+  async #prepareAbcSource(uuid, selections, choicePicks = {}) {
     const doc = await fromUuid(uuid);
     if (!doc) throw new Error(`Could not resolve compendium item "${uuid}".`);
     const source = doc.toObject();
     source.system.items = {};
-    source.system.rules = stripGrantItemRules(source.system.rules);
+    // The player's answer goes into each ChoiceSet before the Item is embedded, so Foundry has no question left to ask in a window of its
+    // own (core/induction-rule-choices.mjs). Before the grants are stripped: a question that only fed a grant is dropped along with it.
+    source.system.rules = stripGrantItemRules(applyRuleChoices(source.system.rules, choicePicks));
     for (const [path, value] of Object.entries(selections)) {
       foundry.utils.setProperty(source.system, path, value);
     }
@@ -2199,11 +2255,13 @@ function freshInductionState() {
     background: {
       id: null,
       filter: "",
-      boostPicks: [] // backgrounds have no flaws (Player Core: "two boosts... no flaw")
+      boostPicks: [], // backgrounds have no flaws (Player Core: "two boosts... no flaw")
+      choices: {} // answers to the questions the background asks, by the question's flag (core/induction-rule-choices.mjs); an open map the saved form keeps whole
     },
     class: {
       id: null,
-      keyAbilityPicks: [] // one slot (core/induction-class.mjs); empty until a free key ability needs a pick
+      keyAbilityPicks: [], // one slot (core/induction-class.mjs); empty until a free key ability needs a pick
+      choices: {} // the same for the class's own questions (Envoy)
     },
     attributes: {
       freeBoostPicks: [] // core/induction-attributes.mjs's four free boosts, compact and in pick order

@@ -1,7 +1,7 @@
 // Node Registry -- reference-integrity test. See design/node-registry.md §5.
 //
 // Every nodeRefs / openQuestionRef / namingPlaceholderRef value anywhere under data/ must resolve to
-// a real, currently-known Node: a parsed markdown Arc Node (ideas/story/**/*.md), an
+// a real, currently-known Node: a parsed markdown Arc Node (quarantine/ideas/story/**/*.md), an
 // open-questions.json entry, or a naming-placeholders.json entry. A broken reference means a fact was
 // renamed or removed and something still points at the old name -- exactly the failure
 // design/node-registry.md exists to catch, and the one piece of it that's fully mechanical.
@@ -28,7 +28,7 @@ test("no two nodes share the same id", () => {
 test("mystery-ledger-6 exists and both Episode One scenes that plant it reference the same node", () => {
   const index = generate();
   const node = index.nodes.find((n) => n.id === "mystery-ledger-6");
-  assert.ok(node, "mystery-ledger-6 should be authored in ideas/story/blank-inheritance-ch1-v2.md");
+  assert.ok(node, "mystery-ledger-6 should be authored in quarantine/ideas/story/blank-inheritance-ch1-v2.md");
   assert.equal(node.status, "open", "the payoff chapter is deliberately unassigned -- status should read open, not resolved");
   assert.ok(
     node.referencedBy.some((r) => r.includes("episode-c1e1--the-road-in")),
@@ -57,7 +57,7 @@ test("naming-placeholders.json merge: namingPlaceholderRef still resolves agains
 test("arc-mitflit-frame-core-link is resolved by LEDGER #34, with none of its three candidates adopted", () => {
   const index = generate();
   const node = index.nodes.find((n) => n.id === "arc-mitflit-frame-core-link");
-  assert.ok(node, "arc-mitflit-frame-core-link should be authored in ideas/story/bible/species/mitflits.md");
+  assert.ok(node, "arc-mitflit-frame-core-link should be authored in quarantine/ideas/story/bible/species/mitflits.md");
   assert.equal(node.status, "resolved");
   assert.equal(node.candidates.length, 3, `expected 3 candidates, parsed ${node.candidates.length}`);
   assert.ok(

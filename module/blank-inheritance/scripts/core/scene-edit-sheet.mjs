@@ -93,6 +93,9 @@ const LABEL = Object.freeze({
   notes: "BLANKINHERITANCE.Runner.Edit.Field.Notes"
 });
 
+/** A degree in plain words, for the slug-style extra a way's own result carries beside its label ("deception, success"). */
+const DEGREE_WORDS = Object.freeze({ criticalSuccess: "critical success", success: "success", failure: "failure", criticalFailure: "critical failure" });
+
 const DEGREE_LABELS = Object.freeze([
   ["criticalSuccess", "BLANKINHERITANCE.Runner.Edit.Field.CritSuccess"],
   ["success", "BLANKINHERITANCE.Runner.Edit.Field.Success"],
@@ -388,8 +391,17 @@ function beatBlock({ beat, index, beats, file, field, challenges, marks, notesAt
     for (const [degree, label] of DEGREE_LABELS) {
       checkFields.push(field(cfile, [...cbase, "outcomes", degree], found.outcomes?.[degree], FIELD_KINDS.PROSE, label));
     }
+    // A way's own results (D062): one line that holds for every degree, or one per degree, each its own box.
     for (const skill of Object.keys(found.bySkill ?? {})) {
-      checkFields.push(field(cfile, [...cbase, "bySkill", skill], found.bySkill[skill], FIELD_KINDS.PROSE, LABEL.bySkill, { labelData: skill }));
+      const way = found.bySkill[skill];
+      if (way && typeof way === "object") {
+        for (const [degree] of DEGREE_LABELS) {
+          if (!(degree in way)) continue;
+          checkFields.push(field(cfile, [...cbase, "bySkill", skill, degree], way[degree], FIELD_KINDS.PROSE, LABEL.bySkill, { labelData: `${skill}, ${DEGREE_WORDS[degree]}` }));
+        }
+      } else {
+        checkFields.push(field(cfile, [...cbase, "bySkill", skill], way, FIELD_KINDS.PROSE, LABEL.bySkill, { labelData: skill }));
+      }
     }
     check = { file: cfile, name: found.name ?? found.id, fields: checkFields, sharedWith: sharedCheckScenes(challenge, brief) };
   }

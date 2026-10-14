@@ -305,8 +305,16 @@
   "carryForward": [],
   "temptations": [
     {
-      "id": "ask-nobu",
-      "text": "Nobu clearly has more in the back than he's putting on the counter."
+      "id": "swapped-tunics",
+      "text": "Give the two characters least alike in size each other's tunics: \"Your size, or near enough.\" They can swap before the inspection, or let Vetch find it."
+    },
+    {
+      "id": "hold-the-clipboard",
+      "text": "Nobu, one pair of hands short, gives a player the clipboard and has them call the next names off his list while he works the counter."
+    },
+    {
+      "id": "nothing-to-fault",
+      "text": "If anyone has fussed their uniform into perfect order, Vetch stops in front of them for one beat, then faults the angle of a button and says that was what he was checking for."
     }
   ],
   "reactionPrompts": [

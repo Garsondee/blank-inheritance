@@ -36,6 +36,35 @@ Then one whispered card says what changed. If the new build includes new module 
 
 **At session start**, `deploy-status.mjs` (wired into `.claude/settings.json`) prints one line: up to date, or how many files have changed since the last deploy from this machine (`.last-deploy.json`, gitignored). It runs offline and takes about half a second.
 
+## Auto-sync: nobody runs the deploy (2026-10-07)
+
+Ingram: *"I ALWAYS want changes in the local folders to be reflected in the remote server automatically and every time ... I don't want to deploy things to the remote server."* So `autosync.mjs` is a background watcher that runs the deploy above by itself. It adds no new way of sending files: everything `deploy.mjs` refuses (a module Foundry could not load, a stale Stagecraft bundle, a repo that holds older words than Ingram's), it still refuses.
+
+```
+npm run autosync -- status    # what it is doing, what it pushed last, why a push was refused
+npm run autosync -- pause     # hold every push (changes stay queued); `resume` lets them go
+npm run autosync -- log       # the last lines of tools/module-sync/.autosync/autosync.log
+npm run autosync -- start     # make sure it is running (the SessionStart hook does this)
+npm run autosync -- stop
+```
+
+**What it watches** (`autosync-plan.mjs`, `WATCH_ROOTS` + `classifyPath`): the module (not `storage/`, not its local `data/campaign/` mirror), the files Stagecraft ships, the allow-listed campaign `data/`, `canon/`, the finished opening-title renders, and `audio/library/`. Editor droppings, `.git`, `node_modules` and anything else are ignored.
+
+**When it pushes.** A burst of edits has to go quiet for 30 seconds (audio: 60), and two deploys never start closer than 2 minutes apart (the module re-syncs the world after each deploy, which interrupts a table in play). It decides *whether* to deploy by comparing file hashes with `.last-deploy.json`, never because "an event happened": a save with no change, or the deploy's own staged art, starts nothing. It also ignores watcher events where a file's size and modified time did not move, because on this machine (NTFS last-access updates on) merely reading a file reports a change.
+
+**What it does around the deploy:**
+
+1. canon or world facts changed -> `node tools/story/story.mjs build` (the idempotent canon-to-`data/` copy).
+2. Stagecraft's bundle older than its sources, or a dev build -> `node module/stagecraft/tools/build.mjs`.
+3. `deploy.mjs`, with `--no-video` unless a video changed and `--no-art` unless `asset-registry.json` changed (the art step takes minutes). **Never `--prune`**: deleting server files stays a deliberate `npm run deploy -- --prune`.
+4. Audio is its own lane: `audio-pipeline.mjs upload` (incremental, verified) when the processed library's size-and-time fingerprint changes.
+
+**When it fails** (preflight refuses, the connection drops) it keeps the work pending and retries after 30 s, 1, 2, 5 and then every 10 minutes; any new edit cancels the wait, because the person may just have fixed it. `status` prints the reason. A safety-net comparison runs every 10 minutes for events a watcher drops (a `git checkout`, a buffer overflow).
+
+**Lifetime.** One daemon at a time, however many sessions start at once (an exclusive lock plus a heartbeat in `.autosync/state.json`, so a reused pid after a reboot is not mistaken for it). The SessionStart hook in `.claude/settings.json` starts it; it keeps running after the session ends. Edits made while no session has been opened since a reboot are picked up when the next one starts, or by `npm run autosync -- start`.
+
+Tests: the decisions are pure (`autosync-plan.mjs`, `test/module-sync/autosync-plan.test.mjs`). `autosync.mjs` itself is the adapter (watchers, child processes, a lock), exercised by running it against the server, like `remote.mjs`.
+
 ## The individual pushes
 
 The scripts below still work on their own; `deploy.mjs` supersedes them for anything going to the live server.

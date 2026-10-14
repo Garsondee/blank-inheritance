@@ -283,6 +283,39 @@ test("evaluators: M23 fails a numbered Ledger reference with no Node, and a payo
   assert.equal(EVALUATORS.longPlantsHaveNodes(chapter).ok, false, "a payoff chapter in prose is a duplicate even when a nodeRef exists");
 });
 
+test("evaluators: a canon fact a beat cites holds a plant just as a Node did (D079): M23 and M26 clear on facts or gmFacts", () => {
+  const note = "Advances Mystery Ledger plant #1 one step.";
+  const beat = (extra) => fixtureScene({ brief: { beats: [{ id: "b", kind: "action", mandatory: true, delivery: "table", text: "x", note, ...extra }] } });
+  assert.equal(EVALUATORS.longPlantsHaveNodes(beat({})).ok, false, "a numbered entry in prose with nothing behind it");
+  assert.equal(EVALUATORS.longPlantsHaveNodes(beat({ gmFacts: ["watcher.unknown"] })).ok, true, "a canon fact the GM relies on is the home");
+  assert.equal(EVALUATORS.longPlantsHaveNodes(beat({ facts: ["directorate.digs"] })).ok, true);
+  const plant = (extra) => fixtureScene({ brief: { beats: [{ id: "b", kind: "action", mandatory: true, delivery: "table", text: "x", note: "PLANT, do not resolve.", ...extra }] } });
+  assert.equal(EVALUATORS.plantsWithoutNodes(plant({})).ok, false);
+  assert.equal(EVALUATORS.plantsWithoutNodes(plant({ gmFacts: ["watcher.unknown"] })).ok, true);
+  assert.equal(EVALUATORS.plantsWithoutNodes(plant({ nodeRefs: ["arc-one"] })).ok, true, "a legacy nodeRef still counts for the old drafts");
+  const chapter = beat({ note: "This pays off in Ch5.", gmFacts: ["watcher.unknown"] });
+  assert.equal(EVALUATORS.longPlantsHaveNodes(chapter).ok, false, "a payoff chapter in prose is a duplicate even when a canon fact is cited");
+});
+
+test("horizonsOf(): the long horizon is also the canon facts a beat's GM notes rely on", () => {
+  const scene = fixtureScene({
+    brief: { beats: [{ id: "b", kind: "action", mandatory: true, delivery: "table", text: "x", gmFacts: ["watcher.unknown", "sap.what-it-is"], nodeRefs: ["arc-one"] }, { id: "c", kind: "action", mandatory: true, delivery: "table", text: "y", gmFacts: ["watcher.unknown"] }] }
+  });
+  assert.deepEqual(horizonsOf(scene).long.sort(), ["arc-one", "sap.what-it-is", "watcher.unknown"]);
+});
+
+test("refsResolve: every canon fact a beat cites must exist and not be cut", () => {
+  const corpus = { ...fixtureCorpus(), facts: new Map([["a.ok", { status: "decided" }], ["a.cut", { status: "cut" }]]) };
+  const scene = fixtureScene({ brief: { beats: [{ id: "b", kind: "action", mandatory: true, delivery: "table", text: "x", facts: ["a.ok", "a.gone"], gmFacts: ["a.cut"] }] } });
+  const out = EVALUATORS.refsResolve(scene, corpus);
+  assert.equal(out.ok, false);
+  assert.match(out.detail ?? out.reason ?? JSON.stringify(out), /fact:a\.gone/);
+  assert.match(out.detail ?? out.reason ?? JSON.stringify(out), /cut fact:a\.cut/);
+  const none = EVALUATORS.refsResolve(fixtureScene({ brief: { beats: [{ id: "b", kind: "action", mandatory: true, delivery: "table", text: "x", facts: ["a.ok"] }] } }), corpus);
+  assert.equal(none.ok, true);
+  assert.equal(EVALUATORS.refsResolve(scene, fixtureCorpus()).ok, true, "a corpus with no canon loaded does not judge facts");
+});
+
 test("evaluators: M23/M26 do not fire on prose that DENIES a plant", () => {
   for (const note of [
     "The primary reading is practical, not a planted clue (ratified, LEDGER #9): pack light.",
@@ -754,4 +787,108 @@ test("travelLegs(): `scattered` is the one legitimate no-coordinate edge", () =>
   assert.equal(leg.cutFires, false);
   assert.equal(leg.legitimate, true, "off-map by design is not a broken cut");
   assert.equal(travelSummary(corpus).broken, 0);
+});
+
+// ------------------------------------------- the first episode confidence run ----
+// Ingram graded its findings on 2026-10-06 (canon/decisions/D065.md). The checker had four faults and no way for an author to say
+// "this check does not apply to this scene, and here is why".
+
+test("M2 and M10: a scene may open on its first beat's speech, and no longer owes a firstThing", () => {
+  const spoken = fixtureScene({
+    brief: {
+      intro: { where: "High above the world" },
+      beats: [{ id: "speech", kind: "action", mandatory: true, delivery: "table", text: "Start high.", readAloud: "Long ago, a rift opened." }]
+    }
+  });
+  assert.equal(EVALUATORS.introFields(spoken).ok, true, "the speech is the opening; copying it into the intro would say it twice");
+  assert.equal(EVALUATORS.tableBeatsHaveText(spoken).ok, true);
+
+  const silent = fixtureScene({ brief: { intro: { where: "w" }, beats: [{ id: "b1", kind: "action", mandatory: true, delivery: "table", text: "do a thing" }] } });
+  assert.equal(EVALUATORS.introFields(silent).ok, false);
+  assert.match(EVALUATORS.introFields(silent).detail, /words to open on/);
+  assert.match(EVALUATORS.tableBeatsHaveText(silent).detail, /no opening words/);
+
+  const noWhere = fixtureScene({ brief: { intro: { readAloud: "r" } } });
+  assert.match(EVALUATORS.introFields(noWhere).detail, /where/);
+  assert.equal(EVALUATORS.introFields(fixtureScene({ brief: { intro: { where: "w", readAloud: "r" } } })).ok, true, "firstThing is optional");
+});
+
+test("M6 and M8: a check that takes any skill the player names has declared its skill", () => {
+  const open = fixtureScene({ scene: { challengeRefs: ["c1"] } });
+  const corpus = fixtureCorpus({
+    challenges: {
+      c1: { id: "c1", checks: [{ id: "k", anySkill: true, skillOptions: [], dc: { value: 15, basis: "level 1" }, outcomes: { criticalSuccess: "a", success: "b", failure: "c", criticalFailure: "d" } }] }
+    }
+  });
+  assert.equal(EVALUATORS.checksHaveDcs(open, corpus).ok, true);
+  assert.equal(EVALUATORS.skillVariety(open, corpus).ok, true);
+  corpus.challenges.c1.checks[0].anySkill = false;
+  assert.match(EVALUATORS.checksHaveDcs(open, corpus).detail, /no skill/);
+  assert.equal(EVALUATORS.skillVariety(open, corpus).ok, false);
+});
+
+test("exceptions: an authored exception shows as `excepted` with its reason, and is never a silent pass", () => {
+  const scene0 = fixtureScene({ brief: { exceptions: [{ check: "M8", why: "The opening scene is a speech, so nobody rolls in it." }] } });
+  const result = runAutoChecks(scene0, fixtureCorpus(), { only: "completeness" }).find((r) => r.id === "M8");
+  assert.equal(result.state, "excepted");
+  assert.match(result.detail, /^exception: The opening scene is a speech/);
+  const sum = summariseChecks([result]);
+  assert.equal(sum.requiredFail, 0);
+  assert.equal(sum.requiredPass, 0, "an exception is a decision on the record, not a pass");
+  assert.equal(sum.requiredExcepted, 1);
+});
+
+test("exceptions: an unknown check, a missing reason or a thin one is itself a failing result (X1)", () => {
+  for (const bad of [[{ check: "M999", why: "A perfectly long reason for a check that is not there." }], [{ check: "M8" }], [{ check: "M8", why: "too short" }], [{ why: "A long reason that names no check at all." }]]) {
+    const results = runAutoChecks(fixtureScene({ brief: { exceptions: bad } }), fixtureCorpus(), { only: "completeness" });
+    const x1 = results.find((r) => r.id === "X1");
+    assert.ok(x1, `X1 expected for ${JSON.stringify(bad)}`);
+    assert.equal(x1.state, "fail");
+    assert.ok(summariseChecks(results).blockers.some((r) => r.id === "X1"));
+  }
+  const fine = runAutoChecks(fixtureScene({ brief: { exceptions: [{ check: "M8", why: "The opening scene is a speech, so nobody rolls in it." }] } }), fixtureCorpus(), { only: "completeness" });
+  assert.equal(fine.find((r) => r.id === "X1"), undefined);
+});
+
+test("exceptions: excepting P1 clears P2/P4/P6 as a waiver does, and the board counts the scene as placed on purpose", () => {
+  const noPlace = fixtureScene({
+    setEntry: { locationRef: null },
+    brief: { exceptions: [{ check: "P1", why: "A view from the whole sky, not a place anyone stands." }] }
+  });
+  const results = runAutoChecks(noPlace, fixtureCorpus(), { only: "place" });
+  assert.equal(results.find((r) => r.id === "P1").state, "excepted");
+  for (const id of ["P2", "P4", "P6"]) assert.equal(results.find((r) => r.id === id).state, "n/a");
+  assert.equal(summariseChecks(results).requiredFail, 0);
+});
+
+test("the checklist's M13 asks for a twist, and cites the decision that says so", () => {
+  const m13 = checklist.checks.find((c) => c.id === "M13");
+  assert.match(m13.question, /twist/);
+  assert.match(m13.source, /D065/);
+});
+
+test("refsResolve: a beat's npcRef is a member of the scene's own cast, not a file in data/npcs", () => {
+  const scene = fixtureScene({
+    brief: {
+      cast: [{ id: "history-teacher", npcRef: "school-history-teacher", brief: {} }],
+      beats: [{ id: "b1", kind: "action", mandatory: true, delivery: "table", text: "t", npcRef: "history-teacher" }]
+    }
+  });
+  const corpus = fixtureCorpus({ npcs: { "school-history-teacher": { id: "school-history-teacher" } } });
+  assert.equal(EVALUATORS.refsResolve(scene, corpus).ok, true, "the cast id differs from the data id, and that is fine");
+  scene.brief.beats[0].npcRef = "nobody-in-this-cast";
+  const out = EVALUATORS.refsResolve(scene, corpus);
+  assert.equal(out.ok, false);
+  assert.match(out.detail, /cast:nobody-in-this-cast/);
+});
+
+test("sceneSetIndex: a scene's map link is its own entry, never one of its rooms (found 2026-10-07: a room with no place made the placed scene read as unplaced)", async () => {
+  const { sceneSetIndex } = await import("../tools/scene-signoff/corpus.mjs");
+  const main = { id: "e1-the-errand", kind: "beat", briefRef: "b", locationRef: "workshop" };
+  const tea = { id: "e1-the-errand-tea-house", kind: "sub", briefRef: "b", locationRef: null };
+  const alley = { id: "e1-the-errand-alley", kind: "sub", briefRef: "b", locationRef: null };
+  assert.equal(sceneSetIndex([main, tea, alley]).b, main, "rooms after the scene");
+  assert.equal(sceneSetIndex([tea, alley, main]).b, main, "rooms before the scene");
+  assert.equal(sceneSetIndex([tea, alley]).b, tea, "only rooms: the first one stands for it");
+  assert.deepEqual(sceneSetIndex([{ id: "x", kind: "beat" }]), {}, "an entry with no brief is left out");
 });
